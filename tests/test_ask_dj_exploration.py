@@ -149,6 +149,72 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(f.effects,[])
         self.assertTrue(result.get('sources'))
 
+    async def test_more_on_reopened_older_contribution_uses_original_subject_and_current_style(self):
+        """Actual owner/SQLite/shared route; source and model I/O are fixtures."""
+        from custom_components.djconnect.session_conversation import query_service
+        from custom_components.djconnect.session_runtime import DJPersona
+        f=self.f
+        older,moment,reference=await f.selected_credit()
+        await f.fixture.manager.async_end(owner_profile_id='profile-a',session_id=older.session_id)
+        await f.fixture.service.async_close()
+        await f.fixture.service.async_initialize()
+        query=query_service(f.hass,f.history)
+        raw_before=await query._repository.async_entry_record('profile-a',older.session_id,reference['entry_id'])
+        current=await f.fixture.manager.async_start(owner_profile_id='profile-a',locale='nl',
+            selected_mood='party',dj_persona=DJPersona.FESTIVAL_DJ,music_backend='spotify_direct')
+        await f.fixture.manager.async_update_playback_projection(owner_profile_id='profile-a',
+            session_id=current.session_id,state='playing',media_identity='spotify:track:'+'Z'*22,
+            title='Different current recording',artist='Different current performer')
+        playback_before=current.broadcast.state.playback.as_dict()
+        calls=[]
+        answer='Brian Eno is een Engelse componist. Zullen we zijn muziek verder verkennen?'
+        async def agent(hass,data,**kwargs):
+            payload=json.loads(data['text'].split('\nData:\n',1)[1])
+            calls.append(payload)
+            if 'available' in payload:
+                self.assertEqual(payload['qualified_selected_context']['subjects'],[
+                    {'name':'Brian Eno','role':'composer'}])
+                reply=json.dumps({'read':'research','reference':'selected','exclude_current':False,
+                    'subject':'Brian Eno','angle':'composition'})
+            elif 'evidence' in payload:
+                reply=json.dumps(reviewed_fixture(payload))
+            else:
+                self.assertEqual(payload['style']['persona'],'festival_dj')
+                self.assertEqual(payload['style']['mood'],'party')
+                self.assertNotIn('Different current performer',json.dumps(payload))
+                self.assertIn('Brian Eno',json.dumps(payload['public_music_research']))
+                reply=answer
+            return {'response':{'speech':{'plain':{'speech':reply}}}}
+        context={'session_id':current.session_id,'selected_entry':reference}
+        with f.research_http(title='Brian Eno',text='Brian Eno is an English composer.'),patch.object(
+                f.pipeline,'_call_conversation_process_transport',agent):
+            result,status=await f.request('Vertel meer',identifier='older-entry-current-style',
+                context=context,language='nl')
+        self.assertEqual(status,200,result)
+        self.assertEqual(result['text'],answer)
+        self.assertEqual(result['conversation']['context']['selected_entry'],reference)
+        self.assertEqual(result['conversation']['context']['session_id'],current.session_id)
+        self.assertEqual(len(calls),3)
+        self.assertTrue(result.get('sources'))
+        self.assertFalse(result.get('playback_actions'))
+        self.assertEqual(f.effects,[])
+        self.assertEqual(current.broadcast.state.playback.as_dict(),playback_before)
+        self.assertEqual(await query._repository.async_entry_record(
+            'profile-a',older.session_id,reference['entry_id']),raw_before)
+        old_page=await query.async_timeline_page('profile-a',older.session_id)
+        self.assertEqual(next(e['text'] for e in old_page['entries'] if e.get('moment_id')==moment.moment_id),moment.content)
+        current_page=await query.async_timeline_page('profile-a',current.session_id)
+        self.assertTrue(any(e.get('text')==answer for e in current_page['entries']))
+        await f.fixture.repo.async_remove_entry_records('profile-a',[reference['entry_id']])
+        with patch.object(f.pipeline,'_call_conversation_process_transport',
+                side_effect=AssertionError('Removed selected history must not become current-artist research')):
+            denied,status=await f.request('Vertel meer',identifier='older-entry-removed',
+                context=context,language='nl')
+        self.assertEqual(status,404,denied)
+        self.assertEqual(current.broadcast.state.playback.as_dict(),playback_before)
+        self.assertEqual(f.effects,[])
+        self.assertEqual(len(calls),3)
+
     def test_generic_affordance_all_locales_and_dynamic_angles(self):
         from custom_components.djconnect.ask_dj.exploration import MORE_TEXT, more_request, capability
         from custom_components.djconnect.ask_dj.dialogue import references_topic

@@ -6,7 +6,7 @@ Apple coordination as needed. The existing heartbeat
 **20 October 2026, 08:00 Europe/Amsterdam**. It retains the same writer and WIP;
 another active execution on the same resources permits status readback only.
 
-Current local source baseline: `35f62fc7f1e1aa7d99bcafc9cbae74aacc083fcb`,
+Current local source baseline: `ea91fad7495711f4a6d35626994376aa5bd3c49e`,
 branch `codex/core-contextual-dj-interactions-v1`; subsequent prompt/pilot/report
 changes are captured by the commit containing this document. Main remains
 `8b221d07`. Latest actual pilot `nl-v12`: **40/40 reserved, zero remaining**.
@@ -507,3 +507,28 @@ are preserved under canonical-web-budget/. Detailed diagnosis/boundaries in
 CONTEXTUAL_DJ_WEB_SOURCE_BUDGET_20261020.md. No failedpagebody/snippet/stalecopy
 used as evidence. NarrativequalityNO_GO; currentactualanswertextsunmodified.
 No key/modelcall, push/merge/install, speaker/serviceaction, cleanup/nextslice.
+
+
+## 02:01UTC continuation — retained exploration and actual web refusal
+
+Clean ea91fad7 sole-writerpickup; main8b221d07/Brandrefsunchanged, no competing
+Core/model execution orindexlock. Hostverify0/MATCH/onboarding4.5.4;488GiBfree.
+Latestlanecommentsconfirm sameWIP/open gates; budget40/40 unchanged.
+
+One existing Metallica public-source path qualified without key/model:7HTTP
+requests/1.525s retain NL+EN on resolvedQ15920. Officialwebsite robots403 and
+Britannicapage403 correctly supply no content/evidence; no bypass/retry/new
+sourcecodefix or successfulweb/narrativeGO. Publicsource/probe/attribution/log
+evidence retained under metallica-web-source/. The external access gate remains.
+
+New meaningful owning test traverses real paired AskDJhandler/Runtime/SQLite:
+oldercomposerentryend-close-reopen + newSession/differentplayback/FestivalParty.
+Genericmore keepsoriginalcomposer/role, appliescurrentstyle to the new response,
+persistsnewexchangeincurrentFlow, keepsoldrawentryunchanged andplaybackunmutated.
+Actualoldentryremoval yields404beforemodel, nofallbacktocurrentperformer. External
+research/model replies are fixtures, not actualstory/style/TTSacceptance.
+No productioncodechange required. 77focusedtestsPASS2.652s; independentexacttest
+plusgates22PASS/scopedGO/noP1P2; Ruff/diffPASS. Golden42families/317steps/74issues,
+29Core+29realqualityOPEN. Prior full2812 source proof remains ea91fad7, no new
+full2813claim. No key/modelcall, sourcepublication, merge/install, speakeraction,
+cleanup/nextslice. NarrativequalityNO_GO and actualtextsunchanged.

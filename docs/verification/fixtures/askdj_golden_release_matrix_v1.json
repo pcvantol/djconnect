@@ -2874,6 +2874,21 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Actual before: five Wiki + two successful DDG requests leave only one slot, so no web page can be fetched with its robots check. After: one fewer Wiki request permits the first real robots/page pair within8; that page returns403, so actual web evidence remains unavailable. Only the external-HTTP fixture proves a successfully fetched third source; real richer answers/native/audio stay OPEN."
+        },
+        {
+          "id": "ASKDJ-FLOW-retained-more-original-subject-current-style",
+          "language": "nl",
+          "question": "Vertel meer over de geselecteerde bijdrage uit een eerdere sessie terwijl er nu andere muziek speelt.",
+          "expected_answer": "Use the retained entry original full subject/role after SQLite reopen, with the current active Session Persona/Mood for the new answer. Keep the older contribution unchanged; store the new exchange in the current Session. The top-level context.session_id is current or omitted, while selected_entry.session_id identifies the older source. Removed source entries cannot fall back to current-artist research or mutate playback.",
+          "model_policy": "Existing semantic read plus public research generation/review; at most three existing agent calls. External source/model replies in the owning test remain fixtures.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_more_on_reopened_older_contribution_uses_original_subject_and_current_style"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real paired handler/Runtime/SQLite end-close-reopen/new Session/new playback and durable new Flow acceptance, with declared external research/model fixtures. Original source text is unchanged; current Persona/Mood metadata and selected subject are separate. Original removal rejects before further model research. No actual native tap, model prose, TTS or installed acceptance."
         }
       ],
       "owning_tests": [
@@ -2928,6 +2943,10 @@
         {
           "file": "tests/test_session_story_variety.py",
           "method": "test_cached_exact_qid_titles_leave_room_for_web_page_within_shared_budget"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_more_on_reopened_older_contribution_uses_original_subject_and_current_style"
         }
       ],
       "real_ha_profile": "full_golden",

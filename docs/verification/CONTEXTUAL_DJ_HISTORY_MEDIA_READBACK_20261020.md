@@ -86,3 +86,37 @@ Independent technical review confirms the actual JPEG hash/byte count/decode,
 all three product source hashes, script request/deadline bounds and explicit
 license. Scoped source-adapter GO only; no additional network request or service
 was used by that review. Changed-test Ruff and git diff --check PASS.
+
+
+## Older contribution exploration with a different active Session — 02:01UTC
+
+New regression:
+`ExplorationTests.test_more_on_reopened_older_contribution_uses_original_subject_and_current_style`.
+It publishes a normalized composer contribution, ends the original Session,
+closes/reopens actual SQLite, then starts a different Session with another
+playback and Festival/Party. The ordinary paired Ask DJ handler receives
+selected_entry pointing to the older contribution. The top-level context
+session_id identifies the current Session; the old source Session appears only
+inside selected_entry. This follows the existing current-session-or-null wire
+contract, not a new permission for an inactive top-level Session identifier.
+
+The new generic request uses the old complete composer identity and role, not
+the current performer. Its new generation receives current Persona/Mood metadata,
+uses the existing three-call semantic/research/review path and persists in the
+current Flow. The old raw SQL entry/text stays unchanged; current playback and
+external effects remain unchanged. Then actual removal of the selected entry
+causes404 before another model call: no current-artist fallback or playback.
+This is new regression coverage; no product fix was necessary.
+
+External research/model replies are fixtures. The prose intentionally serves
+only as an admission/storage fixture, not proof of warmth, Festival/Party voice
+or source availability. The actual prior model texts remain untouched. This
+does not prove native taps, history UI, pixels, voice settings or audible TTS.
+
+Scoped exploration/Golden/artist-image/Profile-speech modules77PASS in2.652s.
+Independent reviewer reran the exact new test plus gates:22PASS/scopedGO/noP1P2.
+Ruff/diffPASS. Golden adds an explicit owner-contract step:42families/317steps/
+74reports,29Corefindings+29real-qualitystepsOPEN. This step adds positive scope
+coverage without inventing an issue or closing an existing function. Full2812
+source regression remains the earlier ea91fad7 evidence; no unrun2813full suite
+is claimed for this test/documentation-only delta.

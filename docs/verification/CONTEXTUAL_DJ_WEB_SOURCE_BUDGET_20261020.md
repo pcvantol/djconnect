@@ -76,3 +76,31 @@ and an actual grounded answer with Persona/Mood, then native/history/speech
 acceptance. No blacklist, larger quota, fallback model or bypass was introduced
 to make this probe appear successful. Cumulative model receipt remains40/40,
 byte-identical to recovery, and all earlier actual returned texts are unchanged.
+
+
+## Additional actual source-only readback: owner-requested Metallica example
+
+One bounded probe of the unchanged ea91fad7 source uses the ordinary public
+Metallica biography lookup, Group expected but no guessed entity ID. The local
+article resolves Q15920 and the English edition independently matches that
+resolved ID under the existing source owner. Seven actual HTTP requests in
+1.525seconds; unchanged product hashes/limits, no model/key/live config/native
+operation. The source pipeline retains Wikipedia NL+EN, web unavailable.
+
+The discovery route returns the official band website, but
+https://www.metallica.com/robots.txt returns403. Core does not fetch or cite that
+website's page. A second discovered publisher's robots request returns200 and
+its Metallica page returns403; that denied page also supplies no evidence. This
+is an observed retrieval limitation, not storage exhaustion, a global website
+outage, proof of a robots disallow rule or authorization to circumvent access.
+There is no forced fallback, source claim, snippet-only answer or further retry.
+
+Wikipedia contributors, CC-BY-SA-4.0: admitted
+[Dutch revision72024890](https://nl.wikipedia.org/w/index.php?oldid=72024890) and
+[English revision1380345507](https://en.wikipedia.org/w/index.php?oldid=1380345507).
+Public metadata, original excerpts/attribution, request trace, code-only probe
+and hash manifest remain under ignored metallica-web-source/. This establishes
+actual language-edition source availability and correct access refusal only.
+It supplies neither a new actual answer nor independent-publisher enrichment.
+The earlier74issues/316steps count belongs to the preceding source checkpoint;
+current317step inventory adds separate positive retained-exploration coverage.
