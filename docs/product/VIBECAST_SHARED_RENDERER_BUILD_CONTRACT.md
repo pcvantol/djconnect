@@ -1,5 +1,26 @@
 # Shared VibeCast renderer and versioned host builds
 
+## Owner-requested receiver UX and Brand V2 candidate — 20 October 2026
+
+The shared producer now builds version1.1.2 with the receiver's original
+TV/connect glyph, prominent VibeCast hero, cyan/blue/violet canvas and adaptive
+glass/readable-solid treatment. The actual local, display and Cast host states,
+Session projection, expiry and authorization semantics remain unchanged. No
+bootstrap unavailable-service claim or synthetic QR/pairing is added.
+
+The canonical40px headset-only Brand V2 mark is a hashed build input alongside
+`brand/icon.png`; the larger glass mark has no extra CSS button, padding or rim.
+Both generated integration pages are regenerated from the same source. The
+separate display route retains its own manifest and admission contract.
+
+This is a local Core producer candidate within the existing WIP, not a protected
+consumer pin or receiver deployment. A complete handoff includes both local/Cast
+outputs and their manifest, original version-matched `scripts/build_vibecast.py`,
+all renderer/host sources and authenticated brand inputs. Pin archive, inventory,
+manifest, exact source revision and original verifier independently. An assets-only
+ZIP or edited receiver HTML is not this handoff. Receiver review/import, protected
+source delivery, public Pages and real HA/CAF/native/TV acceptance remain separate.
+
 ## Current web-first decisions delta
 
 [Decisions, distribution and optional Cast lifecycle](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md)
