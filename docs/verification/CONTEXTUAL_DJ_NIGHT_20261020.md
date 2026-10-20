@@ -713,3 +713,33 @@ website-retained-speech/. Modelledger byte-identical40reserved/39completed/0
 remaining. Actual text/editorialNO_GO, thirdpublisher/semanticnovelty/native/
 fullhistory/art/voice/install/physical gates unchanged. No push/merge/install/
 cleanup/receiverpin/nextslice or closure from sourcegreen.
+
+
+## 03:52UTC continuation — older selected source / normal follow-up continuity
+
+Cleanaad9a3df/same solewriter; main8b221d07/Brandrefsunchanged, no competingCore
+model/test writer or indexlock. Canonicalroot hostverify0/MATCH/onboarding4.5.4,
+488GiBfree/32GiBRAM; unrelated dashboardlockpreserved, no host/service change.
+Modelledger byte-identical40reserved/39completed/zero remaining.
+
+Existing oldcomposer/currentFestivalParty/SQLite shared-route regression now
+continues through a normal possessive question without selected_entry. Original
+composer/currentstyle and fresh sources/review remain, playback/oldrawentry
+unchanged. Destructive source removal forgets the dialogue: a fresh unselected
+pronoun permits Coreclarification with no old subject/text/selection/research/
+effects; explicit removedentry still404 before model. External research/model
+are fixtures, no actualwarmth/native/voice proof. Existing product needed no fix.
+
+Initial404 expectation for the unselectedfreshpronoun was wrong; failedlogs kept.
+Independent review then found testP2: callback privacyassertions swallowed by
+agenterrorhandling. In-memory stale-name injection left initialtestgreen. Moved
+all absenceassertions afterrequest; final exacttestPASS and samecontamination
+now1failure/0errors. ScopedGO/no furtherfindings, no reviewerwrites/network/model.
+Initial211PASS7.509s is pre-correction only; final frozen211PASS7.225s, Ruff/diff
+PASS. No unnecessary fullrerun; priorproduct full2821/7skips stays9ef1c92c.
+
+Goldenpositive sequence42families/327steps/78reports;33Core+29realqualityOPEN.
+Evidence historical-pronoun-followup/; fullboundaries in HISTORY_MEDIA_READBACK.
+Actual answertexts/editorialNO_GO, fullcatalogueFAIL/zeropaidvariants unchanged.
+No key/modelcall, actualthirdpublisher/story, protectedpin, native/provider/audio/
+install/physical PASS, push/merge/cleanup/nextslice or featureclosure.

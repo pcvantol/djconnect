@@ -3013,6 +3013,20 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Website-backed retained speech admission and removal fence only; fixture current-voice test remains separate, native/provider/audio/real-source acceptance OPEN."
+        },
+        {
+          "id": "ASKDJ-FLOW-older-selected-pronoun-followup-withdrawal",
+          "question": "After Tell me more on an older composer contribution, does a normal possessive follow-up without selected_entry keep that composer and current Persona/Mood while another artist plays?",
+          "expected_answer": "Use the same qualified composer, current Session style and actual new research/review without changing playback or older stored text. Removing the source invalidates old dialogue context: a fresh unselected pronoun can return a Core clarification with no stale subject/text/source/research or effects; an explicit removed selected_entry is404 before model.",
+          "model_policy": "Real paired owner/SQLite/shared routing, two turns then destructive source withdrawal. External public research and agent prose are declared fixtures, not warm or real-language acceptance.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_more_on_reopened_older_contribution_uses_original_subject_and_current_style"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Multi-turn scope/current-style/withdrawal contract only. No actual grounded rich prose, semantic novelty, native gesture/voice or installed acceptance."
         }
       ],
       "owning_tests": [

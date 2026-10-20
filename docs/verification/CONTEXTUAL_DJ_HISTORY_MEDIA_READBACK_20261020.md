@@ -154,3 +154,46 @@ Validation: exact extended testPASS0.175s; independent exact testPASS/scopedGO
 with noP1/P2. Focused story/Profile-speech/Golden70PASS2.019s, Ruff/diffPASS.
 No product bytes changed or broad repeat required; full2821PASS/7skips remains
 the earlier9ef1c92c source evidence, not an unrun new full-suite claim.
+
+
+## Older contribution → ordinary possessive follow-up — 03:52UTC
+
+Same WIP afteraad9a3df. The existing composer/old-Session/current-style test now
+accepts the closing invitation with a normal next question, without resending
+selected_entry. The real paired route researches the same original composer
+and supplies current Festival/Party style despite another current performer.
+The second turn uses two generation/review fixture calls, keeps source citations,
+changes no playback/effects and leaves the old raw SQL body unchanged. This is
+a multi-turn owner contract, not a genuine warm Persona/Mood answer.
+
+Source removal invalidates the old dialogue context. An unselected pronoun after
+that reset is a fresh request, so its semantic router may ask for clarification.
+The test verifies the actual router projection contains no old subject/text or
+selected context, research is never invoked, and the result is a non-generated
+Core public_subject_required reply without sources/actions. An explicit
+selected_entry to the removed row still returns404 before any model call.
+The initial test wrongly demanded404 for the now-unbound pronoun; its two failed
+logs are preserved. Independent source inspection identified this as an invalid
+expectation, not a product defect or a reason to weaken withdrawal. The final
+fixture returns a valid none/none/false plan instead of relying on a swallowed
+AssertionError to infer no model routing. No product code change was required.
+
+Golden adds one positive sequence:42families/327steps/78reports;33Core+29actual-
+qualityOPEN. Existing real texts/editorialNO_GO, zero remaining model budget,
+third-source/semantic novelty/native/voice/audio/install and protected delivery
+gates remain unchanged. Fixture prose is not added to actual answer receipts.
+
+Independent review also found a test-P2: privacy assertions inside the router
+callback could be swallowed by ordinary agent-error handling. The reviewer
+injected Brian Eno into the captured payload only in memory and the initial
+test still passed. All privacy assertions now run after the request, outside
+that catcher; the callback only captures the real payload and returns a valid
+plan. Initial focused211PASS7.509s is retained as pre-correction evidence, not
+proof that this negative privacy claim passed. Final independent causal check
+and frozen focused result are recorded below. No product leak was demonstrated.
+
+Final scoped independent GO: normal exacttestPASS; the same in-memory subject
+contamination now produces1failure/0errors at the outer privacyassertion. The
+test-P2 is causally closed without claiming a product fix. Final focused
+exploration/shared-dialogue/Golden211PASS7.225s, Ruff/diffPASS. Product unchanged;
+no full-suite repeat or new actual/model/native acceptance is inferred.

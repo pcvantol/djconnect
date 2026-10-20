@@ -205,7 +205,53 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(next(e['text'] for e in old_page['entries'] if e.get('moment_id')==moment.moment_id),moment.content)
         current_page=await query.async_timeline_page('profile-a',current.session_id)
         self.assertTrue(any(e.get('text')==answer for e in current_page['entries']))
+        # Accept the final invitation as a normal next turn, without resending
+        # selected_entry. Current playback must not steal the historical subject.
+        with f.research_http(title='Brian Eno',text='Brian Eno is an English composer.'),patch.object(
+                f.pipeline,'_call_conversation_process_transport',agent):
+            followed,status=await f.request('En wat maakt zijn werk interessant?',
+                identifier='older-entry-follow-up',context={'session_id':current.session_id},language='nl')
+        self.assertEqual(status,200,followed)
+        self.assertEqual(followed['text'],answer,followed)
+        self.assertEqual(followed['conversation']['metrics']['agent_calls'],2)
+        self.assertEqual(len(calls),5)
+        self.assertTrue(followed.get('sources'))
+        self.assertFalse(followed.get('playback_actions'))
+        self.assertEqual(current.broadcast.state.playback.as_dict(),playback_before)
+        self.assertEqual(await query._repository.async_entry_record(
+            'profile-a',older.session_id,reference['entry_id']),raw_before)
         await f.fixture.repo.async_remove_entry_records('profile-a',[reference['entry_id']])
+        forgotten=[]
+        async def no_subject(hass,data,**kwargs):
+            payload=json.loads(data['text'].split('\nData:\n',1)[1])
+            forgotten.append(payload)
+            return {'response':{'speech':{'plain':{'speech':json.dumps({
+                'read':'none','reference':'none','exclude_current':False})}}}}
+        # Removal invalidates the dialogue frame immediately. With no explicit
+        # reference the next question is fresh and may clarify; it cannot reuse
+        # the old subject or accept the model's unchecked prose.
+        from custom_components.djconnect.ask_dj import public_research
+        with patch.object(f.pipeline,'_call_conversation_process_transport',no_subject),patch.object(
+                public_research,'research',side_effect=AssertionError('Withdrawn subject cannot be researched')) as lookup:
+            withdrawn,status=await f.request('En zijn andere werk?',identifier='older-follow-up-removed',
+                context={'session_id':current.session_id},language='nl')
+        lookup.assert_not_called()
+        self.assertEqual(status,200,withdrawn)
+        self.assertFalse(withdrawn.get('is_generated_text'))
+        self.assertEqual(withdrawn['knowledge_basis'],'public_subject_required')
+        self.assertFalse(withdrawn.get('sources'))
+        self.assertFalse(withdrawn.get('playback_actions'))
+        self.assertEqual(len(forgotten),1)
+        for payload in forgotten:
+            # Keep assertions outside the transport callback: an agent-error
+            # catch must not turn a failing privacy assertion into a green test.
+            self.assertNotIn('Brian Eno',json.dumps(payload))
+            self.assertNotIn(moment.content,json.dumps(payload))
+            self.assertFalse(payload.get('available',{}).get('selected'))
+            self.assertFalse(payload.get('qualified_selected_context'))
+        self.assertEqual(current.broadcast.state.playback.as_dict(),playback_before)
+        self.assertEqual(f.effects,[])
+        self.assertEqual(len(calls),5)
         with patch.object(f.pipeline,'_call_conversation_process_transport',
                 side_effect=AssertionError('Removed selected history must not become current-artist research')):
             denied,status=await f.request('Vertel meer',identifier='older-entry-removed',
@@ -213,7 +259,7 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(status,404,denied)
         self.assertEqual(current.broadcast.state.playback.as_dict(),playback_before)
         self.assertEqual(f.effects,[])
-        self.assertEqual(len(calls),3)
+        self.assertEqual(len(calls),5)
 
     def test_generic_affordance_all_locales_and_dynamic_angles(self):
         from custom_components.djconnect.ask_dj.exploration import MORE_TEXT, more_request, capability
