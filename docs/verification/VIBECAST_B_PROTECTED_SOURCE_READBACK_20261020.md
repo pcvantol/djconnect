@@ -121,3 +121,23 @@ implementation.1/wire1 agreement above is unchanged. Actual simulator
 for fake native proof. Core's authenticated current paired-installation/context
 and B remain authoritative. Public activation, genuine supported native proof,
 selected installed HA destination and complete A→B/TV acceptance remain OPEN.
+
+## Receiver local harness handoff — 20 October, 10:57 UTC
+
+The receiver owner has separately delivered PR36/37 on protected main
+`9cfe13a9d64b48a11b3a2479bb17e28ca64178b8`, source main
+`0f484aceebe7905ead846738a5752d10c15ac23f`.
+[Terminal owning receipt](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6289237251).
+Core independently fetched the protected
+[`local-http-ui-delivery-2026-10-20.json`](https://github.com/pcvantol/djconnect-vibecast-receiver/blob/9cfe13a9d64b48a11b3a2479bb17e28ca64178b8/docs/qualification/local-http-ui-delivery-2026-10-20.json)
+and confirmed the unchanged API828fbaf supplier/runtime27e9 hash plus two
+completed-success exact-final-main workflows. Its delta from prior receiver684
+contains qualification/CI/tests/docs only, without product/bootstrap/Cast changes.
+The receiver reports99Node/10Python/84browser and two real local HTTP/UI cases;
+Core has not rerun or relabelled those producer-owned executions as its own.
+
+This supplies the existing owners' reproducible local QR/create/poll/cancel
+harness. It does not adopt Core's unprotected1.1.2 renderer/social candidate or
+qualify genuine native proof, selected installed HA route, B admission, public
+activation or physical TV. Core B remains unchanged; no unchanged B rerun or
+new writer/selection follows from this source handoff.
