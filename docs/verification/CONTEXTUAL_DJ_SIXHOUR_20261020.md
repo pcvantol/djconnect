@@ -434,3 +434,29 @@ Fresh whole suite for the required-wire prompt correction: **2843tests/
 7existing skips PASS123.415s**, Ruff/diff PASS. Independent scoped SOURCE GO;
 missing marker remains a strict refusal in ten named/selected cases. No actual
 new format or narrative improvement is claimed until the next candidate trial.
+
+## Actual wire correction and remaining telling cause — 10:45 UTC
+
+`morning-nl-review-wire-v7` used immutable6082150f. Two attempts26–27 completed.
+The proposed seed again gave the current composer credit and Love Is the Message
+as the eighth City Parade edition's anthem. The actual assessor now supplied
+`review_schema:"source_id_review_v1"`; format therefore reached the unchanged
+strict decoder. It returned **style_ok:false**, agreeing with the independent
+v6-text critique. The product refused publication; selected More was again
+**NOT EXERCISED**. This is actual format follow-through, not narrative improvement.
+
+The next bounded telling refinement prioritizes a concrete documented activity
+with named participants and a named work when the same admitted corpus also
+provides a bare external work credit. It does not add a source filter or fact,
+force a richer episode, infer collaboration from adjacency, or add praise. A
+lone encounter remains insufficient; an encounter with expressly documented
+shared musical activity may carry the episode. Current-credit scope stays
+separate. Independent editorial scoped design GO and technical scoped SOURCE GO;
+**94 artist/exploration/runtime regressions PASS10.613s**, Ruff/diff PASS. The
+initial command included one nonexistent runtime-test module; corrected after
+file inventory, with the original failed command log retained. Current latest
+full suite remains2843/7PASS123.415s on6082150f; the new delta is prompt-only.
+
+All27 actual attempts reconcile exactly:27reserved/27completed/273remaining,
+79295reported input/8793outputtokens. Old40ledger remains separate/immutable.
+No unchanged paid rerun, source/schema bypass, installation or feature closure.
