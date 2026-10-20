@@ -1,5 +1,83 @@
 # DJConnect Repository Status
 
+## Brand2.0.1 / renderer1.1.3 — separate source Finalization, 20 October 2026
+
+### Repository Status
+
+PR [#1236](https://github.com/pcvantol/djconnect/pull/1236) protected merged as
+`97a20fa17d60aa32cf92dc106707d70540ee479e`. Exact reviewed/authorized candidate
+`9272dccac3b79defde198887c0b34af8e9cab130` has the identical complete tree.
+Fresh Owner Authorization39436017365 PASS; all source PR CI/security/HACS, Brand
+reproducibility, verification and EP-boundary checks completed successfully.
+Canonical main synchronized and clean before this separate Finalization.
+Main-side workflows are separately observed; pending release proof is not PASS.
+
+### Management Summary
+
+Receiver's concrete missing-DOM compatibility blocker is repaired in renderer1.1.3:
+source links use firstChild/removeChild, preserving cleanup/expiry/host authority.
+The actual original generated renderer fails both Chromium/WebKit without
+replaceChildren; repaired generated HTML passes four native/missing-API cases.
+Brand2.0.1 adopts the owner's exact official small icon from ESP32PR69, full
+source RGBA preserved; existing large glass/wordmarks/HA icon aliases unchanged.
+Full2672tests PASS/7existing skips78.331s;21focused PASS/no skips; independent
+exact-SHA source/documentary review GO, reproducibility/Ruff/diff PASS.
+Historical1.1.2 pins remain immutable; compatibility acceptance is not inferred
+from that earlier source merge. No HA/CAF/native/installed/TV acceptance.
+
+### Roadmap Position
+
+Generation2 / Product Development / Platform Qualification. Explicit owner
+priority: concrete other-lane requests before own narration work, here existing
+Core1223 / receiver29 compatibility and official small icon. Same sole writer;
+no new graph selection or consumer admission. Complete contextual-DJ WIP remains
+clean and preserved at `0163d17326bef6669033ea7c8e7844417b45d2cc`.
+This source merge neither includes nor closes narrative quality/Golden acceptance.
+
+### Rolling Horizon (Next 5 Planned)
+
+Existing canonical SETTINGS horizon remains Planned/NOT_ISSUED; not automatic
+pickup. Source PRODUCT_BACKLOG.md and docs/roadmap/v1/djconnect-platform-v1.json.
+1. SETTINGS::APPLE::EDITOR — Planned; shared editor, dependent on Core contracts and native adoption. Rationale: first existing consumer node.
+2. SETTINGS::PI::ADOPTION — Planned; shared producer and Pi acceptance. Rationale: next existing consumer node.
+3. SETTINGS::ESP32::ADOPTION — Planned; physical settings/voice acceptance. Rationale: next existing consumer node.
+4. SETTINGS::VIBECAST::COMPAT — Planned; renderer import and screen admission. Rationale: next existing consumer node.
+5. SETTINGS::JOINT::ACCEPTANCE — Planned; migration and consumer proofs. Rationale: cross-device closure follows all consumers.
+
+### Execution Priority Override
+
+Peter prioritized other-lane dependencies and the official small icon. Complete
+new exact-source renderer/Brand packages and owner handoff follow source
+Finalization. No second writer or changes in consumer source/pins are authorized.
+
+### Blocked Items
+
+Receiver independent import/acceptance, protected consumer pin, public publication,
+live HA/CAF, native/installed/physical TV remain OPEN. New1.1.3 archives use their
+own supplying revision/digests/original verifier; exact three-member consumer
+bundle is separate from full producer inputs and complete Brand2.0.1 ZIP.
+Apple qualified Golden export/provider-attempt admission and real client/speech
+acceptance remain OPEN. Narrative ordinary seed NO_GO / selected More
+NOT_EXERCISED remains unchanged. No model key, paid attempt or speaker action.
+Existing remaining Brand consumer rollout/installed HACS rendering remain open.
+
+### Deferred Items
+
+Core1225 / Apple143 individual bubble deletion remains outside this increment.
+No feature, native route or capability closes purely because of this merge.
+
+### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this distinct documentary
+Finalization's protected readback; then only this bounded producer source is
+MERGED_RECONCILED. Consumer/runtime/narrative acceptance stays OPEN.
+
+### Workspace State
+
+WORKSPACE_READY is not claimed before actual scoped cleanup/readback. Preserve
+contextual/Brand WIP, recovery evidence and dashboard lock. No forced cleanup
+or deployment/install/release/credential/hardware permission is inferred.
+
 ## VibeCast renderer 1.1.2 — separate source Finalization, 20 October 2026
 
 ### Repository Status
