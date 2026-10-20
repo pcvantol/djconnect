@@ -6,7 +6,7 @@ Apple coordination as needed. The existing heartbeat
 **20 October 2026, 08:00 Europe/Amsterdam**. It retains the same writer and WIP;
 another active execution on the same resources permits status readback only.
 
-Current local source baseline: `eb9d95a372e1f0ff592cd3be5098f78c0fa13914`,
+Current local source baseline: `f693ff6c56299ac49ea4e12e8ffb6f4e9d168f81`,
 branch `codex/core-contextual-dj-interactions-v1`; subsequent prompt/pilot/report
 changes are captured by the commit containing this document. Main remains
 `8b221d07`. Latest actual pilot `nl-v12`: **40/40 reserved, zero remaining**.
@@ -413,3 +413,35 @@ started, and narrative quality remains NO_GO.
 Independent photo-evidence review verifies bytes/hash/dimensions, source hashes,
 request bound and explicit license without another fetch. Scoped adapter GO;
 private-owner/native/audio proof remains OPEN. Ruff/diff checks PASS.
+
+
+## Style-review false positive — 01:20 UTC pickup
+
+Same sole writer, clean f693ff6c pickup, canonical/GitHub main still8b221d07.
+Hostverify exits0/MATCH/onboarding4.5.4; fresh disk readback488GiBavailable.
+No duplicate Core writer, index lock or active paid process observed. Owning lane
+comment6281080658 body was read back and matched exactly. Apple received the
+source-only historical-image/photo update, explicitly without producer activation.
+
+Independent editorial analysis found the existing style_ok wording too broad.
+The existing second-call prompt now checks natural spoken phrasing, concrete
+focus, Persona angle/order and Mood cadence separately; detached metadata facts
+and generic praise do not establish a story. It requires no joke, direct address,
+new factual bridge, extra schema field or additional call. Source/role/effect
+guards and generation owner remain unchanged. Actual quality remains NO_GO.
+
+Existing actual nl-v10 evidence also distinguishes an erroneous model rejection
+of the expressly sourced1990 membership clause from the independently unsupported
+unexpected-song-choice claim. The latter still justifies rejecting that draft;
+no parser or source guard is weakened. Full diagnosis and boundaries are in
+CONTEXTUAL_DJ_STYLE_ASSESSMENT_20261020.md.
+
+Narration/album/topic tests125PASS plus Golden gates21PASS; Ruff/diffPASS.
+Independent technical review additionally ran22focusedtests and reports scopedGO,
+noP1/P2. Independent editorial review gives design-onlyGO, never qualityGO.
+Golden42families/314steps/72reports;27Corefindings+29actualqualitystepsOPEN.
+The observed model-style false positive has its own permanent issue and quality
+step; the existing refusal fixture proves mechanics only. No fixture is warm
+prose proof. Budget40/40 remains closed and byte-identical to recovery. No new
+key read, model/source fetch, installation, speaker action, push, merge, cleanup
+or next slice occurred. Timer remains active until08:00Europe/Amsterdam.

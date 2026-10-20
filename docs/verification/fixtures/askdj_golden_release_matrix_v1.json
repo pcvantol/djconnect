@@ -2829,6 +2829,21 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Actual nl-v11 remained unpublished: factual edition scope improved, but a generic work-behind-scenes compliment failed review. Source regression guards one Persona owner; actual story acceptance remains open."
+        },
+        {
+          "id": "ASKDJ-FLOW-source-true-style-false-positive",
+          "language": "nl",
+          "question": "Waarom wordt een antwoord met twee losse feiten als persoonlijke verhalende DJ-bijdrage goedgekeurd?",
+          "expected_answer": "Source grounding and natural narration are separate judgments. Concrete focus, Persona viewpoint/information order and Mood cadence must be assessed in the actual prose. Two detached metadata facts or appended praise do not establish a story; no forced joke, address, causal bridge or new fact. Real returned answers and independent review remain required.",
+          "model_policy": "Same generation plus independent source/language/style review; two existing calls, no retry or new model budget.",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_rejected_composer_style_never_publishes_original_credit_template"
+            }
+          ],
+          "acceptance_status": "open_real_quality",
+          "proof_boundary": "Actual nl-v12 published text received style_ok=true but independent editorial review rejected its businesslike telling and unnatural work-title phrasing. The owning fixture proves only that an adverse style verdict prevents publication; a stricter assessment prompt has not been rerun with the exhausted real-model budget."
         }
       ],
       "owning_tests": [
@@ -2871,6 +2886,10 @@
         {
           "file": "tests/test_personal_dj_narration_public_artist.py",
           "method": "test_composer_story_publishes_reopens_and_keeps_exact_work_role_and_replay_sources"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_rejected_composer_style_never_publishes_original_credit_template"
         }
       ],
       "real_ha_profile": "full_golden",
@@ -8574,6 +8593,12 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "finding": "Actual nl-v11 composer proposal again added a generic appreciation bridge. Independent review identified conflicting instructions: extra Radio development arc requires explicitly connected activities while current-credit and external activity must retain separate scopes. Remove the secondary credit-only recipe, retain shared Persona/Mood and all source guards; require real publication and editorial quality before closure.",
       "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-source-true-style-review-false-positive",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "core_qualification": "open",
+      "finding": "Actual nl-v12 ordinary Runtime publication passed factual and model style review yet independent editorial review found two detached metadata statements and unnatural work-title phrasing. Make assessment distinguish natural spoken language, concrete focus, Persona telling voice and Mood cadence without extra calls or forced filler. All source/role/effect guards remain; fixture rejection mechanics and stricter prompt are not real quality acceptance. Budget40/40 exhausted; real/editorial/native/audible gates stay open."
     }
   ],
   "regression_suite_files": [
