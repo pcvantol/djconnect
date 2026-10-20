@@ -66,3 +66,14 @@ Protected source and complete original-verifier import will be handed to the
 existing receiver/consumer owners without editing their repositories or pins.
 Receiver adoption/publication, native/installed/hardware acceptance and remaining
 Brand consumer rollout stay open; no functionality closes solely because of merge.
+
+## Protected source readback
+
+Source PR [#1236](https://github.com/pcvantol/djconnect/pull/1236) protected merged
+`97a20fa17d60aa32cf92dc106707d70540ee479e`, full tree equal to independently reviewed candidate
+`9272dccac3b79defde198887c0b34af8e9cab130`. Fresh exact Owner Authorization
+[39436017365](https://github.com/pcvantol/djconnect/actions/runs/39436017365) and all source
+PR checks PASS. This separate documentary Finalization reconciles six equal
+current state/horizon blocks and preserves all previous bodies and acceptance gates.
+Exact-source packages and external protected proof follow this Finalization's
+readback; build-time immutable receipts are not silently relabeled.
