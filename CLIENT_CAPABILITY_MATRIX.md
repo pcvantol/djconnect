@@ -17,6 +17,17 @@ Before six-field activation, an existing Session with unknown Mood has `snapshot
 
 [Canonical all-five contract](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md), [settings inventory](docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json), owner6214905647. Allfive Persona/voice/gender/Mood/Presence are Core-owned Profile defaults plus effective Session state; last explicit accepted field patch is automatically remembered and changes an active Session atomically. No device-local voice truth, global pipeline mutation, read effect, source-right expansion or consumer writer dispatch. New typed API/WS contract2 has its own revision/receipt/generation semantics; contract1 is not silently changed. Core implementation/fixtures remain in progress and unpublished; native/installed/hardware/joint and platform-wide legacy removal are not yet qualified.
 
+## Owner-selected Profile-authorized Pi app — 20 October 2026
+
+The owner selected one complete native app for both Pi sizes, with an explicit
+authorized Profile link on each device. The [current Pi scope clarification](docs/product/PI_PROFILE_AUTHORIZED_APP_V1.md)
+supersedes the older four-inch no-Flow/no-free-prompt product restriction for
+that selected app. It does not widen shared-wall, guest or VibeCast authority.
+Core retains Session, Profile, history and source ownership; consumer source,
+installation, private-answer lifetime and physical acceptance remain separate.
+The older capability assessments below retain their historical evidence and
+must not be read as qualification of this newer app.
+
 ## Existing delivered contracts and historical context
 
 This document defines how platform capabilities map to DJConnect client classes.

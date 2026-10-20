@@ -1,5 +1,11 @@
 # CMB-05 — Raspberry Pi 4-inch Capability Profile Assessment
 
+> Historical assessment of the pinned appliance implementation below. For the
+> owner's later selection of one full, explicitly Profile-authorized app on both
+> Pi sizes, use [the current scope clarification](PI_PROFILE_AUTHORIZED_APP_V1.md).
+> Its Flow/text target supersedes the no-Flow/no-free-prompt restriction for that
+> selected app; it does not rewrite this assessment's evidence or qualify delivery.
+
 **Status:** Assessment complete
 
 **Decision:** `GO_PI_4_INCH_PROFILE_PARTIALLY_QUALIFIED`

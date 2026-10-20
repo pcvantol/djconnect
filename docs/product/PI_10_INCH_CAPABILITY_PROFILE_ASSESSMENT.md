@@ -1,5 +1,11 @@
 # CMB-06 — Raspberry Pi 10-inch Capability Profile Assessment
 
+> Historical assessment of the pinned shared-wall implementation below. For the
+> owner's later selection of one full, explicitly Profile-authorized app on both
+> Pi sizes, use [the current scope clarification](PI_PROFILE_AUTHORIZED_APP_V1.md).
+> Shared-wall privacy restrictions remain binding for shared projections; this
+> assessment does not qualify the newer app's source, installation or physical UI.
+
 **Status:** Assessment complete
 
 **Decision:** `GO_PI_10_INCH_PROFILE_PARTIALLY_QUALIFIED`
