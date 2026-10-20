@@ -1,177 +1,77 @@
-# Raspberry Pi Platform Foundation v2
+# Raspberry Pi Platform Foundation v3
 
-**Status:** Canonical Platform Evolution architecture
+**Status:** Canonical Platform Foundation; owner scope corrected20October2026.
+**Owner:** DJConnect Platform Foundation.
 
-**Owner:** DJConnect Platform Foundation
+## Product scope
 
-**Scope:** Raspberry Pi Concrete Host participation in the canonical Capability Architecture. This document changes no Runtime, ownership, API contract, Session Intelligence or renderer behaviour.
+Pi4-inch and Pi10-inch run one complete native application with the same
+feature set as Apple. Each app explicitly links to its authorized Profile.
+The [shared app scope](docs/product/PI_PROFILE_AUTHORIZED_APP_V1.md) is the current
+capability reference. A smaller display changes layout and performance budgets,
+not access to Session Flow, free-text Ask DJ, history, Music DNA, Discover,
+settings, rich contributions or authorized interactions and remote music controls.
+The previous intentional rich-feature omissions are superseded product decisions.
 
-## Purpose and authority
+| Concrete host | Implementation | Target feature set | Device-specific qualification |
+| --- | --- | --- | --- |
+| Pi4-inch | Native QML/PySide6 application | Same Profile-authorized app features as Apple and Pi10-inch | Compact layout, touch, resources and actual hardware capabilities. |
+| Pi10-inch | Same native QML/PySide6 application | Same Profile-authorized app features as Apple and Pi4-inch | Larger layout, touch, resources and actual hardware capabilities. |
 
-The Raspberry Pi Platform Family consumes the [Capability Model](DJCONNECT_CAPABILITY_MODEL.md) and [Host Role Architecture](HOST_ROLE_ARCHITECTURE.md). It does not redefine capabilities, Host Roles, ownership or platform-wide contracts.
+Shared source or product parity does not prove that either device is implemented,
+installed or qualified. Existing server/consumer gaps remain objective remaining
+work, not a justification for a permanent Pi-specific feature prohibition.
 
-```text
-Canonical Capability
-        ↓
-Host Role
-        ↓
-Pi Concrete Host
-        ↓
-Raspberry Pi Platform Family
-```
+## Common server ownership
 
-The Platform Family is an organizational product, release and technology
-grouping. Its Concrete Hosts inherit only the bounded, authorized projections
-permitted by their Host Roles. Neither the family nor a Concrete Host owns the
-Session Runtime, Planner, Knowledge, Conversation Agent or Music Backend.
+The family consumes the [Capability Model](DJCONNECT_CAPABILITY_MODEL.md) and
+[Host Role Architecture](HOST_ROLE_ARCHITECTURE.md). Home Assistant remains the
+only Session Runtime, Planner, Knowledge, Conversation and Music Backend owner.
+There is no Pi-owned conversation, intelligence, Profile or history authority.
+The Pi uses existing shared app routes and only server-authorized actions.
 
-## Concrete Hosts
+Native QML is the normal Pi application implementation. The Universal Receiver
+remains an independent browser Renderer Host; it does not replace the native app.
+Pi-local bootstrap, updates, display/power policy, watchdog and diagnostics remain
+platform concerns, separate from canonical Session state.
 
-| Concrete Host | Native implementation | Host Roles | Purpose | Assessment rule |
-| --- | --- | --- | --- | --- |
-| Pi 4-inch Appliance | Native QML application | Interaction Host; Renderer Host; Shared Appliance Host | Compact shared-room controller. | Its capability profile is independent. |
-| Pi 10-inch Wall Appliance | Native QML application | Interaction Host; Renderer Host; Shared Appliance Host | Dedicated always-on household wall experience. It does not replace the Pi 4-inch appliance. | Its capability profile is independent. |
+## Hardware and route availability
 
-Capability parity between these appliances must never be assumed. Every
-capability expansion begins with a Repository Capability Assessment against the
-Capability Model, the inherited Host Roles and the specific Concrete Host.
+Current Pi targets have no available speech input or local audio playback. The
+client detects hardware/provider support and OS permissions and negotiates
+availability with the server through the common capability handshake. Missing,
+unknown, denied or withdrawn support is unavailable; hide its controls and keep
+text and the rest of the application available. Do not infer availability or a
+permanent prohibition from `client_type`, screen size or device name.
 
-## Native Pi architecture
+Remote Spotify/HA playback is independent of a local speaker. Authorized
+play/pause, queue, album/playlist, volume and output controls remain available.
+A capable future device can negotiate the common speech/audio route without a
+new Pi product-scope exception; implementation and route qualification are still
+required. This document does not invent a wire field, configure a provider,
+change permissions or activate an unimplemented route.
 
-Native QML is the canonical normal-operation implementation for both Concrete
-Hosts. The Universal Receiver is hosted by Home Assistant, Session-authorized
-and browser-based; it remains independent of the Raspberry Pi Platform Family
-and is never a replacement implementation for Pi. A Pi may execute a browser
-temporarily for qualification or engineering validation only.
+## Profile application versus shared projection
 
-A browser-based renderer may exist as an additional Renderer Host, but does not
-change the native Pi architecture, Pi lifecycle or Pi product role.
+The explicitly Profile-authorized app may expose the same permitted personal
+features as Apple. A wall mount is not an authorization mode. Registration alone
+does not identify a person; each device must obtain its explicit Profile binding.
+A separately admitted shared/guest/ambient/VibeCast surface receives only its
+own safe projection and must not inherit private history, Music DNA or Profile
+details from the native app. Offline cache cannot become server truth.
 
-## Capability projections
+Session/owner/source/revision/retention/clear/expiry and reconnect withdrawal
+remain the common server contracts. Ambient/sleep transitions are presentation
+or device-power behavior; they neither create a Session nor widen authorization.
 
-The following are projections of existing canonical capabilities, not new Pi
-capabilities or Pi-owned contracts.
+## Evidence and history
 
-### Pi 4-inch Appliance
+The [4-inch](docs/product/PI_4_INCH_CAPABILITY_PROFILE_ASSESSMENT.md) and
+[10-inch](docs/product/PI_10_INCH_CAPABILITY_PROFILE_ASSESSMENT.md) current profiles
+use this scope. Native decode/render, live server behavior, installation and
+physical/audio outcomes must each be qualified on the actual target.
+Historical CMB05/06 qualification does not qualify this complete application.
 
-The compact shared-room controller projects bounded Playback, current playback
-and compact DJMoment information through `CAP-PB-02`–`CAP-PB-05`,
-`CAP-BP-01`/`CAP-BP-03`, and `CAP-SI-05`. Its primary user-facing projections
-are playback controls, output selection, queue and playlist interactions where
-the selected Music Backend permits them, current playback and a compact Current
-DJMoment.
-
-Intentional absences are rich Session Flow, Music DNA management, conversation
-history and Discovery dashboards. Those are not parity defects.
-
-### Pi 10-inch Wall Appliance
-
-The wall appliance projects the same bounded Playback and current-DJMoment
-capabilities, plus the renderer-safe Session Flow and Presentation projections
-already owned by Home Assistant: `CAP-SI-06` and `CAP-BP-06`.
-
-Its independent renderer layout is:
-
-| Surface region | Canonical projection |
-| --- | --- |
-| Top | playback, artwork, progress, outputs and compact controls |
-| Middle | Current DJMoment |
-| Lower | Session Flow and Presentation timeline |
-
-Gesture navigation and the absence of permanent navigation chrome are
-renderer-local implementation choices. They do not create a Session navigation
-contract or a new capability.
-
-## Shared Raspberry Pi Platform layer
-
-The two Concrete Hosts inherit one shared native Raspberry Pi platform layer.
-It owns only Pi-local operational concerns:
-
-- bootstrap and deployment;
-- updater and atomic updates;
-- platform adapter and managed lifecycle;
-- watchdog and diagnostics.
-
-This shared layer is not a Runtime, Music Backend, Conversation Agent or
-renderer authority. Renderer-specific behavior stays within the respective
-Concrete Host.
-
-## Independent renderer surfaces
-
-Pi renderer surfaces update independently from canonical projections. There is
-no renderer-wide refresh mechanism. The surface set is:
-
-- Playback;
-- Current DJMoment;
-- Session Flow;
-- Ambient Presentation;
-- Status;
-- platform overlays.
-
-Each surface may be absent when its Concrete Host intentionally does not expose
-the corresponding capability projection.
-
-## Appliance lifecycle
-
-The following local appliance states are canonical Pi presentation/lifecycle
-states. They are renderer-local and never alter Session ownership.
-
-| State | Local responsibility |
-| --- | --- |
-| Bootstrapping | establish native platform services and obtain authorized runtime state |
-| No Session | render bounded idle/shared-room state without creating a Session |
-| Active Session | render authorized active-Session projections |
-| Ambient Session | render low-attention local presentation where the host supports it |
-| Screen Off | preserve local appliance power/display policy only |
-| Temporary Wake | temporarily expose the permitted local surfaces |
-| Updating | perform the shared platform layer's controlled update lifecycle |
-
-## Session-coordinated multimodal participation
-
-Pi participates in an active Session but never coordinates directly with other
-hosts. The canonical Session remains the sole coordinator of context,
-decisions, events and authorized actions. Examples include a Voice Interaction
-Host speaking while Pi presents the same DJMoment, Universal Receiver rendering
-the same Presentation, and Apple rendering additional authorized personal
-projections.
-
-ESPHome Voice Hosts are independent Concrete Hosts. They provide Ask DJ,
-Session Start Requests, Session-aware/outside-Session conversation and spoken
-responses. Pi provides complementary visual presentation. Neither host
-coordinates directly with the other; both consume the same Session.
-
-## Deferred Platform Evolution work
-
-The following work remains assessment-first and is not implementation
-authorization:
-
-- CMB-05: Pi 4-inch capability-profile assessment;
-- CMB-06: Pi 10-inch capability-profile assessment;
-- bounded renderer-surface and ambient capability assessments only after the
-  applicable Concrete Host assessment;
-- any future host expansion only after a Repository Capability Assessment.
-
-## Preserved boundaries
-
-- Home Assistant remains the only Runtime Host and owner of Session
-  Intelligence, authorization, Conversation and Music Backend orchestration.
-- Pi consumes canonical Runtime contracts only.
-- Universal Receiver is independent of the Pi Platform Family.
-- Native QML remains the canonical Pi implementation.
-- Pi 4-inch and Pi 10-inch remain independently assessable Concrete Hosts.
-
-The CMB-05 assessment is recorded in
-`docs/product/PI_4_INCH_CAPABILITY_PROFILE_ASSESSMENT.md`. Its partial
-qualification preserves this foundation: the Pi 4-inch remains a compact,
-shared native appliance with intentional rich-surface absences, while only
-target-hardware compact-projection and shared-profile visibility evidence
-remain for future assessment.
-
-The CMB-06 assessment is recorded in
-`docs/product/PI_10_INCH_CAPABILITY_PROFILE_ASSESSMENT.md`. It qualifies the
-Pi 10-inch as the independent native, shared wall appliance with full active
-renderer-safe Session Flow and Presentation, while concrete 10-inch hardware
-and shared-wall projection evidence remain Future Assessment items.
-
-For a compact family-level reference that does not change either profile, see
-`docs/product/RASPBERRY_PI_RENDERER_FAMILY.md`.
+The exact [previous foundation](docs/history/assessments/PI_PLATFORM_FOUNDATION_V2_20261020_SUPERSEDED.md)
+and [previous family reference](docs/history/assessments/PI_RENDERER_FAMILY_20261020_SUPERSEDED.md)
+are retained as historical evidence, not current capability restrictions.
