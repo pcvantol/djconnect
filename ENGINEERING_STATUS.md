@@ -1,5 +1,51 @@
 # DJConnect Engineering Status
 
+## Pi cache-isolated consumer binding — source preparation, 20 October 2026
+
+### Repository Status
+
+Serial producer prerequisite on protected Core main cce530238b508332c6bd3f8eb24dc7cd40a51628.
+Pi source117/5e4ac63f and separate Finalization118/31e1d184 are protected;
+actual canonical qualification of31e1d184 is SUCCESS. This candidate changes
+only the operational consumer.source_sha from a336e0de to31e1d184. Its exact
+review, authorization/checks, protected source and separate Finalization remain
+pending. Source preparation alone is not an operative deployment pin.
+
+### Management Summary
+
+The three tooling installs avoid the ambient pip cache with isolated,
+noninteractive, no-cache mode and disabled self-version-check. The exact lock,
+app EADB, published artifacts, inventory, human approval and device protections
+are unchanged. Actual worker preparation succeeded; the unchanged nonmain guard
+then rejected the diagnostic before authority/SSH/installation. No installed
+Pi success is inferred. Current devices remain owner-reported rc.3/rc.4.
+
+### Roadmap Position
+
+Existing two-Pi installation prerequisite takes priority over narrative work.
+PR1248/a31ba2b7 is clean, frozen and parked pending its own review/authorization;
+this source excludes its runtime change. No second writer, new product scope,
+paid model call or recovery bundle. All functional quality gates remain open.
+
+### Risks and Next Actions
+
+Verify exact metadata joins and unchanged non-consumer fields; complete normal
+protected source and distinct Finalization. Only then supply the new exact Core
+source/manifest hash to the existing Pi owner for fresh controlled deployments,
+separate matching smoke and captures. No old-run rerun or authority inference.
+
+### Repository State
+
+Delivered predecessor is reconciled. This bounded source preparation still
+requires exact review, protected delivery and separate Finalization before closure.
+
+### Workspace State
+
+Fresh actual-root hostverify MATCH/exit0. One active source writer; narrative
+worktree remains preserved/frozen, dashboard lock and unique evidence untouched.
+Only this producer worktree may mutate during the serial dependency transaction.
+
+
 ## Pi relay consumer correction — separate Finalization, 20 October 2026
 
 ### Repository Status
