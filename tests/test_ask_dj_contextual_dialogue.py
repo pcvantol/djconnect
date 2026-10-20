@@ -4597,6 +4597,99 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["error"], "choice_expired")
         self.assertEqual(sent, [])
 
+    async def test_selected_source_expiry_after_final_read_prevents_model_dispatch(self):
+        from datetime import UTC, datetime, timedelta
+        from custom_components.djconnect.session_conversation import query_service
+        session, moment, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=session.session_id)
+        now = datetime.now(UTC)
+        deadline = now + timedelta(hours=1)
+        clock = [now]
+        class Clock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return clock[0]
+        await self.fixture.service.async_in_transaction(lambda tx: tx.execute(
+            'UPDATE djconnect_session_entries SET retained_until=? WHERE entry_id=?',
+            (deadline.isoformat(), reference['entry_id'])))
+        query = query_service(self.hass, self.history)
+        original = query.async_open_source_entry
+        returned = []
+        dispatch_guard = [False]
+        original_call = self.pipeline.call_conversation_process_with_agent_retry
+        async def at_model_boundary(*args, **kwargs):
+            dispatch_guard[0] = True
+            try:
+                return await original_call(*args, **kwargs)
+            finally:
+                dispatch_guard[0] = False
+        async def final_read(*args, **kwargs):
+            opened = await original(*args, **kwargs)
+            if dispatch_guard[0]:
+                returned.append(opened['entry']['entry_id'])
+                clock[0] = deadline
+            return opened
+        with (patch('custom_components.djconnect.session_history_projection.datetime', Clock),
+              patch.object(query, 'async_open_source_entry', final_read),
+              patch.object(self.core, 'call_conversation_process_with_agent_retry', at_model_boundary)):
+            result, status = await self.request('Who is that?', identifier='expired-last-read',
+                context={'selected_entry': reference})
+        self.assertTrue(returned)
+        self.assertEqual(self.prompts, [])
+        self.assertIn(status, (403, 404, 409), result)
+        self.assertFalse(result.get('session_speech'))
+        self.assertNotIn('Brian Eno', json.dumps(result))
+        self.assertIsNone(await self.history.async_saved_exchange('profile:profile-a', 'expired-last-read'))
+        self.assertEqual(self.effects, [])
+
+    async def test_selected_answer_speech_keeps_original_dependency_expiry_across_tts(self):
+        from datetime import UTC, datetime, timedelta
+        from custom_components.djconnect import session_speech
+        session, moment, reference = await self.selected_credit()
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=session.session_id)
+        now = datetime.now(UTC)
+        deadline = now + timedelta(seconds=60)
+        clock = [now]
+        class Clock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return clock[0]
+        await self.fixture.service.async_in_transaction(lambda tx: tx.execute(
+            'UPDATE djconnect_session_entries SET retained_until=? WHERE entry_id=?',
+            (deadline.isoformat(), reference['entry_id'])))
+        with patch('custom_components.djconnect.session_history_projection.datetime', Clock):
+            answer, status = await self.request('Who is that?', identifier='expiry-during-tts',
+                context={'selected_entry': reference})
+            self.assertEqual(status, 200, answer)
+            payload = {**self.identity, 'contract_version': 1, 'reference': answer['session_speech']['reference'],
+                'processor': 'ha_configured', 'voice_preference': 'default'}
+            stack, entity, pipeline, calls, processor = self.generic_tts()
+            entered, release = asyncio.Event(), asyncio.Event()
+            external = entity.async_get_tts_audio
+            async def delayed(*args):
+                entered.set()
+                await release.wait()
+                return await external(*args)
+            with stack:
+                entity.async_get_tts_audio = delayed
+                task = asyncio.create_task(session_speech.async_handle_prepare(self.hass, payload, headers=self.headers))
+                try:
+                    await asyncio.wait_for(entered.wait(), 2)
+                    clock[0] = deadline
+                finally:
+                    release.set()
+                result, code = await task
+            self.assertFalse(result.get('session_speech', {}).get('audio_reference'), result)
+            self.assertFalse(result.get('audio_url'), result)
+            self.assertEqual(self.hass.data['djconnect'].get('tts_audio', {}), {})
+            # The public UTC descriptor round-trips a monotonic deadline; allow
+            # only sub-millisecond conversion skew. The exact expiry guard above
+            # is separately exercised at the original deadline, without grace.
+            self.assertLessEqual(datetime.fromisoformat(answer['session_speech']['expires_at']),
+                                 deadline + timedelta(milliseconds=1))
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(self.effects, [])
+
     async def test_late_source_read_owner_revocation_rolls_back_accepted_exchange(self):
         session, moment, reference = await self.selected_credit()
         from custom_components.djconnect.session_conversation import query_service

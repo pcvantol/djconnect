@@ -880,3 +880,39 @@ source HTTP. All source/quality/consumer gates and Golden42families/329steps/
 79reports,34Core+29qualityOPEN unchanged. No unchanged regression rerun; prior
 full2822PASS/7existing skips belongs to a6a7e591. No push/merge/install/cleanup,
 feature closure, new selection or consumer adoption.
+
+
+### 04:57UTC source-expiry repair follow-through, completed05:12UTC
+
+Independent static review identified a real P2: natural historical Session
+expiry can pass the last unchanged grant/revision await. Two causal regressions
+fail2/0errors, including selected composer content actually reaching the external
+agent-transport fixture. Corrected _revision_session after all awaits, final
+entryexpiry after the last Sessionread, and cumulative earliest original source
+deadline at synchronous turn/model/commit fences. No deadline renewal.
+
+Independent re-review caught a second P2: deadline initially missing from speech
+admissions. Third causal regression fails1/0errors on that intermediateproduct:
+TTS runs past sourceexpiry and returns an audioasset. Same validator now travels
+through delivery/speech admissions plus monotonic speechcap; at exact original
+expiry, delayed TTS produces no audioasset/URL/cache. One fake providercall only,
+no real TTS/speaker.1ms descriptor-only UTC/monotonic conversion tolerance does
+not relax the original sourceguard. All three exacttestsPASS0.199s; independent
+3PASS0.214s/scopedSOURCEGO/no remainingP1P2.
+
+First broad run282tests had one Goldenbinding error and one sourcepin-fixture
+failure. Bound all five retention methods and regenerated only contextual
+fixture source_pins through the existing real SQLite generator; all other
+representation/qualification fields equal, original deliveredv1/v2 untouched.
+Intermediate282PASS9.049s predates speechfix. Finalfrozen283focusedPASS9.428s;
+full2825PASS/7existing skips83.070s, Ruff/diff/inventoryPASS. Original failed
+noncausal/import-alias/descriptor-skew developmentlogs and warnings retained.
+No guard waiver or claim of resource/performance acceptance.
+
+Golden42families/330steps/80reports;35Core+29actual-qualityOPEN. Detailed readback
+CONTEXTUAL_DJ_SOURCE_EXPIRY_20261020.md; evidence source-expiry-fence/. Product
+and tests frozen during runs; actual storytexts/reviewpacket unchanged. Model
+ledger40/39/0 remains byte-identical; no key/source/model/provider/speaker I/O.
+No consumerpin/adoption/native/installed/audiblePASS, push/merge/install/cleanup,
+functionclosure or new selectedslice. Actual narrativeNO_GO/catalogueFAIL/zero
+paidvariations stay explicit.

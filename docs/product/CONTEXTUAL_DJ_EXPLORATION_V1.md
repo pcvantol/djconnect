@@ -216,3 +216,14 @@ request, later revision lookup, retry, cap increase or consumer grant. Actual
 Metallica reaches robots403 and still admits no website body/story; narrative
 NO_GO remains. See ARTIST_WEBSITE readback for original refusals, raw validator,
 strict version/type guards, source bytes and separate qualification boundaries.
+
+
+05:12UTC original-source deadline correction within the same WIP: natural
+historical retention expiry is rechecked after final source awaits and before
+model dispatch/commit; accepted speech retains the same earliest original
+dependency deadline through TTS. No body, model input or audio lease is renewed.
+Three causal regressions and independent review qualify this local source fix;
+final283focused/full2825testsPASS,7existing full-suite skips. Golden330steps/
+80reports,35Core+29actual-quality gates remain OPEN. This neither improves the
+actual recorded dry texts nor grants native/installed/audible acceptance. See
+[source-expiry readback](../verification/CONTEXTUAL_DJ_SOURCE_EXPIRY_20261020.md).

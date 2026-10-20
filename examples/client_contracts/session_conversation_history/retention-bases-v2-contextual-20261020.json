@@ -1,8 +1,8 @@
 {
   "qualification": "ACTUAL_SQLITE_QUERY_TAIL_AND_REPRESENTATION_FROM_SYNTHETIC_ADMITTED_ROWS",
   "source_pins": {
-    "custom_components/djconnect/session_history_projection.py": "773ace9a53a78b11711dc46a4faa24b5d4e4f5f55aa858cd1b56d18f532f1220",
-    "custom_components/djconnect/historical_projection_query.py": "ece2ab78123d186d91c636cdbcb7f89145b323ac3bb96e2615e600fc405ccba7",
+    "custom_components/djconnect/session_history_projection.py": "7c389b8f46a5f4fcb30603ec81b188758f4faccf6c99b58db575e813b3d382df",
+    "custom_components/djconnect/historical_projection_query.py": "2abc3bfee097359dc1a0d08f21ce17b0aee7b79eab9b1db10875754b813d8e20",
     "custom_components/djconnect/session_speech.py": "fba7a288ff42c4f68a2537cd72993b69c1dcaa07c6b29004cb5e28843802d808",
     "custom_components/djconnect/history_entry_contract.py": "2cb333b1a9f8fce4471449857f735aa28f462e78d5ae95f952fa48ad8d17628f"
   },

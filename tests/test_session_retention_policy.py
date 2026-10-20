@@ -91,6 +91,47 @@ class SessionRetentionPolicyTest(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(HistoryQueryError):
             await self.query.async_timeline_page('owner',s.session_id)
 
+    async def test_natural_expiry_during_last_source_grant_await_rejects_original_body(self):
+        import asyncio
+        from unittest.mock import patch
+        from custom_components.djconnect.historical_projection_query import HistoricalProjectionAccessDenied
+        now = datetime.now(UTC)
+        deadline = now + timedelta(seconds=1)
+        clock = [now]
+        class Clock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return clock[0]
+        s = await self.start()
+        await self.append(s, 'original-body', now.isoformat())
+        await self.sessions.async_transition('owner', s.session_id, ENDED, historical_projections=self.repo)
+        await self.service.async_in_transaction(lambda tx: (
+            tx.execute('UPDATE djconnect_persistent_sessions SET ended_at=? WHERE session_id=?',
+                ((deadline-timedelta(days=90)).isoformat(), s.session_id)),
+            tx.execute('UPDATE djconnect_session_entries SET retained_until=? WHERE session_id=?',
+                (deadline.isoformat(), s.session_id))))
+        entry = (await self.repo.async_entry_records('owner', s.session_id))[0]['entry_id']
+        entered, release = asyncio.Event(), asyncio.Event()
+        grants = []
+        async def grant(_owner):
+            grants.append(True)
+            if len(grants) == 2:
+                entered.set()
+                await release.wait()
+            return 'unchanged-source-grant'
+        self.query._grant_revision = grant
+        with patch('custom_components.djconnect.session_history_projection.datetime', Clock):
+            task = asyncio.create_task(self.query.async_open_source_entry('owner', s.session_id, entry))
+            try:
+                await asyncio.wait_for(entered.wait(), 2)
+                clock[0] = deadline
+            finally:
+                release.set()
+            with self.assertRaises(HistoricalProjectionAccessDenied):
+                await task
+        self.assertEqual(len(grants), 2)
+        self.assertEqual(await self.repo.async_retention_policy(), (90, 1))
+
     async def test_retention_write_blocks_pending_and_existing_historical_image_grants(self):
         from custom_components.djconnect.image_proxy import ManagedSessionImages
         registry = ManagedSessionImages()

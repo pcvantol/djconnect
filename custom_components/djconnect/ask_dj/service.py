@@ -253,6 +253,21 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             persist_history = False
         payload = {**payload, "private_session": not persist_history}
         generation = frame.generation
+        retained_deadline = None
+
+        def capture_retained_deadline(entry):
+            nonlocal retained_deadline
+            from datetime import datetime
+            deadline = datetime.fromisoformat(entry["retained_until"])
+            retained_deadline = min(retained_deadline, deadline) if retained_deadline is not None else deadline
+            speech_cap = history_manager.dialogue.clock() + retained_deadline.timestamp() - time.time()
+            validate_retained_deadline.speech_deadline = min(
+                getattr(validate_retained_deadline, "speech_deadline", speech_cap), speech_cap)
+
+        def validate_retained_deadline():
+            from ..session_history_projection import entry_retained
+            if retained_deadline is not None and not entry_retained({"retained_until": retained_deadline.isoformat()}):
+                raise SessionConversationError("session_context_changed")
 
         async def guard(*, check_runtime=True, owner=validate_owner, immediate=validate_immediate):
             await owner()
@@ -270,8 +285,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 if "moment_id" in dependency:
                     await _live_reference(manager, profile_id, dependency)
                 else:
-                    await query().async_open_source_entry(profile_id, dependency["session_id"], dependency["entry_id"])
+                    opened = await query().async_open_source_entry(profile_id, dependency["session_id"], dependency["entry_id"])
+                    capture_retained_deadline(opened["entry"])
             # Nothing may yield after this final committed-state/paired-owner fence.
+            validate_retained_deadline()
             if history_manager.scope_revision(scope) != scope_revision:
                 raise SessionConversationError("conversation_history_changed")
             if history_grant_revision(hass, profile_id) != grant:
@@ -293,6 +310,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                             source_context=model_source(selected), selected_read_context=selected,
                             dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
+        # The exact same synchronous source deadline also guards retained speech,
+        # including synthesis/provider awaits after the chat has been accepted.
+        turn.delivery_validators.append(validate_retained_deadline)
         accepted_offer = None
         async def joined_admission(*, owner, immediate):
             await guard(owner=owner, immediate=immediate)
@@ -386,6 +406,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                     for dependency in saved["assistant_message"].get("historical_entry_references", []):
                         await query().async_open_source_entry(profile_id, dependency["session_id"], dependency["entry_id"])
                     # All authority/storage/source awaits precede this synchronous acceptance fence.
+                    validate_retained_deadline()
                     if history_manager.scope_revision(scope) != expected or history_grant_revision(hass, profile_id) != grant:
                         raise SessionConversationError("conversation_context_changed")
                     if session_id:

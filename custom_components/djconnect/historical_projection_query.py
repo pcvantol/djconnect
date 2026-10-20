@@ -193,6 +193,10 @@ class HistoricalProjectionQueryService:
                 or session.get('retention_fence', self._repository.retention_fence) != self._repository.retention_fence):
             from .session_history_projection import HistoryQueryError
             raise HistoryQueryError('invalid_history_cursor')
+        # A natural deadline can pass while unchanged revision/grant reads wait.
+        from .session_history_projection import session_retained
+        if not session_retained(session, retention_days=retention[0]):
+            raise HistoricalProjectionAccessDenied("session_unavailable")
         return {
             **session,
             "revision": str(session["revision"])
@@ -469,6 +473,9 @@ class HistoricalProjectionQueryService:
             raise HistoricalProjectionAccessDenied("entry_unavailable")
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("history_cursor_stale")
+        from .session_history_projection import entry_retained
+        if not entry_retained(entry):
+            raise HistoricalProjectionAccessDenied("entry_unavailable")
         return {
             "success": True,
             "schema_version": 1,

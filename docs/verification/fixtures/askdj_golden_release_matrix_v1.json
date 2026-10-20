@@ -3049,6 +3049,44 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Typed source acquisition/provenance only. Actual website body/story/Persona-Mood and native/audio/install acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-selected-source-natural-expiry-fence",
+          "question": "Can a selected retained contribution expire during the final unchanged grant/read await and still be sent to the model?",
+          "expected_answer": "Reject the original source after the last awaited revision/policy read and synchronously recheck the earliest original dependency deadline before model dispatch, accepted persistence and delivery. No stale body, model input, history exchange, speech or playback effect. Natural expiry does not require a policy revision change. Accepted speech retains the original earliest dependency deadline; if TTS runs past it, return no audio asset or bytes and keep no cached audio.",
+          "model_policy": "Actual SQLite/query/shared paired application and model-dispatch wrapper; injected wall clock and agent/public-research fixtures, no actual model or source I/O.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_retention_policy.py",
+              "method": "test_natural_expiry_during_last_source_grant_await_rejects_original_body"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_selected_source_expiry_after_final_read_prevents_model_dispatch"
+            },
+            {
+              "file": "tests/test_session_retention_policy.py",
+              "method": "test_active_old_entries_survive_and_terminal_entries_share_one_deadline"
+            },
+            {
+              "file": "tests/test_session_retention_policy.py",
+              "method": "test_policy_is_global_durable_admin_guarded_and_does_not_resurrect"
+            },
+            {
+              "file": "tests/test_session_retention_policy.py",
+              "method": "test_policy_change_during_last_grant_await_rejects_stale_response"
+            },
+            {
+              "file": "tests/test_session_retention_policy.py",
+              "method": "test_retention_write_blocks_pending_and_existing_historical_image_grants"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_selected_answer_speech_keeps_original_dependency_expiry_across_tts"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source expiry/model-input fencing only; no warm prose, native delivery, installed speech or audible acceptance."
         }
       ],
       "owning_tests": [
@@ -8890,6 +8928,12 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "core_qualification": "open",
       "finding": "Actual Metallica source-owner probe at83d1bb8f retained two Wiki sources but wbgetentities info|claims exceeded128KiB before site lookup; unrelated claims defeat website enrichment for a large public entity. Official property-scoped P856 REST response is474bytes. Replace full entity fetch, bind provider-defined same-response entity version and strict schema, retain unchanged guards/budgets. Source repair does not close real rich narrative/native acceptance."
+    },
+    {
+      "id": "ASKDJ-ISSUE-historical-source-natural-expiry-model-input",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "core_qualification": "open",
+      "finding": "Independent static review and two causal regressions show a retained Session/body can expire during the final unchanged grant await or after the last source read before the model dispatch fence. Revision equality alone does not prove time validity. Recheck Session retention after all awaits, entry expiry after the final Session read and the earliest original dependency deadline synchronously at turn/commit/delivery fences; no renewed retention grant. Local repair does not close native or actual-quality acceptance."
     }
   ],
   "regression_suite_files": [
@@ -8913,7 +8957,8 @@
     "tests/test_session_story_variety.py",
     "tests/test_ask_dj_exploration.py",
     "tests/test_mood_music_steering.py",
-    "tests/test_ask_dj_biographical_dates.py"
+    "tests/test_ask_dj_biographical_dates.py",
+    "tests/test_session_retention_policy.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",
