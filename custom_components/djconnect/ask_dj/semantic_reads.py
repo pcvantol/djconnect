@@ -85,7 +85,7 @@ def admissible_question(text):
 
 def prompt(text, language, *, selected, active, context=None):
     return (
-        "Interpret the user's music question semantically, including typos, colloquial language, "
+        "Interpret the user's music question semantically, including typos, colloquial language, "  # nosec B608 -- Reviewed HA-agent prose/JSON, never SQL; see CORE_CONSOLIDATION_B608_REVIEW_20261020.md.
         "missing accents and paraphrases. This is a read-only route proposal, NOT an answer or command. "
         "Return exactly one JSON object with read, reference, exclude_current; add artist only for artist_tracks/named, "
         "or subject and angle only for research/selected or research/named. "
