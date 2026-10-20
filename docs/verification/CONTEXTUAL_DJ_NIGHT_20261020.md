@@ -276,3 +276,39 @@ Final post-instruction focused rerun:277PASS in13.919seconds, log
 `/private/tmp/djc-biography-final-checkpoint-focused.log`; all changed-code Ruff
 and `git diff --check` PASS. Full2807 run precedes only the event-edition prompt
 clarification and reporting updates. Remaining4model attempts are unspent.
+
+
+## 00:35 UTC same-WIP continuation
+
+Fresh clean checkpointb1093b14, protected main8b221d07, existing Brand worktrees
+unchanged; no index lock, competing Core/model execution or active paid probe.
+Actual hostverify MATCH/onboarding4.5.4,481GiBfree. Ledger remains36/40.
+
+The short-title repair now has a full causal Runtime → publication → SQLite
+close/reopen → retained manual speech admission regression, with exact text and
+source preservation and no read/replay generation. The external source/model
+responses are fixtures; this does not qualify real storytelling or audible TTS.
+New regression plus existing owning/Golden gates:94PASS in8.802seconds;
+changed-test Ruff and diffcheck PASS. Full2807 source run remains the prior
+b1093 checkpoint evidence; no false current full-suite claim.
+
+The same Golden short-title step now binds this complete-chain regression.
+Counts stay42families/311steps/70reports;25Core+28realqualitysteps OPEN.
+
+Apple159's proposed real-client harness was read at its exact candidate. A
+local installed-provider source inspection found SDK retries not represented by
+Core agent-call counts. An offline causal counterexample additionally shows
+that Apple reconciliation can trust a changed native model_policy and accept a
+required-model question with zero attempts. Both were sent to the existing
+Apple owner; no second Apple writer or source/service change. Details and
+remaining qualified producer/fixture/export gates:
+[Core native Golden admission readback](CORE_NATIVE_GOLDEN_ADMISSION_READBACK_20261020.md).
+No paid calls used for these checks; remaining4 are preserved for a justified
+bounded real probe. The original full selected+band scenario cannot fit that
+remaining allowance and is not started or silently truncated into a PASS.
+
+Independent technical review of the new complete-chain test found no P1/P2.
+The reviewer independently ran it successfully, then restored the old HTML-only
+anchor behavior in memory: the same test failed at the real publication
+assertion. This establishes a causal regression, not a mirrored helper check.
+No source writes, real model calls or installed/audio claim by the reviewer.

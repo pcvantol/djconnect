@@ -734,6 +734,59 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.session.presence_ledger.total_published,0)
         self.assertIn('work_composers',self.manager._intra_track_opportunities['profile-a'].used_fact_keys)
 
+    async def test_short_quoted_work_episode_survives_publication_storage_and_retained_speech(self):
+        """The observed title omission must not be hidden by a helper-only PASS.
+
+        External source and model replies are fixtures, not a real narrative or
+        audible acceptance. Runtime, publication, SQLite reopen and replay are real.
+        """
+        await self.prepare_composer()
+        from custom_components.djconnect.session_conversation import query_service
+        from custom_components.djconnect.session_speech import resolve_retained
+        self.article_fixture=('<p>Ada Reed is a musician.</p>'
+            '<p>Ada Reed released the single "One".</p>')
+        self.answer=('Ada Reed is componist van het werk achter deze opname. '
+            'Ada Reed bracht de single ‘One’ uit.')
+
+        async def source_bound_model(hass,data,**kwargs):
+            self.calls.append(data['text'])
+            if len(self.calls)%2:
+                output=self.answer
+            else:
+                assessment=json.loads(data['text'].split('\nData:\n')[1])
+                evidence=assessment['evidence']['public_music_research']
+                source=next(s for s in evidence['sources'] if s['provider']=='Wikipedia')
+                episode=next(s for s in source['evidence_spans'] if 'single "One"' in s['text'])
+                credit=evidence['sources'][-1]['evidence_spans'][0]
+                first,second=self.answer.split('. ',1)
+                output=json.dumps({'supported':True,'unsupported_claims':[],
+                    'language_ok':True,'style_ok':True,'work_focus_preserved':True,
+                    'composer_episode_preserved':True,'review_schema':'source_id_review_v1',
+                    'claim_checks':[
+                        {'text':first+'.','kind':'relationship','evidence_ids':[credit['id']]},
+                        {'text':second,'kind':'relationship','evidence_ids':[episode['id']]}]})
+            return {'response':{'speech':{'plain':{'speech':output}}}}
+
+        self.model=source_bound_model
+        moment=await self.publish()
+        self.assertIsNotNone(moment,self.debug)
+        self.assertEqual(moment.content,self.answer)
+        self.assertEqual(self.session.presence_ledger.total_published,1)
+        calls=(len(self.calls),len(self.urls))
+        self.assertEqual(calls,(2,4))
+        await self.manager.async_end(owner_profile_id='profile-a',session_id=self.session.session_id)
+        await self.fixture.service.async_close()
+        await self.fixture.service.async_initialize()
+        page=await query_service(self.hass,self.history).async_timeline_page('profile-a',self.session.session_id)
+        entry=next(e for e in page['entries'] if e.get('moment_id')==moment.moment_id)
+        self.assertEqual(entry['text'],self.answer)
+        self.assertEqual(entry['sources'],moment.as_dict()['sources'])
+        descriptor,guard=await resolve_retained(self.hass,self.history,'profile-a',
+            {'session_id':self.session.session_id,'entry_id':entry['entry_id']})
+        self.assertTrue(descriptor['manual_allowed'])
+        self.assertEqual(guard.processor_basis,'qualified_dialogue_v1')
+        self.assertEqual((len(self.calls),len(self.urls)),calls)
+
     async def test_rejected_composer_style_never_publishes_original_credit_template(self):
         await self.prepare_composer()
         self.bad_review=True

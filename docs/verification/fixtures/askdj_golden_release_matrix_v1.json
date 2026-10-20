@@ -2771,10 +2771,14 @@
             {
               "file": "tests/test_personal_dj_narration_public_artist.py",
               "method": "test_short_quoted_single_keeps_work_episode_without_generic_quote_authority"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_short_quoted_work_episode_survives_publication_storage_and_retained_speech"
             }
           ],
           "acceptance_status": "owner_contract",
-          "proof_boundary": "Actual NL-v9 composer proposal was rejected because its quoted single One lacked a source anchor. Source regression covers the correction; real published story remains open."
+          "proof_boundary": "Actual NL-v9 composer proposal was rejected because its quoted single One lacked a source anchor. Source regression covers the correction; real published story remains open. Synthetic external replies additionally traverse real Runtime publication, SQLite close/reopen and retained manual speech admission without refetch or model regeneration; actual model quality and audible acceptance remain open."
         }
       ],
       "owning_tests": [
@@ -2809,6 +2813,10 @@
         {
           "file": "tests/test_personal_dj_narration_public_artist.py",
           "method": "test_short_quoted_single_keeps_work_episode_without_generic_quote_authority"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_short_quoted_work_episode_survives_publication_storage_and_retained_speech"
         }
       ],
       "real_ha_profile": "full_golden",
