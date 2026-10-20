@@ -1,5 +1,43 @@
 # DJConnect Repository Status
 
+## Pi rc.5 operational binding — separate Finalization, 20 October 2026
+
+### Repository Status
+
+Source PR1240 protected merged as a0f72feca7c9a4e8f5f14343824e0a5ac5373351 at18:10:52Z, complete tree identical to reviewed1e89d64bde1cf5477b08dc3be0553712573a688c. Fresh exact Owner Authorization39472057038 PASS and required Trusted Delivery PASS;31 checks SUCCESS,5conditional SKIPPED, only explicitly non-blocking TDE observe remained running. Main synchronized clean. This independent documentary Finalization needs its own exact review/checks/protected merge; source-main workflows remain separately observed.
+
+### Management Summary
+
+Actual two-profile rc.5 publication39470113138/source-consumer eadbda64 is bound by canonical manifest83f52c385a8acac11fae267c006de8684464c9b5b4ca9db1fdd5ae5a1b54ccfc, original verified human rollout scope and unchanged closed inventory.22 actual byte/semantic/archive checks and15 documentation/lifecycle/roadmap regressions PASS. No manifest, contract, runtime or authority scope changes in Finalization. No consumer config, readiness, dispatch, install or hardware effect performed by Core.
+
+### Roadmap Position
+
+Existing Pi producer dependency only; no new selection or WIP takeover. Narrative WIPfe47483a remains preserved separately, with actual story/native/installed gates OPEN. Separate Finalization/protected readback precedes exact producer handoff; consumer independently requires qualified Core source/current bytes and its canonical per-instance operational gates.
+
+### Risks and Next Actions
+
+Verify this Finalization and current source/main workflow evidence, deliver exact source/final/manifest pins, retain recovery proof and perform only safe own cleanup. Per-instance deployment and separate smoke/captures remain Pi-owner operations; all actual installed/Session/touch/audio outcomes remain open. Core hard stop18:26:14Z remains unchanged.
+
+
+## Pi rc.5 exact two-instance operational binding — source preparation, 20 October 2026
+
+### Repository Status
+
+Bounded existing Pi producer dependency on protected Core main1328c73e. The manifest now binds actual protected Pi source/consumer eadbda64cc11f6657a1b415d97f28edcfa7d8a25 and published two-profile rc.5 bytes. Exact review, fresh applicable Owner Authorization/checks, protected source merge and separate Finalization are pending; no dispatch or installed claim is made at this freeze.
+
+### Management Summary
+
+Peter's original explicit two-Pi rollout authority is directly verified and recorded with actual publication39470113138, immutable source/profile hashes and unchanged identity inventory. No new target, credential, pairing or HA authority is created. Qualified consumer/readiness and separate current deployment/smoke remain mandatory per instance. Narrative WIPfe47483a and all actual story/native/installed gates remain preserved and open.
+
+### Roadmap Position
+
+Existing selected producer prerequisite only; no DAG selection, consumer admission, new writer or product-scope expansion. See docs/verification/PI_RC5_OPERATIONAL_BINDING_20261020.md.
+
+### Risks and Next Actions
+
+Complete exact source qualification/review/protected checks and separate Finalization, then hand off exact Core source/finalization/manifest bytes. Only the existing Pi owner may use its separately qualified operational route; package/source success does not imply physical or Session acceptance.
+
+
 ## Pi rc.5 two-instance producer contract — separate Finalization, 20 October 2026
 
 ### Repository Status
