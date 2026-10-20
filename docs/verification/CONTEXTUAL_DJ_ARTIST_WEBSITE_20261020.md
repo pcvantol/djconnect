@@ -216,3 +216,60 @@ bytes match actualv3snapshot, no new model/key calls or guard changes after it.
 Independent20source/fetch testsPASS and causal historicalfunctioncounterexample
 1failure/0errors; scoped SOURCEGO only. Existing resource/testtask warnings
 remain visible; no resource/crash/performance/native/audio qualification.
+
+
+## 04:42UTC independent editorial readback of the actual Metallica corpus
+
+This is analysis of the previously fetched v3 source receipt, not a new fetch,
+model-generated answer or publication. Independent read-only editorial reviewer
+`context_editorial_review` inspected the exact original paragraphs. The source
+receipt SHA256 is
+`91156aa15d9b46792b99fbadb12772e66d81c32c31d4bf072ad50f1b9047bb0e`;
+retained path is
+`artifacts/core-contextual-night-20261020/artist-property-source/v3/lab/source-owner-receipt.json`.
+Dutch revision72024890 and English revision1380345507 both identify Q15920.
+Their content-hash prefixes below are original evidence-span IDs, not new facts
+or newly qualified editorial episodes. The receipt's existing expiry remains
+unchanged; retaining audit evidence does not extend production source freshness.
+
+| Possible angle | Original span | Limitation / next actual acceptance requirement |
+| --- | --- | --- |
+| Founders, members and roles | `cab4519badcca6b2:p0` | Supports named founders/roles, lineup and Mustaine's 1983 departure; does not supply a reason for his dismissal. A roster alone is not a warm member story. |
+| First show | `11293f8c3e6fa964:p1` | The first-show sentences provide a concrete event. The same full paragraph also contains conflicting demo information; do not carry those contradictions into the story. |
+| Werchter / complete album performance | `11293f8c3e6fa964:p2` | A distinct documented live event; not proof that the delivered answer is engaging or novel after previous stories. |
+| Dehaan / complete debut performance | `cab4519badcca6b2:p1` | A distinct event within a paragraph that also contains studio plans and Antarctica. Preserve the individual event's scope. |
+| Antarctica | `11293f8c3e6fa964:p3`, `cab4519badcca6b2:p1` | These are the same event in two languages. The associated film/live-album mention does not automatically make another episode. |
+| Early demo / recording | `11293f8c3e6fa964:p1` | The paragraph says four tracks but enumerates five and changes demo identities. It cannot support an unqualified coherent recording account without resolving the discrepancy. |
+| Studio plans | `cab4519badcca6b2:p1` | Historical intentions and a projected release date are not evidence that recording or release actually happened. |
+| Fragmentary reference labels | NL `11293f8c3e6fa964:p4`–`p7`; EN `cab4519badcca6b2:p2`–`p6` | Titles, roles and award rows are not standalone episodes. NL p6 has no guitarist identity: do not borrow the name from p5. |
+
+The actual official-site attempt still supplied no page body (robots HTTP403).
+P856 establishes an address, not content. Two Wikipedia language editions remain
+one publisher. Source access and these episode candidates therefore do not
+satisfy the user's broader-source or four-track variety requirement.
+
+Current `session_story_variety.select_focus` ranks original complete paragraphs;
+its keyword score is retrieval guidance. Paragraph hashes suppress exact reuse,
+not semantic identity across languages. Conversely, multiple distinct events
+can occupy one paragraph. Existing `reviewed_episode` still requires the real
+focused claim receipts and semantic `topic_preserved`/`novel_episode` review.
+This readback does not demonstrate a delivered duplicate, a wrongly rejected
+novel episode or a new selector regression; do not weaken those guards or claim
+that hashes prove four distinct stories.
+
+The next actual qualification within this same WIP must record the exact
+source/expiry and actually published answers over successive tracks, compare
+their events against already published Flow, and independently assess useful
+detail, natural phrasing and Persona/Mood. Selected “tell more” and its relevant
+closing question need actual returned-text evidence as well. Source-only
+candidates, reviewer suggestions and rejected drafts must remain separate from
+what the client receives. This describes an existing acceptance gap, not a new
+selected slice, extra model allowance or consumer handoff.
+
+No product or test change was justified by this readback. Existing five-language
+failure-copy tests already distinguish unavailable sources from information
+that could not be sufficiently verified. No unchanged source probe or model
+run was repeated. Model budget40reserved/39completed/zero remaining; actual
+narrative NO_GO, catalogue FAIL and zero paid variations remain. Latest source
+regression2822PASS/7existing skips belongs to a6a7e591; this documentation update
+does not create a new full-suite, native, installed or audible result.

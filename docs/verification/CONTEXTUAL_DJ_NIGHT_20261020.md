@@ -816,3 +816,36 @@ bytes match actualv3snapshot, no new model/key calls or guard changes after it.
 Independent20source/fetch testsPASS and causal historicalfunctioncounterexample
 1failure/0errors; scoped SOURCEGO only. Existing resource/testtask warnings
 remain visible; no resource/crash/performance/native/audio qualification.
+
+
+## 04:42UTC continuation — actual source editorial limits
+
+Clean a6a7e591/same solewriter; main8b221d07/Brandrefs unchanged. Current process
+readback has no competing Core/model/test execution; only unrelated dashboard
+lock retained. Canonical hostverify0/MATCH/onboarding4.5.4/491GB free/32GB RAM.
+Modelledger remains byte-identical40reserved/39completed/zero remaining.
+
+Independent read-only analysis of the already fetched actual Metallica v3
+corpus identifies member/first-show/Werchter/Dehaan/Antarctica angles, but
+Antarctica occurs in both languages, a demo paragraph contradicts itself,
+studio plans do not prove completed recordings, and reference labels have
+missing subjects. Two Wikipedia editions remain one publisher; official site
+still no body because robots403. Exact original span IDs and receipt hash are
+recorded in ARTIST_WEBSITE readback. Audit retention grants no new source TTL.
+
+Paragraph hashes are not semantic episode identity; independent actual
+successive-story/review evidence remains required. This does not establish a
+new delivered-duplicate regression and no product/fixture change was justified.
+Existing failure-copy tests already distinguish absent sources from unverified
+answers. No unchanged test/source/model rerun merely to inflate evidence.
+
+Actual texts/editorialNO_GO/fullactualcatalogueFAIL/zero paidvariations and
+Golden42families/329steps/79reports,34Core+29actual-qualityOPEN remain unchanged.
+Prior full2822PASS/7skips belongs to a6a7e591. Documentation only; no paid I/O,
+key access, native/installed/audible/physical acceptance, protectedpin, consumer
+adoption, push/merge/install/cleanup, featureclosure or nextslice.
+
+Independent read-only documentation review: scopedGO/noP1P2; exact spans and
+limits match the actual v3 receipt, no extra-source/quality/testclaim. Diffcheck
+and offline inventoryPASS; unchanged329steps/79reports/34Core+29qualityOPEN.
+No full regression rerun for this documentation-only delta.
