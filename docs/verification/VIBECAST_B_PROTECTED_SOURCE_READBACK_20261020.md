@@ -20,6 +20,15 @@ for the entire1197 consolidation or close its remaining functional acceptance.
 The shared transport capability advertises version1 B support with
 `owner_context_required` and `rendezvous_a:false`. A remains separate.
 
+The A implementation agreement is protected-delivered through API PR96
+`2dade83f338ae5f931856934ab0c23b6f6c66f05` and separate Finalization97
+`661e5770eb5249b1b02bbdc2426ba7e575fc8881`. Its current
+[implementation-contract release](https://github.com/pcvantol/djconnect-api/blob/2dade83f338ae5f931856934ab0c23b6f6c66f05/docs/rendezvous/IMPLEMENTATION_CONTRACT_RELEASE_V1.md)
+fixes `djc-rendezvous/1-implementation.1` / wire `djc-rendezvous/1` and
+explicitly supersedes enumerated old missing-ACK/HOLD/NOT_FROZEN wording.
+No repeat unchanged receiver/Apple ACK is requested. Public service/configuration,
+genuine native trust, consumer activation and complete A→B remain separate gates.
+
 The normally paired app first reads `POST /api/djconnect/v1/transport/context`
 and compares its current `ha_install_id` with the explicitly selected saved
 installation. It then reads `POST /api/djconnect/v1/display/owner/context`

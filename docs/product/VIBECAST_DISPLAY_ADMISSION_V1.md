@@ -8,11 +8,19 @@ branch `codex/vibecast-display-admission-v1`. Existing roadmap node `WEB::DISPLA
 Settings source1193/Finalization1194 and repair1195/Finalization1196 remain closed.
 
 Current source readback, checked20October2026: **B_PROTECTED_SOURCE /
-A_SEPARATE_REVIEW / JOINT_ACCEPTANCE_OPEN**. PR1197 merged as
+A_IMPLEMENTATION_CONTRACT_RELEASED / JOINT_ACCEPTANCE_OPEN**. PR1197 merged as
 `c98cbf3e3114afb8b8212e18224a337b12af3e27`; current protected main8b221d07
 includes the B handlers, shared shell and capability declaration. See the
 [exact source/readback, fresh actual HA proof and consumer sequence](../verification/VIBECAST_B_PROTECTED_SOURCE_READBACK_20261020.md).
 No installed public route or complete A→B/native/hardware acceptance is implied.
+API's implementation agreement is separately protected-delivered by PR96
+`2dade83f338ae5f931856934ab0c23b6f6c66f05` and Finalization97
+`661e5770eb5249b1b02bbdc2426ba7e575fc8881`. Its
+[limited implementation-contract precedence](https://github.com/pcvantol/djconnect-api/blob/2dade83f338ae5f931856934ab0c23b6f6c66f05/docs/rendezvous/IMPLEMENTATION_CONTRACT_RELEASE_V1.md)
+supersedes old missing-ACK/NOT_FROZEN statements to its enumerated scope.
+It does not enable the public service or waive actual native/operational gates.
+The historical API94 review and design findings below are preserved provenance,
+not a request to repeat already received implementation ACKs.
 
 Historical pre-merge status: **A_CONTRACT_REVIEW / B_CORE_SOURCE_GO / DRAFT_NOT_MERGED**.
 After exact independent B-design GO on ae2adfe9, B was implemented independently
