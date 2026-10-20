@@ -1,5 +1,56 @@
 # Current Core1210 same-band story variety checkpoint — 19 October 2026
 
+## Core consolidation — separate Finalization, 20 October 2026
+
+### Repository Status
+
+[Core source PR#1242](https://github.com/pcvantol/djconnect/pull/1242) protected
+merged as bf30bebc4fe3f3532619fb67b656b762a945019d at18:56:44Z. Complete tree
+87586efac58be5dde417da5adbbccbef93017490 equals independently reviewed exact
+1bf8f62579b2e13bb11d74141caa849cd042d7b6. Fresh candidate Owner Authorization
+39478791404 PASS;32checksSUCCESS/five conditionalSKIPPED, only explicitly
+nonblocking TDE observe running. Main synchronized clean. This distinct documentary
+Finalization requires its own fresh exact review/checks/protected readback.
+
+### Management Summary
+
+All existing contextual-DJ work and preserved archived-erasure safety groundwork
+are now on protected main. Final-commit generation/readrevision P2 is causally
+repaired. Source tests2892PASS/seven existing skips; unchanged-prompt security
+false positive explicitly reviewed, production Bandit blocking0 and real-SQL
+positive control still detected. Real isolated HA187owner tests retain their
+original92075pin. No source or acceptance guard is changed by Finalization.
+API binding0c198c1a and Pi binding83f52 remain byte-identical.
+
+### Roadmap Position
+
+Consolidation only. Actual storyNO_GO, selectedMoreNOT_EXERCISED and all listed
+Mood/history/catalogue/Apple/native/speech/audible gates remain OPEN. Existing
+SETTINGS horizon remains Planned/NOT_ISSUED; no new feature selection or timer.
+The separate verification document and Core1101 lane retain the full open list.
+
+### Risks and Next Actions
+
+Observe current main CI and canonical active_source reconciliation, deliver exact
+source/Final/manifest pins to Pi/API, and complete explicitly authorized HA-dev/
+prod installations with immutable artifact, backup/rollback and actual hash/runtime
+readback. Owning Apple/Pi/API lanes perform their own authorized deployments.
+Source qualification does not imply paid Golden/artifact/native/installed quality.
+Actual installation receipts and lane readbacks are recorded only after execution.
+
+### Repository State
+
+MERGED_UNRECONCILED until this separate Finalization is protected and read back;
+then this consolidation is MERGED_RECONCILED, with functional acceptance stillOPEN.
+
+### Workspace State
+
+Complete source refs and all unique/private verification evidence are preserved.
+After this Finalization and installations, inventory and clean completed own
+worktrees/branches under the current explicit consolidation/cleanup request.
+No unrelated work or dashboard lock is removed. Previous model ledgers stay
+immutable; no new paid budget or API activation is inferred.
+
 ## Core consolidation and authorized installations — 20 October 2026
 
 ### Repository Status
