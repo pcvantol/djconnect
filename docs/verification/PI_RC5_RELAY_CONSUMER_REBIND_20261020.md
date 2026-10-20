@@ -42,3 +42,20 @@ is exactly one field; old50 bytes and six equal prefixes/previous bodies verifie
 Unchanged runtime/installer/authority/contract bytes verified against40. Existing
 22 package/source receipts retain their original pins.16 documentation/lifecycle/
 HACS/roadmap tests PASS20.410s; diff PASS. Actual installation remains unclaimed.
+
+## Protected source and separate Finalization
+
+SourcePR1246 protected merged at2026-10-20T20:06:17Z as
+c76bd8103c46b9fb25e954b142de92c850684665. Complete tree equals exact reviewed
+79ceff4ffd7adc28b725f471419635f4d0d72d58. Fresh Owner Authorization39488887225
+artifact binds exact repository/PR/main/candidate/resultPASS.31checksSUCCESS,
+five conditionalSKIPPED and only explicitly nonblocking TDE observe pending;
+normal protected merge without bypass. Current main source qualification remains
+separately observed. Actual Pi target effects and acceptance are not preclaimed.
+
+This separate eight-file documentary Finalization preserves manifest7d0c2aee,
+all runtime and deployment binding bytes, and every historical body. No source,
+consumer, authority, inventory, package, credential or hardware change occurs here.
+Protected exact Finalization plus actual canonical source qualification precede
+operative producer handoff. Previous failed runs remain immutable; fresh manually
+controlled attempts remain with the Pi owner. No new recovery bundle or paid call.
