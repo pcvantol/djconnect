@@ -2859,6 +2859,21 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Actual bounded Q11649 before/after probe: NL article was discarded solely at Group classification; now both same-QID Wikipedia language editions survive in five actual requests, unchanged budgets/rights. Fixture regression covers five locales and wrong-QID/Person/nonmusic/word-boundary negatives. Real narrative/Persona-Mood/native/audio still OPEN."
+        },
+        {
+          "id": "ASKDJ-FLOW-canonical-title-reuse-preserves-web-budget",
+          "language": "nl",
+          "question": "Verrijk het bandverhaal met daadwerkelijk opgehaalde webpagina-inhoud naast Wikipedia, binnen hetzelfde bronbudget.",
+          "expected_answer": "Reuse only already-qualified per-fetch exact-QID language sitelinks, checking every fetched article entity/role again. Avoid spending a second language request on an ambiguous name when its canonical title is already known. Keep the eight-request limit, target robots check and page retrieval; discovery snippets and failed/403 pages never become evidence.",
+          "model_policy": "No model for source acquisition or per-fetch canonical title reuse; normal answer generation/review remains separately required.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_cached_exact_qid_titles_leave_room_for_web_page_within_shared_budget"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual before: five Wiki + two successful DDG requests leave only one slot, so no web page can be fetched with its robots check. After: one fewer Wiki request permits the first real robots/page pair within8; that page returns403, so actual web evidence remains unavailable. Only the external-HTTP fixture proves a successfully fetched third source; real richer answers/native/audio stay OPEN."
         }
       ],
       "owning_tests": [
@@ -2909,6 +2924,10 @@
         {
           "file": "tests/test_ask_dj_exploration.py",
           "method": "test_grunge_group_lead_preserves_local_source_and_exact_entity_role_guards"
+        },
+        {
+          "file": "tests/test_session_story_variety.py",
+          "method": "test_cached_exact_qid_titles_leave_room_for_web_page_within_shared_budget"
         }
       ],
       "real_ha_profile": "full_golden",
@@ -8624,6 +8643,12 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "core_qualification": "open",
       "finding": "Actual source-only probe discarded the correct NL Nirvana Q11649 page because empty shortdesc plus first-sentence grungeband failed musical Group classification. Same English page survived. Add grunge to existing five-language group forms, without accepting a mismatching QID, Person, nonmusic lead or embedded non-word. Actual before/after retains NL+EN; source repair alone does not close rich-content/narrative/client acceptance."
+    },
+    {
+      "id": "ASKDJ-ISSUE-ambiguous-title-starves-shared-web-budget",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "core_qualification": "open",
+      "finding": "Actual exact-QID Nirvana web probe reaches successful DDG search after5Wiki requests but has insufficient budget for target robots+page. EN canonical title is already in same-fetch validated sitelinks. Reuse it without extra lookup or raised budget; each article still proves QID/type. Actual after reaches page but gets403; failed page/snippet not accepted, real multi-publisher narrative remains open."
     }
   ],
   "regression_suite_files": [

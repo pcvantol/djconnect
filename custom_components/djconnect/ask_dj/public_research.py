@@ -551,11 +551,16 @@ async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expe
 
     tokens = re.findall(r"[\wÀ-ÿ]+", subject.casefold())
     for language in dict.fromkeys((locale, "en")):
-        pages = await pages_for(language, {**base, "titles": subject})
+        # A previous language lookup may already have resolved every exact-QID
+        # sitelink. Reuse that per-fetch result before spending another request
+        # on the same ambiguous name. Each article still proves its own QID.
+        cached = getattr(fetch, '_qualified_wikipedia_titles', {}).get(expected_entity_id, {})
+        lookup_title = cached.get(language) or subject
+        pages = await pages_for(language, {**base, "titles": lookup_title})
         if expected_entity_id and (not pages or all(
                 p.get('pageprops', {}).get('wikibase_item') != expected_entity_id for p in pages)):
             canonical = await _qualified_wikipedia_title(fetch, expected_entity_id, language)
-            if canonical and canonical != subject:
+            if canonical and canonical != lookup_title:
                 pages = await pages_for(language, {**base, 'titles':canonical})
         if not pages:
             found = await pages_for(

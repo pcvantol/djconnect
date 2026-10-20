@@ -260,8 +260,58 @@ class StoryVarietyOwnerTest(unittest.IsolatedAsyncioTestCase):
                     self.assertEqual(result.entity_id,'Q1')
                     self.assertIn('Nora_Vale_1_%28band%29',result.url)
         self.assertEqual(sum(urlsplit(u).hostname=='www.wikidata.org' for u in calls),1)
-        self.assertEqual(len(calls),5)
+        self.assertEqual(len(calls),4)
+        self.assertFalse(any(urlsplit(u).hostname=='en.wikipedia.org'
+            and parse_qs(urlsplit(u).query).get('titles')==['Nora Vale 1'] for u in calls))
         self.assertFalse(any('gsrsearch' in u for u in calls))
+
+    async def test_cached_exact_qid_titles_leave_room_for_web_page_within_shared_budget(self):
+        """Real research/robots/budget; only HTTP replies are external fixtures."""
+        from urllib.parse import parse_qs,urlsplit
+        research=self.f.research
+        calls=[]
+        async def guard():
+            pass
+        async def network(fetch,url,**kwargs):
+            await fetch.guard()
+            if fetch.requests>=fetch.maximum_requests:
+                raise research.ResearchUnavailable('public_research_budget')
+            fetch.requests+=1
+            calls.append(url)
+            parsed=urlsplit(url)
+            args=parse_qs(parsed.query)
+            if parsed.path=='/robots.txt':
+                return 200,'User-agent: *\nAllow: /',url
+            if parsed.hostname=='www.wikidata.org':
+                return 200,json.dumps({'entities':{'Q1':{'id':'Q1','sitelinks':{
+                    language+'wiki':{'site':language+'wiki','title':'Nora Vale 1 (band)'}
+                    for language in ('nl','en')}}}}),url
+            if parsed.hostname in {'nl.wikipedia.org','en.wikipedia.org'}:
+                correct=args.get('titles')==['Nora Vale 1 (band)']
+                return 200,json.dumps({'query':{'pages':[{'title':args['titles'][0],
+                    'pageprops':{'wikibase_item':'Q1' if correct else 'Q2',
+                                 'wikibase-shortdesc':'music group'},
+                    'extract':'<p>Nora Vale 1 is a music group.</p>',
+                    'revisions':[{'revid':123}]}]}}),url
+            if parsed.hostname=='html.duckduckgo.com' and parsed.path=='/html/':
+                return 200,'<a href="https://artist.example.org/about">Discovery text is not evidence</a>',url
+            if parsed.hostname=='artist.example.org' and parsed.path=='/about':
+                return 200,('<html lang="en"><p>Nora Vale 1 is a music group. '
+                    'Nora Vale 1 recorded Paper Lanterns with Ada Reed.</p></html>'),url
+            raise AssertionError('Unexpected external fixture destination')
+        with patch.object(research.PublicFetch,'request',network):
+            sources,state=await research.research('Nora Vale 1','Band history','nl',guard,
+                qualified_music=True,expected_roles=('Group',),expected_entity_id='Q1',
+                allow_web=True,original_paragraphs=True)
+        self.assertEqual({s.provider for s in sources},{'Wikipedia','Public web'})
+        self.assertEqual(len(sources),3)
+        web=next(s for s in sources if s.provider=='Public web')
+        self.assertIn('recorded Paper Lanterns',web.text)
+        self.assertNotIn('Discovery text',web.text)
+        self.assertIn('https://artist.example.org/robots.txt',calls)
+        self.assertEqual(calls[-1],'https://artist.example.org/about')
+        self.assertEqual(state['requests'],8)
+        self.assertEqual(len(calls),8)
 
     async def test_wrong_sitelink_entity_cannot_qualify_an_ambiguous_article(self):
         research=self.f.research

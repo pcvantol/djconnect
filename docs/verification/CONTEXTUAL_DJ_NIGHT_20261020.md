@@ -6,7 +6,7 @@ Apple coordination as needed. The existing heartbeat
 **20 October 2026, 08:00 Europe/Amsterdam**. It retains the same writer and WIP;
 another active execution on the same resources permits status readback only.
 
-Current local source baseline: `61a2c582cad4b74891bff1715e312e149eafeebc`,
+Current local source baseline: `35f62fc7f1e1aa7d99bcafc9cbae74aacc083fcb`,
 branch `codex/core-contextual-dj-interactions-v1`; subsequent prompt/pilot/report
 changes are captured by the commit containing this document. Main remains
 `8b221d07`. Latest actual pilot `nl-v12`: **40/40 reserved, zero remaining**.
@@ -477,3 +477,33 @@ contract/issue permanent, no feature closure. All probes/attribution/manifest
 preserved under artist-source-variety/. Details in
 CONTEXTUAL_DJ_LOCAL_SOURCE_RETENTION_20261020.md. Existing actual answers remain
 unchanged and narrativequalityNO_GO. No push/merge/cleanup/nextslice.
+
+
+## 01:46 UTC continuation — shared web budget / canonical reuse
+
+Clean35f62fc7/current sole writer, no competing Core/model process orindexlock,
+main8b221d07 and BrandWIP unchanged. Hostverify0/MATCH/onboarding4.5.4,488GiBfree.
+Actual last:3 lane read confirms owning checkpoint/dependencies; initialRESTpage1
+was historical and not used as current authority. Modelledger40/40 unchanged.
+
+Actual public research now exposes another source bottleneck: five Wiki/WD plus
+two successfulDDGrequests use7/8slots, leaving too little for targetrobots+page.
+The ENcanonicaltitle was already available in the same-fetch exact-QID sitelinks.
+Reuse only that already-qualified title before the redundant ambiguous request.
+No extra lookup, durablecache, budgetincrease, identity/role/URLguard relaxation.
+
+Actualafter: fourWiki/WD +twoDDG +targetrobots/page fits8requests/1.697seconds.
+Britannicatarget returns403; correctly no third actualsource admitted. This is
+actualbudget/rejection proof, not multi-publisher enrichment or an answeredstory.
+Successfulthirdsource is separately tested with externalHTTPfixtures through
+research/robots/page parsing, excluding searchsnippets. Oldfunction restored
+solelyinmemory causes thattest tofail (1failure/0errors); independenttechnical
+3testsPASS/scopedGO/noP1P2. No peerwrites/net/model/containercall.
+
+Final297focusedPASS; complete frozen full2812PASS/7existing skips66.889seconds;
+Ruff/diffPASS. Golden42families/316steps/74issues,29Core+29realqualityOPEN.
+All15actualHTTPattempts across these2probes and publicmetadata/logs/attribution
+are preserved under canonical-web-budget/. Detailed diagnosis/boundaries in
+CONTEXTUAL_DJ_WEB_SOURCE_BUDGET_20261020.md. No failedpagebody/snippet/stalecopy
+used as evidence. NarrativequalityNO_GO; currentactualanswertextsunmodified.
+No key/modelcall, push/merge/install, speaker/serviceaction, cleanup/nextslice.
