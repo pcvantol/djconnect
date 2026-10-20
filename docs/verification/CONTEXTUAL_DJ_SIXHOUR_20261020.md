@@ -137,3 +137,63 @@ RapportSHA256 `9b9c6d0a2cac8a16ed97604783b08b102bb02d37e6b16ac5523111e2bb2f612e`
 Concrete vervolganalyse in dezelfdeWIP: geselecteerdecomposerantwoord reciteert oorspronkelijke MusicBrainzcredit, maar de compacte source-IDreview krijgt daarvoor geen publiek bronspan-ID. Onderzoek de al gekwalificeerde originele creditcontext en een strikt brongebonden reviewprojectie; geen Wikipedia- of willekeurig label gebruiken om een recording/workcredit te bewijzen. Bandconcept voegt nog nietonderbouwde betekenis/rol/tijdlijn toe; geen guards afzwakken of herhalen zonder gerichte delta.
 
 Definitieve bronvalidatie voor ditcheckpoint: **2830tests,7bestaandeskips,PASS105,032s**; Ruff/diff/inventarisPASS. Eerste55-testfocusrun faalde alleen op de bewust verouderde333/83/38inventarisaantallen; bijgewerkt334/84/39, volledige suite daarnaPASS. Golden42families/334stappen/84rapporten;39Core+29actualqualitygatesOPEN. Geen native/installed/audibleacceptatie, qualifiedconsumerexport, push/merge/installatie of functieafsluiting uit ditbewijs.
+
+## External producer priorities and Pi scope correction —07:23UTC
+
+Peter explicitly prioritized concrete requests from other lanes, then the remaining
+GitHub Brand V2 rollout, then Core narrative work. No provider calls were made
+for these documentary/renderer changes; the cumulative grant remains16reserved,
+16completed and284remaining.
+
+- `833c76b291f2cd5083885d372d0d24756f18fb20` updates the capability matrix,
+  both current Pi profiles, app scope and renderer classification. Pi4-inch and
+  Pi10-inch have the same Profile-authorized feature target as Apple. Missing
+  speech/local audio is detected hardware/handshake availability, not a permanent
+  Pi contract ban; authorized remote music controls remain usable.
+- `45d3eeadccd557878730062cd91a02c935b07f48` reconciles the older platform
+  foundation, family reference, experience roadmap and connectivity wording.
+  Native Linux/OS realization and actual transport qualification remain distinct.
+  Original assessment/foundation/family bodies are preserved byte-for-byte in
+  `docs/history/assessments/`. Both doc reviews returned scopedGO/noP1/P2;
+  links/original bytes and12existing architecture/transport tests were checked.
+- `512a8c3c86433816bf7faea07dd10440ab2dbfc7` supplies the shared receiver's
+  requested VibeCast connect hero/palette and Brand V2 treatment. Builder1.1.2
+  authenticates the new canonical40px headset input; larger glass assets have no
+  extra CSS button. Actual host/status/Session meaning is preserved. Renderer
+  and all host JavaScript are byte-unchanged from the parent.
+
+Renderer validation:28focused testsPASS1.239s; independent scoped producerreview
+GO; six actual Chromium viewport/locale/reduced-effect sequences with synthetic
+WebSocket input, no JavaScript errors or horizontal overflow. Visual inspection
+found and fixed an empty second grid column before final captures. This is
+browser/layout evidence, not actual HA/CAF/native/physical acceptance.
+
+The first full run failed on the current roadmap reference hash of the changed
+renderer build-contract document. Its current hash and generatedSOURCES view
+were reconciled without changing any graph node, edge, status, selection or
+historical pin. Focused roadmap/architecture regression13testsPASS20.794s.
+The resulting exact512a8c3c source passes **2830tests,7existing skips,83.413s**;
+Ruff, deterministic generated-page check anddiffcheckPASS. Failed/intermediate
+logs remain separate; they are not reported as successful qualification.
+
+A complete20-file local review archive contains local/Cast outputs, separate
+same-origin display output, full manifests/inventory, original matching build/
+verifier, all renderer/host sources and authenticated brand inputs. Rebuild and
+repeat archive bytes match; original pinned verifierPASS:
+
+- ArchiveSHA256 `b16516fd774e656b94b71e1a9e7e47551454d9b85474f1804afcf3a816c44d5e`.
+- InventorySHA256 `13e7c8b9c834b797624b6aca93bfc9bf28af7a51dcae69a189cf6ac4d7551a9c`.
+- BundlemanifestSHA256 `fcfe6740a4f64b0e1168205989819e1b2e41dabb056b3f206875af831a1299b6`.
+- Original1.1.2verifierSHA256 `4328352baa67c22b028b13d42bea431b98d098267c4b3b1564ab71dd55252604`.
+
+Local evidence is under the ignored
+`artifacts/core-contextual-sixhour-20261020/receiver-vibecast-1.1.2-512a8c3c/`.
+The existing receiver owner received the complete path/pins with review-only
+admission. An old1.1.1verifier must reject this changed source set. Protected
+source delivery, consumer import/publication and the GitHub social-preview
+export/settings remainOPEN. No source/fixture result closes those outcomes.
+Pi received the updated scope without a new writer or a false protected pin.
+The general private standalone answer lifetime remains a separate Core gap.
+Apple's qualified native Golden fixture/export and transport-attempt admission
+remain the next concrete producer dependency; old laboratory receipts and this
+300attempt grant do not authorize an Apple/native run.
