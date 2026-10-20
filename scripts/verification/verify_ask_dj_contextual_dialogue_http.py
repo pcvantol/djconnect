@@ -112,6 +112,8 @@ def reserve_quality_attempt(path, case_id, model):
                     (300, '2026-10-20T06:20:03Z', '2026-10-20T12:20:03Z'),
                 'DJC-CORE-SELECTED-LOOKUP-20261020T124800Z-MAX5':
                     (5, '2026-10-20T12:48:00Z', '2026-10-20T18:26:14Z'),
+                'DJC-CORE-SELECTED-RECHECK-20261020T172224Z-MAX5':
+                    (5, '2026-10-20T17:22:24Z', '2026-10-20T18:26:14Z'),
             }
             selected = grants.get(grant)
             if (selected is None or data.get('schema_version') != 1 or data.get('grant_id') != grant

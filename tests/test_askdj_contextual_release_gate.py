@@ -195,6 +195,66 @@ class ContextualReleaseGateTest(unittest.TestCase):
         http=next(k.value for k in client.keywords if k.arg=='http_client')
         self.assertFalse(next(k.value.value for k in http.keywords if k.arg=='follow_redirects'))
 
+    def test_evening_recheck_grant_is_separate_atomic_and_fixed(self):
+        import ast
+        from concurrent.futures import ThreadPoolExecutor
+        from datetime import UTC, datetime
+        import json
+        import os
+        from tempfile import TemporaryDirectory
+        from unittest.mock import patch
+        path=ROOT/'scripts/verification/verify_ask_dj_contextual_dialogue_http.py'
+        tree=ast.parse(path.read_text())
+        node=next(n for n in tree.body if isinstance(n,ast.FunctionDef)
+                  and n.name=='reserve_quality_attempt')
+        namespace={'json':json,'os':os}
+        exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),namespace)
+        reserve=namespace['reserve_quality_attempt']
+        grant='DJC-CORE-SELECTED-RECHECK-20261020T172224Z-MAX5'
+        initial={'schema_version':1,'grant_id':grant,'limit':5,'attempts':[],
+                 'starts_at':'2026-10-20T17:22:24Z','expires_at':'2026-10-20T18:26:14Z'}
+        with TemporaryDirectory() as directory, patch.dict('os.environ',{'DJC_MODEL_BUDGET_GRANT':grant}), \
+                patch('datetime.datetime') as clock:
+            clock.fromisoformat.side_effect=datetime.fromisoformat
+            clock.now.return_value=datetime(2026,10,20,17,30,tzinfo=UTC)
+            ledger=Path(directory)/'evening-budget.json'
+            old=Path(directory)/'finished-afternoon-budget.json'
+            old.write_text(json.dumps({'limit':5,'attempts':[{},{}],'status':'FINISHED'}))
+            original_old=old.read_bytes()
+            ledger.write_text(json.dumps(initial))
+            def attempt(index):
+                try:
+                    return reserve(ledger,f'fixture-{index}','fixture-model')
+                except RuntimeError as exc:
+                    return str(exc)
+            with ThreadPoolExecutor(max_workers=8) as pool:
+                outcomes=list(pool.map(attempt,range(12)))
+            self.assertEqual(sorted(v for v in outcomes if type(v) is int),list(range(1,6)))
+            self.assertEqual(outcomes.count('quality_cumulative_budget_exhausted'),7)
+            self.assertEqual(old.read_bytes(),original_old)
+            for change in ({'limit':6},{'grant_id':'unapproved'},
+                           {'starts_at':'2026-10-20T12:26:14Z'},
+                           {'expires_at':'2026-10-20T18:26:15Z'}):
+                ledger.write_text(json.dumps({**initial,**change}))
+                before=ledger.read_bytes()
+                with self.assertRaises(RuntimeError):
+                    reserve(ledger,'changed-grant','fixture-model')
+                self.assertEqual(ledger.read_bytes(),before)
+            for when in (datetime(2026,10,20,17,22,23,tzinfo=UTC),
+                         datetime(2026,10,20,18,26,14,tzinfo=UTC)):
+                ledger.write_text(json.dumps(initial))
+                before=ledger.read_bytes()
+                clock.now.return_value=when
+                with self.assertRaisesRegex(RuntimeError,'window_closed'):
+                    reserve(ledger,'outside-window','fixture-model')
+                self.assertEqual(ledger.read_bytes(),before)
+        # Actual runner wiring disables both ways a dispatch could silently multiply.
+        client=next(n for n in ast.walk(tree) if isinstance(n,ast.Call)
+                    and isinstance(n.func,ast.Name) and n.func.id=='AsyncOpenAI')
+        self.assertEqual(next(k.value.value for k in client.keywords if k.arg=='max_retries'),0)
+        http=next(k.value for k in client.keywords if k.arg=='http_client')
+        self.assertFalse(next(k.value.value for k in http.keywords if k.arg=='follow_redirects'))
+
     def test_actual_answer_pilot_covers_five_languages_and_cannot_qualify_a_fallback(self):
         from scripts.verification.askdj_contextual_quality import cases,check_answer
         rows=cases()
