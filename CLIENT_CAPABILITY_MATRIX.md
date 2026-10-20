@@ -19,14 +19,15 @@ Before six-field activation, an existing Session with unknown Mood has `snapshot
 
 ## Owner-selected Profile-authorized Pi app — 20 October 2026
 
-The owner selected one complete native app for both Pi sizes, with an explicit
-authorized Profile link on each device. The [current Pi scope clarification](docs/product/PI_PROFILE_AUTHORIZED_APP_V1.md)
-supersedes the older four-inch no-Flow/no-free-prompt product restriction for
-that selected app. It does not widen shared-wall, guest or VibeCast authority.
-Core retains Session, Profile, history and source ownership; consumer source,
-installation, private-answer lifetime and physical acceptance remain separate.
-The older capability assessments below retain their historical evidence and
-must not be read as qualification of this newer app.
+Both Pi sizes have the same target feature set as Apple in their explicitly
+Profile-authorized native app. The [current Pi scope](docs/product/PI_PROFILE_AUTHORIZED_APP_V1.md)
+supersedes the older restricted shared-appliance/no-Flow/no-free-prompt scope.
+Screen size changes presentation, not entitlement. Current Pi hardware lacks
+speech input and local audio playback; availability is detected and negotiated
+with the server, not permanently prohibited by `client_type`. Unavailable local
+routes are hidden; text and authorized remote Spotify/HA controls remain usable.
+Implementation, common producer gaps, installation and physical acceptance stay
+separate from this product decision. Shared/guest/VibeCast authority is unchanged.
 
 ## Existing delivered contracts and historical context
 
@@ -38,8 +39,8 @@ No client owns product features. Clients render or expose platform capabilities 
 
 | Class | Examples | Role |
 | --- | --- | --- |
-| Personal Experience | iOS, iPadOS, macOS, Apple Watch | Native, Profile-bound DJ Session experience |
-| Shared Experience | Browser, TV, Chromecast, Raspberry Pi, desktop, guest phones | Renderer Host for an active shared DJ Session; lifecycle and experience mode are classified separately |
+| Personal Experience | iOS, iPadOS, macOS, Apple Watch, explicitly Profile-authorized native Raspberry Pi app | Native, Profile-bound DJ Session experience |
+| Shared Experience | Browser, TV, Chromecast, shared-display Raspberry Pi deployment, desktop, guest phones | Renderer Host for an active shared DJ Session; lifecycle and experience mode are classified separately |
 | Room Experience | ESP32, Home Assistant Voice Satellite | Voice/control rendering for the active room DJ Session |
 
 ## Capability matrix
@@ -58,15 +59,17 @@ No client owns product features. Clients render or expose platform capabilities 
 
 ### Personal Experience
 
-Apple clients render the richest personal DJConnect experience while
-remaining backend-owned for intelligence, recommendations and Profile state.
+Apple clients and the Profile-authorized native Pi app expose the same shared
+product features while remaining backend-owned for intelligence, recommendations
+and Profile state. Available speech/local audio routes depend on detected hardware,
+permissions and the common client/server handshake, not platform-name exclusions.
 The Apple application is one shell with Owner, Guest and Demo runtimes, but its
 UI is capability-driven rather than mode-driven.
 
 ### Shared Experience
 
 Shared Experience uses one Universal Session Receiver for an active DJ Session.
-Browser, TV, Chromecast, Raspberry Pi, desktop and guest-phone modes consume
+Browser, TV, Chromecast, shared-display Raspberry Pi, desktop and guest-phone modes consume
 the event-driven Broadcast Feed and render it locally. They never receive
 private Profile state without explicit policy.
 
@@ -87,7 +90,10 @@ rows above do not widen new VibeCast TV permissions. See the
 [web-first experience](docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) and
 [route/lifecycle contract](docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md).
 
-By default, Pi should resolve to a shared profile unless explicitly linked to a personal profile.
+An explicitly Profile-linked native Pi app uses its authorized Profile and common
+app capabilities. A separately admitted shared-display deployment uses only its
+shared projection. Device identity, wall mounting and screen size do not infer a
+personal identity or permission to share private Profile content.
 
 ### Room Experience
 

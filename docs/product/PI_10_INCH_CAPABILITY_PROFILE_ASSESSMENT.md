@@ -1,90 +1,52 @@
-# CMB-06 — Raspberry Pi 10-inch Capability Profile Assessment
+# Raspberry Pi 10-inch — current application capability profile
 
-> Historical assessment of the pinned shared-wall implementation below. For the
-> owner's later selection of one full, explicitly Profile-authorized app on both
-> Pi sizes, use [the current scope clarification](PI_PROFILE_AUTHORIZED_APP_V1.md).
-> Shared-wall privacy restrictions remain binding for shared projections; this
-> assessment does not qualify the newer app's source, installation or physical UI.
+**Current product decision:** Apple feature parity for the Profile-authorized
+native Pi app, explicitly confirmed by the owner on 20 October 2026.
+**Implementation and acceptance:** separately qualified, not established by this document.
 
-**Status:** Assessment complete
+The 10-inch device runs the same native Pi application and exposes the same
+server-owned feature set as the Apple application. Screen size changes layout,
+navigation density and performance budgets; it does not remove Session Flow,
+free-text Ask DJ, Music DNA, history, Discover, rich contributions or authorized
+interaction. Use the [shared Pi app scope](PI_PROFILE_AUTHORIZED_APP_V1.md) for
+the complete capability, pairing and hardware-handshake rules.
 
-**Decision:** `GO_PI_10_INCH_PROFILE_PARTIALLY_QUALIFIED`
+## Authorization and runtime ownership
 
-**Scope:** Repository-first architecture assessment with `djconnect-pi` current
-`main` at `45be2233b33faa31b4dadc9ceba52a8d1ec5c2e0` as implementation evidence.
-The Pi repository contains shared native QML/PySide6 appliance infrastructure,
-but no separate Pi 10-inch renderer implementation. That absence is expected.
-No Pi code, Runtime, Renderer, Browser Receiver, Universal Receiver, API,
-roadmap or Execution Horizon behavior changes.
+Each device must be explicitly linked to its server-authorized Profile.
+The same owner, Profile, Session, source, revision, expiry and action permissions
+apply as on Apple. Shared/guest/VibeCast presentation remains a separately
+restricted surface; mounting the device on a wall does not itself turn a
+Profile-authorized private app into a guest renderer.
 
-## Canonical profile
+Home Assistant owns Session lifecycle, intelligence, history, knowledge,
+recommendations and playback effects. The Pi presents the existing shared
+contracts through native QML/PySide6 and sends explicit permitted commands;
+it does not create a local planner or a separate Pi conversation contract.
 
-Pi 10-inch is a **Registered + Interactive Shared Appliance Host** and the
-dedicated, always-on household wall experience. Its primary role is an
-authorized visual active-Session surface; its secondary role is bounded,
-explicit playback interaction. It does not own a Session, Runtime, Planner,
-Knowledge, DJMoment, Broadcast, authorization decision or Music Backend.
+## Hardware availability
 
-The canonical active-Session surface is:
+The selected hardware currently has no available speech input or local audio
+playback. Hide unavailable microphone, PTT, speech and local playback controls.
+This is a detected client/device capability, not a permanent Raspberry Pi API
+or product prohibition. A capable, permission-granted device may negotiate
+those routes through the common client/server handshake when implemented and
+qualified. Missing or unknown support means unavailable; model, screen size or
+`client_type` alone is not evidence of audio hardware.
 
-| Capability | Pi 10-inch disposition |
-| --- | --- |
-| Current playback | Renderer-safe artwork, track, artist, status, progress and bounded output/control projection. |
-| Current DJMoment | Renderer-safe current immutable DJMoment and resolved Presentation. |
-| Session experience | Full active renderer-safe Session Flow and Presentation timeline, owned by HA and presented without local ordering authority. |
-| Session context | Compact renderer-safe Session Direction / active DJ context where supplied by an existing authorized projection. |
-| Playback interaction | Explicit play, pause, next, previous, volume/output and backend-authorized queue/playlist actions. |
-| Ask DJ | At most renderer-safe, explicitly authorized shared-surface projection or actions; no unrestricted personal history, free-form shared chat authority, local PTT, TTS or local DJ audio. |
+Spotify/HA playback on another authorized output remains controllable, including
+queue, playlists, albums, volume and output selection. Lack of a local speaker
+does not disable those remote music controls.
 
-The full Session Flow is canonical for Pi 10-inch and intentionally absent on
-Pi 4-inch. The two hosts are independently assessed: Pi 10-inch is not an
-expanded Pi 4-inch, and Pi 4-inch is not a reduced Pi 10-inch.
+## Qualification still required
 
-## Experience, interaction and privacy boundaries
+Qualify the actual 10-inch native layout, lifecycle, owner/Profile isolation,
+common feature behavior and handshake/route withdrawal on the target device.
+An unsupported hardware route must remain hidden without blocking text or the
+rest of the application. Source/unit/render evidence, installation, live server
+behavior and physical or audible acceptance are separate outcomes.
 
-The 10.1-inch portrait, touch, permanent wall-mount and continuous appliance
-context support glanceable shared Session presentation and explicit nearby
-touch interaction. They do not establish a personal dashboard, second music
-player, Browser Receiver, local Session continuity mechanism or renderer-owned
-social/audience authority.
-
-Interactive DJMoments are not a current Pi 10-inch capability. A future
-assessment may determine whether existing renderer-safe, bounded response
-forms suit the shared wall surface; it may not infer Quiz, Poll, Prediction or
-Audience Expression delivery from this profile. Audience Experience remains
-deferred and server-owned; no participant identity, free-form chat, personal
-history, audience control or Planner influence belongs to this host.
-
-Music DNA, Profile details, personal Ask DJ history, provider payloads,
-credentials, tokens, internal Runtime context and private Session history must
-never appear on the shared wall surface. A backend-resolved shared profile may
-provide only the existing renderer-safe shared projection; the Pi never infers
-a personal identity locally.
-
-## Native technology boundary
-
-Native QML remains the canonical Pi 10-inch implementation direction. The
-existing Pi repository supplies native QML/PySide6, kiosk/appliance lifecycle,
-deployment, update and diagnostics foundations. Universal Receiver remains a
-separate HA-hosted browser Renderer Host and cannot replace the Pi native
-appliance. A kiosk browser is therefore not the canonical Pi 10-inch profile.
-
-## Qualification result
-
-The capability profile is sufficient to bound later implementation, but is
-only partially qualified because no repository evidence yet identifies and
-qualifies the concrete 10.1-inch portrait display, touch/mount/deployment path
-or its native appliance behavior on target hardware.
-
-### Remaining qualification items
-
-1. **Concrete 10-inch hardware and appliance evidence** — identify the target
-   portrait display/touch/mount and qualify native QML deployment, continuous
-   presence and shared-room operation on that hardware.
-2. **Shared-wall projection evidence** — qualify the existing renderer-safe
-   Session Flow, Presentation and bounded shared-profile visibility on the
-   concrete host before implementation validation.
-
-Both are Future Assessment evidence. They authorize no Pi implementation,
-browser substitution, Audience capability, Interactive DJMoment capability,
-privacy-policy change or API expansion.
+The previous CMB-06 assessment concerned a much narrower shared-appliance
+implementation at a pinned old source. Its [immutable assessment record](../history/assessments/CMB_06_PI_10_INCH_20261020_SUPERSEDED.md)
+retains that evidence, including its old qualification decision. Its intentional
+feature omissions are superseded product scope and are not current Pi restrictions.

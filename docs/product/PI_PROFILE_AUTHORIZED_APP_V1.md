@@ -1,23 +1,27 @@
 # Profile-authorized native Pi app — owner scope clarification
 
-Owner-selected scope, recorded 20 October 2026. Core owns this capability
+Owner-selected scope, recorded and explicitly expanded on 20 October 2026. Core owns this capability
 clarification; the existing Pi writer owns implementation in
 `pcvantol/djconnect-pi` PR111. This local source increment is not a protected
 consumer pin, implementation qualification, installation or physical acceptance.
 
 ## Selected product scope
 
-The owner selected one complete native app for Pi10 and the four-inch Pi, with
-an explicit authorized Profile link on each. Both sizes may present the shared
-application's Session, Flow, Now Playing, queue, playlists, Ask DJ text, history
-and other existing Profile-authorized functions when the server grants them.
-Layout follows the actual screen size; the smaller screen alone is not a reason
-to remove the selected Session/Flow or free-text Ask DJ feature.
+The owner selected one complete native app for Pi10 and the four-inch Pi,
+explicitly linked to an authorized Profile on each device, with **the same
+feature set as the Apple application**. This includes Session and Flow,
+Now Playing and remote music controls, queue, playlists and albums, Ask DJ text,
+selected-contribution “tell me more”, relevant follow-ups, history, Music DNA,
+Discover, shared settings, rich media and other authorized app interactions.
+Feature delivery and any common producer gaps remain separately qualified.
+Neither a small screen nor `client_type: raspberry_pi` is a reason to prohibit
+these shared features. Native layout adapts to display size and device resources.
 
-This supersedes only the older product disposition which intentionally omitted
-Flow and free-prompt Ask DJ on the four-inch appliance. The CMB-05/CMB-06
-assessments remain historical records of their pinned source and evidence.
-Their completion does not establish delivery of the newly selected app.
+This replaces the earlier shared-appliance-only/no-Flow/no-free-prompt product
+dispositions for the Profile-authorized app on **both** sizes. The original
+CMB-05/CMB-06 assessments remain immutable historical evidence, linked from the
+updated current capability documents. Their completed old assessments do not
+establish delivery of the current complete app.
 
 ## Existing authority and transport
 
@@ -40,9 +44,32 @@ only actually granted functions and performs only explicit permitted actions.
 This document invents no new capability JSON field or endpoint. A client-local
 free-input declaration is not a server permission or an independent producer pin.
 
-Mic/PTT, microphone upload and local DJ TTS/audio are outside this selected Pi
-scope until a separate explicit product decision. Existing Apple speech work
-does not grant those functions to Pi by inheritance.
+## Hardware detection and client/server handshake
+
+Current target Pi hardware has no available speech input or local audio playback.
+That limits available routes, not the shared product contract. The client detects
+microphone/capture, speech-provider and local audio-output support, including OS
+permission, and negotiates supported functions with the server through the
+common capability handshake. Do not implement a blanket Pi/client-type ban or
+invent a separate Pi voice/conversation contract. This scope clarification does
+not invent new wire fields or claim the handshake is already implemented.
+
+Offer a route only when the actual client capability, relevant server capability,
+current authorization and explicit user choice permit it. Unknown, missing,
+denied or withdrawn support is unavailable. Hide unavailable microphone/PTT,
+local speech and local audio-playback actions; retain text-only operation and
+all other permitted app features. Re-evaluate on reconnect and capability,
+permission or output changes; stale capability cache must not keep a route active.
+A future capable Pi does not need a product-scope amendment solely because it
+can supply a microphone or speaker; its concrete route still needs implementation
+and ordinary qualification.
+
+Remote Spotify/HA playback remains available on authorized outputs. A Pi without
+a local speaker can still control play/pause, queue, playlists/albums, volume and
+output selection. “No local playback” must not hide those remote music controls.
+Likewise, a missing local speech route alone is not proof that a separately
+available, authorized HA route is unavailable; present actual target/route
+availability using the common speech policy and its text-only preference.
 
 ## Private app versus shared display
 
