@@ -51,3 +51,21 @@ Pi installation or source-qualified Core revision is preclaimed.
 Final validation:16 documentation/lifecycle/HACS/roadmap tests PASS16.334s;
 equal-prefix correction verified and every predecessor body byte preserved.
 Exact review and protected delivery remain pending at this freeze.
+
+## Protected source and separate documentary Finalization
+
+SourcePR1244 protected squash merge at2026-10-20T19:33:47Z is
+76ae5b7b06b6ba63a400788eab704042c9c9a611. Complete tree
+2ec51b8148a0128a2b72a6fdb363b69b2a9b9193 equals independently reviewed exact
+ad627fc7d112695145ed6aa2b1e2627517fb7f62. Fresh Owner Authorization39484092881
+artifact binds exact repository/PR/main/candidate/resultPASS.31 candidate checks
+SUCCESS, five conditionalSKIPPED and only explicitly nonblocking TDE observe
+pending; normal protected merge without bypass. Current source Validate/CodeQL/
+canonical source reconciliation remain observed separately, not preclaimed.
+
+This distinct Finalization changes eight documentary files only, preserves all
+previous bodies and exact manifest50e0 bytes, and creates no new authority,
+source/consumer/runtime change or installed claim. Producer handoff requires actual
+source canonical qualification and protected Finalization readback. Pi owner alone
+performs the existing qualified two-instance workflows; no direct installer route,
+package republish, credentials/Profile change or new model call is introduced.
