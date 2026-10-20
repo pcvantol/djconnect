@@ -60,6 +60,17 @@ PRIVATE_RELATION = re.compile(
 )
 
 
+def safe_lookup_topic(value):
+    """One literal public work name as search text, never identity or evidence."""
+    if (not isinstance(value, str) or not 1 <= len(value) <= 80
+            or value != value.strip() or not any(c.isalpha() for c in value)
+            or any(not c.isprintable() for c in value)
+            or any(c in value for c in '\"“”«»`<>[]{}|:\\')
+            or UNSAFE_QUERY.search(value) or PRIVATE_RELATION.search(value)):
+        return ''
+    return value
+
+
 class ResearchUnavailable(ValueError):
     """Safe public-retrieval failure; never include provider payloads."""
 
@@ -356,12 +367,21 @@ def _artist_episode_score(text):
         r'bande.originale|invit[éeoa]\w*|banda.sonora|actu[oó])\b',text,re.I)))
 
 
-def paragraph_excerpt(text, question, maximum, *, prefer_artist_episode=False, story_topic=''):
+def paragraph_excerpt(text, question, maximum, *, prefer_artist_episode=False, story_topic='', lookup_topic=''):
     """Select whole original paragraphs, retaining original document offsets."""
     paragraphs = list(re.finditer(r'[^\n]+',text))
     words = {w.casefold() for w in re.findall(r'[\wÀ-ÿ]+',question) if len(w)>4}
     from ..session_story_variety import passage_score
+    lookup_topic = safe_lookup_topic(lookup_topic)
+    def mentions_topic(paragraph):
+        if not lookup_topic:
+            return False
+        # A short title must not rank an ordinary word such as one/someone.
+        if len(lookup_topic) < 4:
+            return lookup_topic.casefold() in {s.casefold() for s in source_work_anchors(paragraph)}
+        return bool(re.search(r'(?<!\w)' + re.escape(lookup_topic) + r'(?!\w)', paragraph, re.I))
     ranked = sorted(enumerate(paragraphs),key=lambda row:(
+        -int(mentions_topic(row[1][0])),
         -passage_score(row[1][0], story_topic),
         -_artist_episode_score(row[1][0]) if prefer_artist_episode else 0,
         -len(words & {w.casefold() for w in re.findall(r'[\wÀ-ÿ]+',row[1][0])}),row[0]))
@@ -512,7 +532,7 @@ async def _qualified_wikipedia_title(fetch, qid, language):
     return cache[qid].get(language)
 
 
-async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expected_entity_id="", original_paragraphs=False, artist_introduction=False, story_topic=''):
+async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expected_entity_id="", original_paragraphs=False, artist_introduction=False, story_topic='', lookup_topic=''):
     # Exact title first, then title-qualified search. MediaWiki whole-article
     # extracts support only one page at a time: never assume search rank means
     # that the returned extract belongs to the requested person.
@@ -645,7 +665,7 @@ async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expe
             if type(revision) is int
             else ""
         )
-        chosen_text,ranges = (paragraph_excerpt(text,question,1800,prefer_artist_episode=artist_introduction,story_topic=story_topic)
+        chosen_text,ranges = (paragraph_excerpt(text,question,1800,prefer_artist_episode=artist_introduction,story_topic=story_topic,lookup_topic=lookup_topic)
                               if original_paragraphs else (excerpt(text,question,1800),()))
         return _source(
             "Wikipedia",
@@ -661,7 +681,7 @@ async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expe
     return None
 
 
-async def web_references(fetch, subject, question, locale, *, album=None, angle=""):
+async def web_references(fetch, subject, question, locale, *, album=None, angle="", lookup_topic=""):
     """Best-effort discovery, then actual public pages; no snippet-only evidence."""
     # Never export the full conversational question or its incidental private context.
     topic = (
@@ -673,6 +693,8 @@ async def web_references(fetch, subject, question, locale, *, album=None, angle=
     )
     from .exploration import ANGLES
     query = subject + ' official ' + ANGLES.get(angle, topic)
+    if lookup_topic := safe_lookup_topic(lookup_topic):
+        query += ' \"' + lookup_topic + '\"'
     if album is not None:
         query = subject + ' "' + album[2] + '" recording interview behind the scenes'
     search = "https://html.duckduckgo.com/html/?" + urlencode({"q": query})
@@ -737,7 +759,7 @@ async def web_references(fetch, subject, question, locale, *, album=None, angle=
 
 
 async def research(subject, question, locale, guard, *, qualified_music=False, expected_roles=(),
-                   expected_entity_id="", allow_web=True, fetch=None,original_paragraphs=False,artist_introduction=False,story_topic='',research_angle=''):
+                   expected_entity_id="", allow_web=True, fetch=None,original_paragraphs=False,artist_introduction=False,story_topic='',research_angle='',lookup_topic=''):
     """One explicit turn owns source work; caller keeps all owner/Session guards."""
     if (
         not isinstance(subject, str)
@@ -751,6 +773,7 @@ async def research(subject, question, locale, guard, *, qualified_music=False, e
     locale = str(locale).split("-")[0].lower()
     locale = locale if locale in {"en", "nl", "de", "fr", "es"} else "en"
     subject = safe_subject(subject, qualified=qualified_music)
+    lookup_topic = safe_lookup_topic(lookup_topic)
     sources = []
     state = {"state": "partial", "wikipedia": "unavailable", "web": "unavailable"}
     async def collect(fetch):
@@ -758,7 +781,8 @@ async def research(subject, question, locale, guard, *, qualified_music=False, e
             source = await wikipedia(
                 fetch, subject, question, locale, expected_roles=expected_roles,
                 expected_entity_id=expected_entity_id,original_paragraphs=original_paragraphs,
-                artist_introduction=artist_introduction,story_topic=story_topic
+                artist_introduction=artist_introduction,story_topic=story_topic,
+                **({"lookup_topic":lookup_topic} if lookup_topic else {})
             )
             if source:
                 sources.append(source)
@@ -767,7 +791,8 @@ async def research(subject, question, locale, guard, *, qualified_music=False, e
                     english = await wikipedia(
                         fetch, subject, question, "en", expected_roles=expected_roles,
                         expected_entity_id=source.entity_id,original_paragraphs=original_paragraphs,
-                        artist_introduction=artist_introduction,story_topic=story_topic
+                        artist_introduction=artist_introduction,story_topic=story_topic,
+                        **({"lookup_topic":lookup_topic} if lookup_topic else {})
                     )
                     # Combine language editions only with the same canonical
                     # public entity ID; a shared spelling alone is insufficient.
@@ -777,7 +802,8 @@ async def research(subject, question, locale, guard, *, qualified_music=False, e
             pass
         try:
             found = (
-                await web_references(fetch, subject, question, locale, **({"angle": research_angle} if research_angle else {}))
+                await web_references(fetch, subject, question, locale, **({"angle": research_angle} if research_angle else {}),
+                                     **({"lookup_topic":lookup_topic} if lookup_topic else {}))
                 if allow_web and (sources or qualified_music or MUSIC.search(question))
                 else []
             )

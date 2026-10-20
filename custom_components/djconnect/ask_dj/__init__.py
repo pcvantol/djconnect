@@ -2888,12 +2888,15 @@ async def _informational_assist_response(
                     "text_source": "core", "is_generated_text": False,
                     "knowledge_basis": "public_subject_required"}
         if subject:
+            from .dialogue import selected_lookup_topic
+            lookup_topic = selected_lookup_topic(turn, text, angle=research_angle)
             fetched_sources, research_state = await public_research.research(
                 subject, text, turn.style.get("language", "en"), turn.guard,
                 qualified_music=qualified_music,
                 original_paragraphs=bool(research_subject or public_research.rich_introduction(text)),
                 artist_introduction=bool(research_subject and not contextual_research),
                 research_angle=research_angle,
+                **({'lookup_topic':lookup_topic} if lookup_topic else {}),
                 expected_roles=tuple(s.get("role") for s in turn.source_context.get("subjects", [])
                                      if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
             turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)

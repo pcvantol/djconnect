@@ -107,15 +107,21 @@ def reserve_quality_attempt(path, case_id, model):
         grant=os.environ.get('DJC_MODEL_BUDGET_GRANT')
         limit=40
         if grant is not None:
-            if (grant != 'DJC-CORE-SIXHOUR-20261020T062003Z-MAX300'
-                    or data.get('schema_version') != 1 or data.get('grant_id') != grant
-                    or data.get('starts_at') != '2026-10-20T06:20:03Z'
-                    or data.get('expires_at') != '2026-10-20T12:20:03Z'):
+            grants = {
+                'DJC-CORE-SIXHOUR-20261020T062003Z-MAX300':
+                    (300, '2026-10-20T06:20:03Z', '2026-10-20T12:20:03Z'),
+                'DJC-CORE-SELECTED-LOOKUP-20261020T124800Z-MAX5':
+                    (5, '2026-10-20T12:48:00Z', '2026-10-20T18:26:14Z'),
+            }
+            selected = grants.get(grant)
+            if (selected is None or data.get('schema_version') != 1 or data.get('grant_id') != grant
+                    or data.get('starts_at') != selected[1]
+                    or data.get('expires_at') != selected[2]):
                 raise RuntimeError('quality_explicit_budget_grant_invalid')
             if not (datetime.fromisoformat(data['starts_at']) <= datetime.now(UTC)
                     < datetime.fromisoformat(data['expires_at'])):
                 raise RuntimeError('quality_explicit_budget_window_closed')
-            limit=300
+            limit=selected[0]
         if (data.get('limit') != limit or type(data.get('limit')) is not int
                 or not isinstance(data.get('attempts'),list)):
             raise RuntimeError('quality_cumulative_budget_ledger_invalid')
@@ -145,7 +151,10 @@ async def main():
         require_base(variation_base, initial_source_hashes)
         assert os.environ.get('DJC_SAFETY_PROBE') == 'catalogue_golden'
         assert not os.environ.get('DJC_CATALOGUE_CASES') and variation_corpus is None
-    api = AsyncOpenAI(api_key=access["api_key"], timeout=25, max_retries=0)
+    import httpx
+    # One reservation permits one dispatch: no SDK retries or HTTP redirects.
+    api = AsyncOpenAI(api_key=access["api_key"], timeout=25, max_retries=0,
+                      http_client=httpx.AsyncClient(follow_redirects=False))
     model = access.get("model") or "gpt-4o-mini"
     max_tokens = access.get("max_tokens", 700)
     assert type(max_tokens) is int and 1 <= max_tokens <= 3000

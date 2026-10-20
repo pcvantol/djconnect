@@ -7788,6 +7788,26 @@
         {
           "file": "tests/test_personal_dj_narration_public_artist.py",
           "method": "test_selected_public_telling_is_focus_only_and_private_bodies_cannot_supply_it"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_selected_public_episode_title_reaches_actual_search_without_fact_authority"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_selected_lookup_topic_is_one_public_work_not_private_or_query_instructions"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_lookup_topic_cannot_inject_search_operators_or_create_source_evidence"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_selected_lookup_ranks_only_literal_original_passage_without_short_word_collision"
+        },
+        {
+          "file": "tests/test_askdj_contextual_release_gate.py",
+          "method": "test_afternoon_five_attempt_grant_is_separate_atomic_and_fixed"
         }
       ],
       "steps": [
@@ -8005,7 +8025,7 @@
           "id": "ASKDJ-FLOW-selected-public-telling-focus",
           "language": "nl",
           "question": "Vertel meer over de concrete episode in deze geselecteerde publieke bijdrage.",
-          "expected_answer": "Use the exact model-suitable public telling as conversational focus only; deepen its episode with independently fetched evidence. Do not restart a metadata biography, promote focus into evidence, export private/Spotify bodies or survive source withdrawal. Equivalent Dutch production activity inflections retain semantic and work-scope review.",
+          "expected_answer": "Use the exact model-suitable public telling as conversational focus only; deepen its episode with independently fetched evidence. Do not restart a metadata biography, promote focus into evidence, export private/Spotify bodies or survive source withdrawal. Equivalent Dutch production activity inflections retain semantic and work-scope review. A standard generic tap may reuse one safe literal public work title in its existing lookup only; private/unsafe/ambiguous titles and different or uncertain aspects keep broad semantic lookup. Query context never creates evidence.",
           "model_policy": "Actual shared publication/open/Ask DJ route with declared source/model replies. Public focus grants no claim/source ID, private-body model processing or extra call/lifetime.",
           "owning_tests": [
             {
@@ -8015,6 +8035,26 @@
             {
               "file": "tests/test_personal_dj_narration_public_artist.py",
               "method": "test_selected_public_telling_is_focus_only_and_private_bodies_cannot_supply_it"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_selected_public_episode_title_reaches_actual_search_without_fact_authority"
+            },
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_selected_lookup_topic_is_one_public_work_not_private_or_query_instructions"
+            },
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_lookup_topic_cannot_inject_search_operators_or_create_source_evidence"
+            },
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_selected_lookup_ranks_only_literal_original_passage_without_short_word_collision"
+            },
+            {
+              "file": "tests/test_askdj_contextual_release_gate.py",
+              "method": "test_afternoon_five_attempt_grant_is_separate_atomic_and_fixed"
             }
           ],
           "acceptance_status": "owner_contract",

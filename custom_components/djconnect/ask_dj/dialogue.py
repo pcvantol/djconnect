@@ -756,6 +756,24 @@ def selected_public_focus(turn) -> dict:
     return {'text': text, 'authority': 'previous_public_telling_focus_only_not_fact_evidence'}
 
 
+def selected_lookup_topic(turn, question: str, *, angle="") -> str:
+    """A public telling can supply a search topic, never a source anchor.
+
+    Keep the exact canonical subject and original question. Multiple titles,
+    private/catalogue prose and unsafe query text retain ordinary broad lookup.
+    """
+    from .public_research import safe_lookup_topic, source_work_anchors
+    from .exploration import more_request
+    # Only the unambiguous generic tap affordance admits this optimization.
+    # Free-form/other-aspect questions keep their existing semantic broad lookup;
+    # they are neither rejected nor routed by this conservative helper.
+    if not more_request(question) or angle in {'members', 'current_events'}:
+        return ''
+    focus = selected_public_focus(turn)
+    titles = source_work_anchors(focus['text']) if focus else ()
+    return safe_lookup_topic(titles[0]) if len(titles) == 1 else ''
+
+
 def style_projection(payload: dict, active=None, profile=None, *, settings=None) -> dict:
     from ..mood import mood_zone_for_value
 

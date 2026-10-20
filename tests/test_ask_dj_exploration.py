@@ -69,6 +69,84 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(named_in_question('Brian Eno','tell me about Brian'))
         self.assertFalse(named_in_question('Alice','tell me about music'))
 
+    def test_selected_lookup_topic_is_one_public_work_not_private_or_query_instructions(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect.ask_dj.dialogue import model_source, selected_lookup_topic
+        from custom_components.djconnect.ask_dj.public_research import safe_lookup_topic
+        entry = {'archive_basis':'public_artist_narration_v1',
+            'qualified_fact_attribution':{'provider':'MusicBrainz', 'license':'CC0-1.0',
+                'url':'https://musicbrainz.org/work/00000000-0000-0000-0000-000000000001'},
+            'qualified_fact_text':'Synthetic original credit.',
+            'dialogue_subjects':[{'name':'Ada Reed', 'role':'composer'}]}
+        def turn(value):
+            return SimpleNamespace(selected_read_context=value, source_context=model_source(value),
+                interpreted_context_research=True)
+        for phrase in ('single “One”', 'nummer “Paper Lanterns”', 'Lied "Starlight"',
+                       'chanson «Étoile»', 'canción “Luz”'):
+            value = {**entry, 'text':'Ada Reed recorded the '+phrase+'.'}
+            self.assertTrue(selected_lookup_topic(turn(value), "Vertel meer"), phrase)
+        for text in ('No work is named here.', 'The single “One” and the album “Two”.',
+                     'The single “https://private.example”.', 'The single “site:private.example”.',
+                     'The single “api_key”.', 'The single “my wife”.',
+                     'The single “name@example.com”.', 'The single “a|b”.',
+                     'The single “a`b”.', 'The single “'+('x'*81)+'”.'):
+            self.assertEqual(selected_lookup_topic(turn({**entry, 'text':text}), 'Vertel meer'), '', text)
+        for basis in ('private_ephemeral', 'owner_metadata_narration_v1',
+                      'cc0_normalized_fields_v1', 'runtime_authored_direction_v1', ''):
+            private = {**entry, 'archive_basis':basis, 'text':'The single “Private title”.'}
+            self.assertEqual(selected_lookup_topic(turn(private), "Vertel meer"), '', basis)
+        value = turn({**entry, 'text':'The single “One”.'})
+        for question in ('En haar huidige concerten?', 'Tell me about the band members',
+                         'Mehr über die Alben', 'Et ses concerts ?', '¿Quiénes son los miembros?'):
+            self.assertEqual(selected_lookup_topic(value, question), '')
+        for angle in ('members', 'current_events'):
+            self.assertEqual(selected_lookup_topic(value, 'Vertel meer', angle=angle), '')
+        for question in ('Tell me more', 'Vertel meer', 'Erzähl mir mehr', 'Dis-m’en plus', 'Cuéntame más'):
+            self.assertEqual(selected_lookup_topic(value, question), 'One')
+        value.selected_read_context = None  # Same reset used by a new named subject.
+        value.source_context = {}
+        self.assertEqual(selected_lookup_topic(value, "Vertel meer"), '')
+        for value in (None, 17, '', ' One', 'One ', 'One\n', 'a\x00b', 'a\u2028b', 'a\u202eb', '123'):
+            self.assertEqual(safe_lookup_topic(value), '')
+
+    async def test_lookup_topic_cannot_inject_search_operators_or_create_source_evidence(self):
+        from urllib.parse import parse_qs, urlsplit
+        from custom_components.djconnect.ask_dj import public_research as research
+        class Fetch:
+            def __init__(self):
+                self.lookups = []
+            async def robots(self, url):
+                self.lookups.append(parse_qs(urlsplit(url).query)['q'][0])
+                return False
+        for value in ('Paper Lanterns', '" OR site:private.example', 'https://private.example', 'a\nb'):
+            fetch = Fetch()
+            found = await research.web_references(fetch, 'Ada Reed', 'Vertel meer', 'nl',
+                angle='composition', lookup_topic=value)
+            self.assertEqual(found, [])  # A query alone produces no source/evidence.
+            self.assertEqual(len(fetch.lookups), 1)
+            self.assertIn('Ada Reed official songwriting composition interview', fetch.lookups[0])
+            if value == 'Paper Lanterns':
+                self.assertIn('"Paper Lanterns"', fetch.lookups[0])
+            else:
+                self.assertEqual(fetch.lookups[0], 'Ada Reed official songwriting composition interview')
+
+    def test_selected_lookup_ranks_only_literal_original_passage_without_short_word_collision(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        lead = 'Ada Reed is a musician.'
+        earlier = 'Ada Reed made an ordinary release with someone and one other musician.'
+        exact = 'Ada Reed recorded the single “One” with another musician.'
+        original = '\n'.join((lead, earlier, exact))
+        text, ranges = research.paragraph_excerpt(original, 'Vertel meer', 105, lookup_topic='One')
+        self.assertEqual(text, lead+'\n'+exact)
+        self.assertTrue(all(original[a:b] in (lead, exact) for a,b in ranges))
+        for topic in ('A completely absent work', 'Starlight'):
+            text, ranges = research.paragraph_excerpt(original, 'Vertel meer', 105, lookup_topic=topic)
+            plain, original_ranges = research.paragraph_excerpt(original, 'Vertel meer', 105)
+            self.assertEqual((text, ranges), (plain, original_ranges))
+        longer = lead+'\n'+earlier+' Starlighter.'+'\n'+exact
+        self.assertEqual(research.paragraph_excerpt(longer, 'Vertel meer', 105, lookup_topic='Starlight'),
+                         research.paragraph_excerpt(longer, 'Vertel meer', 105))
+
     async def test_english_enrichment_reuses_resolved_local_entity_and_rejects_different_entity(self):
         from custom_components.djconnect.ask_dj import public_research as research
         async def guard():

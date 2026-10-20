@@ -1316,6 +1316,97 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(status, 409, result)
             self.assertEqual(len(calls), 2)  # No assessment dispatch after withdrawal.
 
+    async def test_selected_public_episode_title_reaches_actual_search_without_fact_authority(self):
+        from urllib.parse import parse_qs, urlsplit
+        await self.prepare_composer()
+        self.article_fixture = ('<p>Ada Reed is a musician.</p>'
+            '<p>Ada Reed recorded the single <i>Paper Lanterns</i> with Nora Vale 1.</p>')
+        self.answer = ('Ada Reed is componist van het werk achter deze opname. '
+            'Voor de single “Paper Lanterns” werkte Ada Reed samen met Nora Vale 1.')
+        moment = await self.publish()
+        self.assertIsNotNone(moment, self.debug)
+        calls, searches = [], []
+        research_angle = 'composition'
+        invention = 'Deze samenwerking vond plaats op een maanbasis.'
+        async def agent(hass, data, **kwargs):
+            projection = json.loads(data['text'].split('\nData:\n', 1)[1])
+            calls.append(projection)
+            if 'available' in projection or 'read_context_available' in projection:
+                reply = {'read':'research', 'reference':'selected', 'exclude_current':False,
+                    'subject':self.selected_credit.name, 'angle':research_angle}
+            elif 'evidence' in projection:
+                # The new search topic must never become proof for an invention.
+                self.assertNotIn('lookup_topic', projection['allowed_evidence_ids'])
+                reply = {'supported':False, 'unsupported_claims':[invention],
+                         'language_ok':True, 'style_ok':True}
+            else:
+                self.assertEqual(projection['selected_contribution']['text'], moment.content)
+                reply = invention
+            return {'response':{'speech':{'plain':{'speech':json.dumps(reply)
+                if isinstance(reply,dict) else reply}}}}
+        async def network(fetch, url, **kwargs):
+            if urlsplit(url).hostname == 'html.duckduckgo.com' and urlsplit(url).path == '/html/':
+                searches.append(parse_qs(urlsplit(url).query)['q'][0])
+            return await self.fetch(fetch, url, **kwargs)
+        payload = {**self.identity, 'client_message_id':'selected-episode-title-lookup',
+            'text':'Vertel meer', 'language':'nl', 'audio_response':'never',
+            'conversation_context':{'selected_moment':{
+                'session_id':self.session.session_id, 'moment_id':moment.moment_id}}}
+        with patch.object(self.research.PublicFetch, 'request', network), \
+                patch.object(self.pipeline, '_assist_context', return_value={'agent_id':'fixture-agent'}), \
+                patch.object(self.pipeline, '_call_conversation_process_transport', agent):
+            result,status = await self.fixture.handlers.async_handle_ask_dj_message_payload(
+                self.hass, payload, headers=self.headers)
+        self.assertEqual(status, 200, result)
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(len(searches), 1)
+        self.assertIn('"Paper Lanterns"', searches[0])
+        self.assertNotIn(moment.content, searches[0])
+        self.assertNotIn('componist', searches[0])
+        self.assertNotIn(invention, result['text'])
+        self.assertFalse(result['is_generated_text'])
+        self.assertFalse(result.get('playback_actions'))
+        # A different aspect of the SAME subject must not inherit the old work.
+        calls.clear()
+        searches.clear()
+        research_angle = 'current_events'
+        wiki_topics = []
+        original_wikipedia = self.research.wikipedia
+        async def observed_wikipedia(*args, **kwargs):
+            wiki_topics.append(kwargs.get('lookup_topic', ''))
+            return await original_wikipedia(*args, **kwargs)
+        with patch.object(self.research.PublicFetch, 'request', network), \
+                patch.object(self.research, 'wikipedia', observed_wikipedia), \
+                patch.object(self.pipeline, '_assist_context', return_value={'agent_id':'fixture-agent'}), \
+                patch.object(self.pipeline, '_call_conversation_process_transport', agent):
+            result,status = await self.fixture.handlers.async_handle_ask_dj_message_payload(
+                self.hass, {**payload, 'client_message_id':'selected-episode-other-aspect',
+                    'text':'En haar huidige concerten?'}, headers=self.headers)
+        self.assertEqual(status, 200, result)
+        self.assertEqual(len(calls), 3, result)
+        # Existing inherited-topic preparation plus the explicit read-plan lookup.
+        self.assertEqual(len(searches), 2)
+        self.assertTrue(all('Paper Lanterns' not in query for query in searches))
+        self.assertTrue(any('official concerts tour current dates' in query for query in searches))
+        self.assertTrue(wiki_topics)
+        self.assertTrue(all(topic == '' for topic in wiki_topics))
+        research_angle = 'composition'
+        # Revocation before the search dispatch must stop this same route.
+        calls.clear()
+        searches.clear()
+        async def revoked_network(fetch, url, **kwargs):
+            if urlsplit(url).hostname == 'html.duckduckgo.com':
+                await self.manager.async_end(owner_profile_id='profile-a', session_id=self.session.session_id)
+            return await network(fetch, url, **kwargs)
+        with patch.object(self.research.PublicFetch, 'request', revoked_network), \
+                patch.object(self.pipeline, '_assist_context', return_value={'agent_id':'fixture-agent'}), \
+                patch.object(self.pipeline, '_call_conversation_process_transport', agent):
+            result,status = await self.fixture.handlers.async_handle_ask_dj_message_payload(
+                self.hass, {**payload, 'client_message_id':'selected-episode-revoked'}, headers=self.headers)
+        self.assertEqual(status, 409, result)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(searches, [])
+
     async def test_missing_selected_producer_is_rejected_before_review(self):
         await self.prepare_producer()
         self.answer = self.answer.replace('Ada Reed','Lantern Quartet')
