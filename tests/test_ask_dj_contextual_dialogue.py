@@ -1459,6 +1459,15 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             response.content_type = "application/octet-stream"
             with self.assertRaisesRegex(research.ResearchUnavailable, "content_type"):
                 await real_request(fetch, "https://artist.example.org/about")
+            response.content_type = "application/json"
+            response.headers = {'ETag':'"123"','Set-Cookie':'not-exported'}
+            plain = await real_request(fetch, "https://artist.example.org/about")
+            versioned = await real_request(fetch, "https://artist.example.org/about", with_etag=True)
+            self.assertEqual(len(plain),3)
+            self.assertEqual(versioned,(*plain,'"123"'))
+            response.status = 404
+            failed = await real_request(fetch, "https://artist.example.org/about", with_etag=True)
+            self.assertEqual(failed,(404,'','https://artist.example.org/about',None))
         self.assertTrue(all(options == {"allow_redirects": False} for _, options in calls))
 
     async def test_public_research_fetch_session_end_race_does_not_publish_or_call_agent(self):

@@ -207,3 +207,12 @@ policy refuses it. Two Wikipedia editions remain; no official website body,
 third publisher or generated story was accepted. Eleven HTTP attempts total,
 zero model/key calls; both receipts remain preserved. Actual prose, semantic
 novelty and all client/speech gates above remain open.
+
+
+04:22UTC source refinement keeps the same artist owner and public witness shape
+but replaces the oversized full-entity query with the official P856 property-
+scoped response and its same-response provider-defined entityversion. No extra
+request, later revision lookup, retry, cap increase or consumer grant. Actual
+Metallica reaches robots403 and still admits no website body/story; narrative
+NO_GO remains. See ARTIST_WEBSITE readback for original refusals, raw validator,
+strict version/type guards, source bytes and separate qualification boundaries.

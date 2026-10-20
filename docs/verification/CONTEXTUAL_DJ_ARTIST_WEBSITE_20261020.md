@@ -11,7 +11,9 @@ onboarding4.5.4,488GiBfree. The unrelated dashboard lock is preserved.
 
 Automatic artist narration now keeps the existing exact-QID Wikipedia lookup
 as prerequisite. Within that same PublicFetch it may obtain the same entity's
-Wikidata P856 statements, with a positive exact integer entity revision. Only
+Wikidata P856 statements with a same-response numeric entity version. The current
+property-scoped REST path below supersedes the earlier full-entity Action API
+request; it does not increase request/size/deadline limits. Only
 one unambiguous normal/preferred, value-typed public HTTPS URL is eligible.
 Only an optional strictly typed P407 website-language qualifier is allowed;
 time/scope/unknown or malformed qualifiers decline. Deprecated/unknown/
@@ -149,3 +151,68 @@ Final frozen regression:2821testsPASS/7existing skips67.462seconds, Ruff/diffPAS
 Canonical current document hash regenerated/validated PASS_INCLUDED_SNAPSHOT_ONLY;
 frozen historical receipts untouched. Existing unclosed SQLite/test task warnings
 remain visible; no memory, crash, latency, native or audible PASS is inferred.
+
+
+## 04:22UTC actual large-entity failure and property-scoped correction
+
+Actual public-source probe for Metallica separately discovers Q15920 through
+qualified Dutch Wikipedia, then invokes the actual artist source owner. No
+playback fact, paired private owner, HA configuration, model/key, installation,
+port or speaker is present. Each immutable candidate is source-hashed before/
+after and run in the same pinned disposable HA image.
+
+| Attempt | Actual HTTP | Result |
+| --- | --- | --- |
+| Exact83d1bb8f owner | 1identity +3owner,1.423s | Both Wiki editions retained; full info+claims exceeds128KiB before site lookup |
+| Separate property-shape diagnostic | 1request,0.237s | Actual canonical P856 REST response200/474bytes; no source admission |
+| First property-scoped candidate | 1identity +3owner,1.127s |474bytes, actual weak ETag refused by initial strong-only design |
+| Final entity-version candidate | 1identity +4owner,1.229s | Same property/revision admitted; selected site's robots403; both Wiki retained, no website body |
+
+Fourteen actual source-probe HTTP attempts across these three probes and the
+one diagnostic, including three separate identity lookups. Official documentation
+retrieval is separate from those source-owner request receipts. Production owner remains one PublicFetch with
+eight requests/128KiB/twelve seconds, at least three slots required before site
+work, no full-entity fallback/retry, extra generation or source-budget increase.
+The correction asks only for P856 at the exact canonical Wikidata/QID URL.
+
+The official [Wikibase GET-statements handler](https://github.com/wikimedia/mediawiki-extensions-Wikibase/blob/master/repo/domains/crud/src/RouteHandlers/GetItemStatementsRouteHandler.php)
+filters the requested property and encodes its entity revision in the same
+response's ETag. The actual edge returns W/"2548236250". The initial strict
+strong-only candidate correctly declined it. Independent design review permits
+the exact optional W/ prefix as this provider's entity-version token, not a
+claim of representation-byte equality. Only quoted positive decimal <=2^53-1,
+status200, exact destination/QID/property and typed original statement qualify.
+Whitespace, alternate/lowercase prefixes, tag lists, missing/invalid/oversized
+versions and wrong identities/properties/schemas decline. No arbitrary public
+site ETag gains this meaning. Raw validator and actual body SHA are kept in the
+local source receipt; neither a later info request nor a cached header is used.
+
+PublicFetch's opt-in with_etag returns only the same-response ETag alongside its
+existing result; default callers retain their original three values. Non200
+returns no validator, no other response headers are exported, and all original
+URL/DNS/redirect/content/size/request guards remain. REST P407 language metadata
+is strictly converted; deprecated statements stay excluded. Existing claim-ID/
+QID/rank/publicURL/robots/exactpage/paragraph/fullreview guards still apply.
+The public citation witness retains the same basis/entity/claim/integer-version
+shape; no consumer flag, new audience or qualified producer pin is delivered.
+
+The final actual source owner obtains P856 claim
+Q15920$ADABBA2C-A544-49CE-B258-8B0960410A3F and entityversion2548236250, then
+https://www.metallica.com/robots.txt returns403. No page body was requested,
+no alternative domain or bypass tried, and NO_ADMITTED_WEBSITE_SOURCE is the
+correct result. These two Wiki editions are one publisher, not rich third-source
+acceptance. New issue remains OPEN at feature level. Narrativequality NO_GO and
+the40reserved/39completed/zero-remaining model ledger are unchanged.
+
+Owning tests now model the actual property response and same-response version,
+including weak/strong positives and strict malformed negatives. The real fetch
+metadata path is tested separately; original publication/sharedJS/SQLite/paired
+retained-speech chain remains covered with explicit external fixtures. Current
+Golden42families/329steps/79reports;34Core+29actual-qualityOPEN. Final independent
+review/full regression results follow below; no actual story/native/audio PASS.
+
+Final frozen full2822testsPASS/7existing skips68.538s, Ruff/diffPASS. Product
+bytes match actualv3snapshot, no new model/key calls or guard changes after it.
+Independent20source/fetch testsPASS and causal historicalfunctioncounterexample
+1failure/0errors; scoped SOURCEGO only. Existing resource/testtask warnings
+remain visible; no resource/crash/performance/native/audio qualification.

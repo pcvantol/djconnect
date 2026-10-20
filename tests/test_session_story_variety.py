@@ -13,6 +13,24 @@ from tests import test_personal_dj_narration_public_artist as owner
 from custom_components.djconnect import session_story_variety as variety
 
 
+def website_rest_reply(entity):
+    """Translate only this test's legacy statement fixtures into actual REST shape."""
+    rows=[]
+    for claim in entity.get('claims',{}).get('P856',[]):
+        snak=claim.get('mainsnak',{})
+        qualifiers=[]
+        for prop,values in claim.get('qualifiers',{}).items():
+            for value in values or [{}]:
+                qualifiers.append({'property':{'id':prop,'data_type':value.get('datatype')},
+                    'value':{'type':value.get('snaktype'),
+                        'content':value.get('datavalue',{}).get('value',{}).get('id')}})
+        rows.append({'id':claim.get('id'),'rank':claim.get('rank'),
+            'property':{'id':snak.get('property'),'data_type':snak.get('datatype')},
+            'value':{'type':snak.get('snaktype'),'content':snak.get('datavalue',{}).get('value')},
+            'qualifiers':qualifiers})
+    return json.dumps({'P856':rows}),'"'+str(entity.get('lastrevid'))+'"'
+
+
 class StoryVarietyPolicyTest(unittest.TestCase):
     def test_topic_rotation_is_published_only_and_not_a_fixed_output_template(self):
         rows=[]
@@ -222,10 +240,12 @@ class StoryVarietyOwnerTest(unittest.IsolatedAsyncioTestCase):
             self.f.fetch_owners.append(fetch)
             self.f.urls.append(url)
             if urlsplit(url).hostname=='www.wikidata.org':
-                return 200,json.dumps({'entities':{'Q1':{'id':'Q1','lastrevid':123,
+                body,etag=website_rest_reply({'id':'Q1','lastrevid':123,
                     'claims':{'P856':[{'id':'Q1$'+'a'*36,'rank':'normal',
                         'mainsnak':{'property':'P856','datatype':'url','snaktype':'value',
-                            'datavalue':{'value':'https://artist.example/'}}}]}}}}),url
+                            'datavalue':{'value':'https://artist.example/'}}}]}})
+                self.assertTrue(kwargs['with_etag'])
+                return 200,body,url,etag
             if url.endswith('/robots.txt'):
                 return 200,'User-agent: *\nAllow: /',url
             return 200,('<html lang="en"><p>Nora Vale 1 recorded the album <i>Paper Lanterns</i> '
@@ -334,13 +354,14 @@ assert.equal(validate(bad),null);"""
                 self.requests+=1
                 self.visited.append(url)
                 if 'www.wikidata.org' in url:
-                    return 200,json.dumps({'entities':{'Q1':self.entity}}),url
+                    body,etag=website_rest_reply(self.entity)
+                    return 200,body,url,etag
                 return 200,self.text,('https://other.example/' if self.redirect else url)
             async def robots(self,url):
                 self.requests+=1
                 return self.allowed
         invalid=[]
-        for change in ({'id':'Q2'},{'lastrevid':0},{'lastrevid':True},{'lastrevid':2**53}):
+        for change in ({'lastrevid':0},{'lastrevid':True},{'lastrevid':2**53}):
             invalid.append({**deepcopy(fixture),**change})
         for change in ({'rank':'deprecated'},{'qualifiers':{'P582':[]}},
                 {'mainsnak':{**claim['mainsnak'],'snaktype':'somevalue'}},
@@ -387,46 +408,57 @@ assert.equal(validate(bad),null);"""
                 self.assertEqual(sources,[])
         self.assertEqual(self.f.calls,[])
 
-    async def test_actual_wikidata_info_request_and_language_only_qualifier_keep_website_identity(self):
+    async def test_property_scoped_wikidata_response_keeps_entity_version_and_language_identity(self):
         from copy import deepcopy
-        from urllib.parse import parse_qs,urlsplit
-        from custom_components.djconnect.official_artist_research import website_reference,language_qualifiers_only
+        from custom_components.djconnect.official_artist_research import website_reference
         identity=('artist','https://www.wikidata.org/wiki/Q1','Nora Vale 1','Group','Q1')
-        language={'property':'P407','snaktype':'value','datatype':'wikibase-item',
-            'datavalue':{'type':'wikibase-entityid','value':{'entity-type':'item','id':'Q1860','numeric-id':1860}}}
-        claim={'id':'Q1$'+'a'*36,'rank':'normal','qualifiers':{'P407':[language]},
-            'mainsnak':{'property':'P856','snaktype':'value','datatype':'url',
-                       'datavalue':{'type':'string','value':'https://artist.example/'}}}
+        language={'property':{'id':'P407','data_type':'wikibase-item'},
+                  'value':{'type':'value','content':'Q1860'}}
+        row={'id':'Q1$'+'a'*36,'rank':'normal','qualifiers':[language],
+             'property':{'id':'P856','data_type':'url'},
+             'value':{'type':'value','content':'https://artist.example/'}}
         class Fetch:
             maximum_requests=8
-            requests=0
+            def __init__(self,*,data=None,etag='"123"',redirect=False):
+                self.requests=0
+                self.data={'P856':[row]} if data is None else data
+                self.etag,self.redirect=etag,redirect
             async def request(self,url,**kwargs):
                 self.requests+=1
-                if urlsplit(url).hostname=='www.wikidata.org':
-                    props=parse_qs(urlsplit(url).query)['props'][0].split('|')
-                    entity={'id':'Q1','claims':{'P856':[claim]}}
-                    # The actual API omits revision metadata unless info was
-                    # requested; do not make the fixture invent it for claims.
-                    if 'info' in props:
-                        entity['lastrevid']=123
-                    return 200,json.dumps({'entities':{'Q1':entity}}),url
+                if 'www.wikidata.org' in url:
+                    # The actual property response is small; do not invent
+                    # revision metadata inside its JSON or fetch all claims.
+                    self_test.assertEqual(url,'https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q1/statements?property=P856')
+                    self_test.assertTrue(kwargs['with_etag'])
+                    return 200,json.dumps(self.data),'https://different.example/' if self.redirect else url,self.etag
                 return 200,'<p>Nora Vale 1 recorded an album in the studio.</p>',url
             async def robots(self,url):
                 self.requests+=1
                 return True
+        self_test=self
         fetch=Fetch()
         source=await website_reference(fetch,identity,'recording')
         self.assertIsNotNone(source)
         self.assertEqual(source.artist_identity,identity)
         self.assertEqual(source.entity_revision,123)
         self.assertEqual(fetch.requests,3)
-        self.assertTrue(language_qualifiers_only(claim))
-        for qualifiers in ({'P580':[]},{'P407':[]},{'P407':[{'snaktype':'somevalue'}]},
-                {'P407':[None]},{'P407':[{**language,'datavalue':None}]},
-                {'P407':[language],'P582':[]},
-                {'P407':[{**language,'datavalue':{'type':'wikibase-entityid',
-                    'value':{'entity-type':'item','id':'Q1860','numeric-id':1}}}]}):
-            self.assertFalse(language_qualifiers_only({**deepcopy(claim),'qualifiers':qualifiers}),qualifiers)
+        weak=await website_reference(Fetch(etag='W/"123"'),identity,'recording')
+        self.assertIsNotNone(weak)
+        self.assertEqual(weak.entity_revision,123)
+        for etag in (None,'123','w/"123"',' W/"123"','W/"123", "124"','"0"','"-1"','"true"','"'+str(2**53)+'"'):
+            invalid=Fetch(etag=etag)
+            self.assertIsNone(await website_reference(invalid,identity,'recording'))
+            self.assertEqual(invalid.requests,1)
+        for override in ({'id':'Q2$'+'a'*36},{'property':{'id':'P31','data_type':'url'}},
+                {'value':{'type':'somevalue'}},{'qualifiers':[{'property':{'id':'P580'},'value':{}}]},
+                {'qualifiers':[{**deepcopy(language),'value':{'type':'value','content':'Q0'}}]}):
+            invalid=Fetch(data={'P856':[{**deepcopy(row),**override}]})
+            self.assertIsNone(await website_reference(invalid,identity,'recording'))
+            self.assertEqual(invalid.requests,1)
+        for options in ({'redirect':True},{'data':[]},{'data':{'P856':[row],'P31':[]}}):
+            invalid=Fetch(**options)
+            self.assertIsNone(await website_reference(invalid,identity,'recording'))
+            self.assertEqual(invalid.requests,1)
         self.assertEqual(self.f.calls,[])
 
     async def test_rejected_semantic_repeat_does_not_advance_flow_or_episode_memory(self):

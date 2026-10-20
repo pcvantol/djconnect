@@ -2985,12 +2985,12 @@
         {
           "id": "ASKDJ-FLOW-artist-website-actual-info-language",
           "question": "Does the actual Wikidata response, including website language qualifier, permit exact identity/revision admission without weakening time/scope guards?",
-          "expected_answer": "Request info|claims in the same single HTTP call so revision metadata is actually present. Accept only fully typed P407 website-language qualifiers; reject unknown/date/scope/deprecated/malformed witnesses. Keep QID/robots/URL/excerpt/8request/12s/source caps and full narration review. A cross-origin robots refusal supplies no website body or source.",
-          "model_policy": "Actual public-source before/after readback, no key/model; owning fixture mirrors real API omission and P407 schema, with independent causal old-function counterexample.",
+          "expected_answer": "Use one exact-QID property-scoped P856 REST response with its same-response provider-defined numeric ETag entity version (exact optional W/ prefix). Admit only fully typed P407 website-language qualifiers; reject unknown/date/scope/deprecated/malformed witnesses. Keep QID/robots/URL/excerpt/8request/12s/source caps and full narration review. A robots refusal supplies no website body or source.",
+          "model_policy": "Actual earlier ActionAPI omission/P407 and current property-scoped response shape; owning fixtures bind the revision to the same exact response bytes. No key/model or independent story acceptance.",
           "owning_tests": [
             {
               "file": "tests/test_session_story_variety.py",
-              "method": "test_actual_wikidata_info_request_and_language_only_qualifier_keep_website_identity"
+              "method": "test_property_scoped_wikidata_response_keeps_entity_version_and_language_identity"
             }
           ],
           "acceptance_status": "owner_contract",
@@ -3027,6 +3027,28 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Multi-turn scope/current-style/withdrawal contract only. No actual grounded rich prose, semantic novelty, native gesture/voice or installed acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-artist-website-property-bound-size",
+          "question": "Does a large artist entity lose its official website just because unrelated Wikidata claims exceed the128KiB source limit?",
+          "expected_answer": "Request only P856 via the official property-scoped REST endpoint in the same single identity request. Bind the exact claim/QID to that same response provider-defined numeric ETag entity version (exact optional W/ prefix); missing/malformed/oversized revision, wrong QID/property/schema/destination and nonpublic site refuse. Keep all DNS/robots/body/8request/12s/128KiB/source/review guards, with no full-entity retry or increased limits.",
+          "model_policy": "Actual Metallica owner size-refusal and compact474byte public property shape; source/Runtime/SQLite/shared/speech owning chain plus real fetch metadata mode with external I/O fixtures. Actual corrected source probe recorded separately.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_property_scoped_wikidata_response_keeps_entity_version_and_language_identity"
+            },
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_exact_artist_website_episode_uses_shared_fetch_and_persists_in_reopened_flow"
+            },
+            {
+              "file": "tests/test_ask_dj_contextual_dialogue.py",
+              "method": "test_public_research_http_redirect_and_decompressed_size_are_fail_closed"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Typed source acquisition/provenance only. Actual website body/story/Persona-Mood and native/audio/install acceptance remain separate."
         }
       ],
       "owning_tests": [
@@ -8862,6 +8884,12 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "core_qualification": "open",
       "finding": "Actual source probe after8294989c made5HTTP requests but rejected all site work: wbgetentities props=claims omits lastrevid, and actual Nirvana P856 has a valid P407 language qualifier. Fixture invented revision metadata and omitted qualifiers. Request info|claims without another request and admit strictly typed language-only metadata while preserving all time/scope/unknown qualifier guards. Actual after fetches revision and reaches robots, but cross-origin redirect is correctly refused; no third source/story/native quality claim."
+    },
+    {
+      "id": "ASKDJ-ISSUE-artist-website-unrelated-entity-size",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "core_qualification": "open",
+      "finding": "Actual Metallica source-owner probe at83d1bb8f retained two Wiki sources but wbgetentities info|claims exceeded128KiB before site lookup; unrelated claims defeat website enrichment for a large public entity. Official property-scoped P856 REST response is474bytes. Replace full entity fetch, bind provider-defined same-response entity version and strict schema, retain unchanged guards/budgets. Source repair does not close real rich narrative/native acceptance."
     }
   ],
   "regression_suite_files": [

@@ -771,3 +771,48 @@ Evidence mood-provider-await/; sourceoverview has exactbounds. Actual returned
 texts/editorialNO_GO and fullactualcatalogueFAIL/zeropaidvariants unchanged.
 No model/keyuse, actualprovider/native/installed/audio/hardware acceptance,
 push/merge/install/cleanup/consumerpin/nextslice or featureclosure.
+
+
+## 04:22UTC continuation — actual large artist / bounded property source repair
+
+Clean83d1bb8f/same solewriter; main8b221d07/Brandrefsunchanged, no competingCore
+model/test writer or indexlock. Hostverify0/MATCH/onboarding4.5.4/488GiBfree/
+32GiBRAM, unrelateddashboardlockpreserved. Modelledger byte-identical40/39/0.
+No host/service/credential/model/installation/speaker effects.
+
+Actual isolated public Metallica identity resolvesQ15920. Exactsource owner
+uses3HTTP(+1separateidentity)1.423s, fullinfo+claims exceeds128KiB. One actual
+propertyshape diagnostic474bytes proves smaller wireformat; officialprimary
+GETstatementshandler establishes propertyfilter/same-response entityversion.
+Localrepair uses one exact-QID/P856 REST call with opt-in same-response ETag,
+not allclaims, another infoGET, cachedheader, retry or largerlimits. Ordinary
+PublicFetch threevalues/guards unchanged, non200 noETag, no otherheaders exported.
+
+First localpropertycandidate3ownerHTTP(+1identity)1.127s correctlyrefused actual
+weakW/validator underinitialstrong-onlydesign. Independentdesignreview supports
+exactoptionalW/quotedpositive safeinteger as providerdefined ENTITYVERSION only,
+not representationbytedigest; confinedtoexactWikidata/QID/P856 response. Final
+actualprobe4ownerHTTP(+1identity)1.229s admits version2548236250/actualclaim, then
+robots403 refuses sitebody. Both Wiki editions retained in everyprobe. RawETag/
+actualbodySHA preserved.14source-probeHTTP including3identitylookups+1diagnostic;
+officialdocumentation retrieval is separate, not source-owner I/O;
+productionowner stays8requests/12s/128KiB/3sourcecaps, no bypass or newallowance.
+
+41focusedPASS1.339s; independent19source+1actualFetchmetadata testsPASS/scoped
+SOURCEGO/noP1P2. Oldwebsitefunctiononlyinmemory makes newregressionfail1/0errors.
+All full source/claim/rank/P407/robots/exactdestination/episode/style/novelty
+guards retained; finalfullregression result recorded below. Goldennow42families/
+329steps/79reports;34Core+29realqualityOPEN, newactualsizefindingstaysopenfeature.
+Metadata/shared/SQLite/retainedspeech chain isfixtureproof, notactualthirdsource
+or richstory. Details ARTIST_WEBSITE readback, evidence artist-property-source/.
+
+Actualtexts/editorialNO_GO/fullcatalogueFAIL/zeropaidvariants unchanged. No key/
+modelcalls, native/provider/installed/audible/hardwarequalification, consumerpin,
+push/merge/install/cleanup/nextslice or featureclosure. IncomingPi protected-main
+contractquestion does not grant WIP adoption or new consumer acceptance.
+
+Final frozen full2822testsPASS/7existing skips68.538s, Ruff/diffPASS. Product
+bytes match actualv3snapshot, no new model/key calls or guard changes after it.
+Independent20source/fetch testsPASS and causal historicalfunctioncounterexample
+1failure/0errors; scoped SOURCEGO only. Existing resource/testtask warnings
+remain visible; no resource/crash/performance/native/audio qualification.

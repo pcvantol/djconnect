@@ -53,6 +53,52 @@ def language_qualifiers_only(claim):
     return True
 
 
+async def website_entity(fetch, qid):
+    """Known Wikibase version token, not a claim of representation-byte equality."""
+    url='https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/'+qid+'/statements?'+urlencode({'property':'P856'})
+    status,body,final,etag=await fetch.request(url,with_etag=True)
+    if status!=200 or final!=url or not isinstance(etag,str) or not re.fullmatch(r'(?:W/)?"[1-9][0-9]*"',etag):
+        return None
+    # Wikibase encodes this entity revision in the same property response;
+    # an intermediary may mark the representation validator weak. Only this
+    # exact provider/endpoint gives the numeric token entity-version meaning.
+    revision=int(etag.removeprefix('W/')[1:-1])
+    if revision>9_007_199_254_740_991:
+        return None
+    data=json.loads(body)
+    if not isinstance(data,dict) or set(data)-{'P856'} or not isinstance(data.get('P856',[]),list):
+        return None
+    claims=[]
+    for statement in data.get('P856',[]):
+        if not isinstance(statement,dict):
+            return None
+        if statement.get('rank') not in {'normal','preferred'}:
+            continue
+        prop,value=statement.get('property'),statement.get('value')
+        qualifiers=statement.get('qualifiers',[])
+        if (not isinstance(prop,dict) or prop.get('id')!='P856' or prop.get('data_type')!='url'
+                or not isinstance(value,dict) or value.get('type')!='value'
+                or not isinstance(value.get('content'),str) or not isinstance(qualifiers,list)):
+            return None
+        languages=[]
+        for qualifier in qualifiers:
+            if not isinstance(qualifier,dict):
+                return None
+            qp,qv=qualifier.get('property'),qualifier.get('value')
+            if (not isinstance(qp,dict) or qp.get('id')!='P407' or qp.get('data_type')!='wikibase-item'
+                    or not isinstance(qv,dict) or qv.get('type')!='value'
+                    or not isinstance(qv.get('content'),str) or not re.fullmatch(r'Q[1-9][0-9]*',qv['content'])):
+                return None
+            languages.append({'property':'P407','snaktype':'value','datatype':'wikibase-item',
+                'datavalue':{'type':'wikibase-entityid','value':{'entity-type':'item',
+                    'id':qv['content'],'numeric-id':int(qv['content'][1:])}}})
+        claims.append({'id':statement.get('id'),'rank':statement.get('rank'),
+            'qualifiers':{'P407':languages} if languages else {},
+            'mainsnak':{'property':'P856','datatype':'url','snaktype':'value',
+                'datavalue':{'value':value['content']}}})
+    return {'id':qid,'lastrevid':revision,'claims':{'P856':claims}}
+
+
 async def website_reference(fetch, identity, topic):
     from .ask_dj.public_research import PageText, MUSIC, public_url, _source
     from .session_story_variety import passage_score
@@ -62,11 +108,8 @@ async def website_reference(fetch, identity, topic):
             or fetch.maximum_requests-fetch.requests<3):
         return None
     qid,subject=identity[4],identity[2]
-    status,body,_=await fetch.request('https://www.wikidata.org/w/api.php?'+urlencode({
-        'action':'wbgetentities','ids':qid,'props':'info|claims','format':'json'}))
-    data=json.loads(body) if status==200 else {}
-    entity=data.get('entities',{}).get(qid,{})
-    if (entity.get('id')!=qid or type(entity.get('lastrevid')) is not int
+    entity=await website_entity(fetch,qid)
+    if (not isinstance(entity,dict) or entity.get('id')!=qid or type(entity.get('lastrevid')) is not int
             or not 0<entity['lastrevid']<=9_007_199_254_740_991):
         return None
     candidates=[]

@@ -140,7 +140,7 @@ class PublicFetch:
         if self.session is not None:
             await self.session.close()
 
-    async def request(self, url, *, maximum=MAX_BYTES):
+    async def request(self, url, *, maximum=MAX_BYTES, with_etag=False):
         import aiohttp
 
         if not public_url(url):
@@ -181,7 +181,8 @@ class PublicFetch:
                             raise ResearchUnavailable("public_research_redirect_denied")
                         continue
                     if response.status != 200:
-                        return response.status, "", url
+                        result = (response.status, "", url)
+                        return (*result, None) if with_etag else result
                     if response.content_type not in {"application/json", "text/html", "text/plain"}:
                         raise ResearchUnavailable("public_research_content_type")
                     limit = self.html_maximum if maximum == MAX_BYTES and response.content_type == 'text/html' else maximum
@@ -191,7 +192,10 @@ class PublicFetch:
                         if len(content) > limit:
                             raise ResearchUnavailable("public_research_response_size")
                     await self.guard()
-                    return response.status, content.decode("utf-8", errors="replace"), url
+                    result = (response.status, content.decode("utf-8", errors="replace"), url)
+                    # Opt-in public response provenance, attached to these same
+                    # exact bytes/destination. Never a cached header or a retry.
+                    return (*result, response.headers.get('ETag')) if with_etag else result
             except aiohttp.ClientError:
                 raise ResearchUnavailable("public_research_transport") from None
         raise ResearchUnavailable("public_research_redirect_denied")
