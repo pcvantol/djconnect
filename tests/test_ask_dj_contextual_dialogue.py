@@ -1210,6 +1210,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
 
     async def test_review_failure_copy_truthfully_distinguishes_fetched_sources_in_five_languages(self):
         from custom_components.djconnect.ask_dj import public_research as research
+        from scripts.verification.askdj_contextual_quality import check_answer
         mode='format'
         answers={'en':'Brian Eno is a musician.','nl':'Brian Eno is een muzikant.',
                  'de':'Brian Eno ist ein Musiker.','fr':'Brian Eno est un musicien.',
@@ -1234,6 +1235,12 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                     expected=research.unavailable_answer(language,answer_unverified=True)
                     self.assertEqual(result['text'],expected)
                     self.assertEqual(result['assistant_message']['text'],expected)
+                    self.assertTrue(expected.rstrip().endswith('?'))
+                    self.assertEqual(expected.count('?'), 1)
+                    self.assertIs(result['is_generated_text'], False)
+                    findings = check_answer({'kind':'band'}, result)
+                    self.assertIn('generated_answer_missing', findings)
+                    self.assertIn('researched_answer_unqualified', findings)
                     self.assertNotEqual(expected,research.unavailable_answer(language))
                     self.assertEqual(result['conversation']['metrics']['agent_calls'],2)
                     self.assertFalse(result.get('sources'))

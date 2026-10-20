@@ -4174,7 +4174,7 @@
         {
           "id": "ASKDJ-REGRESSION-research-grounding-boundary-step-6",
           "question": "Er zijn bronnen en een bruikbaar modelantwoord: blokkeert interne bewijsopmaak dit ten onrechte?",
-          "expected_answer": "Alleen ASCIIrandspaties in interne claimsegmenten mogen worden genormaliseerd. Dezelfde exacte oorspronkelijke tekst of beoordeeld prefix bereikt response/historie/TTS; quotes en woordinhoud blijven exact. Geen visuele beroepsvernauwing, JSONreparatie of extra modelcall. Bij mislukte beoordeling meldt Core niet dat bronnen ontbreken.",
+          "expected_answer": "Alleen ASCIIrandspaties in interne claimsegmenten mogen worden genormaliseerd. Dezelfde exacte oorspronkelijke tekst of beoordeeld prefix bereikt response/historie/TTS; quotes en woordinhoud blijven exact. Geen visuele beroepsvernauwing, JSONreparatie of extra modelcall. Bij mislukte beoordeling meldt Core niet dat bronnen ontbreken. De ongekwalificeerde Core-fallback eindigt met één neutrale verduidelijkende vervolgvraag in de gevraagde taal, niet met een verzoek dezelfde vraag te herhalen. Dit voegt geen feiten, bronclaim, effect of modelcall toe en blijft falen voor echte antwoordkwaliteit.",
           "model_policy": "external_assessment_reply_fixture_existing_two_call_owner",
           "owning_tests": [
             {

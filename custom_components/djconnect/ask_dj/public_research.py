@@ -1688,13 +1688,16 @@ def qualified_prefix(response, original, context=None):
 
 def unavailable_answer(language, *, ambiguous=False, answer_unverified=False):
     if answer_unverified:
-        return {
-            'en': 'I found information, but I couldn’t verify this answer well enough. Please try your question again.',
-            'nl': 'Ik heb informatie gevonden, maar ik kon dit antwoord nog niet goed genoeg controleren. Probeer je vraag opnieuw.',
-            'de': 'Ich habe Informationen gefunden, konnte diese Antwort aber nicht ausreichend prüfen. Bitte versuche deine Frage erneut.',
-            'fr': 'J’ai trouvé des informations, mais je n’ai pas pu vérifier suffisamment cette réponse. Essaie de poser ta question à nouveau.',
-            'es': 'Encontré información, pero no pude verificar esta respuesta lo suficiente. Vuelve a hacer tu pregunta.',
-        }.get(language, 'I found information, but I couldn’t verify this answer well enough. Please try your question again.')
+        # Keep the failed research answer unqualified, but offer a new direction
+        # instead of inviting an identical retry. This copy grants no new fact.
+        unverified = {
+            'en': 'I found sources, but I can’t tell this story reliably yet. What would you most like to know about it?',
+            'nl': 'Ik heb bronnen gevonden, maar kan dit verhaal nog niet betrouwbaar vertellen. Wat wil je hierover vooral weten?',
+            'de': 'Ich habe Quellen gefunden, kann dir die Geschichte aber noch nicht verlässlich erzählen. Was möchtest du darüber vor allem wissen?',
+            'fr': 'J’ai trouvé des sources, mais je ne peux pas encore te raconter cela de façon fiable. Que souhaites-tu surtout savoir à ce sujet ?',
+            'es': 'He encontrado fuentes, pero aún no puedo contarte esta historia con suficiente certeza. ¿Qué te gustaría saber en concreto?',
+        }
+        return unverified.get(language, unverified['en'])
     messages = {
         "en": (
             "Which musician or album do you mean?",

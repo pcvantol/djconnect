@@ -101,3 +101,16 @@ The verifier now uses actual ConfigEntries lifecycle and ordinary pairing in bot
 The complete Profile and music-only probes preserve source hashes, ordinary minted/persisted device-token authority, SQLite/HA Store reload, selected text and voice provenance, history search/open, wrong owner/client/bearer/privacy rejection, and concurrent clear causing409 before stale messages escape. Profile mode passes26 receipts; music-only passes28. Preliminary failed runs and prototype files are retained separately and never reattached as final qualification. Final current-script receipts are bound separately below through the private qualification receipt and exact closing review. Only the verifier and related documentation change; product source retains810f72 and its2,868-test baseline. Ruff/diff PASS; no unnecessary full-suite repeat for a verification-only change.
 
 This does not qualify full rich history, actual speech, native/installed behavior or Apple Golden export. The existing archive contract excludes transient audio URLs, proxy media and executable controls; separately validated current media/speech descriptors retain their own authority. Those gates remain open. The new paid-trial question still has no answer, and the old MAX5 ledger remains byte-identical with two completed attempts and three unused.
+
+
+## Clarifying follow-up after rejected research — 17:15 UTC
+
+The preserved actual selected-quality failure used the Core fallback ending “Probeer je vraag opnieuw.” This invites an unchanged retry and has no follow-up question. The existing five-language owner-route regression now checks that fetched-source assessment failure instead ends with one neutral clarification, while preserving the same rejected-answer status, history, two-call budget, absent source/effect claims and no automatic retry. The existing actual-quality checker must still report generated_answer_missing and researched_answer_unqualified; a question mark cannot turn the fallback into narrative acceptance.
+
+Current **Core-authored fallback copy**, not a model-generated story:
+
+> Ik heb bronnen gevonden, maar kan dit verhaal nog niet betrouwbaar vertellen. Wat wil je hierover vooral weten?
+
+Equivalent English/German/French/Spanish copy retains that factual limit and one open question without an artist premise or private context. No new source/model/provider call or playback authority is added. The old-code test fails on the missing closing question; the corrected focused set passes21 tests in2.211 s, including both format/claim refusal paths across five languages and existing selected-exploration regressions. The existing research-grounding Golden step documents the clarification and keeps all actual-quality gates open; family/step/report counts are unchanged.
+
+Full current product regression: **2,868 tests PASS, seven existing skips, 90.316 s**. Golden inventory, Ruff and diff PASS. Scoped independent source review GO/no P1/P2; exact checkpoint binding follows commit. This is a small continuation improvement after refusal, not a claim of rich telling, warmth, successful selected More, native/installed/speech or client acceptance. The new bounded paid-trial question is still unanswered; the old ledger is unchanged and no model key or paid provider was used.
