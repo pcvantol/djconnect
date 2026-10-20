@@ -414,3 +414,42 @@ over. They remain open alongside the current narration correction.
   host, describe actual effect without music promises, and keep music_only speech
   suppression. Existing Flow, end/reopen and other-device readers must agree.
   This is accepted intake, not an implemented or installed feature.
+
+
+## Current consolidated WIP readback — 20 October, 02:46 UTC
+
+Latest local product checkpoint0aced564 follows the same sole-writer WIP;
+protected main8b221d07 and Brandworktrees remain unchanged. Earlier sections are
+historical increments, not current completion counts. Golden now42families/
+320steps/75reports;30Core+29actual-quality gates OPEN. Full local2816PASS/7skips
+and the source-only independent reviews do not close those functions.
+
+The approved night model grant is exhausted:40reserved attempts,39completed
+receipts, zero remaining. The last actual composer publication remains editorial
+NO_GO; the15-answer pilot and full catalogue are not passed. Returned texts and
+rejected drafts are preserved separately in CONTEXTUAL_DJ_ACTUAL_TEXTS_20261020.md.
+No new credential/model work, native run, source publication, merge, installation,
+cleanup or next slice is authorized by this status reconciliation.
+
+Ask DJ uses bounded public-page research, but automatic artist contributions
+still fetch/admit Wikipedia only. Producer/composer work-episode checks are also
+Wikipedia-bound; album references have their separate exact-work/byline owner.
+Those paths cannot be made equivalent by flipping allow_web alone. Additional
+source identity/usage/attribution, original episode receipts, retained replay and
+same-budget admission remain an explicit implementation gate within this WIP,
+alongside actual rich prose and independent Persona/Mood judgment.
+
+Retained old-entry exploration now has real paired/SQLite/current-style fixture
+coverage; Mood clarification-to-explicit-exact-Play has a real owner/transport
+serialization/dedup fixture chain; incomplete reference labels no longer become
+story focus. These local repairs leave actual semantic novelty, source diversity,
+full historical/action/art/current-voice/native and physical audio acceptance
+open. Source, actual model, native, installed and hardware proofs remain separate.
+
+Apple9501d674 readback confirms source-only old selected-entry/current top-level
+Session wiring; zero actual native/provider runs and no WIP pin. Its admitted
+catalogue remains protected39families/167steps. Qualified fixture/exporter,
+transport-attempt accounting before I/O, exact installed/app/run binding and
+semantic/effect acceptance remain dependencies. No repeat activation request or
+second Apple writer is created. Full details: CONTEXTUAL_DJ_EXPLORATION_V1.md,
+CONTEXTUAL_DJ_NIGHT_20261020.md and CONTEXTUAL_DJ_STORY_FOCUS_20261020.md.

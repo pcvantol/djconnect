@@ -102,11 +102,16 @@ bounded actual answers and independent assessment **within this WIP**, before
 its narrative requirement can close. The prepared 15-answer pilot is a first
 sample, not a complete independent Persona-by-Mood or genre-conversation proof.
 The earlier live-key read was rejected by automatic approval review. The owner
-has since explicitly approved the in-memory isolated use, capped at 40 public
-model attempts total. The pilot is staged with a durable pre-I/O budget ledger;
-actual results and review, rather than permission alone, determine acceptance.
-In particular,
-fixture replies and the Gemini inspiration are not fact or quality evidence.
+subsequently approved in-memory isolated use, capped at 40 public model attempts
+across the entire night. That allowance is now exhausted: 40 reserved attempts,
+39 completed calls in the retained receipts, zero remaining. The incomplete
+15-answer pilot and publication-only last run remain FAIL/NO_GO. The last
+actually published composer text passed model assessment but failed independent
+editorial review; it does not establish warm Persona/Mood narration. No timer,
+consumer handoff or local checkpoint resets this budget or authorizes a key read.
+Actual returned texts, rejected proposals and usage boundaries are preserved in
+[the actual-text receipt](../verification/CONTEXTUAL_DJ_ACTUAL_TEXTS_20261020.md).
+Fixture replies and the Gemini inspiration are not fact or quality evidence.
 
 ## Bounded biographical dates — source admission, 20 October 2026
 
@@ -133,3 +138,39 @@ Existing work-date, chronology, source-rights, prefix and full-claim checks
 remain required. Limited source admission is not complete biographical-language
 or narrative-quality support. Real returned answers and independent review
 remain open until the exact candidate is exercised.
+
+
+## Source and consumer boundary readback — 20 October, 02:46 UTC
+
+Latest local product checkpoint is 0aced564, with protected main still8b221d07;
+no WIP source or native producer pin is published. Current Golden inventory is
+42families/320steps/75reports, with30Core findings and29actual-quality steps OPEN.
+Full local2816testsPASS/7existing skips qualifies source regression only.
+
+The research paths are not yet equivalent:
+
+| Existing path | Source admission now | Remaining requirement |
+| --- | --- | --- |
+| Explicit Ask DJ research / selected Tell me more | Same-entity Wikipedia editions plus bounded discovery and actual public pages; search snippets are not evidence | Actual grounded rich answers and relevant follow-up, independent Persona/Mood review, all-language/native acceptance |
+| Automatic artist contribution | allow_web=False; exact-QID Wikipedia sources only, at most two before the factual seed | Qualify another source type, identity/rights/attribution and episode admission within the same shared fetch/deadline budget; changing one flag cannot satisfy this |
+| Automatic producer/composer contribution | Wikipedia biography plus exact original current-recording/work credit; actual external work-episode receipt still Wikipedia-bound | Rich factual episode and current-role scope, actual narrative quality; no general web paragraph inherits the current recording/work credit |
+| Automatic album contribution | Qualified public album identity, Wikipedia and at most one typed attributed work-specific web reference | Real album narrative, source scope and native/full-album playback acceptance |
+
+The automatic artist selector and reviewed-episode receipt currently accept
+Wikipedia spans only. Broadening the fetch without extending and qualifying
+those owners would either discard the extra source or weaken identity/scope.
+No such silent broadening, guessed official site, budget increase or source
+restriction bypass has been applied. This is an explicit open implementation
+and acceptance gap, not a claim that the existing Ask DJ web path fixes it.
+The last source fix only excludes incomplete reference labels as story focus;
+semantic novelty across translated or different paragraphs remains reviewed.
+[Exact sequential-source evidence](../verification/CONTEXTUAL_DJ_STORY_FOCUS_20261020.md).
+
+Apple's existing9501d674 source readback confirms current top-level Session or
+omitted context and the original source Session only in selected_entry. This is
+wire-level alignment, not a native/server run. Apple remains pinned to protected
+Core's39families/167steps; it has not adopted this WIP's320steps. Qualified
+exporter/fixture, pre-I/O provider-attempt bounds, exact installed Core/app/run
+binding, semantic/effect outcomes, gestures, artist pixels and actual speech
+remain separate gates. Its zero native/provider runs do not consume or renew
+this exhausted Core night allowance.

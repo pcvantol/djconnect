@@ -589,3 +589,31 @@ corrected without productfailure claims or waiver. Golden42families/320steps/
 75reports;30Core+29actualqualityOPEN. Actual answertexts unchanged/narrativeNO_GO.
 Evidence artist-focus-readback/ and CONTEXTUAL_DJ_STORY_FOCUS_20261020.md preserve
 exact boundaries. No push/merge/install/cleanup/nextslice, native or audio claim.
+
+
+## 02:46UTC continuation — reconcile source paths and exhausted-pilot status
+
+Clean0aced564/same solewriter; main8b221d07/Brandrefsunchanged, no competingCore
+or model execution/indexlock. Hostverify0/MATCH/onboarding4.5.4,488GiBfree;
+unrelated dashboardlockpreserved. No host/service/sourcecodechange.
+
+Canonical product/lane docs still described the actual pilot as staged and
+reported older currentcounts. Reconciled to the actual40reserved/39completed/
+zero remaining, incomplete15-answer/fullcatalogueFAIL, actualcomposerpublication
+editorialNO_GO and42families/320steps/75reports/30Core+29qualityOPEN. Earlier
+historical runs remain preserved; no new actualanswer, fullsuite or variation
+PASS is invented. Modelledger byte-identical to40-attempt recovery.
+
+Current source path is now explicit: AskDJ publicweb differs from automatic
+artist allow_web=False +Wiki-only source qualification/episode focus/receipt;
+producer/composer named-work coverage is Wiki-bound, album has separate typed
+attributed work-specific websource. A flag change alone would not qualify rich
+artist source admission. This remains Coreimplementation and actualacceptance
+work within the sameWIP, not an external prohibition or an inferred permission
+requirement. No unsafe broadening, guessed source, new retry/budget or new route.
+
+ExistingApplethread readback on9501 confirms retained selected-entry/current
+Session sourcewire only; pinnedprotected39/167catalogue, zero native/provider
+runs. No repeatedpeerping, sourcewrite, producerpin, launch or budgettransfer.
+Docs-only increment; prior full2816PASS/7skips stays0aced564. No busy rerun,
+push/merge/install/cleanup/nextslice or functionclosure.

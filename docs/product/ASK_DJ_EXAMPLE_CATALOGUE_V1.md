@@ -223,3 +223,32 @@ sequence and twelve source regressions. Current inventory: 40 families / 273 ste
 source selection is separate from generated prose/installed/native acceptance.
 Earlier full catalogue FAIL and zero generated variations remain. See
 `docs/verification/SESSION_STORY_VARIETY_20261019.md`.
+
+
+## 20 October overnight consolidated readback — 02:46 UTC
+
+This section supersedes earlier paragraphs labeled current for inventory and
+night-pilot status; their historical runs remain unchanged. Protected Core main
+is8b221d07, local product WIP0aced564. Current inventory42families/320steps/
+75reports;59release blockers remain30Core+29real-quality OPEN. Full local
+2816testsPASS/7existing skips is source-regression evidence, not a base actual
+catalogue PASS. The earlier complete catalogue FAIL still blocks paid variation
+generation; zero paid variants have been generated.
+
+The isolated night allowance is exhausted at40reserved attempts/39completed
+receipts. Failed/cancelled attempts count, with no timer or client budget reset.
+The last publication-only composer result is not the complete15-answer pilot and
+remains independently NO_GO for narration. Actual answer/proposal separation and
+reported usage are in CONTEXTUAL_DJ_ACTUAL_TEXTS_20261020.md. No new key/model call
+is permitted by that grant. Actual Persona/Mood contrast, all catalogue outcomes,
+selected follow-up and native/speech acceptance remain open.
+
+The local source fixes preserve exact local artist identity, same-fetch canonical
+lookup budget and minimum complete-sentence story focus. They do not supply an
+actual third publisher or remove automatic artist narration's Wikipedia-only
+admission. Explicit Ask DJ web enrichment and automatic story admission remain
+different owners; see CONTEXTUAL_DJ_EXPLORATION_V1.md. Actual web403/robots refusals
+remain refusals, and photo-adapter/fixture success is not installed pixel proof.
+Apple's existing native harness remains pinned to protected39families/167steps,
+execute:false/PENDING_CORE_HANDOFF, with zero real native/provider runs. Neither
+that source catalogue nor its batch receipts qualify this newer WIP.
