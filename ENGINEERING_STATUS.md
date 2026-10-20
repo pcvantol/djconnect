@@ -1,5 +1,52 @@
 # DJConnect Engineering Status
 
+## Pi relay installation preparation — consumer follow-through, 20 October 2026
+
+### Repository Status
+
+Prior Core source1244/76ae5b7b and separate Finalization1245/b31e8417 are
+protected, technically qualified and reconciled; only clean synchronized main
+remained after verified source/Final cleanup. This source preparation updates
+only the deployment consumer40b52f11 to protected Pi Finalization116/a336e0de,
+following source115/143d2103 and exact independent reviews9b8ac1a/6d66698.
+Fresh consumer qualification remains an explicit gate before operational handoff.
+
+### Management Summary
+
+Both first deployment attempts failed at runner Python setup before authority,
+readiness, SSH or installation; actual targets remained oldrc.3/rc.4 and ready.
+Three workflows now create isolated run-temp environments with already qualified
+Python3.14.8; no global repair. All three extracted blocks independently execute
+and the Pi owner's exact-lock304tests pass. Dependency lock, identity/authority/
+intent gates, appEADB, published packages, inventory and approval remain unchanged.
+
+### Roadmap Position
+
+Necessary existing two-device installation repair under Peter's current direct
+task; no new feature selection, timer or model budget. HA-dev/prod and API-prod
+are installed; iPad/Watch are deferred by Peter while other installations finish.
+All narrative/More/Mood/rich-history/catalogue/native/speech/audible gates stayOPEN.
+
+### Risks and Next Actions
+
+Validate both existing actual bindings against the new exact consumer, retain
+old50e0 manifest bytes and all previous failed attempts. Require actual qualified
+consumer and exact protected Core source plus separate Finalization before any
+fresh manually controlled Pi-owner deployment and separate matching smoke.
+No failed-run replay, caller-authored qualification, hardware or credential change.
+
+### Repository State
+
+Predecessor MERGED_RECONCILED. This bounded producer source preparation remains
+pending exact qualification/review/protected delivery and separate Finalization.
+
+### Workspace State
+
+Fresh sole-writer worktree admitted from clean synchronized b31 after completed
+own cleanup and actual-root hostverifyMATCH. Private evidence, previous Git bundles
+and dashboard lock retained. No other repository or device source is edited here.
+
+
 ## Pi deployment consumer correction — separate Finalization, 20 October 2026
 
 ### Repository Status
