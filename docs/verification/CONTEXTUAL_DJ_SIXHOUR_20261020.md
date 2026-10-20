@@ -460,3 +460,32 @@ full suite remains2843/7PASS123.415s on6082150f; the new delta is prompt-only.
 All27 actual attempts reconcile exactly:27reserved/27completed/273remaining,
 79295reported input/8793outputtokens. Old40ledger remains separate/immutable.
 No unchanged paid rerun, source/schema bypass, installation or feature closure.
+
+## Negative preference trial and prompt-priority refinement — 10:53 UTC
+
+Actual v8 on immutablea95049d5 completed28–29, source unchanged. It again
+returned exactly the two-credit seed from v7; schema correct, stylefalse,
+publication refused, selected **NOT EXERCISED**. The candidate's changed prompt
+actually reached the provider: trusted instruction digest2baa18…→78e5f0b5…,
+input12411→12880bytes. The original Barbara Tucker/One paragraph remained in the
+literal corpus. This excludes stale source or missing passage as that result's
+explanation; it does not prove why the model preferred the credit. No quality
+improvement was measured and no unchanged paid repeat was launched.
+
+Independent editorial diagnosis identifies competing instructions: repeated
+current-credit demands and “activity/contribution on a work” can dominate the
+added scene preference; local Mood sentence recipes compete with shared voice.
+The bounded replacement orders Main telling, Recording anchor, Boundaries and
+Delivery. An explicit joint release can be the musical episode without needing
+the current composer/producer role on that separate work. Original full-name,
+exact-role/current-reference credit remains mandatory and separately scoped.
+Only for credits, local Chill/Party sentence recipes are removed; the shared
+Persona/Mood owner and existing2–3sentence/700character output bounds remain.
+All evidence/identity/role/year/style/expiry/admission/budget validators stay.
+No factual template, named artist special case or additional call is introduced.
+Scoped editorial design and technical SOURCE GO/noP1/P2; **94 regressions
+PASS16.150s**, Ruff/diff PASS. Actual new words still require fresh review.
+
+All29 attempts reconcile:29reserved/29completed/271remaining,
+86682reported input/9156outputtokens. Source, real-model, native, installed and
+audible evidence remain distinct. No push, merge, installation or closure.
