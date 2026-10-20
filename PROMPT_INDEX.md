@@ -1,5 +1,73 @@
 # DJConnect Verification Prompt Index
 
+## Pi rc.5 two-instance producer prerequisite — source preparation, 20 October 2026
+
+### Repository Status
+
+Bounded Core contract/schema/inventory increment based on protected main
+`e390c5a81e2d2d272a46cc720c83cc4667c355c1`. Independent exact-candidate review,
+fresh Owner Authorization, protected checks/source merge and separate Finalization
+remain pending. No release, deployment or current operational approval is asserted.
+
+### Management Summary
+
+Concrete Pi producer request takes priority under Peter's existing instruction.
+Canonical target stays rbpi-djconnect; closed instance/profile/inventory qualifiers
+bind both existing devices and immutable profile-specific rc.5 assets. Identity-only
+inventory contains observed public SSH fingerprints/fixed config references, no
+private endpoints/credentials/paired records/server Profile. No APPROVED operational
+manifest, unpublished artifact hashes or Pi source/workflow changes are delivered.
+70 offline structural schema cases PASS;15 document/lifecycle/roadmap tests PASS.
+Reviewer terminal-newline P2 causally repaired; semantic/consumer/installed gates open.
+See docs/release/PI_TWO_HOST_DEPLOYMENT_CONTRACT_V1.md and qualification record.
+
+### Roadmap Position
+
+Existing Core1101 producer assistance for Pi's current two-device rollout request;
+no new graph selection, consumer admission or second writer. Retained contextual-DJ
+WIP ad430e50de084a9fd73638f07d8cf609ca777982 includes latest main and remains clean.
+Narrative ordinary seed NO_GO/selected More NOT_EXERCISED; no paid run is added.
+
+### Rolling Horizon (Next 5 Planned)
+
+Existing SETTINGS horizon remains Planned/NOT_ISSUED, not automatic pickup.
+Source PRODUCT_BACKLOG.md and docs/roadmap/v1/djconnect-platform-v1.json.
+1. SETTINGS::APPLE::EDITOR — Planned; shared editor/native adoption.
+2. SETTINGS::PI::ADOPTION — Planned; shared producer/Pi acceptance.
+3. SETTINGS::ESP32::ADOPTION — Planned; physical settings/voice acceptance.
+4. SETTINGS::VIBECAST::COMPAT — Planned; renderer import/screen admission.
+5. SETTINGS::JOINT::ACCEPTANCE — Planned; migration/joint proofs.
+
+### Execution Priority Override
+
+Finish this requested bounded protected producer prerequisite, then resume the
+same integrated narrative WIP. Schema/inventory publication does not authorize
+dispatch. Pi owns matching consumer source and its own qualification/deployment.
+
+### Blocked Items
+
+Protected contract/Finalization, matching consumer/resolver/direct preflight,
+actual protected Pi/publication/artifact hashes and exact operational approval
+remain prerequisites. Real deployments/ARM/runtime/screenshots remain separate.
+HA-dev old installed renderer is diagnosed only; no installation is authorized here.
+HA-prod13PNG repair file PASS remains distinct from visible HTTP/client acceptance.
+Real narrative/Golden/native/client/speech/history acceptance remains OPEN.
+
+### Deferred Items
+
+Core1225/Apple143 bubble deletion and other unissued horizon slices remain queued.
+No functional lane closes merely because this documentation merges.
+
+### Repository State
+
+MERGED_UNRECONCILED only after source merge, until separate exact Finalization;
+no protected merge or current release completion is preclaimed at source preparation.
+
+### Workspace State
+
+Preserve contextual/older Brand WIP, recovery evidence and dashboard lock.
+No cleanup, hardware, credential or paid-provider authority follows from this increment.
+
 ## Brand2.0.1 / renderer1.1.3 — separate source Finalization, 20 October 2026
 
 ### Repository Status
