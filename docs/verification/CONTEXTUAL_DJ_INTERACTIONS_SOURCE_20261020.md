@@ -65,13 +65,14 @@ source reviews, not actual-answer quality or release approval.
 
 ## Required work remains in this WIP
 
-The Golden inventory has 42 families, 310 steps and 69 reported issues. Its 24
-open Core findings and 28 actual-quality steps remain open. No function closes
+At the 04:07UTC continuation, the Golden inventory has42families,328steps and
+78reported issues. Its33Core findings and29actual-quality steps remain open. No function closes
 because an inventory, test suite or merge is green.
 
-The prepared first pilot contains 15 actual returned answers in five languages
+The prepared first pilot targets15actual returned answers in five languages
 through isolated paired HA Assist and real public research, with synthetic
-music catalogue/owner boundaries. Mechanical checks cannot certify warmth.
+music catalogue/owner boundaries. The complete pilot is not passed: the night
+allowance is exhausted at40reserved/39completed attempts, zero remaining. Mechanical checks cannot certify warmth.
 Actual answer texts, independent editorial judgement, complete genre follow-up
 sequences and independent Persona/Mood comparisons remain required **in this
 WIP**. Full retained media/action parity, actual client interaction, installed
@@ -90,7 +91,12 @@ bypassed the rejection, and approval alone does not establish quality.
 No protected publication, Finalization, installation, Apple activation or
 unqualified next/full-queue effect is claimed by this checkpoint.
 
-## Night continuation after the source checkpoint
+## Historical night continuation after the initial source checkpoint
+
+The following records the earlier pilot5–8 checkpoint, not current budget,
+counts or completion. Later exact results live in NIGHT/ACTUAL_TEXTS. The
+biographical source guard described as open below was subsequently implemented;
+actual narrative acceptance remains open.
 
 Actual NL pilots5–8 used24/40 reserved attempts total, including failures and
 one cancellation. The consolidated real narrative result remains NO_GO. Two
@@ -112,3 +118,26 @@ Independent review confirms an open temporal-admission gap for biographical
 events. A safe continuation needs an actor/group/event/year-bound receipt with
 causal negative tests. No general person-name substitute for work anchors and
 no acceptance of a bare positive model verdict. Keep this in the same WIP.
+
+
+## 04:07UTC provider-await race refinement
+
+Same WIP after583f6e65. A new paired owner regression blocks a genre catalogue
+reply after the actual lookup-await barrier, then separately expires/replaces
+the original pending question, changes Mood, clears history, or ends Session.
+All five return their corresponding409 before another model generation, offer
+publication or music effect. Delayed titles/actions are absent; history stays
+unchanged or empty after clear. Initial test expected the Mood error for Session
+end; the canonical broader session_context_changed guard runs first. Corrected
+the test expectation, preserved failed log; no product defect or guard bypass.
+
+This is real owner/Flow concurrency with external provider/model fixtures, not
+actual mood suitability, public narrative quality, native interaction or audio.
+New Golden step is positive contract coverage, no new product issue or feature
+closure. The same40-attempt ledger remains byte-identical; no credential/model
+I/O, install, consumer pin or next slice. Full quality and installed gates remain.
+
+Independent exacttestPASS/scopedGO/noP1P2; assertions outside callbacks. Focused
+Mood/activeSession/Profile-settings/Golden72PASS2.662s, Ruff/diffPASS. New method
+has its explicit Golden binding. Product unchanged; no new complete-suite
+claim. Priorfull2821PASS/7skips remains9ef1c92c source evidence only.

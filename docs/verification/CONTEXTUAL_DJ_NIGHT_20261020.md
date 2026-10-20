@@ -743,3 +743,31 @@ Evidence historical-pronoun-followup/; fullboundaries in HISTORY_MEDIA_READBACK.
 Actual answertexts/editorialNO_GO, fullcatalogueFAIL/zeropaidvariants unchanged.
 No key/modelcall, actualthirdpublisher/story, protectedpin, native/provider/audio/
 install/physical PASS, push/merge/cleanup/nextslice or featureclosure.
+
+
+## 04:07UTC continuation — genre provider-await withdrawal races
+
+Clean583f6e65/same solewriter; main8b221d07/Brandrefsunchanged, no competingCore
+model/test writer or indexlock. Canonicalroot hostverify0/MATCH/onboarding4.5.4,
+488GiBfree/32GiBRAM; unrelated dashboardlock retained, no host/service action.
+Modelledger byte-identical40reserved/39completed/zero remaining.
+
+New actual paired-owner concurrency test holds the external genre catalogue
+reply at a barrier. Separately expire pending, replace itsidentity, changeMood,
+clearhistory or endSession before release. All5reject409 with corresponding
+guard, no delayedtitle/actions/extra-generation/offer/historyrepopulation/effect.
+Provider/model are fixtures. Initial test wrongly expected Mooderror for end;
+canonical session_context_changed guard runs first. Corrected expectation and
+retainedfailedlog, no productfix or gateweakening.
+
+Independent exacttestPASS/scopedGO/noP1P2, outcome/history/privacyassertions
+outside callbacks. OwningtestPASS0.131s; final focusedMood/activeSession/Profile-
+settings/Golden72PASS2.662s, Ruff/diffPASS. No unnecessary fullrerun or newfull
+claim: priorproduct2821PASS/7skips remains9ef1c92c. Goldenpositive328steps/
+42families/78reports;33Core+29realqualityOPEN. Source overview reconciled: pilot
+targets15answers, not15completed; current40/39/0/counts plus historical sections.
+
+Evidence mood-provider-await/; sourceoverview has exactbounds. Actual returned
+texts/editorialNO_GO and fullactualcatalogueFAIL/zeropaidvariants unchanged.
+No model/keyuse, actualprovider/native/installed/audio/hardware acceptance,
+push/merge/install/cleanup/consumerpin/nextslice or featureclosure.

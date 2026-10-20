@@ -8349,6 +8349,20 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Positive source regression only. Does not qualify natural Persona/Mood narration, actual provider acceptance, native client, speech or hardware playback."
+        },
+        {
+          "id": "ASKDJ-FLOW-mood-genre-provider-await-fences",
+          "question": "Can a delayed genre catalog lookup publish an offer after the original clarification expires, is replaced, changes Mood, is cleared, or its Session ends?",
+          "expected_answer": "Recheck each original authority after provider await; reject409 with the corresponding choice/direction/Mood/history/Session error before narration or actions. Do not expose the delayed title, add history, revive clear data or affect music. A valid genre choice only authorizes a bounded lookup, never playback.",
+          "model_policy": "Actual paired owner and barrier-held provider boundary for five races; external search/agent replies are fixtures, three calls per case only (initial generation/review plus interpretation), no subsequent offer generation.",
+          "owning_tests": [
+            {
+              "file": "tests/test_mood_music_steering.py",
+              "method": "test_genre_lookup_await_rechecks_pending_mood_history_and_session_before_proposal"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Owner/deadline/race regression only; no real provider/model, style suitability, native interaction or audible speech proof."
         }
       ]
     }

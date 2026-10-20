@@ -610,6 +610,60 @@ class MoodMusicSteeringTests(unittest.IsolatedAsyncioTestCase):
                         self.assertEqual((await f.history.async_history('profile:profile-a'))['messages'],before)
         self.assertEqual(f.effects,[])
 
+    async def test_genre_lookup_await_rechecks_pending_mood_history_and_session_before_proposal(self):
+        """Real owner races after a provider await; no real provider/model I/O."""
+        from copy import deepcopy
+        import time
+        f=self.f
+        clock=[time.monotonic()]
+        f.history.dialogue.clock=lambda:clock[0]
+        async def empty(*args,**kwargs):
+            return {'queue':[],'playlists':[]}
+        queries=[]
+        for mutation,error in [('expiry','choice_expired'),('identity','music_direction_changed'),
+                ('mood','mood_proposal_changed'),('clear','conversation_history_changed'),
+                ('end','session_context_changed')]:
+            with self.subTest(mutation=mutation):
+                entered,release=asyncio.Event(),asyncio.Event()
+                async def delayed_search(hass,runtime,query,**kwargs):
+                    queries.append(query)
+                    entered.set()
+                    await release.wait()
+                    return {'success':True,'tracks':[{'uri':'spotify:track:'+'S'*22,
+                        'name':'Stale provider result','artist':'Catalog performer'}]}
+                models_before=len(self.models)
+                with patch('custom_components.djconnect.use_cases.run_music_command',empty),patch.object(
+                        f.pipeline,'_call_conversation_process_transport',self.agent),patch.object(
+                        f.core,'_spotify_track_search',delayed_search):
+                    first,status=await self.request('before-search-'+mutation)
+                    self.assertEqual(status,200,first)
+                    frame=f.history.dialogue.owners['profile:profile-a']['default']
+                    before=(await f.history.async_history('profile:profile-a'))['messages']
+                    pending=asyncio.create_task(f.request('soul please',identifier='during-search-'+mutation,
+                        context={'session_id':self.session.session_id}))
+                    await asyncio.wait_for(entered.wait(),2)
+                    if mutation=='expiry':
+                        clock[0]=frame.pending['deadline']+1
+                    elif mutation=='identity':
+                        frame.pending=deepcopy(frame.pending)
+                    elif mutation=='mood':
+                        await f.fixture.manager.async_update_mood(owner_profile_id='profile-a',
+                            session_id=self.session.session_id,selected_mood='party')
+                    elif mutation=='clear':
+                        await f.history.async_clear('profile:profile-a')
+                    else:
+                        await f.fixture.manager.async_end(owner_profile_id='profile-a',session_id=self.session.session_id)
+                    release.set()
+                    result,status=await asyncio.wait_for(pending,2)
+                self.assertEqual((status,result.get('error')),(409,error),result)
+                self.assertFalse(result.get('playback_actions'))
+                self.assertNotIn('Stale provider result',json.dumps(result))
+                self.assertEqual(len(self.models)-models_before,3)
+                self.assertEqual((await f.history.async_history('profile:profile-a'))['messages'],
+                    [] if mutation=='clear' else before)
+                self.assertEqual(f.effects,[])
+        self.assertEqual(queries,['genre:soul']*5)
+
     def test_daypart_uses_home_assistant_timezone_including_overnight(self):
         from types import SimpleNamespace
         for hour,expected in ((0,'night'),(4,'night'),(5,'morning'),(12,'afternoon'),(18,'evening'),(23,'night')):
