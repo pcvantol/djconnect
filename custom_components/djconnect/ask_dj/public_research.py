@@ -1137,7 +1137,8 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
             {"answer": answer, "question": question, "language": language, "evidence": context,
              'biographical_date_events':candidates(context.get('public_music_research',{})),
              **({'allowed_evidence_ids':[span['id'] for source in context.get('public_music_research',{}).get('sources',[])
-                    for span in source.get('evidence_spans',evidence_spans(source))]} if quote_by_id else {})},
+                    for span in source.get('evidence_spans',evidence_spans(source))]
+                    + [span['id'] for span in context.get('qualified_context',{}).get('evidence_spans',[])]} if quote_by_id else {})},
             ensure_ascii=False,
         )
     )
@@ -1263,7 +1264,66 @@ class RecordingResearchContext(dict):
         self.fact, self.locale = fact, locale
 
 
+@dataclass(frozen=True)
+class _SelectedCredit:
+    identifier: str
+    text: str
+    recording_scope: bool
+
+
+class SelectedCreditResearchContext(dict):
+    """Local proof from an opened server entry, never a JSON-supplied grant."""
+
+    def __init__(self, value, credit):
+        super().__init__(value)
+        self.credit = credit
+
+
+def selected_credit_context(context, turn):
+    """Address the exact original credit already admitted by the shared owner.
+
+    No new lookup, refreshed expiry, generated body, or biography-derived credit.
+    The existing turn guard still reopens the source before/after model I/O.
+    """
+    from .dialogue import model_source
+
+    entry = turn.selected_read_context
+    source = turn.source_context
+    if (not turn.interpreted_context_research or not isinstance(entry, dict)
+            or model_source(entry) != source or context.get('qualified_context') != source
+            or source.get('basis') != 'cc0_normalized_fields_v1'
+            or not entry.get('qualified_fact_text')
+            or entry['qualified_fact_text'] != source.get('qualified_excerpt')):
+        return context
+    subject = context['public_music_research'].get('resolved_public_subject')
+    roles = {s.get('role') for s in source.get('subjects', [])
+             if isinstance(s, dict) and s.get('name') == subject}
+    attribution = source.get('attribution', {})
+    parsed = urlsplit(attribution.get('url', ''))
+    path = re.fullmatch(r'/(work|recording)/[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}', parsed.path)
+    if (not roles.intersection({'composer', 'producer'}) or not path
+            or attribution.get('provider') != 'MusicBrainz'
+            or attribution.get('license') != 'CC0-1.0' or not public_url(attribution.get('url'))
+            or parsed.hostname != 'musicbrainz.org' or parsed.query or parsed.fragment):
+        return context
+    original = source['qualified_excerpt']
+    digest = hashlib.sha256(json.dumps(
+        {'text': original, 'attribution': attribution}, sort_keys=True).encode()).hexdigest()
+    credit = _SelectedCredit('selected-credit:' + digest, original,
+                             path[1] == 'recording' and 'producer' in roles)
+    return SelectedCreditResearchContext(context, credit)
+
+
+def selected_credit_spans(context):
+    """Only the locally bound original context can authorize this namespace."""
+    if type(context) is not SelectedCreditResearchContext:
+        return []
+    return [{'id': context.credit.identifier, 'text': context.credit.text}]
+
+
 def _recording_credit_quote(context, quote):
+    if type(context) is SelectedCreditResearchContext:
+        return context.credit.recording_scope and context.credit.text == quote
     if type(context) is not RecordingResearchContext:
         return False
     from ..public_artist_narration import producer_subject
@@ -1300,6 +1360,9 @@ def claim_evidence_ok(answer, data, context):
         return False
     admitted = {span['id']: span['text'] for source in sources if isinstance(source, dict) for span in evidence_spans(source)}
     span_sources = {span['id']:source for source in sources if isinstance(source,dict) for span in evidence_spans(source)}
+    for span in selected_credit_spans(context):
+        admitted[span['id']] = span['text']
+        span_sources[span['id']] = {'claim_scope': 'qualified_credit_only'}
     anchors = {anchor for source in sources if isinstance(source, dict)
                for anchor in source.get('source_anchors', []) if isinstance(anchor, str) and anchor.strip()}
     def mentions(text, anchor):

@@ -220,6 +220,113 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
                     self.assertNotIn(first,assistant[0]['text'])
                     self.assertEqual(f.effects,[])
 
+    async def test_selected_original_credit_has_its_own_review_id_without_biography_credit_substitution(self):
+        """Shared publication/open/history path; model and HTTP are declared fixtures."""
+        f = self.f
+        _, _, reference = await f.selected_credit()
+        credit = 'Brian Eno is a composer of the work behind this recording.'
+        biography = 'Brian Eno is an English musician.'
+        follow_up = 'Would you like to explore more?'
+        answer_text = ' '.join((credit, biography, follow_up))
+        calls = []
+
+        async def agent(hass, data, **kwargs):
+            projection = json.loads(data['text'].split('\nData:\n', 1)[1])
+            calls.append(projection)
+            if 'available' in projection:
+                reply = {'read':'research', 'reference':'selected', 'exclude_current':False,
+                         'subject':'Brian Eno', 'angle':'composition'}
+            elif 'evidence' in projection:
+                selected = projection['evidence']['qualified_context'].get('evidence_spans')
+                if not selected:
+                    # A source-ID assessor cannot cite an absent original-credit
+                    # span. Refuse the whole answer, as the actual probe did.
+                    rejected = {'supported':False, 'language_ok':True, 'style_ok':True,
+                                'unsupported_claims':[credit]}
+                    return {'response':{'speech':{'plain':{'speech':json.dumps(rejected)}}}}
+                self.assertEqual(len(selected), 1)
+                self.assertEqual(selected[0]['text'], 'Composers of the work behind this recording: Brian Eno.')
+                self.assertIn(selected[0]['id'], projection['allowed_evidence_ids'])
+                public = projection['evidence']['public_music_research']['sources'][0]['evidence_spans'][0]
+                self.assertNotEqual(public['id'], selected[0]['id'])
+                self.assertEqual(public['text'], biography)
+                reply = {'supported':True, 'language_ok':True, 'style_ok':True,
+                         'review_schema':'source_id_review_v1', 'claim_checks':[
+                             {'text':credit, 'kind':'relationship', 'evidence_ids':[selected[0]['id']]},
+                             {'text':biography, 'kind':'fact', 'evidence_ids':[public['id']]},
+                             {'text':follow_up, 'kind':'dj_appreciation', 'evidence_ids':[]}]}
+            else:
+                reply = answer_text
+            return {'response':{'speech':{'plain':{'speech':json.dumps(reply) if isinstance(reply,dict) else reply}}}}
+
+        with f.research_http(title='Brian Eno', text=biography), patch.object(
+                f.pipeline, '_call_conversation_process_transport', agent):
+            result, status = await f.request('Tell me more', identifier='selected-credit-evidence-id',
+                                            context={'selected_entry':reference}, language='en')
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result['text'], answer_text, result)
+        self.assertTrue(result['is_generated_text'])
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(f.effects, [])
+        self.assertFalse(result.get('playback_actions'))
+        credit_sources = [s for s in result['sources'] if s.get('claim_scope') == 'qualified_credit_only']
+        self.assertEqual(len(credit_sources), 1)
+        self.assertEqual(credit_sources[0]['provider'], 'MusicBrainz')
+        stored = await f.history.async_history('profile:profile-a')
+        self.assertEqual([m['text'] for m in stored['messages'] if m.get('role') == 'assistant'], [answer_text])
+
+    def test_selected_credit_id_cannot_be_authorized_by_plain_json_or_generated_body(self):
+        from copy import deepcopy
+        from types import SimpleNamespace
+        from custom_components.djconnect.ask_dj import public_research as research
+        from custom_components.djconnect.ask_dj.dialogue import model_source
+        from custom_components.djconnect.public_artist_narration import complete_review_projection, resolve_review_quotes
+
+        entry = {'archive_basis':'cc0_normalized_fields_v1',
+                 'text':'A generated presentation is not evidence.',
+                 'qualified_fact_text':'Composers of the work behind this recording: Brian Eno.',
+                 'dialogue_subjects':[{'name':'Brian Eno', 'role':'composer'}],
+                 'source_attribution':{'provider':'MusicBrainz', 'license':'CC0-1.0',
+                    'url':'https://musicbrainz.org/work/11111111-1111-1111-1111-111111111111'}}
+        def build(candidate, *, interpreted=True, subject='Brian Eno', change_source=False):
+            source = model_source(candidate)
+            if change_source:
+                source['qualified_excerpt'] = 'A forged credit.'
+            context = {'public_music_research':{'schema_version':3, 'resolved_public_subject':subject, 'sources':[]},
+                       'qualified_context':source}
+            turn = SimpleNamespace(selected_read_context=candidate, source_context=source,
+                                   interpreted_context_research=interpreted)
+            return context, research.selected_credit_context(context, turn)
+        _, bound = build(entry)
+        span = research.selected_credit_spans(bound)[0]
+        review = {'review_schema':'source_id_review_v1', 'claim_checks':[
+            {'text':'Brian Eno is credited.', 'kind':'fact', 'evidence_ids':[span['id']]}]}
+        self.assertEqual(resolve_review_quotes(review, bound)['claim_checks'][0]['quote'], entry['qualified_fact_text'])
+        wire = complete_review_projection(bound)
+        self.assertEqual(wire['qualified_context']['evidence_spans'][0], span)
+        for forged in (dict(bound), json.loads(json.dumps(wire))):
+            self.assertEqual(research.selected_credit_spans(forged), [])
+            with self.assertRaises(ValueError):
+                resolve_review_quotes(review, forged)
+        candidates = []
+        for field in ('qualified_fact_text', 'dialogue_subjects'):
+            candidate = deepcopy(entry)
+            candidate.pop(field)
+            candidates.append(candidate)
+        for role in ('performer', 'user_named_subject'):
+            candidate = deepcopy(entry)
+            candidate['dialogue_subjects'][0]['role'] = role
+            candidates.append(candidate)
+        candidate = deepcopy(entry)
+        candidate['source_attribution']['url'] += '?credit=untrusted'
+        candidates.append(candidate)
+        for candidate in candidates:
+            original, result = build(candidate)
+            self.assertIs(result, original)
+        for kwargs in ({'interpreted':False}, {'subject':'Different artist'}, {'change_source':True}):
+            original, result = build(entry, **kwargs)
+            self.assertIs(result, original)
+
     async def test_more_on_reopened_older_contribution_uses_original_subject_and_current_style(self):
         """Actual owner/SQLite/shared route; source and model I/O are fixtures."""
         from custom_components.djconnect.session_conversation import query_service

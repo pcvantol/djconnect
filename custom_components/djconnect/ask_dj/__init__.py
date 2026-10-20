@@ -3025,6 +3025,7 @@ async def _informational_assist_response(
         if turn.agent_calls < (3 if turn.interpreted_artist_research or turn.interpreted_context_research else 2):
             grounding_context = {"public_music_research": turn.public_research,
                                  "qualified_context": turn.source_context}
+            grounding_context = public_research.selected_credit_context(grounding_context, turn)
             id_review = bool((turn.interpreted_artist_research or turn.interpreted_context_research)
                 and turn.public_research.get('schema_version') == 3)
             from ..public_artist_narration import complete_review_projection, resolve_review_quotes

@@ -7772,6 +7772,14 @@
         {
           "file": "tests/test_ask_dj_exploration.py",
           "method": "test_named_and_selected_research_cannot_publish_an_unreviewed_style_or_partial_story"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_selected_original_credit_has_its_own_review_id_without_biography_credit_substitution"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_selected_credit_id_cannot_be_authorized_by_plain_json_or_generated_body"
         }
       ],
       "steps": [
@@ -7965,6 +7973,25 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Actual morning v2 delivered only a short prefix without all requested aspects/follow-up; local refusal regression is not narrative/native/installed/audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-selected-original-credit-review-ids",
+          "language": "nl",
+          "question": "Vertel meer over deze geselecteerde componisten- of productiebijdrage.",
+          "expected_answer": "The independently assessed full answer may cite the exact original qualified CC0 credit through its own evidence ID. Generated body, plain JSON, unrelated subject/role, biography evidence or malformed source cannot authorize that credit. Keep all fetched public sources, existing expiry/owner guards, follow-up review and no playback effect.",
+          "model_policy": "Real shared publication/open/history route with declared source/model fixtures; original-credit review projection is local authority, never new fetched facts or an extended lifetime.",
+          "owning_tests": [
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_selected_original_credit_has_its_own_review_id_without_biography_credit_substitution"
+            },
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_selected_credit_id_cannot_be_authorized_by_plain_json_or_generated_body"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Current1PASS versus disabled-projection1expectedfailure/0errors is causal source evidence only. Actual warm selected answer and native/installed/audible acceptance remain open."
         }
       ]
     },
@@ -9019,6 +9046,12 @@
       "family_id": "ASKDJ-FLOW-contribution-exploration",
       "core_qualification": "open",
       "finding": "Actual morning-nl-band-v2 can publish a cropped supported_prefix_v1 without requested members or closing question because interpreted_context_research schema3 used legacy review without language/style fields. Eight named/selected causal scenarios reproduce unreviewed quality and partial publication. Reuse complete source-ID and language/style assessment without prefix recovery; actual full narrative quality remains OPEN."
+    },
+    {
+      "id": "ASKDJ-ISSUE-selected-original-credit-missing-review-id",
+      "family_id": "ASKDJ-FLOW-contribution-exploration",
+      "core_qualification": "open",
+      "finding": "Actual morning-nl-complete-v3 selected answer refers to its original MusicBrainz composer credit, but compact source-ID review has only Wikipedia IDs and cannot independently cite the original credit. A locally typed opened-entry projection now supplies that exact original CC0 span without accepting generated body or JSON as authority, changing public sources, refreshing expiry or weakening review. Causal shared-owner test verifies full answer versus fallback when only that projection is disabled. Actual narrative rerun and client acceptance remain OPEN."
     }
   ],
   "regression_suite_files": [

@@ -285,7 +285,7 @@ def plain_work_titles(text, projection):
 
 def complete_review_projection(context):
     """Omit duplicated prose only after literal full-corpus coverage proof."""
-    from .ask_dj.public_research import evidence_spans
+    from .ask_dj.public_research import evidence_spans, selected_credit_spans
     def compact(text):
         return re.sub(r'\s+','',text)
     sources = []
@@ -296,12 +296,16 @@ def complete_review_projection(context):
         if original and compact(original) == compact(''.join(s['text'] for s in spans)):
             source = {k:v for k,v in source.items() if k not in {'untrusted_excerpt','literal_passages'}}
         sources.append(source)
-    return {**context,'public_music_research':{**context['public_music_research'],'sources':sources}}
+    result = {**context,'public_music_research':{**context['public_music_research'],'sources':sources}}
+    credit_spans = selected_credit_spans(context)
+    if credit_spans:
+        result['qualified_context'] = {**context['qualified_context'], 'evidence_spans':credit_spans}
+    return result
 
 
 def resolve_review_quotes(review, context):
     """Resolve only the requested bounded schema3 wire format, never prose."""
-    from .ask_dj.public_research import evidence_spans
+    from .ask_dj.public_research import evidence_spans, selected_credit_spans
     if (context['public_music_research'].get('schema_version')!=3
             or review.get('review_schema')!='source_id_review_v1'):
         raise ValueError('invalid_source_id_review_schema')
@@ -309,6 +313,7 @@ def resolve_review_quotes(review, context):
     if not isinstance(checks,list) or not 1<=len(checks)<=24:
         raise ValueError('invalid_source_id_review_checks')
     quotes={s['id']:s['text'] for source in context['public_music_research']['sources'] for s in evidence_spans(source)}
+    quotes.update({s['id']:s['text'] for s in selected_credit_spans(context)})
     resolved=[]
     for check in checks:
         if (not isinstance(check,dict) or set(check)!={'text','kind','evidence_ids'}
