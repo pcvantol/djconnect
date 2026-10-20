@@ -407,7 +407,12 @@ def run(candidate, output):
                 [IMAGE, '/candidate/tools/verification/run_askdj_owner_contracts.py', pattern, '/lab/owner-contracts.json'],
                 payload={},directory=directory,seconds=240,network='none'))
             proof=directory/'owner-contracts.json'
-            unit=json.loads(proof.read_text()) if proof.is_file() else {'status':'FAIL','tests_run':0}
+            # No receipt means unknown execution, not an observed zero-test run.
+            # Publish only the bounded exit code and a fixed diagnostic category.
+            unit=json.loads(proof.read_text()) if proof.is_file() else {
+                'status': 'FAIL', 'tests_run': None, 'runner_exit_code': code,
+                'findings': ['owner_contract_receipt_missing'],
+            }
             if renderer:
                 unit['network']='host_available_not_used_by_renderer_fixtures'
                 unit['execution_runtime']='host_python_node'

@@ -405,6 +405,64 @@ class ContextualReleaseGateTest(unittest.TestCase):
                 runner.validate_owner_pattern_coverage(matrix,
                     tuple(pattern for pattern in runner.TEST_PATTERNS if pattern!=file))
 
+    def _first_owner_profile(self, exit_code, owner_receipt=None):
+        import json
+        from tempfile import TemporaryDirectory
+        from unittest.mock import patch
+
+        runner = load('owner_receipt_release_matrix', 'tools/verification/run_askdj_release_matrix.py')
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            inventory = root / 'docs/verification/fixtures/askdj_golden_release_matrix_v1.json'
+            inventory.parent.mkdir(parents=True)
+            inventory.write_text('{}')
+            output = root / 'release-report.json'
+            calls = []
+
+            def isolated_owner(args, *, payload, directory, seconds, network):
+                calls.append((payload, network))
+                self.assertEqual(payload, {})
+                self.assertEqual(network, 'none')
+                (directory / 'private.log').write_text('synthetic-private-diagnostic-must-not-leak')
+                if owner_receipt is not None:
+                    (directory / 'owner-contracts.json').write_text(json.dumps(owner_receipt))
+                return exit_code
+
+            with patch.object(runner, 'ROOT', root), \
+                    patch.object(runner, 'TEST_PATTERNS', ('test_fixture_owner.py',)), \
+                    patch.object(runner, 'validate_inventory', return_value={'status': 'PASS'}), \
+                    patch.object(runner, 'validate_owner_pattern_coverage'), \
+                    patch.object(runner.subprocess, 'check_output', side_effect=['a' * 40, '']), \
+                    patch.object(runner, 'owned_run', side_effect=isolated_owner):
+                self.assertEqual(runner.run('a' * 40, output), 1)
+            self.assertEqual(calls, [({}, 'none')], 'Failure must stop before any other profile or paid work')
+            report = json.loads(output.read_text())
+            self.assertNotIn('synthetic-private', output.read_text())
+            self.assertEqual(report['status'], 'FAIL')
+            self.assertEqual(len(report['profiles']), 1)
+            self.assertEqual(report['profiles'][0]['status'], 'FAIL')
+            return report['profiles'][0]
+
+    def test_missing_owner_receipt_keeps_test_count_unknown_and_release_closed(self):
+        for exit_code in (0, 1, 124, 125, 137, -9):
+            with self.subTest(exit_code=exit_code):
+                row = self._first_owner_profile(exit_code)
+                self.assertIsNone(row['tests_run'])
+                self.assertEqual(row['runner_exit_code'], exit_code)
+                self.assertEqual(row['findings'], ['owner_contract_receipt_missing'])
+                self.assertEqual(row['execution_runtime'], 'pinned_ha_container')
+
+    def test_observed_failed_owner_receipt_preserves_actual_zero_or_positive_count(self):
+        for count in (0, 3):
+            with self.subTest(count=count):
+                receipt = {'status': 'FAIL', 'tests_run': count, 'executed': [],
+                           'failed': [], 'errors': [], 'skipped': [], 'paid_attempts': 0,
+                           'network': 'none', 'case_outcomes': []}
+                row = self._first_owner_profile(1, receipt)
+                self.assertEqual(row['tests_run'], count)
+                self.assertNotIn('findings', row)
+                self.assertNotIn('runner_exit_code', row)
+
     def test_renderer_owner_requires_node_and_never_inherits_paid_credentials(self):
         from tempfile import TemporaryDirectory
         from unittest.mock import patch
