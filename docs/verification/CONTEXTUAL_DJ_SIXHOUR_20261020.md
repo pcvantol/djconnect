@@ -607,3 +607,55 @@ Fresh complete suite for this exact code/test delta: **2846tests/7existing
 skips PASS91.323s**. Ruff/diff PASS; the original sandbox Git index-lock denial
 changed no source or refs. The successful full run covers the preserved working
 contents; normal Git metadata write is requested separately, without a bypass.
+
+## Actual passage focus arrives; selected precision still fails — 11:35 UTC
+
+Actual v12 on immutable6b0f4093 completed39–43, source unchanged. Original p3
+was actually supplied as editorial_focus to ordinary generation. Its genuinely
+published seed was:
+
+> Bij de International Dance Music Awards in Miami ontmoette Peter Luts Barbara Tucker; samen brachten ze de single “One” uit. Peter Luts is ook componist van het werk achter deze opname.
+
+Independent actual editorial **scoped GO for this short seed**: concrete meeting,
+place and joint release, original current-work credit separate. This does not
+prove four Personas/Mood contrasts or broad rich-story acceptance. The selected
+More really executed, with this exact selected public text present at **both**
+generation and assessment boundaries, as focus only. That data-loss hypothesis
+is closed for this run. Its generated, unpublished candidate was:
+
+> Na zijn eerste single onder eigen naam, “What a Feeling”, kwam Peter Luts met “One”, samen met de New Yorkse housezangeres Barbara Tucker. Die single verscheen eind 2007, nadat ze elkaar hadden ontmoet bij de International Dance Music Awards in Miami. De componistencredit voor het werk achter deze opname vermeldt ook Luts. Wil je meer horen over zijn eigen projecten, zoals Dominico?
+
+Independent actual editorial **NO_GO**: repeated telling and credit, chronological
+outline rather than depth, unasked year and a weak general offer. Crucially,
+“By the end of 2007” proves an upper boundary, not “eind 2007” as the actual
+release period. Assessor supportedtrue/stylefalse is not precision proof. Product
+delivered only the existing verification fallback; no selected acceptance. Its
+original temporal receipt also has separate existing anchor/quote/sequence
+constraints; those are not loosened here.
+
+All43attempts reconcile:43reserved/43completed/257remaining,
+131079reported input/13760outputtokens. Old40ledger remains immutable separate.
+Host11:25UTC actual-root/full read access MATCH/exit0,488GiB; only this provider
+wrapper/container owned Core resources. Brand worktrees/dashboardlock retained.
+Fresh Apple/API readback reports their own ongoing SDK work and no new Core
+question. No second writer, consumer adoption, push/merge/install or closure.
+
+A precise isolated regression reproduces the date-bound gap without relying on
+style or the actual candidate's other refusal reasons: **25 cross-language
+source/answer combinations wrongly accepted** an upper-bound year-end source as
+an exact release period (25expected failures/0errors before fix). The bounded
+five-language correction preserves each affected year occurrence in the original
+work-scoped source sentence and exact temporal receipt. It does not make dates
+up, rewrite the answer/source, add a model call or become a general date parser.
+It recognizes closed common forms; independent semantic review remains required.
+Another work's deadline in the same original paragraph must not poison a valid
+release-year claim, and a second same-year bound cannot hide an earlier narrowing.
+The new positive/negative tests pass **2tests/0errors,0.220s**; Ruff/diff PASS.
+Two independent final scoped source/precision GO. A compound sentence containing
+two works with the same year but distinct date precision may conservatively be
+refused; separate source-bound sentences preserve those scopes. Actual narration
+quality is not inferred from this guard. No paid rerun merely for the guard fix.
+
+Fresh complete suite including both new temporal guards: **2848tests/7existing
+skips PASS101.897s**. No new provider attempts after43; full source results remain
+distinct from actual selected/Persona/Mood/native/installed acceptance.

@@ -1128,6 +1128,7 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         "A claim that a fetch succeeded requires a fetched source. No extra biography, guessed date, invented fun fact, "
         "unverified technique/origin story or Wikipedia support for unrelated claims. "
         "Audit chronology separately: a collaboration, band departure and first solo release are different events. "
+        "Preserve date precision: by the end of a year is an upper boundary, not evidence that an event occurred at that year end. "
         "Never transfer a nearby event's date. Relative years such as that same year have no executable antecedent binding and must be unsupported. "
         "For each explicit year in the accepted answer or supported prefix, also return temporal_claims, an array of at most8objects, "
         "For a work event each has exactly claim (unchanged complete answer sentence), event_anchor (one exact original source_anchors work name present in the quote and answer), "
@@ -1169,6 +1170,14 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
 
 
 _YEAR = re.compile(r"(?<!\d)(?:1[5-9]|20)\d{2}(?!\d)")
+# Observed precision loss: an upper bound at a year end is not a release
+# period at that year end. These closed multilingual forms preserve that bound;
+# they do not infer dates, translate prose or replace semantic source review.
+_YEAR_END_UPPER_BOUND = re.compile(
+    r"\b(?:by (?:the )?end of|uiterlijk (?:eind|einde van)|spätestens Ende|"
+    r"au plus tard fin|a más tardar a finales de)\s+(?P<year>(?:1[5-9]|20)\d{2})(?!\d)", re.I)
+
+
 _RELATIVE_YEAR = re.compile(
     r"\b(?:that same year|the same year|the following year|the previous year|a year (?:later|earlier)|"
     r"datzelfde jaar|hetzelfde jaar|het (?:volgende|voorgaande) jaar|(?:een )?jaar (?:later|eerder)|"
@@ -1360,6 +1369,12 @@ _RECORDING_SCOPE_NOUNS = frozenset(('recording','recordings','opname','opnamen',
     'production','productions','productie','producties','produktion','produktionen','producción','producciones'))
 
 
+def _year_end_bounds_fit(text, quote):
+    required = {match['year'] for match in _YEAR_END_UPPER_BOUND.finditer(quote)}
+    covered = {match.span('year') for match in _YEAR_END_UPPER_BOUND.finditer(text)}
+    return all(match.group() not in required or match.span() in covered for match in _YEAR.finditer(text))
+
+
 def _assertions_fit(text, quote, *, recording_credit=False):
     """Conservative observed mismatches, including statements without a year."""
     for pattern in (*_EVENT_ACTIONS, *_ASSERTION_ROLES):
@@ -1400,7 +1415,8 @@ def claim_evidence_ok(answer, data, context):
             scope=[part for part in _sentences(quote) if mentions(part,anchor)]
             from ..album_narration import album_pronoun_scope
             scope.extend(album_pronoun_scope(context, anchor, quote))
-        return any(mentions(part,anchor) and _assertions_fit(sentence,part,
+        return any(mentions(part,anchor) and _year_end_bounds_fit(sentence,part)
+                   and _assertions_fit(sentence,part,
                    recording_credit=_recording_credit_quote(context,part))
                    and not any(pattern.search(sentence) and not pattern.search(part)
                                for pattern in _WORK_MODIFIERS) for part in scope)
@@ -1546,6 +1562,7 @@ def temporal_evidence_ok(answer, data, context):
                 or sentence not in _sentences(answer) or quote not in _sentences(excerpt)
                 or quote[-1] not in '.!?' or set(_YEAR.findall(quote)) != {year}
                 or not _answer_mentions_anchor(sentence, anchor, anchors)
+                or not _year_end_bounds_fit(sentence, quote)
                 or not re.search(r'(?<!\w)' + re.escape(anchor) + r'(?!\w)', quote, re.I)
                 or any(pattern.search(sentence) and not pattern.search(quote) for pattern in _EVENT_ACTIONS)
                 or any(pattern.search(sentence) and not pattern.search(quote) for pattern in _EVENT_QUALIFIERS)):

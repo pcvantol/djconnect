@@ -1313,6 +1313,59 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             'source_id':released['content_hash'],'quote':released['untrusted_excerpt']}]},
             {'public_music_research':{'sources':[released]}}))
 
+    def test_year_end_deadline_never_becomes_an_exact_release_period(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        faithful = [
+            'Paper Lanterns was released by the end of 2007.',
+            'Paper Lanterns werd uiterlijk eind 2007 uitgebracht.',
+            'Paper Lanterns erschien spätestens Ende 2007.',
+            'Paper Lanterns est paru au plus tard fin 2007.',
+            'Paper Lanterns se publicó a más tardar a finales de 2007.',
+        ]
+        narrowed = [
+            'Paper Lanterns was released at the end of 2007.',
+            'Paper Lanterns werd eind 2007 uitgebracht.',
+            'Paper Lanterns erschien Ende 2007.',
+            'Paper Lanterns est paru fin 2007.',
+            'Paper Lanterns se publicó a finales de 2007.',
+        ]
+        for quote in faithful:
+            source = research._source('Wikipedia','Ada Reed','https://en.wikipedia.org/wiki/Ada_Reed',
+                quote,'en',source_anchors=['Paper Lanterns']).model_data()
+            context = {'public_music_research':{'schema_version':2,'sources':[source]}}
+            for accepted, rejected in zip(faithful, narrowed, strict=True):
+                with self.subTest(source=quote, answer=rejected):
+                    def receipt(answer):
+                        return {'supported':True, 'temporal_claims':[{
+                            'claim':answer,'event_anchor':'Paper Lanterns','year':'2007',
+                            'source_id':source['content_hash'],'quote':quote}],
+                            'claim_checks':[{'text':answer,'kind':'relationship',
+                                'evidence_ids':[source['evidence_spans'][0]['id']], 'quote':quote}]}
+                    self.assertTrue(research.supported(json.dumps(receipt(accepted)),accepted,context))
+                    self.assertFalse(research.temporal_evidence_ok(rejected,receipt(rejected),context))
+                    self.assertFalse(research.claim_evidence_ok(rejected,receipt(rejected),context))
+                    self.assertFalse(research.supported(json.dumps(receipt(rejected)),rejected,context))
+            self.assertEqual(source['untrusted_excerpt'],quote)
+
+    def test_year_end_bound_does_not_transfer_from_another_work_in_the_paragraph(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        first = 'Paper Lanterns was released in 2007.'
+        quote = first + ' Other Work was recorded by the end of 2007.'
+        source = research._source('Wikipedia','Ada Reed','https://en.wikipedia.org/wiki/Ada_Reed',
+            quote,'en',source_anchors=['Paper Lanterns','Other Work'],
+            original_text=quote, paragraph_ranges=((0,len(quote)),)).model_data()
+        context = {'public_music_research':{'schema_version':3,'sources':[source]}}
+        answer = 'Paper Lanterns werd in 2007 uitgebracht.'
+        data = {'supported':True, 'temporal_claims':[{
+            'claim':answer,'event_anchor':'Paper Lanterns','year':'2007',
+            'source_id':source['content_hash'],'quote':first}],
+            'claim_checks':[{'text':answer,'kind':'relationship',
+                'evidence_ids':[source['evidence_spans'][0]['id']], 'quote':quote}]}
+        self.assertTrue(research.supported(json.dumps(data),answer,context))
+        bound = 'Paper Lanterns was released by the end of 2007.'
+        compound = 'Paper Lanterns was released at the end of 2007 and Other Work by the end of 2007.'
+        self.assertFalse(research._year_end_bounds_fit(compound,bound))
+
     def test_temporal_title_parentheses_are_answer_display_only_and_unambiguous(self):
         from custom_components.djconnect.ask_dj import public_research as research
         source = research._source('Wikipedia','Brian Eno','https://en.wikipedia.org/wiki/Brian_Eno',
