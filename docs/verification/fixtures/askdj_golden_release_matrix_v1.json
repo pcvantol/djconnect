@@ -2917,6 +2917,70 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Actual retained corpus exposes the candidate-selection defect; source/Runtime fixture correction does not qualify actual four-story publication, Persona/Mood or audio."
+        },
+        {
+          "id": "ASKDJ-FLOW-artist-official-website-1",
+          "question": "Can an automatic artist story use an actual website bound to the already qualified artist, retaining the exact episode in reopened Flow?",
+          "expected_answer": "Use one unambiguous unqualified Wikidata P856 relationship from the same QID plus a real robots-admitted exact-destination page and original named musical paragraphs. Shared8request/12s/128KiB/3source guards stay; no snippet, guessed URL or credit-scope transfer. Optional source failure retains qualified Wiki, owner withdrawal propagates, full factual/Persona/Mood/novelty review still owns publication.",
+          "model_policy": "Existing generation/assessment two calls. External website/WD/model replies in owning tests are explicit fixtures; actual-source, actual story and native/audio proof remain open.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_exact_artist_website_episode_uses_shared_fetch_and_persists_in_reopened_flow"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Typed source/Runtime/SQLite contract only. No successful actual third publisher, warmth or provider/client/audio acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-FLOW-artist-official-website-2",
+          "question": "Can an automatic artist story use an actual website bound to the already qualified artist, retaining the exact episode in reopened Flow?",
+          "expected_answer": "Use one unambiguous unqualified Wikidata P856 relationship from the same QID plus a real robots-admitted exact-destination page and original named musical paragraphs. Shared8request/12s/128KiB/3source guards stay; no snippet, guessed URL or credit-scope transfer. Optional source failure retains qualified Wiki, owner withdrawal propagates, full factual/Persona/Mood/novelty review still owns publication.",
+          "model_policy": "Existing generation/assessment two calls. External website/WD/model replies in owning tests are explicit fixtures; actual-source, actual story and native/audio proof remain open.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_website_identity_robots_redirect_scope_and_budget_fail_closed"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Typed source/Runtime/SQLite contract only. No successful actual third publisher, warmth or provider/client/audio acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-FLOW-artist-official-website-3",
+          "question": "Can an automatic artist story use an actual website bound to the already qualified artist, retaining the exact episode in reopened Flow?",
+          "expected_answer": "Use one unambiguous unqualified Wikidata P856 relationship from the same QID plus a real robots-admitted exact-destination page and original named musical paragraphs. Shared8request/12s/128KiB/3source guards stay; no snippet, guessed URL or credit-scope transfer. Optional source failure retains qualified Wiki, owner withdrawal propagates, full factual/Persona/Mood/novelty review still owns publication.",
+          "model_policy": "Existing generation/assessment two calls. External website/WD/model replies in owning tests are explicit fixtures; actual-source, actual story and native/audio proof remain open.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_optional_website_failure_keeps_wiki_but_never_hides_owner_withdrawal"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Typed source/Runtime/SQLite contract only. No successful actual third publisher, warmth or provider/client/audio acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-FLOW-artist-website-shared-citation",
+          "question": "Does the exact accepted website source reach an admitted shared display with all required attribution, rather than silently dropping the DJ card?",
+          "expected_answer": "Project only public citation provenance and explicitly validate/render Artist website. Retain publisher/QID/P856/usage, reject malformed/missing witnesses and unsafe URLs, localize source label in five languages, and export no corpus/model/owner data. Album Publicweb keeps required byline/work-reference provenance too.",
+          "model_policy": "Actual Runtime/accepted Moment/shared projection/generated JS validator plus DOM execution, external source/model fixtures; no new model call or audience authority.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_exact_artist_website_episode_uses_shared_fetch_and_persists_in_reopened_flow"
+            },
+            {
+              "file": "tests/test_display_projection.py",
+              "method": "test_public_reference_citation_exports_required_attribution_without_corpus_or_owner"
+            },
+            {
+              "file": "tests/test_vibecast_renderer.py",
+              "method": "test_researched_story_renders_all_revision_license_citations_or_declines_card"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Source/shared renderer only; receiver import/protected pin, installed/native pixels and actual source/story/audio gates remain open."
         }
       ],
       "owning_tests": [
@@ -8720,6 +8784,18 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "core_qualification": "open",
       "finding": "Sequential readback of retained actual Nirvana corpus, after hypothetically used Reading/McCartney spans, selects an external studio-session guide label as recording focus. Require sentence completion as a minimum candidate gate, leaving original sources plus semantic topic/novelty review intact. Five-language source and real Runtime fixture regressions prevent focus/publication of label. A punctuated span is not automatically an episode, and actual rich narrative/native acceptance remain open."
+    },
+    {
+      "id": "ASKDJ-ISSUE-automatic-artist-web-source-admission-missing",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "core_qualification": "open",
+      "finding": "Automatic artist contribution source, focus and episode receipts were Wikipedia-only despite richer source requirements; AskDJ web changes did not enrich this owner. Add one exact-QID P856-bound actual website inside the unchanged shared source budget, with typed source/attribution/literal-paragraph admission and existing full review. Fixture commit/reopen and strict source/authority negatives qualify local contract; real source/model/Persona/Mood/native acceptance remains open."
+    },
+    {
+      "id": "ASKDJ-ISSUE-website-shared-citation-projection-rejected",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "core_qualification": "open",
+      "finding": "Independent source integration review found the new Artistwebsite Moment disappears in shared renderer: six-field citation projection drops required provenance and renderer rejects unknown provider. Existing album Publicweb also loses byline/work references in shared projection. Correct bounded public citation allowlist and explicit renderer provider validation/localization, then test real publication/shared_snapshot/exact JS validator plus DOM. No silent alias, omitted attribution or audience widening; actual installed/story/native acceptance stays open."
     }
   ],
   "regression_suite_files": [

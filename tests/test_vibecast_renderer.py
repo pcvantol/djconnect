@@ -55,7 +55,7 @@ class VibeCastRendererTest(unittest.TestCase):
         script = textwrap.dedent(f'''
             import assert from 'node:assert/strict'; import fs from 'node:fs'; import vm from 'node:vm';
             const source=fs.readFileSync({json.dumps(str(PAGE))},'utf8').match(/<script>([\\s\\S]*?)<\\/script>/)[1];
-            const run=(citations)=>{{
+            const run=(citations,locale='nl')=>{{
               const make=()=>({{textContent:'',hidden:false,children:[],setAttribute:()=>{{}},removeAttribute:()=>{{}},addEventListener:()=>{{}},
                 replaceChildren(){{this.children=[]}},appendChild(child){{this.children.push(child)}}}});
               const elements=new Map();
@@ -66,7 +66,7 @@ class VibeCastRendererTest(unittest.TestCase):
                   querySelector:()=>null,getElementById:id=>elements.get(id)}},
                 window:{{location:{{protocol:'https:',host:'receiver.test',search:'?session_id=s&broadcast_token=t'}},setTimeout:()=>1,addEventListener:()=>{{}}}},WebSocket:WS}};
               vm.runInNewContext(source,context);
-              sockets[0].onmessage({{data:JSON.stringify({{type:'snapshot',snapshot:{{playback:{{item_id:'item'}},
+              sockets[0].onmessage({{data:JSON.stringify({{type:'snapshot',snapshot:{{session:{{locale}},playback:{{item_id:'item'}},
                 dj_moments:[{{moment_id:'story',summary:'One supported story.',content:'Detail from the second edition.',playback_item_id:'item',sources:citations}}]}}}})}});
               return elements;
             }};
@@ -96,6 +96,28 @@ class VibeCastRendererTest(unittest.TestCase):
             const credit=actual.get('moment-research-sources').children[1];
             assert(credit.textContent.includes('Robin Vale'));
             assert(!credit.textContent.includes('public_page_short_reference'));
+            const artist={{provider:'Artist website',title:'Nora Vale',language:'en',
+              license:'public_page_short_reference',usage_basis:'public_page_short_reference',
+              url:'https://artist.example/',revision_url:'',publisher:'artist.example',wikidata_id:'Q1',
+              official_site_reference:{{basis:'wikidata_p856_v1',entity_id:'Q1',claim_id:'Q1$'+'a'.repeat(36),revision:123}}}};
+            const artistLinks=run([citations[0],artist,album]).get('moment-research-sources').children;
+            assert.equal(artistLinks.length,3);
+            assert(artistLinks[1].textContent.includes('Artiestenwebsite'));
+            assert(artistLinks[1].textContent.includes('artist.example'));
+            assert(!artistLinks[1].textContent.includes('undefined'));
+            assert(!artistLinks[1].textContent.includes('public_page_short_reference'));
+            for(const [locale,label] of Object.entries({{en:'Artist website',nl:'Artiestenwebsite',
+                de:'Künstlerwebsite',fr:'Site de l’artiste',es:'Sitio del artista'}})){{
+              assert(run([artist],locale).get('moment-research-sources').children[0].textContent.includes(label));
+            }}
+            for(const badArtist of [{{...artist,official_site_reference:undefined}},
+                {{...artist,official_site_reference:{{...artist.official_site_reference,entity_id:'Q2'}}}},
+                {{...artist,official_site_reference:{{...artist.official_site_reference,claim_id:'Q2$'+'a'.repeat(36)}}}},
+                {{...artist,official_site_reference:{{...artist.official_site_reference,revision:true}}}},
+                {{...artist,publisher:'other.example'}},{{...artist,license:'CC0-1.0'}},
+                {{...artist,url:'javascript:alert(1)'}},{{...artist,url:'https://receiver.local/'}}]){{
+              assert.equal(run([badArtist]).get('moment').textContent,'');
+            }}
             for(const invalidWeb of [{{...web,url:'https://127.0.0.1/private'}},
                 {{...web,url:'https://receiver.local/private'}},{{...web,url:'javascript:alert(1)'}},
                 {{...web,url:'https://user:pass@director.example.test/'}},

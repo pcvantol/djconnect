@@ -30,6 +30,7 @@
   const firstSeen = new Map();
   const previousSourceLabels={en:"MusicBrainz · earlier recording",nl:"MusicBrainz · eerdere opname",de:"MusicBrainz · frühere Aufnahme",fr:"MusicBrainz · enregistrement précédent",es:"MusicBrainz · grabación anterior"};
   const nextLabels={en:"Up next",nl:"Hierna",de:"Als Nächstes",fr:"À suivre",es:"A continuación"};
+  const artistWebsiteLabels={en:"Artist website",nl:"Artiestenwebsite",de:"Künstlerwebsite",fr:"Site de l’artiste",es:"Sitio del artista"};
   function updateClock() {
     if (e("clock")) e("clock").textContent = new Date().toLocaleTimeString(root.lang,{hour:"2-digit",minute:"2-digit",hour12:false});
     const expiry=Date.parse(read(projection,["playback","up_next","expires_at"]) || "");
@@ -70,6 +71,14 @@
           typeof s.work_reference.artist === "string" &&
           /^https:\/\/musicbrainz\.org\/release-group\/[0-9a-f-]{36}$/.test(s.work_reference.url) &&
           publicCitationURL(s.url) ||
+        s.provider === "Artist website" && s.usage_basis === "public_page_short_reference" &&
+          s.license === "public_page_short_reference" && !s.revision_url && publicCitationURL(s.url) &&
+          s.publisher === new URL(s.url).hostname && /^Q[1-9][0-9]*$/.test(s.wikidata_id) &&
+          s.official_site_reference && s.official_site_reference.basis === "wikidata_p856_v1" &&
+          s.official_site_reference.entity_id === s.wikidata_id &&
+          typeof s.official_site_reference.claim_id === "string" &&
+          new RegExp(`^${s.wikidata_id}\\$[0-9a-fA-F-]{36}$`).test(s.official_site_reference.claim_id) &&
+          Number.isSafeInteger(s.official_site_reference.revision) && s.official_site_reference.revision > 0 ||
         s.provider === "Wikidata" && s.license === "CC0-1.0" && !s.revision_url && /^https:\/\/www\.wikidata\.org\/wiki\/Q[1-9][0-9]*$/.test(s.url)));
     return valid ? citations : null;
   }
@@ -185,7 +194,9 @@
         e("moment-source").hidden=true;
         for (const citation of citations) {
           const link=document.createElement("a");
-          link.textContent=`${citation.title} · ${citation.provider}${citation.language ? ` (${citation.language})` : ""}${citation.usage_basis ? ` · ${citation.attributed_author}` : ` · ${citation.license}`}`;
+          const provider=citation.provider === "Artist website" ? (artistWebsiteLabels[root.lang] || artistWebsiteLabels.en) : citation.provider;
+          const attribution=citation.provider === "Artist website" ? citation.publisher : citation.usage_basis ? citation.attributed_author : citation.license;
+          link.textContent=`${citation.title} · ${provider}${citation.language ? ` (${citation.language})` : ""} · ${attribution}`;
           link.href=citation.revision_url || citation.url;
           link.target="_blank"; link.rel="noopener noreferrer";
           researchSources.appendChild(link);

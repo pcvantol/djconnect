@@ -453,3 +453,22 @@ transport-attempt accounting before I/O, exact installed/app/run binding and
 semantic/effect acceptance remain dependencies. No repeat activation request or
 second Apple writer is created. Full details: CONTEXTUAL_DJ_EXPLORATION_V1.md,
 CONTEXTUAL_DJ_NIGHT_20261020.md and CONTEXTUAL_DJ_STORY_FOCUS_20261020.md.
+
+
+## Local artist-website admission correction — 20 October, 03:01 UTC
+
+The preceding Wikipedia-only automatic-artist implementation gap now has a
+bounded local source correction: exact-QID P856 website +literal named musical
+paragraphs, within existing shared fetch/request/deadline/source caps. Existing
+full factual/Persona/Mood/novelty and live owner/source guards remain; optional
+failure preserves Wiki and owner withdrawal propagates. Typed credit/album
+owners are unchanged. Shared citation/renderer integration P2 was found and
+repaired with bounded public provenance, five-language labels and actual
+publication→shared_snapshot→generatedJS regression. No raw corpus/private owner
+export, new audience, guessed URL, source alias, extra model or retry.
+
+Golden now42families/324steps/77reports;32Core+29real-quality gates OPEN. Both
+new findings stay open at feature level. Existing actualtextNO_GO/40reserved
+night budget, source/native/provider/install/audio and protected delivery gates
+are unchanged. No native pin/import/installation or completed rich-story claim.
+See CONTEXTUAL_DJ_ARTIST_WEBSITE_20261020.md for exact qualification boundaries.

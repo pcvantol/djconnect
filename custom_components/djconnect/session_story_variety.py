@@ -80,12 +80,24 @@ def next_topic(previous):
         TOPICS.index(topic)))
 
 
+def episode_source(source):
+    if source.get('provider') == 'Wikipedia':
+        return True
+    witness=source.get('official_site_reference')
+    return (source.get('provider') == 'Artist website'
+        and source.get('usage_basis') == 'public_page_short_reference'
+        and isinstance(witness,dict) and witness.get('basis') == 'wikidata_p856_v1'
+        and witness.get('entity_id') == source.get('wikidata_id')
+        and re.fullmatch(r'Q[1-9][0-9]*',str(witness.get('entity_id','')))
+        and type(witness.get('revision')) is int and witness['revision'] > 0)
+
+
 def select_focus(projection, topic, previous):
     from .ask_dj.public_research import evidence_spans
     used = {key for row in previous for key in row[2]}
     choices = []
     for order, source in enumerate(projection.get('sources', [])):
-        if source.get('provider') != 'Wikipedia':
+        if not episode_source(source):
             continue
         for index, span in enumerate(evidence_spans(source)):
             key = span_key(span['text'])
@@ -110,7 +122,7 @@ def reviewed_episode(review, projection, focus, previous):
             or review.get('novel_episode') is not True):
         return ()
     spans = {s['id']: s['text'] for source in projection['sources']
-             if source.get('provider') == 'Wikipedia' for s in evidence_spans(source)}
+             if episode_source(source) for s in evidence_spans(source)}
     keys = tuple(dict.fromkeys(span_key(spans[i]) for c in review.get('claim_checks', [])
         if c.get('kind') in {'fact', 'relationship'} for i in c.get('evidence_ids', [])
         if i in focus['episode_span_ids'] and i in spans and c.get('quote') == spans[i]))

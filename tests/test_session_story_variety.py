@@ -208,6 +208,160 @@ class StoryVarietyOwnerTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(third.content,self.texts['background'])
         self.assertNotIn('Music archive',third.content)
 
+    async def test_exact_artist_website_episode_uses_shared_fetch_and_persists_in_reopened_flow(self):
+        from urllib.parse import urlsplit
+        from custom_components.djconnect.session_conversation import query_service
+        self.topic_missing=True
+        original=self.f.fetch
+        async def transport(fetch,url,**kwargs):
+            if urlsplit(url).hostname not in {'www.wikidata.org','artist.example'}:
+                return await original(fetch,url,**kwargs)
+            await fetch.guard()
+            self.assertLess(fetch.requests,fetch.maximum_requests)
+            fetch.requests+=1
+            self.f.fetch_owners.append(fetch)
+            self.f.urls.append(url)
+            if urlsplit(url).hostname=='www.wikidata.org':
+                return 200,json.dumps({'entities':{'Q1':{'id':'Q1','lastrevid':123,
+                    'claims':{'P856':[{'id':'Q1$'+'a'*36,'rank':'normal',
+                        'mainsnak':{'property':'P856','datatype':'url','snaktype':'value',
+                            'datavalue':{'value':'https://artist.example/'}}}]}}}}),url
+            if url.endswith('/robots.txt'):
+                return 200,'User-agent: *\nAllow: /',url
+            return 200,('<html lang="en"><p>Nora Vale 1 recorded the album <i>Paper Lanterns</i> '
+                        'in a studio with Ada Reed.</p></html>'),url
+        self.f.fetch=transport
+        moment=await self.next_track(0)
+        self.assertIsNotNone(moment,self.f.debug)
+        self.assertEqual(moment.content,self.texts['recording'])
+        self.assertEqual(moment.narration_acceptance.accepted.editorial_topic,'recording')
+        self.assertEqual(len(self.f.calls),2)
+        self.assertLessEqual(len(self.f.urls),8)
+        self.assertTrue(all(f is self.f.fetch_owners[0] for f in self.f.fetch_owners))
+        source=next(s for s in moment.as_dict()['sources'] if s['provider']=='Artist website')
+        self.assertEqual(source['official_site_reference'],{'basis':'wikidata_p856_v1',
+            'entity_id':'Q1','claim_id':'Q1$'+'a'*36,'revision':123})
+        self.assertEqual(source['usage_basis'],'public_page_short_reference')
+        # Actual shared allowlist -> actual generated renderer's citation
+        # validator, not a separately reconstructed citation fixture.
+        import secrets
+        import shutil
+        import subprocess
+        from pathlib import Path
+        from custom_components.djconnect.display_admission import DisplayAdmissionState, DisplayOwnerBinding
+        from custom_components.djconnect.display_projection import shared_snapshot
+        state=DisplayAdmissionState(time.monotonic)
+        owner_binding=DisplayOwnerBinding('profile-a',self.f.session.session_id,'entry','stamp',lambda:True)
+        nonce=secrets.token_urlsafe(32)
+        claim=state.create_claim(source='unit',browser_nonce=nonce)
+        state.approve(owner=owner_binding,**{k:claim[k] for k in (
+            'issuer_epoch','claim_id','browser_generation','code')},share={'mode':'create','consent':True})
+        collected=state.collect(**{k:claim[k] for k in (
+            'issuer_epoch','claim_id','browser_generation','claim_secret')},browser_nonce=nonce)
+        snapshot=shared_snapshot(self.f.session,state._displays[collected['display_id']],state)
+        card=next(m for m in snapshot['dj_moments'] if m['moment_id']==moment.moment_id)
+        self.assertEqual(card['content'],moment.content)
+        self.assertEqual(len(card['sources']),3)
+        projected=next(s for s in card['sources'] if s['provider']=='Artist website')
+        self.assertEqual(projected['official_site_reference'],source['official_site_reference'])
+        for private in ('untrusted_excerpt','literal_passages','original_document_hash','content_hash','fetched_at'):
+            self.assertNotIn(private,json.dumps(snapshot))
+        node=shutil.which('node')
+        self.assertIsNotNone(node)
+        page=Path(__file__).resolve().parents[1]/'custom_components/djconnect/vibecast.html'
+        script="""const fs=require('node:fs'),assert=require('node:assert/strict');
+const page=fs.readFileSync(process.argv[1],'utf8');
+const functions=page.match(/  function qualifiedCitations[\\s\\S]*?(?=  function cardFor)/)[0];
+const validate=new Function('sources',functions+';return qualifiedCitations(sources)');
+const sources=JSON.parse(fs.readFileSync(0,'utf8'));
+assert.equal(validate(sources).length,3);
+const bad=sources.map(s=>s.provider==='Artist website'?{...s,official_site_reference:undefined}:s);
+assert.equal(validate(bad),null);"""
+        import asyncio
+        checked=await asyncio.to_thread(subprocess.run,[node,'-e',script,str(page)],input=json.dumps(card['sources']),
+            capture_output=True,text=True)
+        self.assertEqual(checked.returncode,0,checked.stderr)
+        before=(len(self.f.calls),len(self.f.urls))
+        await self.f.manager.async_end(owner_profile_id='profile-a',session_id=self.f.session.session_id)
+        await self.f.fixture.service.async_close()
+        await self.f.fixture.service.async_initialize()
+        page=await query_service(self.f.hass,self.f.history).async_timeline_page('profile-a',self.f.session.session_id)
+        entry=next(e for e in page['entries'] if e.get('moment_id')==moment.moment_id)
+        self.assertEqual(entry['text'],moment.content)
+        self.assertIn(source,entry['sources'])
+        self.assertEqual((len(self.f.calls),len(self.f.urls)),before)
+
+    async def test_website_identity_robots_redirect_scope_and_budget_fail_closed(self):
+        from copy import deepcopy
+        from custom_components.djconnect.official_artist_research import website_reference
+        identity=('artist','https://www.wikidata.org/wiki/Q1','Nora Vale 1','Group','Q1')
+        claim={'id':'Q1$'+'a'*36,'rank':'normal','mainsnak':{'property':'P856',
+            'datatype':'url','snaktype':'value','datavalue':{'value':'https://artist.example/'}}}
+        fixture={'id':'Q1','lastrevid':123,'claims':{'P856':[claim]}}
+        class Fetch:
+            maximum_requests=8
+            def __init__(self,entity,*,start=0,robots=True,redirect=False,text=None):
+                self.requests=start
+                self.entity,self.allowed,self.redirect=entity,robots,redirect
+                self.text=text or '<p>Nora Vale 1 recorded music in a studio.</p>'
+                self.visited=[]
+            async def request(self,url,**kwargs):
+                self.requests+=1
+                self.visited.append(url)
+                if 'www.wikidata.org' in url:
+                    return 200,json.dumps({'entities':{'Q1':self.entity}}),url
+                return 200,self.text,('https://other.example/' if self.redirect else url)
+            async def robots(self,url):
+                self.requests+=1
+                return self.allowed
+        invalid=[]
+        for change in ({'id':'Q2'},{'lastrevid':0},{'lastrevid':True},{'lastrevid':2**53}):
+            invalid.append({**deepcopy(fixture),**change})
+        for change in ({'rank':'deprecated'},{'qualifiers':{'P582':[]}},
+                {'mainsnak':{**claim['mainsnak'],'snaktype':'somevalue'}},
+                {'mainsnak':{**claim['mainsnak'],'datavalue':{'value':'https://127.0.0.1/'}}},
+                {'id':'Q2$'+'a'*36}):
+            invalid.append({**deepcopy(fixture),'claims':{'P856':[{**deepcopy(claim),**change}]}})
+        second={**deepcopy(claim),'mainsnak':{**claim['mainsnak'],
+            'datavalue':{'value':'https://another.example/'}}}
+        invalid.append({**deepcopy(fixture),'claims':{'P856':[claim,second]}})
+        for entity in invalid:
+            fetch=Fetch(entity)
+            self.assertIsNone(await website_reference(fetch,identity,'recording'),entity)
+            self.assertEqual(fetch.requests,1)
+        for options in ({'start':6},{'robots':False},{'redirect':True},
+                {'text':'<p>Different artist recorded music in a studio.</p>'},
+                {'text':'<p>Nora Vale 1 studio music guide</p>'},
+                {'text':'<p>Nora Vale 1 recorded music '+('x'*600)+'.</p>'}):
+            fetch=Fetch(fixture,**options)
+            self.assertIsNone(await website_reference(fetch,identity,'recording'),options)
+            self.assertLessEqual(fetch.requests,8)
+        self.assertEqual(self.f.calls,[])
+
+    async def test_optional_website_failure_keeps_wiki_but_never_hides_owner_withdrawal(self):
+        from custom_components.djconnect import official_artist_research as official
+        identity=('artist','https://www.wikidata.org/wiki/Q1','Nora Vale 1','Group','Q1')
+        async def guard():
+            return None
+        async def network(fetch,url,**kwargs):
+            return await self.f.fetch(fetch,url,**kwargs)
+        with patch.object(self.f.research.PublicFetch,'request',network):
+            for failure in (TimeoutError(),self.f.research.ResearchUnavailable('public_research_budget')):
+                with patch.object(official,'website_reference',side_effect=failure):
+                    sources=await official.artist_references('Nora Vale 1','One recording episode',
+                        'nl',guard,identity=identity,roles=('Group',),topic='recording')
+                self.assertEqual([s.provider for s in sources],['Wikipedia','Wikipedia'])
+                self.assertTrue(all(s.entity_id=='Q1' for s in sources))
+            with patch.object(official,'website_reference',side_effect=PermissionError('owner_withdrawn')):
+                with self.assertRaises(PermissionError):
+                    await official.artist_references('Nora Vale 1','One recording episode',
+                        'nl',guard,identity=identity,roles=('Group',),topic='recording')
+            with patch.object(official,'website_reference',side_effect=AssertionError('unqualified site lookup')):
+                sources=await official.artist_references('Nora Vale 1','One recording episode',
+                    'nl',guard,identity=(*identity[:4],'Q999'),roles=('Group',),topic='recording')
+                self.assertEqual(sources,[])
+        self.assertEqual(self.f.calls,[])
+
     async def test_rejected_semantic_repeat_does_not_advance_flow_or_episode_memory(self):
         self.assertIsNotNone(await self.next_track(0))
         before=tuple(self.f.session.planner.output.session_flow.items)

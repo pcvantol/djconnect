@@ -23,6 +23,19 @@ def _label(value):
     return getattr(value, "value", value)
 
 
+def public_citation(source):
+    """Citation provenance only, never excerpts, owner IDs or model receipts."""
+    result={key:source[key] for key in ('provider','title','url','language','license','revision_url')}
+    if source.get('provider') == 'Artist website':
+        result.update({key:source[key] for key in ('usage_basis','publisher','wikidata_id')})
+        result['official_site_reference']={key:source['official_site_reference'][key]
+            for key in ('basis','entity_id','claim_id','revision')}
+    elif source.get('provider') == 'Public web':
+        result.update({key:source[key] for key in ('usage_basis','attributed_author','author_status')})
+        result['work_reference']={key:source['work_reference'][key] for key in ('title','artist','url')}
+    return result
+
+
 def projection_release_guard(active, authority, state, snapshot):
     """Capture immutable original proof clocks; final check performs no encoding."""
     broadcast = active.broadcast
@@ -131,8 +144,7 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
         if sources:
             # Only public citation fields; no excerpts, evidence spans, proof,
             # retrieval/owner metadata or model context cross this audience.
-            item['sources'] = [{key:s[key] for key in (
-                'provider','title','url','language','license','revision_url')} for s in sources]
+            item['sources'] = [public_citation(s) for s in sources]
         moments.append(item)
     # Display is a current surface, never an archive/catch-up history. Selecting
     # complete items does not truncate immutable facts or required source links.

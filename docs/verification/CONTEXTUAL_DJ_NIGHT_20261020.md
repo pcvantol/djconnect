@@ -617,3 +617,40 @@ Session sourcewire only; pinnedprotected39/167catalogue, zero native/provider
 runs. No repeatedpeerping, sourcewrite, producerpin, launch or budgettransfer.
 Docs-only increment; prior full2816PASS/7skips stays0aced564. No busy rerun,
 push/merge/install/cleanup/nextslice or functionclosure.
+
+
+## 03:01UTC continuation — exact artist website / shared-source integration
+
+Cleanfcbbb276/same solewriter; main8b221d07/Brandrefsunchanged, no competingCore
+or model execution/indexlock. Hostverify0/MATCH/onboarding4.5.4/488GiBfree,
+unrelated dashboardlockpreserved. PreflightGO for bounded sameWIP richartist
+source gap, no new lane/consumer activation. Modelledger byte-identical40/40.
+
+Automatic artist owner can add one exact-QID/P856 website after qualified Wiki,
+inside same8requests/12seconds/128KiB. Unambiguous normal/preferred unqualified
+URL +positive exactrevision +robots/exactdestination +original named musical
+paragraphs <=600chars; no guessedsite, snippets, extraagent/retry/budget. Keep
+preferred-localeWiki +website +CC0seed within original3sourceclaimlimit. Optional
+failure preservesWiki; PermissionError propagates. Credit/album scopes unchanged.
+Existing full factual/Persona/Mood/semanticnovelty review still owns publication.
+
+Independent technical review firstNO_GO: shared projector dropped required
+provenance and renderer rejected newprovider, suppressingcard. Corrected explicit
+bounded publiccitations +5Sessionlanguage labels +generatedJSvalidation; existing
+albumbyline/workrefs retained too. Current shared grant/consent/audience/expiry/
+Flow/playback guards unchanged, no rawcorpus/privateowner export. Actualowner
+publication→shared_snapshot→generatedJS plus historicalSQLite source/text chain
+passes with externalfixtures. Reviewer16focusedPASS/scopedGO/noP1P2; oldrealize
+onlyinmemory makes positivewebsitechainfail1/0errors. Final consistencyGO.
+
+Initialfull2819had1outerfailure: previousdocs-only canonicaldocumenthash stale.
+Updatedonly currentref, regenerated23views; offline --check-rendered PASS.
+Frozenpredecessor/history untouched. Focusedschedule initiallymissed newdisplay
+ownerfile; requiredcoveragecorrected beforefinalfrozenrun. Allfailedlogs retained.
+Final165focusedPASS9.863s; full2820PASS/7existing skips68.944s; Ruff/diffPASS.
+No resource/performance qualification; existingteardownwarnings visible.
+Golden42families/324steps/77reports;32Core+29realqualityOPEN. Sourcebundle locally
+regenerated, no receiverimport/protectedpin/install. Actualwebsitecontentcapture
+and actualstoryNOT_RUN here. NarrativequalityNO_GO, actualtextsunchanged;
+no model/keycalls, push/merge/cleanup/nextslice or native/audio claim. Details in
+CONTEXTUAL_DJ_ARTIST_WEBSITE_20261020.md; evidence artist-website-source/.

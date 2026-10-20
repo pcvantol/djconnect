@@ -174,3 +174,25 @@ exporter/fixture, pre-I/O provider-attempt bounds, exact installed Core/app/run
 binding, semantic/effect outcomes, gestures, artist pixels and actual speech
 remain separate gates. Its zero native/provider runs do not consume or renew
 this exhausted Core night allowance.
+
+
+## Artist website source refinement — 20 October, 03:01 UTC
+
+This supersedes the automatic-artist Wikipedia-only implementation limit in the
+02:46 readback. Local artist narration can now add one exact-QID Wikidata-P856
+website within the same PublicFetch8request/12second/128KiB owner. Exact typed
+source identity, robots/destination/paragraph/usage/provenance admission and the
+existing full source/Persona/Mood/novelty review apply. One preferred-locale Wiki
+edition +website +CC0seed retain the original3source claim cap. Failure retains
+qualified Wiki; withdrawal does not become a soft fallback. Composer/producer
+and album scopes are unchanged. No guessed site, snippet or extra call/retry.
+
+Current shared consent/admission permits only the accepted public contribution
+and bounded citation provenance. Projection and regenerated shared renderer now
+preserve and validate website P856/publisher provenance and existing album
+byline/work references, with five localized website labels. Corpus/owner/model
+receipts are not shared. The new local owning chain includes actual publication,
+shared projection, generated JS validation and reopened Flow with external
+fixtures. This is implementation/source proof, not actual website/story, native
+pixels/audio, consumer import or a replacement producer pin. Full boundaries and
+remaining gates: [artist website readback](../verification/CONTEXTUAL_DJ_ARTIST_WEBSITE_20261020.md).

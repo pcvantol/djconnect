@@ -252,3 +252,14 @@ remain refusals, and photo-adapter/fixture success is not installed pixel proof.
 Apple's existing native harness remains pinned to protected39families/167steps,
 execute:false/PENDING_CORE_HANDOFF, with zero real native/provider runs. Neither
 that source catalogue nor its batch receipts qualify this newer WIP.
+
+
+20 October03:01same-WIP source refinement: automatic artist contributions now
+have one typed exact-QID/P856 website path within unchanged source/call budgets,
+with original episode evidence and existing full review. Shared citation and
+renderer integration is locally repaired; no actual website/model/native result
+is inferred. Golden42families/324steps/77reports;32Core+29real-qualityOPEN.
+Full2820testsPASS/7skips is source evidence only. Full actual catalogue FAIL,
+zero paid variations and the exhausted40-attempt night grant are unchanged.
+See CONTEXTUAL_DJ_ARTIST_WEBSITE_20261020.md for source, shared-purpose and actual
+acceptance boundaries. No consumer pin or installation is delivered here.

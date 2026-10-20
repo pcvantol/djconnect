@@ -455,14 +455,20 @@ async def realize(brief, *, ask, admission, debug=None):
         roles = (core.entity_type,) if core is not None and core.entity_type in {"Person", "Group"} else ()
         qid = brief.fact.public_artist_qid
         identity = ('artist',brief.fact.source_url,subject,roles[0] if roles else 'Artist',qid)
-        sources, _ = await research.research(subject, question, brief.locale, guard,
-            qualified_music=True, expected_roles=roles, expected_entity_id=qid, allow_web=False,
-            original_paragraphs=True,story_topic=topic)
+        from .official_artist_research import artist_references
+        sources = await artist_references(subject,question,brief.locale,guard,
+            identity=identity,roles=roles,topic=topic)
     from .album_narration import AlbumWebSource
+    from .official_artist_research import ArtistWebsiteSource
     def qualified_source(source):
         if (album and type(source) is AlbumWebSource and source.album_identity == identity
                 and source.license == 'public_page_short_reference' and not source.entity_id
                 and not source.revision_url and source.attributed_author):
+            return True
+        if (not album and not credit and type(source) is ArtistWebsiteSource
+                and source.artist_identity == identity and source.entity_id == qid
+                and source.license == 'public_page_short_reference'
+                and source.entity_revision > 0 and source.website_claim.startswith(qid+'$')):
             return True
         return (type(source) is research.PublicSource and source.provider == 'Wikipedia'
                 and source.entity_id == qid and source.license == 'CC-BY-SA-4.0' and source.revision_url)
