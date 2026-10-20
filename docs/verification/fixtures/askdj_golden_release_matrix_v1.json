@@ -2889,6 +2889,34 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Real paired handler/Runtime/SQLite end-close-reopen/new Session/new playback and durable new Flow acceptance, with declared external research/model fixtures. Original source text is unchanged; current Persona/Mood metadata and selected subject are separate. Original removal rejects before further model research. No actual native tap, model prose, TTS or installed acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-source-reference-label-1",
+          "question": "After earlier same-band episodes are used, can a studio-session guide link label become the next recording story?",
+          "expected_answer": "A label without a complete sentence cannot be a story focus. Preserve original source text and exact used-span exclusion; choose another eligible topic or decline before generation. Real semantic episode fit, novelty and story quality still need their existing review.",
+          "model_policy": "Original source policy plus ordinary Runtime/Flow regression with external fixtures; no extra model invocation, source fetch or lexical user-intent route.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_reference_label_is_not_an_episode_focus_even_with_recording_keywords"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual retained corpus exposes the candidate-selection defect; source/Runtime fixture correction does not qualify actual four-story publication, Persona/Mood or audio."
+        },
+        {
+          "id": "ASKDJ-FLOW-source-reference-label-2",
+          "question": "After earlier same-band episodes are used, can a studio-session guide link label become the next recording story?",
+          "expected_answer": "A label without a complete sentence cannot be a story focus. Preserve original source text and exact used-span exclusion; choose another eligible topic or decline before generation. Real semantic episode fit, novelty and story quality still need their existing review.",
+          "model_policy": "Original source policy plus ordinary Runtime/Flow regression with external fixtures; no extra model invocation, source fetch or lexical user-intent route.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_used_episodes_then_link_label_choose_another_topic_without_publishing_label"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual retained corpus exposes the candidate-selection defect; source/Runtime fixture correction does not qualify actual four-story publication, Persona/Mood or audio."
         }
       ],
       "owning_tests": [
@@ -8686,6 +8714,12 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "core_qualification": "open",
       "finding": "Actual exact-QID Nirvana web probe reaches successful DDG search after5Wiki requests but has insufficient budget for target robots+page. EN canonical title is already in same-fetch validated sitelinks. Reuse it without extra lookup or raised budget; each article still proves QID/type. Actual after reaches page but gets403; failed page/snippet not accepted, real multi-publisher narrative remains open."
+    },
+    {
+      "id": "ASKDJ-ISSUE-reference-label-selected-as-recording-episode",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "core_qualification": "open",
+      "finding": "Sequential readback of retained actual Nirvana corpus, after hypothetically used Reading/McCartney spans, selects an external studio-session guide label as recording focus. Require sentence completion as a minimum candidate gate, leaving original sources plus semantic topic/novelty review intact. Five-language source and real Runtime fixture regressions prevent focus/publication of label. A punctuated span is not automatically an episode, and actual rich narrative/native acceptance remain open."
     }
   ],
   "regression_suite_files": [

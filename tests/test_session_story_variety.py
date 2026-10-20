@@ -64,6 +64,7 @@ class StoryVarietyPolicyTest(unittest.TestCase):
         self.assertIsNone(variety.select_focus(projection,'live_performance',(('live_performance','Prior',keys),)))
 
 
+
 class StoryVarietyOwnerTest(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
@@ -140,6 +141,27 @@ class StoryVarietyOwnerTest(unittest.IsolatedAsyncioTestCase):
                 title='Fixture track '+str(index),artist=self.f.catalog['artist'],duration_ms=300000,position_ms=0)
             return await self.f.publish()
 
+    def test_reference_label_is_not_an_episode_focus_even_with_recording_keywords(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        stamp=datetime.now(UTC).isoformat()
+        label='Music archive – Guides to studio sessions output and live concerts'
+        for language,text in (('en','The band recorded “Paper Lanterns.”'),
+                ('nl','De band maakte studio-opnamen.'),('de','Die Band machte Studioaufnahmen.'),
+                ('fr','Le groupe a enregistré en studio.'),('es','La banda grabó en el estudio.')):
+            original=label+'\n'+text
+            source=research.PublicSource('Wikipedia','Band','https://en.wikipedia.org/wiki/Band',
+                original,language,stamp,stamp,'CC-BY-SA-4.0',entity_id='Q1',
+                original_text=original,paragraph_ranges=((0,len(label)),(len(label)+1,len(original))))
+            projection=research.research_projection('Band',[source],{'state':'available'})
+            focus=variety.select_focus(projection,'recording',())
+            spans=research.evidence_spans(projection['sources'][0])
+            self.assertIsNotNone(focus,(language,projection))
+            self.assertEqual(focus['episode_span_ids'],[spans[1]['id']])
+            used=(('recording','Synthetic prior',(variety.span_key(text),)),)
+            self.assertIsNone(variety.select_focus(projection,'recording',used))
+            self.assertIn(label,projection['sources'][0]['untrusted_excerpt'])
+
+
     async def test_four_observed_tracks_have_distinct_episodes_and_durable_replayable_flow(self):
         from custom_components.djconnect.public_artist_narration import admitted
         from custom_components.djconnect.session_conversation import query_service
@@ -172,6 +194,19 @@ class StoryVarietyOwnerTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual({e['text'] for e in entries},{m.content for m in moments})
         self.assertTrue(all(e['sources'] and e['session_speech']['manual_allowed'] for e in entries))
         self.assertEqual(len(self.f.calls),8)
+
+    async def test_used_episodes_then_link_label_choose_another_topic_without_publishing_label(self):
+        self.paragraphs['recording']='Music archive – Guides to studio sessions output and live concerts'
+        first=await self.next_track(0)
+        second=await self.next_track(1)
+        third=await self.next_track(2)
+        self.assertTrue(all(m is not None for m in (first,second,third)),self.f.debug)
+        self.assertEqual([m.narration_acceptance.accepted.editorial_topic for m in (first,second,third)],
+            ['live_performance','members','background'])
+        self.assertEqual(len(self.f.calls),6)
+        self.assertEqual(self.f.session.presence_ledger.total_published,3)
+        self.assertEqual(third.content,self.texts['background'])
+        self.assertNotIn('Music archive',third.content)
 
     async def test_rejected_semantic_repeat_does_not_advance_flow_or_episode_memory(self):
         self.assertIsNotNone(await self.next_track(0))

@@ -560,3 +560,32 @@ rerun or new full-count claim: last product full2812PASS/7skips remains ea91fad7
 Golden42families/318steps/74reports,29Core+29actualqualityOPEN. Evidence receipt
 and setup/final logs retained under mood-complete-choice/. SameWIP remains open,
 narrativequalityNO_GO; no push/merge/install/cleanup/nextslice or activation.
+
+
+## 02:31UTC continuation — prevent a reference label becoming story focus
+
+Clean c57f3c93/same solewriter; main8b221d07/otherWIP unchanged, no competingCore
+or model execution. Sandbox-limited hostcheck initially unqualified; actual
+canonical read-only check exits0/MATCH/onboarding4.5.4/488GiBfree. No service
+change. Unrelated dashboard-browser lock preserved. Modelledger unchanged40/40.
+
+Offline sequential selection on retained actual Q11649 corpus finds a concrete
+pre-generation defect: after hypothetically used Reading/McCartney passages,
+recording chooses an external studio-session guide label. Independent editorial
+review reproduced it. Synthetic prior-used spans are not actual accepted stories;
+no model or newHTTP request. Minimum complete-sentence eligibility now prevents
+that focus, with full originals/identity/review/novelty/budgets unchanged.
+
+Two new owning source/Runtime/Flow regressions PASS, including five languages;
+independent oldfunction-only-in-memory causes both tofail/0errors. Technical
+scopedGO/noP1P2. Corrected after-readback falls back to live passages, including
+sameevent DVDparagraph: not four topicfamilies or semanticnovelty proof. Existing
+automatic artist narration remainsWikipediaonly; separate AskDJweb research does
+not enrich it. No wider source owner invented or sourceguard waived.
+
+149focusedPASS9.379s; frozen full2816PASS/7existing skips67.089s; Ruff/diffPASS.
+Initial missing HAfixture/ranges and misspelled focused module failures retained,
+corrected without productfailure claims or waiver. Golden42families/320steps/
+75reports;30Core+29actualqualityOPEN. Actual answertexts unchanged/narrativeNO_GO.
+Evidence artist-focus-readback/ and CONTEXTUAL_DJ_STORY_FOCUS_20261020.md preserve
+exact boundaries. No push/merge/install/cleanup/nextslice, native or audio claim.

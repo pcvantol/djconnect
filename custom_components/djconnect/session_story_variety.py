@@ -89,7 +89,11 @@ def select_focus(projection, topic, previous):
             continue
         for index, span in enumerate(evidence_spans(source)):
             key = span_key(span['text'])
-            if key not in used and passage_score(span['text'], topic):
+            # Retrieval words also occur in reference/link labels. A complete
+            # sentence is a minimum focus requirement, not semantic episode
+            # qualification; the full original corpus and model review remain.
+            complete = re.search(r'[.!?][\"\x27’”»\)\]]*$', span['text'].rstrip())
+            if complete and key not in used and passage_score(span['text'], topic):
                 choices.append((passage_score(span['text'], topic), index > 0, source.get('language') == 'en', -order, -index, source, span))
     if not choices:
         return None
