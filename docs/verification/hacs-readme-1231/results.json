@@ -1,0 +1,444 @@
+{
+  "source_sha": "3781059ed51fe83ef9d797cf533a1a3630d6f3e7",
+  "scope": "Actual GitHub blob Markdown rendering; NOT installed HACS or HA frontend acceptance",
+  "records": [
+    {
+      "name": "README.md",
+      "theme": "light",
+      "url": "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md",
+      "status": 200,
+      "text": "DJConnect\n\nYour music. Your DJ.\n\nYour personal music DJ in Home Assistant. Ask for music and enjoy DJ contributions from an available DJConnect app, supported device or Home Assistant Assist.\n\nOpen DJConnect in HACS\n\nEnglish \u00b7 Nederlands \u00b7 Deutsch \u00b7 Fran\u00e7ais \u00b7 Espa\u00f1ol\n\nThis branch describes 4.0.0-rc.1, a candidate, not an installed-release claim. Installed 3.3.1? Follow the stable setup guide. Check your installed version in HACS before following the wizard steps.\n\nMake it your session\nAsk for music without searching through menus.\nLet your DJ share music stories and announcements.\nChoose the DJ Persona and mood for your session.\nWhat you need\nHome Assistant and HACS, plus a configured Assist pipeline. The 4.0 candidate needs an available conversation agent; STT/TTS are optional for setup. Stable 3.3.1 needs a pipeline with both STT and TTS: see its versioned guide.\nChoose a music route: Spotify Direct needs Spotify Premium, your own Spotify Developer app Client ID and an external HTTPS Home Assistant URL; Nabu Casa is recommended. Music Assistant needs a configured installation and usable player. You can also choose Later / manual without Spotify login.\nChoose how to connect: use an available DJConnect app/device, or use Assist without pairing one. Pair local devices on the same LAN; ESP32 needs 2.4 GHz WiFi. Speech availability depends on the selected route and actual client capabilities.\nInstall\nOpen HACS. If needed, use Custom repositories, add https://github.com/pcvantol/djconnect and select category Integration.\nInstall DJConnect from HACS.\nRestart Home Assistant.\nGo to Settings \u2192 Devices & services \u2192 Add integration \u2192 DJConnect.\nStart your first session\nChoose Assist, a local device or an app in the wizard.\nFollow the pairing screen when applicable (Assist skips pairing): iPhone/Watch use a QR flow; macOS uses the shown Home Assistant URL and code. ESP32/Pi use local pairing. Optional Bluetooth setup only supplies ESP32 WiFi.\nOn 4.0, choose an existing Profile or create one. Reusing a Profile keeps its music connection; a new Profile can choose Spotify Direct, Music Assistant or Later. Stable 3.3.1 asks for the backend before creating its Profile.\nOpen the connected client and start a DJ session, or select DJConnect DJ in your Assist configuration. A deferred music route must be configured before playback.\n\nStep-by-step setup \u00b7 Spotify Direct \u00b7 Help\n\nNeed a hand?\nAssist missing: configure the prerequisites for your installed version.\nSpotify login does not return: copy the exact redirect URI from the wizard into Spotify Developer Dashboard; update it and reauthorize after an external URL change.\nLocal pairing fails: check the LAN and use the current six-digit code.\nGeneric HA icon: redownload in HACS, restart HA and refresh the frontend cache.\n\nMore help \u00b7 Documentation \u00b7 Website \u00b7 Source\n\nDJConnect repositories are MIT-licensed; this HA integration may be distributed separately for DJConnect devices. Copyright (c) 2026 Peter van Tol. Third-party dependencies keep their own licenses: notices. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB. License.",
+      "scrollWidth": 254,
+      "htmlTheme": "auto",
+      "image": [
+        {
+          "src": "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+          "width": 64,
+          "height": 64,
+          "naturalWidth": 128
+        }
+      ],
+      "links": [
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#djconnect",
+        "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/installation.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/nl.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/de.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/fr.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/es.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/stable-3.3.1.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#make-it-your-session",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#what-you-need",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#install",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#start-your-first-session",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/installation.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/spotify-direct.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/troubleshooting.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#need-a-hand",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/troubleshooting.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/README.md",
+        "https://djconnect.dev/",
+        "https://github.com/pcvantol/djconnect",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/THIRD_PARTY_NOTICES.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/LICENSE"
+      ],
+      "overflow": [],
+      "viewport_width": 320,
+      "article_width": 254
+    },
+    {
+      "name": "README.md",
+      "theme": "dark",
+      "url": "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md",
+      "status": 200,
+      "text": "DJConnect\n\nYour music. Your DJ.\n\nYour personal music DJ in Home Assistant. Ask for music and enjoy DJ contributions from an available DJConnect app, supported device or Home Assistant Assist.\n\nOpen DJConnect in HACS\n\nEnglish \u00b7 Nederlands \u00b7 Deutsch \u00b7 Fran\u00e7ais \u00b7 Espa\u00f1ol\n\nThis branch describes 4.0.0-rc.1, a candidate, not an installed-release claim. Installed 3.3.1? Follow the stable setup guide. Check your installed version in HACS before following the wizard steps.\n\nMake it your session\nAsk for music without searching through menus.\nLet your DJ share music stories and announcements.\nChoose the DJ Persona and mood for your session.\nWhat you need\nHome Assistant and HACS, plus a configured Assist pipeline. The 4.0 candidate needs an available conversation agent; STT/TTS are optional for setup. Stable 3.3.1 needs a pipeline with both STT and TTS: see its versioned guide.\nChoose a music route: Spotify Direct needs Spotify Premium, your own Spotify Developer app Client ID and an external HTTPS Home Assistant URL; Nabu Casa is recommended. Music Assistant needs a configured installation and usable player. You can also choose Later / manual without Spotify login.\nChoose how to connect: use an available DJConnect app/device, or use Assist without pairing one. Pair local devices on the same LAN; ESP32 needs 2.4 GHz WiFi. Speech availability depends on the selected route and actual client capabilities.\nInstall\nOpen HACS. If needed, use Custom repositories, add https://github.com/pcvantol/djconnect and select category Integration.\nInstall DJConnect from HACS.\nRestart Home Assistant.\nGo to Settings \u2192 Devices & services \u2192 Add integration \u2192 DJConnect.\nStart your first session\nChoose Assist, a local device or an app in the wizard.\nFollow the pairing screen when applicable (Assist skips pairing): iPhone/Watch use a QR flow; macOS uses the shown Home Assistant URL and code. ESP32/Pi use local pairing. Optional Bluetooth setup only supplies ESP32 WiFi.\nOn 4.0, choose an existing Profile or create one. Reusing a Profile keeps its music connection; a new Profile can choose Spotify Direct, Music Assistant or Later. Stable 3.3.1 asks for the backend before creating its Profile.\nOpen the connected client and start a DJ session, or select DJConnect DJ in your Assist configuration. A deferred music route must be configured before playback.\n\nStep-by-step setup \u00b7 Spotify Direct \u00b7 Help\n\nNeed a hand?\nAssist missing: configure the prerequisites for your installed version.\nSpotify login does not return: copy the exact redirect URI from the wizard into Spotify Developer Dashboard; update it and reauthorize after an external URL change.\nLocal pairing fails: check the LAN and use the current six-digit code.\nGeneric HA icon: redownload in HACS, restart HA and refresh the frontend cache.\n\nMore help \u00b7 Documentation \u00b7 Website \u00b7 Source\n\nDJConnect repositories are MIT-licensed; this HA integration may be distributed separately for DJConnect devices. Copyright (c) 2026 Peter van Tol. Third-party dependencies keep their own licenses: notices. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB. License.",
+      "scrollWidth": 254,
+      "htmlTheme": "auto",
+      "image": [
+        {
+          "src": "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+          "width": 64,
+          "height": 64,
+          "naturalWidth": 128
+        }
+      ],
+      "links": [
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#djconnect",
+        "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/installation.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/nl.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/de.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/fr.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/es.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/stable-3.3.1.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#make-it-your-session",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#what-you-need",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#install",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#start-your-first-session",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/installation.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/spotify-direct.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/troubleshooting.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#need-a-hand",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/troubleshooting.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/README.md",
+        "https://djconnect.dev/",
+        "https://github.com/pcvantol/djconnect",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/THIRD_PARTY_NOTICES.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/LICENSE"
+      ],
+      "overflow": [],
+      "viewport_width": 320,
+      "article_width": 254
+    },
+    {
+      "name": "README.md",
+      "theme": "light",
+      "url": "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md",
+      "status": 200,
+      "text": "DJConnect\n\nYour music. Your DJ.\n\nYour personal music DJ in Home Assistant. Ask for music and enjoy DJ contributions from an available DJConnect app, supported device or Home Assistant Assist.\n\nOpen DJConnect in HACS\n\nEnglish \u00b7 Nederlands \u00b7 Deutsch \u00b7 Fran\u00e7ais \u00b7 Espa\u00f1ol\n\nThis branch describes 4.0.0-rc.1, a candidate, not an installed-release claim. Installed 3.3.1? Follow the stable setup guide. Check your installed version in HACS before following the wizard steps.\n\nMake it your session\nAsk for music without searching through menus.\nLet your DJ share music stories and announcements.\nChoose the DJ Persona and mood for your session.\nWhat you need\nHome Assistant and HACS, plus a configured Assist pipeline. The 4.0 candidate needs an available conversation agent; STT/TTS are optional for setup. Stable 3.3.1 needs a pipeline with both STT and TTS: see its versioned guide.\nChoose a music route: Spotify Direct needs Spotify Premium, your own Spotify Developer app Client ID and an external HTTPS Home Assistant URL; Nabu Casa is recommended. Music Assistant needs a configured installation and usable player. You can also choose Later / manual without Spotify login.\nChoose how to connect: use an available DJConnect app/device, or use Assist without pairing one. Pair local devices on the same LAN; ESP32 needs 2.4 GHz WiFi. Speech availability depends on the selected route and actual client capabilities.\nInstall\nOpen HACS. If needed, use Custom repositories, add https://github.com/pcvantol/djconnect and select category Integration.\nInstall DJConnect from HACS.\nRestart Home Assistant.\nGo to Settings \u2192 Devices & services \u2192 Add integration \u2192 DJConnect.\nStart your first session\nChoose Assist, a local device or an app in the wizard.\nFollow the pairing screen when applicable (Assist skips pairing): iPhone/Watch use a QR flow; macOS uses the shown Home Assistant URL and code. ESP32/Pi use local pairing. Optional Bluetooth setup only supplies ESP32 WiFi.\nOn 4.0, choose an existing Profile or create one. Reusing a Profile keeps its music connection; a new Profile can choose Spotify Direct, Music Assistant or Later. Stable 3.3.1 asks for the backend before creating its Profile.\nOpen the connected client and start a DJ session, or select DJConnect DJ in your Assist configuration. A deferred music route must be configured before playback.\n\nStep-by-step setup \u00b7 Spotify Direct \u00b7 Help\n\nNeed a hand?\nAssist missing: configure the prerequisites for your installed version.\nSpotify login does not return: copy the exact redirect URI from the wizard into Spotify Developer Dashboard; update it and reauthorize after an external URL change.\nLocal pairing fails: check the LAN and use the current six-digit code.\nGeneric HA icon: redownload in HACS, restart HA and refresh the frontend cache.\n\nMore help \u00b7 Documentation \u00b7 Website \u00b7 Source\n\nDJConnect repositories are MIT-licensed; this HA integration may be distributed separately for DJConnect devices. Copyright (c) 2026 Peter van Tol. Third-party dependencies keep their own licenses: notices. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB. License.",
+      "scrollWidth": 309,
+      "htmlTheme": "auto",
+      "image": [
+        {
+          "src": "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+          "width": 64,
+          "height": 64,
+          "naturalWidth": 128
+        }
+      ],
+      "links": [
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#djconnect",
+        "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/installation.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/nl.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/de.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/fr.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/es.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/stable-3.3.1.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#make-it-your-session",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#what-you-need",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#install",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#start-your-first-session",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/installation.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/spotify-direct.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/troubleshooting.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#need-a-hand",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/troubleshooting.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/README.md",
+        "https://djconnect.dev/",
+        "https://github.com/pcvantol/djconnect",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/THIRD_PARTY_NOTICES.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/LICENSE"
+      ],
+      "overflow": [],
+      "viewport_width": 375,
+      "article_width": 309
+    },
+    {
+      "name": "README.md",
+      "theme": "dark",
+      "url": "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md",
+      "status": 200,
+      "text": "DJConnect\n\nYour music. Your DJ.\n\nYour personal music DJ in Home Assistant. Ask for music and enjoy DJ contributions from an available DJConnect app, supported device or Home Assistant Assist.\n\nOpen DJConnect in HACS\n\nEnglish \u00b7 Nederlands \u00b7 Deutsch \u00b7 Fran\u00e7ais \u00b7 Espa\u00f1ol\n\nThis branch describes 4.0.0-rc.1, a candidate, not an installed-release claim. Installed 3.3.1? Follow the stable setup guide. Check your installed version in HACS before following the wizard steps.\n\nMake it your session\nAsk for music without searching through menus.\nLet your DJ share music stories and announcements.\nChoose the DJ Persona and mood for your session.\nWhat you need\nHome Assistant and HACS, plus a configured Assist pipeline. The 4.0 candidate needs an available conversation agent; STT/TTS are optional for setup. Stable 3.3.1 needs a pipeline with both STT and TTS: see its versioned guide.\nChoose a music route: Spotify Direct needs Spotify Premium, your own Spotify Developer app Client ID and an external HTTPS Home Assistant URL; Nabu Casa is recommended. Music Assistant needs a configured installation and usable player. You can also choose Later / manual without Spotify login.\nChoose how to connect: use an available DJConnect app/device, or use Assist without pairing one. Pair local devices on the same LAN; ESP32 needs 2.4 GHz WiFi. Speech availability depends on the selected route and actual client capabilities.\nInstall\nOpen HACS. If needed, use Custom repositories, add https://github.com/pcvantol/djconnect and select category Integration.\nInstall DJConnect from HACS.\nRestart Home Assistant.\nGo to Settings \u2192 Devices & services \u2192 Add integration \u2192 DJConnect.\nStart your first session\nChoose Assist, a local device or an app in the wizard.\nFollow the pairing screen when applicable (Assist skips pairing): iPhone/Watch use a QR flow; macOS uses the shown Home Assistant URL and code. ESP32/Pi use local pairing. Optional Bluetooth setup only supplies ESP32 WiFi.\nOn 4.0, choose an existing Profile or create one. Reusing a Profile keeps its music connection; a new Profile can choose Spotify Direct, Music Assistant or Later. Stable 3.3.1 asks for the backend before creating its Profile.\nOpen the connected client and start a DJ session, or select DJConnect DJ in your Assist configuration. A deferred music route must be configured before playback.\n\nStep-by-step setup \u00b7 Spotify Direct \u00b7 Help\n\nNeed a hand?\nAssist missing: configure the prerequisites for your installed version.\nSpotify login does not return: copy the exact redirect URI from the wizard into Spotify Developer Dashboard; update it and reauthorize after an external URL change.\nLocal pairing fails: check the LAN and use the current six-digit code.\nGeneric HA icon: redownload in HACS, restart HA and refresh the frontend cache.\n\nMore help \u00b7 Documentation \u00b7 Website \u00b7 Source\n\nDJConnect repositories are MIT-licensed; this HA integration may be distributed separately for DJConnect devices. Copyright (c) 2026 Peter van Tol. Third-party dependencies keep their own licenses: notices. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB. License.",
+      "scrollWidth": 309,
+      "htmlTheme": "auto",
+      "image": [
+        {
+          "src": "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+          "width": 64,
+          "height": 64,
+          "naturalWidth": 128
+        }
+      ],
+      "links": [
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#djconnect",
+        "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/installation.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/nl.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/de.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/fr.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/es.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/stable-3.3.1.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#make-it-your-session",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#what-you-need",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#install",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#start-your-first-session",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/installation.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/spotify-direct.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/troubleshooting.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#need-a-hand",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/troubleshooting.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/README.md",
+        "https://djconnect.dev/",
+        "https://github.com/pcvantol/djconnect",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/THIRD_PARTY_NOTICES.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/LICENSE"
+      ],
+      "overflow": [],
+      "viewport_width": 375,
+      "article_width": 309
+    },
+    {
+      "name": "README.md",
+      "theme": "light",
+      "url": "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md",
+      "status": 200,
+      "text": "DJConnect\n\nYour music. Your DJ.\n\nYour personal music DJ in Home Assistant. Ask for music and enjoy DJ contributions from an available DJConnect app, supported device or Home Assistant Assist.\n\nOpen DJConnect in HACS\n\nEnglish \u00b7 Nederlands \u00b7 Deutsch \u00b7 Fran\u00e7ais \u00b7 Espa\u00f1ol\n\nThis branch describes 4.0.0-rc.1, a candidate, not an installed-release claim. Installed 3.3.1? Follow the stable setup guide. Check your installed version in HACS before following the wizard steps.\n\nMake it your session\nAsk for music without searching through menus.\nLet your DJ share music stories and announcements.\nChoose the DJ Persona and mood for your session.\nWhat you need\nHome Assistant and HACS, plus a configured Assist pipeline. The 4.0 candidate needs an available conversation agent; STT/TTS are optional for setup. Stable 3.3.1 needs a pipeline with both STT and TTS: see its versioned guide.\nChoose a music route: Spotify Direct needs Spotify Premium, your own Spotify Developer app Client ID and an external HTTPS Home Assistant URL; Nabu Casa is recommended. Music Assistant needs a configured installation and usable player. You can also choose Later / manual without Spotify login.\nChoose how to connect: use an available DJConnect app/device, or use Assist without pairing one. Pair local devices on the same LAN; ESP32 needs 2.4 GHz WiFi. Speech availability depends on the selected route and actual client capabilities.\nInstall\nOpen HACS. If needed, use Custom repositories, add https://github.com/pcvantol/djconnect and select category Integration.\nInstall DJConnect from HACS.\nRestart Home Assistant.\nGo to Settings \u2192 Devices & services \u2192 Add integration \u2192 DJConnect.\nStart your first session\nChoose Assist, a local device or an app in the wizard.\nFollow the pairing screen when applicable (Assist skips pairing): iPhone/Watch use a QR flow; macOS uses the shown Home Assistant URL and code. ESP32/Pi use local pairing. Optional Bluetooth setup only supplies ESP32 WiFi.\nOn 4.0, choose an existing Profile or create one. Reusing a Profile keeps its music connection; a new Profile can choose Spotify Direct, Music Assistant or Later. Stable 3.3.1 asks for the backend before creating its Profile.\nOpen the connected client and start a DJ session, or select DJConnect DJ in your Assist configuration. A deferred music route must be configured before playback.\n\nStep-by-step setup \u00b7 Spotify Direct \u00b7 Help\n\nNeed a hand?\nAssist missing: configure the prerequisites for your installed version.\nSpotify login does not return: copy the exact redirect URI from the wizard into Spotify Developer Dashboard; update it and reauthorize after an external URL change.\nLocal pairing fails: check the LAN and use the current six-digit code.\nGeneric HA icon: redownload in HACS, restart HA and refresh the frontend cache.\n\nMore help \u00b7 Documentation \u00b7 Website \u00b7 Source\n\nDJConnect repositories are MIT-licensed; this HA integration may be distributed separately for DJConnect devices. Copyright (c) 2026 Peter van Tol. Third-party dependencies keep their own licenses: notices. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB. License.",
+      "scrollWidth": 324,
+      "htmlTheme": "auto",
+      "image": [
+        {
+          "src": "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+          "width": 64,
+          "height": 64,
+          "naturalWidth": 128
+        }
+      ],
+      "links": [
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#djconnect",
+        "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/installation.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/nl.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/de.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/fr.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/es.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/stable-3.3.1.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#make-it-your-session",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#what-you-need",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#install",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#start-your-first-session",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/installation.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/spotify-direct.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/troubleshooting.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#need-a-hand",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/troubleshooting.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/README.md",
+        "https://djconnect.dev/",
+        "https://github.com/pcvantol/djconnect",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/THIRD_PARTY_NOTICES.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/LICENSE"
+      ],
+      "overflow": [],
+      "viewport_width": 390,
+      "article_width": 324
+    },
+    {
+      "name": "README.md",
+      "theme": "dark",
+      "url": "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md",
+      "status": 200,
+      "text": "DJConnect\n\nYour music. Your DJ.\n\nYour personal music DJ in Home Assistant. Ask for music and enjoy DJ contributions from an available DJConnect app, supported device or Home Assistant Assist.\n\nOpen DJConnect in HACS\n\nEnglish \u00b7 Nederlands \u00b7 Deutsch \u00b7 Fran\u00e7ais \u00b7 Espa\u00f1ol\n\nThis branch describes 4.0.0-rc.1, a candidate, not an installed-release claim. Installed 3.3.1? Follow the stable setup guide. Check your installed version in HACS before following the wizard steps.\n\nMake it your session\nAsk for music without searching through menus.\nLet your DJ share music stories and announcements.\nChoose the DJ Persona and mood for your session.\nWhat you need\nHome Assistant and HACS, plus a configured Assist pipeline. The 4.0 candidate needs an available conversation agent; STT/TTS are optional for setup. Stable 3.3.1 needs a pipeline with both STT and TTS: see its versioned guide.\nChoose a music route: Spotify Direct needs Spotify Premium, your own Spotify Developer app Client ID and an external HTTPS Home Assistant URL; Nabu Casa is recommended. Music Assistant needs a configured installation and usable player. You can also choose Later / manual without Spotify login.\nChoose how to connect: use an available DJConnect app/device, or use Assist without pairing one. Pair local devices on the same LAN; ESP32 needs 2.4 GHz WiFi. Speech availability depends on the selected route and actual client capabilities.\nInstall\nOpen HACS. If needed, use Custom repositories, add https://github.com/pcvantol/djconnect and select category Integration.\nInstall DJConnect from HACS.\nRestart Home Assistant.\nGo to Settings \u2192 Devices & services \u2192 Add integration \u2192 DJConnect.\nStart your first session\nChoose Assist, a local device or an app in the wizard.\nFollow the pairing screen when applicable (Assist skips pairing): iPhone/Watch use a QR flow; macOS uses the shown Home Assistant URL and code. ESP32/Pi use local pairing. Optional Bluetooth setup only supplies ESP32 WiFi.\nOn 4.0, choose an existing Profile or create one. Reusing a Profile keeps its music connection; a new Profile can choose Spotify Direct, Music Assistant or Later. Stable 3.3.1 asks for the backend before creating its Profile.\nOpen the connected client and start a DJ session, or select DJConnect DJ in your Assist configuration. A deferred music route must be configured before playback.\n\nStep-by-step setup \u00b7 Spotify Direct \u00b7 Help\n\nNeed a hand?\nAssist missing: configure the prerequisites for your installed version.\nSpotify login does not return: copy the exact redirect URI from the wizard into Spotify Developer Dashboard; update it and reauthorize after an external URL change.\nLocal pairing fails: check the LAN and use the current six-digit code.\nGeneric HA icon: redownload in HACS, restart HA and refresh the frontend cache.\n\nMore help \u00b7 Documentation \u00b7 Website \u00b7 Source\n\nDJConnect repositories are MIT-licensed; this HA integration may be distributed separately for DJConnect devices. Copyright (c) 2026 Peter van Tol. Third-party dependencies keep their own licenses: notices. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB. License.",
+      "scrollWidth": 324,
+      "htmlTheme": "auto",
+      "image": [
+        {
+          "src": "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+          "width": 64,
+          "height": 64,
+          "naturalWidth": 128
+        }
+      ],
+      "links": [
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#djconnect",
+        "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/installation.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/nl.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/de.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/fr.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/es.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/stable-3.3.1.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#make-it-your-session",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#what-you-need",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#install",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#start-your-first-session",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/installation.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/spotify-direct.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/troubleshooting.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/README.md#need-a-hand",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/user/troubleshooting.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/docs/README.md",
+        "https://djconnect.dev/",
+        "https://github.com/pcvantol/djconnect",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/THIRD_PARTY_NOTICES.md",
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/LICENSE"
+      ],
+      "overflow": [],
+      "viewport_width": 390,
+      "article_width": 324
+    },
+    {
+      "name": "info.md",
+      "theme": "light",
+      "url": "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/info.md",
+      "status": 200,
+      "text": "DJConnect\n\nYour music. Your DJ.\n\nYour personal music DJ in Home Assistant: ask for music, enjoy DJ contributions and choose your session mood through an available client or Assist.\n\nInstall with HACS, restart Home Assistant, then open Settings \u2192 Devices & services \u2192 Add integration \u2192 DJConnect.\n\nThis branch describes candidate 4.0.0-rc.1; check your installed HACS version. Stable 3.3.1 requires Assist STT + TTS; the candidate requires an available conversation agent and makes speech optional for setup. Spotify Direct needs Premium, your Developer Client ID and external HTTPS. Music Assistant needs a configured player. Later/manual defers music setup. Assist needs no separately paired client.\n\nSetup and five languages\n\nDJConnect is MIT-licensed; third-party licenses remain applicable. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+      "scrollWidth": 254,
+      "htmlTheme": "auto",
+      "image": [
+        {
+          "src": "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+          "width": 64,
+          "height": 64,
+          "naturalWidth": 128
+        }
+      ],
+      "links": [
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/info.md#djconnect",
+        "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/tree/main/docs/user"
+      ],
+      "overflow": [],
+      "viewport_width": 320,
+      "article_width": 254
+    },
+    {
+      "name": "info.md",
+      "theme": "dark",
+      "url": "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/info.md",
+      "status": 200,
+      "text": "DJConnect\n\nYour music. Your DJ.\n\nYour personal music DJ in Home Assistant: ask for music, enjoy DJ contributions and choose your session mood through an available client or Assist.\n\nInstall with HACS, restart Home Assistant, then open Settings \u2192 Devices & services \u2192 Add integration \u2192 DJConnect.\n\nThis branch describes candidate 4.0.0-rc.1; check your installed HACS version. Stable 3.3.1 requires Assist STT + TTS; the candidate requires an available conversation agent and makes speech optional for setup. Spotify Direct needs Premium, your Developer Client ID and external HTTPS. Music Assistant needs a configured player. Later/manual defers music setup. Assist needs no separately paired client.\n\nSetup and five languages\n\nDJConnect is MIT-licensed; third-party licenses remain applicable. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+      "scrollWidth": 254,
+      "htmlTheme": "auto",
+      "image": [
+        {
+          "src": "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+          "width": 64,
+          "height": 64,
+          "naturalWidth": 128
+        }
+      ],
+      "links": [
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/info.md#djconnect",
+        "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/tree/main/docs/user"
+      ],
+      "overflow": [],
+      "viewport_width": 320,
+      "article_width": 254
+    },
+    {
+      "name": "info.md",
+      "theme": "light",
+      "url": "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/info.md",
+      "status": 200,
+      "text": "DJConnect\n\nYour music. Your DJ.\n\nYour personal music DJ in Home Assistant: ask for music, enjoy DJ contributions and choose your session mood through an available client or Assist.\n\nInstall with HACS, restart Home Assistant, then open Settings \u2192 Devices & services \u2192 Add integration \u2192 DJConnect.\n\nThis branch describes candidate 4.0.0-rc.1; check your installed HACS version. Stable 3.3.1 requires Assist STT + TTS; the candidate requires an available conversation agent and makes speech optional for setup. Spotify Direct needs Premium, your Developer Client ID and external HTTPS. Music Assistant needs a configured player. Later/manual defers music setup. Assist needs no separately paired client.\n\nSetup and five languages\n\nDJConnect is MIT-licensed; third-party licenses remain applicable. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+      "scrollWidth": 309,
+      "htmlTheme": "auto",
+      "image": [
+        {
+          "src": "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+          "width": 64,
+          "height": 64,
+          "naturalWidth": 128
+        }
+      ],
+      "links": [
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/info.md#djconnect",
+        "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/tree/main/docs/user"
+      ],
+      "overflow": [],
+      "viewport_width": 375,
+      "article_width": 309
+    },
+    {
+      "name": "info.md",
+      "theme": "dark",
+      "url": "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/info.md",
+      "status": 200,
+      "text": "DJConnect\n\nYour music. Your DJ.\n\nYour personal music DJ in Home Assistant: ask for music, enjoy DJ contributions and choose your session mood through an available client or Assist.\n\nInstall with HACS, restart Home Assistant, then open Settings \u2192 Devices & services \u2192 Add integration \u2192 DJConnect.\n\nThis branch describes candidate 4.0.0-rc.1; check your installed HACS version. Stable 3.3.1 requires Assist STT + TTS; the candidate requires an available conversation agent and makes speech optional for setup. Spotify Direct needs Premium, your Developer Client ID and external HTTPS. Music Assistant needs a configured player. Later/manual defers music setup. Assist needs no separately paired client.\n\nSetup and five languages\n\nDJConnect is MIT-licensed; third-party licenses remain applicable. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+      "scrollWidth": 309,
+      "htmlTheme": "auto",
+      "image": [
+        {
+          "src": "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+          "width": 64,
+          "height": 64,
+          "naturalWidth": 128
+        }
+      ],
+      "links": [
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/info.md#djconnect",
+        "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/tree/main/docs/user"
+      ],
+      "overflow": [],
+      "viewport_width": 375,
+      "article_width": 309
+    },
+    {
+      "name": "info.md",
+      "theme": "light",
+      "url": "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/info.md",
+      "status": 200,
+      "text": "DJConnect\n\nYour music. Your DJ.\n\nYour personal music DJ in Home Assistant: ask for music, enjoy DJ contributions and choose your session mood through an available client or Assist.\n\nInstall with HACS, restart Home Assistant, then open Settings \u2192 Devices & services \u2192 Add integration \u2192 DJConnect.\n\nThis branch describes candidate 4.0.0-rc.1; check your installed HACS version. Stable 3.3.1 requires Assist STT + TTS; the candidate requires an available conversation agent and makes speech optional for setup. Spotify Direct needs Premium, your Developer Client ID and external HTTPS. Music Assistant needs a configured player. Later/manual defers music setup. Assist needs no separately paired client.\n\nSetup and five languages\n\nDJConnect is MIT-licensed; third-party licenses remain applicable. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+      "scrollWidth": 324,
+      "htmlTheme": "auto",
+      "image": [
+        {
+          "src": "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+          "width": 64,
+          "height": 64,
+          "naturalWidth": 128
+        }
+      ],
+      "links": [
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/info.md#djconnect",
+        "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/tree/main/docs/user"
+      ],
+      "overflow": [],
+      "viewport_width": 390,
+      "article_width": 324
+    },
+    {
+      "name": "info.md",
+      "theme": "dark",
+      "url": "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/info.md",
+      "status": 200,
+      "text": "DJConnect\n\nYour music. Your DJ.\n\nYour personal music DJ in Home Assistant: ask for music, enjoy DJ contributions and choose your session mood through an available client or Assist.\n\nInstall with HACS, restart Home Assistant, then open Settings \u2192 Devices & services \u2192 Add integration \u2192 DJConnect.\n\nThis branch describes candidate 4.0.0-rc.1; check your installed HACS version. Stable 3.3.1 requires Assist STT + TTS; the candidate requires an available conversation agent and makes speech optional for setup. Spotify Direct needs Premium, your Developer Client ID and external HTTPS. Music Assistant needs a configured player. Later/manual defers music setup. Assist needs no separately paired client.\n\nSetup and five languages\n\nDJConnect is MIT-licensed; third-party licenses remain applicable. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.",
+      "scrollWidth": 324,
+      "htmlTheme": "auto",
+      "image": [
+        {
+          "src": "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+          "width": 64,
+          "height": 64,
+          "naturalWidth": 128
+        }
+      ],
+      "links": [
+        "https://github.com/pcvantol/djconnect/blob/3781059ed51fe83ef9d797cf533a1a3630d6f3e7/info.md#djconnect",
+        "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png",
+        "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration",
+        "https://github.com/pcvantol/djconnect/tree/main/docs/user"
+      ],
+      "overflow": [],
+      "viewport_width": 390,
+      "article_width": 324
+    },
+    {
+      "kind": "public HACS redirect landing only",
+      "status": 200,
+      "url": "https://my.home-assistant.io/redirect/_change/?redirect=hacs_repository%2F%3Fowner%3Dpcvantol%26repository%3Ddjconnect%26category%3Dintegration",
+      "text": "My Home Assistant\nYou are seeing this page because you have been linked to a page in your Home Assistant instance but have not configured My Home Assistant. Enter the URL of your Home Assistant instance to continue.\n\nNote: This URL is only stored in your browser.\n\nMy Home Assistant \u2013 Create link \u2013 FAQ \u2013 Report bug"
+    }
+  ]
+}
