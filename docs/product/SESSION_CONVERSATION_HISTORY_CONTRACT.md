@@ -643,3 +643,24 @@ are pending; client UI tests do not establish producer or installed completion.
 retains exactly the delivered schema2 projection/speech outputs while pinning the
 updated shared speech producer. Original schema1/schema2 receipts remain unchanged;
 ephemeral touch reactions never become retained Session entries.
+
+
+## Current Profile-default history readback — 2026-10-20
+
+The current GET Ask DJ history handler treats an omitted conversation_scope as
+profile, using the authenticated device's actual bound Profile. Explicit
+conversation_scope: profile remains valid and produces the same namespace.
+Explicit legacy scope requires an authenticated HA user; device-only legacy
+requests return ha_user_required401 without messages. Clients must not interpret
+an omitted scope as anonymous legacy history. This is a readback of the current
+producer, not a new endpoint, identity override or cross-Profile permission.
+The older corrective qualification above describes its historical source.
+
+The current isolated HA verifier uses real ConfigEntries lifecycle and ordinary
+pairing in both Profile and music-only modes, preserving the final stored-token,
+owner, privacy and source fences. An actual HA no-tools agent class/static
+configuration is registered, while response transport and STT remain explicit
+synthetic fixtures. Its26/28 receipts prove the bounded loopback/history/reload/
+clear path only; no API key, actual model, native microphone, installed client,
+artwork/action lifecycle or audible acceptance follows. See the current
+[afternoon qualification](../verification/CONTEXTUAL_DJ_AFTERNOON_20261020.md).
