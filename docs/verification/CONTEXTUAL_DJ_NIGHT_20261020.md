@@ -654,3 +654,35 @@ regenerated, no receiverimport/protectedpin/install. Actualwebsitecontentcapture
 and actualstoryNOT_RUN here. NarrativequalityNO_GO, actualtextsunchanged;
 no model/keycalls, push/merge/cleanup/nextslice or native/audio claim. Details in
 CONTEXTUAL_DJ_ARTIST_WEBSITE_20261020.md; evidence artist-website-source/.
+
+
+## 03:22UTC continuation — qualify real website identity response
+
+Clean8294989c/same solewriter; main8b221d07/Brandrefsunchanged, no competingCore
+model/test writer or indexlock. Canonical hostverify0/MATCH/onboarding4.5.4,
+488GiBfree; unrelated dashboardlock preserved. No host/service change. Night
+model budget remains byte-identical40reserved/39completed/zero remaining.
+
+Two disposable read-only pinned-HA-image source-owner probes used only public
+Nirvana/Q11649 requests: no HAconfig, credential, model, port or speaker. Exact
+8294989c used5HTTP/1.353s and exposed missing revision without info plus typed
+P407 language qualifier. Current local correction requests info|claims in the
+same call and permits only that strictly typed language qualifier; all dates,
+scope/unknown/malformed qualifiers and entity/budget/robots/destination guards
+remain unchanged. Corrected candidate used6HTTP/1.767s, obtained actualrevision
+2557994174 and selected the actual P856 URL; existing fetch policy refused its
+robots redirect with public_research_redirect_denied. No guessed alternative
+or bypass, website body, third publisher or actual story. Both probes preserve
+two Wiki editions and source hashes unchanged;11HTTP total,0model/key calls.
+
+New real-schema owning regression19testsPASS0.422s;166focusedPASS9.814s.
+Independent technical review scoped SOURCE-GO/noP1P2; oldfunction restored only
+inmemory fails the new test1/0errors. Golden42families/325steps/78reports;
+33Core+29realqualityOPEN. Exact receipts/logs/manifests in artist-website-actual/;
+actual answertexts unchanged/narrativequalityNO_GO. No source publication, native
+run, receiverpin, push/merge/install/cleanup/nextslice or audio acceptance.
+
+Final frozen regression:2821testsPASS/7existing skips67.462seconds, Ruff/diffPASS.
+Canonical current document hash regenerated/validated PASS_INCLUDED_SNAPSHOT_ONLY;
+frozen historical receipts untouched. Existing unclosed SQLite/test task warnings
+remain visible; no memory, crash, latency, native or audible PASS is inferred.

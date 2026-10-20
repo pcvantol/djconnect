@@ -362,6 +362,48 @@ assert.equal(validate(bad),null);"""
                 self.assertEqual(sources,[])
         self.assertEqual(self.f.calls,[])
 
+    async def test_actual_wikidata_info_request_and_language_only_qualifier_keep_website_identity(self):
+        from copy import deepcopy
+        from urllib.parse import parse_qs,urlsplit
+        from custom_components.djconnect.official_artist_research import website_reference,language_qualifiers_only
+        identity=('artist','https://www.wikidata.org/wiki/Q1','Nora Vale 1','Group','Q1')
+        language={'property':'P407','snaktype':'value','datatype':'wikibase-item',
+            'datavalue':{'type':'wikibase-entityid','value':{'entity-type':'item','id':'Q1860','numeric-id':1860}}}
+        claim={'id':'Q1$'+'a'*36,'rank':'normal','qualifiers':{'P407':[language]},
+            'mainsnak':{'property':'P856','snaktype':'value','datatype':'url',
+                       'datavalue':{'type':'string','value':'https://artist.example/'}}}
+        class Fetch:
+            maximum_requests=8
+            requests=0
+            async def request(self,url,**kwargs):
+                self.requests+=1
+                if urlsplit(url).hostname=='www.wikidata.org':
+                    props=parse_qs(urlsplit(url).query)['props'][0].split('|')
+                    entity={'id':'Q1','claims':{'P856':[claim]}}
+                    # The actual API omits revision metadata unless info was
+                    # requested; do not make the fixture invent it for claims.
+                    if 'info' in props:
+                        entity['lastrevid']=123
+                    return 200,json.dumps({'entities':{'Q1':entity}}),url
+                return 200,'<p>Nora Vale 1 recorded an album in the studio.</p>',url
+            async def robots(self,url):
+                self.requests+=1
+                return True
+        fetch=Fetch()
+        source=await website_reference(fetch,identity,'recording')
+        self.assertIsNotNone(source)
+        self.assertEqual(source.artist_identity,identity)
+        self.assertEqual(source.entity_revision,123)
+        self.assertEqual(fetch.requests,3)
+        self.assertTrue(language_qualifiers_only(claim))
+        for qualifiers in ({'P580':[]},{'P407':[]},{'P407':[{'snaktype':'somevalue'}]},
+                {'P407':[None]},{'P407':[{**language,'datavalue':None}]},
+                {'P407':[language],'P582':[]},
+                {'P407':[{**language,'datavalue':{'type':'wikibase-entityid',
+                    'value':{'entity-type':'item','id':'Q1860','numeric-id':1}}}]}):
+            self.assertFalse(language_qualifiers_only({**deepcopy(claim),'qualifiers':qualifiers}),qualifiers)
+        self.assertEqual(self.f.calls,[])
+
     async def test_rejected_semantic_repeat_does_not_advance_flow_or_episode_memory(self):
         self.assertIsNotNone(await self.next_track(0))
         before=tuple(self.f.session.planner.output.session_flow.items)

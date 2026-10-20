@@ -26,6 +26,33 @@ class ArtistWebsiteSource(PublicSource):
                 'revision':self.entity_revision}}
 
 
+def language_qualifiers_only(claim):
+    """P407 describes website language, never subject, validity or time scope."""
+    qualifiers=claim.get('qualifiers',{})
+    if not isinstance(qualifiers,dict) or set(qualifiers)-{'P407'}:
+        return False
+    if not qualifiers:
+        return True
+    values=qualifiers['P407']
+    if not isinstance(values,list) or not values:
+        return False
+    for value in values:
+        if not isinstance(value,dict):
+            return False
+        data=value.get('datavalue',{})
+        if not isinstance(data,dict):
+            return False
+        entity=data.get('value',{})
+        if (value.get('property')!='P407' or value.get('snaktype')!='value'
+                or value.get('datatype')!='wikibase-item' or data.get('type')!='wikibase-entityid'
+                or not isinstance(entity,dict) or entity.get('entity-type')!='item'
+                or not re.fullmatch(r'Q[1-9][0-9]*',str(entity.get('id','')))
+                or type(entity.get('numeric-id')) is not int
+                or str(entity['numeric-id'])!=entity['id'][1:]):
+            return False
+    return True
+
+
 async def website_reference(fetch, identity, topic):
     from .ask_dj.public_research import PageText, MUSIC, public_url, _source
     from .session_story_variety import passage_score
@@ -36,7 +63,7 @@ async def website_reference(fetch, identity, topic):
         return None
     qid,subject=identity[4],identity[2]
     status,body,_=await fetch.request('https://www.wikidata.org/w/api.php?'+urlencode({
-        'action':'wbgetentities','ids':qid,'props':'claims','format':'json'}))
+        'action':'wbgetentities','ids':qid,'props':'info|claims','format':'json'}))
     data=json.loads(body) if status==200 else {}
     entity=data.get('entities',{}).get(qid,{})
     if (entity.get('id')!=qid or type(entity.get('lastrevid')) is not int
@@ -46,7 +73,7 @@ async def website_reference(fetch, identity, topic):
     for claim in entity.get('claims',{}).get('P856',[]):
         snak=claim.get('mainsnak',{})
         value=snak.get('datavalue',{}).get('value')
-        if (claim.get('rank') not in {'normal','preferred'} or claim.get('qualifiers')
+        if (claim.get('rank') not in {'normal','preferred'} or not language_qualifiers_only(claim)
                 or not re.fullmatch(re.escape(qid)+r'\$[0-9a-fA-F-]{36}',str(claim.get('id','')))
                 or snak.get('snaktype')!='value' or snak.get('property')!='P856'
                 or snak.get('datatype')!='url' or type(value) is not str or not public_url(value)):

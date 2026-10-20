@@ -12,8 +12,10 @@ onboarding4.5.4,488GiBfree. The unrelated dashboard lock is preserved.
 Automatic artist narration now keeps the existing exact-QID Wikipedia lookup
 as prerequisite. Within that same PublicFetch it may obtain the same entity's
 Wikidata P856 statements, with a positive exact integer entity revision. Only
-one unambiguous normal/preferred, unqualified, value-typed public HTTPS URL is
-eligible. Deprecated/unknown/qualified/somevalue/wrong-QID/ambiguous/nonpublic
+one unambiguous normal/preferred, value-typed public HTTPS URL is eligible.
+Only an optional strictly typed P407 website-language qualifier is allowed;
+time/scope/unknown or malformed qualifiers decline. Deprecated/unknown/
+somevalue/wrong-QID/ambiguous/nonpublic
 values decline. Preferred statements take precedence; duplicate identical URLs
 do not create a retry or another source owner. A P856 relationship selects a
 source, not the truth of every claim on its website or an independently verified
@@ -87,8 +89,10 @@ through the canonical roadmap renderer/validator;23generated views validate
 PASS_INCLUDED_SNAPSHOT_ONLY. Frozen predecessor hashes and receipts stay unchanged. Failed source setup/coverage/owner-withdrawal logs
 are retained; none is claimed as a successful actual website/story.
 
-Actual website-content capture and actual generated story are NOT_RUN in this
-checkpoint preparation. No model/key use is allowed under the exhausted night
+Actual website-content capture and actual generated story were NOT_RUN at the
+03:01 checkpoint. The subsequent public-source probe below records the actual
+attempt and its refusal, without claiming a fetched website body. No model/key
+use is allowed under the exhausted night
 budget:40reserved/39completed/zero remaining. Narrativequality remains NO_GO.
 Real extra publisher, multi-track semantic novelty, independent Persona/Mood
 text review, selected follow-up, native history/art/voice and audible/installed
@@ -104,3 +108,44 @@ browser language differs. Existing teardown warnings are not hidden; no resource
 crash or latency acceptance is inferred. Current Golden42families/324steps/
 77reports;32Core+29actual-quality gates OPEN. No actual model/key call or provider
 capture accompanied this validation. This is not source publication or release.
+
+## 03:22 UTC actual source probe and API correction
+
+Two disposable, read-only HA-image probes called the actual existing artist
+source owner for public Nirvana/Q11649. They had no HA configuration, credentials,
+model, ports, installed service or speaker route. Candidate source hashes were
+checked unchanged after each probe. Both retained two Wikipedia editions and
+returned NO_ADMITTED_WEBSITE_SOURCE. This is actual HTTP/source evidence only.
+
+The exact8294989c probe used five HTTP attempts/1.353seconds. The actual Wikidata
+claims response omitted lastrevid, and the normal P856 https://nirvana.com/
+statement carried a P407 English-language qualifier. Earlier fixtures had
+invented revision metadata without requesting info and omitted that qualifier.
+The local correction requests info|claims in the same single request and permits
+only a strictly typed, internally consistent P407 item. Dates, scope, unknown,
+empty, malformed and non-value qualifiers still decline. No source identity,
+budget, robots or destination rule was relaxed.
+
+The corrected uncommitted candidate used six HTTP attempts/1.767seconds. Actual
+entity revision2557994174 and P856 claim
+Q11649$A8F33E6C-CBCA-4419-988B-786107CF3200 passed. The existing fetch owner then
+refused https://nirvana.com/robots.txt with public_research_redirect_denied.
+That records our redirect policy, not proof that the site is unavailable or
+blocks all access. No redirect destination was admitted, guessed www variant
+tried, body fetched or source witness transferred. No third publisher or story
+was accepted. All eleven actual HTTP attempts and both receipts are preserved
+under artist-website-actual/; no repeated unchanged probe or bypass.
+
+One new owning regression models the real info-dependent API response and P407
+shape, plus strict negative cases. Independent read-only technical review:
+scoped SOURCE-GO/noP1P2; restoring the historical website function only in memory
+makes this regression fail once/zero errors. Nineteen owning tests and166focused
+tests PASS; no actual model output or narrative acceptance follows. Golden now
+42families/325steps/78reports;33Core+29actual-quality gates remain OPEN. The new
+real-API finding is retained at feature level. Budget remains40reserved/
+39completed/zero remaining; actual returned texts and editorial NO_GO unchanged.
+
+Final frozen regression:2821testsPASS/7existing skips67.462seconds, Ruff/diffPASS.
+Canonical current document hash regenerated/validated PASS_INCLUDED_SNAPSHOT_ONLY;
+frozen historical receipts untouched. Existing unclosed SQLite/test task warnings
+remain visible; no memory, crash, latency, native or audible PASS is inferred.

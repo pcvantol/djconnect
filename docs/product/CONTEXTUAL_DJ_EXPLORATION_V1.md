@@ -196,3 +196,14 @@ shared projection, generated JS validation and reopened Flow with external
 fixtures. This is implementation/source proof, not actual website/story, native
 pixels/audio, consumer import or a replacement producer pin. Full boundaries and
 remaining gates: [artist website readback](../verification/CONTEXTUAL_DJ_ARTIST_WEBSITE_20261020.md).
+
+
+03:22UTC actual source follow-through: the original public HTTP probe exposed
+info-dependent Wikidata revision metadata and a harmless website-language
+qualifier absent from fixtures. Both are locally repaired without widening
+entity, time/scope, robots, redirect, source or request rules. A second actual
+probe reaches the selected site's robots request, where our existing redirect
+policy refuses it. Two Wikipedia editions remain; no official website body,
+third publisher or generated story was accepted. Eleven HTTP attempts total,
+zero model/key calls; both receipts remain preserved. Actual prose, semantic
+novelty and all client/speech gates above remain open.

@@ -472,3 +472,22 @@ new findings stay open at feature level. Existing actualtextNO_GO/40reserved
 night budget, source/native/provider/install/audio and protected delivery gates
 are unchanged. No native pin/import/installation or completed rich-story claim.
 See CONTEXTUAL_DJ_ARTIST_WEBSITE_20261020.md for exact qualification boundaries.
+
+
+## Actual website-source follow-through — 20 October, 03:22 UTC
+
+Same sole-writer WIP after8294989c. Two isolated actual public HTTP probes
+exposed and qualified the bounded API correction: request info with claims to
+receive lastrevid, and admit only strictly typed website-language P407 qualifiers.
+The corrected candidate reaches the selected Nirvana site's robots request; our
+existing public_research_redirect_denied rule refuses it. No redirect witness
+transfer, guessed URL, website body, third publisher or actual story. Both probes
+retain two Wiki editions, eleven total HTTP attempts/zero model or key calls.
+Scoped independent technical review SOURCE-GO/noP1P2 is not narrative acceptance.
+
+Golden42families/325steps/78reports;33Core+29real-qualityOPEN. New real-API finding
+stays open at feature level. Nineteen owning/166focused tests PASS; complete
+regression outcome is recorded in CONTEXTUAL_DJ_NIGHT_20261020.md. Modelledger
+remains40reserved/39completed/zero remaining; actual texts editorialNO_GO,
+full catalogueFAIL and native/history/art/voice/install/physical gates unchanged.
+No push, merge, installation, cleanup, consumer pin, bypass or next slice.

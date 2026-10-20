@@ -263,3 +263,12 @@ Full2820testsPASS/7skips is source evidence only. Full actual catalogue FAIL,
 zero paid variations and the exhausted40-attempt night grant are unchanged.
 See CONTEXTUAL_DJ_ARTIST_WEBSITE_20261020.md for source, shared-purpose and actual
 acceptance boundaries. No consumer pin or installation is delivered here.
+
+
+20 October03:22actual-source correction adds one permanent real-API finding and
+owning regression: info-dependent revision and strictly typed P407 language
+qualifier. Golden now42families/325steps/78reports;33Core+29real-qualityOPEN.
+Two actual public-source probes retain Wiki and accept no website body: the
+corrected source owner stops at its existing robots redirect refusal. This
+remains an open rich-source acceptance gate, not a better answer or a catalogue
+PASS. No extra model allowance, paid variations or native activation.

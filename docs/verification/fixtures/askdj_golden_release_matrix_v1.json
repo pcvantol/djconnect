@@ -2981,6 +2981,20 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Source/shared renderer only; receiver import/protected pin, installed/native pixels and actual source/story/audio gates remain open."
+        },
+        {
+          "id": "ASKDJ-FLOW-artist-website-actual-info-language",
+          "question": "Does the actual Wikidata response, including website language qualifier, permit exact identity/revision admission without weakening time/scope guards?",
+          "expected_answer": "Request info|claims in the same single HTTP call so revision metadata is actually present. Accept only fully typed P407 website-language qualifiers; reject unknown/date/scope/deprecated/malformed witnesses. Keep QID/robots/URL/excerpt/8request/12s/source caps and full narration review. A cross-origin robots refusal supplies no website body or source.",
+          "model_policy": "Actual public-source before/after readback, no key/model; owning fixture mirrors real API omission and P407 schema, with independent causal old-function counterexample.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_story_variety.py",
+              "method": "test_actual_wikidata_info_request_and_language_only_qualifier_keep_website_identity"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual QID/revision/qualifier admission only. No website content, generated story, warm Persona/Mood, native or audio acceptance."
         }
       ],
       "owning_tests": [
@@ -8796,6 +8810,12 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "core_qualification": "open",
       "finding": "Independent source integration review found the new Artistwebsite Moment disappears in shared renderer: six-field citation projection drops required provenance and renderer rejects unknown provider. Existing album Publicweb also loses byline/work references in shared projection. Correct bounded public citation allowlist and explicit renderer provider validation/localization, then test real publication/shared_snapshot/exact JS validator plus DOM. No silent alias, omitted attribution or audience widening; actual installed/story/native acceptance stays open."
+    },
+    {
+      "id": "ASKDJ-ISSUE-artist-website-real-api-info-language",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "core_qualification": "open",
+      "finding": "Actual source probe after8294989c made5HTTP requests but rejected all site work: wbgetentities props=claims omits lastrevid, and actual Nirvana P856 has a valid P407 language qualifier. Fixture invented revision metadata and omitted qualifiers. Request info|claims without another request and admit strictly typed language-only metadata while preserving all time/scope/unknown qualifier guards. Actual after fetches revision and reaches robots, but cross-origin redirect is correctly refused; no third source/story/native quality claim."
     }
   ],
   "regression_suite_files": [
