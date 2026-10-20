@@ -28,6 +28,10 @@ ROOT = Path(__file__).resolve().parents[1]
 FAMILY = Path("assets/djconnect/brand-v2")
 MASTER = FAMILY / "source/DJConnect-BrandV2-APPROVED-ORIGINAL-1254.png"
 MASTER_SHA = "f05fcdf4602d9c63add7799469c64060a8f13e5efa66ad6c7b762fb8273ec89f"
+BRAND_VERSION = "2.0.1"
+MICRO_MASTER = FAMILY / "source/headset-purple-navy-magenta.png"
+MICRO_SHA = "f69eb72b882f08c0dacbd3efa7e83165a56a01763aaa18e48557c03b65e11322"
+MICRO_PROVENANCE = FAMILY / "source/official-small-icon-provenance.json"
 FONT = Path("tools/branding/fonts/InterVariable.ttf")
 FONT_SHA = "4989b125924991b90d05b2d16e0e388c48f7d5bb8b30539bbf9c755278d0ccaf"
 CONTOURS = Path("tools/branding/contours.json")
@@ -165,7 +169,20 @@ def build(root: Path, output: Path) -> dict:
     title_face, tagline_face = Typeface(font_data, 600), Typeface(font_data, 450)
     contour_data = (root / CONTOURS).read_bytes()
     contours = json.loads(contour_data)
-    glass, headset = (cutout(image, contours[name]) for name in ("glass", "headset"))
+    glass = cutout(image, contours["glass"])
+    micro_data = (root / MICRO_MASTER).read_bytes()
+    if sha(micro_data) != MICRO_SHA:
+        raise ValueError("unapproved_small_icon_source")
+    headset = Image.open(io.BytesIO(micro_data))
+    if headset.size != (1254, 1254) or headset.mode != "RGBA" or headset.getchannel("A").getextrema() != (0, 255):
+        raise ValueError("invalid_small_icon_geometry")
+    # Preserve the complete approved canvas and every RGBA pixel. Only exports resize.
+    provenance_data = (root / MICRO_PROVENANCE).read_bytes()
+    provenance = json.loads(provenance_data)
+    if (provenance.get("source_sha256") != MICRO_SHA
+            or provenance.get("source_revision") != "c49d49186951ed3a4eaf3cc50778e48e04cbbef9"
+            or provenance.get("designation") != "official_small_icon"):
+        raise ValueError("invalid_small_icon_provenance")
     files = {}
 
     def emit(path, data, role, **extra):
@@ -186,22 +203,26 @@ def build(root: Path, output: Path) -> dict:
              for size in ICON_SIZES}
     for size, data in icons.items():
         emit(FAMILY / f"mark-{size}.png", data, "headset-only" if size <= 40 else "glass-mark", theme="both")
+    emit("custom_components/djconnect/brand/mark-40.png", icons[40], "ha-micro-headset", theme="both")
     encoded = base64.b64encode(png(glass)).decode("ascii")
 
-    def svg_header(width, height, label):
+    def svg_header(width, height, label, description=None):
         return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" '
                 f'height="{height}" viewBox="0 0 {width} {height}" role="img" '
                 f'aria-labelledby="brand-title brand-description">'
                 f'<title id="brand-title">{label}</title>'
-                '<desc id="brand-description">Brand V2: original raster with transparent glass contour; '
-                'wordmark typography is outlined Inter. This is not a traced vector icon.</desc>')
+                '<desc id="brand-description">' + (description or
+                'Brand V2: original raster with transparent glass contour; '
+                'wordmark typography is outlined Inter. This is not a traced vector icon.') + '</desc>')
 
     mark_svg = (svg_header(1024, 1024, "DJConnect")
                 + f'<image width="1024" height="1024" href="data:image/png;base64,{encoded}"/>'
                 + "</svg>\n").encode()
     emit(FAMILY / "mark.svg", mark_svg, "raster-backed-mark", theme="both")
     headset_encoded = base64.b64encode(png(headset)).decode("ascii")
-    headset_svg = (svg_header(1024, 1024, "DJConnect")
+    headset_svg = (svg_header(1024, 1024, "DJConnect",
+                   "DJConnect purple headset, navy circle, magenta rim and multicolour waveform. "
+                   "Transparent background; not a traced vector icon.")
                    + f'<image width="1024" height="1024" href="data:image/png;base64,{headset_encoded}"/>'
                    + "</svg>\n").encode()
     emit(FAMILY / "headset.svg", headset_svg, "raster-backed-headset-only", theme="both")
@@ -277,18 +298,26 @@ def build(root: Path, output: Path) -> dict:
             if variant == "compact":
                 y = 292
             preview.paste(mark, (x, top + y), mark)
-        draw.text((24, top + 472), "16–40px: headset only. 64px+: transparent glass silhouette. Original source RGB; outlined type.", fill=label)
+        draw.text((24, top + 472), "16–40px: approved purple headset / magenta rim. 64px+: original transparent glass. Outlined type.", fill=label)
     emit(FAMILY / "preview.png", png(preview), "visual-review-contact-sheet")
 
     manifest = {
-        "schema_version": 1, "brand_version": "2.0.0", "brand_name": "DJConnect",
+        "schema_version": 1, "brand_version": BRAND_VERSION, "brand_name": "DJConnect",
         "tagline_en": TAGLINE, "master": {"path": MASTER.as_posix(), "sha256": MASTER_SHA,
             "width": 1254, "height": 1254, "mode": "RGB", "alpha": False},
+        "micro_source": {"path": MICRO_MASTER.as_posix(), "sha256": MICRO_SHA,
+            "width": 1254, "height": 1254, "mode": "RGBA", "alpha": True,
+            "max_export_size": 40, "master_pixels_modified": False,
+            "provenance_path": MICRO_PROVENANCE.as_posix(), "provenance_sha256": sha(provenance_data),
+            "upstream_metadata_path": (FAMILY / "source/headset-purple-navy-magenta.json").as_posix(),
+            "upstream_metadata_sha256": sha((root / FAMILY / "source/headset-purple-navy-magenta.json").read_bytes()),
+            "upstream_prompt_path": (FAMILY / "source/headset-purple-navy-magenta-prompt.txt").as_posix(),
+            "upstream_prompt_sha256": sha((root / FAMILY / "source/headset-purple-navy-magenta-prompt.txt").read_bytes())},
         "source_handoff_zip_sha256": "a0deec308d82c812875f80c509983fab595dd9745b241c2e5f46ff58fbb11197",
         "font": {"path": FONT.as_posix(), "sha256": FONT_SHA, "release": "Inter 4.1",
                  "license": "SIL-OFL-1.1", "title_weight": 600, "tagline_weight": 450, "optical_size": 32},
         "alpha_contours": {"path": CONTOURS.as_posix(), "sha256": sha(contour_data),
-                           "micro_max_size": 40, "source_rgb_modified": False},
+                           "micro_max_size": 40, "active_variants": ["glass"], "source_rgb_modified": False},
         "recipe_sha256": sha((root / "scripts/build_brand.py").read_bytes()),
         "tools": {"Pillow": PILLOW_VERSION, "fonttools": fontTools.__version__},
         "qualification": "source candidate; native/installed acceptance and protected producer pin required",
@@ -322,7 +351,7 @@ def main():
                 raise SystemExit("Brand generation drift: " + ", ".join(drift))
     else:
         manifest = build(args.root, args.root)
-    print(json.dumps({"brand_version": "2.0.0", "master_sha256": MASTER_SHA,
+    print(json.dumps({"brand_version": BRAND_VERSION, "master_sha256": MASTER_SHA,
                       "generated_files": len(manifest["files"]), "verification": "PASS"}))
 
 
