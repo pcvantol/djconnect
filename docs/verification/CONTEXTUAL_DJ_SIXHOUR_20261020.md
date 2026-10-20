@@ -265,3 +265,67 @@ The cumulative paid ledger remains16reserved/16completed/284remaining. Own
 narrative results and all distinct actual-quality/native/installed/audible gates
 above remain unchanged. No push, merge, installation or feature closure follows
 from these source/export/settings results.
+
+## Original selected-credit proof and failed seed trial —10:04UTC
+
+Product `573ddf002bfb69f081162942036cc1bcf7ddb2f1` gives the assessor an
+evidence ID for the exact original qualified MusicBrainz credit from the opened
+server entry. A local typed context binds original `qualified_fact_text`,
+`model_source`, full selected contributor/role and canonical work/recording URL.
+Generated presentation text or plain JSON does not authorize this namespace.
+All fetched public sources and existing owner/source/deadline guards remain.
+The original credit is not relabelled as a newly fetched biography source.
+
+Independent technical review: scoped SOURCE GO. Fourteen exploration tests PASS;
+36 exploration/Golden binding tests PASS. The causal comparison executes the
+real shared publication/open/history path: current projection1PASS; only this
+projection disabled in memory yields1expected failure/0errors, returning the
+ordinary refusal instead of the complete fixture answer. Source/model I/O are
+declared fixtures, not actual narration acceptance. An initial comparison runner
+failed before HA test stubs were initialized; that log is retained separately.
+
+First full suite found one missing named Golden binding, with no product test
+failure. The distinct observed credit-review finding and two owning tests are
+now explicitly bound. Second full suite: **2841tests,7existing skips,
+PASS104.627s**. Golden now42families/335steps/85reports with40Core and29actual
+quality gates OPEN. No gate was closed to obtain inventory green.
+
+One new actual Dutch selected trial used immutable snapshotv4/source26568c85,
+product573ddf00. It completed two attempts, ordinals17–18, both for the ordinary
+seed contribution. The proposed seed was:
+
+> Peter Luts is als componist vermeld voor het werk achter deze opname. Voor ‘Love Is the Message’ schreef en produceerde hij het nummer.
+
+Actual assessor: supportedtrue/language_oktrue/**style_okfalse**. The product
+correctly refused publication. Consequently the selected More request was
+**NOT EXERCISED**; there was no accepted seed or new selected answer. This trial
+does not actually qualify the new credit-ID repair. Independent editorial review
+agrees NO_GO: two credits, awkward repetition, with the documented occasion
+omitted. A synthetic recording/work relation remains explicit in this laboratory.
+
+All18 attempts reconcile to18 durable reservations,18completed,282remaining.
+Reported cumulative usage50149input/6283outputtokens; no monetary estimate.
+Source hashes before/after match. Old40ledger remains separate and unchanged.
+
+The next bounded prompt delta keeps the original credit compact and asks the
+same generator to tell the documented activity with its actual occasion or
+participants where the same passage supplies them. A second bare credit next
+to another title is insufficient. Missing details must not be invented, and
+independently scoped works receive no causal/chronological bridge. Independent
+editorial scoped design GO; **92 existing narration/runtime/exploration tests
+PASS10.382s**, Ruff/diff PASS. No new source, retry, answer template or weaker
+validator. New actual text is still required before any quality claim.
+
+Separately, the GitHub account's old corporate avatar was replaced with exact
+approved `mark-512.png` from protected7e14; source SHA256
+`b142f522acc67f3787078451cb4bff9e21de62b976350f3904a6e12503dbb114`.
+GitHub confirmed the save; public served image and the actual profile after
+hard refresh show the V2 headset. GitHub resizes the avatar, so served bytes
+are not claimed equal to the original. Other profile fields were unchanged.
+Actual09:55 README readback shows nine of eleven wordmarks on main, counting
+Core's manifest-qualified primary SVG aliases. Pi source111 and pi-releases
+remain separate open deliveries. All eleven social previews remain verified.
+The new prioritized API/Apple/receiver integration received the exact protected
+B route sequence and fresh actual isolated HA proof in
+[the B readback](VIBECAST_B_PROTECTED_SOURCE_READBACK_20261020.md); no installed
+public route/native/A→B claim follows.
