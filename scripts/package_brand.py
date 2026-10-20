@@ -38,6 +38,11 @@ def export(root: Path, revision: str) -> tuple[bytes, dict]:
         "assets/djconnect/brand-v2/source/README.txt",
         "assets/djconnect/brand-v2/source/manifest.json",
     }
+    micro = manifest.get("micro_source")
+    if manifest.get("brand_version") == "2.0.1" and not isinstance(micro, dict):
+        raise ValueError("small_icon_source_required")
+    if micro:
+        names.update(micro[key] for key in ("path", "provenance_path", "upstream_metadata_path", "upstream_prompt_path"))
     assets = {}
     for name in sorted(names):
         if name.startswith("/") or ".." in Path(name).parts:
@@ -50,6 +55,12 @@ def export(root: Path, revision: str) -> tuple[bytes, dict]:
         record = manifest[section]
         if hashlib.sha256(assets[record["path"]]).hexdigest() != record["sha256"]:
             raise ValueError("committed_source_mismatch:" + section)
+    if micro:
+        for path_key, hash_key in (("path", "sha256"), ("provenance_path", "provenance_sha256"),
+                                  ("upstream_metadata_path", "upstream_metadata_sha256"),
+                                  ("upstream_prompt_path", "upstream_prompt_sha256")):
+            if hashlib.sha256(assets[micro[path_key]]).hexdigest() != micro[hash_key]:
+                raise ValueError("committed_small_icon_source_mismatch:" + path_key)
     contour = manifest["alpha_contours"]
     if hashlib.sha256(assets[contour["path"]]).hexdigest() != contour["sha256"]:
         raise ValueError("committed_alpha_contour_mismatch")
@@ -64,6 +75,8 @@ def export(root: Path, revision: str) -> tuple[bytes, dict]:
         "consumers": {"apple": "pcvantol/djconnect-app#138", "website": "pcvantol/djconnect-website#62"},
         "files": {name: hashlib.sha256(data).hexdigest() for name, data in assets.items()},
     }
+    if micro:
+        handoff["micro_source_sha256"] = micro["sha256"]
     assets["handoff.json"] = (json.dumps(handoff, sort_keys=True, indent=2) + "\n").encode()
     output = io.BytesIO()
     # ZIP_STORED avoids compressor-version drift; fixed metadata avoids time/host drift.

@@ -11,18 +11,28 @@ Exact English tagline: **Your music. Your DJ.**
 The received ZIP SHA256 is in `manifest.json`; its original README/manifest
 remain in `source/`. The owner's subsequent correction defines the **glass rim as
 the asset boundary**, transparent outside, and requests **headset only at16–40px**.
-The original source remains immutable; deterministic editable alpha contours in
-`tools/branding/contours.json` derive `glass-master.png` and `headset-master.png`
-without redrawing or altering interior RGB pixels. These derived sources have
-their own hashes, distinct from the original master. Two automatic imagegen
-extractions were rejected for stray outer pixels; neither is a distributed source.
-The approved geometry and original RGB are retained by the contour recipe instead.
-The master has no embedded ICC
-profile; derived RGB/RGBA graphics use those same channel values, intended for sRGB display.
+The original glass source remains immutable; deterministic editable alpha contours
+in `tools/branding/contours.json` derive `glass-master.png` without redrawing or
+altering interior RGB pixels. The master has no embedded ICC profile; its channel
+values are intended for sRGB display.
+
+Brand2.0.1 adopts the owner's separately approved **official small icon** from
+[ESP32 PR#69](https://github.com/pcvantol/djconnect-esp32/pull/69), protected source
+`c49d49186951ed3a4eaf3cc50778e48e04cbbef9`. The exact transparent1254×1254 PNG
+`source/headset-purple-navy-magenta.png` has SHA256
+`f69eb72b882f08c0dacbd3efa7e83165a56a01763aaa18e48557c03b65e11322`.
+It contains a purple headset, navy central circle, magenta rim and multicolour
+waveform, without a glass button. Its entire RGBA canvas is preserved in
+`headset-master.png`; deterministic LANCZOS resizing produces16–40px exports.
+No cropping, recolouring, cleanup or new image generation is applied. Original
+upstream metadata/prompt and `source/official-small-icon-provenance.json` accompany
+the PNG; `manifest.json` authenticates all four. The earlier headset contour is
+retained as historical recipe data and is no longer an active generation source.
+Large glass assets, wordmarks and existing HA icon/logo aliases remain byte-identical.
 
 | Variant | Files | Intended use |
 | --- | --- | --- |
-| Micro headset | `mark-{16,20,24,32,40}.png`, `headset.svg`, `headset-master.png` | Transparent headset/central symbol, no glass button; maximally fit within the square |
+| Micro headset | `mark-{16,20,24,32,40}.png`, `headset.svg`, `headset-master.png` | Official purple headset/navy circle/magenta rim; original RGBA canvas, no glass button |
 | Glass mark | `mark-{64,128,256,512,1024}.png`, `mark.svg`, `glass-master.png` | Glass button, transparent outside its rim; no name/tagline inside |
 | Primary | `wordmark-primary-{light,dark}.{png,svg}` | 2048×512 mark + DJConnect + exact English tagline; use at512px wide or larger |
 | Compact | `wordmark-compact-{light,dark}.{png,svg}` | 1728×448 mark + DJConnect; no tagline; use below512px wide |
@@ -30,9 +40,9 @@ profile; derived RGB/RGBA graphics use those same channel values, intended for s
 
 `light` means dark lettering for a light background; `dark` means light lettering
 for a dark background. Wordmark canvases and icons are transparent RGBA. The glass
-interior remains opaque; the exterior navy rectangle is removed. The derived
-glass/headset contours are tightly bounded and fitted without aspect distortion.
-No recolouring or newly drawn headset is used. Platform-specific native exports
+interior remains opaque; the exterior navy rectangle is removed. The glass contour is tightly bounded and fitted without aspect distortion.
+Small exports preserve the complete approved canvas, including its alpha edge.
+Neither source is recoloured or redrawn. Platform-specific native exports
 may need opaque compositing/masks; that is explicit consumer work, not an excuse
 to put an opaque navy square into these canonical transparent assets.
 The SVGs are **raster-backed image marks with outlined Inter typography**, not
@@ -76,11 +86,16 @@ encoding avoids Pillow's architecture-dependent zlib-ng stream selection. This
 changes compressed bytes only, not decoded artwork. Strict cross-host comparison
 remains a gate; it is not replaced with a visual-tolerance comparison.
 
-The VibeCast template uses `@@BRAND_ICON@@`; its builder embeds packaged
-`brand/icon.png` for local, display and static hosts and authenticates that input
-in each source manifest. Builder identity1.1.1 reflects the changed source set;
-wire/renderer contracts and integration release version remain unchanged.
-Do not paste a new independent base64 image into any generated page.
+The VibeCast template uses `@@BRAND_ICON@@` and `@@BRAND_MICRO_ICON@@`.
+Builder1.1.3 embeds the separately authenticated `brand/icon.png` and
+`brand/mark-40.png` inputs for local, display and static hosts. The40px alias is
+byte-identical to the canonical small family and is listed in the brand manifest.
+Do not paste independent base64 images into generated pages. Wire/host contracts
+and the integration release version are unchanged. Renderer1.1.3 additionally
+clears citation links with original DOM `firstChild`/`removeChild` operations,
+without requiring `Element.replaceChildren`. Actual generated Chromium/WebKit
+checks cover both native and missing-method environments; this is not a claim
+of historical-browser, installed HA or receiver acceptance.
 
 ## Exact producer handoff
 

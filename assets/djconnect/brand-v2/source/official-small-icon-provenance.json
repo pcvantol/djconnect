@@ -1,0 +1,15 @@
+{
+  "decision_date": "2026-10-20",
+  "derivation": "exact supplied PNG; no redraw, recolour, contour replacement or new image generation",
+  "designation": "official_small_icon",
+  "owner_requested": true,
+  "schema_version": 1,
+  "scope": "headset/master and small16-40 presentation; original large glass/wordmarks remain separate",
+  "source_path": "assets/brand-v2/headset-purple-navy-magenta.png",
+  "source_pr": "https://github.com/pcvantol/djconnect-esp32/pull/69",
+  "source_repository": "pcvantol/djconnect-esp32",
+  "source_revision": "c49d49186951ed3a4eaf3cc50778e48e04cbbef9",
+  "source_sha256": "f69eb72b882f08c0dacbd3efa7e83165a56a01763aaa18e48557c03b65e11322",
+  "upstream_metadata": "headset-purple-navy-magenta.json",
+  "upstream_prompt": "headset-purple-navy-magenta-prompt.txt"
+}

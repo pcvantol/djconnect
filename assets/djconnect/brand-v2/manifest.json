@@ -1,12 +1,15 @@
 {
   "alpha_contours": {
+    "active_variants": [
+      "glass"
+    ],
     "micro_max_size": 40,
     "path": "tools/branding/contours.json",
     "sha256": "30d60bea7b78411caff00b5356467ba2ed5b53b55301ebf2fc55cac8a0389d86",
     "source_rgb_modified": false
   },
   "brand_name": "DJConnect",
-  "brand_version": "2.0.0",
+  "brand_version": "2.0.1",
   "files": {
     "assets/djconnect/brand-v2/glass-master.png": {
       "alpha": true,
@@ -20,18 +23,18 @@
     },
     "assets/djconnect/brand-v2/headset-master.png": {
       "alpha": true,
-      "bytes": 819663,
-      "height": 754,
+      "bytes": 1235923,
+      "height": 1254,
       "mode": "RGBA",
       "role": "transparent-headset-source",
-      "sha256": "21a6273f273936574a7301e7d91c2b0513da66fe17534c258d67c675c0294adc",
+      "sha256": "408f35ed1f3870df596534176cf87f39c4eb4f6ead77ba78452ad91adc5b106e",
       "theme": "both",
-      "width": 754
+      "width": 1254
     },
     "assets/djconnect/brand-v2/headset.svg": {
-      "bytes": 1093313,
+      "bytes": 1648325,
       "role": "raster-backed-headset-only",
-      "sha256": "4f4378ea89ec4cd1d68b70ff05edb85be444af861c3a25b52badf56967ef70ab",
+      "sha256": "012a19107e7b5eef2a4765389969f2ccbd4b245b044c7382706cdfb34883ab80",
       "theme": "both"
     },
     "assets/djconnect/brand-v2/mark-1024.png": {
@@ -56,31 +59,31 @@
     },
     "assets/djconnect/brand-v2/mark-16.png": {
       "alpha": true,
-      "bytes": 1014,
+      "bytes": 980,
       "height": 16,
       "mode": "RGBA",
       "role": "headset-only",
-      "sha256": "852f439ec0401582dc56130053a5c775d2241a4810bdfadb20a18956ca62ee4e",
+      "sha256": "3ef10356deca30c1872827ac3a90d27c3f1475f0c5105f52743cbae3446cc24c",
       "theme": "both",
       "width": 16
     },
     "assets/djconnect/brand-v2/mark-20.png": {
       "alpha": true,
-      "bytes": 1518,
+      "bytes": 1425,
       "height": 20,
       "mode": "RGBA",
       "role": "headset-only",
-      "sha256": "16647d02fde845f8da0afb55d216e5bb54fc98781e5a1130cf2013417ce44025",
+      "sha256": "025c2423ec3d846ba7267e02248f57d730d1b13e131f1ab093e184bcc475c235",
       "theme": "both",
       "width": 20
     },
     "assets/djconnect/brand-v2/mark-24.png": {
       "alpha": true,
-      "bytes": 2035,
+      "bytes": 1971,
       "height": 24,
       "mode": "RGBA",
       "role": "headset-only",
-      "sha256": "6f9be60eae0c1c798528204edb694590a2d52a211a11662ab3c33c9055095c02",
+      "sha256": "22b6b997ff843b055897e4d01b529b4e8681541adbddc04e8e44d7b7efade597",
       "theme": "both",
       "width": 24
     },
@@ -96,21 +99,21 @@
     },
     "assets/djconnect/brand-v2/mark-32.png": {
       "alpha": true,
-      "bytes": 3371,
+      "bytes": 3197,
       "height": 32,
       "mode": "RGBA",
       "role": "headset-only",
-      "sha256": "f0d4d066342e4319d26bab33fa526c933018b17e8cbab3a8d2135c3f85b8281d",
+      "sha256": "f027b740b9011e2ec40bb2f27a26af9eb635c02528c8766443773f470c3431fb",
       "theme": "both",
       "width": 32
     },
     "assets/djconnect/brand-v2/mark-40.png": {
       "alpha": true,
-      "bytes": 5023,
+      "bytes": 4690,
       "height": 40,
       "mode": "RGBA",
       "role": "headset-only",
-      "sha256": "7d18021519e271c42bddd934a651c48f9d224330bde4cea52803d3576ea551f3",
+      "sha256": "b07eb1d01fc37044eef22e3f376635b0f623eec384c18f89046a49c80bb8c257",
       "theme": "both",
       "width": 40
     },
@@ -142,11 +145,11 @@
     },
     "assets/djconnect/brand-v2/preview.png": {
       "alpha": false,
-      "bytes": 682387,
+      "bytes": 681526,
       "height": 1560,
       "mode": "RGB",
       "role": "visual-review-contact-sheet",
-      "sha256": "25a31cfce5c56f1a2375c5773bdbbee66f0ef235a52320a35431fc87741b0593",
+      "sha256": "48951fd43b9add9303d0e73bfd091141da36175ee16a525314b1aa4626cfac6c",
       "width": 1360
     },
     "assets/djconnect/brand-v2/wordmark-compact-dark.png": {
@@ -463,6 +466,16 @@
       "theme": "light",
       "width": 2048
     },
+    "custom_components/djconnect/brand/mark-40.png": {
+      "alpha": true,
+      "bytes": 4690,
+      "height": 40,
+      "mode": "RGBA",
+      "role": "ha-micro-headset",
+      "sha256": "b07eb1d01fc37044eef22e3f376635b0f623eec384c18f89046a49c80bb8c257",
+      "theme": "both",
+      "width": 40
+    },
     "custom_components/djconnect/dark_logo.png": {
       "alpha": true,
       "bytes": 196343,
@@ -541,8 +554,24 @@
     "sha256": "f05fcdf4602d9c63add7799469c64060a8f13e5efa66ad6c7b762fb8273ec89f",
     "width": 1254
   },
+  "micro_source": {
+    "alpha": true,
+    "height": 1254,
+    "master_pixels_modified": false,
+    "max_export_size": 40,
+    "mode": "RGBA",
+    "path": "assets/djconnect/brand-v2/source/headset-purple-navy-magenta.png",
+    "provenance_path": "assets/djconnect/brand-v2/source/official-small-icon-provenance.json",
+    "provenance_sha256": "ed2e2163efd1ca61ef1162962c51c782b1cffbdc6114b14a298f98f37d22b300",
+    "sha256": "f69eb72b882f08c0dacbd3efa7e83165a56a01763aaa18e48557c03b65e11322",
+    "upstream_metadata_path": "assets/djconnect/brand-v2/source/headset-purple-navy-magenta.json",
+    "upstream_metadata_sha256": "63d495f9d0bba1c4c9260bc37196127fdc0512f797545cd707fc2dac1d773d91",
+    "upstream_prompt_path": "assets/djconnect/brand-v2/source/headset-purple-navy-magenta-prompt.txt",
+    "upstream_prompt_sha256": "637641182ae38eace76d29a9a9aca9bf7b5675e178a2ca6d674b1ac53c1e49c1",
+    "width": 1254
+  },
   "qualification": "source candidate; native/installed acceptance and protected producer pin required",
-  "recipe_sha256": "9882975245bfc134c5c20824825729a523865cd43d839767497d7027e20d917e",
+  "recipe_sha256": "e23b1bfedabd01ff700d96569ba2ece2706ef69ae73376e07e47599a4b501574",
   "schema_version": 1,
   "source_handoff_zip_sha256": "a0deec308d82c812875f80c509983fab595dd9745b241c2e5f46ff58fbb11197",
   "tagline_en": "Your music. Your DJ.",
