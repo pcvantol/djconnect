@@ -24,4 +24,24 @@ The atomic pre-I/O reservation regression passes: twelve competing requests admi
 
 Final full regression: 2,860 tests PASS, seven existing skips, 96.802 s. Subsequent formatting-only E702 correction has identical Python AST. Golden bindings remain within the existing contribution-exploration family: 42 families, 337 steps, 87 reports; 42 Core and 29 actual-quality gates OPEN. No native, installed, audible, or full narrative acceptance is asserted.
 
-Actual trial and independent editorial assessment are pending and must preserve the returned seed and selected texts without substitution. If publication or selection fails, record NOT_EXERCISED/NO_GO rather than manufacturing an export.
+## Actual trial at source fa88e815
+
+Run `afternoon-nl-selected-lookup-v1` finished normally at 12:58:50 UTC. Two reservations reconcile to two completed provider calls: 7,405 reported input and 715 output tokens. Three reservations remain unused; no further trial is scheduled. Old MAX300 ledger stayed byte-identical. Source hashes before/after match. No install, native, speaker or audible action.
+
+Actual generated seed (NOT published):
+
+> Voor “What a Feeling” kreeg Peter Luts bij de International Dance Music Awards in Miami de prijs voor Best Hi-NRG/Euro track; daar ontmoette hij Barbara Tucker. Samen brachten ze de single “One” uit, en Peter Luts is de componist van het werk achter deze opname.
+
+The independent model assessor cited original Wikipedia paragraph `6b789d6ff2c8093e:p3` for the public episode and original CC0 span `da65c5b9e11af2ae:0` for the work credit. Deterministic coverage still correctly rejected the draft: the complete second sentence joins the other single’s release to a reference to this recording. A diagnostic reconstruction of the actual preserved paragraphs traces `work_scope_fits`/`_assertions_fit` to the unsupported recording scope on “One”; reconstruction is diagnosis, not fresh source qualification.
+
+Independent editorial review: factual core supported; encounter and joint single are useful, connected content. Credit ending feels administratively appended and creates ambiguity about whether “One” is the current recording. Radio/Groove warmth and distinctiveness remain unproven. Ordinary publication was unavailable; selected More is **NOT_EXERCISED**, actual narrative acceptance **NO_GO**. No qualified Apple export or provider-attempt admission is asserted.
+
+## Causal boundary follow-up
+
+Generation guidance now requires the original current-work credit in its own sentence, with flexible episode/credit order and the same shared Persona/Mood owner. No source, factual, role, coverage, temporal or publication guard is relaxed. New synthetic regression rejects the joined sentence despite positive model assessment, admits separate original factual scopes, and rejects an unsupported producer claim. Bound in the existing contribution-exploration family and selected-public-focus step. 80 public-narration tests PASS (8.276 s); independent boundary regression PASS (0.135 s), scoped SOURCE GO/no P1/P2. This does not prove actual model compliance with the revised guidance.
+
+Read-only host verification initially used the obsolete Documents/GitHub default and reported three drifts. Repeating with the actual Shared Data GitHub root returned MATCH/exit0; no host repair or cleanup performed. Evidence and cumulative receipt are retained under `artifacts/core-contextual-afternoon-20261020/`.
+
+A later full run accidentally used system Python 3.15 without Pillow/PyYAML: 2,861 tests, five image assertion failures, four missing-module errors, nine skips. Its complete log is preserved, and no product check was relaxed. The complete rerun uses existing `/private/tmp/djc-brand-v2-build-env/bin/python` (Python 3.14, Pillow 13.0.0, PyYAML 6.0.3); final full regression **2,861 PASS, seven existing skips, 81.486 s**. Ruff and diff check PASS.
+
+Incoming API owner handoff: protected source `379d70b558508f747d578d7b7d90a665bad7ffc8` and separate Finalization under API #90 report unavailable current enrollment policy as existing `service_unavailable`503. Runtime helper remains unchanged. This is producer-reported evidence, not a new Core consumer qualification or pin. No consumer ACK or repeat of historical API/receiver experiments was requested; Core source and existing pins remain unchanged.

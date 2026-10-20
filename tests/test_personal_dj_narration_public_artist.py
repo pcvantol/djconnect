@@ -1560,6 +1560,44 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
                     self.assertEqual(self.research.supported(json.dumps({**data,'claim_checks':split}),
                         answer,context),expected)
 
+    def test_current_work_credit_cannot_share_external_release_sentence(self):
+        """Observed actual-provider cause, synthetic sources; no model/style PASS.
+
+        Complete source-ID checks cannot make a joined recording reference
+        unambiguous. Separate original factual scopes must remain separate.
+        """
+        from custom_components.djconnect.ask_dj.public_research import PublicSource
+        from custom_components.djconnect.public_artist_narration import resolve_review_quotes
+        paragraph='Ada Reed met Nora Vale. Together they released the single "One".'
+        external=PublicSource('Wikipedia','Ada Reed','https://en.wikipedia.org/wiki/Ada_Reed',
+            paragraph,'en','now','later','CC-BY-SA-4.0',source_anchors=('One',),
+            original_text=paragraph,paragraph_ranges=((0,len(paragraph)),)).model_data()
+        credit=PublicSource('MusicBrainz','Ada Reed','https://musicbrainz.org/work/fixture',
+            'Componisten van het werk achter deze opname: Ada Reed.',
+            'nl','now','later','CC0-1.0').model_data()
+        context={'public_music_research':{'schema_version':3,'sources':[external,credit]}}
+        episode_id=self.research.evidence_spans(external)[0]['id']
+        credit_id=self.research.evidence_spans(credit)[0]['id']
+        forms=[('Samen brachten ze de single “One” uit,',
+                ' en Ada Reed is de componist van het werk achter deze opname.',False),
+               ('Samen brachten ze de single “One” uit.',
+                ' Ada Reed is de componist van het werk achter deze opname.',True)]
+        for episode,current,expected in forms:
+            with self.subTest(expected=expected):
+                answer=episode+current
+                wire={'review_schema':'source_id_review_v1','supported':True,
+                    'unsupported_claims':[], 'claim_checks':[
+                        {'text':episode,'kind':'relationship','evidence_ids':[episode_id]},
+                        {'text':current,'kind':'fact','evidence_ids':[credit_id]}]}
+                resolved=resolve_review_quotes(wire,context)
+                self.assertEqual(self.research.claim_evidence_ok(answer,resolved,context),expected)
+                self.assertEqual(self.research.supported(json.dumps(resolved),answer,context),expected)
+        # A full independent credit sentence still cannot claim another work's credit.
+        wrong='Ada Reed produceerde de single “One”.'
+        wire={'review_schema':'source_id_review_v1','supported':True,'claim_checks':[
+            {'text':wrong,'kind':'relationship','evidence_ids':[episode_id]}]}
+        self.assertFalse(self.research.claim_evidence_ok(wrong,resolve_review_quotes(wire,context),context))
+
     def test_id_review_preserves_exact_evidence_and_coverage_without_model_quote_echo(self):
         from custom_components.djconnect.public_artist_narration import resolve_review_quotes
         from custom_components.djconnect.ask_dj.public_research import PublicSource

@@ -575,14 +575,14 @@ async def realize(brief, *, ask, admission, debug=None):
            "Tell that source-supported activity with its useful participants or occasion. Prefer this "
            "over another bare work credit when the evidence provides it. A lone encounter, invitation "
            "or occupation is insufficient. Do not manufacture depth or add praise as a substitute. "
-           "Recording anchor: include one compact clause naming selected_contributor by the complete "
+           "Recording anchor: use a separate compact sentence naming selected_contributor by the complete "
            "resolved name and " + ("their original composer credit on the work behind this recording. " if composer else
            "their credited producer role on this recording. ") +
-           "The complete resolved name must appear inside the credit clause itself, even when already "
+           "The complete resolved name must appear inside the credit sentence itself, even when already "
            "named in the episode; a surname or pronoun in that clause does not qualify. "
            "Its position is free. Refer explicitly to this/current recording, song or track in the "
            "requested language; a band-level credit or bare here is insufficient. "
-           "Keep that credit separate from every external work and role; other credits need not be recited. "
+           "Keep that credit in its own sentence, separate from every external work and role. Do not join the current-recording credit to a named external release using a comma, semicolon or conjunction: that can falsely attach this recording to the other work. The episode may lead or follow; preserve the shared Persona/Mood voice without adding a recap. Other credits need not be recited. "
            "Boundaries: each factual relationship must fit one original admitted passage. Preserve "
            "identities, roles, qualifications and title precision. Seeing is not hearing, invitation "
            "is not attendance, and collaboration is not production. A nearby title does not prove "

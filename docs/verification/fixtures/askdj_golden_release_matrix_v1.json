@@ -7808,6 +7808,10 @@
         {
           "file": "tests/test_askdj_contextual_release_gate.py",
           "method": "test_afternoon_five_attempt_grant_is_separate_atomic_and_fixed"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_current_work_credit_cannot_share_external_release_sentence"
         }
       ],
       "steps": [
@@ -8055,6 +8059,10 @@
             {
               "file": "tests/test_askdj_contextual_release_gate.py",
               "method": "test_afternoon_five_attempt_grant_is_separate_atomic_and_fixed"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_current_work_credit_cannot_share_external_release_sentence"
             }
           ],
           "acceptance_status": "owner_contract",
