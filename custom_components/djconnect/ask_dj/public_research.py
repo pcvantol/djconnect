@@ -314,10 +314,20 @@ def source_work_anchors(text, marked=()):
     return tuple(dict.fromkeys((*marked,*quoted)))
 
 
-def excerpt(text, question, maximum):
+def _mentions_lookup_topic(text, lookup_topic):
+    """Rank a literal title; very short titles also require a work anchor."""
+    if not lookup_topic:
+        return False
+    if len(lookup_topic) < 4:
+        return lookup_topic.casefold() in {s.casefold() for s in source_work_anchors(text)}
+    return bool(re.search(r'(?<!\w)' + re.escape(lookup_topic) + r'(?!\w)', text, re.I))
+
+
+def excerpt(text, question, maximum, *, lookup_topic=""):
     """Select complete literal sentences; never glue two cut source fragments."""
     if len(text) <= maximum:
         return text.strip()
+    lookup_topic = safe_lookup_topic(lookup_topic)
     paragraphs = [v for v in _sentences(text) if v.endswith(('.', '!', '?'))]
     stop = {'this','that','these','those','with','from','through','about','what','which',
             'introduce','documented','concrete','deze','welke','over','voor','welcher',
@@ -325,7 +335,8 @@ def excerpt(text, question, maximum):
     words = {w.casefold() for w in re.findall(r"[\wÀ-ÿ]+", question) if len(w) > 3 and w.casefold() not in stop}
     ranked = sorted(
         enumerate(paragraphs),
-        key=lambda row: (-len(words & {w.casefold() for w in re.findall(r'[\wÀ-ÿ]+',row[1])}), row[0]),
+        key=lambda row: (-int(_mentions_lookup_topic(row[1], lookup_topic)),
+                         -len(words & {w.casefold() for w in re.findall(r'[\wÀ-ÿ]+',row[1])}), row[0]),
     )
     selected, size, lead_count, lead_end = [], 0, 0, 0
     lead_budget = int(maximum * 0.6)
@@ -373,15 +384,8 @@ def paragraph_excerpt(text, question, maximum, *, prefer_artist_episode=False, s
     words = {w.casefold() for w in re.findall(r'[\wÀ-ÿ]+',question) if len(w)>4}
     from ..session_story_variety import passage_score
     lookup_topic = safe_lookup_topic(lookup_topic)
-    def mentions_topic(paragraph):
-        if not lookup_topic:
-            return False
-        # A short title must not rank an ordinary word such as one/someone.
-        if len(lookup_topic) < 4:
-            return lookup_topic.casefold() in {s.casefold() for s in source_work_anchors(paragraph)}
-        return bool(re.search(r'(?<!\w)' + re.escape(lookup_topic) + r'(?!\w)', paragraph, re.I))
     ranked = sorted(enumerate(paragraphs),key=lambda row:(
-        -int(mentions_topic(row[1][0])),
+        -int(_mentions_lookup_topic(row[1][0], lookup_topic)),
         -passage_score(row[1][0], story_topic),
         -_artist_episode_score(row[1][0]) if prefer_artist_episode else 0,
         -len(words & {w.casefold() for w in re.findall(r'[\wÀ-ÿ]+',row[1][0])}),row[0]))
@@ -747,7 +751,7 @@ async def web_references(fetch, subject, question, locale, *, album=None, angle=
                 "Public web",
                 parsed.hostname,
                 final_url,
-                excerpt(text, question, 600),
+                excerpt(text, question, 600, lookup_topic=lookup_topic),
                 page.language,
                 current=bool(re.search(r"concert|tour|live|optreden|tournée|gira", question, re.I)),
             )

@@ -7812,6 +7812,14 @@
         {
           "file": "tests/test_personal_dj_narration_public_artist.py",
           "method": "test_current_work_credit_cannot_share_external_release_sentence"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_selected_web_lookup_preserves_late_work_detail_in_actual_page_excerpt"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_web_excerpt_focus_does_not_promote_ordinary_words_or_change_broad_excerpt"
         }
       ],
       "steps": [
@@ -8029,7 +8037,7 @@
           "id": "ASKDJ-FLOW-selected-public-telling-focus",
           "language": "nl",
           "question": "Vertel meer over de concrete episode in deze geselecteerde publieke bijdrage.",
-          "expected_answer": "Use the exact model-suitable public telling as conversational focus only; deepen its episode with independently fetched evidence. Do not restart a metadata biography, promote focus into evidence, export private/Spotify bodies or survive source withdrawal. Equivalent Dutch production activity inflections retain semantic and work-scope review. A standard generic tap may reuse one safe literal public work title in its existing lookup only; private/unsafe/ambiguous titles and different or uncertain aspects keep broad semantic lookup. Query context never creates evidence.",
+          "expected_answer": "Use the exact model-suitable public telling as conversational focus only; deepen its episode with independently fetched evidence. Do not restart a metadata biography, promote focus into evidence, export private/Spotify bodies or survive source withdrawal. Equivalent Dutch production activity inflections retain semantic and work-scope review. A standard generic tap may reuse one safe literal public work title in its existing lookup only; private/unsafe/ambiguous titles and different or uncertain aspects keep broad semantic lookup. Query context never creates evidence. A safe selected work title also ranks literal complete sentences in fetched external web pages, so a later work detail can survive the existing excerpt budget; an ordinary short word or a query alone adds no evidence.",
           "model_policy": "Actual shared publication/open/Ask DJ route with declared source/model replies. Public focus grants no claim/source ID, private-body model processing or extra call/lifetime.",
           "owning_tests": [
             {
@@ -8063,6 +8071,14 @@
             {
               "file": "tests/test_personal_dj_narration_public_artist.py",
               "method": "test_current_work_credit_cannot_share_external_release_sentence"
+            },
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_selected_web_lookup_preserves_late_work_detail_in_actual_page_excerpt"
+            },
+            {
+              "file": "tests/test_ask_dj_exploration.py",
+              "method": "test_web_excerpt_focus_does_not_promote_ordinary_words_or_change_broad_excerpt"
             }
           ],
           "acceptance_status": "owner_contract",

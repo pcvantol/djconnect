@@ -130,6 +130,49 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
             else:
                 self.assertEqual(fetch.lookups[0], 'Ada Reed official songwriting composition interview')
 
+    async def test_selected_web_lookup_preserves_late_work_detail_in_actual_page_excerpt(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        from html import escape
+        lead = 'Ada Reed is a musician who records and performs her own music.'
+        filler = 'The music archive describes older recordings and performances in several different places.'
+        for title in ('One', 'Paper Lanterns'):
+            with self.subTest(title=title):
+                detail = (f'Ada Reed recorded the single “{title}” with the chamber ensemble in the town hall, '
+                          'using an arrangement written for the ensemble during those recording sessions.')
+                page = '<html lang="en"><p>'+escape(lead)+'</p>'+('<p>'+filler+'</p>')*14+'<p>'+escape(detail)+'</p></html>'
+                class Fetch:
+                    requests = 0
+                    maximum_requests = 8
+                    async def robots(self, url):
+                        return True
+                    async def request(self, url):
+                        self.requests += 1
+                        body = ('<a href="https://artist.example/interview">Interview</a>'
+                                if 'duckduckgo.com' in url else page)
+                        return 200, body, url
+                fetch = Fetch()
+                found = await research.web_references(fetch, 'Ada Reed', 'Vertel meer', 'nl',
+                                                     angle='composition', lookup_topic=title)
+                self.assertEqual(len(found), 1)
+                self.assertIn(detail, found[0].text)
+                self.assertTrue(found[0].text.startswith(lead))
+                self.assertLessEqual(len(found[0].text), 600)
+                self.assertEqual(fetch.requests, 2)
+                self.assertEqual(found[0].provider, 'Public web')
+                self.assertEqual(found[0].url, 'https://artist.example/interview')
+                self.assertNotIn('composition interview', found[0].text)
+
+    def test_web_excerpt_focus_does_not_promote_ordinary_words_or_change_broad_excerpt(self):
+        from custom_components.djconnect.ask_dj.public_research import excerpt
+        lead = 'Ada Reed is a musician.'
+        filler = 'The archive describes several different recordings and performances with a chamber ensemble.'
+        other = 'Someone made one ordinary recording named Starlighter in the town hall.'
+        original = '\n'.join((lead, *([filler]*12), other))
+        plain = excerpt(original, 'Vertel meer', 600)
+        for topic in ('One', 'Starlight', 'Absent Work', 'https://private.example', ' One', 'a\nb'):
+            with self.subTest(topic=topic):
+                self.assertEqual(excerpt(original, 'Vertel meer', 600, lookup_topic=topic), plain)
+
     def test_selected_lookup_ranks_only_literal_original_passage_without_short_word_collision(self):
         from custom_components.djconnect.ask_dj import public_research as research
         lead = 'Ada Reed is a musician.'
