@@ -1,5 +1,57 @@
 # Current Core1210 same-band story variety checkpoint — 19 October 2026
 
+## Pi rc.5 deployment consumer correction — 20 October 2026
+
+### Repository Status
+
+Core consolidation source1242/bf30bebc and separate Finalization1243/f0bfe034
+are protected and reconciled. All nine completed local Core refs and six worktrees
+are retired after full Git/evidence preservation; the old local Brand documentary
+draft is preserved as superseded, not misrepresented as merged product.
+This bounded follow-through binds only the Pi deployment consumer to qualified
+40b52f11ab31501dfc4f4f8db2b87f1e3ef9a865, source113/722b6147 plus separate
+Finalization114/40b52f11. Exact independent source and documentary reviews GO.
+
+### Management Summary
+
+HA-dev and HA-prod now run the immutable224file consolidated main artifactF,
+SHA780e6f315e04ec8cc4e2a018bfbfccda7fb26d7915648230f39e68e612e2ca3f.
+Actual file hashes, three public HTTP200 reads and SQLite integrity/schema10 pass
+on both; backups and the first production attempt's safe rollback are retained.
+The production configuration's existing missing-directory diagnostics remain;
+no unrelated configuration was repaired. API3458 is deployed100percent with
+separate matching smoke; the API owner's independent final reviews GO.
+
+### Roadmap Position
+
+Necessary installation correction within Peter's current consolidation/deployment
+task. No new feature selection, timer or paid model budget. Pi app candidateEADB,
+published profile artifacts, approval, inventory and two existing targets stay
+byte-identical. The previous manifest bytes are retained in immutable history.
+Actual story quality, selectedMore, Mood effects, rich history, catalogue and
+Apple/native/speech/audible qualification remain OPEN despite installed code.
+
+### Risks and Next Actions
+
+The real Pi reader needed its exact three-dot GitHub ancestry route; only that
+closed route is admitted, using page two to preserve the existing metadata bound.
+Protect this exact consumer-only manifest delta, qualify current Core source and
+complete separate Finalization before the Pi owner updates the configuration pair
+and executes each ordinary deploy plus separate matching smoke/captures.
+No Pi mutation or install success is claimed by this local source preparation.
+
+### Repository State
+
+Predecessor MERGED_RECONCILED; this bounded producer correction is source work
+pending exact review/checks/protected delivery and separate Finalization.
+
+### Workspace State
+
+Fresh clean worktree admitted from synchronized protected mainf0bfe034 after
+completed predecessor cleanup and actual-root hostverifyMATCH. Other owners'
+resources and dashboard lock remain untouched. No credentials or Profile change.
+
+
 ## Core consolidation — separate Finalization, 20 October 2026
 
 ### Repository Status
