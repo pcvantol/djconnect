@@ -2779,6 +2779,21 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Actual NL-v9 composer proposal was rejected because its quoted single One lacked a source anchor. Source regression covers the correction; real published story remains open. Synthetic external replies additionally traverse real Runtime publication, SQLite close/reopen and retained manual speech admission without refetch or model regeneration; actual model quality and audible acceptance remain open."
+        },
+        {
+          "id": "ASKDJ-FLOW-credit-single-persona-owner",
+          "language": "nl",
+          "question": "Vertel bij deze bijdrage de compositiecredit en één gedocumenteerde activiteit van dezelfde componist, zonder er een verzonnen verband van te maken.",
+          "expected_answer": "A single shared Persona/Mood owner shapes natural telling of independent current-work credit and external musical activity. No second development-arc recipe, forced appreciation bridge or invented relationship. Real warmth still requires actual returned text and independent review.",
+          "model_policy": "Ordinary generation plus independent source/role/style review; no extra call or acceptance from removing a prompt conflict.",
+          "owning_tests": [
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_composer_story_publishes_reopens_and_keeps_exact_work_role_and_replay_sources"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual nl-v11 remained unpublished: factual edition scope improved, but a generic work-behind-scenes compliment failed review. Source regression guards one Persona owner; actual story acceptance remains open."
         }
       ],
       "owning_tests": [
@@ -2817,6 +2832,10 @@
         {
           "file": "tests/test_personal_dj_narration_public_artist.py",
           "method": "test_short_quoted_work_episode_survives_publication_storage_and_retained_speech"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_composer_story_publishes_reopens_and_keeps_exact_work_role_and_replay_sources"
         }
       ],
       "real_ha_profile": "full_golden",
@@ -8513,6 +8532,12 @@
       "id": "ASKDJ-ISSUE-short-quoted-work-title-not-admitted",
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "finding": "Actual NL-v9 source says the single One, but short unitalicized quoted titles are omitted from work anchors, suppressing a reviewed composer episode. Admit only literal work-noun/pair-quoted titles; short names also require exact paired title quotes in claim and source, never an ordinary One/I/up token. Causal ordinary-word P2 counterexample retained. Actual publication and story quality remain open.",
+      "core_qualification": "open"
+    },
+    {
+      "id": "ASKDJ-ISSUE-credit-conflicting-persona-recipes",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "finding": "Actual nl-v11 composer proposal again added a generic appreciation bridge. Independent review identified conflicting instructions: extra Radio development arc requires explicitly connected activities while current-credit and external activity must retain separate scopes. Remove the secondary credit-only recipe, retain shared Persona/Mood and all source guards; require real publication and editorial quality before closure.",
       "core_qualification": "open"
     }
   ],

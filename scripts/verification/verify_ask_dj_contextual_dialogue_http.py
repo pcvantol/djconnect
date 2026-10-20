@@ -1650,7 +1650,10 @@ async def main():
                             'qualification':'REAL_PUBLISHED_STORY_SYNTHETIC_RECORDING_RELATION_REAL_PUBLIC_IDENTITY',
                             'moment_id':moment.moment_id,'text':moment.content,
                             'persona':str(active.dj_persona),'mood':active.selected_mood,'language':active.locale,
-                            'source_attribution':dict(moment.source_attribution)},ensure_ascii=False,indent=2)+'\n')
+                            'source_attribution':dict(moment.source_attribution),
+                            # Singular primary attribution is not the complete
+                            # renderer/history bibliography (e.g. EN enrichment).
+                            'sources':moment.as_dict().get('sources',[])},ensure_ascii=False,indent=2)+'\n')
                     navigation = next(
                         a
                         for a in active.broadcast.native_delivery()["admissions"]

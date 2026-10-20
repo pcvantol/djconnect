@@ -6,14 +6,17 @@ Apple coordination as needed. The existing heartbeat
 **20 October 2026, 08:00 Europe/Amsterdam**. It retains the same writer and WIP;
 another active execution on the same resources permits status readback only.
 
-Current local source baseline: `f528d4445c10e97d81ee301d4c6ba2d83e719c8e`, branch
-`codex/core-contextual-dj-interactions-v1`; the subsequent biography/title delta
-is captured by the commit containing this document. Main remains `8b221d07`.
-Latest actual pilot: `nl-v10`, **36/40 reserved**, four remain. No paid process
-is running. Narrative acceptance is **NO_GO**. No next slice, public producer
-pin, merge or installation is inferred from this timer. Individual deletion
-Core #1225 / Apple #143 remains queued after valid current WIP completion,
-Finalization and workspace admission.
+Current local source baseline: `19216254e4501ebbe3e4be706c61fdd1c50d15fa`,
+branch `codex/core-contextual-dj-interactions-v1`; subsequent prompt/pilot/report
+changes are captured by the commit containing this document. Main remains
+`8b221d07`. Latest actual pilot `nl-v12`: **40/40 reserved, zero remaining**.
+No paid process is running. Do not reread the key or start another paid probe;
+the original cumulative ledger and all recovery copies must be preserved.
+A single composer Moment now actually published, but narrative quality is
+**NO_GO** and the selected follow-up was NOT_RUN. No next slice, public producer
+pin, merge or installation is inferred. Individual deletion Core #1225 /
+Apple #143 remains queued after valid current-WIP completion, Finalization and
+workspace admission.
 
 ## Actual-answer pilot approval and execution
 
@@ -145,7 +148,7 @@ texts, tests and remaining gates; do not continue work after 08:00.
 The local ignored `artifacts/core-contextual-night-20261020/evidence/` contains
 an immutable24-attempt evidence copy plus its SHA256 manifest, preserving all
 26run/diagnostic artifacts. It is a recovery snapshot, not a second budget: the
-original `/private/tmp/` ledger remains authoritative and MUST continue at24.
+original `/private/tmp/` ledger was authoritative at24 then. That recovery copy must never replace a later ledger; the current authority is now40.
 No secret-key pattern was found before preservation. Source snapshots/manifests
 remain in `/private/tmp/`; no cleanup is authorized by this continuation.
 
@@ -312,3 +315,70 @@ The reviewer independently ran it successfully, then restored the old HTML-only
 anchor behavior in memory: the same test failed at the real publication
 assertion. This establishes a causal regression, not a mirrored helper check.
 No source writes, real model calls or installed/audio claim by the reviewer.
+
+
+## 00:49 UTC continuation — final approved model attempts
+
+Actual hostverify MATCH/onboarding4.5.4; clean19216254 at pickup; no competing
+Core/model process/indexlock;481GiBfree and32GiBRAM/systemfree46%. Same WIP,
+Brand worktrees preserved, no delivery/cleanup/next selection.
+
+Independent technical review approved a strictly publication-only pilot mode:
+selected plus one locale, no Ask DJ submission/history clearing/read, ordinary
+seed publication and Session ending. It explicitly keeps the selected request
+missing and suite FAIL. Missing publication remains a failure. Invalid modes
+fail before starting. The cumulative ledger/max_retries0 are unchanged; wrapper
+requires two remaining reservations before key access. Scope/budget tests PASS.
+This is a partial causal recheck, never a shortened whole-scenario PASS.
+
+nl-v11 uses2attempts (38/40), preserves the original eighth-edition scope but
+adds a generic work-behind-scenes appreciation; review rejects it, no Moment.
+Independent editorial diagnosis found conflicting composition instructions:
+extra Radio answer_form demands an explicitly connected development arc, while
+current-work credit and external musical activity must retain separate scope.
+The credit-only extra recipe and forced appreciation bridge are removed; one
+shared Host/Persona/Mood/locale owner plus all factual/role/call gates remain.
+Independent technical review scoped GO; focused95PASS. This is an instruction
+repair, not canned output or new source authority.
+
+nl-v12 uses the final2attempts and actually publishes a composer Moment through
+the ordinary HA/Runtime owner. Both provider attempts completed. Its actual
+text is in the actual-text review. Independent editorial review remains NO_GO:
+still two businesslike statements and unnatural “Op [title]” wording. Full
+selected-contribution Ask DJ was not submitted, as explicitly planned. No
+Persona×Mood, five-language, genre-chain or client/speech closure.
+
+The published seed exported only its singular primary NL attribution. Actual
+full delivery sources[] was not captured. Product source and prior real-Runtime
+fixture tests keep the separate full NL/EN bibliography; they do not prove this
+run's unrecorded full projection. No product attribution P2 is established.
+Future seed recording also captures Moment.as_dict().sources. Historical v12
+artifacts were not rewritten and no new paid run was started for this addition.
+
+Budget is exactly40/40,39completed,98,901reported input tokens/11,187output.
+One cancelled attempt's missing usage is not invented. New receipt
+usage-receipt-40-attempts.json and an actual exhausted-bridge refusal (before
+credential branch, no new run receipt, ledger byte-identical) are preserved.
+New immutable47-file recovery copy evidence-40-attempts/ plus manifest; older24
+and36 copies remain. No more paid I/O under this grant; timer may continue only
+unpaid authorized local work until08:00Europe/Amsterdam.
+
+Golden now42families/312steps/71reports;26Core+28realqualitysteps OPEN. The
+actual credit-recipe conflict has its own permanent issue/step binding. Full
+host regression2809PASS/7existing skips,66.022seconds, log
+/private/tmp/djc-core-0049-final-full-tests.log. Source is unchanged since that
+run except future seed bibliography capture and reporting; final focused/ruff
+readback follows. No feature closure follows these test results.
+
+Apple's exact9501 candidate independently rejects the reported canonical-policy
+counterexample and cross-batch receipt reuse in offline fixtures. Native compile,
+unknown-policy/fullgate work and other tests remain peer-reported. Core outcome
+adapters, qualified private fixture/export and real transport-attempt budget
+remain OPEN. Pi's reported readonly-doc/full-text drift is recorded separately;
+no Pi writer, API, installation or extra selection was started.
+
+Final focused95PASS in8.684seconds after the bibliography recorder addition;
+changed-file Ruff and git diff --check PASS. No model/regression process or
+owned pilot container remains. Timer ACTIVE with UNTIL20261020T060000Z;
+night deadline remains08:00Europe/Amsterdam. Future ticks must preserve40/40
+and perform only unpaid authorized work, never another key lookup or budget reset.

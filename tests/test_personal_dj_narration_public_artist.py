@@ -709,6 +709,10 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
             ('composer',self.selected_credit.contributor_id,'Ada Reed','Person','Q1'))
         data=json.loads(self.calls[0].split('\nData:\n')[1])['public_music_research']
         self.assertEqual(data['work_credit_scope']['selected_contributor'],'Ada Reed')
+        # These two proven roles have no attested shared development. Do not
+        # demand a second artist-arc recipe that would require inventing one.
+        self.assertNotIn('Core-owned telling action:',self.calls[0])
+        self.assertEqual(self.calls[0].count('Host identity:'),1)
         self.assertNotIn('recording_credit_scope',data)
         self.assertNotIn(self.catalog['title'],self.calls[0])
         self.assertNotIn(self.catalog['album_name'],self.calls[0])

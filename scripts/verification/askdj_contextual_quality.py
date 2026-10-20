@@ -68,6 +68,10 @@ async def run(*,ask,call,start,end,get_history,mutations,model_receipts):
     if (not kinds or len(set(kinds)) != len(kinds) or any(kind not in {'selected','band','mood'} for kind in kinds)
             or ('mood' in kinds and 'band' not in kinds)):
         raise ValueError('invalid_actual_quality_kinds')
+    seed_mode=os.environ.get('DJC_QUALITY_SEED_ONLY','0')
+    if seed_mode not in {'0','1'} or (seed_mode=='1' and (kinds!=['selected'] or len(locales)!=1)):
+        raise ValueError('invalid_actual_quality_seed_only_scope')
+    seed_only=seed_mode=='1'
     requested=[c for c in cases() if c['language'] in locales and c['kind'] in kinds]
     # One actual selected composer publication; its live owner remains intact.
     seed=ACTIVE_CASE.set('quality-selected-seed')
@@ -81,8 +85,14 @@ async def run(*,ask,call,start,end,get_history,mutations,model_receipts):
     finally:
         ACTIVE_CASE.reset(seed)
     selection=({'session_id':active.session_id,'moment_id':moment.moment_id} if moment is not None else None)
+    publication=({'moment_id':moment.moment_id,'text':moment.content} if seed_only and moment is not None else None)
     try:
         for case in (c for c in requested if c["kind"]=="selected" and selection is not None):
+            if seed_only:
+                # A publication recheck is not a selected-contribution request.
+                # Retain the missing acceptance step instead of manufacturing PASS.
+                rows.append({**case,'findings':['selected_followup_not_exercised']})
+                continue
             await call("ask_dj/history/clear",{},label=case["id"]+"-clear")
             token=ACTIVE_CASE.set(case["id"])
             before=len(model_receipts)
@@ -144,6 +154,8 @@ async def run(*,ask,call,start,end,get_history,mutations,model_receipts):
     return {"schema_version":1,"suite":"contextual_dj_actual_answers_v1","manifest_sha256":manifest_digest(),
         "qualification":"REAL_HA_PAIRED_ASSIST_PUBLIC_RESEARCH_SYNTHETIC_MUSIC_OWNER",
         "requested_case_ids":[c['id'] for c in requested],
+        "selected_probe_scope":"publication_only_partial" if seed_only else "complete_selected_request",
+        "selected_seed_publication":publication,
         "cases":rows,"paid_model_calls":len(model_receipts),"usage":model_receipts,
         "mechanical_status":"PASS" if len(rows)==len(requested) and not mutations and all(not r["findings"] for r in rows) else "FAIL",
         "editorial_status":"REQUIRES_INDEPENDENT_ACTUAL_ANSWER_REVIEW",

@@ -366,3 +366,77 @@ the model reviewer approved it. The proposal was never published. Prompt
 clarification and an unpaid work-anchor replay do not change that outcome.
 The actual v9 Mood clarification receives editorial GO for this single text;
 Persona×Mood variation and a completed genre continuation remain unqualified.
+
+
+## Publication-only rerun `nl-v11` — partial acceptance remains NO_GO
+
+Report SHA256: `f255212ba5dca44b45df95e1c00a9050e04b0992f0a9a81386b0af93b99c9c22`. Two completed attempts; cumulative38/40. Ordinary publication only; no selected Ask DJ follow-up, client app, speaker or installation. The suite remains FAIL with its missing selected step explicitly recorded.
+
+No Moment published. The following is a rejected proposal, not a reply:
+
+```text
+Peter Luts schreef en produceerde Love Is the Message, het anthem voor de achtste editie van City Parade — een mooi concreet voorbeeld van zijn werk achter de schermen. Voor deze opname staat Peter Luts vermeld als componist van het onderliggende werk.
+```
+
+### Actual model evidence/style review
+
+```json
+{
+  "supported": false,
+  "unsupported_claims": [
+    "een mooi concreet voorbeeld van zijn werk achter de schermen."
+  ],
+  "review_schema": "source_id_review_v1",
+  "claim_checks": [
+    {
+      "text": "Peter Luts schreef en produceerde Love Is the Message, het anthem voor de achtste editie van City Parade",
+      "kind": "fact",
+      "evidence_ids": ["6b789d6ff2c8093e:p2"]
+    },
+    {
+      "text": "— een mooi concreet voorbeeld van zijn werk achter de schermen.",
+      "kind": "relationship",
+      "evidence_ids": []
+    },
+    {
+      "text": "Voor deze opname staat Peter Luts vermeld als componist van het onderliggende werk.",
+      "kind": "fact",
+      "evidence_ids": ["da65c5b9e11af2ae:0"]
+    }
+  ],
+  "language_ok": true,
+  "style_ok": false,
+  "work_focus_preserved": true,
+  "composer_episode_preserved": true
+}
+```
+
+Independent editorial review agrees that the generic appreciation layer is insufficient. The exact eighth-edition scope is now preserved, but warmth is not established. A conflicting extra Radio development-arc recipe was subsequently removed for independent credit facts; the shared Persona/Mood owner and source guards remain.
+
+
+## Publication-only rerun `nl-v12` — partial acceptance remains NO_GO
+
+Report SHA256: `2af5ef8be9282ef3ce4600128225abe258080d51483280fccc3c3a59284f8cdf`. Two completed attempts; cumulative40/40. Ordinary publication only; no selected Ask DJ follow-up, client app, speaker or installation. The suite remains FAIL with its missing selected step explicitly recorded.
+
+### Actually published Session Moment in the isolated HA Runtime
+
+```text
+Peter Luts is een van de componisten van het werk achter deze opname. Op “Love Is the Message” schreef en produceerde hij de hymne voor de achtste editie van City Parade.
+```
+
+The configured real model and normal evidence/publication owner accepted this text. The recording/work relation is synthetic; Peter Luts public identity/source fetches are real. This is not an installed-client or audible result.
+
+### Actual model evidence/style review
+
+```json
+{"supported":true,"unsupported_claims":[],"review_schema":"source_id_review_v1","claim_checks":[{"text":"Peter Luts is een van de componisten van het werk achter deze opname.","kind":"relationship","evidence_ids":["da65c5b9e11af2ae:0"]},{"text":"Op “Love Is the Message” schreef en produceerde hij de hymne voor de achtste editie van City Parade.","kind":"relationship","evidence_ids":["6b789d6ff2c8093e:p2"]}],"language_ok":true,"style_ok":true,"work_focus_preserved":true,"composer_episode_preserved":true}
+```
+
+Independent editorial verdict: **NO_GO for narrative quality**. The text still reads as two factual statements, without convincing warmth or Radio/Groove character. “Op ‘Love Is the Message’ schreef … de hymne” is unnatural and blurs that the named song itself was the anthem. The selected “Vertel meer” request was intentionally not submitted.
+
+The seed artifact records singular primary NL attribution only. Product sources[] is a separate full bibliography; the actual complete source projection of this delivered seed was not captured. The source code and fixture regression preserve NL+EN references, but do not replace this missing actual readback. No wrong-delivery P2 is established. Future seed exports now also capture Moment.as_dict().sources; the original v12 artifact remains untouched, and no paid rerun is available under the exhausted grant.
+
+
+## Cumulative model budget exhausted
+
+40/40 attempts reserved,39completed;98,901reported input tokens and11,187output tokens. Missing cancelled usage is not invented; no monetary bill inferred. The bridge was tested to refuse another run before its credential branch, with the ledger unchanged and no new run receipt. No further model I/O is authorized under this night grant. Local source/fixture/docs work may continue until the existing08:00Europe/Amsterdam deadline.

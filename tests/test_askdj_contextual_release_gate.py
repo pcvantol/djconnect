@@ -17,6 +17,35 @@ RUNNER = load('contextual_gate', 'tools/verification/run_askdj_contextual_releas
 
 
 class ContextualReleaseGateTest(unittest.TestCase):
+    def test_publication_only_probe_never_submits_followup_or_qualifies_complete_case(self):
+        import asyncio
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from scripts.verification.askdj_contextual_quality import run
+        calls=[]
+        async def start(label,**kwargs):
+            calls.append('start')
+            return SimpleNamespace(session_id='fixture-session'),SimpleNamespace(
+                moment_id='fixture-moment',content='Explicit fixture publication.'),None
+        async def end(*args):
+            calls.append('end')
+        async def forbidden(*args,**kwargs):
+            self.fail('A publication-only probe must not submit Ask DJ, clear or read chat history')
+        env={'DJC_QUALITY_LOCALES':'nl','DJC_QUALITY_KINDS':'selected','DJC_QUALITY_SEED_ONLY':'1'}
+        with patch.dict('os.environ',env):
+            report=asyncio.run(run(ask=forbidden,call=forbidden,start=start,end=end,
+                get_history=forbidden,mutations=[],model_receipts=[]))
+        self.assertEqual(calls,['start','end'])
+        self.assertEqual(report['selected_seed_publication']['moment_id'],'fixture-moment')
+        self.assertEqual(report['selected_probe_scope'],'publication_only_partial')
+        self.assertEqual(report['cases'][0]['findings'],['selected_followup_not_exercised'])
+        self.assertEqual(report['mechanical_status'],'FAIL')
+        for change in ({'DJC_QUALITY_KINDS':'band'},{'DJC_QUALITY_LOCALES':'nl,en'},
+                       {'DJC_QUALITY_SEED_ONLY':'true'}):
+            with patch.dict('os.environ',{**env,**change}),self.assertRaises(ValueError):
+                asyncio.run(run(ask=forbidden,call=forbidden,start=start,end=end,
+                    get_history=forbidden,mutations=[],model_receipts=[]))
+
     def test_actual_quality_budget_is_durable_across_runs_and_rejects_budget_increase(self):
         import ast
         import json
@@ -236,9 +265,9 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual(proof['literal_core_routes'],48)
         self.assertEqual(proof['executable_help_cases'],60)
         self.assertEqual(proof['conversation_families'],42)
-        self.assertEqual(proof['conversation_steps'],311)
-        self.assertEqual(proof['reported_issues'],70)
-        self.assertEqual(len(proof['open_core_findings']),25)
+        self.assertEqual(proof['conversation_steps'],312)
+        self.assertEqual(proof['reported_issues'],71)
+        self.assertEqual(len(proof['open_core_findings']),26)
         self.assertEqual(proof['proactive_golden_cases'],560)
         self.assertEqual(proof['catalogue_questions'],70)
         self.assertEqual(proof['catalogue_conversation_steps'],30)

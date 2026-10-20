@@ -570,8 +570,8 @@ async def realize(brief, *, ask, admission, debug=None):
            "when only a different span states them; do not force them into the same relationship claim. "
            "Never imply an exclusive credit or that you listed all credits. Any other person "
            "mentioned keeps their exact original role; never transfer this biography to another contributor. "
-           "Give the listener a present personal DJ viewpoint within the telling, rather than two detached metadata statements. "
-           "This can be a curious or playful way into the documented detail; do not add a generic closing compliment. "
+           "Let the confirmed Persona and Mood shape your natural address to one listener and the rhythm of these details. "
+           "That voice needs no stated appreciation or connecting claim between independently scoped facts. "
            "Use separate clauses so recording credit and the external musical activity keep their scopes clear. "
            "The original-credit clause must contain the contributor's complete resolved name, not just a surname or pronoun. "
            "In the credit clause refer explicitly to this/current recording, song or track in the requested language, "
@@ -585,7 +585,7 @@ async def realize(brief, *, ask, admission, debug=None):
            "similarly named work or sequel. Persona shapes viewpoint and order, Mood changes the spoken "
            "cadence rather than just adding an adjective or a closing slogan. " if album else "")
         +
-        "Core-owned telling action: " + persona_answer_form(brief.persona, include_identity=False)
+        ("" if credit else "Core-owned telling action: " + persona_answer_form(brief.persona, include_identity=False))
         + "\nData:\n" + json.dumps({"public_music_research":research.generation_projection(projection, question)}, ensure_ascii=False))
     if album:
         from .album_narration import expression_prompt

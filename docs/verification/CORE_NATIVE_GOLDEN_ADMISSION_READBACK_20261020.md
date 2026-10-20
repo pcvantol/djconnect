@@ -92,3 +92,39 @@ watch UI, pixels, physical audio and installed speech. Compilation and unit
 green do not close those. This source readback has not supplied a qualified
 producer adapter, private fixture enrollment, actual native/provider run or
 acceptance. Those gates remain OPEN in the same WIP.
+
+
+## Follow-up Apple candidate9501 — independently reproduced narrow fixes
+
+Apple reports PR159 advanced to
+`9501d67438091cdc2848157f93e2e8b202f3de28`, including unknown-policy rejection and
+schema2 provider-receipt identities across batches. Its native compile/unarmed
+skip and ten regressions remain peer-reported; Core did not run a native target.
+
+Core separately read that exact `golden.py` and reused the unchanged,
+digest-verified catalogue for an offline synthetic recheck. A valid canonical
+one_or_two case with one fixture attempt passes its selected-set check. The
+original changed-native-policy/zero-attempt counterexample now fails with
+canonical_model_policy_mismatch and model_policy_attempt_count. A second batch
+reusing the provider receipt fails reused_provider_receipt_across_batches.
+These are the narrow independently verified consumer fixes. No real native or
+provider run, protected Apple delivery or producer adapter is qualified here.
+
+The new receipt is `djc-apple159-policy-recheck-9501.json` under ignored night
+artifacts. The existing Apple owner received this exact readback. SDK/HA
+transport accounting, fixture enrollment, qualified Core outcome adapters and
+producer-origin correlation remain OPEN; execute:false is still appropriate.
+
+## Separate Pi consumer follow-up (peer-reported)
+
+Pi reports draftPR111 atddc4650e7e1efa3b95260e31301d202644a4d602. It references
+protected Core8b221d07 and contextual fixture digest
+9be892d55c8aaee4871e54ac68ed04945fb0676ce5472e2091a83ee66b2151a8,
+uses its paired Profile text/message/context/client-id route and fresh history2
+readback, and advertises text/free_input=true under its own reported full-app
+owner selection. No Core-WIP import, real model call or installation is reported.
+Canonical Pi-consumer documentation still describing readonly_actions requires
+a separately scoped Core reconciliation before protected Pi release. This is a
+recorded dependency, not new Core selection, paired-install admission, producer
+qualification or authorization to modify Pi source/hardware. No Pi response or
+second writer was started by this readback.
