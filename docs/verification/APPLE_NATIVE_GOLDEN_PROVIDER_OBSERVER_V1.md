@@ -118,3 +118,10 @@ The second command needs the SDK dependencies. It was run inside
 with network disabled, bounded memory/CPU/PIDs, all capabilities dropped,
 no-new-privileges and a read-only source mount. Failed/intermediate and final
 logs are kept separately under the current Core evidence root.
+
+Exact tested source checkpoint: `4a307e6dd4e7e5a1e214000d9bea53900a54c811`.
+The final isolated Linux run executes all9journal plus4actual-SDK regressions:
+**13PASS,1.047s**, network disabled. The full ordinary suite on that checkpoint
+is **2839testsPASS,7existing skips,72.313s**. Ruff/diffchecksPASS. These observations
+add **zero actual external provider attempts**; the cumulative Core grant ledger
+stays16reserved/16completed/284remaining. No native fixture was admitted.
