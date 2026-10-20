@@ -3087,6 +3087,20 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Source expiry/model-input fencing only; no warm prose, native delivery, installed speech or audible acceptance."
+        },
+        {
+          "id": "ASKDJ-FLOW-history-collection-original-expiry",
+          "question": "Can a Session list, timeline, tail, search, latest observations or playback lookup return content that expired during its final unchanged grant/revision await?",
+          "expected_answer": "A healthy original result is visible before expiry. After the final await, synchronously reject the entire stale collection with the existing invalid_history_cursor error using each original Session/entry deadline. A retention cap shortened then widened never renews the older entry deadline. No expired body, summary, navigation or count is returned.",
+          "model_policy": "Actual owner-scoped SQLite/query collection reads with real retention-policy writes and injected wall clock; no model, provider, client or network I/O.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_retention_policy.py",
+              "method": "test_collection_final_await_cannot_return_expired_sessions_or_entries"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Six collection boundaries and no-renewal only; no installed/native history or actual narrative acceptance."
         }
       ],
       "owning_tests": [
@@ -8934,6 +8948,12 @@
       "family_id": "ASKDJ-FLOW-style-lifecycle",
       "core_qualification": "open",
       "finding": "Independent static review and two causal regressions show a retained Session/body can expire during the final unchanged grant await or after the last source read before the model dispatch fence. Revision equality alone does not prove time validity. Recheck Session retention after all awaits, entry expiry after the final Session read and the earliest original dependency deadline synchronously at turn/commit/delivery fences; no renewed retention grant. Local repair does not close native or actual-quality acceptance."
+    },
+    {
+      "id": "ASKDJ-ISSUE-history-collection-natural-expiry",
+      "family_id": "ASKDJ-FLOW-style-lifecycle",
+      "core_qualification": "open",
+      "finding": "Independent static review and six causal collection cases find natural expiry after final unchanged grant/revision awaits: Session summaries, playback lookup bodies and timeline/window/search/latest entries can escape. Real retention shortening then widening preserves earlier entry deadlines via MIN; Session validity alone is insufficient. Final synchronous original-deadline validation refuses stale collections without refreshing caps or changing representations. Local repair does not establish native/installed/end-user acceptance."
     }
   ],
   "regression_suite_files": [

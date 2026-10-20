@@ -180,6 +180,14 @@ class HistoricalProjectionQueryService:
             entry["session_speech"] = retained_projection(entry)
         return entry
 
+    @staticmethod
+    def _validate_entry_deadlines(entries):
+        from .session_history_projection import entry_retained, HistoryQueryError
+        # Collection building may have yielded after projecting any earlier row.
+        # Keep every original cap; no refreshed lease or partial stale snapshot.
+        if any(not entry_retained(entry) for entry in entries):
+            raise HistoryQueryError("invalid_history_cursor")
+
     async def _revision_session(self, owner: str, session: dict) -> dict:
         suffix = (
             await self._conversation_history.async_scope_revision("profile:" + owner)
@@ -268,6 +276,7 @@ class HistoricalProjectionQueryService:
             owner, limit=251, before=after, include_active=include_active
         )
         page = []
+        included_sessions = []
         last = None
         summary_cache = {}
         for row in rows[:250]:
@@ -275,6 +284,7 @@ class HistoricalProjectionQueryService:
             if session_retained(row, retention_days=retention):
                 await self._qualify_summary(owner, row, summary_cache)
                 page.append(public_session(row))
+                included_sessions.append(row)
             if len(page) >= limit:
                 break
         more = bool(last and any([r["created_at"], r["session_id"]] < last for r in rows))
@@ -285,6 +295,8 @@ class HistoricalProjectionQueryService:
             or await self._repository.async_retention_policy() != (retention, retention_revision)
             or fence[1] or self._repository.retention_fence != fence
         ):
+            raise HistoryQueryError("invalid_history_cursor")
+        if any(not session_retained(row, retention_days=retention) for row in included_sessions):
             raise HistoryQueryError("invalid_history_cursor")
         return {
             "success": True,
@@ -312,6 +324,7 @@ class HistoricalProjectionQueryService:
             observations.append(entry)
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines(observations)
         return {"entries": observations, "revision": session["revision"],
                 "coverage": "stage1_distinct_accepted_observations", "complete": False}
 
@@ -343,6 +356,7 @@ class HistoricalProjectionQueryService:
 
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines(visible)
         return {
             "success": True,
             "schema_version": 1,
@@ -389,6 +403,7 @@ class HistoricalProjectionQueryService:
         visible.sort(key=lambda entry: entry["order"])
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines(visible)
         return {
             "success": True,
             "schema_version": 1,
@@ -439,6 +454,7 @@ class HistoricalProjectionQueryService:
 
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines(matches)
         return {
             "success": True,
             "schema_version": 1,
@@ -530,6 +546,7 @@ class HistoricalProjectionQueryService:
             from .session_history_projection import HistoryQueryError
 
             raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines(matches)
         return {
             "success": True,
             "schema_version": 1,

@@ -227,3 +227,12 @@ final283focused/full2825testsPASS,7existing full-suite skips. Golden330steps/
 80reports,35Core+29actual-quality gates remain OPEN. This neither improves the
 actual recorded dry texts nor grants native/installed/audible acceptance. See
 [source-expiry readback](../verification/CONTEXTUAL_DJ_SOURCE_EXPIRY_20261020.md).
+
+
+05:14UTC history follow-through: collected Session summaries and timeline/tail/
+search/latest/playback entries also recheck every original deadline after final
+awaits. A shorter entry cap survives policy widening; stale collections refuse
+without renewing it. Six causal modes/independent historical-method counterexample
+qualify the local fix;254focused/full2826testsPASS,7existing full-suite skips.
+Golden331steps/81reports,36Core+29actual-qualityOPEN. Original-source readback above
+contains the boundary; actual prose and native/installed acceptance unchanged.

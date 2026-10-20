@@ -79,3 +79,49 @@ Final frozen283focusedPASS9.428s; full2825testsPASS/7existing skips83.070s.
 Ruff/diff and offline inventoryPASS. Product bytes match the frozen source
 manifest, no code/test changes during either execution. Existing ResourceWarning
 and slow-task/testdiagnostic output is preserved, not memory/performance proof.
+
+
+## 05:14UTC collection-return follow-through
+
+Independent read-only review of1ce45a3d found a related P2 beyond individual
+source-open/model/speech admission. Session lists copied valid summaries before
+final grant/retention awaits. Playback lookup and timeline/tail/search/latest
+collections projected valid entries before final revision/grant awaits. Natural
+expiry changes none of those revisions. A later policy widening does not renew
+an earlier entry cap: storage uses MIN(retained_until, ...), so Session retention
+alone cannot establish that every entry is still retained.
+
+A new parameterized causal test uses actual SQLite and real1day→90day policy
+writes, a healthy one-result control and a held final grant await. At the original
+Session/entry deadline all six original exits returned a stale collection;
+initial reproduction6failures/zeroerrors. The independent stronger test keeps
+its healthy control and exact original stored cap assertions outside callbacks.
+No policy revision changes during the held await, no actual elapsed waiting.
+
+The repair retains original included Session rows until the final synchronous
+Session-list fence. Each of the five entry-collection exits uses the existing
+entry_retained check after all its awaits. Any expired included result rejects
+the whole stale snapshot with existing invalid_history_cursor. No counts,
+partial stale content, cursor change, refreshed deadline, new API fields or
+extra read/request. The next fresh query can project the current visible rows.
+
+Independent final source review: scopedSOURCEGO/no remainingP1P2. Independently
+executed exact testPASS, all six modes0.074s; restoring only six1ce45a3d collection
+methods in memory makes the same test6failures/zeroerrors0.075s. No reviewerwrites
+or network. Final254focusedPASS8.620s; full2826PASS/7existing skips69.659s; Ruff,
+diff and offline inventoryPASS. Earlier source/model/speech fixes remain covered.
+All final source/test bytes match the captured frozen manifest. Existing warnings
+remain retained; no memory, crash or performance acceptance follows.
+
+Only contextual fixture source_pins was regenerated with the existing connected
+SQLite generator, with all other representation/qualification fields equal;
+original deliveredv1/v2 are unchanged. Golden now42families/331steps/81reports,
+36Core+29actual-qualityOPEN; all six retention methods are named. Evidence under
+ignored history-collection-expiry/ includes original failures, independent review,
+full/focused logs and immutable source hashes. This is not a qualified consumer
+pin, native history/readback or installed acceptance.
+
+Ledger remains40reserved/39completed/zero remaining with no key/model/source or
+actual provider/speaker I/O. Actual answertexts and their independent narrative
+NO_GO are unchanged; full real catalogueFAIL/zero paidvariants. No new selected
+slice, push/PR/merge/install/cleanup or function closure.

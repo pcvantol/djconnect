@@ -916,3 +916,40 @@ ledger40/39/0 remains byte-identical; no key/source/model/provider/speaker I/O.
 No consumerpin/adoption/native/installed/audiblePASS, push/merge/install/cleanup,
 functionclosure or new selectedslice. Actual narrativeNO_GO/catalogueFAIL/zero
 paidvariations stay explicit.
+
+
+## 05:14UTC continuation — collected history keeps original expiry
+
+Clean1ce45a3d/same solewriter; main8b221d07/Brandrefs unchanged. No competingCore
+writer. A Pi-named test process seen during preflight was gone at the next PID read;
+no intervention, Pi/source change or competing Pi work was started. Canonical hostverify0/MATCH/
+onboarding4.5.4/491GB/32GB, existing dashboardlock retained. Owning lane495comments,
+latest6283921629; no new selection. Apple statusreadback still waits for qualified
+protected Core producer/export/admission evidence; no WIP consumer activation,
+provider/native run, budget transfer or repeated ping.
+
+Independent collection review found a P2: Session summaries and five historical
+entry collections can expire during final unchanged grant/revision awaits. Actual
+policyshorten1→widen90 preserves earlier entrycaps even while Session remains
+retained. Causal6mode reproduction fails6/0errors. New test adds healthy exact
+one-result controls and preserves original storedcap; assertions outsidecallbacks.
+Final synchronous fences reject the whole stale collection with existing
+invalid_history_cursor. No partial expired body/count/navigation, refreshedcap,
+changedwire/cursor or extra model/source read. Individual source/model/speech
+fences from predecessor remain unchanged.
+
+Retentionsuite6PASS0.322s during development; six new one-line lint errors were
+fixed as formatting only. Final254focusedPASS8.620s. Independent exacttestPASS
+all6modes0.074s; same test with sixold1ce45collectionmethods only in memory gives
+6failures/0errors0.075s. ScopedSOURCEGO/no remainingP1P2. Final full2826PASS/
+7existing skips69.659s, Ruff/diff/inventoryPASS. Source/testfrozen through runs;
+existing warnings preserved, no memory/crash/performanceclaim. Contextualfixture
+regenerated through existingSQLitebuilder: only sourcepins change, all wire/
+qualification fields equal; deliveredv1/v2 retained. Evidence history-collection-
+expiry/; details SOURCE_EXPIRY.
+
+Golden42families/331steps/81reports,36Core+29actual-qualityOPEN. Exact actualtexts
+reviewpacket and narrativeNO_GO, fullactualcatalogueFAIL/zero paidvariants remain.
+Ledger byte-identical40/39/0; no key/model/sourceHTTP/actualTTS/speaker. No protected
+consumerpin/adoption/native/installed/audible/physicalPASS, push/merge/install/
+cleanup, featureclosure or nextslice admission.
