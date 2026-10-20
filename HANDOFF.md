@@ -1591,3 +1591,14 @@ Source delivery/Finalization and installed/native acceptance remain distinct.
 No HA-dev install/restart, Swift change or receiver deployment is included.
 No dependency upgrade is required; frozen runtime dependencies and existing
 five-language UI resources are retained for this bounded auth correction.
+
+## Core temporal-bound pickup — 20 October 2026
+
+Writer ACK: https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6300715204.
+The isolated `codex/core-narrative-temporal-bounds-20261020` increment addresses
+the observed upper-bound wording failure; verification is recorded in
+`docs/verification/CORE_NARRATIVE_TEMPORAL_BOUNDS_20261020.md`.
+Dependency upgrades are intentionally excluded from this bounded prompt and
+regression correction: no dependency is introduced or changed, and the existing
+qualified Python3.14.8 environment is reused without package installation.
+No live model, deployment or narrative-quality PASS is inferred from fixtures.
