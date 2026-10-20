@@ -1,5 +1,24 @@
 # DJConnect Engineering Status
 
+## Pi rc.5 exact two-instance operational binding — source preparation, 20 October 2026
+
+### Repository Status
+
+Bounded existing Pi producer dependency on protected Core main1328c73e. The manifest now binds actual protected Pi source/consumer eadbda64cc11f6657a1b415d97f28edcfa7d8a25 and published two-profile rc.5 bytes. Exact review, fresh applicable Owner Authorization/checks, protected source merge and separate Finalization are pending; no dispatch or installed claim is made at this freeze.
+
+### Management Summary
+
+Peter's original explicit two-Pi rollout authority is directly verified and recorded with actual publication39470113138, immutable source/profile hashes and unchanged identity inventory. No new target, credential, pairing or HA authority is created. Qualified consumer/readiness and separate current deployment/smoke remain mandatory per instance. Narrative WIPfe47483a and all actual story/native/installed gates remain preserved and open.
+
+### Roadmap Position
+
+Existing selected producer prerequisite only; no DAG selection, consumer admission, new writer or product-scope expansion. See docs/verification/PI_RC5_OPERATIONAL_BINDING_20261020.md.
+
+### Risks and Next Actions
+
+Complete exact source qualification/review/protected checks and separate Finalization, then hand off exact Core source/finalization/manifest bytes. Only the existing Pi owner may use its separately qualified operational route; package/source success does not imply physical or Session acceptance.
+
+
 ## Pi rc.5 two-instance producer contract — separate Finalization, 20 October 2026
 
 ### Repository Status
