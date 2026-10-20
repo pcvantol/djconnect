@@ -1,5 +1,54 @@
 # Current Core1210 same-band story variety checkpoint — 19 October 2026
 
+## Pi deployment consumer correction — separate Finalization, 20 October 2026
+
+### Repository Status
+
+SourcePR1244 protected merged at19:33:47Z as
+76ae5b7b06b6ba63a400788eab704042c9c9a611. Complete tree
+2ec51b8148a0128a2b72a6fdb363b69b2a9b9193 equals independently reviewed
+ad627fc7d112695145ed6aa2b1e2627517fb7f62. Fresh exact Owner Authorization
+39484092881PASS;31checksSUCCESS/five conditionalSKIPPED, only explicitly
+nonblocking TDE observe pending. This separate documentary Finalization requires
+its own exact review/checks/protected merge; current source CI is observed apart.
+
+### Management Summary
+
+Only the Pi operational consumer changed to actually qualified
+40b52f11ab31501dfc4f4f8db2b87f1e3ef9a865. Manifest SHA
+50e0efa00fe844291a05f5d9dcffa328fae2116eccd978af3da64841f8c474c8,
+appEADB, two published artifacts, approval, inventory and targets stay unchanged
+by this Finalization. Source22 actual-binding checks and two wrong-consumer
+rejections PASS;16 documentation/lifecycle/HACS/roadmap tests PASS.
+
+### Roadmap Position
+
+Existing authorized two-Pi installation follow-through, no new feature selection.
+HA-dev/prod installed consolidatedF; API production completed; Apple40400 installed
+on three reachable devices, with remaining Apple/Pi work owned by their lanes.
+All real story/More/Mood/rich-history/catalogue/native/speech/audible gates stayOPEN.
+
+### Risks and Next Actions
+
+Read actual current Core qualification and this Finalization before supplying
+the exact operational SHA/manifest pair. Pi owner performs ordinary per-device
+identity/readiness/deploy and separate matching smoke/captures. No hardware or
+consumer mutation is performed by Core, and local/source evidence is not installGO.
+
+### Repository State
+
+MERGED_UNRECONCILED until this separate Finalization is protected and read back;
+then this bounded producer correction is MERGED_RECONCILED. Actual Pi acceptance
+requires its own evidence and does not follow from this documentary record.
+
+### Workspace State
+
+Source frozen; all current delta and ignored evidence retained. After separate
+Finalization, preserve the complete source/Final history and clean only these two
+completed worktrees/refs. Earlier consolidation recovery archives/dashboard lock
+remain intact. No timer/model budget, credentials or Profile scope is expanded.
+
+
 ## Pi rc.5 deployment consumer correction — 20 October 2026
 
 ### Repository Status
