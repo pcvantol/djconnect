@@ -558,3 +558,52 @@ Cumulative reconciliation: **36reserved/36completed/264remaining**, no budget
 reset; all ordinals1..36 accounted for. The secret-free receipt records exact
 reported token totals. Old40ledger remains separate immutable. Native, installed,
 audible and actual Spotify/playback ownership remain NOT_RUN; no feature closure.
+
+## Fresh selected prompt trial blocked at ordinary seed — 11:22 UTC
+
+The complete suite on immutablee56b7a02 passed **2843tests/7existing skips,
+108.996s**. Actual-root hostcheck with complete read access MATCH/exit0,
+onboarding4.5.4,488GiBfree. Its first sandbox-only attempt could not read Docker,
+cron or Tailscale; those differences are not treated as actual drift. Both logs
+remain; no recovery was executed.
+
+Actual v11/e56b completed37–38, source unchanged. It proposed:
+
+> Peter Luts en Barbara Tucker brachten samen de single “One” uit; Tucker is een New Yorkse housezangeres. En bij deze opname is Peter Luts de componist van het achterliggende werk.
+
+Assessor stylefalse correctly prevented publication; selected **NOT EXERCISED**.
+Independent actual editorial NO_GO: the meeting/activity giving v9 a small arc
+is missing again. “De componist” also risks implying uniqueness which the
+nonexclusive source credit does not prove. Its supportedtrue flag is not a
+substitute for that independent precision review. No result of the new selected
+prompt is inferred. All38attempts reconcile:38reserved/38completed/262remaining,
+115812reported input/11895outputtokens. Old40ledger stays separate immutable.
+
+Input tracing confirms the seed's editorial_focus was null: credits deliberately
+bypassed the existing original-paragraph focus owner. The bounded fix now lets
+composer/producer telling use a work-marked activity focus from that same owner;
+general occupation/collaborator lists without a work cannot be the focus. An
+encounter together with an explicitly shared release and a quoted work may rank
+above an ordinary work credit. Five-language lexical hints select a topic only,
+never prove participants, chronology, collaboration or causation. Every original
+span stays available to generation and independent assessment; no new source,
+permission, call, model rewrite or factual/admission guard is introduced.
+
+Independent editorial review found a P2 before delivery: sourcewide short title
+One could match someone in a different paragraph. Fixed: short titles require an
+exact span-local work-noun/quoted-title anchor, longer titles escaped Unicode
+word boundaries. Negative vectors cover someone, ordinary one, a quoted ordinary
+One and Starlighter borrowing Starlight. Two independent final scoped source/
+design GO; no narrative GO. **3targeted tests PASS0.175s**. A read-only in-memory
+causal counterrun restores only the old substring filter or disabled credit
+focus: exactly5expected failures across2tests/0errors. The earlier first targeted
+run's incorrect synthetic paragraph ranges and compact-source helper misuse
+failed6errors; fixture corrections preserved the strict original-range guard.
+Current regression/full-suite results follow separately, not presumed here.
+
+Current focused regression suite: **97tests PASS10.270s**, Ruff/diff PASS.
+
+Fresh complete suite for this exact code/test delta: **2846tests/7existing
+skips PASS91.323s**. Ruff/diff PASS; the original sandbox Git index-lock denial
+changed no source or refs. The successful full run covers the preserved working
+contents; normal Git metadata write is requested separately, without a bypass.

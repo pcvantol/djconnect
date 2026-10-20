@@ -569,6 +569,69 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(set(assessment['allowed_evidence_ids']),
             {span['id'] for s in generation['sources'] for span in s['evidence_spans']})
 
+    def test_encounter_shared_release_focus_is_a_literal_hint_in_five_languages(self):
+        passages = [
+            'Ada Reed met Nora Vale at the awards. They released the single "Sky".',
+            'Ada Reed ontmoette Nora Vale bij de prijzen. Zij brachten de single "Sky" uit.',
+            'Ada Reed traf Nora Vale bei der Preisverleihung. Sie veröffentlichten die Single "Sky".',
+            'Ada Reed a rencontré Nora Vale aux prix. Ils ont sorti le single "Sky".',
+            'Ada Reed conoció a Nora Vale en los premios. Lanzaron el single "Sky".',
+        ]
+        for locale, passage in zip(('en','nl','de','fr','es'), passages, strict=True):
+            with self.subTest(locale=locale):
+                lead = 'Ada Reed collaborated with various artists.'
+                text = lead + '\n' + passage
+                source = self.research._source('Wikipedia', 'Ada Reed',
+                    'https://en.wikipedia.org/wiki/Ada_Reed', text, locale,
+                    source_anchors=('Sky',), original_text=text,
+                    paragraph_ranges=((0, len(lead)), (len(lead)+1, len(text))))
+                projection = self.research.research_projection('Ada Reed', [source], {'state':'available'})
+                before = json.dumps(projection, sort_keys=True)
+                focus = self.research.documented_episode_focus(projection, require_work=True)
+                span = next(s for s in self.research.evidence_spans(projection['sources'][0])
+                    if s['id'] in focus['episode_span_ids'])
+                self.assertEqual(span['text'], passage)
+                self.assertEqual(json.dumps(projection, sort_keys=True), before)
+                self.assertEqual(focus['authority'], 'telling_focus_only_full_original_context_remains_evidence')
+        for passage in ('Ada Reed met Nora Vale at the awards.',
+                        'They released the single "Sky".',
+                        'Ada Reed collaborated with various artists.'):
+            self.assertLess(self.research._artist_episode_score(passage), 3)
+        no_work = self.research._source('Wikipedia', 'Ada Reed',
+            'https://en.wikipedia.org/wiki/Ada_Reed',
+            'Ada Reed collaborated with Nora Vale.', 'en')
+        self.assertIsNone(self.research.documented_episode_focus(
+            self.research.research_projection('Ada Reed', [no_work], {'state':'available'}), require_work=True))
+
+    def test_credit_focus_cannot_borrow_another_paragraphs_title_substring(self):
+        for title, ordinary in (('One','someone'), ('One','one'),
+                                ('One','"One"'), ('Starlight','Starlighter')):
+            with self.subTest(title=title, ordinary=ordinary):
+                text = f'Ada Reed collaborated with {ordinary}.\nThe single "{title}" exists.'
+                source = self.research._source('Wikipedia', 'Ada Reed',
+                    'https://en.wikipedia.org/wiki/Ada_Reed', text, 'en', source_anchors=(title,))
+                projection = self.research.research_projection('Ada Reed', [source], {'state':'available'})
+                self.assertIsNone(self.research.documented_episode_focus(projection, require_work=True))
+
+    async def test_credit_generation_receives_work_marked_episode_not_general_collaborator_list(self):
+        await self.prepare_producer()
+        self.article_fixture = ('<p>Ada Reed is a musician who collaborated with various artists.</p>'
+            '<p>Ada Reed recorded <i>Paper Lanterns</i> with Nora Vale 1.</p>'
+            '<p>Ada Reed met Nora Vale at the awards. They released the single "Sky".</p>')
+        moment = await self.publish()
+        self.assertIsNotNone(moment, self.debug)
+        projection = json.loads(self.calls[0].split('\nData:\n')[1])['public_music_research']
+        self.assertIn('editorial_focus', projection)
+        focus = projection['editorial_focus']
+        wiki = next(s for s in projection['sources'] if s['content_hash'] == focus['source_id'])
+        spans = wiki['evidence_spans']
+        self.assertIn('They released the single "Sky".',
+            next(span['text'] for span in spans if span['id'] in focus['episode_span_ids']))
+        self.assertTrue(any('collaborated with various artists' in span['text'] for span in spans))
+        self.assertTrue(any('Paper Lanterns' in span['text'] for span in spans))
+        self.assertIn('recording_credit_scope', projection)
+        self.assertEqual(len(self.calls), 2)
+
     async def test_documented_interaction_wins_over_first_catalog_work_without_new_fact_authority(self):
         source = self.research.PublicSource('Wikipedia','Synthetic group','https://en.wikipedia.org/wiki/Synthetic_group',
             'Synthetic group released Debut then Second Album. During a tour, the group started playing together with Ada Reed.',

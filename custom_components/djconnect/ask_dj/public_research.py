@@ -338,6 +338,15 @@ def excerpt(text, question, maximum):
 
 def _artist_episode_score(text):
     """Editorial ranking of original passages, never inferred factual evidence."""
+    # A meeting and an explicitly shared release can be a telling
+    # topic. Co-occurrence ranks a passage only; it proves no relationship.
+    encounter = re.search(r'\b(?:met|ontmoet\w*|traf|trafen|rencontr\w*|conoci[oó]|conocieron)\b', text, re.I)
+    shared_release = re.search(r'\b(?:they released|released .{0,80} together|'
+        r'(?:ze|zij) brachten|brachten (?:ze|zij)|sie ver[oö]ffentlichten|'
+        r'ils (?:ont )?(?:sorti|publi[ée])|elles (?:ont )?(?:sorti|publi[ée])|'
+        r'(?:ellos |ellas )?(?:lanzaron|publicaron))\b', text, re.I)
+    if encounter and shared_release and source_work_anchors(text):
+        return 3
     if re.search(r'\b(?:collaborat\w*|playing together with|recorded .{0,80} with|'
                  r'samenwerk\w*|zusammen mit|gemeinsam mit|collabor\w*|colabor\w*)\b', text, re.I):
         return 2
@@ -986,7 +995,7 @@ def research_projection(subject, sources, state, *, question=""):
     return result
 
 
-def documented_episode_focus(research, *, angle=""):
+def documented_episode_focus(research, *, angle="", require_work=False):
     """Prefer a literal participant/action passage over a debut/chart list.
 
     This ranks a telling topic, not evidence. Original context, independent
@@ -1008,6 +1017,13 @@ def documented_episode_focus(research, *, angle=""):
             continue
         spans = evidence_spans(source)
         for index, span in enumerate(spans):
+            if require_work:
+                local_titles = source_work_anchors(span['text'])
+                if not any(isinstance(anchor, str) and anchor and (
+                        anchor in local_titles if len(anchor) < 4 else
+                        re.search(r'(?<!\w)' + re.escape(anchor) + r'(?!\w)', span['text'], re.I))
+                        for anchor in source.get('source_anchors', [])):
+                    continue
             score = max(2 if joint.search(span['text']) else 1 if invitation.search(span['text']) else 0,
                         _artist_episode_score(span['text']))
             if angle == 'live_history' and performance.search(span['text']):

@@ -264,10 +264,10 @@ def sources_for(moment):
     return receipt.accepted.sources() if type(receipt) is ResearchMomentAcceptance and admitted(moment) else []
 
 
-def episode_focus(projection):
+def episode_focus(projection, *, require_work=False):
     """One reproducible telling hint, never extra factual/relationship authority."""
     from .ask_dj.public_research import documented_episode_focus
-    return documented_episode_focus(projection)
+    return documented_episode_focus(projection, require_work=require_work)
 
 
 def plain_work_titles(text, projection):
@@ -498,10 +498,10 @@ async def realize(brief, *, ask, admission, debug=None):
         entity_id=qid)
     sources = (*sources, seed)
     projection = research.research_projection(subject, sources, {"state":"available"}, question=question)
-    # A producer's general collaborator list is often the first biographical
-    # span, but is not the episode requested here. Let the same generation
-    # owner choose the episode from the full admitted corpus instead.
-    focus = None if credit or album else episode_focus(projection)
+    # A general collaborator/occupation list is not a credit story. Require
+    # a work-marked activity passage for its telling hint; the complete corpus
+    # and independent identity/relationship review still own factual admission.
+    focus = None if album else episode_focus(projection, require_work=credit)
     if rotating:
         order = (topic, *(t for t in TOPICS if t != topic))
         focus = next((f for t in order if (f := select_focus(projection,t,brief.recent_public_stories))),None)
