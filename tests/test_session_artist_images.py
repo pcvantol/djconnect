@@ -540,6 +540,65 @@ class ArtistPhotoOwnerTests(unittest.IsolatedAsyncioTestCase):
             self.assertNotIn("license_url", raw["body"])
             self.contract_samples = {"active": ready, "history": retained, "legacy_missing": legacy}
 
+    async def test_paired_old_artist_card_keeps_original_identity_while_another_session_plays(self):
+        from custom_components.djconnect.session_conversation import query_service
+
+        moment=await self.f.publish()
+        self.assertIsNotNone(moment,self.f.debug)
+        old_session=self.f.session.session_id
+        old_source=dict(self.f.manager._history_source_contexts[old_session])
+        await self.f.manager.async_end(owner_profile_id='profile-a',session_id=old_session)
+        await self.f.fixture.service.async_close()
+        await self.f.fixture.service.async_initialize()
+        query=query_service(self.f.hass,self.f.history)
+        page_before=await query.async_timeline_page('profile-a',old_session)
+        entry=next(e for e in page_before['entries'] if e.get('moment_id')==moment.moment_id)
+        raw_before=await query._repository.async_entry_record('profile-a',old_session,entry['entry_id'])
+        async def durable_session():
+            # Summary read projections carry a fresh as_of timestamp. Compare
+            # the actual stored lifecycle and counters, not that read clock.
+            return await query._repository._async_in_transaction(lambda tx:(
+                tx.fetchone('SELECT * FROM djconnect_persistent_sessions WHERE session_id=?',(old_session,)),
+                tx.fetchone('SELECT * FROM djconnect_session_summaries WHERE session_id=?',(old_session,))))
+        session_before=await durable_session()
+
+        current=await self.f.manager.async_start(owner_profile_id='profile-a',locale='en',
+            selected_mood='party',music_backend='spotify_direct',
+            history_source_context=dict.fromkeys(old_source,'different-current-source'))
+        await self.f.manager.async_update_playback_projection(owner_profile_id='profile-a',
+            session_id=current.session_id,state='playing',media_identity='spotify:track:'+'Y'*22,
+            title='Different current track',artist='Different current band')
+        playback_before=current.broadcast.state.playback.as_dict()
+        publications_before=current.presence_ledger.total_published
+        authorities=[]
+        def original_authority(*args,**kwargs):
+            authorities.append(kwargs['expected_source'])
+            return lambda:self.authorized
+        request={**self.f.identity,'contract_version':2,'session_id':old_session,
+                 'targets':[{'entry_id':entry['entry_id']}]}
+        with self.patches(),patch.object(self.art,'artist_authority',original_authority):
+            response,status=await self.art.handle_prepare(self.f.hass,request,headers=self.f.headers)
+            self.assertEqual(status,200,response)
+            artwork=response['session_media'][0]['artwork']
+            self.assertEqual(artwork['state'],'ready',response)
+            self.assertEqual(artwork['subject']['uri'],self.identity.spotify_uri)
+            self.assertEqual(artwork['subject']['wikidata_id'],self.identity.wikidata_id)
+            self.assertTrue(artwork['historical_display_allowed'])
+            self.assertFalse(artwork['current_display_allowed'])
+            self.assertFalse(artwork['active_flow_display_allowed'])
+            pixels=await self.art.image(self.f.hass,self.context,old_session,
+                artwork['url'].rsplit('/',1)[-1],runtime=self.f.runtime)
+            self.assertEqual(pixels,(image_bytes(),'image/png'))
+        self.assertTrue(authorities)
+        self.assertTrue(all(source==old_source for source in authorities))
+        self.assertEqual(self.spotify,[self.identity.spotify_uri])
+        self.assertEqual(len(self.urls),3)
+        self.assertEqual(len(self.f.calls),2)  # Only original fixture narration, no replay rewrite.
+        self.assertEqual(current.broadcast.state.playback.as_dict(),playback_before)
+        self.assertEqual(current.presence_ledger.total_published,publications_before)
+        self.assertEqual(await durable_session(),session_before)
+        self.assertEqual(await query._repository.async_entry_record('profile-a',old_session,entry['entry_id']),raw_before)
+
     async def test_concurrent_version2_preparations_coalesce_without_touching_version1_resource(
         self,
     ):

@@ -1796,6 +1796,29 @@
           ],
           "acceptance_status": "owner_contract",
           "proof_boundary": "Real Runtime/acceptance with external source/model fixtures; separate ordinary-paired HA HTTP profile in scripts/verification/passive_public_v2_lab.py. Native, installed, voice and quiet-background acceptance remain separate."
+        },
+        {
+          "id": "ASKDJ-FLOW-retained-artist-card-current-session-voice",
+          "language": "nl",
+          "question": "Heropen de artiestkaart uit een eerdere sessie terwijl een andere artiest speelt; vraag de foto op en speel de bijdrage handmatig af met de actuele steminstellingen.",
+          "expected_answer": "The original artist identity, source account and retained contribution remain bound to the old entry. A different active Session supplies only the current replay voice; without an active Session use stored Profile voice. No borrowed current artwork, archived text/style rewrite, autoplay, music effect or retained-row mutation.",
+          "model_policy": "Zero Ask DJ model calls during history/art preparation/replay; explicit optional TTS synthesis remains separately owner-gated.",
+          "owning_tests": [
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_real_owner_publication_active_image_history_refresh_and_version1_separation"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_paired_old_artist_card_keeps_original_identity_while_another_session_plays"
+            },
+            {
+              "file": "tests/test_profile_settings_speech.py",
+              "method": "test_retained_moment_replay_uses_current_session_voice_then_profile_defaults"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Real paired handler/Runtime/SQLite/image decoder and speech-owner paths with synthetic external image/model/TTS replies. Old-art pixels and durable rows checked while a different Session plays. Native rendering, physical audio, live public image source and installed acceptance remain OPEN."
         }
       ],
       "owning_tests": [
@@ -1814,6 +1837,18 @@
         {
           "file": "tests/test_passive_session.py",
           "method": "test_surface_isolation_and_stale_snapshot_do_not_renew_or_remove_grants"
+        },
+        {
+          "file": "tests/test_session_artist_images.py",
+          "method": "test_real_owner_publication_active_image_history_refresh_and_version1_separation"
+        },
+        {
+          "file": "tests/test_session_artist_images.py",
+          "method": "test_paired_old_artist_card_keeps_original_identity_while_another_session_plays"
+        },
+        {
+          "file": "tests/test_profile_settings_speech.py",
+          "method": "test_retained_moment_replay_uses_current_session_voice_then_profile_defaults"
         }
       ],
       "real_ha_profile": "full_golden",

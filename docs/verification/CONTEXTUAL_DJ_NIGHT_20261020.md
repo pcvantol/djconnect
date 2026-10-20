@@ -6,7 +6,7 @@ Apple coordination as needed. The existing heartbeat
 **20 October 2026, 08:00 Europe/Amsterdam**. It retains the same writer and WIP;
 another active execution on the same resources permits status readback only.
 
-Current local source baseline: `19216254e4501ebbe3e4be706c61fdd1c50d15fa`,
+Current local source baseline: `eb9d95a372e1f0ff592cd3be5098f78c0fa13914`,
 branch `codex/core-contextual-dj-interactions-v1`; subsequent prompt/pilot/report
 changes are captured by the commit containing this document. Main remains
 `8b221d07`. Latest actual pilot `nl-v12`: **40/40 reserved, zero remaining**.
@@ -382,3 +382,34 @@ changed-file Ruff and git diff --check PASS. No model/regression process or
 owned pilot container remains. Timer ACTIVE with UNTIL20261020T060000Z;
 night deadline remains08:00Europe/Amsterdam. Future ticks must preserve40/40
 and perform only unpaid authorized work, never another key lookup or budget reset.
+
+
+## 01:05 UTC same-WIP unpaid continuation
+
+Pickup cleaneb9d95a3; current lane6280887234 and real ledger40/40 read back.
+No active competing Core/model execution or index lock. Host MATCH/onboarding4.5.4,
+481GiBfree,32GiBRAM/systemfree50%. Existing lab services had restarted before
+this round; no active maintenance writer was observed, no service was changed.
+
+An additional real paired/SQLite/image-decoder regression proves the original
+historical artist identity and source arguments remain bound while another
+Session/artist/source context plays. Old durable rows and current playback stay
+unchanged; no narration rerun. Independent exact-interpreter test PASS, scoped
+review no P1/P2.102focused image/art/speech/Golden tests PASS. One explicit
+Golden step binds this case plus existing historical refresh/current-voice and
+Profile-fallback regressions. Inventory42/313/71,26Core+28realquality OPEN.
+
+An isolated no-key/no-model actual public-photo adapter probe obtains the exact
+Nirvana entity's admitted Commons photograph and validates real JPEG pixels,
+author/license/revision. First blank-HA setup failure retained; corrected lab
+initialization uses the same product bytes and four public requests/1.315s.
+Source adapter PASS only;367×346image is small, metadata live_hintfalse, and no
+private owner/source-account/native delivery or audio is qualified. Both attempts
+and attribution/image/hash receipts retained. Model ledger byte-identical40/40.
+Details: [rich historical media readback](CONTEXTUAL_DJ_HISTORY_MEDIA_READBACK_20261020.md).
+No product route or source permission was expanded, no next slice or delivery
+started, and narrative quality remains NO_GO.
+
+Independent photo-evidence review verifies bytes/hash/dimensions, source hashes,
+request bound and explicit license without another fetch. Scoped adapter GO;
+private-owner/native/audio proof remains OPEN. Ruff/diff checks PASS.
