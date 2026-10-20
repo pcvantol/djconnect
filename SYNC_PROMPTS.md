@@ -1,5 +1,82 @@
 # Persona touch withdrawal follow-up — candidate, Apple activation OFF
 
+## VibeCast renderer 1.1.2 — separate source Finalization, 20 October 2026
+
+### Repository Status
+
+PR [#1234](https://github.com/pcvantol/djconnect/pull/1234) protected merged as
+`6b8e3e9fa5121dd58d4f4c037d41cb1c31634fba`. Exact reviewed/authorized candidate
+`2abe30735f6ef3229c4a099e1aa276c72c01c1d9` has the identical complete tree.
+Fresh Owner Authorization39429642015 PASS; all source PR CI/security/HACS,
+verification and EP-boundary checks completed successfully. No bypass.
+Canonical main was synchronized and clean before this separate Finalization.
+Main-side workflows are separately observed; pending release proof is not PASS.
+
+### Management Summary
+
+The receiver's missing protected producer dependency is delivered: shared
+renderer1.1.2, matching original build/verifier, authenticated40px headset and
+shared generated local/display pages. This narrow source also includes the
+existing Artist website citation validation/localized attribution delta; all
+three host JS files and transport/admission behavior remain unchanged. Full
+local2669tests PASS/7existing skips78.841s, independent exact-SHA source and
+documentary reviews GO, Ruff/diff PASS. Historical six Chromium layout sequences
+remain historical/synthetic-WS evidence. No actual HA/CAF/native/TV acceptance.
+
+### Roadmap Position
+
+Generation2 / Product Development / Platform Qualification. Explicit owner
+priority: deliver the existing Core1223 / receiver29 renderer producer source.
+Same sole writer; no new graph selection or consumer admission. Complete
+contextual-DJ WIP remains clean and preserved at
+`0163d17326bef6669033ea7c8e7844417b45d2cc`; this source merge neither includes
+nor closes that WIP, its narrative quality or Golden acceptance.
+
+### Rolling Horizon (Next 5 Planned)
+
+Existing canonical SETTINGS horizon remains Planned/NOT_ISSUED; not automatic
+pickup. Source PRODUCT_BACKLOG.md and docs/roadmap/v1/djconnect-platform-v1.json.
+1. SETTINGS::APPLE::EDITOR — Planned; shared editor, dependent on Core contracts and native adoption. Rationale: first existing consumer node.
+2. SETTINGS::PI::ADOPTION — Planned; shared producer and Pi acceptance. Rationale: next existing consumer node.
+3. SETTINGS::ESP32::ADOPTION — Planned; physical settings/voice acceptance. Rationale: next existing consumer node.
+4. SETTINGS::VIBECAST::COMPAT — Planned; renderer import and screen admission. Rationale: next existing consumer node.
+5. SETTINGS::JOINT::ACCEPTANCE — Planned; migration and consumer proofs. Rationale: cross-device closure follows all consumers.
+
+### Execution Priority Override
+
+Peter explicitly prioritized the concrete receiver producer dependency before
+own narration work. This is delivery of the existing reviewed renderer slice,
+not a new product selection or second writer.
+
+### Blocked Items
+
+Receiver import, protected consumer pin, public publication, live HA/CAF,
+native and physical TV acceptance remain separately OPEN. The complete20-file
+producer archive and exact3-member import bundle are rebuilt/pinned after this
+Finalization's protected readback; source delivery is not consumer adoption.
+Apple qualified Golden fixture/provider-attempt admission and actual client/
+speech acceptance stay OPEN. Narrative last ordinary seed was rejected and
+selected More NOT_EXERCISED; no GO from fixtures/merge. Core1231 installed HACS
+rendering remains open; its historical-tag GitHub renders now have scoped proof.
+
+### Deferred Items
+
+Core1225 / Apple143 individual bubble deletion remains outside this increment.
+No capability or native behavior is closed by this source merge.
+
+### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this distinct documentary
+Finalization's protected merge/readback; then only this bounded producer source
+is MERGED_RECONCILED. Consumer/runtime/narrative gates remain OPEN.
+
+### Workspace State
+
+WORKSPACE_READY is not claimed before actual scoped cleanup/readback. Preserve
+the contextual and Brand WIP, recovery evidence and dashboard lock. Any squash
+refs that normal deletion cannot retire remain preserved; no force cleanup is
+inferred. No install, release, speaker action, credential operation or paid trial.
+
 Core #1209 / Apple #127: the additive [withdrawal/cancel contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md#withdrawal-observation-and-pre-admission-cancellation--follow-up-candidate)
 now defines paired WS `djconnect/persona/reaction/observe`, private
 `session/persona/reaction/withdrawn`, immutable expiry and durable original-UUIDv7
