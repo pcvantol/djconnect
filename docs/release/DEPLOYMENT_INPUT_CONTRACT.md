@@ -75,3 +75,14 @@ Its required instance/profile/inventory qualifiers supplement every existing
 required input. They do not authorize dispatch or widen historical manifests.
 Only a matching qualified consumer and a new exact approved operational binding
 may use this extension; old single-host consumers fail closed.
+
+
+### Distinct rc.6 producer contract
+
+The separately versioned [Pi two-host contract v2](PI_TWO_HOST_DEPLOYMENT_CONTRACT_V2.md)
+defines rc.6-only request V3 and operational manifest V3 structure. Existing
+rc.5 contract v1/V2 schemas and operative history remain unchanged. Both use the
+same closed identity inventory and canonical target; no fallback, new target,
+dispatch authority or artifact approval follows from this additive contract.
+An operational rc.6 binding is a later protected delivery after actual qualified
+Pi source/Finalization, matching consumer, publication hashes and human authority.
