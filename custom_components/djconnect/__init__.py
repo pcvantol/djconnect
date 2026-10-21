@@ -421,6 +421,8 @@ class DJConnectRuntime:
             if getattr(self, key, None) != value:
                 should_notify = True
             setattr(self, key, value)
+        from .current_track_insight import observe_runtime_playback
+        observe_runtime_playback(self)
         _cache_runtime_last_values(self)
         signature = _runtime_update_signature(self)
         if signature == self._last_update_signature:

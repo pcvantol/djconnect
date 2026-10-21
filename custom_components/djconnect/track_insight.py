@@ -341,8 +341,19 @@ class TrackInsightService:
         from .profile_context import profile_storage
         turn = current_turn.get()
         owner_profile_id = owner_profile_id or (turn.scope.removeprefix("profile:") if turn else "")
-        target = await resolve_target(hass, runtime, payload, owner_profile_id=owner_profile_id,
-            allow_current=not (request.title or request.artist))
+        from .current_track_insight import requested, resolve, original_source_authority
+        current = None
+        if requested(payload, request.locale):
+            request = replace(request, source="current_detail")
+            current = await resolve(hass, runtime, request, owner_profile_id=owner_profile_id,
+                                    validate_owner=commit_guard)
+            commit_guard = current.guard
+            target = None
+        else:
+            # Only an explicit selected contribution may resolve a Moment.
+            # Ordinary current playback must not inherit the last published one.
+            target = await resolve_target(hass, runtime, payload, owner_profile_id=owner_profile_id,
+                                          allow_current=False)
         if target is not None:
             active = await session_runtime_manager(hass).async_get_active(owner_profile_id)
             profile = profile_storage(hass).household.profiles.get(owner_profile_id)
@@ -360,12 +371,19 @@ class TrackInsightService:
             request = replace(request,commit_guard=guarded)
             guarded()
         else:
-            track = await self._resolve_track(hass, runtime, request)
+            # Capture the original source before even a legacy status/provider
+            # await. No ordinary-current route can bypass the shared CC0 join.
+            source_authority = (current.knowledge_authority if current is not None
+                                else original_source_authority(hass, runtime, owner_profile_id))
+            track = current.track if current is not None else await self._resolve_track(hass, runtime, request)
             from .track_insight_target import current_knowledge_context
-            current_knowledge = (current_knowledge_context(hass, owner_profile_id, track)
+            current_knowledge = (current_knowledge_context(hass, owner_profile_id, track,
+                    source_authority=source_authority)
                 if request.source != 'session_moment' and not (request.title or request.artist) else None)
             if current_knowledge is not None:
-                model, source_guard, fingerprint, active = current_knowledge
+                model, source_guard, fingerprint, active, deadline = current_knowledge
+                if current is not None:
+                    current.limit_deadline(deadline)
                 profile = profile_storage(hass).household.profiles.get(owner_profile_id)
                 style = style_projection(payload, active, profile)
                 def guarded_current():
@@ -378,7 +396,7 @@ class TrackInsightService:
                 track['_detail_context'] = fingerprint
                 track['_owner_scope'] = owner_profile_id
                 track['_presentation_variant'] = request.presentation_style+':'+str(request.mood_zone or '')
-            elif turn is not None or commit_guard is not None or request.source == "session_moment":
+            elif current is not None or turn is not None or commit_guard is not None or request.source == "session_moment":
                 # A display/catalog grant cannot authorize model ingestion.
                 request = replace(request,qualified_context={},commit_guard=commit_guard)
                 track["_detail_context"] = "unmeasured-owner-v1"
@@ -392,6 +410,9 @@ class TrackInsightService:
         private_evidence = track.pop("_session_narrative_evidence", None)
 
         def with_private_evidence(response: dict[str, Any]) -> dict[str, Any]:
+            if current is not None:
+                response = {**response, "source": request.source, "subject": current.subject(),
+                            "track": {k: v for k, v in current.track.items() if not k.startswith("_")}}
             if target is not None:
                 response = {**response,"subject":{"mode":"explicit","reference":target.reference,
                     "media_identity":track["media_identity"],"expires_in":max(0,int(target.expires_at-time.monotonic()))}}
@@ -405,6 +426,8 @@ class TrackInsightService:
         cache = TrackInsightCache(runtime)
         cached = None if request.force_refresh else cache.get(cache_key)
         if cached is not None:
+            if current is not None:
+                await current.verify()
             if request.commit_guard is not None:
                 request.commit_guard()
             _LOGGER.debug(
@@ -435,6 +458,8 @@ class TrackInsightService:
                 "media_identity":track["media_identity"],"expires_in":max(0,int(target.expires_at-time.monotonic()))}
         if target is None and request.qualified_context is None:
             await _record_track_insight_energy_in_music_dna(runtime, payload or {}, track, response)
+        if current is not None:
+            await current.verify()
         # The paired/source/lifecycle fence must follow every awaited operation.
         # No target detail is committed to cache after withdrawal or cancellation.
         if request.commit_guard is not None:

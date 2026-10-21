@@ -1,3 +1,19 @@
+## Current Track Insight — source implementation, 21 October 2026
+
+Bounded producer implementation in one isolated Core worktree, based on qualified
+source1272/Final1273 main0b9b4b98. Closed current selector resolves actual recording
+metadata outside or inside a Session, preserves explicit Moment detail and rejects
+late observed track/owner/source/expiry changes. Ordinary no-selection detail
+no longer selects the last published Moment. Display metadata grants no model
+input; existing current CC0 context and independent assessment are reused.
+See [contract](docs/product/CURRENT_TRACK_INSIGHT_SUBJECT_V1.md).
+
+Validation/review/normal protected source delivery, distinct documentary Final
+and changed HA-dev installation/readback are pending. Apple owns native DTO and
+acceptance changes; no Apple source or device writes. No new dependency/tool
+upgrade is included: preserve the currently qualified runtime/build versions
+and existing dependency checks for this narrowly scoped producer correction.
+
 ## Pi rc.6 operative binding — source preparation, 21 October 2026
 
 ## Pi rc.6 exact operative binding — separate Finalization, 21 October 2026

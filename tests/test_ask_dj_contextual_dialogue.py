@@ -4480,6 +4480,148 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             headers=self.headers,
         )
 
+    async def test_current_insight_never_selects_last_published_moment(self):
+        from custom_components.djconnect.spotify_backend import SpotifyBackend
+        from custom_components.djconnect.domain.profile import ProfilePreferences
+        await self.handlers.profile_storage(self.hass).async_update_profile("profile-a", preferences=ProfilePreferences(
+            default_backend_id="source-spotify", default_music_account_id="source-account"))
+        session, moment, _ = await self.selected_credit()
+        uri = "spotify:track:" + "b" * 22
+        await self.fixture.manager.async_update_playback_projection(
+            owner_profile_id="profile-a", session_id=session.session_id, state="playing",
+            media_identity=uri, title="Current B", artist="B performer", position_ms=1000)
+        async def provider(_backend, method, path, **kwargs):
+            self.assertEqual(method, "GET")
+            if path.startswith("/me/tracks/contains"):
+                return [False]
+            self.assertEqual(path, "/me/player")
+            return {"is_playing": True, "progress_ms": 1000,
+                    "item": {"uri": uri, "name": "Current B", "artists": [{"name": "B performer"}]}}
+        self.runtime.update = lambda **kwargs: self.runtime.__dict__.update(kwargs)
+        before = await self.history.async_history("profile:profile-a")
+        moment_count = len(session.broadcast.state.dj_moments)
+        with patch.object(SpotifyBackend, "_request", provider):
+            for selector in ({"track_insight_subject": {"schema_version": 1, "mode": "current"}}, {}):
+                result, status = await self.handlers.async_handle_track_insight_payload(
+                    self.hass, {**self.identity, "language": "en", **selector}, headers=self.headers)
+                self.assertEqual(status, 200, result)
+                self.assertEqual(result["track"]["title"], "Current B")
+                self.assertEqual(result["analysis"]["basis"], "unmeasured_metadata_only_v1")
+                if selector:
+                    self.assertEqual(result["subject"]["media_identity"], uri)
+                else:
+                    self.assertNotIn("subject", result)
+        after = await self.history.async_history("profile:profile-a")
+        before.pop("server_time", None)
+        after.pop("server_time", None)
+        self.assertEqual(before, after)
+        self.assertEqual(len(session.broadcast.state.dj_moments), moment_count)
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.effects, [])
+
+    async def current_credit_source(self):
+        from custom_components.djconnect.domain.profile import ProfilePreferences
+        await self.handlers.profile_storage(self.hass).async_update_profile("profile-a", preferences=ProfilePreferences(
+            default_backend_id="source-spotify", default_music_account_id="source-account"))
+        session, moment, _ = await self.selected_credit()
+        from types import SimpleNamespace
+        source = self.hass.config_entries.async_entries("djconnect")[0]
+        source.data.update(device_id=self.identity["device_id"], device_token=self.runtime.device_token)
+        source.state = SimpleNamespace(value="loaded")
+        source.disabled_by = None
+        self.runtime.entry = source
+        self.hass.config_entries.async_get_entry = lambda key: source if key == source.entry_id else None
+        self.hass.data["djconnect"].pop("owner-entry", None)
+        self.hass.data["djconnect"][source.entry_id] = self.runtime
+        self.fixture.manager._history_source_contexts[session.session_id]["provider_account_id"] = ""
+        return session, moment
+
+    async def test_explicit_current_uses_actual_cc0_source_and_preserves_model_and_style_guards(self):
+        from custom_components.djconnect.spotify_backend import SpotifyBackend
+        session, moment = await self.current_credit_source()
+        prompts = []
+        async def provider(_backend, method, path, **kwargs):
+            self.assertEqual((method, path), ("GET", "/me/player"))
+            return {"is_playing": True, "progress_ms": 1000,
+                    "item": {"uri": moment.source_fact.media_identity, "name": "Synthetic work",
+                             "artists": [{"name": "Synthetic performer"}]}}
+        async def agent(hass, data, **kwargs):
+            prompts.append(data["text"])
+            self.assertNotIn("spotify:", data["text"])
+            self.assertNotIn("Synthetic performer", data["text"])
+            body = ({"supported": True, "language_ok": True, "style_ok": True}
+                    if "Review every claim" in data["text"] else
+                    {"summary": "Qualified composer context", "full_text": "Qualified composer context", "listening_cues": []})
+            return {"response": {"speech": {"plain": {"speech": json.dumps(body)}}}}
+        with patch.object(SpotifyBackend, "_request", provider), patch.object(self.pipeline, "_call_conversation_process_transport", agent):
+            result, status = await self.handlers.async_handle_track_insight_payload(
+                self.hass, {**self.identity, "track_insight_subject": {"schema_version": 1, "mode": "current"}},
+                headers=self.headers)
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result["subject"]["media_identity"], moment.source_fact.media_identity)
+        self.assertEqual(result["analysis"]["basis"], "qualified_credit_and_interpretation_v1")
+        self.assertEqual(result["analysis"]["verified_context"], moment.source_fact.copy_for(session.locale)[1])
+        self.assertEqual(len(prompts), 2)
+        self.assertEqual(self.effects, [])
+
+    async def test_current_cc0_old_source_context_never_transfers_to_new_binding(self):
+        from custom_components.djconnect.spotify_backend import SpotifyBackend
+        session, moment = await self.current_credit_source()
+        source = self.fixture.manager._history_source_contexts[session.session_id]
+        self.runtime.update = lambda **kwargs: self.runtime.__dict__.update(kwargs)
+        calls = []
+        async def provider(_backend, method, path, **kwargs):
+            if path.startswith("/me/tracks/contains"):
+                return [False]
+            self.assertEqual((method, path), ("GET", "/me/player"))
+            return {"is_playing": True, "progress_ms": 1000,
+                    "item": {"uri": moment.source_fact.media_identity, "name": "Synthetic work",
+                             "artists": [{"name": "Synthetic performer"}]}}
+        async def forbidden(*args, **kwargs):
+            calls.append("forbidden-model")
+            raise AssertionError("An old source is not requalified by a fresh playback read")
+        with patch.object(SpotifyBackend, "_request", provider), patch.object(self.pipeline, "_call_conversation_process_transport", forbidden):
+            for field in ("backend_id", "music_account_id", "provider_entry_id", "provider_account_id"):
+                original = source[field]
+                source[field] = "different-original-source"
+                for selector in ({"track_insight_subject": {"schema_version": 1, "mode": "current"}}, {}):
+                    result, status = await self.handlers.async_handle_track_insight_payload(
+                        self.hass, {**self.identity, **selector}, headers=self.headers)
+                    self.assertEqual(status, 200, result)
+                    self.assertEqual(result["analysis"]["basis"], "unmeasured_metadata_only_v1")
+                source[field] = original
+            missing = dict(source)
+            source.clear()
+            result, status = await self.handlers.async_handle_track_insight_payload(
+                self.hass, {**self.identity, "track_insight_subject": {"schema_version": 1, "mode": "current"}},
+                headers=self.headers)
+            self.assertEqual(status, 200, result)
+            self.assertEqual(result["analysis"]["basis"], "unmeasured_metadata_only_v1")
+            source.update(missing)
+        self.assertEqual(calls, [])
+
+    async def test_current_cc0_original_source_withdrawn_during_model_await_discards_cache(self):
+        from custom_components.djconnect.spotify_backend import SpotifyBackend
+        session, moment = await self.current_credit_source()
+        calls = []
+        async def provider(_backend, method, path, **kwargs):
+            return {"is_playing": True, "progress_ms": 1000,
+                    "item": {"uri": moment.source_fact.media_identity, "name": "Synthetic work",
+                             "artists": [{"name": "Synthetic performer"}]}}
+        async def agent(hass, data, **kwargs):
+            calls.append("fixture-model")
+            self.fixture.manager._history_source_contexts[session.session_id]["music_account_id"] = "withdrawn-original-source"
+            return {"response": {"speech": {"plain": {"speech": json.dumps({
+                "summary": "Unacceptable late context", "full_text": "Unacceptable late context", "listening_cues": []})}}}}
+        with patch.object(SpotifyBackend, "_request", provider), patch.object(self.pipeline, "_call_conversation_process_transport", agent):
+            result, status = await self.handlers.async_handle_track_insight_payload(
+                self.hass, {**self.identity, "track_insight_subject": {"schema_version": 1, "mode": "current"}},
+                headers=self.headers)
+        self.assertEqual(status, 409, result)
+        self.assertEqual(result["error"], "track_insight_context_changed")
+        self.assertEqual(calls, ["fixture-model"])
+        self.assertEqual(self.runtime.track_insight_cache, {})
+
     async def test_published_navigation_exact_target_and_shared_full_cache_after_a_to_b(self):
         session, moment, _entry = await self.selected_credit()
         before = len(session.broadcast.state.dj_moments)
