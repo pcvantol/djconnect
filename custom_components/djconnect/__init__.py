@@ -807,24 +807,37 @@ class DJConnectRuntime:
             raise RuntimeError("DJConnect device local_url is unknown")
         session = async_get_clientsession(hass)
         pairing_info: dict[str, Any] = {}
+        strict_pi_identity = conf.get(CONF_CLIENT_TYPE) == CLIENT_TYPE_RASPBERRY_PI
+        redirect_policy = {"allow_redirects": False} if strict_pi_identity else {}
         try:
             pairing_info_url = local_url.rstrip("/") + "/api/device/pairing-info"
             _LOGGER.debug("DJConnect pairing-info request url=%s", pairing_info_url)
-            async with session.get(
-                pairing_info_url,
-                timeout=ClientTimeout(total=10),
-            ) as resp:
-                text = await resp.text()
-                _LOGGER.debug(
-                    "DJConnect pairing-info response status=%s body=%s",
-                    resp.status,
-                    text,
+            if strict_pi_identity:
+                from .discovery import async_probe_pairing_info
+
+                pairing_info = await asyncio.wait_for(
+                    async_probe_pairing_info(session, local_url,
+                                             allow_redirects=False, max_bytes=16384),
+                    timeout=10,
                 )
-                if resp.status < 200 or resp.status >= 300:
-                    raise RuntimeError(
-                        f"ESP pairing info failed HTTP {resp.status}: {text}"
+                if not pairing_info:
+                    raise RuntimeError("Raspberry Pi pairing information unavailable")
+            else:
+                async with session.get(
+                    pairing_info_url,
+                    timeout=ClientTimeout(total=10),
+                ) as resp:
+                    text = await resp.text()
+                    _LOGGER.debug(
+                        "DJConnect pairing-info response status=%s body=%s",
+                        resp.status,
+                        text,
                     )
-                pairing_info = json.loads(text) if text else {}
+                    if resp.status < 200 or resp.status >= 300:
+                        raise RuntimeError(
+                            f"ESP pairing info failed HTTP {resp.status}: {text}"
+                        )
+                    pairing_info = json.loads(text) if text else {}
         except json.JSONDecodeError as exc:
             raise RuntimeError("ESP pairing info returned invalid JSON") from exc
 
@@ -841,15 +854,24 @@ class DJConnectRuntime:
             )
             raise RuntimeError("ESP pairing code does not match this setup")
         reported_device_id = str(pairing_info.get("device_id") or "").strip()
-        if reported_device_id:
-            self._learn_device_id(reported_device_id)
         reported_client_type = str(
             pairing_info.get(CONF_CLIENT_TYPE) or pairing_info.get("client_type") or ""
         ).strip()
+        if strict_pi_identity:
+            from .client_identity import device_id_matches_client_type
+
+            expected_device_id = str(conf.get(CONF_DEVICE_ID) or "").strip()
+            if (not device_id_matches_client_type(expected_device_id, CLIENT_TYPE_RASPBERRY_PI)
+                    or reported_device_id != expected_device_id
+                    or reported_client_type != CLIENT_TYPE_RASPBERRY_PI
+                    or not expected_pair_code or reported_pair_code != expected_pair_code):
+                raise RuntimeError("Raspberry Pi pairing identity changed; read the original device again")
+        if reported_device_id:
+            self._learn_device_id(reported_device_id)
         if reported_client_type in CLIENT_TYPES:
             self.device_status[CONF_CLIENT_TYPE] = reported_client_type
         reported_local_url = str(pairing_info.get("local_url") or "").strip()
-        if reported_local_url:
+        if reported_local_url and not strict_pi_identity:
             self.device_status["local_url"] = reported_local_url
         token = self.ensure_device_token()
         url = local_url.rstrip("/") + "/api/device/pair"
@@ -880,6 +902,7 @@ class DJConnectRuntime:
             json=payload,
             headers={"Content-Type": "application/json"},
             timeout=ClientTimeout(total=30),
+            **redirect_policy,
         ) as resp:
             text = await resp.text()
             _LOGGER.debug(

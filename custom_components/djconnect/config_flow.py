@@ -75,6 +75,7 @@ from .const import (
     CLIENT_TYPE_ESP32,
     CLIENT_TYPE_IOS,
     CLIENT_TYPE_MACOS,
+    CLIENT_TYPE_RASPBERRY_PI,
     CLIENT_TYPE_WATCHOS,
     CLIENT_TYPE_WINDOWS,
     CLIENT_TYPES,
@@ -611,9 +612,20 @@ def _profile_platform_schema(
     defaults: dict[str, Any] | None = None,
     *,
     language: str = "en",
+    current_device: dict[str, Any] | None = None,
 ) -> dict[Any, Any]:
     """Build the minimum options-flow profile management schema."""
-    defaults = defaults or {}
+    from .client_identity import device_id_matches_client_type
+
+    current_device = current_device or {}
+    current_id = str(current_device.get(CONF_DEVICE_ID) or "").strip()
+    current_type = str(current_device.get(CONF_CLIENT_TYPE) or "").strip()
+    if (current_type not in CLIENT_TYPES
+            or not device_id_matches_client_type(current_id, current_type)):
+        current_device = {}
+        current_id = ""
+    defaults = {**{key: current_device[key] for key in (
+        CONF_DEVICE_ID, CONF_CLIENT_TYPE, CONF_DEVICE_NAME) if key in current_device}, **(defaults or {})}
     language = language.split("-", 1)[0].lower()
     new_profile, manual_device = {
         "en": ("New profile", "Manual device"),
@@ -627,9 +639,13 @@ def _profile_platform_schema(
         for profile_id, profile in getattr(household, "profiles", {}).items()
     }
     device_options = {
-        device_id: device.display_name or device_id
+        device_id: (f"{device.display_name} · {device_id}"
+                    if device.display_name and device.display_name != device_id else device_id)
         for device_id, device in getattr(household, "devices", {}).items()
     }
+    if current_id and current_id not in device_options:
+        name = str(current_device.get(CONF_DEVICE_NAME) or current_id)
+        device_options[current_id] = f"{name} · {current_id}" if name != current_id else current_id
     schema: dict[Any, Any] = {
         vol.Required(
             PROFILE_PLATFORM_ACTION_FIELD,
@@ -1620,6 +1636,25 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         last_step=False,
                     )
                 device_id = str(defaults.get(CONF_DEVICE_ID) or "").strip()
+                if (not is_app_pairing and client_type == CLIENT_TYPE_RASPBERRY_PI
+                        and (not device_id or local_url.rstrip("/") !=
+                             str(defaults.get(CONF_LOCAL_URL) or "").rstrip("/"))):
+                    # A manual endpoint is not the discovered device. Resolve
+                    # its own stable identity before uniqueness or any pair POST.
+                    device_id = await self._async_manual_pi_identity(local_url, pair_code)
+                    if not device_id:
+                        self._selected_discovered_key = ""
+                        self._discovered_defaults = {
+                            CONF_LOCAL_URL: local_url,
+                            CONF_CLIENT_TYPE: client_type,
+                            CONF_DEVICE_NAME: _clean(user_input.get(CONF_DEVICE_NAME), DEFAULT_DEVICE_NAME),
+                        }
+                        return self.async_show_form(
+                            step_id=step_id,
+                            data_schema=vol.Schema(self._user_schema()),
+                            errors={"base": DISCOVERY_PAIRING_INFO_ERROR},
+                            last_step=False,
+                        )
                 pending_app_pairing = (
                     self._pending_app_pairing(pair_code) if is_app_pairing else {}
                 )
@@ -1708,8 +1743,41 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._selected_discovered_key = ""
             self._discovered_defaults = {}
             self._discovered_device_name_authoritative = False
-            return True
+            return not bool(str(user_input.get(CONF_LOCAL_URL) or "").strip())
         return False
+
+    async def _async_manual_pi_identity(self, local_url: str, pair_code: str) -> str:
+        """Read the submitted endpoint's matching identity; never invent one."""
+        from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
+        from .client_identity import device_id_matches_client_type
+        from .discovery import PROBE_TIMEOUT, async_probe_pairing_info
+
+        try:
+            parsed = urlparse(local_url)
+            if (parsed.scheme not in {"http", "https"} or not parsed.hostname
+                    or parsed.username is not None or parsed.password is not None
+                    or parsed.path not in {"", "/"} or parsed.query or parsed.fragment):
+                return ""
+            # Accessing port rejects malformed authorities before making a request.
+            _ = parsed.port
+            info = await asyncio.wait_for(
+                async_probe_pairing_info(async_get_clientsession(self.hass), local_url,
+                                         allow_redirects=False, max_bytes=16384),
+                timeout=PROBE_TIMEOUT,
+            )
+        except (ValueError, TimeoutError):
+            return ""
+        if not isinstance(info, dict) or info.get(CONF_CLIENT_TYPE) != CLIENT_TYPE_RASPBERRY_PI:
+            return ""
+        device_id = info.get(CONF_DEVICE_ID)
+        reported_code = str(info.get(CONF_PAIR_CODE) or info.get("pairing_code")
+                            or info.get("pairing_token") or "").strip()
+        if (not isinstance(device_id, str)
+                or not device_id_matches_client_type(device_id, CLIENT_TYPE_RASPBERRY_PI)
+                or reported_code != pair_code):
+            return ""
+        return device_id
 
     def _selected_client_pairing_info_failed(self, local_url: str) -> bool:
         """Whether the selected discovery result rejected this local endpoint."""
@@ -2885,7 +2953,9 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="profile_platform",
-            data_schema=vol.Schema(_profile_platform_schema(household, user_input, language=_ha_language(self.hass))),
+            data_schema=vol.Schema(_profile_platform_schema(
+                household, user_input, language=_ha_language(self.hass),
+                current_device={**self._config_entry.data, **self._config_entry.options})),
             errors=errors,
             last_step=False,
         )

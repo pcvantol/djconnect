@@ -1536,6 +1536,70 @@ class TtsHelperTest(unittest.TestCase):
         self.assertNotIn("client_id", payload)
         self.assertNotIn("spotify_client_id", payload)
 
+    def test_pi_pairing_keeps_preflight_identity_and_endpoint_before_post(self) -> None:
+        import json
+        from unittest.mock import patch
+
+        identity = "djconnect-raspberry-pi-A1B2C3D4E5F6"
+        endpoint = "http://chosen-pi.local:18080"
+        valid = {"device_id": identity, "client_type": "raspberry_pi", "pair_code": "654321",
+                 "local_url": "http://unrelated-advertisement.local:18080"}
+        for info in (valid, {**valid, "device_id": "djconnect-raspberry-pi-111111111111"},
+                     {**valid, "client_type": "macos"}, {**valid, "device_id": ""},
+                     {**valid, "pair_code": ""}):
+            with self.subTest(info=info):
+                class Response:
+                    status = 200
+                    def __init__(self, body):
+                        self.body = body
+                        self.content = self
+                    def __await__(self):
+                        async def response():
+                            return self
+                        return response().__await__()
+                    async def readexactly(self, limit):
+                        body = json.dumps(self.body).encode()
+                        if len(body) < limit:
+                            raise asyncio.IncompleteReadError(body, limit)
+                        return body[:limit]
+                    async def __aenter__(self):
+                        return self
+                    async def __aexit__(self, *args):
+                        return None
+                    async def text(self):
+                        return json.dumps(self.body)
+                class Session:
+                    def __init__(self):
+                        self.calls = []
+                    def get(self, url, **kwargs):
+                        self.calls.append(("GET", url, kwargs))
+                        return Response(info)
+                    def post(self, url, **kwargs):
+                        self.calls.append(("POST", url, kwargs))
+                        return Response({"success": True})
+                session = Session()
+                entry = types.SimpleNamespace(data={"device_id": identity, "client_type": "raspberry_pi",
+                    "pair_code": "654321", "local_url": endpoint}, options={})
+                runtime = self.integration.DJConnectRuntime(entry)
+                runtime.device_status["local_url"] = endpoint
+                hass = types.SimpleNamespace(config=types.SimpleNamespace(
+                    internal_url="http://homeassistant.local:8123", external_url=""))
+                with patch.object(self.integration, "async_get_clientsession", return_value=session):
+                    if info == valid:
+                        self.assertTrue(asyncio.run(runtime.pair_device(hass))["success"])
+                    else:
+                        with self.assertRaisesRegex(RuntimeError, "pairing identity changed"):
+                            asyncio.run(runtime.pair_device(hass))
+                self.assertIs(session.calls[0][2]["allow_redirects"], False)
+                if info != valid:
+                    self.assertEqual([x[0] for x in session.calls], ["GET"])
+                else:
+                    self.assertEqual(session.calls[1][1], endpoint + "/api/device/pair")
+                    self.assertEqual(session.calls[1][2]["json"]["device_id"], identity)
+                    self.assertEqual(session.calls[1][2]["json"]["client_type"], "raspberry_pi")
+                    self.assertIs(session.calls[1][2]["allow_redirects"], False)
+                    self.assertEqual(runtime.device_status["local_url"], endpoint)
+
     def test_pair_device_uses_reported_macos_client_type_and_local_url(self) -> None:
         class Response:
             status = 200

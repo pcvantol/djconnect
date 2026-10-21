@@ -1,5 +1,17 @@
 # Profile and Session settings consolidation
 
+## Current migration and Pi admission follow-through — 21 October 2026
+
+The [current qualification](../verification/PROFILE_SESSION_SETTINGS_MIGRATION_READBACK_20261021.md)
+rechecks the delivered six-field settings3 producer on the current schema12
+foundation. It corrects ordinary manual Pi identity resolution and makes configured
+Device choices exact and explicit, including legacy entries missing from Household.
+The updated verifier respects the separately delivered informative Music-only
+opening, while requiring zero automatic speech/catch-up. The earlier inventory
+and source receipts below remain historical unchanged evidence. This is a new
+reviewable Core correction, not yet protected/installed/native qualification or
+completion of consumer-dependent migration. No device is automatically linked.
+
 ## Current correction: native device speech with shared Settings
 
 [Settings-aware device speech](SESSION_ON_DEVICE_SPEECH_SETTINGS_V1.md)

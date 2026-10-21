@@ -1,5 +1,20 @@
 ## Individual owner content deletion — implementation candidate, 21 October2026
 
+## Current Core migration follow-through — 21 October 2026
+
+Same sole writer, based on qualified history Final1256/d7673a75. Current bounded
+settings3 qualification and ordinary manual Pi/profile-choice correction are in
+[the verification record](docs/verification/PROFILE_SESSION_SETTINGS_MIGRATION_READBACK_20261021.md).
+Six shared choices remain unchanged; only three integration files change. Actual
+isolated HA/204sourcehashes/13manual cases/120.898s354reads2reconnects PASS;
+current-configured device IDs are visible/selectable without automatic mapping.
+Source review/checks/protected merge, distinct Finalization and actual HA-dev
+install remain pending. No physical pairing/native/audible/model-budget claim.
+Consumer-dependent legacy retirement stays OPEN. Next selected Core points are
+VibeCast readiness/contracts, narrative1248, then personal DJ queue-grounded
+Forecast and explicitly requested history-entry playback/chooser dependency.
+Existing parked WIP and immutable proofs remain; deadline19:10:02UTC unchanged.
+
 ## History deletion verification and client examples — separate Finalization, 21 October 2026
 
 ### Repository Status

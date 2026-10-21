@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
+import json
 import logging
 import re
 from typing import Any
@@ -88,13 +89,16 @@ async def async_discover_djconnect_clients(hass: Any) -> list[DiscoveredClient]:
     return _dedupe_clients(clients)
 
 
-async def async_probe_pairing_info(session: Any, local_url: str) -> dict[str, Any]:
+async def async_probe_pairing_info(
+    session: Any, local_url: str, *, allow_redirects: bool = True, max_bytes: int | None = None
+) -> dict[str, Any]:
     """Fetch pairing-info from a discovered client, returning `{}` on failure."""
     if session is None or not local_url:
         return {}
     url = local_url.rstrip("/") + "/api/device/pairing-info"
     try:
-        response = await asyncio.wait_for(session.get(url), timeout=PROBE_TIMEOUT)
+        request_options = {} if allow_redirects else {"allow_redirects": False}
+        response = await asyncio.wait_for(session.get(url, **request_options), timeout=PROBE_TIMEOUT)
         async with response:
             status = getattr(response, "status", 0)
             if status != 200:
@@ -104,7 +108,16 @@ async def async_probe_pairing_info(session: Any, local_url: str) -> dict[str, An
                     url,
                 )
                 return {}
-            data = await response.json(content_type=None)
+            if max_bytes is None:
+                data = await response.json(content_type=None)
+            else:
+                try:
+                    await response.content.readexactly(max_bytes + 1)
+                except asyncio.IncompleteReadError as exc:
+                    body = exc.partial
+                else:
+                    return {}  # The entire response must fit, not just a prefix.
+                data = json.loads(body)
             return data if isinstance(data, dict) else {}
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect pairing-info probe failed url=%s error=%s", url, exc)

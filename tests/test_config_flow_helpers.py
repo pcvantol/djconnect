@@ -1239,6 +1239,162 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.config_flow.DISCOVERY_PAIRING_INFO_ERROR,
         )
 
+    def _manual_pi_flow(self):
+        flow = self.config_flow.DJConnectConfigFlow()
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
+        flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_LOCAL_DEVICE
+        flow._selected_pair_client_type = self.const.CLIENT_TYPE_RASPBERRY_PI
+        flow.async_abort = lambda **kwargs: {"type": "abort", **kwargs}
+        flow.async_set_unique_id = AsyncMock()
+        flow._abort_if_unique_id_configured = lambda: None
+        flow.async_step_profile_choice = AsyncMock(return_value={"type": "next_step"})
+        return flow
+
+    def test_manual_raspberry_pi_pairing_resolves_real_id_without_mdns(self) -> None:
+        flow = self._manual_pi_flow()
+        identity = "djconnect-raspberry-pi-A1B2C3D4E5F6"
+        info = {"device_id": identity, "client_type": "raspberry_pi", "pair_code": "654321"}
+        with patch("custom_components.djconnect.discovery.async_probe_pairing_info",
+                   new=AsyncMock(return_value=info)) as probe:
+            result = asyncio.run(flow.async_step_pair({
+                self.const.CONF_PAIR_CODE: "654321",
+                self.const.CONF_DEVICE_NAME: "Manual Pi",
+                self.const.CONF_LOCAL_URL: "http://192.168.1.66:18080",
+            }))
+        self.assertEqual(result["type"], "next_step")
+        flow.async_set_unique_id.assert_awaited_once_with(identity)
+        self.assertEqual(flow._pairing[self.const.CONF_DEVICE_ID], identity)
+        self.assertEqual(flow._pairing[self.const.CONF_LOCAL_URL], "http://192.168.1.66:18080")
+        self.assertEqual(probe.await_args.args[1], "http://192.168.1.66:18080")
+        self.assertEqual(probe.await_args.kwargs, {"allow_redirects": False, "max_bytes": 16384})
+
+    def test_profile_link_offers_current_configured_pi_missing_from_household(self):
+        identity = "djconnect-raspberry-pi-A1B2C3D4E5F6"
+        entry = types.SimpleNamespace(entry_id="legacy-pi", options={}, data={
+            "device_id": identity, "client_type": "raspberry_pi", "device_name": "Current Pi"})
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en"))
+        manager = types.SimpleNamespace(async_load=AsyncMock(return_value=types.SimpleNamespace(
+            profiles={"phone": types.SimpleNamespace(display_name="Existing phone Profile")}, devices={})))
+        with patch.object(self.config_flow, "_profile_storage", return_value=manager):
+            result = asyncio.run(flow.async_step_profile_platform())
+        schema = result["data_schema"].schema
+        marker = next(key for key in schema if key.key == "device_id")
+        self.assertIn(identity, schema[marker])
+        self.assertEqual(marker.default, identity)
+        profile = next(key for key in schema if key.key == "profile_id")
+        self.assertEqual(profile.default, "")  # Still requires an explicit Profile choice.
+
+    def test_profile_link_labels_disambiguate_identically_named_device_rows(self):
+        household = types.SimpleNamespace(profiles={}, devices={
+            key: types.SimpleNamespace(display_name="DJConnect Pi")
+            for key in ("djconnect-030549", "djconnect-raspberry-pi-A1B2C3D4E5F6")})
+        schema = self.config_flow._profile_platform_schema(household)
+        marker = next(key for key in schema if key.key == "device_id")
+        for identity in household.devices:
+            self.assertIn(identity, schema[marker][identity])
+        self.assertNotEqual(*[schema[marker][key] for key in household.devices])
+
+    def test_profile_link_does_not_admit_unknown_or_retired_configured_identity(self):
+        for identity, kind in (("djconnect-654321", "raspberry_pi"),
+                               ("djconnect-windows-A1B2C3D4E5F6", "windows")):
+            with self.subTest(identity=identity):
+                schema = self.config_flow._profile_platform_schema(
+                    types.SimpleNamespace(profiles={}, devices={}), current_device={
+                        "device_id": identity, "client_type": kind, "profile_id": "not-implicit"})
+                device = next(key for key in schema if key.key == "device_id")
+                profile = next(key for key in schema if key.key == "profile_id")
+                self.assertNotIn(identity, schema[device])
+                self.assertEqual(device.default, "")
+                self.assertEqual(profile.default, "")
+
+    def test_manual_pi_rejects_unqualified_identity_or_code_before_selection(self):
+        valid = {"device_id": "djconnect-raspberry-pi-A1B2C3D4E5F6",
+                 "client_type": "raspberry_pi", "pair_code": "654321"}
+        cases = ({}, [], {**valid, "device_id": "djconnect-654321"},
+                 {**valid, "device_id": "djconnect-ios-A1B2C3D4E5F6"},
+                 {**valid, "client_type": "esp32"}, {**valid, "client_type": "windows"},
+                 {**valid, "pair_code": "111111"}, {**valid, "pair_code": ""})
+        for info in cases:
+            with self.subTest(info=info):
+                flow = self._manual_pi_flow()
+                with patch("custom_components.djconnect.discovery.async_probe_pairing_info",
+                           new=AsyncMock(return_value=info)):
+                    result = asyncio.run(flow.async_step_pair({"pair_code": "654321",
+                        "local_url": "http://192.168.1.66:18080"}))
+                self.assertEqual(result["errors"]["base"], "pairing_info_unavailable")
+                self.assertEqual(flow._pairing, {})
+                flow.async_set_unique_id.assert_not_awaited()
+                flow.async_step_profile_choice.assert_not_awaited()
+
+    def test_manual_pi_changed_url_does_not_borrow_discovered_identity_or_url(self):
+        for clear_selection in (False, True):
+            with self.subTest(clear_selection=clear_selection):
+                flow = self._manual_pi_flow()
+                flow._discovered_defaults = {"device_id": "djconnect-raspberry-pi-111111111111",
+                    "client_type": "raspberry_pi", "local_url": "http://old-pi.local:18080"}
+                flow._selected_discovered_key = flow._discovered_defaults["device_id"]
+                data = {"pair_code": "654321", "local_url": "http://new-pi.local:18080"}
+                if clear_selection:
+                    data[self.config_flow.DISCOVERY_CLIENT_FIELD] = ""
+                actual = "djconnect-raspberry-pi-222222222222"
+                info = {"device_id": actual, "client_type": "raspberry_pi", "pair_code": "654321",
+                        "local_url": "http://unrelated.local:18080"}
+                with patch("custom_components.djconnect.discovery.async_probe_pairing_info",
+                           new=AsyncMock(return_value=info)) as probe:
+                    result = asyncio.run(flow.async_step_pair(data))
+                self.assertEqual(result["type"], "next_step")
+                flow.async_set_unique_id.assert_awaited_once_with(actual)
+                self.assertEqual(flow._pairing["local_url"], data["local_url"])
+                self.assertEqual(probe.await_args.args[1], data["local_url"])
+
+    def test_manual_pi_invalid_endpoint_never_requests_pairing_info(self):
+        for url in ("file:///tmp/device", "http://user:secret@pi.local:18080",
+                    "http://pi.local:bad", "http://pi.local/path", "http://pi.local?q=x",
+                    "http://pi.local#fragment", "http://"):
+            with self.subTest(url=url):
+                flow = self._manual_pi_flow()
+                with patch("custom_components.djconnect.discovery.async_probe_pairing_info",
+                           new=AsyncMock()) as probe:
+                    result = asyncio.run(flow.async_step_pair({"pair_code": "654321", "local_url": url}))
+                self.assertEqual(result["errors"]["base"], "pairing_info_unavailable")
+                probe.assert_not_awaited()
+                self.assertEqual(flow._pairing, {})
+
+    def test_manual_pi_duplicate_is_checked_with_resolved_stable_identity(self):
+        flow = self._manual_pi_flow()
+        identity = "djconnect-raspberry-pi-A1B2C3D4E5F6"
+        def duplicate():
+            raise RuntimeError("already_configured")
+        flow._abort_if_unique_id_configured = duplicate
+        with patch("custom_components.djconnect.discovery.async_probe_pairing_info",
+                   new=AsyncMock(return_value={"device_id": identity, "client_type": "raspberry_pi",
+                                              "pair_code": "654321"})):
+            with self.assertRaisesRegex(RuntimeError, "already_configured"):
+                asyncio.run(flow.async_step_pair({"pair_code": "654321", "local_url": "http://pi.local:18080"}))
+        flow.async_set_unique_id.assert_awaited_once_with(identity)
+        flow.async_step_profile_choice.assert_not_awaited()
+        self.assertEqual(flow._pairing, {})
+
+    def test_manual_pi_probe_failure_keeps_input_without_caching_old_identity(self):
+        flow = self._manual_pi_flow()
+        flow._discovered_defaults = {"device_id": "djconnect-raspberry-pi-111111111111",
+                                    "local_url": "http://old.local:18080"}
+        identity = "djconnect-raspberry-pi-222222222222"
+        data = {"pair_code": "654321", "local_url": "http://new.local:18080"}
+        with patch("custom_components.djconnect.discovery.async_probe_pairing_info",
+                   new=AsyncMock(side_effect=[{}, {"device_id": identity, "client_type": "raspberry_pi",
+                                                  "pair_code": "654321"}])) as probe:
+            async def attempt_then_explicit_resubmit():
+                first = await flow.async_step_pair(data)
+                self.assertEqual(first["errors"]["base"], "pairing_info_unavailable")
+                self.assertNotIn("device_id", flow._discovered_defaults)
+                self.assertEqual(flow._discovered_defaults["local_url"], data["local_url"])
+                return await flow.async_step_pair(data)
+            self.assertEqual(asyncio.run(attempt_then_explicit_resubmit())["type"], "next_step")
+        self.assertEqual(probe.await_count, 2)
+        self.assertEqual(flow._pairing["device_id"], identity)
+
     def test_raspberry_pi_pairing_uses_discovered_stable_device_id(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(config=types.SimpleNamespace(language="en-US"))
