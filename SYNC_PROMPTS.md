@@ -1,3 +1,9 @@
+## Pi rc.6 operative binding — source preparation, 21 October 2026
+
+Same sole Core writer on qualified clean base `d0454b5ddd1c30034a113262e5d29009b443dc4d`, after artwork1269/Final1270 and actual232-file HA-dev readback. Bind only the two actual published rc.6 profile archives, exact qualified Pi source/consumer `0dde0abe22a0859f170a7c1d3eab41f1ade44d37`, unchanged inventory and protected producer pins. See [actual publication, human scope and limits](docs/verification/PI_RC6_OPERATIONAL_BINDING_20261021.md). Manifest hash `8740b4c3d751354061b9aeaf45689a4dbe525240f7047a2b923008d7e6495393` is not operative until independent exact review, applicable Owner Authorization, normal protected source, distinct Finalization and actual canonical/readback gates complete. No Pi configuration, dispatch, hardware, pairing, HA restart or product mutation occurs here. GitHub native immutable is false; only verified versioned content pinning is claimed.
+
+Current-subject Track Insight, historical exact playback/captured reply artwork, natural queue-backed Forecast and the new VibeScape1271 producer remain selected/open. Apple owns native rendering; no client takeover, new budget or invented acceptance. Hard Core deadline22October06:00UTC/08:00Amsterdam remains.
+
 ## Music DNA artwork — source candidate, 21 October 2026
 
 ## Music DNA artwork — separate Finalization, 21 October 2026
