@@ -12,7 +12,7 @@
   "inventory_sha256": "530220ee38f6ccbcc824a78331b9dd89f236a5fa6ede12ebf7899dac83ff50c0",
   "consumer": {
     "repository": "pcvantol/djconnect-pi",
-    "source_sha": "a336e0de8e99761fa4615d48d48ba574ab6f81c0",
+    "source_sha": "31e1d18436d8ea0c589cc8d5e71505a23274f096",
     "smoke_contract_id": "pi-rc5-instance-readback-v1"
   },
   "approval": {
