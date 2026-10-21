@@ -1,3 +1,7 @@
+## Closed wall4 recovery binding — source candidate,22October2026
+
+Same sole Core writer on clean qualified `c8549876df54e22b71ed26fcded4ec822b3d166d` after completed producer1276/Final1277 and actual matching Pi123/Final124 raw qualifications. [Binding proof](docs/verification/PI_RC6_WALL4_RECOVERY_BINDING_20261022.md) pins actual Pi Final `77fc4047f797066876c5345e8e43b346ab96d782` and original published Zero archive only; new manifest hash `de22c4eb8644ef21fb2f690689ad716226aae1958f385fc83df8221207e6b0de`. Peter's actual bounded recovery selection22:39:09.307UTC remains narrower than source qualification. This candidate is NOT operative before its exact independent review/OwnerAuth/normal protected source and distinct Final/rawqualification/readback. No Pi variables/device effects or Core product change. All prior Pi release bytes remain immutable history. Selected VibeScape/Forecast/historicalplayback/replyartwork/personalDJ work retained; HACS personal OAuth expired/0entries, no automatic flow. Hard22October06:00UTC unchanged.
+
 ## Closed Pi wall4 recovery producer — source preparation,22October2026
 
 ## Closed Pi wall4 recovery producer — separate Finalization,22October2026
