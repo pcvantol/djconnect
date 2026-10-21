@@ -27,6 +27,8 @@ def _platform_capabilities() -> dict[str, bool]:
         "session_history_summary": True,
         "session_history_delete": True,
         "session_history_bulk_delete": True,
+        "session_content_delete": True,
+        "session_history_delete_status": True,
         "hybrid_transport": True,
         "session_artwork": True,
         "session_speech": True,
@@ -59,5 +61,7 @@ def _contract_versions() -> dict[str, int]:
         "session_history_summary": 1,
         "session_history_delete": 1,
         "session_history_bulk_delete": 1,
+        "session_content_delete": 1,
+        "session_history_delete_status": 1,
         "profile_session_settings": SETTINGS_VERSION,
     }

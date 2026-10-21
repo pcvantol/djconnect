@@ -78,7 +78,8 @@ def validate_archive_erasure_plan(plan):
 
 
 def archive_erasure_plan(profile_id, messages, session_ids, *, message_ids=frozenset(),
-                         entry_index=None, pending_client_ids=()):
+                         entry_index=None, pending_client_ids=(), initial_entries=frozenset(),
+                         individual=False, unavailable_client_ids=frozenset(), initial_moments=frozenset()):
     """Derive a bounded identifier-only cascade, without copying private bodies.
 
     Direct target exchanges disappear. Retained exchanges with a deleted source
@@ -87,7 +88,8 @@ def archive_erasure_plan(profile_id, messages, session_ids, *, message_ids=froze
     """
     entry_index = entry_index or {}
     if (not isinstance(profile_id, str) or not profile_id
-            or type(session_ids) is not frozenset or not session_ids
+            or type(session_ids) is not frozenset
+            or (not session_ids and not message_ids and not initial_entries and not pending_client_ids and not individual)
             or any(not isinstance(s, str) or not s for s in session_ids)
             or len(messages) > MAX_MESSAGES_PER_USER):
         raise ValueError('invalid_history_delete_request')
@@ -104,12 +106,19 @@ def archive_erasure_plan(profile_id, messages, session_ids, *, message_ids=froze
                or m.get('session_turn', {}).get('context', {}).get('session_id') in session_ids
                for m in values)
     }
-    unavailable = set(removed)
-    tainted_entries = set()
+    unavailable = set(removed) | {
+        e for e, values in exchanges.items()
+        if individual and any(m.get('client_message_id') in unavailable_client_ids for m in values)
+    }
+    tainted_entries = set(initial_entries)
     for exchange in unavailable:
         for message in exchanges[exchange]:
             if message['id'] in entry_index:
                 tainted_entries.add(tuple(entry_index[message['id']]))
+    tainted_requests = {
+        _request_hash('profile:' + profile_id, m['client_message_id'])
+        for e in unavailable for m in exchanges[e] if m.get('client_message_id')
+    } | {_request_hash('profile:' + profile_id, key) for key in pending_client_ids}
     while True:
         discovered = {
             exchange for exchange, values in exchanges.items() if exchange not in unavailable
@@ -117,9 +126,20 @@ def archive_erasure_plan(profile_id, messages, session_ids, *, message_ids=froze
                     or (ref.get('session_id'), ref.get('entry_id')) in tainted_entries
                     for m in values for ref in m.get('historical_entry_references', []))
         }
+        if individual:
+            discovered.update(e for e, values in exchanges.items() if e not in unavailable
+                and any((ref.get('session_id'), ref.get('moment_id')) in initial_moments
+                    for m in values for ref in (
+                        *m.get('session_turn', {}).get('dependency_moments', []),
+                        m.get('session_turn', {}).get('context', {}).get('selected_moment') or {})))
+            discovered.update(e for e, values in exchanges.items() if e not in unavailable
+                and any(set(m.get('session_turn', {}).get('dependency_request_hashes', [])) & tainted_requests
+                        for m in values))
         if not discovered:
             break
         unavailable.update(discovered)
+        tainted_requests.update(_request_hash('profile:' + profile_id, m['client_message_id'])
+            for e in discovered for m in exchanges[e] if m.get('client_message_id'))
         for exchange in discovered:
             for message in exchanges[exchange]:
                 if message['id'] in entry_index:
@@ -207,7 +227,12 @@ class AskDJHistoryManager:
     async def async_session_request_cleared(self, scope: str, client_id: str) -> bool:
         await self.async_load()
         state = self._data.get("users", {}).get(scope, {})
-        return _request_hash(scope, client_id) in state.get("cleared_request_hashes", [])
+        return (self.request_deleted_now(scope, client_id)
+                or _request_hash(scope, client_id) in state.get("cleared_request_hashes", []))
+
+    def request_deleted_now(self, scope, client_id):
+        from .persistence.content_deletion import request_deleted_now
+        return scope.startswith('profile:') and request_deleted_now(self.hass, scope[8:], client_id)
 
     @property
     def data(self) -> dict[str, Any]:
@@ -252,7 +277,8 @@ class AskDJHistoryManager:
 
     async def async_erase_archived_sessions(
         self, profile_id, session_ids, *, prepare_intent, entry_index,
-        message_ids=frozenset(),
+        message_ids=frozenset(), pending_client_ids=None, initial_entries=frozenset(),
+        individual=False, targeted_withdraw=None, recovery_plan=None, plan_factory=None,
     ):
         """Existing Store owner commits an exact private plan after durable intent.
 
@@ -272,11 +298,18 @@ class AskDJHistoryManager:
             messages = state.get('messages', []) if state else []
             if callable(entry_index):
                 entry_index, message_ids = await entry_index(messages)
-            plan = archive_erasure_plan(
-                profile_id, messages, session_ids,
-                message_ids=message_ids, entry_index=entry_index,
-                pending_client_ids=self._pending_session_requests.get(scope, {}),
-            )
+            if recovery_plan is not None:
+                plan = deepcopy(recovery_plan)
+            elif plan_factory is not None:
+                plan = await plan_factory(messages, entry_index)
+            else:
+                plan = archive_erasure_plan(
+                    profile_id, messages, session_ids,
+                    message_ids=message_ids, entry_index=entry_index,
+                    pending_client_ids=(self._pending_session_requests.get(scope, {})
+                                        if pending_client_ids is None else pending_client_ids),
+                    initial_entries=initial_entries, individual=individual,
+                )
             # Capacity never evicts a still useful original-request fence.
             if len(set(state.get('cleared_request_hashes', []) if state else [])
                    | set(plan['retry_hashes'])) > 1000:
@@ -307,8 +340,13 @@ class AskDJHistoryManager:
                 state['clear_revision'] += 1
                 state['targeted_clear_revision'] = _targeted_clear_revision(state) + 1
                 state['updated_at'] = _now()
-            self.dialogue.forget_archived_sessions(scope, session_ids, entry_ids=frozenset(
-                entry_index[m][1] for m in durable['redact_message_ids'] if m in entry_index))
+            if individual:
+                if targeted_withdraw is None:
+                    raise ValueError('content_delete_outcome_unknown')
+                targeted_withdraw(durable)
+            else:
+                self.dialogue.forget_archived_sessions(scope, session_ids, entry_ids=frozenset(
+                    entry_index[m][1] for m in durable['redact_message_ids'] if m in entry_index))
 
             async def save():
                 await self._store.async_save(_compact_store_data(data))
@@ -551,7 +589,9 @@ class AskDJHistoryManager:
         user_key = _user_key(user_id)
         state = self._user_state(user_key)
         client_message_id = _clean_text(request_payload.get("client_message_id"))
-        if session_turn is not None and _request_hash(user_key, client_message_id) in state.get(
+        if self.request_deleted_now(user_key, client_message_id):
+            raise ValueError('conversation_history_changed')
+        if (session_turn is not None or user_key.startswith('profile:')) and _request_hash(user_key, client_message_id) in state.get(
             "cleared_request_hashes", []
         ):
             raise ValueError("conversation_history_changed")
@@ -782,6 +822,9 @@ class AskDJHistoryManager:
     async def async_reserve_dialogue_effect(self, scope: str, client_id: str, digest: str) -> None:
         """Opaque dispatch receipt survives failure/clear/reload; never persist content."""
         from .ask_dj.dialogue import DialogueError
+
+        if self.request_deleted_now(scope, client_id):
+            raise DialogueError('conversation_history_changed')
 
         state = self._user_state(scope)
         receipts = state.setdefault("dialogue_effect_receipts", {})

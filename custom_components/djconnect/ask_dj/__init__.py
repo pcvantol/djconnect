@@ -192,10 +192,12 @@ async def async_handle_ask_dj(
     # The shared short window is operational, permission-qualified and independent of DNA.
     # Durable legacy/Session archive text is never an implicit model-history grant.
     if turn is not None:
-        memory_context["server_history"] = turn.frame.local_turns if not turn.reset_topic else []
+        operational_history = [{key: value for key, value in message.items() if not key.startswith('_')}
+                               for message in turn.frame.local_turns]
+        memory_context["server_history"] = operational_history if not turn.reset_topic else []
         memory_context["memory"] = {k: v for k, v in (memory_context.get("memory") or {}).items() if k not in {"last_ask_dj", "pending_followup"}}
         if turn.frame.result_set and not turn.reset_topic:
-            memory_context["server_history"] = [*turn.frame.local_turns,
+            memory_context["server_history"] = [*operational_history,
                 {"role": "assistant", "playback_actions": turn.frame.result_set["items"], "items": turn.frame.result_set["items"]}]
     request_intent = classify_ask_dj(text)
     complex_music_search = (request_intent.intent == "song_recommendations"

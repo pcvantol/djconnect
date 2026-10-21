@@ -383,6 +383,8 @@ async def resolve_moment(hass, profile_id, reference):
     if active is None or active.session_id != reference["session_id"]:
         raise PermissionError("speech_reference_unavailable")
     broadcast = active.broadcast
+    if getattr(broadcast, 'content_pending', False):
+        raise PermissionError('content_delete_outcome_unknown')
     moment = next((m for m in broadcast.state.dj_moments if m.moment_id == reference["moment_id"]), None)
     if moment is None:
         raise PermissionError("speech_reference_unavailable")
@@ -394,10 +396,12 @@ async def resolve_moment(hass, profile_id, reference):
     def validate():
         current = manager.current_active(profile_id)
         if (current is None or current.broadcast is not broadcast
+                or moment.moment_id in broadcast.content_pending_moment_ids
                 or not moment_projection(broadcast, moment)["manual_allowed"]):
             raise PermissionError("speech_reference_withdrawn")
     guard = PrivateSpeechSource(hass, validate,
-        expires_at=datetime.fromisoformat(descriptor["expires_at"]).timestamp(), session_id=active.session_id)
+        expires_at=datetime.fromisoformat(descriptor["expires_at"]).timestamp(), session_id=active.session_id,
+        moment_id=moment.moment_id)
     source = moment.source_fact
     from .public_artist_narration import ResearchMomentAcceptance
     guard.processor_basis = ("qualified_dialogue_v1" if type(moment.narration_acceptance) is ResearchMomentAcceptance

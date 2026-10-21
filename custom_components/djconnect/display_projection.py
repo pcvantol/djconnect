@@ -40,6 +40,7 @@ def projection_release_guard(active, authority, state, snapshot):
     """Capture immutable original proof clocks; final check performs no encoding."""
     broadcast = active.broadcast
     sequence = snapshot["broadcast"]["snapshot_watermark"]
+    content_epoch = broadcast.content_epoch
     selected_ids = {item["moment_id"] for item in snapshot["dj_moments"]}
     originals = {moment.moment_id: moment for moment in broadcast.state.dj_moments[-64:]
                  if moment.moment_id in selected_ids}
@@ -63,6 +64,7 @@ def projection_release_guard(active, authority, state, snapshot):
         if (state._displays.get(authority.display_id) is not authority or not authority.owner.valid()
                 or share is None or not share.owner.valid() or state._clock() >= share.deadline
                 or state._clock() >= authority.lease_deadline or broadcast.delivery_sequence != sequence
+                or broadcast.content_pending or broadcast.content_epoch != content_epoch
                 or _label(broadcast.state.runtime_state) != "active"):
             return False
         available = {moment.moment_id: moment for moment in broadcast.state.dj_moments[-64:]}
@@ -116,7 +118,9 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
     for moment in current.dj_moments[-64:]:
         presentation = moment.presentation_intent
         channels = {_label(channel) for channel in presentation.delivery_channels}
-        if (moment.session_id != active.session_id or moment.moment_id not in flow_ids
+        if (broadcast.content_pending
+                or moment.moment_id in broadcast.deleted_moment_ids | broadcast.content_pending_moment_ids
+                or moment.session_id != active.session_id or moment.moment_id not in flow_ids
                 or _label(moment.moment_type) == "silence"
                 or _label(presentation.visibility) not in {"session_shared", "public_broadcast"}
                 or not channels.intersection({"broadcast", "shared"})):

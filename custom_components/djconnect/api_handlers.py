@@ -511,6 +511,19 @@ async def _async_owner_broadcast_session_context(
     generation = getattr(runtime, "_receiver_end_generation", 0)
     if entry_id and generation != manager.receiver_entry_generation(entry_id):
         return _error_payload("unauthorized"), 401, None, None
+    if getattr(active.broadcast, 'content_pending', False):
+        return _error_payload('content_delete_outcome_unknown'), 503, None, None
+    epoch = getattr(active.broadcast, 'content_epoch', 0)
+    broadcast = active.broadcast
+    def content_delivery_guard():
+        from .session_conversation import SessionConversationError
+        current = manager.current_active(context.profile_id)
+        if (current is None or current.broadcast is not broadcast
+                or getattr(broadcast, 'content_pending', False)
+                or getattr(broadcast, 'content_epoch', 0) != epoch):
+            raise SessionConversationError('content_delete_outcome_unknown', 503)
+    from .transport_delivery import register_delivery_admission
+    register_delivery_admission(content_delivery_guard)
     return {"success": True, "session_id": session_id,
             "_owner_entry_id": entry_id, "_owner_entry_generation": generation}, 200, manager, context.profile_id
 

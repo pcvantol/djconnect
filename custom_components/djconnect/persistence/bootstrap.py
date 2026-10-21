@@ -42,6 +42,13 @@ async def async_initialize_persistence(hass: Any) -> PersistenceService:
             service = PersistenceService(_database_path(hass), SQLitePersistenceProvider())
             domain_data[PERSISTENCE_SERVICE_KEY] = service
         await service.async_initialize()
+        from .content_deletion import ContentDeletionRepository
+        content = ContentDeletionRepository(service)
+        service.content_request_fences = await content.async_request_fences()
+        service.content_source_fences = await content.async_source_fences()
+        if await content.async_pending_content():
+            from ..content_deletion import content_deletion_coordinator
+            await content_deletion_coordinator(hass).async_recover()
         # Pending deletion obligations survive request expiry. Finish BOTH
         # storage owners before reconciliation/maintenance can project or prune.
         from .history_deletion import HistoryDeletionRepository

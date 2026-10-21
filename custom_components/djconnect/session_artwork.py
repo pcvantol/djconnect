@@ -323,7 +323,7 @@ async def resolve_target(hass, runtime, context, session_id, target, *, contract
         return None
     active = await manager.async_get_active(context.profile_id)
     if moment_id:
-        if active is None or active.session_id != session_id:
+        if active is None or active.session_id != session_id or getattr(active.broadcast, 'content_pending', False):
             return None
         moment = next((m for m in active.broadcast.state.dj_moments if m.moment_id == moment_id), None)
         admission = next((a for a in active.broadcast.native_delivery()['admissions'] if a['moment_id'] == moment_id), {})
@@ -333,7 +333,8 @@ async def resolve_target(hass, runtime, context, session_id, target, *, contract
             return None
         def delivery_scope():
             current = manager._active_by_profile.get(context.profile_id)
-            if current is None or current.broadcast is not active.broadcast:
+            if (current is None or current.broadcast is not active.broadcast
+                    or moment_id in current.broadcast.content_pending_moment_ids):
                 return None
             a = next((a for a in current.broadcast.native_delivery()['admissions'] if a['moment_id'] == moment_id), {})
             if not (a.get('current_display_allowed') or a.get('active_flow_display_allowed')):

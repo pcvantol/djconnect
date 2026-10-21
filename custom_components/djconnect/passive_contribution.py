@@ -68,6 +68,8 @@ def researched_sources(moment, now):
 
 def contribution(broadcast, now, *, projection_version=1):
     """Select the original newest eligible publication; Silence is a barrier."""
+    if broadcast.content_pending or broadcast.content_current_withdrawn:
+        return None, status('source_not_qualified')
     if broadcast.state.selected_presence == 'music_only':
         return None, status('presence_music_only', 'suppressed')
     admissions = {a['moment_id']: a for a in broadcast.native_delivery()['admissions']}

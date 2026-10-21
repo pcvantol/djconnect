@@ -30,10 +30,11 @@ _LOGGER = logging.getLogger(__name__)
 class PrivateSpeechSource:
     """Callback-only lifecycle metadata in the existing temporary audio owner."""
 
-    def __init__(self, hass, validate, *, expires_at, session_id=None, entry_id=None):
+    def __init__(self, hass, validate, *, expires_at, session_id=None, entry_id=None, moment_id=None):
         self.hass, self.validate = hass, validate
         self.expires_at, self.session_id = expires_at, session_id
         self.entry_id = entry_id
+        self.moment_id = moment_id
         domain = hass.data.setdefault(DOMAIN, {})
         self.epoch = domain.setdefault("tts_audio_authority_revision", 0)
         self.callbacks = []
@@ -90,15 +91,16 @@ class PrivateSpeechSource:
         return remove
 
 
-def invalidate_private_speech_sources(hass, *, session_id=None, entry_ids=None):
+def invalidate_private_speech_sources(hass, *, session_id=None, entry_ids=None, moment_ids=None):
     """Existing byte-owner revocation; no events, provider work or body archive."""
     domain = hass.data.get(DOMAIN, {})
-    if session_id is None and entry_ids is None:
+    if session_id is None and entry_ids is None and moment_ids is None:
         domain["tts_audio_authority_revision"] = domain.get("tts_audio_authority_revision", 0) + 1
     sources = {**domain.get("tts_audio_sources", {}), **domain.get("tts_audio_source_watches", {})}
     for watch in tuple(sources.values()):
         if ((session_id is None or watch.session_id == session_id)
-                and (entry_ids is None or watch.entry_id in entry_ids)):
+                and (entry_ids is None or watch.entry_id in entry_ids)
+                and (moment_ids is None or watch.moment_id in moment_ids)):
             watch.withdraw()
 
 

@@ -2187,10 +2187,10 @@ client inference, pipeline write, silent fallback or original request replay.
 
 Owner-requested manual archived-Session erasure is selected in the canonical
 [Session history contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md#selected-manual-deletion-of-an-archived-session--18-october2026).
-The additive session_history_delete1 operation is not yet implemented or
-advertised; it does not change the installed entry-version2 read contract.
+The delivered whole/archive producer is specified in the 21 October2026
+producer section below; it preserves the entry-version2 read contract.
 
-Selected bulk archived-Session delete1 is design-only: paired owner GET
+Bulk archived-Session delete1 uses paired owner GET
 `/api/djconnect/v1/session/history/delete_snapshot` prepares the full terminal set,
 then confirmed POST `/api/djconnect/v1/session/history/delete_all` binds that
 snapshot and UUIDv7. No client loop or Profile clear. Active/newer Sessions are
@@ -2235,3 +2235,22 @@ Profile, grant and runtime authority is checked at admission and delivery.
 Only exact Store-plus-SQL completion returns success. Individual content deletion
 #1225, native adoption, protected delivery and actual HA-dev install remain
 separate; no source receipt proves an installation or personal-data acceptance.
+
+
+## Individual owner content erasure and original status — 21 October2026
+
+The canonical [individual deletion v1](docs/product/SESSION_CONTENT_DELETION_V1.md)
+defines owner-bound POST `/api/djconnect/v1/session/content/delete/prepare`,
+confirmed POST `/api/djconnect/v1/session/content/delete`, and read-only GET
+`/api/djconnect/v1/session/content/delete/status`. Stable accepted row/Moment or
+original uncertain request identifiers select the full server unit and cascade;
+standalone Profile targets use explicit empty Session string, never a guessed
+Session. `session_content_delete:1` is separate from whole-Session erasure.
+
+Read-only GET `/api/djconnect/v1/session/history/delete/status` advertises
+`session_history_delete_status:1` for original single/bulk archive bodies; no
+invented content confirmation token. Both status contracts distinguish unknown,
+pending, completed and expired_unknown without renewing or executing a request.
+See the canonical field/authority/limits/error and recovery contract above.
+Source/fixture qualification, protected merge, distinct Finalization, actual
+installation and native acceptance remain separately evidenced.

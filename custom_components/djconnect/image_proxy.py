@@ -199,6 +199,20 @@ class ManagedSessionImages:
             if key[:2] == (owner, session_id) and not asset.get('historical'):
                 self.evict(key, 'source_withdrawn')
 
+    def withdraw_content(self, owner, *, entries=frozenset(), moments=frozenset()):
+        """Withdraw exact target grants; never purge shared provider images."""
+        for key in set(self.assets) | set(self.inflight) | set(self.work_guards):
+            if key[0] != owner:
+                continue
+            target = dict(key[2])
+            if ((key[1], target.get('entry_id')) not in entries
+                    and (key[1], target.get('moment_id')) not in moments):
+                continue
+            guard = self.work_guards.get(key)
+            if guard is not None:
+                guard[1]()
+            self.evict(key, 'source_withdrawn')
+
     def collect(self):
         import time
 

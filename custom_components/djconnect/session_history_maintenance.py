@@ -38,6 +38,10 @@ async def async_maintain_session_history(hass, *, now=None, revoked_entry_id: st
         return
     lock = domain.setdefault("session_history_maintenance_lock", asyncio.Lock())
     async with lock:
+        from .persistence.content_deletion import ContentDeletionRepository
+        if await ContentDeletionRepository(persistence_service(hass)).async_pending_content():
+            from .content_deletion import content_deletion_coordinator
+            await content_deletion_coordinator(hass).async_recover()
         current = now or datetime.now(UTC)
         repository = HistoricalProjectionRepository(persistence_service(hass))
         if revoked_entry_id:

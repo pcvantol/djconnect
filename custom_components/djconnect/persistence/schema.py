@@ -29,12 +29,15 @@ MIGRATIONS = (
     Migration(9, "0009_session_retention_policy", "71dbec42"),
     Migration(10, "0010_four_level_presence", "aceb4702"),
     Migration(11, "0011_history_deletion_intents", "9bf47a12"),
+    Migration(12, "0012_content_deletion_fences", "54e23f9a"),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_content_tombstones": {"owner_profile_id", "session_id", "kind", "reference_id", "entry_id", "created_ms"},
+    "djconnect_content_request_fences": {"owner_profile_id", "request_hash", "created_ms"},
     "djconnect_history_deletions": {
         "owner_profile_id", "operation_id", "binding", "digest", "targets",
-        "state", "created_ms", "expires_ms", "receipt", "store_plan",
+        "state", "created_ms", "expires_ms", "receipt", "store_plan", "operation_kind", "content_scope",
     },
     "djconnect_history_deletion_targets": {"owner_profile_id", "session_id", "operation_id"},
     "djconnect_history_deletion_clock": {"singleton", "high_water_ms"},
@@ -293,6 +296,21 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
             "CREATE INDEX djconnect_session_entry_message ON djconnect_session_entries "
             "(owner_profile_id,json_extract(body,'$.message_id')) "
             "WHERE kind IN ('conversation_user','conversation_dj') AND json_valid(body)"
+        )
+    elif version == 12:
+        transaction.execute("ALTER TABLE djconnect_history_deletions ADD COLUMN operation_kind TEXT NOT NULL DEFAULT 'archive'")
+        transaction.execute("ALTER TABLE djconnect_history_deletions ADD COLUMN content_scope TEXT NOT NULL DEFAULT '{}'")
+        transaction.execute(
+            "CREATE TABLE djconnect_content_tombstones ("
+            "owner_profile_id TEXT NOT NULL,session_id TEXT NOT NULL,kind TEXT NOT NULL,"
+            "reference_id TEXT NOT NULL,entry_id TEXT NOT NULL,created_ms INTEGER NOT NULL,"
+            "PRIMARY KEY(owner_profile_id,session_id,kind,reference_id),"
+            "FOREIGN KEY(session_id) REFERENCES djconnect_persistent_sessions(session_id) ON DELETE CASCADE)"
+        )
+        transaction.execute(
+            "CREATE TABLE djconnect_content_request_fences ("
+            "owner_profile_id TEXT NOT NULL,request_hash TEXT NOT NULL,created_ms INTEGER NOT NULL,"
+            "PRIMARY KEY(owner_profile_id,request_hash))"
         )
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(
