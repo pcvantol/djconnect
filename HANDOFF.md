@@ -1,3 +1,27 @@
+## Pi rc.6 producer prerequisite — current source preparation, 21 October 2026
+
+Same sole Core writer, fresh native hostverify MATCH/exit0/onboarding4.5.4 and
+clean qualified base a40878e56df85dfd902450e421a597d5c0394d9e. Narrative source1263
+and separate Final1264 are actually qualified, installed on HA-dev and reconciled;
+7/7 setup,232hashes,HTTP and containerSQL12/integrityOK/pending0. Originala31
+and aggregate8d67/d53 evidence are retained; replaced PR1248 is closed. Sparse-DJ
+source1261/Final1262 remains installed; no actual live cadence/quality claim.
+
+Peter directly authorized the same Core owner to prepare this bounded rc.6
+dependency after the current change. New [contract v2](docs/release/PI_TWO_HOST_DEPLOYMENT_CONTRACT_V2.md),
+request V3 and manifest V3 close rc.6 assets/smoke while retaining every rc.5
+contract/schema/operative approval and the exact existing identity inventory.
+This is structure only: no rc.6 APPROVED manifest, unpublished hash, new target,
+consumer source write, device/config/pairing/credential mutation or budget.
+Actual protected source/review/checks, separate Finalization and qualified
+consumer adoption precede operative use; real published artifact hashes and
+current human deployment authority remain later binding gates. PiPR119/daf00f51
+has only bounded independent delta source review; no deployment/native GO.
+
+Queue-grounded natural Forecast remains the next selected product slice after
+this explicit serial dependency; other personal-DJ/client gaps remain open.
+Current fixed deadline19:10:02UTC is unchanged. See [qualification and limits](docs/verification/PI_RC6_PRODUCER_CONTRACT_20261021.md).
+
 ## Individual owner content deletion — implementation candidate, 21 October2026
 
 ## Public-story temporal precision — separate Finalization, 21 October 2026
