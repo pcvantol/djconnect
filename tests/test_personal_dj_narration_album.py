@@ -211,6 +211,136 @@ class AlbumNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(await self.base.publish())
         self.assertEqual(len(self.calls), 2)
 
+    async def test_rejected_album_does_not_starve_independently_qualified_current_genre(self):
+        from custom_components.djconnect.session_facts import observed_genre_facts
+        from custom_components.djconnect.session_conversation import query_service
+        owner, sid = 'profile-a', self.base.session.session_id
+        await self.base.manager.async_update_allowed_capability_intents(owner_profile_id=owner,
+            session_id=sid,allowed_capability_intents=frozenset({'album_story','genre_story'}))
+        await self.base.manager.async_update_presence(owner_profile_id=owner,session_id=sid,
+            selected_presence='presenter')
+        catalog = self.base.catalog
+        genres = observed_genre_facts({'source':'spotify_playback_status','backend':'spotify_direct',
+            'is_playing':True,'media_identity':catalog['uri'],'title':catalog['title'],
+            'artist':catalog['artist'],'artist_ids':[self.artist_id], 'genres':['synth-pop'],
+            'genre_source_expires_at':time.monotonic()+600},media_identity=catalog['uri'],
+            title=catalog['title'],artist=catalog['artist'])
+        self.assertEqual(len(genres),1)
+        callbacks = []
+        async def expression(brief, guard):
+            guard()
+            callbacks.append(brief.fact.key)
+            # Explicit synthetic research rejection; no network or model call.
+            return brief.seed
+        self.base.manager.connect_narration(owner,sid,expression,lambda:None)
+        async def insight():
+            return {'_qualified_facts':(self.base.fact,*genres)}
+        first = await self.base.manager.async_process_track_started(owner_profile_id=owner,
+            session_id=sid,media_identity=catalog['uri'],insight_provider=insight,
+            require_current_playback=True,allow_initial_facts=True)
+        self.assertIsNone(first)
+        await self.base.manager.async_update_playback_projection(owner_profile_id=owner,session_id=sid,
+            state='playing',media_identity=catalog['uri'],title=catalog['title'],artist=catalog['artist'],
+            duration_ms=300000,position_ms=15000)
+        moment = await self.base.manager.async_maybe_publish_intra_track_moment(owner_profile_id=owner,
+            session_id=sid,media_identity=catalog['uri'])
+        self.assertIsNotNone(moment)
+        self.assertEqual(moment.moment_type.value,'genre')
+        self.assertIn('synth-pop',moment.content)
+        self.assertEqual(callbacks,['album_release','genre_context'])
+        for _ in range(3):
+            self.assertIsNone(await self.base.manager.async_maybe_publish_intra_track_moment(
+                owner_profile_id=owner,session_id=sid,media_identity=catalog['uri']))
+        self.assertEqual(callbacks,['album_release','genre_context'])
+        self.assertEqual(self.base.manager.current_active(owner).presence_ledger.total_published,1)
+        await self.base.manager.async_end(owner_profile_id=owner,session_id=sid)
+        await self.base.fixture.service.async_close()
+        await self.base.fixture.service.async_initialize()
+        page = await query_service(self.base.hass,self.base.history).async_timeline_page(owner,sid)
+        published = [e for e in page['entries'] if e.get('moment_id')]
+        self.assertEqual([e['moment_id'] for e in published],[moment.moment_id])
+        # Live genre proof is not a durable archive grant. This fixture did not
+        # connect archive admission, so SQLite retains only its causal receipt.
+        self.assertIsNone(published[0]['text'])
+        self.assertEqual(published[0]['content_state'],'unavailable')
+        self.assertFalse(published[0]['speech_available'])
+
+    async def test_real_observer_collects_genre_once_and_discards_changed_source_or_full_pool(self):
+        import asyncio
+        import importlib
+        from unittest.mock import AsyncMock, patch
+        from custom_components.djconnect.spotify_backend import SpotifyBackend, SpotifyPlaybackObservation
+        from custom_components.djconnect.profile_context import profile_storage
+        # Other owning test loaders deliberately replace sys.modules entries.
+        # Use their current module owners, not stale package attributes or a
+        # backend class captured by a previously imported observer fixture.
+        forecast_imagery = importlib.import_module('custom_components.djconnect.forecast_imagery')
+        playback_observation = importlib.import_module('custom_components.djconnect.playback_observation')
+        session_facts = importlib.import_module('custom_components.djconnect.session_facts')
+        self.base.hass.async_create_task = asyncio.create_task
+        catalog = {**self.base.catalog,'artist_ids':[self.artist_id]}
+        result = SpotifyPlaybackObservation(is_playing=True,state='playing',media_identity=catalog['uri'],
+            title=catalog['title'],artist=catalog['artist'],album=catalog['album_name'],
+            duration_ms=300000,position_ms=0,catalog=catalog)
+        for mode in ('available','command','authority','track','full-pool','short'):
+            with self.subTest(mode=mode):
+                prior = self.base.manager.current_active('profile-a')
+                if prior is not None:
+                    await self.base.manager.async_end(owner_profile_id='profile-a',session_id=prior.session_id)
+                active = await self.base.manager.async_start(owner_profile_id='profile-a',locale='nl',
+                    selected_mood='party',music_backend='spotify_direct',
+                    allowed_capability_intents=frozenset({'album_story','genre_story'}))
+                active = await self.base.manager.async_update_presence(owner_profile_id='profile-a',
+                    session_id=active.session_id,selected_presence='presenter')
+                observer = playback_observation.PlaybackObservationManager(self.base.hass)
+                requests, expressions = [], []
+                async def expression(brief,guard):
+                    guard()
+                    expressions.append(brief.fact.key)
+                    return brief.seed
+                self.base.manager.connect_narration('profile-a',active.session_id,expression,lambda:None)
+                async def no_other_insight():
+                    raise AssertionError('catalogue evidence must not trigger TrackInsight/model fallback')
+                async def request(backend,method,path,**kwargs):
+                    requests.append((method,path))
+                    if mode == 'command':
+                        observer._spotify_sessions['profile-a'].command_revision += 1
+                    elif mode == 'authority':
+                        profile_storage(self.base.hass).authority_revision += 1
+                    elif mode == 'track':
+                        await self.base.manager.async_update_playback_projection(owner_profile_id='profile-a',
+                            session_id=active.session_id,state='playing',media_identity='spotify:track:'+'Z'*22,
+                            title='Other recording',artist='Other artist',duration_ms=300000,position_ms=0)
+                    return {'artists':[{'id':self.artist_id,'genres':['synth-pop']}]}
+                pool = (self.base.fact,)*6 if mode == 'full-pool' else (self.base.fact,)
+                resolver = type('Resolver',(),{'resolve':AsyncMock(return_value=pool)})()
+                current_result = replace(result,duration_ms=10000) if mode == 'short' else result
+                # Separate ordinary per-track source lookup from an unrelated
+                # cached success in a previous synthetic Session.
+                self.base.runtime.backend_cache = {}
+                with patch.object(SpotifyBackend,'async_observe_current_playback',AsyncMock(return_value=current_result)), \
+                        patch.object(SpotifyBackend,'async_observe_next_item',AsyncMock(return_value={})), \
+                        patch.object(SpotifyBackend,'_request',request), \
+                        patch.object(forecast_imagery,'artist_authority',return_value=lambda:True), \
+                        patch.object(session_facts,'session_facts_resolver',return_value=resolver), \
+                        patch.object(playback_observation,'SpotifyBackend',SpotifyBackend), \
+                        patch.object(playback_observation,'async_track_time_interval',None), \
+                        patch.object(self.base.manager,'async_prepare_forecast_art',AsyncMock()):
+                    await observer.async_start_spotify(integration_runtime=self.base.runtime,
+                        session=active,insight_provider=no_other_insight)
+                    if mode == 'available':
+                        observed = observer._spotify_sessions['profile-a']
+                        for _ in range(3):
+                            await observer._async_poll_spotify(observed)
+                        published = self.base.manager.current_active('profile-a').broadcast.state.dj_moments
+                        self.assertEqual([m.moment_type.value for m in published],['genre'])
+                        self.assertEqual(expressions,['album_release','genre_context'])
+                        self.assertEqual(requests,[('GET','/artists?ids='+self.artist_id)])
+                    else:
+                        self.assertEqual(self.base.manager.current_active('profile-a').broadcast.state.dj_moments,())
+                        self.assertEqual(len(requests),0 if mode == 'full-pool' else 1)
+                    await observer.async_stop('profile-a',active.session_id)
+
     async def test_track_change_during_generation_cannot_publish_album_or_seed(self):
         async def change():
             await self.base.manager.async_update_playback_projection(owner_profile_id='profile-a',

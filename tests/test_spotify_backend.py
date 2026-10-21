@@ -652,6 +652,107 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertFalse(hasattr(runtime, "last_ambient_fact_key"))
         self.assertEqual(runtime.last_playback["track_name"], "No Surprises")
 
+    def _genre_observation(self):
+        return self.backend.SpotifyPlaybackObservation(is_playing=True, state="playing",
+            media_identity="spotify:track:"+"T"*22, title="Synthetic recording", artist="Synthetic artist",
+            catalog={"uri":"spotify:track:"+"T"*22, "title":"Synthetic recording",
+                     "artist":"Synthetic artist", "artist_ids":["A"*22]})
+
+    def test_observed_genres_reuse_exact_id_cache_and_original_source_deadline_without_other_effects(self):
+        from unittest.mock import patch
+        runtime = types.SimpleNamespace(config={}, backend_cache={})
+        backend = self.backend.SpotifyBackend(object(), runtime)
+        calls = []
+        async def request(method, path):
+            calls.append((method,path))
+            return {"artists":[{"id":"A"*22,"genres":["synth-pop"]},
+                               {"id":"Z"*22,"genres":["unrelated"]}]}
+        backend._request = request
+        observed = self._genre_observation()
+        async def scenario():
+            with patch.object(self.backend.time,"monotonic",return_value=100):
+                first = await backend.async_observe_current_genres(observed, authorize=lambda:True)
+            with patch.object(self.backend.time,"monotonic",return_value=101):
+                second = await backend.async_observe_current_genres(observed, authorize=lambda:True)
+            self.assertEqual(first,second)
+            self.assertEqual(first["genres"],["synth-pop"])
+            self.assertEqual(first["genre_source_expires_at"],100+self.backend.LISTENING_PROFILE_CACHE_TTL_SECONDS)
+        asyncio.run(scenario())
+        self.assertEqual(calls,[("GET","/artists?ids="+"A"*22)])
+        self.assertFalse(hasattr(runtime,"last_playback"))
+        self.assertFalse(hasattr(runtime,"memory"))
+
+    def test_observed_genres_refuse_pause_ambiguous_or_mismatched_source_before_lookup(self):
+        from dataclasses import replace
+        observed = self._genre_observation()
+        variants = [replace(observed,is_playing=False),replace(observed,state="paused"),
+            replace(observed,catalog={**observed.catalog,"uri":"spotify:track:"+"Z"*22}),
+            replace(observed,catalog={**observed.catalog,"title":"Other recording"}),
+            replace(observed,catalog={**observed.catalog,"artist_ids":["A"*22,"B"*22]})]
+        backend = self.backend.SpotifyBackend(object(),types.SimpleNamespace(config={}))
+        async def forbidden(*args,**kwargs):
+            raise AssertionError("invalid source reached genre lookup")
+        backend._enrich_playback_artist_genres = forbidden
+        for value in variants:
+            self.assertEqual(asyncio.run(backend.async_observe_current_genres(value,authorize=lambda:True)),{})
+        self.assertEqual(asyncio.run(backend.async_observe_current_genres(observed,authorize=lambda:False)),{})
+
+    def test_observed_genres_discard_changed_account_credentials_or_authority_during_lookup(self):
+        for change in ("account","credentials","authority"):
+            with self.subTest(change=change):
+                runtime = types.SimpleNamespace(config={},backend_cache={})
+                backend = self.backend.SpotifyBackend(object(),runtime)
+                allowed = [True]
+                async def request(method,path):
+                    if change == "account":
+                        runtime.profile_context_music_account_id = "other-account"
+                    elif change == "credentials":
+                        runtime.config["spotify_refresh_token"] = "other-synthetic-token"
+                    else:
+                        allowed[0] = False
+                    return {"artists":[{"id":"A"*22,"genres":["synth-pop"]}]}
+                backend._request = request
+                self.assertEqual(asyncio.run(backend.async_observe_current_genres(
+                    self._genre_observation(),authorize=lambda:allowed[0])),{})
+
+    def test_observed_genre_timeout_is_bounded_and_cancels_optional_lookup_without_fallback(self):
+        backend = self.backend.SpotifyBackend(object(),types.SimpleNamespace(config={}))
+        cancelled = []
+        async def slow(playback):
+            try:
+                await asyncio.sleep(60)
+            finally:
+                cancelled.append(True)
+        backend._enrich_playback_artist_genres = slow
+        self.assertEqual(asyncio.run(backend.async_observe_current_genres(
+            self._genre_observation(),authorize=lambda:True)),{})
+        self.assertEqual(cancelled,[True])
+
+    def test_observed_genres_never_upgrade_expired_missing_or_other_artist_metadata(self):
+        from custom_components.djconnect.session_facts import observed_genre_facts
+        observed = self._genre_observation()
+        for mode in ('expired','missing','other-artist'):
+            with self.subTest(mode=mode):
+                backend = self.backend.SpotifyBackend(object(),types.SimpleNamespace(config={}))
+                async def request(method,path):
+                    return {'artists':[{'id':'Z'*22,'genres':['synth-pop']}]} if mode == 'other-artist' else {}
+                backend._request = request
+                if mode == 'expired':
+                    async def expired(playback):
+                        playback.update(genres=['synth-pop'],_artist_genres_expires_monotonic=time.monotonic()-1)
+                    backend._enrich_playback_artist_genres = expired
+                evidence = asyncio.run(backend.async_observe_current_genres(observed,authorize=lambda:True))
+                self.assertEqual(observed_genre_facts(evidence,media_identity=observed.media_identity,
+                    title=observed.title,artist=observed.artist),())
+
+    def test_observed_genre_cancellation_propagates_instead_of_creating_alternate_work(self):
+        backend = self.backend.SpotifyBackend(object(),types.SimpleNamespace(config={}))
+        async def cancelled(playback):
+            raise asyncio.CancelledError()
+        backend._enrich_playback_artist_genres = cancelled
+        with self.assertRaises(asyncio.CancelledError):
+            asyncio.run(backend.async_observe_current_genres(self._genre_observation(),authorize=lambda:True))
+
     def test_artist_genre_cache_hit_preserves_original_deadline_until_reload(self):
         from unittest.mock import patch
         runtime = types.SimpleNamespace(config={}, backend_cache={})

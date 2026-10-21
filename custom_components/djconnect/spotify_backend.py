@@ -594,6 +594,52 @@ class SpotifyBackend:
             catalog={key: playback[key] for key in ("uri", "title", "artist", "album_name", "album_uri", "release_date", "release_date_precision", "isrc", "artist_ids") if key in playback},
         )
 
+    async def async_observe_current_genres(self, observed: SpotifyPlaybackObservation, *, authorize) -> dict[str, Any]:
+        """Bounded exact-artist evidence beside catalog facts; no playback or AI read.
+
+        Artist genres describe catalog context, never measured recording audio.
+        Cache reads retain the source's original deadline and owner scope.
+        """
+        if not isinstance(observed, SpotifyPlaybackObservation) or not callable(authorize):
+            return {}
+        catalog = observed.catalog
+        if (observed.is_playing is not True or observed.state != "playing"
+                or not isinstance(catalog, dict)
+                or not re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}", observed.media_identity)
+                or catalog.get("uri") != observed.media_identity
+                or catalog.get("title") != observed.title or catalog.get("artist") != observed.artist):
+            return {}
+        ids = catalog.get("artist_ids")
+        if (not isinstance(ids, (tuple, list)) or len(ids) != 1
+                or not isinstance(ids[0], str) or not re.fullmatch(r"[A-Za-z0-9]{22}", ids[0])):
+            return {}
+        revoked = False
+
+        def current():
+            nonlocal revoked
+            try:
+                revoked = revoked or not authorize()
+            except Exception:
+                revoked = True
+            return not revoked
+
+        if not current():
+            return {}
+        scope = (runtime_scope(self.runtime), credential_cache_scope(self.runtime))
+        playback = {"artist_ids": list(ids)}
+        try:
+            await asyncio.wait_for(self._enrich_playback_artist_genres(playback), timeout=3)
+        except Exception:
+            # Optional evidence cannot buy a different provider/model fallback.
+            return {}
+        if not current() or (runtime_scope(self.runtime), credential_cache_scope(self.runtime)) != scope:
+            return {}
+        return {"source": "spotify_playback_status", "backend": "spotify_direct",
+                "is_playing": True, "media_identity": observed.media_identity,
+                "title": observed.title, "artist": observed.artist,
+                "artist_ids": playback["artist_ids"], "genres": playback.get("genres", []),
+                "genre_source_expires_at": playback.get("_artist_genres_expires_monotonic")}
+
     async def async_observe_next_item(self, media_identity: str) -> dict[str, str]:
         """Read one queue item, bound to the exact current account playback."""
         async def load() -> dict[str, Any]:
