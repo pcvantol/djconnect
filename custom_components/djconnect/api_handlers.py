@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Awaitable, Callable
 
-from .discovery_artwork import capture_refresh_guard
+from .discovery_artwork import capture_refresh_guard, project_music_dna_images
 
 from . import http as http_helpers
 from .const import CLIENT_TYPE_ESP32, CONF_CLIENT_TYPE, CONF_LOCAL_URL, VERSION
@@ -1803,6 +1803,9 @@ async def async_handle_music_dna_profile_payload(
         result = await profile_getter(runtime, payload, user_id=user_id)
         if response_guard is not None and not response_guard.valid():
             return {"success": False, "error": "music_dna_context_changed"}, 409
+    result = project_music_dna_images(hass, runtime, result, response_guard)
+    if response_guard is not None and not response_guard.valid():
+        return {"success": False, "error": "music_dna_context_changed"}, 409
     _debug_music_dna_result("profile", result, 200, runtime=runtime)
     return result, 200
 

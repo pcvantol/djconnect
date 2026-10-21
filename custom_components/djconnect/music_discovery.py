@@ -640,12 +640,35 @@ def _profile_from_memory(memory: dict[str, Any], *, owner: dict[str, str] | None
             return out
         return value
     listening = hydrate(listening)
+
+    def accepted_with_current_artwork(item: dict[str, Any]) -> dict[str, Any]:
+        # Older accepted records can lack a reference. Reuse current server proof
+        # for this exact URI only; never write it back or renew its capture clock.
+        out = dict(item)
+        if owner is None:
+            return out
+        ref = compact_artwork(item)
+        if ref and ref.get("owner") == owner:
+            return out
+        from .music_dna import _accepted_artwork_reference
+
+        uri = item.get("uri") or item.get("context_uri")
+        ref = _accepted_artwork_reference(memory, uri, owner) if isinstance(uri, str) else {}
+        if not ref:
+            return out
+        candidate = {**out, "uri": uri, "artwork": ref}
+        if uri.startswith("spotify:track:"):
+            candidate.setdefault("album_uri", ref["media_uri"])
+        if compact_artwork(candidate):
+            return candidate
+        return out
+
     return {
         "favorite_genres": _texts(memory.get("favorite_genres")),
         "favorite_artists": _artist_names(memory.get("favorite_artists")),
         "recent_tracks": [item for item in memory.get("recent_tracks") or [] if isinstance(item, dict)],
         "recent_favorite_tracks": [item for item in memory.get("recent_favorite_tracks") or [] if isinstance(item, dict)],
-        "recommendation_plays": [item for item in memory.get("recommendation_plays") or [] if isinstance(item, dict)],
+        "recommendation_plays": [accepted_with_current_artwork(item) for item in memory.get("recommendation_plays") or [] if isinstance(item, dict)],
         "blocked_artists": [item for item in memory.get("blocked_artists") or [] if isinstance(item, dict)],
         "blocked_items": [item for item in memory.get("blocked_items") or [] if isinstance(item, dict)],
         "top_tracks_by_range": listening.get("top_tracks_by_range") if isinstance(listening.get("top_tracks_by_range"), dict) else {},

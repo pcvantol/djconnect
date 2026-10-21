@@ -34,6 +34,9 @@ _IMAGE_KEYS = frozenset(
         "entity_picture",
         "image_expires_at",
         "image_attribution",
+        "image_subject_uri",
+        "image_captured_at",
+        "image_reference_expires_at",
     }
 )
 
@@ -501,4 +504,86 @@ async def project_discovery_images(
                             + ref["media_uri"].replace("spotify:", "").replace(":", "/"),
                         },
                     )
+    return result
+
+
+def project_music_dna_images(
+    hass: Any,
+    runtime: Any,
+    response: dict[str, Any],
+    guard: RefreshGuard | None,
+) -> dict[str, Any]:
+    """Only current exact media proof becomes a transient owner-scoped image lease."""
+    from .music_dna import _accepted_artwork_reference
+
+    result = strip_artwork(response)
+    if (
+        not result.get("enabled")
+        or guard is None
+        or guard.runtime is not runtime
+        or result.get("music_dna_key") != guard.key
+        or not guard.enabled
+        or not guard.valid()
+        or not isinstance(getattr(hass, "data", None), dict)
+    ):
+        return result
+    profile = result.get("profile")
+    if not isinstance(profile, dict):
+        return result
+    # Deliberately exclude historical snapshots, blocked data and label-only joins.
+    groups = [profile.get(k) for k in (
+        "recent_tracks", "recent_favorite_tracks", "favorite_artists", "recommendation_signals"
+    )]
+    for family in ("top_tracks_by_range", "top_artists_by_range"):
+        ranges = profile.get(family)
+        if isinstance(ranges, dict):
+            groups.extend(ranges.values())
+    positives = profile.get("explicit_positives")
+    if isinstance(positives, dict):
+        groups.extend(positives.get(k) for k in ("favorite_tracks", "accepted_recommendations"))
+    issued: dict[str, tuple[str, dict[str, Any]]] = {}
+    scanned = 0
+    owner = artwork_owner(runtime)
+    for group in groups:
+        if not isinstance(group, list):
+            continue
+        for item in group:
+            scanned += 1
+            if scanned > 1000:
+                return result
+            if not isinstance(item, dict):
+                continue
+            uri = item.get("uri")
+            if not isinstance(uri, str) or not _URI.fullmatch(uri):
+                continue
+            if item.get("id") and item["id"] != uri.rsplit(":", 1)[-1]:
+                continue
+            if uri in issued:
+                media_uri, projection = issued[uri]
+                if not item.get("album_uri") or item["album_uri"] == media_uri:
+                    item.update(projection)
+                continue
+            if len(issued) >= 128:
+                continue
+            ref = _accepted_artwork_reference(guard.record, uri, owner)
+            if not ref or (item.get("album_uri") and item["album_uri"] != ref["media_uri"]):
+                continue
+            url, expiry = register_discovery_image(hass, guard, ref)
+            if not url:
+                continue
+            projection = {
+                "image_url": url,
+                "image_subject_uri": uri,
+                "image_captured_at": ref["captured_at"],
+                "image_reference_expires_at": ref["expires_at"],
+                "image_expires_at": expiry,
+                "image_attribution": {
+                    "provider": "spotify",
+                    "media_uri": ref["media_uri"],
+                    "source_url": "https://open.spotify.com/"
+                    + ref["media_uri"].replace("spotify:", "").replace(":", "/"),
+                },
+            }
+            issued[uri] = (ref["media_uri"], projection)
+            item.update(projection)
     return result

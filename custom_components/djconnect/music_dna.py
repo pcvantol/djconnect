@@ -1387,7 +1387,8 @@ def _profile_payload(memory: dict[str, Any]) -> dict[str, Any]:
         "last_profile_refresh": listening.get("last_profile_refresh") or memory.get("last_profile_refresh"),
         "consent_updated_at": memory.get("consent_updated_at"),
     }
-    return _hide_empty_profile_blocks(profile)
+    # Store references are private evidence, never client-readable asset IDs or grants.
+    return strip_artwork(_hide_empty_profile_blocks(profile))
 
 
 def _profile_summary(
