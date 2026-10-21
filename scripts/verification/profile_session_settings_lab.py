@@ -24,6 +24,7 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
     root = Path(__file__).resolve().parents[2]
     source_files = [*sorted((root/'custom_components/djconnect').rglob('*.py')),
                     Path(__file__), Path(__file__).with_name('profile_session_settings_ws_lab.py'),
+                    Path(__file__).with_name('manual_pi_pairing_lab.py'),
                     Path(__file__).with_name('verify_session_speech_http.py'),
                     Path(__file__).with_name('session_speech_browser_lab.py'),
                     Path(__file__).with_name('session_speech_browser.mjs')]
@@ -86,6 +87,8 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
              'speech_state': legacy_prepared['session_speech'].get('audio_state', 'unavailable'),
              'speech_reason': legacy_prepared['session_speech'].get('reason'),
              'activation': False, 'invented_mood': False}]
+    from manual_pi_pairing_lab import run as manual_pi_pairing_probe
+    rows.append(await manual_pi_pairing_probe(hass, runtime, storage))
 
     async def read(auth=headers):
         response = await client.get('/api/djconnect/v1/profile/settings', params={
@@ -243,24 +246,46 @@ async def run(hass, runtime, client, post, identity, output, headers, manager, s
     rows.append({'case': 'text_only_zero_synthesis_old_audio_denied_and_owner_controls_removed',
         'response': text_only, 'additional_synthesis_calls': 0, 'shared_settings_leak': False})
     await post('/session/end', {**identity, 'session_id': sid})
+    before_successor_waveforms = len(calls)
+    before_successor_speaker_fetches = len(speaker_sink[0])
     await post('/session/start', {**identity, 'locale': 'en'}, expected=201)
     successor = manager.current_active('profile-a')
     assert successor.session_id != sid
     assert successor.effective_dj_settings().as_dict() == changed['snapshot']['defaults']
-    assert not successor.broadcast.state.dj_moments, 'music_only must suppress new opening contributions'
+    # The current opening contract permits one informative visual welcome at
+    # Music-only. It must not become automatic speech or another contribution.
+    from custom_components.djconnect.session_opening import opening_context
+    from custom_components.djconnect.session_speech import moment_projection
+    openings = successor.broadcast.state.dj_moments
+    assert len(openings) == 1, 'music_only permits only the original informative opening'
+    opening = openings[0]
+    assert opening_context(opening) == successor.opening_context
+    assert opening.session_id == successor.session_id and opening.visual_only
+    assert not moment_projection(successor.broadcast, opening, autoplay=True)['autoplay_eligible']
+    opening_identity = (opening.moment_id, opening.content, opening.generation_metadata)
+    assert len(calls) == before_successor_waveforms
+    assert len(speaker_sink[0]) == before_successor_speaker_fetches
     successor_state, status = await read()
     assert status == 200
     raised, _ = await choose(successor_state, {'presence': 'balanced'})
     successor = manager.current_active('profile-a')
     assert successor.selected_presence == 'balanced'
-    assert not successor.broadcast.state.dj_moments, 'raising Presence must not replay a missed opening'
+    assert len(successor.broadcast.state.dj_moments) == 1
+    retained_opening = successor.broadcast.state.dj_moments[0]
+    assert (retained_opening.moment_id, retained_opening.content,
+            retained_opening.generation_metadata) == opening_identity
+    await hass.async_block_till_done()
+    assert len(calls) == before_successor_waveforms, 'raising Presence must not synthesize the old opening'
+    assert len(speaker_sink[0]) == before_successor_speaker_fetches
     assert raised['snapshot']['defaults']['persona'] == 'club_dj'
     assert raised['snapshot']['defaults']['mood'] == 'party'
     rows.append({'case': 'published_opening_persona_then_inherited_off_and_no_catchup',
                  'original_published_persona': original_persona,
                  'successor_persona': successor.dj_persona.value,
                  'successor_mood': successor.selected_mood,
-                 'music_only_openings': 0, 'raised_presence_catchup': 0})
+                 'music_only_informative_visual_openings': 1,
+                 'music_only_automatic_speech': 0, 'raised_presence_catchup': 0,
+                 'original_opening_identity_and_body_preserved': True})
     await playback_observation_manager(hass).async_stop('profile-a', successor.session_id)
     await post('/session/end', {**identity, 'session_id': successor.session_id})
     receipt = await post('/profile/settings/operation', {**identity, 'contract_version': 3,
