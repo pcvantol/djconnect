@@ -104,3 +104,20 @@ installed/native/audio/user acceptance is claimed by source fixtures. Apple owns
 current-recording DTO and local response fences; no Apple source was changed.
 The natural queue-backed Forecast and other registered producer dependencies
 remain separate open work. No public HACS release or new provider/model budget.
+
+## Actual protected source and separate Finalization
+
+Source1274 exact reviewedf8ea80ed16fb2c13ef9e92aec5cf787a925b04e5 normally
+protected merged21:20:16UTC as4ba03708f0345e75657d1581ae4a20d369a1d9cd.
+Whole reviewed/merge trees match. Actual independent GO, raw exact HIGH_RISK
+OwnerAuthorization39677526273 PASS and all applicable technical gates
+SUCCESS/conditionalSKIP. Actual raw canonical39678872610 is
+POST_MERGE_RELEASE_EVIDENCE_QUALIFIED, exact PR/head/main, no findings.
+Outer release workflow and its paid-model/package jobs are CANCELLED; the
+independent always-reconcile job succeeds. No paid Golden/package PASS claim.
+
+This separate documentary Finalization preserves six identical current-state
+additions, full previous bodies and an immutable history record. Its own exact
+review/checks/normal protected merge/canonical qualification remain required.
+Actual233-file HA-dev installation/readback follows those gates; no installed
+or Apple/native/live-provider/audio/user acceptance is implied.
