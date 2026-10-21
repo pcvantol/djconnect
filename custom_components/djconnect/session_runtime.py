@@ -524,6 +524,7 @@ class SessionFlowChangeType(StrEnum):
     INITIALIZED = "initialized"
     REPUBLISHED = "republished"
     MOMENT_APPENDED = "moment_appended"
+    CONTENT_WITHDRAWN = "content_withdrawn"
 
 
 @dataclass(frozen=True)
@@ -3580,6 +3581,11 @@ class DJSessionBroadcastEngine:
     _native_revision: str = field(default="", init=False, repr=False)
     _owner_only_moment_ids: set[str] = field(default_factory=set, init=False, repr=False)
     _invalidated_current_moment_ids: set[str] = field(default_factory=set, init=False, repr=False)
+    deleted_moment_ids: set[str] = field(default_factory=set, init=False, repr=False)
+    content_epoch: int = field(default=0, init=False)
+    content_pending: bool = field(default=False, init=False)
+    content_current_withdrawn: bool = field(default=False, init=False)
+    content_pending_moment_ids: set[str] = field(default_factory=set, init=False, repr=False)
     _owner_subscription_entries: dict[str, str] = field(default_factory=dict, init=False, repr=False)
     _revoked_subscriptions: set[str] = field(default_factory=set, init=False, repr=False)
     _withdrawal_sent: set[str] = field(default_factory=set, init=False, repr=False)
@@ -3723,9 +3729,10 @@ class DJSessionBroadcastEngine:
 
     def publish_moment(self, moment: DJMoment) -> None:
         """Project a validated Moment without exposing private projections."""
-        if moment.session_id != self.state.session_id or any(
+        if moment.moment_id in self.deleted_moment_ids or moment.session_id != self.state.session_id or any(
                 previous.moment_id == moment.moment_id for previous in self.state.dj_moments):
             return
+        self.content_current_withdrawn = False
         self.prepare_moment_delivery(moment)
         playback_item_id = self.state.playback.item_id
         if playback_item_id:
@@ -3755,6 +3762,13 @@ class DJSessionBroadcastEngine:
 
     def close(self) -> None:
         """Notify renderers of Runtime termination, then release every subscription."""
+        if self.state.runtime_state is not SessionRuntimeState.ACTIVE:
+            # Explicit lifecycle termination may race a durable deletion obligation.
+            # Terminal projections already redact every Moment; disposal must not
+            # be blocked by the active-only delivery barrier. SQL/Store still owe
+            # the original erasure and keep their independent durable fences.
+            self.content_pending = False
+            self.content_pending_moment_ids.clear()
         if self.speech_cleanup is not None:
             self.speech_cleanup()
             self.speech_cleanup = None
@@ -3780,6 +3794,8 @@ class DJSessionBroadcastEngine:
 
     def _publish(self, event_type: BroadcastEventType, payload: dict[str, Any]) -> None:
         """Deliver one incremental, renderer-safe event to active subscribers."""
+        if self.content_pending:
+            return  # Preserve canonical state, but do not queue uncertain content.
         if self.speech_refresh is not None:
             self.speech_refresh()
         self.delivery_sequence += 1
@@ -3869,7 +3885,7 @@ class DJSessionBroadcastEngine:
         no longer maps to the bounded Runtime log deterministically falls back
         to the current owner snapshot.
         """
-        if not isinstance(recovery_cursor, str) or len(recovery_cursor) < 32:
+        if self.content_pending or not isinstance(recovery_cursor, str) or len(recovery_cursor) < 32:
             return None
         if any(moment.source_attribution for moment in self.state.dj_moments):
             return self._snapshot_required_recovery()
@@ -3930,6 +3946,8 @@ class DJSessionBroadcastEngine:
 
     def as_dict(self, *, include_owner_only: bool = True, forecast_locale: str | None = None) -> dict[str, Any]:
         """Expose canonical Broadcast State, optionally presenting Forecast locally."""
+        if self.content_pending:
+            raise PermissionError('content_delete_outcome_unknown')
         projection = self.state.as_dict(include_owner_only=include_owner_only)
         for moment in projection["dj_moments"]:
             playback_item_id = self._moment_playback_item_ids.get(
@@ -3992,6 +4010,7 @@ class DJSessionBroadcastEngine:
             playing=self.state.playback.state == "playing", now=time.monotonic())
             for moment in self.state.dj_moments
             if self.state.runtime_state is SessionRuntimeState.ACTIVE
+            and moment.moment_id not in self.content_pending_moment_ids | self.deleted_moment_ids
             and (include_owner_only or moment.presentation_intent.visibility is not DJMomentVisibility.OWNER_ONLY)]
         latest = next((moment.moment_id for moment in reversed(self.state.dj_moments)
                        if self._moment_playback_item_ids.get(moment.moment_id) == self.state.playback.item_id), None)
@@ -4024,6 +4043,7 @@ class DJSessionBroadcastEngine:
         source_ids = {moment.moment_id for moment in self.state.dj_moments if moment.source_attribution}
         excluded = {entry["moment_id"] for entry in all_admissions
                     if entry["moment_id"] in source_ids and entry["qualification"] != "qualified"}
+        excluded.update(self.content_pending_moment_ids | self.deleted_moment_ids)
         if ended:
             excluded.update(moment.moment_id for moment in self.state.dj_moments)
         if not include_owner_only:
@@ -4234,6 +4254,7 @@ class DJSessionRuntime:
     presence_ledger: PresenceLedger = field(default_factory=PresenceLedger)
     persona_revision: int = 0
     prepared_presentations: dict[str, Any] = field(default_factory=dict, repr=False, compare=False)
+    deleted_moment_ids: set[str] = field(default_factory=set, repr=False, compare=False)
     # Owner-only choices. Never add these to the shared Broadcast projection.
     settings_generation: str = field(default_factory=lambda: uuid4().hex)
     settings_revision: int = 0
@@ -4311,6 +4332,11 @@ class DJSessionRuntime:
 
     def allows_moment(self, moment) -> bool:
         """Only the genuine one-time welcome is informative at Music-only."""
+        if moment.moment_id in self.deleted_moment_ids:
+            return False
+        relation = moment.genre_transition
+        if relation is not None and {relation.source_moment_id, relation.target_moment_id} & self.deleted_moment_ids:
+            return False
         opening = opening_context(moment)
         if opening is not None and opening == self.opening_context:
             return self.publication_context_is_current()
@@ -4344,7 +4370,7 @@ class DJSessionRuntime:
         """Publish a Moment only after Planner placement has been established."""
         if not self.publication_context_is_current():
             return
-        if moment.session_id != self.session_id or any(
+        if moment.moment_id in self.deleted_moment_ids or moment.session_id != self.session_id or any(
                 previous.moment_id == moment.moment_id for previous in self.broadcast.state.dj_moments):
             return
         if moment.moment_type is not DJMomentType.SILENCE and not self.allows_moment(moment):
@@ -4983,6 +5009,7 @@ class SessionRuntimeManager:
                 and not opportunity.pending else None)
             if prepared_transition is not None:
                 pending = opportunity.pending_transition
+                transition_content_epoch = active.broadcast.content_epoch
                 opportunity.pending = True
         if prepared_transition is not None:
             engine, transition = prepared_transition
@@ -4993,6 +5020,8 @@ class SessionRuntimeManager:
                 async with self._lock:
                     if (self._active_by_profile.get(owner_profile_id) is not active
                             or self._intra_track_opportunities.get(owner_profile_id) is not opportunity
+                            or active.broadcast.content_epoch != transition_content_epoch
+                            or active.broadcast.content_pending
                             or opportunity.pending_transition is not pending
                             or self._prepare_pending_transition(active, opportunity) is None):
                         return None
@@ -5077,6 +5106,7 @@ class SessionRuntimeManager:
                 candidate_presence_revision = active.presence_revision
                 candidate_persona_revision = active.persona_revision
                 candidate_settings_revision = active.settings_revision
+                candidate_content_epoch = active.broadcast.content_epoch
                 strategy = active.session_start_strategy
                 discover = active.discover_context
                 memory = active.performance_memory
@@ -5116,6 +5146,8 @@ class SessionRuntimeManager:
                 or active.presence_revision != candidate_presence_revision
                 or active.persona_revision != candidate_persona_revision
                 or active.settings_revision != candidate_settings_revision
+                or active.broadcast.content_epoch != candidate_content_epoch
+                or active.broadcast.content_pending
                 or not active.allows_proactive()
                 or current is not opportunity or current.generation != generation
                 or not current.pending or current.blocked
@@ -5511,6 +5543,7 @@ class SessionRuntimeManager:
             started_mood_revision = prior.mood_revision if prior is not None else -1
             started_persona_revision = prior.persona_revision if prior is not None else -1
             started_settings_revision = prior.settings_revision if prior is not None else -1
+            started_content_epoch = prior.broadcast.content_epoch if prior is not None else -1
             previous_media_identity = prior.last_accepted_media_identity if prior is not None else ""
             initial = prior is not None and not prior.last_accepted_media_identity
             active = self._accept_track_started_media(owner_profile_id, session_id, media_identity, allow_initial=allow_initial_facts)
@@ -5547,6 +5580,8 @@ class SessionRuntimeManager:
                     or active.mood_revision != started_mood_revision
                     or active.persona_revision != started_persona_revision
                     or active.settings_revision != started_settings_revision
+                    or active.broadcast.content_epoch != started_content_epoch
+                    or active.broadcast.content_pending
                     or not active.allows_proactive()):
                 self._restore_track_started_media_locked(owner_profile_id, session_id, media_identity, previous_media_identity)
                 return None
@@ -5603,6 +5638,7 @@ class SessionRuntimeManager:
                 planning_presence_revision = active.presence_revision
                 planning_persona_revision = active.persona_revision
                 planning_settings_revision = active.settings_revision
+                planning_content_epoch = active.broadcast.content_epoch
                 planning_input = working_planner.project_track_started_planning_input(
                     session_id=active.session_id,
                     upcoming_playback=upcoming_playback,
@@ -5674,6 +5710,8 @@ class SessionRuntimeManager:
                     or active.presence_revision != planning_presence_revision
                     or active.persona_revision != planning_persona_revision
                     or active.settings_revision != planning_settings_revision
+                    or active.broadcast.content_epoch != planning_content_epoch
+                    or active.broadcast.content_pending
                     or not active.allows_proactive()):
                 self._restore_track_started_media_locked(
                     owner_profile_id, session_id, media_identity, previous_media_identity)
@@ -5757,7 +5795,9 @@ class SessionRuntimeManager:
                 require_current_playback=require_current_playback,
             ):
                 return None
-            if active.presence_revision != planning_presence_revision or not active.allows_proactive():
+            if (active.presence_revision != planning_presence_revision
+                    or active.broadcast.content_epoch != planning_content_epoch
+                    or active.broadcast.content_pending or not active.allows_proactive()):
                 self._restore_track_started_media_locked(owner_profile_id, session_id, media_identity, previous_media_identity)
                 return None
             working_planner = copy.deepcopy(active.planner)
@@ -5779,6 +5819,7 @@ class SessionRuntimeManager:
             fallback_presence_revision = active.presence_revision
             fallback_persona_revision = active.persona_revision
             fallback_settings_revision = active.settings_revision
+            fallback_content_epoch = active.broadcast.content_epoch
             decision = working_planner.evaluate_track_started(
                 session_start_strategy=active.session_start_strategy,
                 session_direction=active.session_direction,
@@ -5853,6 +5894,8 @@ class SessionRuntimeManager:
                     or active.presence_revision != fallback_presence_revision
                     or active.persona_revision != fallback_persona_revision
                     or active.settings_revision != fallback_settings_revision
+                    or active.broadcast.content_epoch != fallback_content_epoch
+                    or active.broadcast.content_pending
                     or not active.allows_proactive()):
                 self._restore_track_started_media_locked(
                     owner_profile_id, session_id, media_identity, previous_media_identity)
@@ -6567,7 +6610,7 @@ class SessionRuntimeManager:
 
     async def _async_persist_moment(self, active: DJSessionRuntime, moment: DJMoment, *, final_authorize=None) -> bool:
         """Explicit historical field qualification before actual live publication."""
-        if moment.session_id != active.session_id:
+        if moment.moment_id in active.deleted_moment_ids or moment.session_id != active.session_id:
             return False
         if moment.session_opening is not None:
             from .session_opening import admitted_opening

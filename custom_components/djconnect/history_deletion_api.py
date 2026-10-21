@@ -184,3 +184,43 @@ async def async_handle_history_delete(hass, data, *, headers=None, operation="si
     finally:
         if version_token is not None:
             version_context.reset(version_token)
+
+
+async def async_handle_history_delete_status(hass, data, *, headers=None):
+    """Status of the exact original archive operation; never executes a POST."""
+    from .history_deletion import deletion_coordinator
+    from .persistence.service import PersistenceError
+    from .transport_delivery import register_delivery_admission
+    base = {'device_id', 'client_type', 'contract_version', 'operation_id', 'operation'}
+    mode = data.get('operation') if isinstance(data, dict) else None
+    body_keys = {'session_id', 'expected_revision'} if mode == 'single' else {'snapshot_id'}
+    if (not isinstance(mode, str) or mode not in {'single', 'all'} or set(data) != base | body_keys
+            or type(data.get('contract_version')) is not int or data['contract_version'] != 1
+            or any(not _identifier(data.get(k), 4096 if k == 'expected_revision' else 200) for k in body_keys)):
+        return {'success': False, 'error': 'invalid_history_delete_request'}, 400
+    try:
+        operation_created_ms(data['operation_id'])
+        authority = await HistoryDeletionAuthority.resolve(hass, {k: data[k] for k in ('device_id', 'client_type')}, headers or {})
+        authority.validate_now()
+        digest = _hash({k: data[k] for k in body_keys})
+        result = await deletion_coordinator(hass).journal.async_operation_status(
+            authority.context.profile_id, data['operation_id'], authority.binding, digest)
+        authority.validate_now()
+        register_delivery_admission(authority.validate_now)
+        if result.get('receipt'):
+            stored = result['receipt']
+            result['receipt'] = {'success': True, 'schema_version': 1, 'operation_id': data['operation_id'],
+                'owner_profile_id': authority.context.profile_id, 'deleted': True}
+            if mode == 'single':
+                result['receipt']['deleted_session_id'] = data['session_id']
+            else:
+                result['receipt'].update(snapshot_id=data['snapshot_id'], deleted_session_count=len(stored['deleted_session_ids']))
+        return {'success': True, 'schema_version': 1, 'owner_profile_id': authority.context.profile_id,
+                'operation_id': data['operation_id'], 'operation': mode, 'request_digest': digest,
+                **{k: data[k] for k in body_keys}, **result}, 200
+    except OperationError as error:
+        return {'success': False, 'error': 'invalid_history_delete_request' if error.code == 'invalid_operation_id' else error.code}, error.status
+    except HistoryDeletionError as error:
+        return {'success': False, 'error': str(error)}, 409
+    except (PersistenceError, OSError, RuntimeError, ValueError):
+        return {'success': False, 'error': 'history_delete_outcome_unknown'}, 503

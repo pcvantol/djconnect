@@ -158,7 +158,7 @@ class HistoryDeletionRepository(PersistenceRepository):
         def read(tx):
             rows = tx.fetchall(
                 "SELECT owner_profile_id,operation_id,binding,targets,state,store_plan FROM "
-                "djconnect_history_deletions WHERE state!='completed' ORDER BY created_ms LIMIT ?",
+                "djconnect_history_deletions WHERE state!='completed' AND operation_kind='archive' ORDER BY created_ms LIMIT ?",
                 (MAX_RECORDS,),
             )
             return [{'owner': r[0], 'operation_id': r[1], 'binding': r[2],
@@ -313,6 +313,34 @@ class HistoryDeletionRepository(PersistenceRepository):
             return receipt
         return await self._async_in_transaction(complete, authorize=authorize,
                                                 finalize_authorize=finalize_authorize)
+
+    async def async_operation_status(self, owner, operation_id, binding, digest):
+        """Read-only archive status; original confirmation body, no erasure/retry."""
+        created = operation_created_ms(operation_id)
+        def read(tx):
+            stored = tx.fetchone('SELECT high_water_ms FROM djconnect_history_deletion_clock WHERE singleton=1')[0]
+            advanced = (int(self._anchor_wall + max(0, self._monotonic() - self._anchor_mono) * 1000)
+                        if self._anchor_wall is not None else 0)
+            observed = max(int(time.time() * 1000), stored)
+            if self._anchor_wall is None or observed > advanced:
+                self._anchor_wall, self._anchor_mono = observed, self._monotonic()
+            now = max(observed, advanced)
+            row = self._row(tx, owner, operation_id, binding)
+            if created > now + FUTURE_SKEW_MS:
+                raise HistoryDeletionError('invalid_history_delete_request')
+            if row:
+                kind = tx.fetchone('SELECT operation_kind FROM djconnect_history_deletions '
+                    'WHERE owner_profile_id=? AND operation_id=?', (owner, operation_id))[0]
+                if kind != 'archive' or row[1] != digest:
+                    raise HistoryDeletionError('history_delete_operation_conflict')
+            if now > created + LIFETIME_MS:
+                return {'state': 'expired_unknown', 'definitive': False}
+            if row is None:
+                return {'state': 'unknown', 'definitive': False}
+            if row[3] == 'completed':
+                return {'state': 'completed', 'definitive': True, 'receipt': json.loads(row[6])}
+            return {'state': 'pending', 'definitive': False}
+        return await self._async_in_transaction(read)
 
     async def async_receipt(self, owner, operation_id, binding, *, now_ms=None):
         """Caller must freshly authorize owner/device before returning any receipt."""

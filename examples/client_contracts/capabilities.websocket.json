@@ -83,13 +83,15 @@
     "active_session_presence": true,
     "session_forecast": true,
     "session_history_summary": true,
+    "session_history_delete": true,
+    "session_history_bulk_delete": true,
+    "session_content_delete": true,
+    "session_history_delete_status": true,
     "hybrid_transport": true,
     "session_artwork": true,
     "session_speech": true,
     "passive_session_surface": true,
-    "profile_session_settings": true,
-    "session_history_delete": true,
-    "session_history_bulk_delete": true
+    "profile_session_settings": true
   },
   "contract_versions": {
     "profile_context": 1,
@@ -111,9 +113,11 @@
     "session_speech": 1,
     "passive_session_surface": 1,
     "session_history_summary": 1,
-    "profile_session_settings": 3,
     "session_history_delete": 1,
-    "session_history_bulk_delete": 1
+    "session_history_bulk_delete": 1,
+    "session_content_delete": 1,
+    "session_history_delete_status": 1,
+    "profile_session_settings": 3
   },
   "transports": {
     "http": true,

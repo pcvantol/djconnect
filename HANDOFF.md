@@ -1,3 +1,30 @@
+## Individual owner content deletion — implementation candidate, 21 October2026
+
+Same sole Core writer and Peter's bounded twelve-hour order; base protected
+archive Finalization `2a1197c441079896bdfdfdc5a2c732146f54ccd3`. Archive source1251
+and separate Final1252 are installed on HA-dev/schema11 with exact228-file hash
+and six successful runtime entries; individual schema12 is not installed by
+this source checkpoint. The archive evidence branch8d67 remains unchanged under
+Peter's direct **Ga verder** after the concrete retention exception. Narrative
+PR1248/a31 and unrelated dashboard lock remain parked/preserved.
+
+This candidate implements the remaining #1225 producer through existing
+Manager→Store→SQLite owners: explicit server-scope confirmation, selected Moment
+or complete exchange/standalone removal, original uncertain-request fence,
+targeted dependency withdrawal, read-only original status, and separate archive
+status. See `docs/product/SESSION_CONTENT_DELETION_V1.md` and the current
+verification dossier. No playback undo, Session end, DNA/settings wipe, model
+budget, consumer source write or personal-data destructive acceptance.
+
+Apple's owning writer confirmed stable server IDs, original pending request IDs,
+explicit empty standalone Session, and separate original-body archive status.
+Candidate wires are coordinated under Peter's explicit instruction; adoption
+waits for exact protected source, separate Final and actual HA-dev readback.
+Other named Core items follow serially after this lifecycle. Deadline remains
+21 October2026 19:10:02UTC; no automatic extension.
+
+---
+
 # Current Core1210 same-band story variety checkpoint — 19 October 2026
 
 ## Owner archive deletion — separate Finalization, 21 October 2026

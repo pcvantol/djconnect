@@ -130,11 +130,14 @@ class DialogueFrame:
     catalogue_replays: dict[str, tuple[str, asyncio.Future | None, bool, int, float]] = field(default_factory=dict)
     read_context_revision: int = 0
     read_admission_closed: bool = False
+    current_client_id: str = ''
+    response_dependencies: dict[str, frozenset[str]] = field(default_factory=dict)
 
     def reset(self, generation: str) -> None:
         if self.generation != generation:
             self.catalogue_replays.clear()
             self.read_admission_closed = False
+            self.response_dependencies.clear()
         self.generation = generation
         self.messages.clear()
         self.local_turns.clear()
@@ -145,6 +148,7 @@ class DialogueFrame:
         self.result_set = self.pending = None
         self.chosen_action_id = ""
         self.archiveable = True
+        self.current_client_id = ''
 
     def clear_speech(self):
         for record in list(self.speech_references.values()):
@@ -333,6 +337,53 @@ class DialogueState:
             for frame in threads.values():
                 frame.clear_speech()
 
+    def content_request_sources(self, scope, request_hashes, *, entries=frozenset(), moments=frozenset()):
+        """Read identifier-only lineage from current bounded operational windows."""
+        from ..ask_dj_history import _request_hash
+        result = set()
+        for frame in self.owners.get(scope, {}).values():
+            for message in (*frame.messages, *frame.local_turns):
+                client = message.get('_client_id')
+                if client and (_request_hash(scope, client) in request_hashes
+                        or set(message.get('_source_request_hashes', ())) & request_hashes
+                        or any((d.get('session_id'), d.get('entry_id')) in entries
+                               or (d.get('session_id'), d.get('moment_id')) in moments
+                               for d in message.get('_dependencies', ()))):
+                    result.add(client)
+            for client, sources in frame.response_dependencies.items():
+                if sources & request_hashes:
+                    result.add(client)
+        return result
+
+    def withdraw_content(self, scope, *, request_hashes, turn_ids, entries=frozenset(), moments=frozenset()):
+        """Withdraw only identified turns/bases; keep unrelated frames and effect receipts."""
+        from ..ask_dj_history import _request_hash
+        def depends(dependencies):
+            return any((d.get('session_id'), d.get('entry_id')) in entries
+                       or (d.get('session_id'), d.get('moment_id')) in moments for d in dependencies)
+        def affected(message):
+            return (_request_hash(scope, message.get('_client_id', '')) in request_hashes
+                    or set(message.get('_source_request_hashes', ())) & request_hashes
+                    or depends(message.get('_dependencies', ())))
+        for frame in self.owners.get(scope, {}).values():
+            frame.messages[:] = [m for m in frame.messages if not affected(m)]
+            frame.local_turns[:] = [m for m in frame.local_turns if not affected(m)]
+            current_affected = (_request_hash(scope, frame.current_client_id) in request_hashes
+                or frame.response_dependencies.get(frame.current_client_id, frozenset()) & request_hashes
+                or depends(frame.dependencies))
+            if current_affected:
+                frame.subjects.clear()
+                frame.dependencies.clear()
+                frame.result_set = frame.pending = frame.retry = None
+                frame.chosen_action_id = ''
+            for client, row in list(frame.catalogue_replays.items()):
+                if (_request_hash(scope, client) in request_hashes
+                        or frame.response_dependencies.get(client, frozenset()) & request_hashes):
+                    frame.catalogue_replays[client] = (row[0], None, row[2], 0, row[4])
+            for record in list(frame.speech_references.values()):
+                if record.get('turn_id') in turn_ids or depends(record.get('dependencies', ())):
+                    record['dispose']()
+
     def forget_archived_sessions(self, scope: str, session_ids: frozenset[str], *, entry_ids=frozenset()) -> None:
         """Withdraw erased read context, preserving unrelated accepted audio.
 
@@ -416,6 +467,16 @@ class DialogueState:
             return
         if turn.reset_topic:
             frame.reset(turn.generation)
+        provenance = {'_client_id': turn.client_id,
+                      '_source_request_hashes': sorted(getattr(turn, 'source_request_hashes', ())),
+                      '_dependencies': deepcopy(turn.dependencies)}
+        frame.current_client_id = turn.client_id
+        live_ids = set(frame.catalogue_replays) | set(frame.inflight) | {
+            m.get('_client_id') for m in (*frame.messages, *frame.local_turns)}
+        frame.response_dependencies = {key: value for key, value in frame.response_dependencies.items() if key in live_ids}
+        from ..ask_dj_history import _request_hash
+        frame.response_dependencies[turn.client_id] = frozenset({
+            _request_hash(turn.scope, turn.client_id), *getattr(turn, 'source_request_hashes', ())})
         frame.archiveable = frame.archiveable and turn.archiveable
         if turn.clear_pending:
             frame.pending = None
@@ -438,13 +499,14 @@ class DialogueState:
             # Only independently marked agent prose is reusable as model input.
             question = result.get("_dialogue_question", "")
             if question:
-                frame.messages.append({"role": "user", "text": question[:4000]})
-                frame.local_turns.append({"role": "user", "text": question[:4000]})
+                frame.messages.append({"role": "user", "text": question[:4000], **provenance})
+                frame.local_turns.append({"role": "user", "text": question[:4000], **provenance})
             frame.local_turns.append(
                 {
                     "role": "assistant",
                     "text": str(result.get("text") or "")[:4000],
                     "intent": result.get("intent") or {},
+                    **provenance,
                 }
             )
             frame.local_turns = frame.local_turns[-MAX_MESSAGES:]
@@ -453,7 +515,7 @@ class DialogueState:
             frame.retry = None
             if result.get("model_processing_basis") == "qualified_dialogue_v1":
                 frame.messages.append(
-                    {"role": "assistant", "text": str(result.get("text") or "")[:4000]}
+                    {"role": "assistant", "text": str(result.get("text") or "")[:4000], **provenance}
                 )
             frame.messages = frame.messages[-MAX_MESSAGES:]
             while encoded_size(frame.messages) > MAX_WINDOW_BYTES:

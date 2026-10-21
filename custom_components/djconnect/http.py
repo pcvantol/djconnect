@@ -3401,6 +3401,57 @@ class DJConnectSessionHistoryDeleteAllView(_DJConnectSessionView):
         return self.json(result, status_code=status)
 
 
+class DJConnectHistoryDeleteStatusView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/session/history/delete/status"
+    name = "api:djconnect:session:history:delete:status"
+
+    async def get(self, request):
+        from .history_deletion_api import async_handle_history_delete_status
+        data = dict(request.query)
+        if len(data) != len(request.query) or data.get('contract_version') != '1':
+            return self.json({'success': False, 'error': 'invalid_history_delete_request'}, status_code=400)
+        data['contract_version'] = 1
+        result, status = await async_handle_history_delete_status(request.app['hass'], data, headers=request.headers)
+        return self.json(result, status_code=status)
+
+
+class DJConnectContentDeletePrepareView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/session/content/delete/prepare"
+    name = "api:djconnect:session:content:delete:prepare"
+
+    async def post(self, request):
+        from .content_deletion_api import async_handle_content_delete
+        result, status = await async_handle_content_delete(request.app['hass'],
+            await self._payload(request), headers=request.headers, operation='prepare')
+        return self.json(result, status_code=status)
+
+
+class DJConnectContentDeleteView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/session/content/delete"
+    name = "api:djconnect:session:content:delete"
+
+    async def post(self, request):
+        from .content_deletion_api import async_handle_content_delete
+        result, status = await async_handle_content_delete(request.app['hass'],
+            await self._payload(request), headers=request.headers)
+        return self.json(result, status_code=status)
+
+
+class DJConnectContentDeleteStatusView(_DJConnectSessionView):
+    url = "/api/djconnect/v1/session/content/delete/status"
+    name = "api:djconnect:session:content:delete:status"
+
+    async def get(self, request):
+        from .content_deletion_api import async_handle_content_delete
+        data = dict(request.query)
+        if len(data) != len(request.query) or data.get('contract_version') != '1':
+            return self.json({'success': False, 'error': 'invalid_content_delete_request'}, status_code=400)
+        data['contract_version'] = 1
+        result, status = await async_handle_content_delete(request.app['hass'], data,
+            headers=request.headers, operation='status')
+        return self.json(result, status_code=status)
+
+
 class DJConnectSessionHistoryOpenView(_DJConnectSessionView):
     url = API_SESSION_HISTORY_OPEN
     name = "api:djconnect:session:history:open"

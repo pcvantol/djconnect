@@ -75,6 +75,15 @@ async def qualify(hass, manager, history, request, client):
     raw, raw_status = await request('GET', '/api/djconnect/v1/ask_dj/history')
     assert raw_status == 503 and raw['error'] == 'history_delete_outcome_unknown', raw
     examples['pending_response'] = unknown
+    status_query = {'contract_version': '1', 'operation': 'single',
+        **{k: delete[k] for k in ('operation_id', 'session_id', 'expected_revision')}}
+    clock_before = await service.async_in_transaction(lambda tx: tx.fetchall('SELECT * FROM djconnect_history_deletion_clock'))
+    state, code = await request('GET', '/api/djconnect/v1/session/history/delete/status', status_query)
+    assert code == 200 and state['state'] == 'pending' and not state['definitive'], state
+    assert clock_before == await service.async_in_transaction(lambda tx: tx.fetchall('SELECT * FROM djconnect_history_deletion_clock'))
+    assert len(await deletion_coordinator(hass).journal.async_pending()) == 1
+    examples.update(single_status_query=status_query, single_pending_status=state)
+    cases.append('actual_archive_original_body_status_is_read_only_and_does_not_settle_pending')
     hidden, status = await request('GET', '/api/djconnect/v1/session/history/' + old)
     assert status in {404, 503} and 'entries' not in hidden, hidden
     try:
@@ -114,6 +123,9 @@ async def qualify(hass, manager, history, request, client):
     completed, status = await request('POST', '/api/djconnect/v1/session/history/delete', delete)
     assert status == 200 and completed['deleted_session_id'] == old, completed
     examples['single_response'] = completed
+    state, code = await request('GET', '/api/djconnect/v1/session/history/delete/status', status_query)
+    assert code == 200 and state['state'] == 'completed' and state['receipt'] == completed, state
+    examples['single_completed_status'] = state
     cases.append('exact_completed_receipt_after_process_recovery')
 
     # Bulk uses all retained server records, not a displayed page. A Session
@@ -156,6 +168,11 @@ async def qualify(hass, manager, history, request, client):
             result, status = await request('POST', '/api/djconnect/v1/session/history/delete_all', bulk_request)
             examples['bulk_request'] = bulk_request
             examples['bulk_response'] = result
+            bulk_status_query = {'contract_version': '1', 'operation': 'all',
+                'operation_id': bulk_request['operation_id'], 'snapshot_id': bulk_request['snapshot_id']}
+            bulk_state, code = await request('GET', '/api/djconnect/v1/session/history/delete/status', bulk_status_query)
+            assert code == 200 and bulk_state['state'] == 'completed' and bulk_state['receipt'] == result, bulk_state
+            examples.update(bulk_status_query=bulk_status_query, bulk_completed_status=bulk_state)
             assert status == 200 and result['deleted_session_count'] == captured['target_count'], result
             for target in (first, second):
                 assert await repo.async_session_record(target) is None

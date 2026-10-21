@@ -33,6 +33,17 @@ class PassiveProjectionTests(unittest.TestCase):
         b.passive_observation = (100, time.time(), b.state.playback)
         return moments
 
+    def test_pending_or_deleted_current_never_revives_an_older_passive_card(self):
+        self.prepare(count=2)
+        broadcast = self.session.broadcast
+        self.assertIsNotNone(self.frame()['contribution'])
+        broadcast.content_pending = True
+        self.assertIsNone(self.frame()['contribution'])
+        broadcast.content_pending = False
+        broadcast.content_current_withdrawn = True
+        self.assertIsNone(self.frame()['contribution'])
+        self.assertEqual(len(broadcast.state.dj_moments), 2)
+
     def test_real_published_cc0_exact_text_and_all_sources_no_private_payload(self):
         moments = self.prepare()
         frame = self.frame()

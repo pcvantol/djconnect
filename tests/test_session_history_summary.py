@@ -340,7 +340,8 @@ class SummaryTest(unittest.IsolatedAsyncioTestCase):
         for table in ('djconnect_profile_dj_settings', 'djconnect_session_dj_settings',
                       'djconnect_settings_operations', 'djconnect_settings_clock',
                       'djconnect_session_retention', 'djconnect_history_deletion_targets',
-                      'djconnect_history_deletions', 'djconnect_history_deletion_clock'):
+                      'djconnect_history_deletions', 'djconnect_history_deletion_clock',
+                      'djconnect_content_tombstones', 'djconnect_content_request_fences'):
             connection.execute(f'DROP TABLE {table}')
         connection.execute("DELETE FROM djconnect_schema_migrations WHERE schema_version>=6")
         connection.execute("UPDATE djconnect_schema_metadata SET schema_version=5")

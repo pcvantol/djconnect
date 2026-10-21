@@ -273,6 +273,11 @@ class HistoricalProjectionRepository(PersistenceRepository):
         ids = []
         added = 0
         for item in entries:
+            if tx.fetchone(
+                'SELECT 1 FROM djconnect_content_tombstones WHERE owner_profile_id=? AND session_id=? AND reference_id=?',
+                (owner_profile_id, session_id, item['reference_id']),
+            ):
+                raise PermissionError('content_deleted')
             if item["kind"] == "playback_observed":
                 accepted = tx.fetchone(
                     "SELECT entry_id FROM djconnect_session_acceptances WHERE session_id=? AND kind=? AND reference_id=?",
@@ -353,6 +358,11 @@ class HistoricalProjectionRepository(PersistenceRepository):
             )
             if not row or row[0] != owner or row[1] != "ACTIVE":
                 raise PermissionError("session_context_changed")
+            if tx.fetchone(
+                'SELECT 1 FROM djconnect_content_tombstones WHERE owner_profile_id=? AND session_id=? AND reference_id=?',
+                (owner, session_id, moment_id),
+            ):
+                return False
             if not row[2]:
                 # Private-history opt-out does not disable existing live Moments.
                 # Validate active ownership in this transaction without retaining
@@ -779,6 +789,11 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 return None
             if tx.fetchone('SELECT 1 FROM djconnect_history_deletion_targets WHERE owner_profile_id=? AND session_id=?',
                            (owner_profile_id, session_id)):
+                return None
+            if tx.fetchone(
+                'SELECT 1 FROM djconnect_content_tombstones WHERE owner_profile_id=? AND session_id=? AND reference_id=?',
+                (owner_profile_id, session_id, moment_id),
+            ):
                 return None
             existing = tx.fetchone(
                 "SELECT historical_moment_id FROM djconnect_historical_moments "

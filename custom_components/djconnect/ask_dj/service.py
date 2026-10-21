@@ -269,8 +269,38 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             if retained_deadline is not None and not entry_retained({"retained_until": retained_deadline.isoformat()}):
                 raise SessionConversationError("session_context_changed")
         read_context_revision = frame.read_context_revision
+        from ..ask_dj_history import _request_hash
+        source_request_hashes = frozenset(
+            _request_hash(scope, message['_client_id'])
+            for message in (*frame.messages, *frame.local_turns) if message.get('_client_id')
+        ) if not reset_topic and not fast else frozenset()
+
+        def requests_withdrawn():
+            from ..persistence.content_deletion import request_deleted_now
+            service = getattr(hass, 'data', {}).get('djconnect', {}).get('persistence_service')
+            withdrawn = getattr(service, 'content_request_fences', {}).get(profile_id, set())
+            return (request_deleted_now(hass, profile_id, client_id)
+                    or bool(source_request_hashes & withdrawn))
+
+        def validate_content_dependencies():
+            service = getattr(hass, 'data', {}).get('djconnect', {}).get('persistence_service')
+            fences = getattr(service, 'content_source_fences', {})
+            for dependency in dependencies:
+                sid = dependency['session_id']
+                if 'entry_id' in dependency:
+                    if (profile_id, sid, dependency['entry_id']) in fences.get('entries', set()):
+                        raise SessionConversationError('source_withdrawn', 409)
+                else:
+                    current = manager.current_active(profile_id)
+                    mid = dependency['moment_id']
+                    if ((profile_id, sid, mid) in fences.get('moments', set()) or current is None
+                            or current.session_id != sid or mid in current.broadcast.content_pending_moment_ids
+                            or not any(m.moment_id == mid for m in current.broadcast.state.dj_moments)):
+                        raise SessionConversationError('source_withdrawn', 409)
 
         async def guard(*, check_runtime=True, owner=validate_owner, immediate=validate_immediate):
+            if requests_withdrawn():
+                raise SessionConversationError('conversation_history_changed')
             await owner()
             if await history_manager.async_scope_revision(scope) != scope_revision:
                 raise SessionConversationError("conversation_history_changed")
@@ -289,6 +319,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                     opened = await query().async_open_source_entry(profile_id, dependency["session_id"], dependency["entry_id"])
                     capture_retained_deadline(opened["entry"])
             # Nothing may yield after this final committed-state/paired-owner fence.
+            validate_content_dependencies()
             validate_retained_deadline()
             if history_manager.scope_revision(scope) != scope_revision:
                 raise SessionConversationError("conversation_history_changed")
@@ -305,6 +336,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 raise SessionConversationError("conversation_context_changed")
             if immediate is not None:
                 immediate()
+            if requests_withdrawn():
+                raise SessionConversationError('conversation_history_changed')
 
         turn = DialogueTurn(frame, scope, thread, client_id, digest, generation, guard, history_manager,
                             style=style_projection(payload, active, profile, settings=shared_settings), session_id=session_id,
@@ -312,9 +345,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                             source_context=model_source(selected), selected_read_context=selected,
                             dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
+        turn.source_request_hashes = source_request_hashes
         # The exact same synchronous source deadline also guards retained speech,
         # including synthesis/provider awaits after the chat has been accepted.
-        turn.delivery_validators.append(validate_retained_deadline)
+        turn.delivery_validators.extend((validate_retained_deadline, validate_content_dependencies))
         accepted_offer = None
         async def joined_admission(*, owner, immediate):
             await guard(owner=owner, immediate=immediate)
@@ -361,6 +395,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 # archival rights. Current playback/Forecast still reset topic.
                 turn.reset_topic = turn.reset_topic or result.get("text_source") != "qualified_catalog_result"
             if not result.get("success"):
+                if requests_withdrawn():
+                    raise SessionConversationError("source_withdrawn", 409)
                 frame.retry = {"text": text, "uncertain": turn.effect_started}
                 future.set_result((deepcopy(result), joined_admission))
                 return result
@@ -372,6 +408,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                        "explicit_playback_request": explicit_action,
                        "implicit_playback_entry": implicit,
                        "dependency_entries": [d for d in dependencies if "entry_id" in d]}
+        turn_record['dependency_request_hashes'] = sorted(source_request_hashes)
+        turn_record['dependency_moments'] = [d for d in dependencies if 'moment_id' in d]
         if turn.provider_display_source is not None:
             turn_record["provider_display_source"] = deepcopy(turn.provider_display_source)
         ids = []
@@ -408,6 +446,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                     for dependency in saved["assistant_message"].get("historical_entry_references", []):
                         await query().async_open_source_entry(profile_id, dependency["session_id"], dependency["entry_id"])
                     # All authority/storage/source awaits precede this synchronous acceptance fence.
+                    validate_content_dependencies()
                     validate_retained_deadline()
                     if history_manager.scope_revision(scope) != expected or history_grant_revision(hass, profile_id) != grant:
                         raise SessionConversationError("conversation_context_changed")
@@ -416,7 +455,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                         if current is None or current.session_id != session_id or (
                             track_bound and not explicit_action and current.broadcast.state.playback.item_id != captured):
                             raise SessionConversationError("session_context_changed")
-                    if (frame.generation != generation
+                    if (requests_withdrawn() or frame.generation != generation
                             or frame.read_context_revision != read_context_revision):
                         raise SessionConversationError("conversation_context_changed")
                     validate_persona()
@@ -440,7 +479,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             history_manager.dialogue.complete(turn, result)
             if result.get("result_set", {}).get("result_set_id"):
                 accepted_offer = frame.result_set
-            if explicit_action and (not result.get("success") or result.get("error")):
+            if explicit_action and not requests_withdrawn() and (not result.get("success") or result.get("error")):
                 # Chat delivery can succeed while the requested playback failed.
                 # Only a proven pre-dispatch failure is safe for an explicit retry.
                 frame.retry = {"text":text,"uncertain":turn.effect_started}
@@ -510,7 +549,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         return response
     except (SessionConversationError, DialogueError) as exc:
         if (turn is not None and turn.effect_started and frame.generation == turn.generation
-                and frame.read_context_revision == turn.read_context_revision):
+                and frame.read_context_revision == turn.read_context_revision and not requests_withdrawn()):
             frame.retry = {"text":text,"uncertain":True}
         if reserved and future and not future.done():
             future.set_exception(exc)
@@ -518,7 +557,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         raise SessionConversationError(exc.code, exc.status) from exc
     except BaseException as exc:
         if (turn is not None and turn.effect_started and frame.generation == turn.generation
-                and frame.read_context_revision == turn.read_context_revision):
+                and frame.read_context_revision == turn.read_context_revision and not requests_withdrawn()):
             frame.retry = {"text": text, "uncertain": True}
         if reserved and future and not future.done():
             future.set_exception(exc)

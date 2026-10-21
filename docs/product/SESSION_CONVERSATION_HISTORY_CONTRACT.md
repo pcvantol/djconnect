@@ -685,3 +685,16 @@ These are internal prerequisites. Single/bulk endpoints, the durable cross-owner
 operation coordinator, snapshot admission and all producer-completion gates
 remain **OPEN**. Neither deletion capability is advertised. A protected merge of
 this foundation cannot close the manual deletion function or consumer acceptance.
+
+
+## Individual deletion and original operation status — 21 October2026
+
+The Core producer for selected Moment, complete accepted exchange, standalone
+Profile contribution and original uncertain attempt is defined by
+[Owner-confirmed individual content deletion v1](SESSION_CONTENT_DELETION_V1.md).
+That contract also defines the separate original-body archive status query;
+archive operations never invent a content confirmation token. Stable server
+identities, explicit preconfirmation, exact owner/Session scope and original
+operation lifetime apply. A pending/unknown/expired outcome cannot authorize a
+new ID or optimistic removal. Client implementation/native acceptance remains
+owned by each client lane and requires its matching installed producer receipt.

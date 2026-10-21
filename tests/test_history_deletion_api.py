@@ -172,20 +172,23 @@ class PairedHistoryDeleteTests(unittest.IsolatedAsyncioTestCase):
         from custom_components.djconnect.history_deletion import deletion_coordinator
         await deletion_coordinator(self.hass).async_recover()
 
-    def test_only_qualified_archive_capabilities_are_advertised(self):
+    def test_qualified_content_and_archive_capability_versions_are_explicit(self):
         from custom_components.djconnect.capability_contract import _platform_capabilities, _contract_versions
         capabilities, versions = _platform_capabilities(), _contract_versions()
-        for key in ('session_history_delete', 'session_history_bulk_delete'):
+        for key in ('session_history_delete', 'session_history_bulk_delete',
+                    'session_content_delete', 'session_history_delete_status'):
             self.assertIs(capabilities[key], True)
             self.assertEqual(versions[key], 1)
-        self.assertNotIn('session_content_delete', capabilities)
 
     def test_actual_ha_wire_fixture_binds_current_source_without_claiming_installation(self):
         import hashlib
         import json
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
-        fixture = json.loads((root / 'examples/client_contracts/session_conversation_history/archive-deletion-v1-20261021.json').read_text())
+        historical = root / 'examples/client_contracts/session_conversation_history/archive-deletion-v1-20261021.json'
+        self.assertEqual(hashlib.sha256(historical.read_bytes()).hexdigest(),
+                         '79fac1e077a157df0851797c84de2f1f61bc14be08f3048c703ba9acec9f2a67')
+        fixture = json.loads((root / 'examples/client_contracts/session_conversation_history/archive-deletion-v1-content-status-20261021.json').read_text())
         for path, expected in fixture['source_pins'].items():
             self.assertEqual(hashlib.sha256((root / path).read_bytes()).hexdigest(), expected, path)
         self.assertEqual(hashlib.sha256((root / fixture['harness']).read_bytes()).hexdigest(), fixture['harness_sha256'])

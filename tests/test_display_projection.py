@@ -49,6 +49,17 @@ class DisplayProjectionTests(unittest.TestCase):
         self.assertNotIn('untrusted_excerpt',result)
         self.assertNotIn('owner_id',result)
 
+    def test_pending_content_erasure_withdraws_cached_guard_and_shared_text(self):
+        moment = self.prepared()
+        snapshot = self.snapshot()
+        self.assertTrue(snapshot['dj_moments'])
+        guard = self.projection.projection_release_guard(self.session, self.display, self.state, snapshot)
+        self.session.broadcast.content_epoch += 1
+        self.session.broadcast.content_pending = True
+        self.session.broadcast.content_pending_moment_ids.add(moment.moment_id)
+        self.assertFalse(guard())
+        self.assertEqual(self.snapshot()['dj_moments'], [])
+
     def test_published_shared_fact_text_and_attribution_unchanged_no_private_fields(self):
         moment = self.prepared()
         before = moment.as_dict()
