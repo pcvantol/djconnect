@@ -1,3 +1,22 @@
+## Closed Pi wall4 recovery producer — source preparation,22October2026
+
+Same sole Core writer on qualified clean c38d961a. Add only the separate
+[closed recovery contract](docs/release/PI_RC6_WALL4_RECOVERY_CONTRACT_V1.md)
+and schemas after independent admission identified old V3's fixed two-target
+scope. Exactly wall-4inch/Zero, explicit recovery discriminator/fixed separate
+path/workflow/smoke, original failed-run/helper binding, no generic fallback or
+Pi10 aggregate transfer. All prior Pi contract/schema/manifest/inventory bytes
+remain unchanged. [Verification](docs/verification/PI_RC6_WALL4_RECOVERY_PRODUCER_20261022.md).
+No approved manifest, future consumer pin, device action or operative pair.
+Protect/qualify producer+distinct Final first, then Pi explicit adoption with its
+own source+Final, then separate actual Core operative binding. All233 HA-dev
+product bytes remain unchanged; later actual readback replaces redundant install.
+
+VibeScape1271/Apple177, exact historical playback, captured reply artwork,
+queue-backed human Forecast and personal DJ open work remain selected. Existing
+HACS personal OAuth gate remains open. No new budget or device/consumer writer.
+Hard deadline22October06:00UTC/08:00Amsterdam unchanged.
+
 ## Pi rc.6 operative binding — source preparation, 21 October 2026
 
 ## Current Track Insight — separate Finalization, 21 October 2026
