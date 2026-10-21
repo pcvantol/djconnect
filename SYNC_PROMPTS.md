@@ -1,5 +1,13 @@
 ## Pi rc.6 producer prerequisite — current source preparation, 21 October 2026
 
+## HACS product entrypoint regression — 21 October 2026
+
+The original1231 implementation is already protected as source1232/e78eb384 plus separateFinal1233/59b5c310. This bounded follow-up restores its exact77-line README by removing the later1251 technical deletion appendix and stale individual-deletion claim; info/BrandV2/five-language guides/versioned installation/product bytes remain unchanged. Existing canonical deletion contract/verification retains all technical details. A new prevention test fails baseline6details and passes after restoration;17focused tests PASS28.847s/Ruff/projection/diffPASS. Fresh actual public GitHub README/info views at320/375/390px in both themes PASS12cases, with rendered inputs byte-identical to this candidate; four PNGs visually checked. Public HACS redirect200 is not configured HACS/HA frontend acceptance. See [bounded verification](docs/verification/HACS_README_ENTRYPOINT_REGRESSION_20261021.md).
+
+HACS2.0.5 official2258non-bytecode files match; full consistent HA-dev backup/restart/Core232readback were performed under Peter's explicit install request. Personal GitHub deviceOAuth actually timed out17:20:05UTC, abort/no HACS entry; no automatic code renewal or invented authorization. ConfiguredHACS rendering remains OPEN pending real personal setup. Public stable3.3.1 is distinct from source4.0.0-rc.1; no release/tag/version/dependency change. Dependency upgrades are deliberately excluded from this narrow documentation regression; existing toolchain is reused without installation.
+
+Independent exact review/normal protected source delivery, separate documentaryFinalization/raw qualification, unchanged232product installed readback and own conforming cleanup remain gates. Source preparation does not complete delivery. Rc6producer1265/802619ac+Final1266/5c34/raw39639644163+39642484852/installedreadback/owncleanup/exactpublicPi handoff are complete; rc6operativebinding remains gated on actual matching qualifiedPi source/Final/publication hashes/current human authority. Next explicit producer priorities are Apple MusicDNA scoped artwork, current-subject TrackInsight, exact historical playback and captured reply artwork, retaining queue-backed naturalForecast. Existing Core deadline22October06:00UTC/08:00Amsterdam remains; no new budget/consumer writer/private export/physical authority.
+
 ## Pi rc.6 producer structure — separate Finalization, 21 October 2026
 
 ### Repository Status

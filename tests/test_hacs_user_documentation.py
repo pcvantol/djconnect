@@ -144,6 +144,26 @@ class HacsUserDocumentationTest(unittest.TestCase):
         for name in ("README.md", "info.md"):
             self.assertIsNone(re.search(forbidden, (ROOT / name).read_text()), name)
 
+    def test_hacs_entrypoints_keep_unreleased_deletion_protocol_in_technical_docs(self):
+        """A short page can still regress into a candidate-only API manual."""
+        for name in ("README.md", "info.md"):
+            text = (ROOT / name).read_text()
+            for technical_detail in (
+                "Owner archive deletion",
+                "SQLite",
+                "Feature-detect",
+                "session_history_delete:",
+                "session_history_bulk_delete:",
+                "Postman",
+            ):
+                with self.subTest(page=name, detail=technical_detail):
+                    self.assertNotIn(technical_detail, text)
+        contract = (
+            ROOT / "docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md"
+        ).read_text()
+        for required in ("session_history_delete", "session_history_bulk_delete", "SQLite"):
+            self.assertIn(required, contract)
+
     def test_new_navigation_links_resolve_and_info_uses_absolute_targets(self):
         pages = [
             ROOT / "README.md",
