@@ -58,6 +58,9 @@ from .const import (
     API_SESSION_HISTORY_DETAIL,
     API_SESSION_HISTORY_SEARCH,
     API_SESSION_HISTORY_OPEN,
+    API_SESSION_HISTORY_DELETE,
+    API_SESSION_HISTORY_DELETE_SNAPSHOT,
+    API_SESSION_HISTORY_DELETE_ALL,
     API_SESSION_BROADCAST,
     API_SESSION_BROADCAST_TOKEN,
     API_SESSION_BROADCAST_HANDOFF_CLAIM,
@@ -3362,6 +3365,39 @@ class DJConnectSessionHistorySearchView(_DJConnectSessionView):
             headers=request.headers,
             user_id=_request_user_id(request),
         )
+        return self.json(result, status_code=status)
+
+
+class DJConnectSessionHistoryDeleteView(_DJConnectSessionView):
+    url = API_SESSION_HISTORY_DELETE
+    name = "api:djconnect:session:history:delete"
+
+    async def post(self, request):
+        from .history_deletion_api import async_handle_history_delete
+        result, status = await async_handle_history_delete(
+            request.app['hass'], await self._payload(request), headers=request.headers)
+        return self.json(result, status_code=status)
+
+
+class DJConnectSessionHistoryDeleteSnapshotView(_DJConnectSessionView):
+    url = API_SESSION_HISTORY_DELETE_SNAPSHOT
+    name = "api:djconnect:session:history:delete_snapshot"
+
+    async def get(self, request):
+        from .history_deletion_api import async_handle_history_delete
+        result, status = await async_handle_history_delete(
+            request.app['hass'], dict(request.query), headers=request.headers, operation='snapshot')
+        return self.json(result, status_code=status)
+
+
+class DJConnectSessionHistoryDeleteAllView(_DJConnectSessionView):
+    url = API_SESSION_HISTORY_DELETE_ALL
+    name = "api:djconnect:session:history:delete_all"
+
+    async def post(self, request):
+        from .history_deletion_api import async_handle_history_delete
+        result, status = await async_handle_history_delete(
+            request.app['hass'], await self._payload(request), headers=request.headers, operation='all')
         return self.json(result, status_code=status)
 
 

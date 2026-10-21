@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
-FIXTURE = Path('examples/client_contracts/session_conversation_history/retention-bases-v2-consolidated-20261020.json')
+FIXTURE = Path('examples/client_contracts/session_conversation_history/retention-bases-v2-archive-delete-20261021.json')
 
 
 def build():

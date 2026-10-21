@@ -86,6 +86,8 @@ def digest(value):
 class PairedAuthority:
     """Resolved server binding; never accepts a client-selected Profile or account."""
 
+    client_types = frozenset({"ios", "macos", "watchos"})
+
     def __init__(self, hass, identity, headers, runtime, context, binding):
         self.hass, self.identity, self.headers = hass, identity, headers
         self.runtime, self.context, self.binding = runtime, context, binding
@@ -111,7 +113,7 @@ class PairedAuthority:
             not isinstance(identity, dict)
             or set(identity) != {"device_id", "client_type"}
             or not isinstance(identity.get("client_type"), str)
-            or identity.get("client_type") not in {"ios", "macos", "watchos"}
+            or identity.get("client_type") not in cls.client_types
             or not isinstance(identity.get("device_id"), str)
         ):
             raise OperationError("invalid_identity", 400)

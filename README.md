@@ -75,3 +75,16 @@ separately for DJConnect devices. Copyright (c) 2026 Peter van Tol.
 Third-party dependencies keep their own licenses: [notices](THIRD_PARTY_NOTICES.md).
 Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed
 by, or sponsored by Spotify AB. [License](LICENSE).
+
+
+### Owner archive deletion
+
+Paired owners can explicitly confirm deletion of one earlier Session or a
+complete server-prepared earlier-Session snapshot. Core erases HA Store and SQLite
+before success and recovers pending erasure before serving private content.
+Feature-detect `session_history_delete:1` and `session_history_bulk_delete:1` on
+the actual target; individual bubble/Moment deletion remains separate #1225 work.
+See [payloads](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md#selected-manual-deletion-of-an-archived-session--18-october2026),
+[qualification](docs/verification/OWNER_ARCHIVE_DELETION_20261021.md) and the
+Postman owner-archive folder. Source delivery does not establish installed/native
+acceptance. Content deletion preserves actual playback, Profile defaults and DNA.

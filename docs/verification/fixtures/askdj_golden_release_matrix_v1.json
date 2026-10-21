@@ -8631,6 +8631,176 @@
           "proof_boundary": "Owner/deadline/race regression only; no real provider/model, style suitability, native interaction or audible speech proof."
         }
       ]
+    },
+    {
+      "id": "ASKDJ-REGRESSION-owner-archive-deletion",
+      "steps": [
+        {
+          "id": "ASKDJ-REGRESSION-owner-archive-deletion-step-1",
+          "question": "Wis één bevestigde eerdere Session met haar exacte detailrevisie.",
+          "expected_answer": "Echte paired handler wist Store en SQLite vóór receipt; exacte herhaling geeft alleen oorspronkelijke uitkomst.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_history_deletion_api.py",
+              "method": "test_exact_confirmed_owner_delete_and_receipt_replay"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic fixture data. Separate isolated HA HTTP/Store/SQLite/process-recovery receipt; native, installed, individual content deletion and real model quality are separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-archive-deletion-step-2",
+          "question": "Wis de door Core voorbereide complete archiefset.",
+          "expected_answer": "Geen clientpagina/filter bepaalt doelen; een later afgeronde Session blijft behouden.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_history_deletion_api.py",
+              "method": "test_bulk_captures_all_server_targets_and_preserves_new_completion"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic fixture data. Separate isolated HA HTTP/Store/SQLite/process-recovery receipt; native, installed, individual content deletion and real model quality are separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-archive-deletion-step-3",
+          "question": "Wijzig een doel na de bulkbevestigingssnapshot.",
+          "expected_answer": "De hele operatie weigert vóór enige doelinhoud wordt gewist.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_history_deletion_api.py",
+              "method": "test_bulk_target_revision_conflict_erases_nothing"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic fixture data. Separate isolated HA HTTP/Store/SQLite/process-recovery receipt; native, installed, individual content deletion and real model quality are separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-archive-deletion-step-4",
+          "question": "Verlies de Store-ack en heropen de durable owners.",
+          "expected_answer": "Geen succes/leeslek; dezelfde intent herstelt ook buiten de transportlevensduur.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_history_deletion_coordinator.py",
+              "method": "test_lost_store_ack_survives_restart_and_recovery_beyond_transport_expiry"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic fixture data. Separate isolated HA HTTP/Store/SQLite/process-recovery receipt; native, installed, individual content deletion and real model quality are separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-archive-deletion-step-5",
+          "question": "Laat SQL-completion mislukken na echte Store-eigenaarscommit.",
+          "expected_answer": "Pending fences blijven gesloten; herstel geeft pas daarna een receipt.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_history_deletion_coordinator.py",
+              "method": "test_sql_failure_after_store_ack_never_returns_success_or_reopens_reads"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic fixture data. Separate isolated HA HTTP/Store/SQLite/process-recovery receipt; native, installed, individual content deletion and real model quality are separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-archive-deletion-step-6",
+          "question": "Een bewaarde vervolgvraag citeert de verwijderde bron.",
+          "expected_answer": "Stabiele unavailable IDs, geen gekopieerde brontekst, onafhankelijk antwoord blijft.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_history_deletion_coordinator.py",
+              "method": "test_dependent_conversation_keeps_stable_unavailable_ids_and_unrelated_text"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic fixture data. Separate isolated HA HTTP/Store/SQLite/process-recovery receipt; native, installed, individual content deletion and real model quality are separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-archive-deletion-step-7",
+          "question": "Bestaande Store-validatie leest een bevestigingsscope.",
+          "expected_answer": "Immutable committed snapshot voorkomt geneste writer-lock; destructive prepare controleert opnieuw.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_history_deletion_store.py",
+              "method": "test_confirmation_read_inside_existing_store_validation_never_reenters_writer_lock"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic fixture data. Separate isolated HA HTTP/Store/SQLite/process-recovery receipt; native, installed, individual content deletion and real model quality are separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-archive-deletion-step-8",
+          "question": "Trek nog niet geobserveerde replay in voor een gewiste bron.",
+          "expected_answer": "Target en afhankelijke entry ingetrokken; onafhankelijk geaccepteerd live audio blijft geldig.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_history_deletion_speech.py",
+              "method": "test_prepared_unwatched_source_is_revoked_and_independent_live_is_valid"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic fixture data. Separate isolated HA HTTP/Store/SQLite/process-recovery receipt; native, installed, individual content deletion and real model quality are separate."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-archive-deletion-step-9",
+          "question": "Bevestig dezelfde onvoltooide operatie opnieuw binnen haar oorspronkelijke termijn.",
+          "expected_answer": "Eigen bestaande barrier wordt eenmaal geteld; geen nieuwe scope of hernieuwde termijn.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_history_deletion_api.py",
+              "method": "test_same_pending_operation_resumes_after_lost_ack_without_process_restart"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic fixture data. Separate isolated HA HTTP/Store/SQLite/process-recovery receipt; native, installed, individual content deletion and real model quality are separate."
+        }
+      ],
+      "owning_tests": [
+        {
+          "file": "tests/test_history_deletion_api.py",
+          "method": "test_exact_confirmed_owner_delete_and_receipt_replay"
+        },
+        {
+          "file": "tests/test_history_deletion_api.py",
+          "method": "test_bulk_captures_all_server_targets_and_preserves_new_completion"
+        },
+        {
+          "file": "tests/test_history_deletion_api.py",
+          "method": "test_bulk_target_revision_conflict_erases_nothing"
+        },
+        {
+          "file": "tests/test_history_deletion_coordinator.py",
+          "method": "test_lost_store_ack_survives_restart_and_recovery_beyond_transport_expiry"
+        },
+        {
+          "file": "tests/test_history_deletion_coordinator.py",
+          "method": "test_sql_failure_after_store_ack_never_returns_success_or_reopens_reads"
+        },
+        {
+          "file": "tests/test_history_deletion_coordinator.py",
+          "method": "test_dependent_conversation_keeps_stable_unavailable_ids_and_unrelated_text"
+        },
+        {
+          "file": "tests/test_history_deletion_store.py",
+          "method": "test_confirmation_read_inside_existing_store_validation_never_reenters_writer_lock"
+        },
+        {
+          "file": "tests/test_history_deletion_speech.py",
+          "method": "test_prepared_unwatched_source_is_revoked_and_independent_live_is_valid"
+        },
+        {
+          "file": "tests/test_history_deletion_api.py",
+          "method": "test_same_pending_operation_resumes_after_lost_ack_without_process_restart"
+        }
+      ],
+      "fixture_boundary": "Sole Core archive producer; existing Store/SQL/media/speech owners. No personal erasure, playback undo or individual bubble capability."
     }
   ],
   "evidence_boundaries": [

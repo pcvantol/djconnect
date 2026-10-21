@@ -100,6 +100,8 @@ class HistoricalProjectionQueryService:
 
     async def async_conversation_source_visible(self, owner: str, message: dict) -> bool:
         """Retained provider prose keeps its original source grant, not a label."""
+        if message.get("content_state") == "source_withdrawn":
+            return False
         source = message.get("session_turn",{}).get("provider_display_source")
         if source is not None:
             if (not isinstance(source,dict) or set(source) != {"provider","source_context"}
@@ -201,6 +203,13 @@ class HistoricalProjectionQueryService:
             if self._conversation_history
             else "0:0"
         )
+        deletion_scope = ""
+        if self._conversation_history is not None:
+            from .persistence.history_deletion import HistoryDeletionRepository
+            journal = HistoryDeletionRepository(self._repository._persistence)
+            targets = frozenset({session['session_id']})
+            deletion_scope = await self._conversation_history.async_archive_scope_digest(
+                owner, targets, entry_index=lambda messages: journal.async_scope_index(owner, messages, targets))
         grant = await self._grant_revision(owner) if self._grant_revision else ""
         retention = await self._repository.async_retention_policy()
         if (session.get('retention_revision', retention[1]) != retention[1]
@@ -215,13 +224,15 @@ class HistoricalProjectionQueryService:
             raise HistoricalProjectionAccessDenied("session_unavailable")
         return {
             **session,
+            "_deletion_scope": deletion_scope,
+            "_sql_revision": session["revision"],
             "revision": str(session["revision"])
             + ":"
             + session["lifecycle_status"]
             + ":"
             + suffix
             + ":"
-            + grant + ":retention:" + str(retention[1]) + ":" + str(self._repository.retention_fence[0]),
+            + grant + ":retention:" + str(retention[1]) + ":" + str(self._repository.retention_fence[0]) + (":delete:" + deletion_scope if deletion_scope else ""),
         }
 
     async def _qualify_summary(self, owner, session, cache=None):
@@ -248,7 +259,16 @@ class HistoricalProjectionQueryService:
         session['retention_revision'] = retention_revision
         session['retention_fence'] = fence
         await self._qualify_summary(owner, session)
-        return await self._revision_session(owner, session)
+        result = await self._revision_session(owner, session)
+        # Store/grant awaits may cross an intent commit. Never return the header
+        # captured before that commit, even if its renderer revision is stable.
+        fresh = await self._repository.async_session_record(session_id)
+        if not fresh:
+            raise HistoricalProjectionAccessDenied("session_unavailable")
+        if fresh['revision'] != session['revision']:
+            from .session_history_projection import HistoryQueryError
+            raise HistoryQueryError('invalid_history_cursor')
+        return result
 
     async def async_session_page(
         self, owner: str, *, limit: int = 20, cursor: str = "", include_active: bool = False

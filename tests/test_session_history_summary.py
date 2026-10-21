@@ -335,10 +335,12 @@ class SummaryTest(unittest.IsolatedAsyncioTestCase):
         connection = sqlite3.connect(self.path)
         connection.execute("DROP TABLE djconnect_session_acceptances")
         connection.execute("DROP TABLE djconnect_session_summaries")
+        connection.execute("DROP INDEX djconnect_session_entry_message")
         # Reconstruct an actual v5 store, not v5 metadata over newer tables.
         for table in ('djconnect_profile_dj_settings', 'djconnect_session_dj_settings',
                       'djconnect_settings_operations', 'djconnect_settings_clock',
-                      'djconnect_session_retention'):
+                      'djconnect_session_retention', 'djconnect_history_deletion_targets',
+                      'djconnect_history_deletions', 'djconnect_history_deletion_clock'):
             connection.execute(f'DROP TABLE {table}')
         connection.execute("DELETE FROM djconnect_schema_migrations WHERE schema_version>=6")
         connection.execute("UPDATE djconnect_schema_metadata SET schema_version=5")

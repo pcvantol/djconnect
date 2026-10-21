@@ -25,6 +25,8 @@ def _platform_capabilities() -> dict[str, bool]:
         "active_session_presence": True,
         "session_forecast": True,
         "session_history_summary": True,
+        "session_history_delete": True,
+        "session_history_bulk_delete": True,
         "hybrid_transport": True,
         "session_artwork": True,
         "session_speech": True,
@@ -55,5 +57,7 @@ def _contract_versions() -> dict[str, int]:
         "session_speech": 1,
         "passive_session_surface": 1,
         "session_history_summary": 1,
+        "session_history_delete": 1,
+        "session_history_bulk_delete": 1,
         "profile_session_settings": SETTINGS_VERSION,
     }

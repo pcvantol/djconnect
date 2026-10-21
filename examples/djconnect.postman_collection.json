@@ -81,6 +81,22 @@
     {
       "key": "reaction_operation_id",
       "value": "replace-with-original-reaction-uuidv7"
+    },
+    {
+      "key": "deletion_session_id",
+      "value": ""
+    },
+    {
+      "key": "deletion_expected_revision",
+      "value": ""
+    },
+    {
+      "key": "deletion_operation_id",
+      "value": ""
+    },
+    {
+      "key": "deletion_snapshot_id",
+      "value": ""
     }
   ],
   "auth": {
@@ -1423,6 +1439,130 @@
               ]
             },
             "description": "Spotify redirects the browser here after OAuth. This placeholder is for contract visibility; normal users should start OAuth from the Home Assistant config/options flow."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Owner archive deletion",
+      "item": [
+        {
+          "name": "Archive deletion snapshot",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/session/history/delete_snapshot?device_id={{device_id}}&client_type={{client_type}}",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "session",
+                "history",
+                "delete_snapshot"
+              ],
+              "query": [
+                {
+                  "key": "device_id",
+                  "value": "{{device_id}}"
+                },
+                {
+                  "key": "client_type",
+                  "value": "{{client_type}}"
+                }
+              ]
+            },
+            "description": "Paired owner only. Feature-detect capability1. Read fresh exact scope, show confirmation, then set confirmed:true and use a NEW UUIDv7. No automatic mutation replay. Empty placeholders do not select targets. No installed/native acceptance follows from this example."
+          }
+        },
+        {
+          "name": "Delete one confirmed archived Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/session/history/delete",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "session",
+                "history",
+                "delete"
+              ]
+            },
+            "description": "Paired owner only. Feature-detect capability1. Read fresh exact scope, show confirmation, then set confirmed:true and use a NEW UUIDv7. No automatic mutation replay. Empty placeholders do not select targets. No installed/native acceptance follows from this example.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"session_id\": \"{{deletion_session_id}}\",\n  \"expected_revision\": \"{{deletion_expected_revision}}\",\n  \"operation_id\": \"{{deletion_operation_id}}\",\n  \"confirmed\": false,\n  \"history_contract_version\": 2\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete confirmed server snapshot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/session/history/delete_all",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "session",
+                "history",
+                "delete_all"
+              ]
+            },
+            "description": "Paired owner only. Feature-detect capability1. Read fresh exact scope, show confirmation, then set confirmed:true and use a NEW UUIDv7. No automatic mutation replay. Empty placeholders do not select targets. No installed/native acceptance follows from this example.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"snapshot_id\": \"{{deletion_snapshot_id}}\",\n  \"operation_id\": \"{{deletion_operation_id}}\",\n  \"confirmed\": false\n}"
+            }
           }
         }
       ]
