@@ -1,5 +1,9 @@
 ## Individual owner content deletion — implementation candidate, 21 October2026
 
+## Current Core narrative resumption — 21 October 2026
+
+After delivered sparse-DJ source1261/e6e20d9a + distinctFinal1262/1f504793 and actual HA-dev install/readback16:02:16UTC, same sole Core writer resumes Peter's original verhaalkwaliteit PR1248 temporal-bound correction. Base1f5047937b5c5c480e82f9e2ba52ba739a94ebe0 is clean/equal protected origin; fresh native hostverify MATCH/exit0/onboarding4.5.4. Original a31/worktree/evidence remain frozen and preserved; the bounded original guidance/two owner-route tests/additive Golden bindings are reapplied in isolated codex/core-narrative-temporal-bounds-resume-20261021. Existing factual/research/rights/identity/language/expiry/publication guards remain unchanged. Current validation: full 2,996 tests PASS (131.774s), seven existing skips; focused 270 PASS (22.898s); Golden inventory PASS (44 families, 385 steps, 87 findings; all42Core/29quality OPEN), Ruff/Bandit/projection/diff PASS. Exact independent review, protected source, separate Finalization and actual HA-dev installation/readback remain gates. No new paid budget or live model/native/audio acceptance. Fixed deadline19:10:02UTC remains. See [the current and historical verification record](docs/verification/CORE_NARRATIVE_TEMPORAL_BOUNDS_20261020.md).
+
 ## Sparse automatic DJ contributions — separate Finalization, 21 October 2026
 
 ### Repository Status

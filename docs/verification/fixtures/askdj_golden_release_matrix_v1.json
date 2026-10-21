@@ -7828,6 +7828,14 @@
         {
           "file": "tests/test_ask_dj_exploration.py",
           "method": "test_web_excerpt_focus_does_not_promote_ordinary_words_or_change_broad_excerpt"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_composer_year_end_bound_rejects_narrowing_despite_positive_source_review"
+        },
+        {
+          "file": "tests/test_personal_dj_narration_public_artist.py",
+          "method": "test_composer_year_end_bound_allows_supported_date_free_episode"
         }
       ],
       "steps": [
@@ -8091,6 +8099,14 @@
             {
               "file": "tests/test_ask_dj_exploration.py",
               "method": "test_web_excerpt_focus_does_not_promote_ordinary_words_or_change_broad_excerpt"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_composer_year_end_bound_rejects_narrowing_despite_positive_source_review"
+            },
+            {
+              "file": "tests/test_personal_dj_narration_public_artist.py",
+              "method": "test_composer_year_end_bound_allows_supported_date_free_episode"
             }
           ],
           "acceptance_status": "owner_contract",

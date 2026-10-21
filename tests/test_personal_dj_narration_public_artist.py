@@ -854,6 +854,58 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(guard.processor_basis,'qualified_dialogue_v1')
         self.assertEqual((len(self.calls),len(self.urls)),calls)
 
+    async def test_composer_year_end_bound_rejects_narrowing_despite_positive_source_review(self):
+        await self.composer_year_end_publication(narrowed=True)
+
+    async def test_composer_year_end_bound_allows_supported_date_free_episode(self):
+        await self.composer_year_end_publication(narrowed=False)
+
+    async def composer_year_end_publication(self, *, narrowed):
+        """Exercise publication, not just the shared temporal helper or prompt.
+
+        Public research and model replies are fixtures; real model compliance
+        and narrative quality remain unqualified.
+        """
+        await self.prepare_composer()
+        self.article_fixture=('<p>Ada Reed is a musician.</p>'
+            '<p>By the end of 2007, Ada Reed released the single "One".</p>')
+        self.answer=('Ada Reed is componist van het werk achter deze opname. '
+            + ('Ada Reed bracht tegen het einde van 2007 de single ‘One’ uit.' if narrowed else
+               'Ada Reed bracht de single ‘One’ uit.'))
+
+        async def positive_review(hass,data,**kwargs):
+            self.calls.append(data['text'])
+            if len(self.calls)%2:
+                output=self.answer
+            else:
+                assessment=json.loads(data['text'].split('\nData:\n')[1])
+                evidence=assessment['evidence']['public_music_research']
+                source=next(s for s in evidence['sources'] if s['provider']=='Wikipedia')
+                episode=next(s for s in source['evidence_spans'] if 'single "One"' in s['text'])
+                credit=evidence['sources'][-1]['evidence_spans'][0]
+                first,second=self.answer.split('. ',1)
+                output=json.dumps({'supported':True,'unsupported_claims':[],
+                    'language_ok':True,'style_ok':True,'work_focus_preserved':True,
+                    'composer_episode_preserved':True,'review_schema':'source_id_review_v1',
+                    'temporal_claims':[{'claim':second,'event_anchor':'One','year':'2007',
+                        'source_id':source['content_hash'],'quote':episode['text']}] if narrowed else [],
+                    'claim_checks':[
+                        {'text':first+'.','kind':'relationship','evidence_ids':[credit['id']]},
+                        {'text':second,'kind':'relationship','evidence_ids':[episode['id']]}]})
+            return {'response':{'speech':{'plain':{'speech':output}}}}
+
+        self.model=positive_review
+        moment=await self.publish()
+        if narrowed:
+            self.assertIsNone(moment)
+            self.assertEqual(self.debug['block_reason'],'research_claim_coverage_unverified')
+            self.assertEqual(self.session.presence_ledger.total_published,0)
+        else:
+            self.assertIsNotNone(moment,self.debug)
+            self.assertEqual(moment.content,self.answer)
+            self.assertEqual(self.session.presence_ledger.total_published,1)
+        self.assertEqual((len(self.calls),len(self.urls)),(2,4))
+
     async def test_rejected_composer_style_never_publishes_original_credit_template(self):
         await self.prepare_composer()
         self.bad_review=True
