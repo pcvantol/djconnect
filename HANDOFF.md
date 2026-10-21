@@ -1,5 +1,20 @@
 ## Individual owner content deletion — implementation candidate, 21 October2026
 
+## Current Core VibeCast contracts and selected readiness — 21 October 2026
+
+Same sole Core writer, based on qualified settings Final1258/00904153 and actual
+232-file HA-dev install/readback. Current unchanged B producer passed all twelve
+existing isolated HA groups with0providercalls; all232producthashes stable,
+199Python/helper source binding. New noncredential fixture and exact fixed-QA
+receiver f8d97a6 limited CoreBcompatibility disposition are in
+[the readiness record](docs/verification/VIBECAST_SELECTED_TARGET_READINESS_20261021.md).
+Actual selected iPhone owner/context, live external route, A/native/TV acceptance
+remain OPEN; no guessed route, synthetic credential or consent transfer. No
+product byte/schema/endpoint/workflow/budget change. Source review/checks/protected
+qualification, distinct Finalization and fresh unchanged-payload installed readback
+remain pending. Then parked1248/narrative and personalDJqueue-backedhumanForecast.
+Hard deadline19:10:02UTC; old WIP/proofs and all unique evidence preserved.
+
 ## Shared settings migration and ordinary Pi onboarding — separate Finalization, 21 October 2026
 
 ### Repository Status

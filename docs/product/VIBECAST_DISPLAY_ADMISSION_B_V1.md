@@ -1,5 +1,15 @@
 # VibeCast HA display admission B v1
 
+Current Core qualification and selected-target disposition,21October2026:
+[fresh actual B/readiness record](../verification/VIBECAST_SELECTED_TARGET_READINESS_20261021.md)
+binds the installed232-file producer, twelve actual isolated HA groups and a new
+credential-free transport fixture. Fixed, separately compiled A QA service/browser
+origins do not change B's independently selected HA origin or explicit owner/
+current-Session consent. The exact receiver QA source received only a limited
+static Core B-compatibility review. Actual selected iPhone owner/context, external
+route, operational A and native/TV acceptance remain separate OPEN gates. No new
+B wire, authority, endpoint, renderer or runtime behavior is introduced.
+
 Current source status, checked20October2026: **B_PROTECTED_SOURCE /
 A_SEPARATE / JOINT_ACCEPTANCE_OPEN**. PR1197 merged as
 `c98cbf3e3114afb8b8212e18224a337b12af3e27`; protected main8b221d07 contains
