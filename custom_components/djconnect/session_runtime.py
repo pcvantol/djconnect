@@ -4334,8 +4334,8 @@ class DJSessionRuntime:
         """Only the genuine one-time welcome is informative at Music-only."""
         if moment.moment_id in self.deleted_moment_ids:
             return False
-        relation = moment.genre_transition
-        if relation is not None and {relation.source_moment_id, relation.target_moment_id} & self.deleted_moment_ids:
+        from .content_deletion_runtime import moment_dependencies
+        if moment_dependencies(moment) & self.deleted_moment_ids:
             return False
         opening = opening_context(moment)
         if opening is not None and opening == self.opening_context:
@@ -6806,6 +6806,11 @@ class SessionRuntimeManager:
                               "persona": moment.presentation_intent.dj_persona.value,
                               "persona_revision": active.persona_revision,
                               "locale": active.locale}}
+
+        from .content_deletion_runtime import moment_dependencies
+        dependencies = moment_dependencies(moment)
+        if dependencies:
+            entry['body']['dependency_moment_ids'] = sorted(dependencies)
 
         try:
             accepted = await self._historical_projections.async_accept_moment(

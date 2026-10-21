@@ -274,6 +274,12 @@ class HistoricalProjectionRepository(PersistenceRepository):
         added = 0
         for item in entries:
             if tx.fetchone(
+                'SELECT 1 FROM djconnect_content_tombstones WHERE owner_profile_id=? AND session_id=? '
+                'AND reference_id IN (SELECT value FROM json_each(?))',
+                (owner_profile_id, session_id, json.dumps(item.get('body', {}).get('dependency_moment_ids', []))),
+            ):
+                raise PermissionError('content_deleted')
+            if tx.fetchone(
                 'SELECT 1 FROM djconnect_content_tombstones WHERE owner_profile_id=? AND session_id=? AND reference_id=?',
                 (owner_profile_id, session_id, item['reference_id']),
             ):
@@ -361,6 +367,12 @@ class HistoricalProjectionRepository(PersistenceRepository):
             if tx.fetchone(
                 'SELECT 1 FROM djconnect_content_tombstones WHERE owner_profile_id=? AND session_id=? AND reference_id=?',
                 (owner, session_id, moment_id),
+            ):
+                return False
+            if tx.fetchone(
+                'SELECT 1 FROM djconnect_content_tombstones WHERE owner_profile_id=? AND session_id=? '
+                'AND reference_id IN (SELECT value FROM json_each(?))',
+                (owner, session_id, json.dumps((entry or {}).get('body', {}).get('dependency_moment_ids', []))),
             ):
                 return False
             if not row[2]:

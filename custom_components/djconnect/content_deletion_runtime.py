@@ -6,13 +6,22 @@ import hashlib
 import json
 
 
+def moment_dependencies(moment):
+    """Minimal explicit IDs, including ordinary transitions without genre proof."""
+    metadata = dict(moment.generation_metadata)
+    result = {metadata.get(key) for key in ('transition_from_moment_id', 'transition_to_moment_id')}
+    relation = moment.genre_transition
+    if relation is not None:
+        result.update((relation.source_moment_id, relation.target_moment_id))
+    return frozenset(value for value in result if isinstance(value, str) and value)
+
+
 def moment_closure(active, identifiers):
     """Only explicit runtime Moment provenance; no text matching or adjacency."""
     result = set(identifiers)
     while True:
         added = {m.moment_id for m in active.broadcast.state.dj_moments
-                 if m.genre_transition is not None
-                 and {m.genre_transition.source_moment_id, m.genre_transition.target_moment_id} & result}
+                 if moment_dependencies(m) & result}
         if added <= result:
             return frozenset(result)
         result.update(added)

@@ -52,7 +52,7 @@ SDK/device pairing/HTTP registration, SQLite and actual HA Store. Existing agent
 response transport is explicitly synthetic; zero model/provider API calls.
 No HA-dev config, personal history, credential extraction or live music mutation.
 
-`verify_content_deletion_http.py` run10 PASS46 HTTP requests plus two reads on the
+`verify_content_deletion_http.py` run11 PASS46 HTTP requests plus two reads on the
 same original paired TLS WebSocket connection. Both accepted roles resolve the
 same server exchange; exact cascade and consent; cross-owner/wrong Session/
 extra Profile hint/stale scope denial before erasure; active Session/playback/
@@ -61,12 +61,13 @@ blocked before provider/replay; accepted Moment withdrawn from engine/Flow/nativ
 read-only pending status; separate Python process opens the actual Store/SQLite,
 finishes a lost-ack intent and returns the same original receipt without preview.
 Receipt SHA256:
-`d51e3b311998bc70f5d50384e08162c50ea6d76da563e8a67544170896729325`.
+`8476ffdb63d96df3b73c449001f6faab084674284b7faf9a488c01febd87afa6`.
 
 The same-source archive harness PASS37 HTTP requests plus two original paired
 TLS WebSocket reads: original single/bulk semantics, real lost Store
 acknowledgement, separate-process recovery, later/active/foreign preservation,
 and new exact-original-body status without recovery or durable clock write.
+Current archive receipt SHA256 `dbfaa701c66aad953ed08ed5b1666af7ae092e10bf66c24945f57ebbca396513`.
 The new [archive derivative](../../examples/client_contracts/session_conversation_history/archive-deletion-v1-content-status-20261021.json)
 records its actual receipt digest; the delivered original archive fixture remains
 byte-identical with SHA256
@@ -104,7 +105,9 @@ The changed source/tests and harnesses pass Ruff; pinned Bandit1.9.4 reports zer
 medium/high findings. Offline projection validation and Golden release inventory
 PASS43 families/346 steps/87 reported issues; all42 Core findings and29 quality
 steps remain OPEN. This work makes no paid Golden/editorial quality claim.
-Final local full suite:2972 tests PASS89.207seconds,7 existing skips. All six
+Prior frozen candidate full suite:2972 tests PASS89.207seconds,7 existing skips.
+Final corrected candidate:2974 tests PASS110.057seconds,7 existing skips,
+including both additional transition-provenance regressions. All six
 Foundation Golden regression scenarios PASS (smoke also PASS); these are local
 structural scenarios, not paid contextual/editorial acceptance. Full logs and
 source/fixture receipts are retained in the exact review packet. No native client rendering, audible output, physical device,
@@ -126,3 +129,22 @@ with shared settings, Core VibeCast contracts, parked narrative1248 and personal
 DJ experience. Hard deadline19:10:02UTC is unchanged. No new paid budget,
 consumer-source mutation, production activation, recovery bundle or silent timer
 extension is authorized or claimed here.
+
+## Exact-head review correction
+
+The independent frozen f49bf013 review returned one P2, not GO: ordinary
+transitions have explicit source/target Moment IDs but no genre-only proof.
+Both live and bounded recursive SQL closure now follow those actual IDs; newly
+archived publications retain minimal dependency IDs without relaxing archival
+rights or retaining arbitrary generation bodies. RAM and SQL edges can interleave.
+Pending/late admission rejects withdrawn parents, including SQL acceptance after
+reload. Historical bodies without provenance are not reconstructed from text.
+
+Regressions exercise an actual ordinary transition engine with no genre proof,
+actual persisted minimal provenance, targeted live withdrawal and preserved
+independent target. A separate SQLite/Store reopening verifies a two-hop archived
+transition cascade and late-child rejection. The actual HA run11 additionally
+performs ordinary-transition persistence and live withdrawal. Original failed
+test setup logs are retained: a stale Runtime identity/read-interval clock and
+incorrect expected unavailable shape were corrected in synthetic tests; no
+production eligibility or rights guard was weakened.

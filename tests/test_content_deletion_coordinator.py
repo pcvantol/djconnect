@@ -128,3 +128,30 @@ class ContentDeletionCoordinatorTests(unittest.IsolatedAsyncioTestCase):
         self.history._data['users']['profile:p']['cleared_request_hashes'] = []
         self.assertTrue(await self.coordinator.journal.async_request_deleted('p', 'selected'))
         self.assertEqual(await self.coordinator.journal.async_pending_content(), [])
+
+    async def test_archived_transition_dependency_chain_survives_process_reload(self):
+        import json
+        await self.repo.async_append_entries('p', 'live', [
+            {'kind': 'dj_moment', 'reference_id': mid,
+             'body': {'moment_id': mid, 'text': 'Synthetic '+mid, 'dependency_moment_ids': deps}}
+            for mid, deps in [('root', []), ('transition', ['root']),
+                              ('transition-child', ['transition']), ('independent-moment', [])]])
+        # New SQLite/Store owners: no live Moment engine or dialogue graph.
+        await self.service.async_close()
+        self.service = PersistenceService(self.path, SQLitePersistenceProvider())
+        await self.service.async_initialize()
+        self.repo = HistoricalProjectionRepository(self.service)
+        self.coordinator = ContentDeletionCoordinator(self.service, AskDJHistoryManager(store=self.store))
+        snapshot = await self.preview({'kind': 'moment', 'session_id': 'live', 'target_id': 'root'})
+        self.assertEqual({m for _, m in snapshot['scope']['moments']}, {'root', 'transition', 'transition-child'})
+        await self.execute(snapshot)
+        rows = await self.repo.async_entry_records('p', 'live')
+        moments = {row['reference_id']: json.loads(row['body']) for row in rows if row['kind'] in {'dj_moment', 'dj_publication'}}
+        self.assertNotIn('root', moments)
+        self.assertEqual(moments['transition']['content_state'], 'unavailable')
+        self.assertIsNone(moments['transition']['text'])
+        self.assertEqual(moments['transition-child']['content_state'], 'unavailable')
+        self.assertEqual(moments['independent-moment']['text'], 'Synthetic independent-moment')
+        late = {'kind': 'dj_moment', 'reference_id': 'late-transition',
+                'body': {'moment_id': 'late-transition', 'dependency_moment_ids': ['root']}}
+        self.assertFalse(await self.repo.async_accept_moment('p', 'live', 'late-transition', late))

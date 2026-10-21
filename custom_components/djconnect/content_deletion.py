@@ -84,16 +84,35 @@ class ContentDeletionCoordinator(ArchiveDeletionCoordinator):
     async def _build(self, owner, selector, messages, index):
         """Pure bounded scope derivation under the existing Store writer boundary."""
         unit, selected_ids, moment_ids, original_ids = await self._resolve(owner, selector, messages)
-        moments = {(unit['session_id'], mid) for mid in moment_ids}
-        def read(tx):
-            return tx.fetchall(
-                'SELECT session_id,entry_id,kind,reference_id FROM djconnect_session_entries '
-                "WHERE owner_profile_id=? AND session_id=? AND kind IN ('dj_moment','dj_publication','dj_silence') "
-                'AND reference_id IN (SELECT value FROM json_each(?)) LIMIT ?',
-                (owner, unit['session_id'], json.dumps(sorted(moment_ids)), MAX_UNITS + 1))
-        moment_rows = await self.persistence.async_in_transaction(read)
-        if len(moment_rows) > MAX_UNITS:
+        active = self.manager.current_active(owner) if self.manager is not None else None
+        # Fixed SQL and bounded recursive ID provenance; never infer a relation
+        # from titles, text or adjacency. RAM and durable edges can interleave.
+        for _ in range(MAX_UNITS + 1):
+            def read(tx):
+                return tx.fetchall(
+                    'WITH RECURSIVE affected(moment_id) AS ('
+                    'SELECT value FROM json_each(?) UNION '
+                    'SELECT e.reference_id FROM djconnect_session_entries AS e '
+                    "JOIN json_each(e.body,'$.dependency_moment_ids') AS dependency "
+                    'JOIN affected ON dependency.value=affected.moment_id '
+                    "WHERE e.owner_profile_id=? AND e.session_id=? AND e.kind IN ('dj_moment','dj_publication','dj_silence') "
+                    'LIMIT ?) SELECT session_id,entry_id,kind,reference_id FROM djconnect_session_entries '
+                    "WHERE owner_profile_id=? AND session_id=? AND kind IN ('dj_moment','dj_publication','dj_silence') "
+                    'AND reference_id IN (SELECT moment_id FROM affected) LIMIT ?',
+                    (json.dumps(sorted(moment_ids)), owner, unit['session_id'], MAX_UNITS + 1,
+                     owner, unit['session_id'], MAX_UNITS + 1))
+            moment_rows = await self.persistence.async_in_transaction(read)
+            added = moment_ids | {row[3] for row in moment_rows}
+            if active is not None and active.session_id == unit['session_id']:
+                added.update(moment_closure(active, added))
+            if len(moment_rows) > MAX_UNITS or len(added) > MAX_UNITS:
+                raise HistoryDeletionError('content_delete_capacity')
+            if added == moment_ids:
+                break
+            moment_ids = added
+        else:
             raise HistoryDeletionError('content_delete_capacity')
+        moments = {(unit['session_id'], mid) for mid in moment_ids}
         if unit['kind'] == 'moment':
             active = self.manager.current_active(owner) if self.manager is not None else None
             live_root = (active is not None and active.session_id == unit['session_id']

@@ -171,6 +171,24 @@ async def qualify(hass, manager, history, request, client):
         media_identity=fact.media_identity, insight_provider=provider, require_current_playback=True, allow_initial_facts=True)
     assert moment is not None, {'last_decision': str(manager.current_active('profile-a').planner.last_decision),
         'fact_count': manager._intra_track_opportunities['profile-a'].fact_count}
+    from dataclasses import replace
+    from custom_components.djconnect import session_runtime as core
+    current = manager.current_active('profile-a')
+    target = replace(moment, moment_id='independent-transition-target', moment_type=core.DJMomentType.RECOMMENDATION)
+    current.moment_engine.moments = (*current.moment_engine.moments, target)
+    # Use the actual ordinary transition engine, with no genre-only proof.
+    decision = core.PlannerDecision(core.PlannerDecisionType.CREATE_TRANSITION, 'synthetic_relation',
+        core.KnowledgeIntent(core.KnowledgeIntentType.TRANSITION, 'Synthetic relation'),
+        transition_moment_ids=(moment.moment_id, target.moment_id), transition_placement='next')
+    transition = current.moment_engine.create_transition(session_id=current.session_id, approval=decision,
+        selected_mood='groove', persona=core.DJPersona.HOME_DJ, locale='en')
+    assert transition.moment_type is core.DJMomentType.TRANSITION and transition.genre_transition is None
+    current.presence_ledger.clock = lambda: current.presence_ledger.last_at + 91
+    assert await manager._async_persist_moment(current, transition)
+    row = next(r for r in await repo.async_entry_records('profile-a', current.session_id)
+        if r['reference_id'] == transition.moment_id)
+    assert set(json.loads(row['body'])['dependency_moment_ids']) == {moment.moment_id, target.moment_id}
+    current.broadcast.publish_moment(transition)
     _, moment_preview = await prepare('moment', moment_session.session_id, moment.moment_id)
     answer, code = await request('POST', PREFIX, command(moment_preview, 4))
     assert code == 200, answer
@@ -179,6 +197,10 @@ async def qualify(hass, manager, history, request, client):
     assert moment.moment_id not in {m.moment_id for m in current.moment_engine.moments}
     assert moment.moment_id not in {i.moment_id for i in current.planner.output.session_flow.items}
     assert not current.allows_moment(moment)
+    assert transition.moment_id not in {m.moment_id for m in current.broadcast.state.dj_moments}
+    assert not current.allows_moment(transition)
+    assert target.moment_id in {m.moment_id for m in current.moment_engine.moments}
+    cases.append('ordinary_transition_explicit_ids_durably_captured_and_live_dependency_withdrawn')
     examples.update(moment_prepare_response=moment_preview, moment_response=answer)
     cases.append('actual_active_moment_flow_engine_native_admission_withdrawn_without_session_end')
 

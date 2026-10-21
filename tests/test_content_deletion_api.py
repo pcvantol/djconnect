@@ -419,3 +419,37 @@ class PairedContentDeleteTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(status, 200, result)
         self.assertEqual(result['unit']['target_id'], moment.moment_id)
         self.assertIsNotNone(self.f.fixture.manager.current_active('profile-a'))
+
+    async def test_ordinary_transition_provenance_persisted_and_live_withdrawn(self):
+        import json
+        from dataclasses import replace
+        from custom_components.djconnect import session_runtime as core
+        from custom_components.djconnect.persistence.history import HistoricalProjectionRepository
+        _, root, _ = await self.f.selected_credit()
+        active = self.f.fixture.manager.current_active('profile-a')
+        source = replace(root, moment_type=core.DJMomentType.ARTIST)
+        target = replace(root, moment_id='independent-target', moment_type=core.DJMomentType.RECOMMENDATION)
+        active.moment_engine.moments = (*active.moment_engine.moments, target)
+        decision = core.PlannerDecision(core.PlannerDecisionType.CREATE_TRANSITION, 'synthetic',
+            core.KnowledgeIntent(core.KnowledgeIntentType.TRANSITION, 'Synthetic relation'),
+            transition_moment_ids=(source.moment_id, target.moment_id), transition_placement='next')
+        transition = active.moment_engine.create_transition(session_id=active.session_id, approval=decision,
+            selected_mood='groove', persona=core.DJPersona.HOME_DJ, locale='en')
+        self.assertEqual(transition.moment_type, core.DJMomentType.TRANSITION)
+        self.assertIsNone(transition.genre_transition)
+        # Advance the supported synthetic presence clock past the readable gap.
+        active.presence_ledger.clock = lambda: active.presence_ledger.last_at + 91
+        self.assertTrue(await self.f.fixture.manager._async_persist_moment(active, transition))
+        repo = HistoricalProjectionRepository(self.f.fixture.service)
+        row = next(r for r in await repo.async_entry_records('profile-a', active.session_id)
+                   if r['reference_id'] == transition.moment_id)
+        self.assertEqual(set(json.loads(row['body'])['dependency_moment_ids']), {root.moment_id, target.moment_id})
+        active.broadcast.publish_moment(transition)
+        preview, status = await self.prepare({'kind': 'moment', 'session_id': active.session_id, 'target_id': root.moment_id})
+        self.assertEqual(status, 200, preview)
+        self.assertIn(transition.moment_id, {m['moment_id'] for m in preview['affected_moments']})
+        result, status = await self.delete(preview)
+        self.assertEqual(status, 200, result)
+        self.assertNotIn(transition.moment_id, {m.moment_id for m in active.broadcast.state.dj_moments})
+        self.assertFalse(active.allows_moment(transition))
+        self.assertIn(target.moment_id, {m.moment_id for m in active.moment_engine.moments})

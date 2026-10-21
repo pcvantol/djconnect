@@ -149,3 +149,10 @@ pending obligations. Durable tombstones/request fences each have a10000 global
 bound and requests a1000-per-owner bound. Capacity fails closed; never evict a
 still-useful request fence to permit a retry. These limits are not a claim of
 unbounded archival deletion or physical secure erasure of storage backups.
+
+Explicit ordinary-transition source/target Moment IDs participate in the same
+dependency closure as genre-transition proof. Newly archived publications retain
+only their minimal `dependency_moment_ids`; bounded SQL closure and Runtime
+closure are resolved together before confirmation. A dependent transition becomes
+unavailable and cannot be republished from a withdrawn parent. Existing historical
+rows lacking provenance are never assigned inferred text/adjacency dependencies.
