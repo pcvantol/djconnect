@@ -97,6 +97,26 @@
     {
       "key": "deletion_snapshot_id",
       "value": ""
+    },
+    {
+      "key": "content_delete_target_kind",
+      "value": "entry",
+      "type": "string"
+    },
+    {
+      "key": "content_delete_target_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "content_delete_confirmation_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "content_delete_operation_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "auth": {
@@ -1563,6 +1583,264 @@
               "mode": "raw",
               "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"snapshot_id\": \"{{deletion_snapshot_id}}\",\n  \"operation_id\": \"{{deletion_operation_id}}\",\n  \"confirmed\": false\n}"
             }
+          }
+        },
+        {
+          "name": "Read original single archive deletion status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/session/history/delete/status?device_id={{device_id}}&client_type={{client_type}}&contract_version=1&operation=single&operation_id={{deletion_operation_id}}&session_id={{deletion_session_id}}&expected_revision={{deletion_expected_revision}}",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "session",
+                "history",
+                "delete",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "device_id",
+                  "value": "{{device_id}}"
+                },
+                {
+                  "key": "client_type",
+                  "value": "{{client_type}}"
+                },
+                {
+                  "key": "contract_version",
+                  "value": "1"
+                },
+                {
+                  "key": "operation",
+                  "value": "single"
+                },
+                {
+                  "key": "operation_id",
+                  "value": "{{deletion_operation_id}}"
+                },
+                {
+                  "key": "session_id",
+                  "value": "{{deletion_session_id}}"
+                },
+                {
+                  "key": "expected_revision",
+                  "value": "{{deletion_expected_revision}}"
+                }
+              ]
+            },
+            "description": "Paired owner only; flat device_id/client_type and existing Bearer, no nested identity or caller Profile. Feature-detect advertised capability and exact version. Use only synthetic disposable data for tests. No automatic POST replay or new operation ID after unknown/expired outcome. No music-playback undo or installed/native acceptance follows from this example. Requires session_history_delete_status1. Read-only status of the ORIGINAL single/all archive operation, with exactly the original Session/detail revision or server snapshot and original operation_id. This is separate from individual confirmation IDs; never invent or borrow a confirmation token. A status read does not recover or renew the operation."
+          }
+        },
+        {
+          "name": "Read original all archive deletion status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/session/history/delete/status?device_id={{device_id}}&client_type={{client_type}}&contract_version=1&operation=all&operation_id={{deletion_operation_id}}&snapshot_id={{deletion_snapshot_id}}",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "session",
+                "history",
+                "delete",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "device_id",
+                  "value": "{{device_id}}"
+                },
+                {
+                  "key": "client_type",
+                  "value": "{{client_type}}"
+                },
+                {
+                  "key": "contract_version",
+                  "value": "1"
+                },
+                {
+                  "key": "operation",
+                  "value": "all"
+                },
+                {
+                  "key": "operation_id",
+                  "value": "{{deletion_operation_id}}"
+                },
+                {
+                  "key": "snapshot_id",
+                  "value": "{{deletion_snapshot_id}}"
+                }
+              ]
+            },
+            "description": "Paired owner only; flat device_id/client_type and existing Bearer, no nested identity or caller Profile. Feature-detect advertised capability and exact version. Use only synthetic disposable data for tests. No automatic POST replay or new operation ID after unknown/expired outcome. No music-playback undo or installed/native acceptance follows from this example. Requires session_history_delete_status1. Read-only status of the ORIGINAL single/all archive operation, with exactly the original Session/detail revision or server snapshot and original operation_id. This is separate from individual confirmation IDs; never invent or borrow a confirmation token. A status read does not recover or renew the operation."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Owner individual content deletion",
+      "item": [
+        {
+          "name": "Prepare exact individual deletion scope",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/session/content/delete/prepare",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "session",
+                "content",
+                "delete",
+                "prepare"
+              ]
+            },
+            "description": "Paired owner only; flat device_id/client_type and existing Bearer, no nested identity or caller Profile. Feature-detect advertised capability and exact version. Use only synthetic disposable data for tests. No automatic POST replay or new operation ID after unknown/expired outcome. No music-playback undo or installed/native acceptance follows from this example. Requires session_content_delete1. entry/moment use real server IDs and Session; message resolves a complete server exchange; request uses original client_message_id. Standalone message/request explicitly uses session_id empty string. Show exact returned unit/affected IDs before consent; preparation never authorizes erasure.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"contract_version\": 1,\n  \"target\": {\n    \"kind\": \"{{content_delete_target_kind}}\",\n    \"session_id\": \"{{deletion_session_id}}\",\n    \"target_id\": \"{{content_delete_target_id}}\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete explicitly confirmed individual scope",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/session/content/delete",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "session",
+                "content",
+                "delete"
+              ]
+            },
+            "description": "Paired owner only; flat device_id/client_type and existing Bearer, no nested identity or caller Profile. Feature-detect advertised capability and exact version. Use only synthetic disposable data for tests. No automatic POST replay or new operation ID after unknown/expired outcome. No music-playback undo or installed/native acceptance follows from this example. Requires session_content_delete1. Copy original server confirmation_id after exact preview and set confirmed true only after actual owner consent. Mint UUIDv7 once for this explicit operation; preserve original body and IDs across unknown transport outcomes. Five-minute bounds never renew. confirmed defaults false, so this example cannot silently consent.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"contract_version\": 1,\n  \"confirmation_id\": \"{{content_delete_confirmation_id}}\",\n  \"operation_id\": \"{{content_delete_operation_id}}\",\n  \"confirmed\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Read original individual deletion status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/session/content/delete/status?device_id={{device_id}}&client_type={{client_type}}&contract_version=1&confirmation_id={{content_delete_confirmation_id}}&operation_id={{content_delete_operation_id}}",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "session",
+                "content",
+                "delete",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "device_id",
+                  "value": "{{device_id}}"
+                },
+                {
+                  "key": "client_type",
+                  "value": "{{client_type}}"
+                },
+                {
+                  "key": "contract_version",
+                  "value": "1"
+                },
+                {
+                  "key": "confirmation_id",
+                  "value": "{{content_delete_confirmation_id}}"
+                },
+                {
+                  "key": "operation_id",
+                  "value": "{{content_delete_operation_id}}"
+                }
+              ]
+            },
+            "description": "Paired owner only; flat device_id/client_type and existing Bearer, no nested identity or caller Profile. Feature-detect advertised capability and exact version. Use only synthetic disposable data for tests. No automatic POST replay or new operation ID after unknown/expired outcome. No music-playback undo or installed/native acceptance follows from this example. Read-only: does not execute or recover erasure. Retain the original confirmation_id and operation_id. Check original receipt binding; unknown/expired_unknown never proves definitive rejection and never permits a new-ID mutation retry."
           }
         }
       ]

@@ -1,5 +1,20 @@
 ## Individual owner content deletion — implementation candidate, 21 October2026
 
+## History deletion — bounded Golden and client example follow-through
+
+Current own verification source on protected Final1254/b4bf4701 registers the39
+existing causal tests, explicitly schedules their four files and supplies exact
+Postman individual/original-archive status examples. Actual existing owner-runner
+in pinned isolated HA image:40PASS/no skips/errors, all39 named methods observed,
+network none/paid0;35 targeted verifier/Postman testsPASS. Product232files remain
+byte-identical to installed schema12source1253/58561f97+Final1254/b4. No new
+Runtime/schema/contract/erasure, workflow, budget or client write. Source review/
+protected merge, separate Finalization and current installed readback remain gates.
+[Verification and preserved initial failures](docs/verification/HISTORY_GOLDEN_AND_CLIENT_EXAMPLES_20261021.md).
+42Core/29qualityGolden findings remainOPEN; Apple/native adoption is separate.
+Same existing writer, authorizations and19:10:02UTC deadline; no duplicate consent
+request or new paid model budget.
+
 ## Individual owner history deletion — separate Finalization, 21 October 2026
 
 ### Repository Status

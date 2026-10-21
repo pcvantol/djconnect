@@ -1,5 +1,25 @@
 # Current Core handoff — consolidated source WIP, no consumer activation
 
+## Qualified history source and bounded example consolidation
+
+Actual producer source1253/58561f97 + separate Final1254/b4bf4701 are protected,
+canonically qualified and installed on HA-dev (232hashes/schema12/6of6setup/
+HTTP4capabilitiesversion1). Individual contract is
+`docs/product/SESSION_CONTENT_DELETION_V1.md`; definitive wire fixture
+`examples/client_contracts/session_conversation_history/content-deletion-v1-20261021.json`
+SHA256 `7c062c4a5b944f3abfb5a8d419a1c5403eeaa842636f83c78821c1b979b3159c`;
+separate original archive status derivative SHA256
+`4a064175859e423673af34c62b345ce924de83008e4f1b473d1ac9412f00be4a`.
+Apple owner received exact source/Final/fixture/installed readbacks; capability and
+version checks remain mandatory in each actual installation. Flat device_id and
+client_type only; no nested identity/device_name/Profile hints. Entry and Moment
+targets use actual server IDs/Session; standalone message/request explicitly uses
+session_id empty string. Keep original UUID/confirmation or archive snapshot/detail
+revision after unknown outcomes; archive status never borrows a content token.
+The current verifier/example-only follow-up adds exact Postman samples and Golden
+scheduling; it changes none of those producer bytes/contracts. Pending native UI,
+physical Pi/TV, audio and real data acceptance stay with owning lanes.
+
 ## Individual owner history deletion — separate Finalization, 21 October 2026
 
 ### Repository Status

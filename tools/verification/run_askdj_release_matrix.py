@@ -25,7 +25,7 @@ from askdj_release_inventory import validate as validate_inventory, validate_mom
 TEST_PATTERNS = (
     'test_pipeline.py', 'test_processor_runtime.py',
     'test_ask_dj*.py', 'test_askdj_contextual_release_gate.py', 'test_voice_intents.py', 'test_http_voice_helpers.py',
-    'test_music_dna*.py', 'test_session_conversation*.py', 'test_history_deletion*.py',
+    'test_music_dna*.py', 'test_session_conversation*.py', 'test_history_deletion*.py', 'test_content_deletion*.py',
     'test_dj_moment_golden_matrix.py', 'test_expressive_dj_persona.py', 'test_expressive_context_variation.py', 'test_silence_live_delivery.py', 'test_native_moment_delivery.py', 'test_session_presence.py', 'test_active_session_mood.py', 'test_session_persona.py',
     'test_personal_dj_narration*.py', 'test_session_facts.py',
     'test_personal_dj_runtime_expression.py', 'test_personal_dj_flow_completion.py',
