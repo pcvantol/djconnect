@@ -231,19 +231,30 @@ class HistoryDeletionRepository(PersistenceRepository):
     def erase_sql(tx, owner, session_ids, store_plan):
         """Existing transaction owner erases captured bodies and advances survivors."""
         for session_id in session_ids:
-            for table, column in (
-                ('djconnect_historical_moments', 'originating_session_id'),
-                ('djconnect_historical_sessions', 'originating_session_id'),
-                ('djconnect_session_entries', 'session_id'),
-                ('djconnect_session_acceptances', 'session_id'),
-                ('djconnect_session_summaries', 'session_id'),
-                ('djconnect_session_dj_settings', 'session_id'),
-                ('djconnect_persistent_sessions', 'session_id'),
+            for statement in (
+                "DELETE FROM djconnect_historical_moments WHERE originating_session_id=? AND EXISTS ("
+                "SELECT 1 FROM djconnect_persistent_sessions AS owned "
+                "WHERE owned.session_id=? AND owned.owner_profile_id=?)",
+                "DELETE FROM djconnect_historical_sessions WHERE originating_session_id=? AND EXISTS ("
+                "SELECT 1 FROM djconnect_persistent_sessions AS owned "
+                "WHERE owned.session_id=? AND owned.owner_profile_id=?)",
+                "DELETE FROM djconnect_session_entries WHERE session_id=? AND EXISTS ("
+                "SELECT 1 FROM djconnect_persistent_sessions AS owned "
+                "WHERE owned.session_id=? AND owned.owner_profile_id=?)",
+                "DELETE FROM djconnect_session_acceptances WHERE session_id=? AND EXISTS ("
+                "SELECT 1 FROM djconnect_persistent_sessions AS owned "
+                "WHERE owned.session_id=? AND owned.owner_profile_id=?)",
+                "DELETE FROM djconnect_session_summaries WHERE session_id=? AND EXISTS ("
+                "SELECT 1 FROM djconnect_persistent_sessions AS owned "
+                "WHERE owned.session_id=? AND owned.owner_profile_id=?)",
+                "DELETE FROM djconnect_session_dj_settings WHERE session_id=? AND EXISTS ("
+                "SELECT 1 FROM djconnect_persistent_sessions AS owned "
+                "WHERE owned.session_id=? AND owned.owner_profile_id=?)",
+                "DELETE FROM djconnect_persistent_sessions WHERE session_id=? AND EXISTS ("
+                "SELECT 1 FROM djconnect_persistent_sessions AS owned "
+                "WHERE owned.session_id=? AND owned.owner_profile_id=?)",
             ):
-                tx.execute(f'DELETE FROM {table} WHERE {column}=? AND EXISTS ('
-                           'SELECT 1 FROM djconnect_persistent_sessions AS owned '
-                           'WHERE owned.session_id=? AND owned.owner_profile_id=?)',
-                           (session_id, session_id, owner))
+                tx.execute(statement, (session_id, session_id, owner))
         for session_id in store_plan['dependent_session_ids']:
             tx.execute('UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 '
                        'WHERE owner_profile_id=? AND session_id=?', (owner, session_id))
@@ -280,16 +291,16 @@ class HistoryDeletionRepository(PersistenceRepository):
             # A callback returning normally is not proof of erasure. Refuse a
             # successful receipt while any captured SQL content/header remains.
             for session_id, _ in json.loads(row[2]):
-                for table, column in (
-                    ('djconnect_persistent_sessions', 'session_id'),
-                    ('djconnect_session_entries', 'session_id'),
-                    ('djconnect_session_summaries', 'session_id'),
-                    ('djconnect_session_acceptances', 'session_id'),
-                    ('djconnect_session_dj_settings', 'session_id'),
-                    ('djconnect_historical_sessions', 'originating_session_id'),
-                    ('djconnect_historical_moments', 'originating_session_id'),
+                for statement in (
+                    "SELECT 1 FROM djconnect_persistent_sessions WHERE session_id=? LIMIT 1",
+                    "SELECT 1 FROM djconnect_session_entries WHERE session_id=? LIMIT 1",
+                    "SELECT 1 FROM djconnect_session_summaries WHERE session_id=? LIMIT 1",
+                    "SELECT 1 FROM djconnect_session_acceptances WHERE session_id=? LIMIT 1",
+                    "SELECT 1 FROM djconnect_session_dj_settings WHERE session_id=? LIMIT 1",
+                    "SELECT 1 FROM djconnect_historical_sessions WHERE originating_session_id=? LIMIT 1",
+                    "SELECT 1 FROM djconnect_historical_moments WHERE originating_session_id=? LIMIT 1",
                 ):
-                    if tx.fetchone(f'SELECT 1 FROM {table} WHERE {column}=? LIMIT 1', (session_id,)):
+                    if tx.fetchone(statement, (session_id,)):
                         raise HistoryDeletionError('history_delete_outcome_unknown')
             receipt = {'success': True, 'schema_version': 1, 'operation_id': operation_id,
                        'owner_profile_id': owner, 'deleted': True,

@@ -16,14 +16,14 @@
     "custom_components/djconnect/session_speech.py": "8828c93525d97eb34bb0f436bb70478df9353c4da6327ac8aa6f106b2d9cbef6",
     "custom_components/djconnect/historical_projection_query.py": "bce8d7a865fecb782915fdf9a52476b383f64cbf393c03516180efe2be415e4f",
     "custom_components/djconnect/ask_dj/dialogue.py": "37d8adfd92ace3321fe4d626d44f723ed15feedce638df1cc3a1dc77a24d7e99",
-    "custom_components/djconnect/persistence/history.py": "5432765e5f0ef8c588ea0752574f514fb001c5c71288e29f02e15f7f07464888",
-    "custom_components/djconnect/persistence/history_deletion.py": "3b84c63e3505e8421514a84dc945695667cb3b69d9d7582bc71c48e9e469f310",
+    "custom_components/djconnect/persistence/history.py": "397bf38af386981d95264ef2947967d76c4abfd595b61eb6aa2cfddc83240431",
+    "custom_components/djconnect/persistence/history_deletion.py": "f490041440cb303c3d3e155d873b4ece48589824d6d1be0a7d74f526a362a556",
     "custom_components/djconnect/persistence/schema.py": "33261a8d773cd2bb6073e54e9bd84507b3d9536dd5f190e0e00d791bd7d2813e",
     "custom_components/djconnect/persistence/bootstrap.py": "101bb88060dc666fb2d0d3880dbf8c12e9fb26d6d5bcbcdc876419f65d953d4b"
   },
   "harness": "scripts/verification/verify_archive_deletion_http.py",
   "harness_sha256": "687678b21354f2bddbeba20d5c1ea49a62b5eac032068a6108fe7cbf7ca766a0",
-  "actual_ha_receipt_sha256": "9620296c9dd8513d5145386574297fd999a5ef2e657d0c41eb8e342ac92fc2d4",
+  "actual_ha_receipt_sha256": "d4666be49cb8cdc0330547b365539ddb4d6afbfcd8ddb4cf0ac80a50939c7c0e",
   "requests_observed": 34,
   "cases": [
     "actual_paired_foreign_target_hidden",
@@ -39,9 +39,9 @@
   },
   "examples": {
     "single_request": {
-      "session_id": "session-68c219a81fb7438f9cd086866c5da474",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:1996f38c476319b1eb8ed31717b24c268670d333a1edbfa333cfe0f78542c0ad",
-      "operation_id": "01a15d95-6fa0-7000-8000-000000000001",
+      "session_id": "session-a429e03bf6de435a800652905940b183",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:60a1e0b8b5c91198449439a9352f2bef4d4618099612f02ac2d28ccc403b3f09",
+      "operation_id": "01a15d9f-516a-7000-8000-000000000001",
       "confirmed": true,
       "history_contract_version": 2
     },
@@ -52,32 +52,32 @@
     "single_response": {
       "success": true,
       "schema_version": 1,
-      "operation_id": "01a15d95-6fa0-7000-8000-000000000001",
+      "operation_id": "01a15d9f-516a-7000-8000-000000000001",
       "owner_profile_id": "profile-a",
       "deleted": true,
-      "deleted_session_id": "session-68c219a81fb7438f9cd086866c5da474"
+      "deleted_session_id": "session-a429e03bf6de435a800652905940b183"
     },
     "snapshot_response": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "snapshot_id": "6HnUu-HcgXXyO6sStxYnfn-UBW95YbzU1Km3X02D9v0",
+      "snapshot_id": "krMXHBtpKCyZxvTotDsicw3hNADqOjMh9ytbA2Yu8vE",
       "target_count": 3,
-      "created_at": "2026-10-21T08:30:38.335325+00:00",
-      "expires_at": "2026-10-21T08:35:38.335325+00:00"
+      "created_at": "2026-10-21T08:41:26.237638+00:00",
+      "expires_at": "2026-10-21T08:46:26.237638+00:00"
     },
     "bulk_request": {
-      "snapshot_id": "6HnUu-HcgXXyO6sStxYnfn-UBW95YbzU1Km3X02D9v0",
-      "operation_id": "01a15d95-7524-7000-8000-000000000002",
+      "snapshot_id": "krMXHBtpKCyZxvTotDsicw3hNADqOjMh9ytbA2Yu8vE",
+      "operation_id": "01a15d9f-580f-7000-8000-000000000002",
       "confirmed": true
     },
     "bulk_response": {
       "success": true,
       "schema_version": 1,
-      "operation_id": "01a15d95-7524-7000-8000-000000000002",
+      "operation_id": "01a15d9f-580f-7000-8000-000000000002",
       "owner_profile_id": "profile-a",
       "deleted": true,
-      "snapshot_id": "6HnUu-HcgXXyO6sStxYnfn-UBW95YbzU1Km3X02D9v0",
+      "snapshot_id": "krMXHBtpKCyZxvTotDsicw3hNADqOjMh9ytbA2Yu8vE",
       "deleted_session_count": 3
     }
   },

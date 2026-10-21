@@ -11,12 +11,6 @@ from .service import PersistenceRepository, PersistenceTransaction
 from .sessions import PersistentSession
 
 
-def _not_deleting(table, session_column='session_id'):
-    """Fixed trusted identifiers; target lookup uses the owner/session index."""
-    return ('NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion '
-            f'WHERE deletion.owner_profile_id={table}.owner_profile_id '
-            f'AND deletion.session_id={table}.{session_column})')
-
 
 @dataclass(frozen=True)
 class HistoricalSessionProjection:
@@ -53,8 +47,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
             row = tx.fetchone(
                 "SELECT COUNT(*),COALESCE(SUM(history_revision),0),COALESCE(MAX(updated_at),'') "
                 "FROM djconnect_persistent_sessions WHERE owner_profile_id=? "
-                "AND (? OR lifecycle_status IN ('ENDED','INTERRUPTED')) AND "
-                + _not_deleting('djconnect_persistent_sessions'),
+                "AND (? OR lifecycle_status IN ('ENDED','INTERRUPTED')) AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_persistent_sessions.owner_profile_id AND deletion.session_id=djconnect_persistent_sessions.session_id)",
                 (owner_profile_id, int(include_active)),
             )
             return ":".join(str(v) for v in row)
@@ -74,8 +67,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                     "FROM djconnect_persistent_sessions WHERE owner_profile_id=? "
                     "AND (? OR lifecycle_status IN ('ENDED','INTERRUPTED')) "
                     "AND (created_at,session_id)<(?,?) "
-                    "AND " + _not_deleting('djconnect_persistent_sessions')
-                    + " ORDER BY created_at DESC,session_id DESC LIMIT ?"
+                    "AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_persistent_sessions.owner_profile_id AND deletion.session_id=djconnect_persistent_sessions.session_id)" " ORDER BY created_at DESC,session_id DESC LIMIT ?"
                 )
                 parameters = (
                     owner_profile_id,
@@ -89,8 +81,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                     "ended_at,interrupted_at,history_revision,history_enabled "
                     "FROM djconnect_persistent_sessions WHERE owner_profile_id=? "
                     "AND (? OR lifecycle_status IN ('ENDED','INTERRUPTED')) "
-                    "AND " + _not_deleting('djconnect_persistent_sessions')
-                    + " ORDER BY created_at DESC,session_id DESC LIMIT ?"
+                    "AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_persistent_sessions.owner_profile_id AND deletion.session_id=djconnect_persistent_sessions.session_id)" " ORDER BY created_at DESC,session_id DESC LIMIT ?"
                 )
                 parameters = (owner_profile_id, int(include_active), min(251, limit))
             rows = tx.fetchall(query, parameters)
@@ -114,8 +105,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
     async def async_session_record(self, session_id: str) -> dict | None:
         def read(tx):
             row = tx.fetchone(
-                "SELECT session_id,owner_profile_id,lifecycle_status,created_at,started_at,ended_at,interrupted_at,history_revision,history_enabled FROM djconnect_persistent_sessions WHERE session_id=? AND "
-                + _not_deleting('djconnect_persistent_sessions'),
+                "SELECT session_id,owner_profile_id,lifecycle_status,created_at,started_at,ended_at,interrupted_at,history_revision,history_enabled FROM djconnect_persistent_sessions WHERE session_id=? AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_persistent_sessions.owner_profile_id AND deletion.session_id=djconnect_persistent_sessions.session_id)",
                 (session_id,),
             )
             keys = (
@@ -152,12 +142,12 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,"
                 "retained_until,visibility,revoked_at FROM djconnect_session_entries "
                 "WHERE owner_profile_id=? AND session_id=? AND entry_order>? AND entry_order<? AND (?='' OR kind=?) "
-                "AND " + _not_deleting('djconnect_session_entries') + " ORDER BY entry_order DESC LIMIT ?"
+                "AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_session_entries.owner_profile_id AND deletion.session_id=djconnect_session_entries.session_id)" " ORDER BY entry_order DESC LIMIT ?"
                 if descending
                 else "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,"
                 "retained_until,visibility,revoked_at FROM djconnect_session_entries "
                 "WHERE owner_profile_id=? AND session_id=? AND entry_order>? AND entry_order<? AND (?='' OR kind=?) "
-                "AND " + _not_deleting('djconnect_session_entries') + " ORDER BY entry_order ASC LIMIT ?"
+                "AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_session_entries.owner_profile_id AND deletion.session_id=djconnect_session_entries.session_id)" " ORDER BY entry_order ASC LIMIT ?"
             )
             rows = tx.fetchall(
                 query,
@@ -192,8 +182,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
     ) -> dict | None:
         def read(tx):
             row = tx.fetchone(
-                "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,retained_until,visibility,revoked_at FROM djconnect_session_entries WHERE owner_profile_id=? AND session_id=? AND entry_id=? AND "
-                + _not_deleting('djconnect_session_entries'),
+                "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,retained_until,visibility,revoked_at FROM djconnect_session_entries WHERE owner_profile_id=? AND session_id=? AND entry_id=? AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_session_entries.owner_profile_id AND deletion.session_id=djconnect_session_entries.session_id)",
                 (owner_profile_id, session_id, entry_id),
             )
             keys = (
@@ -217,8 +206,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
     ) -> str | None:
         def read(tx):
             row = tx.fetchone(
-                "SELECT entry_id,body FROM djconnect_session_entries WHERE owner_profile_id=? AND session_id=? AND kind='playback_observed' AND "
-                + _not_deleting('djconnect_session_entries') + " ORDER BY entry_order DESC LIMIT 1",
+                "SELECT entry_id,body FROM djconnect_session_entries WHERE owner_profile_id=? AND session_id=? AND kind='playback_observed' AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_session_entries.owner_profile_id AND deletion.session_id=djconnect_session_entries.session_id)" " ORDER BY entry_order DESC LIMIT 1",
                 (owner, session_id),
             )
             if row is None:
@@ -234,8 +222,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
     async def async_playback_records(self, owner_profile_id: str) -> list[dict]:
         def read(tx):
             rows = tx.fetchall(
-                "SELECT e.entry_id,e.session_id,e.entry_order,e.kind,e.reference_id,e.body,e.occurred_at,e.retained_until,e.visibility,e.revoked_at FROM djconnect_session_entries e JOIN djconnect_persistent_sessions s ON s.session_id=e.session_id WHERE e.owner_profile_id=? AND e.kind='playback_observed' AND s.lifecycle_status IN ('ENDED','INTERRUPTED') AND "
-                + _not_deleting('e') + " ORDER BY e.occurred_at DESC,e.entry_id DESC LIMIT 251",
+                "SELECT e.entry_id,e.session_id,e.entry_order,e.kind,e.reference_id,e.body,e.occurred_at,e.retained_until,e.visibility,e.revoked_at FROM djconnect_session_entries e JOIN djconnect_persistent_sessions s ON s.session_id=e.session_id WHERE e.owner_profile_id=? AND e.kind='playback_observed' AND s.lifecycle_status IN ('ENDED','INTERRUPTED') AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=e.owner_profile_id AND deletion.session_id=e.session_id)" " ORDER BY e.occurred_at DESC,e.entry_id DESC LIMIT 251",
                 (owner_profile_id,),
             )
             keys = (
@@ -831,8 +818,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 tx.fetchone(
                     "SELECT historical_session_id, originating_session_id, owner_profile_id, "
                     "lifecycle_outcome, created_at, projection_version "
-                    "FROM djconnect_historical_sessions WHERE historical_session_id=? AND "
-                    + _not_deleting('djconnect_historical_sessions', 'originating_session_id'),
+                    "FROM djconnect_historical_sessions WHERE historical_session_id=? AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_historical_sessions.owner_profile_id AND deletion.session_id=djconnect_historical_sessions.originating_session_id)",
                     (historical_session_id,),
                 )
             )
@@ -847,8 +833,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 tx.fetchone(
                     "SELECT historical_session_id, originating_session_id, owner_profile_id, "
                     "lifecycle_outcome, created_at, projection_version "
-                    "FROM djconnect_historical_sessions WHERE originating_session_id=? AND "
-                    + _not_deleting('djconnect_historical_sessions', 'originating_session_id'),
+                    "FROM djconnect_historical_sessions WHERE originating_session_id=? AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_historical_sessions.owner_profile_id AND deletion.session_id=djconnect_historical_sessions.originating_session_id)",
                     (originating_session_id,),
                 )
             )
@@ -865,8 +850,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                     "SELECT historical_session_id, originating_session_id, owner_profile_id, "
                     "lifecycle_outcome, created_at, projection_version "
                     "FROM djconnect_historical_sessions WHERE owner_profile_id=? "
-                    "AND " + _not_deleting('djconnect_historical_sessions', 'originating_session_id')
-                    + " ORDER BY created_at DESC, historical_session_id DESC",
+                    "AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_historical_sessions.owner_profile_id AND deletion.session_id=djconnect_historical_sessions.originating_session_id)" " ORDER BY created_at DESC, historical_session_id DESC",
                     (owner_profile_id,),
                 )
             )
@@ -879,8 +863,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
         return await self._async_in_transaction(
             lambda tx: self._optional_moment(
                 tx.fetchone(
-                    self._MOMENT_SELECT + " WHERE historical_moment_id=? AND "
-                    + _not_deleting('djconnect_historical_moments', 'originating_session_id'),
+                    "SELECT historical_moment_id, originating_session_id, originating_moment_id, owner_profile_id, moment_type, rendered_text, presentation_metadata, visibility, ordering, created_at, projection_version FROM djconnect_historical_moments" " WHERE historical_moment_id=? AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_historical_moments.owner_profile_id AND deletion.session_id=djconnect_historical_moments.originating_session_id)",
                     (historical_moment_id,),
                 )
             )
@@ -894,19 +877,12 @@ class HistoricalProjectionRepository(PersistenceRepository):
             lambda tx: tuple(
                 self._moment_from_row(row)
                 for row in tx.fetchall(
-                    self._MOMENT_SELECT + " WHERE originating_session_id=? "
-                    "AND " + _not_deleting('djconnect_historical_moments', 'originating_session_id')
-                    + " ORDER BY ordering ASC, created_at ASC, historical_moment_id ASC",
+                    "SELECT historical_moment_id, originating_session_id, originating_moment_id, owner_profile_id, moment_type, rendered_text, presentation_metadata, visibility, ordering, created_at, projection_version FROM djconnect_historical_moments" " WHERE originating_session_id=? "
+                    "AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_historical_moments.owner_profile_id AND deletion.session_id=djconnect_historical_moments.originating_session_id)" " ORDER BY ordering ASC, created_at ASC, historical_moment_id ASC",
                     (originating_session_id,),
                 )
             )
         )
-
-    _MOMENT_SELECT = (
-        "SELECT historical_moment_id, originating_session_id, originating_moment_id, "
-        "owner_profile_id, moment_type, rendered_text, presentation_metadata, visibility, "
-        "ordering, created_at, projection_version FROM djconnect_historical_moments"
-    )
 
     @staticmethod
     def _session_from_row(row: tuple[object, ...]) -> HistoricalSessionProjection:

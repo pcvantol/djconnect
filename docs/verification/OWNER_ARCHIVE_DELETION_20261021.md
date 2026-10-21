@@ -133,7 +133,7 @@ Source before/after hashes match; actual model/provider calls are zero.
 
 [Actual synthetic wire fixture](../../examples/client_contracts/session_conversation_history/archive-deletion-v1-20261021.json)
 binds this source's file hashes and the actual lab receipt SHA256
-`9620296c9dd8513d5145386574297fd999a5ef2e657d0c41eb8e342ac92fc2d4`.
+`d4666be49cb8cdc0330547b365539ddb4d6afbfcd8ddb4cf0ac80a50939c7c0e`.
 Its recorded snapshot IDs/deadlines are EXAMPLES FROM THAT SYNTHETIC RUN, not live
 authority, replay permission or an installation claim. New source-only derivatives
 `retention-bases-v2-archive-delete-20261021.json` and
@@ -146,3 +146,20 @@ model and scheduled in the standard owner test patterns. No overall quality GO.
 Independent frozen-candidate review, applicable exact-SHA workflow/checks,
 protected source qualification, separate Finalization and actual HA-dev
 rollback/install/readback remain pending at this source-preparation checkpoint.
+
+
+## CI security-check follow-through
+
+Initial exact candidate bd4eebac passed independent scoped review and its full
+2,932-test suite /7 existing skips in90.608s, but the unchanged mandatory Bandit
+check rejected trusted SQL-identifier/helper concatenation (B608). Those queries
+now use complete static parameterized statements, including both legacy Moment
+getters; no skip, nosec or severity setting changed. A task-local copy of the same
+Bandit1.9.4 reports zero medium/high findings and zero errors. The preceding
+intermediate local run still found the two legacy query prefixes and is retained
+as failed evidence. All96 affected journal/coordinator/history/summary tests
+PASS6.686s. The final actual HA run8 repeats34 HTTP requests and two TLS WebSocket
+reads with unchanged source hashes and zero model/provider calls; the public wire
+fixture is rebound to that actual receipt and current source. Fresh exact-head
+review and normal protected checks are required for this superseding correction;
+the older review GO does not carry automatically.
