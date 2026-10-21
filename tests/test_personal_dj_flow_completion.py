@@ -364,8 +364,29 @@ class PublishedFlowCompletionTest(unittest.IsolatedAsyncioTestCase):
         from custom_components.djconnect import session_facts, track_insight
         self.runtime = self.hass.data['djconnect']['owner-entry']
         self.hass.services=SimpleNamespace(async_call=lambda *args,**kwargs:None)
+        # Current CC0 reuse requires the original live owner/account source,
+        # independently of the observed recording or published Moment.
+        from dataclasses import replace
+        from custom_components.djconnect.profile_context import profile_storage
+        storage = profile_storage(self.hass)
+        profile = storage.household.profiles['profile-a']
+        await storage.async_update_profile('profile-a', preferences=replace(profile.preferences,
+            default_backend_id='source-spotify', default_music_account_id='source-account'))
+        owner_entry = SimpleNamespace(entry_id='owner-entry', data={**self.runtime.config,
+            'device_token':self.runtime.device_token, 'profile_backend_entry_id':'source-entry',
+            'profile_id':'profile-a', 'music_account_id':'source-account'},
+            options={}, disabled_by=None, state=SimpleNamespace(value='loaded'))
+        self.runtime.entry = owner_entry
+        source_entry = self.hass.config_entries.async_entries('djconnect')[0]
+        source_entry.disabled_by = None
+        source_entry.state = SimpleNamespace(value='loaded')
+        source_entry.data.update(profile_id='profile-a', music_backend='source-spotify')
+        self.hass.data['djconnect']['source-entry'] = SimpleNamespace(entry=source_entry, config=dict(source_entry.data))
+        self.hass.config_entries.async_get_entry = lambda eid: {'owner-entry':owner_entry,'source-entry':source_entry}.get(eid)
+        binding = {'backend_id':'source-spotify', 'music_account_id':'source-account',
+                   'provider_entry_id':'source-entry', 'provider_account_id':''}
         session=await self.manager.async_start(owner_profile_id='profile-a',locale='en',selected_mood='groove',
-            session_start_strategy=self.r.SessionStartStrategy.DISCOVER)
+            session_start_strategy=self.r.SessionStartStrategy.DISCOVER, history_source_context=binding)
         catalog, artist=source('description',0)
         credit=session_facts.recording_facts(catalog, {'id':'00000000-0000-0000-0000-000000000011',
             'title':catalog['title'],'artist-credit':[{'artist':{'name':catalog['artist']}}],

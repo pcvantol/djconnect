@@ -226,10 +226,12 @@ async def resolve_target(
     return qualified
 
 
-def current_knowledge_context(hass, profile_id, track):
+def current_knowledge_context(hass, profile_id, track, *, source_authority=None):
     """Exact current CC0 knowledge, independently of which Moment was published."""
     from .session_facts import QualifiedSessionFact
     from .ask_dj.dialogue import model_source, normalized_subjects
+    if not callable(source_authority) or not source_authority():
+        return None
     uri = track.get('_media_identity')
     if not profile_id or not re.fullmatch(r'spotify:track:[A-Za-z0-9]{22}', str(uri or '')):
         return None
@@ -254,7 +256,8 @@ def current_knowledge_context(hass, profile_id, track):
     captured = (opportunity.generation, active.mood_revision, active.persona_revision, active.settings_revision)
     def guard():
         current = manager.current_active(profile_id)
-        if (current is not active or manager._intra_track_opportunities.get(profile_id) is not opportunity
+        if (not source_authority()
+                or current is not active or manager._intra_track_opportunities.get(profile_id) is not opportunity
                 or (opportunity.generation, active.mood_revision, active.persona_revision, active.settings_revision) != captured
                 or history_grant_revision(hass, profile_id) != grant
                 or active.broadcast.state.playback.item_id != identity
@@ -270,4 +273,4 @@ def current_knowledge_context(hass, profile_id, track):
     if not context:
         return None
     return context, guard, hashlib.sha256(json.dumps([profile_id, grant, captured, fact.source_url,
-        fact.observed_at, fact.source_expires_at, context],sort_keys=True).encode()).hexdigest(), active
+        fact.observed_at, fact.source_expires_at, context],sort_keys=True).encode()).hexdigest(), active, source_deadline(fact)

@@ -339,6 +339,10 @@ class PlaybackObservationManager:
             if (self._spotify_sessions.get(observed.owner_profile_id) is not observed
                 or observed.command_revision != captured_command_revision):
                 return
+            from .current_track_insight import observe
+            if getattr(observed.integration_runtime, "_current_insight_requested", False):
+                observe(observed.integration_runtime, result.media_identity, result.state,
+                        result.position_ms, result.target_name)
             from .forecast_imagery import artist_authority
             forecast_authority = artist_authority(self._hass, observed.integration_runtime, owner_profile_id=observed.owner_profile_id,
                 expected_source=session_runtime_manager(self._hass)._history_source_contexts.get(observed.session_id, {}))

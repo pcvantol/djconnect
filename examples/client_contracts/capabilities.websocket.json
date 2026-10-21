@@ -91,7 +91,8 @@
     "session_artwork": true,
     "session_speech": true,
     "passive_session_surface": true,
-    "profile_session_settings": true
+    "profile_session_settings": true,
+    "current_track_insight_subject_v1": true
   },
   "contract_versions": {
     "profile_context": 1,
@@ -117,7 +118,8 @@
     "session_history_bulk_delete": 1,
     "session_content_delete": 1,
     "session_history_delete_status": 1,
-    "profile_session_settings": 3
+    "profile_session_settings": 3,
+    "current_track_insight_subject": 1
   },
   "transports": {
     "http": true,

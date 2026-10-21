@@ -855,6 +855,14 @@ Spoken DJ announcements may include one short personal intro line when compact M
 
 ## Track Insight
 
+Additive exact-current mode is documented in
+[`CURRENT_TRACK_INSIGHT_SUBJECT_V1.md`](docs/product/CURRENT_TRACK_INSIGHT_SUBJECT_V1.md):
+`track_insight_subject:{schema_version:1,mode:"current"}` uses actual recording
+proof, an ephemeral response subject and current-source/transport fences,
+without falling back to an older published Moment. Feature detection and
+provider-unavailable behavior are separate. Explicit Moment selection retains
+its existing target contract; ordinary no-selection requests mean Now Playing.
+
 Track Insight is a backend-independent analysis feature for the currently
 playing track or an explicit artist/title. All entry points use the shared
 Track Insight service layer and the selected DJConnect music backend abstraction;
