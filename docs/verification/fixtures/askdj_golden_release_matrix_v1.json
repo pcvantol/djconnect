@@ -8801,6 +8801,716 @@
         }
       ],
       "fixture_boundary": "Sole Core archive producer; existing Store/SQL/media/speech owners. No personal erasure, playback undo or individual bubble capability."
+    },
+    {
+      "id": "ASKDJ-REGRESSION-owner-content-deletion",
+      "steps": [
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-1",
+          "question": "Verify explicit server exchange confirmation either bubble and original receipt.",
+          "expected_answer": "Both accepted roles resolve the same server-defined exchange; explicit preview/confirmation and original receipt remain bound; no playback undo.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_explicit_server_exchange_confirmation_either_bubble_and_original_receipt"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-2",
+          "question": "Verify no confirmation no mutation and no profile hint.",
+          "expected_answer": "No confirmation or extra Profile hint is admitted; no erasure before valid paired-owner consent.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_no_confirmation_no_mutation_and_no_profile_hint"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-3",
+          "question": "Verify status does not recover pending or write clock or store.",
+          "expected_answer": "Original status is read-only: no recovery, Store mutation, clock write or expiry renewal.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_status_does_not_recover_pending_or_write_clock_or_store"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-4",
+          "question": "Verify changed confirmation body cannot resume original operation.",
+          "expected_answer": "A different original confirmation/body cannot read or resume another operation receipt.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_changed_confirmation_body_cannot_resume_original_operation"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-5",
+          "question": "Verify expiry and preview restart do not create success.",
+          "expected_answer": "Expiry or lost preview returns no fabricated success or definitive rejection; no new-ID retry is inferred.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_expiry_and_preview_restart_do_not_create_success"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-6",
+          "question": "Verify original uncertain attempt blocks late provider and replay.",
+          "expected_answer": "The original client request is durably fenced before provider execution, replay or late acceptance.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_original_uncertain_attempt_blocks_late_provider_and_replay"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-7",
+          "question": "Verify active moment withdraws runtime without ending or replaying music.",
+          "expected_answer": "Selected live Moment leaves engine, Flow and delivery while Session/playback remain intact.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_active_moment_withdraws_runtime_without_ending_or_replaying_music"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-8",
+          "question": "Verify pending provider cannot deliver or archive after original attempt cancel.",
+          "expected_answer": "A paused provider cannot deliver, retain or replay after original-request cancellation.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_pending_provider_cannot_deliver_or_archive_after_original_attempt_cancel"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-9",
+          "question": "Verify paused planner cannot resurrect deleted flow or engine.",
+          "expected_answer": "A paused Planner cannot restore withdrawn engine, Flow snapshots, replay or performance memory.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_paused_planner_cannot_resurrect_deleted_flow_or_engine"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-10",
+          "question": "Verify foreign owner target and changed sql revision refuse before erasure.",
+          "expected_answer": "Foreign owner/Session and changed SQL revision refuse before any erasure or leaked owner data.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_foreign_owner_target_and_changed_sql_revision_refuse_before_erasure"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-11",
+          "question": "Verify standalone descriptor cannot target an accepted session exchange.",
+          "expected_answer": "Explicit standalone scope cannot select a Session-bound accepted exchange or request.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_standalone_descriptor_cannot_target_an_accepted_session_exchange"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-12",
+          "question": "Verify live history opt out moment still deletes without creating archive.",
+          "expected_answer": "Live deletion works with history off and creates no content archive to permit cancellation.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_live_history_opt_out_moment_still_deletes_without_creating_archive"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-13",
+          "question": "Verify archives use separate exact body bound read only status.",
+          "expected_answer": "Archive single/bulk status uses its own original body; no borrowed individual confirmation or recovery.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_archives_use_separate_exact_body_bound_read_only_status"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-14",
+          "question": "Verify malformed selector types are rejected without server error.",
+          "expected_answer": "Malformed target field types receive typed request rejection without mutation/server error.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_malformed_selector_types_are_rejected_without_server_error"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-15",
+          "question": "Verify final live reference fence rejects deletion during last source await.",
+          "expected_answer": "Last-await source withdrawal refuses delivery and Store acceptance before any deleted basis can escape.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_final_live_reference_fence_rejects_deletion_during_last_source_await"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-16",
+          "question": "Verify accepted artwork url closes on pending cache failure before withdrawal.",
+          "expected_answer": "An already accepted artwork URL and native admission close after durable intent despite cache acknowledgement loss.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_accepted_artwork_url_closes_on_pending_cache_failure_before_withdrawal"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-17",
+          "question": "Verify explicit session end during pending erasure disposes runtime and keeps obligation.",
+          "expected_answer": "Explicit Session end disposes Runtime while the durable pending erasure obligation survives for recovery.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_explicit_session_end_during_pending_erasure_disposes_runtime_and_keeps_obligation"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-18",
+          "question": "Verify original live attempt can be cancelled with history storage disabled.",
+          "expected_answer": "Original live attempt cancellation remains durable when history storage is disabled.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_original_live_attempt_can_be_cancelled_with_history_storage_disabled"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-19",
+          "question": "Verify retained moment outside live window and missing root are distinct.",
+          "expected_answer": "An actual retained SQL root outside RAM is deletable; a genuinely missing root never selects a derived child.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_retained_moment_outside_live_window_and_missing_root_are_distinct"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-20",
+          "question": "Verify ordinary transition provenance persisted and live withdrawn.",
+          "expected_answer": "Actual ordinary transition without genre proof retains minimal explicit provenance and withdraws with its source; independent target remains.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_api.py",
+              "method": "test_ordinary_transition_provenance_persisted_and_live_withdrawn"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-21",
+          "question": "Verify one exchange durable receipt preserves live header and independent rows.",
+          "expected_answer": "Exactly one exchange is erased and dependent identities become unavailable; live header and independent content remain.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_coordinator.py",
+              "method": "test_one_exchange_durable_receipt_preserves_live_header_and_independent_rows"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-22",
+          "question": "Verify changed scope refuses before any store effect.",
+          "expected_answer": "A changed captured scope refuses before Store mutation or durable intent.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_coordinator.py",
+              "method": "test_changed_scope_refuses_before_any_store_effect"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-23",
+          "question": "Verify ack loss keeps closed and new process recovery uses original scope.",
+          "expected_answer": "Store acknowledgement loss closes reads; new SQLite/Store owners recover only the original persisted scope.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_coordinator.py",
+              "method": "test_ack_loss_keeps_closed_and_new_process_recovery_uses_original_scope"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-24",
+          "question": "Verify pre admission request is fenced without touching independent history.",
+          "expected_answer": "Pre-admission original ID is fenced while unrelated standalone/Session content remains byte-equivalent.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_coordinator.py",
+              "method": "test_pre_admission_request_is_fenced_without_touching_independent_history"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-25",
+          "question": "Verify cache read failure after intent same process recovery restores both fences.",
+          "expected_answer": "After intent/cache-read failure, same-process recovery restores both durable source and request caches before receipt/reopening.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_coordinator.py",
+              "method": "test_cache_read_failure_after_intent_same_process_recovery_restores_both_fences"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-26",
+          "question": "Verify archived transition dependency chain survives process reload.",
+          "expected_answer": "After real SQLite/Store reopening, explicit two-hop transition dependencies become unavailable and late children are refused.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_coordinator.py",
+              "method": "test_archived_transition_dependency_chain_survives_process_reload"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-27",
+          "question": "Verify selected live entry removed header playback and order preserved.",
+          "expected_answer": "Selected live entry disappears; header, observed playback and retained ordering are preserved.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_journal.py",
+              "method": "test_selected_live_entry_removed_header_playback_and_order_preserved"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-28",
+          "question": "Verify late projection cannot resurrect after completed receipt.",
+          "expected_answer": "A completed durable tombstone refuses later projections of removed content.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_journal.py",
+              "method": "test_late_projection_cannot_resurrect_after_completed_receipt"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-29",
+          "question": "Verify no receipt before store ack and pending modes do not cross.",
+          "expected_answer": "No completed receipt precedes actual Store acknowledgement; archive/content journal modes stay separate.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_journal.py",
+              "method": "test_no_receipt_before_store_ack_and_pending_modes_do_not_cross"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-30",
+          "question": "Verify restart and expiry retain recovery and original request fence.",
+          "expected_answer": "Restart or transport expiry cannot discard committed recovery or original request fences.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_journal.py",
+              "method": "test_restart_and_expiry_retain_recovery_and_original_request_fence"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-31",
+          "question": "Verify all revision and owner checks precede any tombstone.",
+          "expected_answer": "All owner/revision checks complete before any destructive tombstone is committed.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_journal.py",
+              "method": "test_all_revision_and_owner_checks_precede_any_tombstone"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-32",
+          "question": "Verify sql failure rolls back erasure and receipt together.",
+          "expected_answer": "Injected SQL failure rolls back erasure and completed receipt together; no false durable outcome.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_journal.py",
+              "method": "test_sql_failure_rolls_back_erasure_and_receipt_together"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-33",
+          "question": "Verify playback record is never an individual erase unit.",
+          "expected_answer": "Playback observations cannot become a selected content-deletion unit.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_journal.py",
+              "method": "test_playback_record_is_never_an_individual_erase_unit"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-34",
+          "question": "Verify either role removes exact complete standalone exchange.",
+          "expected_answer": "Either role removes the same complete standalone exchange, with stable dependent unavailable IDs and independent text.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_store.py",
+              "method": "test_either_role_removes_exact_complete_standalone_exchange"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-35",
+          "question": "Verify unrelated pending request not fenced and effect receipt preserved.",
+          "expected_answer": "Unrelated in-flight work is not fenced; original dispatched-effect receipts remain, without playback undo.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_store.py",
+              "method": "test_unrelated_pending_request_not_fenced_and_effect_receipt_preserved"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-36",
+          "question": "Verify unknown store ack recovers original plan not new scope.",
+          "expected_answer": "Unknown Store acknowledgement recovers the original minimal plan, never a newly guessed scope.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_store.py",
+              "method": "test_unknown_store_ack_recovers_original_plan_not_new_scope"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-37",
+          "question": "Verify pre admission attempt creates original request fence without erasing other turns.",
+          "expected_answer": "Only the original uncertain request is fenced; all other turns remain unchanged.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_store.py",
+              "method": "test_pre_admission_attempt_creates_original_request_fence_without_erasing_other_turns"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-38",
+          "question": "Verify targeted dialogue window and replay withdrawal preserves other thread.",
+          "expected_answer": "Affected dialogue/provenance/replay is withdrawn while independent frames, replay and read revisions remain.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_store.py",
+              "method": "test_targeted_dialogue_window_and_replay_withdrawal_preserves_other_thread"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        },
+        {
+          "id": "ASKDJ-REGRESSION-owner-content-deletion-step-39",
+          "question": "Verify durable selected moment lineage survives empty dialogue and store reload.",
+          "expected_answer": "Persisted Moment/request lineage cascades after Store reload with an empty RAM dialogue graph.",
+          "model_policy": "zero",
+          "owning_tests": [
+            {
+              "file": "tests/test_content_deletion_store.py",
+              "method": "test_durable_selected_moment_lineage_survives_empty_dialogue_and_store_reload"
+            }
+          ],
+          "acceptance_status": "owner_contract",
+          "proof_boundary": "Actual Core owners with synthetic disposable inputs; source2974PASS plus isolated realHA Store/SQLite/process-recovery receipts. No personal erasure, paid model/editorial quality, native, audible, hardware or installed acceptance inferred."
+        }
+      ],
+      "owning_tests": [
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_explicit_server_exchange_confirmation_either_bubble_and_original_receipt"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_no_confirmation_no_mutation_and_no_profile_hint"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_status_does_not_recover_pending_or_write_clock_or_store"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_changed_confirmation_body_cannot_resume_original_operation"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_expiry_and_preview_restart_do_not_create_success"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_original_uncertain_attempt_blocks_late_provider_and_replay"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_active_moment_withdraws_runtime_without_ending_or_replaying_music"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_pending_provider_cannot_deliver_or_archive_after_original_attempt_cancel"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_paused_planner_cannot_resurrect_deleted_flow_or_engine"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_foreign_owner_target_and_changed_sql_revision_refuse_before_erasure"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_standalone_descriptor_cannot_target_an_accepted_session_exchange"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_live_history_opt_out_moment_still_deletes_without_creating_archive"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_archives_use_separate_exact_body_bound_read_only_status"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_malformed_selector_types_are_rejected_without_server_error"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_final_live_reference_fence_rejects_deletion_during_last_source_await"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_accepted_artwork_url_closes_on_pending_cache_failure_before_withdrawal"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_explicit_session_end_during_pending_erasure_disposes_runtime_and_keeps_obligation"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_original_live_attempt_can_be_cancelled_with_history_storage_disabled"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_retained_moment_outside_live_window_and_missing_root_are_distinct"
+        },
+        {
+          "file": "tests/test_content_deletion_api.py",
+          "method": "test_ordinary_transition_provenance_persisted_and_live_withdrawn"
+        },
+        {
+          "file": "tests/test_content_deletion_coordinator.py",
+          "method": "test_one_exchange_durable_receipt_preserves_live_header_and_independent_rows"
+        },
+        {
+          "file": "tests/test_content_deletion_coordinator.py",
+          "method": "test_changed_scope_refuses_before_any_store_effect"
+        },
+        {
+          "file": "tests/test_content_deletion_coordinator.py",
+          "method": "test_ack_loss_keeps_closed_and_new_process_recovery_uses_original_scope"
+        },
+        {
+          "file": "tests/test_content_deletion_coordinator.py",
+          "method": "test_pre_admission_request_is_fenced_without_touching_independent_history"
+        },
+        {
+          "file": "tests/test_content_deletion_coordinator.py",
+          "method": "test_cache_read_failure_after_intent_same_process_recovery_restores_both_fences"
+        },
+        {
+          "file": "tests/test_content_deletion_coordinator.py",
+          "method": "test_archived_transition_dependency_chain_survives_process_reload"
+        },
+        {
+          "file": "tests/test_content_deletion_journal.py",
+          "method": "test_selected_live_entry_removed_header_playback_and_order_preserved"
+        },
+        {
+          "file": "tests/test_content_deletion_journal.py",
+          "method": "test_late_projection_cannot_resurrect_after_completed_receipt"
+        },
+        {
+          "file": "tests/test_content_deletion_journal.py",
+          "method": "test_no_receipt_before_store_ack_and_pending_modes_do_not_cross"
+        },
+        {
+          "file": "tests/test_content_deletion_journal.py",
+          "method": "test_restart_and_expiry_retain_recovery_and_original_request_fence"
+        },
+        {
+          "file": "tests/test_content_deletion_journal.py",
+          "method": "test_all_revision_and_owner_checks_precede_any_tombstone"
+        },
+        {
+          "file": "tests/test_content_deletion_journal.py",
+          "method": "test_sql_failure_rolls_back_erasure_and_receipt_together"
+        },
+        {
+          "file": "tests/test_content_deletion_journal.py",
+          "method": "test_playback_record_is_never_an_individual_erase_unit"
+        },
+        {
+          "file": "tests/test_content_deletion_store.py",
+          "method": "test_either_role_removes_exact_complete_standalone_exchange"
+        },
+        {
+          "file": "tests/test_content_deletion_store.py",
+          "method": "test_unrelated_pending_request_not_fenced_and_effect_receipt_preserved"
+        },
+        {
+          "file": "tests/test_content_deletion_store.py",
+          "method": "test_unknown_store_ack_recovers_original_plan_not_new_scope"
+        },
+        {
+          "file": "tests/test_content_deletion_store.py",
+          "method": "test_pre_admission_attempt_creates_original_request_fence_without_erasing_other_turns"
+        },
+        {
+          "file": "tests/test_content_deletion_store.py",
+          "method": "test_targeted_dialogue_window_and_replay_withdrawal_preserves_other_thread"
+        },
+        {
+          "file": "tests/test_content_deletion_store.py",
+          "method": "test_durable_selected_moment_lineage_survives_empty_dialogue_and_store_reload"
+        }
+      ],
+      "fixture_boundary": "Documentary registration of protected PR1253 causal regressions, including independent transition P2 correction. Existing test methods only; no production/test/schema/contract change."
     }
   ],
   "evidence_boundaries": [

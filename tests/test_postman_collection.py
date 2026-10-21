@@ -11,6 +11,11 @@ ROOT = Path(__file__).resolve().parents[1]
 COLLECTION_PATH = ROOT / "examples" / "djconnect.postman_collection.json"
 POSTMAN_SCHEMA = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 AUTH_REQUIRED_PATHS = {
+    "/api/djconnect/v1/session/content/delete/prepare",
+    "/api/djconnect/v1/session/content/delete",
+    "/api/djconnect/v1/session/content/delete/status",
+    "/api/djconnect/v1/session/history/delete/status",
+
     "/api/djconnect/v1/session/history/delete",
     "/api/djconnect/v1/session/history/delete_snapshot",
     "/api/djconnect/v1/session/history/delete_all",
@@ -35,6 +40,11 @@ AUTH_REQUIRED_PATHS = {
     "/api/djconnect/v1/voice",
 }
 DEVICE_ID_HEADER_REQUIRED_PATHS = {
+    "/api/djconnect/v1/session/content/delete/prepare",
+    "/api/djconnect/v1/session/content/delete",
+    "/api/djconnect/v1/session/content/delete/status",
+    "/api/djconnect/v1/session/history/delete/status",
+
     "/api/djconnect/v1/transport/context",
     "/api/djconnect/v1/transport/operation",
     "/api/djconnect/v1/status",
@@ -44,6 +54,11 @@ DEVICE_ID_HEADER_REQUIRED_PATHS = {
     "/api/djconnect/v1/voice",
 }
 IDENTITY_REQUIRED_PATHS = {
+    "/api/djconnect/v1/session/content/delete/prepare",
+    "/api/djconnect/v1/session/content/delete",
+    "/api/djconnect/v1/session/content/delete/status",
+    "/api/djconnect/v1/session/history/delete/status",
+
     "/api/djconnect/v1/transport/context",
     "/api/djconnect/v1/transport/operation",
     "/api/djconnect/v1/pair",
@@ -177,6 +192,48 @@ class PostmanCollectionTest(unittest.TestCase):
                 "application/json",
                 f"{name} must declare JSON content type",
             )
+
+    def test_individual_delete_examples_require_explicit_scope_and_preserve_original_ids(self):
+        requests = {_path(_raw_url(request)): request for _, request in _requests(_collection()['item'])
+                    if '/session/content/delete' in _path(_raw_url(request))}
+        prefix = '/api/djconnect/v1/session/content/delete'
+        self.assertEqual(set(requests), {prefix, prefix+'/prepare', prefix+'/status'})
+        prepare = _raw_json_body(requests[prefix+'/prepare'])
+        self.assertEqual(set(prepare), {'device_id', 'client_type', 'contract_version', 'target'})
+        self.assertEqual(set(prepare['target']), {'kind', 'session_id', 'target_id'})
+        delete = _raw_json_body(requests[prefix])
+        self.assertEqual(set(delete), {'device_id', 'client_type', 'contract_version', 'confirmation_id', 'operation_id', 'confirmed'})
+        self.assertIs(delete['confirmed'], False)
+        self.assertEqual(delete['contract_version'], 1)
+        self.assertEqual(delete['operation_id'], '{{content_delete_operation_id}}')
+        status = requests[prefix+'/status']
+        self.assertEqual(status['method'], 'GET')
+        self.assertNotIn('body', status)
+        query = {q['key']: q['value'] for q in status['url']['query']}
+        self.assertEqual(query['operation_id'], delete['operation_id'])
+        self.assertEqual(query['confirmation_id'], delete['confirmation_id'])
+        self.assertEqual(query['contract_version'], '1')
+        for request in requests.values():
+            self.assertIn('No automatic POST replay', request['description'])
+            self.assertNotIn('event', request)
+
+    def test_archive_status_examples_use_original_single_or_all_scope_without_confirmation(self):
+        requests = [request for _, request in _requests(_collection()['item'])
+                    if _path(_raw_url(request)) == '/api/djconnect/v1/session/history/delete/status']
+        self.assertEqual(len(requests), 2)
+        scopes = {}
+        for request in requests:
+            self.assertEqual(request['method'], 'GET')
+            self.assertNotIn('body', request)
+            query = {q['key']: q['value'] for q in request['url']['query']}
+            self.assertEqual(query['contract_version'], '1')
+            self.assertEqual(query['operation_id'], '{{deletion_operation_id}}')
+            self.assertNotIn('confirmation_id', query)
+            self.assertNotIn('profile_id', query)
+            scopes[query['operation']] = query
+        common = {'device_id', 'client_type', 'contract_version', 'operation', 'operation_id'}
+        self.assertEqual(set(scopes['single']), common | {'session_id', 'expected_revision'})
+        self.assertEqual(set(scopes['all']), common | {'snapshot_id'})
 
     def test_touch_examples_keep_semantic_intent_and_cancel_identity_separate(self):
         bodies = {_raw_json_body(r).get('operation'): _raw_json_body(r)

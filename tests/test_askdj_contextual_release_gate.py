@@ -465,8 +465,8 @@ class ContextualReleaseGateTest(unittest.TestCase):
         proof=inventory.validate()
         self.assertEqual(proof['literal_core_routes'],48)
         self.assertEqual(proof['executable_help_cases'],60)
-        self.assertEqual(proof['conversation_families'],43)
-        self.assertEqual(proof['conversation_steps'],346)
+        self.assertEqual(proof['conversation_families'],44)
+        self.assertEqual(proof['conversation_steps'],385)
         self.assertEqual(proof['reported_issues'],87)
         self.assertEqual(len(proof['open_core_findings']),42)
         self.assertEqual(proof['proactive_golden_cases'],560)
@@ -482,6 +482,12 @@ class ContextualReleaseGateTest(unittest.TestCase):
             with self.subTest(file=file),self.assertRaisesRegex(ValueError,'required_owning_file_not_scheduled'):
                 runner.validate_owner_pattern_coverage(matrix,
                     tuple(pattern for pattern in runner.TEST_PATTERNS if pattern!=file))
+        with self.assertRaisesRegex(ValueError, 'required_owning_file_not_scheduled') as missing:
+            runner.validate_owner_pattern_coverage(matrix,
+                tuple(pattern for pattern in runner.TEST_PATTERNS if pattern != 'test_content_deletion*.py'))
+        for file in ('test_content_deletion_api.py', 'test_content_deletion_coordinator.py',
+                     'test_content_deletion_journal.py', 'test_content_deletion_store.py'):
+            self.assertIn(file, str(missing.exception))
 
     def _first_owner_profile(self, exit_code, owner_receipt=None):
         import json
