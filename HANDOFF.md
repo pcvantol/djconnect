@@ -1,3 +1,7 @@
+## Music DNA artwork — source candidate, 21 October 2026
+
+Current profile HTTP rows gain loadable exact track/album/artist artwork through the existing scoped proxy; plain profile/export output strips private references. Older accepted Discovery rows reuse only current exact URI/album/owner proof, retaining original capture/expiry without persisting or fetching. Apple owns rendering; no native acceptance claim. Actual isolated HA artwork plus content46/archive37 route requalification succeeded on the same unchanged232-file snapshot. See [contract](docs/product/MUSIC_DNA_ARTWORK_PROJECTION_V1.md) and [verification](docs/verification/MUSIC_DNA_ARTWORK_PROJECTION_20261021.md). Exact review/protected source/separate Finalization/changed-code HA-dev install are still required. Queue-backed Forecast, current-subject TrackInsight, historical playback and captured reply artwork remain open. HACS personal OAuth expired; no configured entry or automatic retry.
+
 ## Pi rc.6 producer prerequisite — current source preparation, 21 October 2026
 
 ## HACS entrypoint regression — separate Finalization, 21 October 2026

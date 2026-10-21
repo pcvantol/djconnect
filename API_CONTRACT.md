@@ -909,6 +909,25 @@ canonical `client_type` identity contract:
 - `POST /api/djconnect/v1/music_dna/export`
 - `POST /api/djconnect/v1/music_dna/import`
 
+### Optional Music DNA artwork projection (21 October 2026)
+
+The ordinary paired `/music_dna/profile` HTTP response may add `image_url`,
+`image_subject_uri`, `image_captured_at`, `image_reference_expires_at`,
+`image_expires_at` and `image_attribution` to current exact-identity track,
+album and artist rows. UNIX UTC timestamps retain the original provider
+reference capture/expiry; the display capability expires at the earlier of
+that expiry and issue time +900 seconds. This uses the existing headerless
+Discovery image proxy and current Profile/account/privacy/generation authority.
+Missing, expired, name-only or conflicting identity data has no image fields.
+No additional provider fetch or playback is caused by artwork projection.
+
+Private Store artwork references, asset IDs and grants are omitted from plain
+profile/service/tool/export/import output. Older accepted Discovery records
+may use a current server-owned exact URI/album/owner reference without modifying
+the old record or renewing its clock. Matching names cannot supply artwork.
+See [Music DNA artwork contract](docs/product/MUSIC_DNA_ARTWORK_PROJECTION_V1.md)
+and the [synthetic actual HTTP fixture](examples/client_contracts/music_dna_artwork_v1/profile-and-legacy-accepted.json).
+
 ### Active DJ Session Runtime and Planner Foundation (v4-01 / v4-02)
 
 The first v4 runtime slice exposes only the server-owned lifecycle below:

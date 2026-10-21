@@ -23,7 +23,7 @@ from homeassistant.config_entries import ConfigEntries, ConfigEntryStore, Config
 from homeassistant.core import CoreState, HomeAssistant
 from homeassistant.helpers import area_registry, device_registry, entity_registry, aiohttp_client
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(os.environ.get("DJC_SOURCE_ROOT", Path(__file__).resolve().parents[2]))
 sys.path[:0] = [str(ROOT), str(ROOT / "scripts/verification")]
 from verify_session_conversation_history_http import entry
 from custom_components.djconnect import DJConnectRuntime, register_http_views
@@ -37,7 +37,7 @@ from custom_components.djconnect.spotify_backend import (
     _normalize_profile_artist,
 )
 
-LAB = Path("/private/tmp/djc-core-discovery-artwork-v1")
+LAB = Path(os.environ.get("DJC_LAB_ROOT", "/private/tmp/djc-core-discovery-artwork-v1"))
 LAB.mkdir(exist_ok=True)
 TRACK = {
     "id": "A" * 22,
@@ -339,11 +339,21 @@ async def main():
         )
         body = await profile.json()
         assert profile.status == 200, body
+        original_dna_track = body["profile"]["top_tracks_by_range"]["short_term"][0]
         # Actual HA Store save/load forces a second compaction before authorized feed.
         await rt.memory.async_save()
         rt.memory = MusicDNAManager(hass)
         await rt.memory.async_load()
         rt2.memory = rt.memory
+        old_dna_image = await client.get(original_dna_track["image_url"])
+        assert old_dna_image.status == 404  # Previous manager's grant is withdrawn.
+        before_reloaded_profile_calls = len(network.calls)
+        reloaded_profile = await client.post("/api/djconnect/v1/music_dna/profile", json=ident, headers=headers)
+        body = await reloaded_profile.json()
+        assert reloaded_profile.status == 200 and len(network.calls) == before_reloaded_profile_calls
+        reloaded_dna_track = body["profile"]["top_tracks_by_range"]["short_term"][0]
+        assert reloaded_dna_track["image_url"] != original_dna_track["image_url"]
+        assert reloaded_dna_track["image_reference_expires_at"] == original_dna_track["image_reference_expires_at"]
         feed = await client.get("/api/djconnect/v1/music_discovery", params=ident, headers=headers)
         result = await feed.json()
         assert feed.status == 200, result
@@ -353,7 +363,7 @@ async def main():
         ), result
         record = {
             "assignment": "DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012",
-            "base": "90fa0463bb40c705c41d4025dc53aee4de514c79",
+            "base": os.environ.get("DJC_BASE_SHA", "90fa0463bb40c705c41d4025dc53aee4de514c79"),
             "integration_source_hashes": source_hashes,
             "ordinary_pair_auth": True,
             "core_mocked": False,
@@ -363,10 +373,10 @@ async def main():
                 _normalize_profile_artist(ARTIST).get("image_url")
             ),
             "stored_top_track_has_artwork": bool(
-                body["profile"]["top_tracks_by_range"]["short_term"][0].get("artwork")
+                rt.memory.data["memories"][body["music_dna_key"]]["listening_profile"]["top_tracks_by_range"]["short_term"][0].get("artwork")
             ),
             "stored_top_artist_has_artwork": bool(
-                body["profile"]["top_artists_by_range"]["short_term"][0].get("artwork")
+                rt.memory.data["memories"][body["music_dna_key"]]["listening_profile"]["top_artists_by_range"]["short_term"][0].get("artwork")
             ),
             "actual_store_reloaded": True,
             "feed": result,
@@ -377,6 +387,26 @@ async def main():
         }
         assert record["stored_top_track_has_artwork"] and record["stored_top_artist_has_artwork"]
         cases = {}
+        # Current profile output must contain loadable leases, not private Store refs.
+        assert "asset_id" not in json.dumps(body) and '"artwork"' not in json.dumps(body)
+        dna_items = [body["profile"]["top_tracks_by_range"]["short_term"][0],
+                     body["profile"]["top_artists_by_range"]["short_term"][0]]
+        for dna_item in dna_items:
+            assert dna_item["image_subject_uri"] == dna_item["uri"]
+            assert dna_item["image_expires_at"] <= dna_item["image_reference_expires_at"]
+            dna_image = await client.get(dna_item["image_url"])
+            assert dna_image.status == 200
+            assert await dna_image.read() == assets["a" * 40 if dna_item["uri"].startswith("spotify:track:") else "c" * 40]
+            assert dna_image.headers["Cache-Control"] == "private, no-store"
+        before_profile_read_calls = len(network.calls)
+        repeat_profile = await client.post("/api/djconnect/v1/music_dna/profile", json=ident, headers=headers)
+        repeat_body = await repeat_profile.json()
+        assert repeat_profile.status == 200 and len(network.calls) == before_profile_read_calls
+        assert repeat_body["profile"]["top_tracks_by_range"]["short_term"][0]["image_reference_expires_at"] == dna_items[0]["image_reference_expires_at"]
+        record["music_dna_profile"] = body
+        cases["music_dna_store_reload_original_clock_and_new_grant"] = True
+        cases["music_dna_track_artist_actual_image_route"] = "200_EXACT_FIXTURE_BYTES_NO_STORE"
+        cases["music_dna_repeat_profile_no_provider_or_reference_renewal"] = True
         images = []
         for item in items:
             image = await client.get(item["image_url"])
@@ -470,7 +500,8 @@ async def main():
         )
         assert not any(call["method"] in {"POST", "PUT", "DELETE"} for call in network.calls)
         cases["feed_image_reads_playback_free"] = True
-        # Existing explicit Play Now contributes the known exact album; fixture playback only.
+        # An arbitrary unshown Play Now must still be rejected. Legacy accepted
+        # records below are explicit synthetic Store inputs, not playback authority.
         accepted = await client.post(
             "/api/djconnect/v1/command",
             json={
@@ -487,10 +518,28 @@ async def main():
             headers=headers,
         )
         accepted_body = await accepted.json()
-        assert accepted.status == 200 and accepted_body.get("success"), {
-            k: accepted_body.get(k) for k in ("success", "error", "message")
-        }
+        assert accepted.status == 409 and accepted_body.get("error") == "choice_expired"
+        cases["unshown_recommendation_still_rejected"] = "409_CHOICE_EXPIRED"
+        # Seed the same compact legacy shape that predates artwork retention.
+        # This is disposable server-side fixture data; no playback call is made.
+        record_key = "profile:artwork-profile"
+        legacy_memory = rt.memory.data["memories"][record_key]
+        legacy_memory["recommendation_plays"] = [{
+            "uri": TRACK["album"]["uri"], "kind": "album",
+            "title": "Fixture album", "subtitle": "Fixture artist",
+            "source_intent": "personal_music_recommendations",
+        }]
         await rt.memory.async_save()
+        album_profile = await client.post("/api/djconnect/v1/music_dna/profile", json=ident, headers=headers)
+        album_profile_body = await album_profile.json()
+        assert album_profile.status == 200
+        album_projection = next(i for i in album_profile_body["profile"]["recommendation_signals"] if i["uri"] == TRACK["album"]["uri"])
+        assert album_projection["image_subject_uri"] == TRACK["album"]["uri"]
+        assert album_projection["image_attribution"]["media_uri"] == TRACK["album"]["uri"]
+        album_profile_image = await client.get(album_projection["image_url"])
+        assert album_profile_image.status == 200 and await album_profile_image.read() == assets["a" * 40]
+        record["music_dna_exact_album"] = album_projection
+        cases["music_dna_album_exact_provider_edition_image"] = "200_EXACT_FIXTURE_BYTES"
         album_feed_response = await client.get(
             "/api/djconnect/v1/music_discovery", params=ident, headers=headers
         )
@@ -508,7 +557,7 @@ async def main():
         cases["existing_album_positive_exact_reference"] = {
             "image_status": 200,
             "uri": album_item["uri"],
-            "provider_boundary": "EXPLICIT_FIXTURE_PLAY_ONLY",
+            "provider_boundary": "SYNTHETIC_LEGACY_STORE_INPUT_NO_PLAYBACK",
         }
         exported_response = await client.post(
             "/api/djconnect/v1/music_dna/export", json=ident, headers=headers
@@ -564,28 +613,31 @@ async def main():
         cases["ordinary_old_store_refresh_no_clear_or_pair"] = "RESTORED_EXACT_ASSET"
         cases["malicious_import_and_export_no_artwork_grants"] = "STRIPPED"
         cases["client_dna_key_and_user_id_cannot_cross_profile"] = "CANONICAL_PROFILE"
-        # Browser reads the actual headerless HA image route; only HTML is an owned test surface.
-        base = str(client.make_url("/")).rstrip("/")
-        browser_script = LAB / "decode.mjs"
-        browser_script.write_text(
-            "import {chromium} from '/Volumes/Extra Data/DevelopmentTemp/djc-core-expressive-context-resume-v1/node_modules/playwright/index.mjs';const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});const page=await browser.newPage();await page.goto(process.argv[2]);await page.setContent('<h1>Core artwork transport fixture</h1>'+process.argv.slice(3).map(u=>'<img width=256 height=256 src=\"'+u+'\">').join(''));const sizes=await page.locator('img').evaluateAll(async imgs=>{await Promise.all(imgs.map(i=>i.decode()));return imgs.map(i=>[i.naturalWidth,i.naturalHeight]);});if(sizes.some(s=>s[0]!==64||s[1]!==64))throw Error('decode');await page.screenshot({path:'/private/tmp/djc-core-discovery-artwork-v1/transport.png'});console.log(JSON.stringify(sizes));await browser.close();"
-        )
-        proc = await asyncio.create_subprocess_exec(
-            "/opt/homebrew/bin/node",
-            str(browser_script),
-            base,
-            *(
-                base + i["image_url"]
-                for sec in restored_feed["sections"]
-                for i in sec["items"]
-                if i.get("image_url")
-            ),
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        out, err = await proc.communicate()
-        assert proc.returncode == 0, err.decode()
-        cases["actual_browser_decode"] = json.loads(out)
+        if os.environ.get("DJC_ARTWORK_SKIP_BROWSER") == "1":
+            cases["actual_browser_decode"] = "NOT_RUN_ISOLATED_CONTAINER"
+        else:
+            # Browser reads the actual headerless HA image route; only HTML is an owned test surface.
+            base = str(client.make_url("/")).rstrip("/")
+            browser_script = LAB / "decode.mjs"
+            browser_script.write_text(
+                "import {chromium} from '/Volumes/Extra Data/DevelopmentTemp/djc-core-expressive-context-resume-v1/node_modules/playwright/index.mjs';const browser=await chromium.launch({executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',headless:true});const page=await browser.newPage();await page.goto(process.argv[2]);await page.setContent('<h1>Core artwork transport fixture</h1>'+process.argv.slice(3).map(u=>'<img width=256 height=256 src=\"'+u+'\">').join(''));const sizes=await page.locator('img').evaluateAll(async imgs=>{await Promise.all(imgs.map(i=>i.decode()));return imgs.map(i=>[i.naturalWidth,i.naturalHeight]);});if(sizes.some(s=>s[0]!==64||s[1]!==64))throw Error('decode');await page.screenshot({path:'/private/tmp/djc-core-discovery-artwork-v1/transport.png'});console.log(JSON.stringify(sizes));await browser.close();"
+            )
+            proc = await asyncio.create_subprocess_exec(
+                "/opt/homebrew/bin/node",
+                str(browser_script),
+                base,
+                *(
+                    base + i["image_url"]
+                    for sec in restored_feed["sections"]
+                    for i in sec["items"]
+                    if i.get("image_url")
+                ),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            out, err = await proc.communicate()
+            assert proc.returncode == 0, err.decode()
+            cases["actual_browser_decode"] = json.loads(out)
         for name in ("redirect", "html", "large", "mime", "upstream_error", "chunked_large", "timeout"):
             mode["value"] = name
             failed = await client.get(image_url)
@@ -747,11 +799,24 @@ async def main():
         )
         expiry_json = await expiry_feed.json()
         expiry_item = next(i for sec in expiry_json["sections"] for i in sec["items"] if i.get("image_url"))
+        expiry_profile = await client.post("/api/djconnect/v1/music_dna/profile", json=ident, headers=headers)
+        expiry_profile_body = await expiry_profile.json()
+        assert expiry_profile.status == 200
+        expiry_profile_track = expiry_profile_body["profile"]["top_tracks_by_range"]["short_term"][0]
+        assert expiry_profile_track["image_expires_at"] <= now + 3
         before_expiry = await client.get(expiry_item["image_url"])
         assert before_expiry.status == 200
         await asyncio.sleep(max(0, now + 3 - time.time() + .1))
         after_expiry = await client.get(expiry_item["image_url"])
         assert after_expiry.status == 404
+        expired_profile_image = await client.get(expiry_profile_track["image_url"])
+        assert expired_profile_image.status == 404
+        expired_profile = await client.post("/api/djconnect/v1/music_dna/profile", json=ident, headers=headers)
+        expired_profile_body = await expired_profile.json()
+        assert expired_profile.status == 200
+        assert "image_url" not in json.dumps(expired_profile_body)
+        assert "asset_id" not in json.dumps(expired_profile_body)
+        cases["music_dna_actual_original_expiry"] = "REAL_WALL_CLOCK_200_TO_404_THEN_OMITTED"
         expired_feed = await client.get(
             "/api/djconnect/v1/music_discovery", params=ident, headers=headers
         )
@@ -847,6 +912,14 @@ async def main():
         for section in record["feed"]["sections"]:
             for item in section["items"]:
                 item["image_url"] = "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>"
+        def redact_delivery(value):
+            if isinstance(value, dict):
+                return {k: "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>" if k == "image_url" else redact_delivery(v) for k, v in value.items()}
+            if isinstance(value, list):
+                return [redact_delivery(v) for v in value]
+            return value
+        record["music_dna_profile"] = redact_delivery(record["music_dna_profile"])
+        record["music_dna_exact_album"] = redact_delivery(record["music_dna_exact_album"])
         (
             LAB
             / (
