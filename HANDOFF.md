@@ -1,5 +1,20 @@
 ## Individual owner content deletion — implementation candidate, 21 October2026
 
+## Current Core correction: sparse DJ contribution genre coverage — 21 October 2026
+
+Peter directly prioritized sparse automatic contributions. Current qualified base
+is6a0e9bfcd971777bd53423975360077cd5b398bc after source1259 and separateFinal1260;
+actual unchanged232-file HA-dev integrity/runtime/HTTP/SQLite readback passed.
+Same sole writer, branch codex/core-dj-contribution-genre-coverage-20261021.
+Two product files offer one independently qualified exact-ID current artist genre
+beside catalogue facts, so a declined album story cannot hide that available
+alternative. No Planner/Presence/research/authority relaxation, fabricated audio
+measure, new model allowance or consumer source write. See
+[the owning verification](docs/verification/DJ_CONTRIBUTION_GENRE_COVERAGE_20261021.md).
+Exact review, normal protected source, separate Finalization and changed-payload
+HA-dev install/readback remain OPEN. Other narrative/personal DJ requests and
+unique evidence stay preserved; hard deadline19:10:02UTC is unchanged.
+
 ## Core VibeCast current qualification — separate Finalization, 21 October 2026
 
 ### Repository Status

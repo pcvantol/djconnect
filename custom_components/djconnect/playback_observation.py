@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import suppress
+import hashlib
 import logging
 from dataclasses import dataclass, field
 from datetime import timedelta
@@ -418,8 +419,35 @@ class PlaybackObservationManager:
         observed.enrichment_media_identity = result.media_identity
         try:
             async def qualified_insight() -> dict[str, Any]:
-                from .session_facts import session_facts_resolver, catalog_facts
+                from .session_facts import session_facts_resolver, catalog_facts, observed_genre_facts
                 catalog = getattr(result, "catalog", {})
+                # Capture before source awaits. Neither a catalogue descriptor
+                # nor a later account/command may authorize this extra evidence.
+                from .profile_context import profile_storage
+                try:
+                    storage = profile_storage(self._hass)
+                    authority_revision = storage.authority_revision
+                except Exception:
+                    storage, authority_revision = None, None
+                source_lost = False
+
+                def genre_current():
+                    nonlocal source_lost
+                    current = session_runtime_manager(self._hass).current_active(observed.owner_profile_id)
+                    valid = (storage is not None
+                        and self._spotify_sessions.get(observed.owner_profile_id) is observed
+                        and observed.command_revision == captured_command_revision
+                        and profile_storage(self._hass) is storage
+                        and storage.authority_revision == authority_revision
+                        and forecast_authority() and current is not None
+                        and current.session_id == observed.session_id
+                        and current.broadcast.state.playback.state == "playing"
+                        and current.broadcast.state.playback.item_id == hashlib.sha256(result.media_identity.encode()).hexdigest()[:24]
+                        and current.broadcast.state.playback.target_name == getattr(result, "target_name", ""))
+                    source_lost = source_lost or not valid
+                    return not source_lost
+
+                admitted_genre_lookup = genre_current()
                 async def facts() -> tuple[Any, ...]:
                     try:
                         return await session_facts_resolver(self._hass).resolve(catalog)
@@ -427,6 +455,18 @@ class PlaybackObservationManager:
                         return tuple(catalog_facts(catalog))
                 evidence = await facts()
                 if evidence:
+                    # A rejected album story must not hide independently valid
+                    # genre context. The existing Planner still ranks/consumes
+                    # each fact once; no retry, extra scheduler or new budget.
+                    if admitted_genre_lookup and len(evidence) < 6:
+                        genre_evidence = await SpotifyBackend(
+                            self._hass, observed.integration_runtime
+                        ).async_observe_current_genres(result, authorize=genre_current)
+                        if not genre_current():
+                            return {"_qualified_facts": ()}
+                        genres = observed_genre_facts(genre_evidence, media_identity=result.media_identity,
+                            title=getattr(result, "title", ""), artist=getattr(result, "artist", ""))
+                        evidence = (*evidence, *genres[:1])
                     return {"_qualified_facts": evidence}
                 return {**await observed.insight_provider(), "_qualified_facts": ()}
 
