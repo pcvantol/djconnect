@@ -1,5 +1,19 @@
 # Current Core handoff — consolidated source WIP, no consumer activation
 
+## Core whole/bulk archive producer preparation — 21 October2026
+
+Core implements the selected single and complete server-snapshot bulk archive
+contracts in its current source candidate. See
+[qualification/delivery](docs/verification/OWNER_ARCHIVE_DELETION_20261021.md).
+Consumers feature-detect `session_history_delete` / `session_history_bulk_delete`
+version1 on the actual target. A source candidate or this note is not an operative
+installed pin. Individual active/archive bubbles/Moments and uncertain attempts
+remain OPEN under Core#1225 / Apple#143; never substitute whole-Session deletion.
+The [actual synthetic archive fixture](examples/client_contracts/session_conversation_history/archive-deletion-v1-20261021.json)
+and additive retained/avatar source derivatives bind current producer bytes.
+Protected source/Final and HA-dev receipt remain separate pending gates.
+No client writer or native acceptance is dispatched by this producer work.
+
 ## Pi cache-isolated consumer binding — separate Finalization, 21 October 2026
 
 ### Repository Status

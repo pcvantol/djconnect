@@ -333,7 +333,7 @@ class DialogueState:
             for frame in threads.values():
                 frame.clear_speech()
 
-    def forget_archived_sessions(self, scope: str, session_ids: frozenset[str]) -> None:
+    def forget_archived_sessions(self, scope: str, session_ids: frozenset[str], *, entry_ids=frozenset()) -> None:
         """Withdraw erased read context, preserving unrelated accepted audio.
 
         Opaque request digests/deadlines survive body eviction, so erasure cannot
@@ -359,7 +359,7 @@ class DialogueState:
                     row[0], None, row[2], 0, frame.touched + IDLE_SECONDS)
             for record in list(frame.speech_references.values()):
                 if (record.get("session_id") in session_ids
-                        or any(ref.get("session_id") in session_ids
+                        or any(ref.get("session_id") in session_ids or ref.get("entry_id") in entry_ids
                                for ref in record.get("dependencies", []))):
                     record["dispose"]()
 

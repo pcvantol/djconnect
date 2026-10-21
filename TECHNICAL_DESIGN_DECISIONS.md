@@ -1086,3 +1086,19 @@ separate configured/eligible metadata from scoped operational observations,
 local Apple permissions, shared output policy and actual hearing. Exact HA
 selection and real provider interfaces are reused; old runtime fallbacks remain
 unchanged and are not newly granted by discovery.
+
+
+## 2026-10-21 — Durable owner archive deletion across existing storage owners
+
+The [archive producer](docs/verification/OWNER_ARCHIVE_DELETION_20261021.md)
+uses identifier-only schema11 intent/target/clock rows in PersistenceService,
+then serialized HA Store erasure, then SQL erasure+completion receipt in one
+transaction. Pending recovery outlives transport expiry and precedes startup
+reconciliation. No second Store writer, raw SQLite handle or private-body journal
+is introduced. Public detail revisions bind the current minimal cascade scope;
+prepare recomputes that scope under the Store write lock. Read-only source
+validators copy immutable committed Store state rather than reentering that lock.
+Bulk snapshots bind a complete bounded terminal set, its original authority and
+deadlines. Later completion is outside consent. Dependent answers keep stable
+unavailable IDs, without copied context or replay. Individual-content deletion
+remains a separate capability, not a fallback to whole-Session removal.

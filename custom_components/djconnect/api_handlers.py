@@ -2681,7 +2681,18 @@ def _safe_int(value: Any) -> int | None:
         return None
 
 
-async def async_handle_ask_dj_history_payload(
+async def async_handle_ask_dj_history_payload(hass, data, *, headers=None, user_id=None, history_limit=50):
+    """Both existing transports use the same typed pending-erasure outcome."""
+    try:
+        return await _async_handle_ask_dj_history_payload(
+            hass, data, headers=headers, user_id=user_id, history_limit=history_limit)
+    except RuntimeError as error:
+        if str(error) != 'history_delete_outcome_unknown':
+            raise
+        return _error_payload('history_delete_outcome_unknown'), 503
+
+
+async def _async_handle_ask_dj_history_payload(
     hass: Any,
     data: dict[str, Any],
     *,

@@ -28,9 +28,16 @@ MIGRATIONS = (
     Migration(8, "0008_profile_announcement_output", "32c0a4e7"),
     Migration(9, "0009_session_retention_policy", "71dbec42"),
     Migration(10, "0010_four_level_presence", "aceb4702"),
+    Migration(11, "0011_history_deletion_intents", "9bf47a12"),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_history_deletions": {
+        "owner_profile_id", "operation_id", "binding", "digest", "targets",
+        "state", "created_ms", "expires_ms", "receipt", "store_plan",
+    },
+    "djconnect_history_deletion_targets": {"owner_profile_id", "session_id", "operation_id"},
+    "djconnect_history_deletion_clock": {"singleton", "high_water_ms"},
     "djconnect_session_retention": {"singleton", "retention_days", "revision"},
     "djconnect_profile_dj_settings": {"owner_profile_id", "settings", "revision", "updated_at", "contract_version"},
     "djconnect_session_dj_settings": {
@@ -258,6 +265,34 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
         )
         transaction.execute(
             "UPDATE djconnect_session_dj_settings SET settings=json_set(settings,'$.presence','presenter') WHERE json_extract(settings,'$.presence')='talkative' AND session_id IN (SELECT session_id FROM djconnect_persistent_sessions WHERE lifecycle_status='ACTIVE')"
+        )
+    elif version == 11:
+        transaction.execute(
+            "CREATE TABLE djconnect_history_deletions ("
+            "owner_profile_id TEXT NOT NULL,operation_id TEXT NOT NULL,"
+            "binding TEXT NOT NULL,digest TEXT NOT NULL,targets TEXT NOT NULL,"
+            "state TEXT NOT NULL CHECK(state IN ('pending','store_erased','completed')),"
+            "created_ms INTEGER NOT NULL,expires_ms INTEGER NOT NULL,receipt TEXT,"
+            "store_plan TEXT NOT NULL DEFAULT '{}',"
+            "PRIMARY KEY(owner_profile_id,operation_id))"
+        )
+        transaction.execute(
+            "CREATE TABLE djconnect_history_deletion_targets ("
+            "owner_profile_id TEXT NOT NULL,session_id TEXT NOT NULL,operation_id TEXT NOT NULL,"
+            "PRIMARY KEY(owner_profile_id,session_id),"
+            "FOREIGN KEY(owner_profile_id,operation_id) REFERENCES "
+            "djconnect_history_deletions(owner_profile_id,operation_id) ON DELETE CASCADE)"
+        )
+        transaction.execute(
+            "CREATE TABLE djconnect_history_deletion_clock ("
+            "singleton INTEGER PRIMARY KEY CHECK(singleton=1),"
+            "high_water_ms INTEGER NOT NULL CHECK(high_water_ms>=0))"
+        )
+        transaction.execute("INSERT INTO djconnect_history_deletion_clock VALUES (1,0)")
+        transaction.execute(
+            "CREATE INDEX djconnect_session_entry_message ON djconnect_session_entries "
+            "(owner_profile_id,json_extract(body,'$.message_id')) "
+            "WHERE kind IN ('conversation_user','conversation_dj') AND json_valid(body)"
         )
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(

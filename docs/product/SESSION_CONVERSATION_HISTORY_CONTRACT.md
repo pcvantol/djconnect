@@ -469,7 +469,10 @@ retain the private-development, original404 and native/audio boundaries.
 Direct owner request, verified in the existing Apple task: allow a confirmed
 manual deletion of one earlier Session from the user's Profile. Core owns durable
 erasure; Apple owns its red trash action, confirmation and localized rendering.
-This additive wire decision is selected design, **not an installed capability**.
+The whole/bulk producer is now implemented in the current Core source increment;
+[qualification and delivery](../verification/OWNER_ARCHIVE_DELETION_20261021.md)
+remain separate from installed/native acceptance. Individual content deletion is
+still OPEN under #1225.
 The existing history-entry representation2 and rolling retention remain separate.
 
 Discovery: `capabilities.session_history_delete:true` plus
@@ -550,8 +553,9 @@ fixtures and exact qualified source/installed pin follow before consumer live GO
 The additional direct owner request is one confirmed operation that removes all
 earlier Sessions from the resolved Profile, independent of the currently loaded
 page, search filter or client. It is not a client loop over single deletion and
-not Profile clear. This is selected contract design; no capability is advertised
-until the producer, fixtures and connected qualification exist.
+not Profile clear. This producer follows the single-deletion Store/SQLite recovery boundary; see
+[actual source qualification](../verification/OWNER_ARCHIVE_DELETION_20261021.md).
+Capability1 is distinct from individual-content deletion and installed acceptance.
 
 Discovery is `capabilities.session_history_bulk_delete:true` and
 `contract_versions.session_history_bulk_delete:1`. Missing/unknown version hides

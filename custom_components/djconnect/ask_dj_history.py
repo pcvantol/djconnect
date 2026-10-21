@@ -8,6 +8,7 @@ from copy import copy, deepcopy
 from functools import wraps
 from datetime import datetime, timedelta, timezone
 import uuid
+import re
 from typing import Any
 
 from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID, CONF_DEVICE_NAME
@@ -60,6 +61,111 @@ def _committed_mutation(method):
     return commit
 
 
+def validate_archive_erasure_plan(plan):
+    """Only bounded opaque IDs/hashes may survive in cross-store recovery scope."""
+    keys = {'remove_message_ids', 'redact_message_ids', 'dependent_session_ids', 'retry_hashes'}
+    if not isinstance(plan, dict) or set(plan) != keys:
+        raise ValueError('invalid_history_delete_request')
+    for key, values in plan.items():
+        if (type(values) is not list or len(values) > MAX_MESSAGES_PER_USER
+                or any(not isinstance(v, str) or not 0 < len(v) <= 200 for v in values)
+                or len(set(values)) != len(values)):
+            raise ValueError('invalid_history_delete_request')
+        if key == 'retry_hashes' and any(not re.fullmatch('[0-9a-f]{64}', v) for v in values):
+            raise ValueError('invalid_history_delete_request')
+    if set(plan['remove_message_ids']) & set(plan['redact_message_ids']):
+        raise ValueError('invalid_history_delete_request')
+
+
+def archive_erasure_plan(profile_id, messages, session_ids, *, message_ids=frozenset(),
+                         entry_index=None, pending_client_ids=()):
+    """Derive a bounded identifier-only cascade, without copying private bodies.
+
+    Direct target exchanges disappear. Retained exchanges with a deleted source
+    retain stable identities as unavailable. Propagate that unavailable basis
+    through actual SQL entry references; cycles reach a bounded fixed point.
+    """
+    entry_index = entry_index or {}
+    if (not isinstance(profile_id, str) or not profile_id
+            or type(session_ids) is not frozenset or not session_ids
+            or any(not isinstance(s, str) or not s for s in session_ids)
+            or len(messages) > MAX_MESSAGES_PER_USER):
+        raise ValueError('invalid_history_delete_request')
+    exchanges = {}
+    for message in messages:
+        identifier = message.get('id')
+        if not isinstance(identifier, str) or not identifier:
+            raise ValueError('history_delete_outcome_unknown')
+        exchange = message.get('exchange_id') or identifier
+        exchanges.setdefault(exchange, []).append(message)
+    removed = {
+        exchange for exchange, values in exchanges.items()
+        if any(m['id'] in message_ids
+               or m.get('session_turn', {}).get('context', {}).get('session_id') in session_ids
+               for m in values)
+    }
+    unavailable = set(removed)
+    tainted_entries = set()
+    for exchange in unavailable:
+        for message in exchanges[exchange]:
+            if message['id'] in entry_index:
+                tainted_entries.add(tuple(entry_index[message['id']]))
+    while True:
+        discovered = {
+            exchange for exchange, values in exchanges.items() if exchange not in unavailable
+            and any(ref.get('session_id') in session_ids
+                    or (ref.get('session_id'), ref.get('entry_id')) in tainted_entries
+                    for m in values for ref in m.get('historical_entry_references', []))
+        }
+        if not discovered:
+            break
+        unavailable.update(discovered)
+        for exchange in discovered:
+            for message in exchanges[exchange]:
+                if message['id'] in entry_index:
+                    tainted_entries.add(tuple(entry_index[message['id']]))
+    direct = [m for e in removed for m in exchanges[e]]
+    dependent = [m for e in unavailable - removed for m in exchanges[e]]
+    affected_sessions = {
+        m.get('session_turn', {}).get('context', {}).get('session_id') for m in dependent
+    } | {entry_index[m['id']][0] for m in dependent if m['id'] in entry_index}
+    retry_hashes = {
+        _request_hash('profile:' + profile_id, identifier)
+        for identifier in (*pending_client_ids,
+                           *(m.get('client_message_id') for m in direct + dependent))
+        if isinstance(identifier, str) and identifier
+    }
+    result = {
+        'remove_message_ids': sorted(m['id'] for m in direct),
+        'redact_message_ids': sorted(m['id'] for m in dependent),
+        'dependent_session_ids': sorted(s for s in affected_sessions if s and s not in session_ids),
+        'retry_hashes': sorted(retry_hashes),
+    }
+    validate_archive_erasure_plan(result)
+    return result
+
+
+def archive_scope_digest(plan):
+    """Confirmation covers readable scope, not unrelated in-flight requests."""
+    import json
+    value = {k: v for k, v in plan.items() if k != 'retry_hashes'}
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+
+def _unavailable_history_message(message):
+    """Keep identity/order only; arbitrary quote, audio and context fields vanish."""
+    value = {k: deepcopy(message[k]) for k in (
+        'id', 'role', 'exchange_id', 'exchange_order', 'client_message_id', 'created_at',
+    ) if k in message}
+    turn = message.get('session_turn', {})
+    value['session_turn'] = {
+        **({'turn_id': turn['turn_id']} if turn.get('turn_id') else {}),
+        'context': {'session_id': turn.get('context', {}).get('session_id', '')},
+    }
+    value.update(text='', content_state='source_withdrawn')
+    return value
+
+
 async def _settle_store_writer(task):
     """Repeated caller cancellation cannot release the serialized write boundary."""
     while True:
@@ -83,6 +189,7 @@ class AskDJHistoryManager:
         self._store = store if store is not None else self._create_store(hass)
         self._loaded = False
         self._erasure_uncertain = False
+        self._deletion_barriers = set()
         self._data: dict[str, Any] = {"version": STORE_VERSION, "global_clear_revision": 0, "users": {}}
 
     def register_session_request(self, scope: str, client_id: str) -> None:
@@ -123,8 +230,105 @@ class AskDJHistoryManager:
             return self._data
 
     def _require_settled_erasure(self) -> None:
-        if self._erasure_uncertain:
+        if self._erasure_uncertain or self._deletion_barriers:
             raise RuntimeError("history_delete_outcome_unknown")
+
+    async def async_archive_scope_digest(self, profile_id, session_ids, *, entry_index):
+        """Read committed scope without reentering a source-validator writer.
+
+        Existing Store mutations may invoke history source validators while
+        owning the write lock. Writers publish immutable staged copies only
+        after acknowledgement; copying the committed pointer before a SQL await
+        is a coherent read. Destructive prepare rechecks the digest UNDER the
+        write boundary before it installs any intent.
+        """
+        await self.async_load()
+        self._require_settled_erasure()
+        messages = deepcopy(self._data.get('users', {}).get('profile:' + profile_id, {}).get('messages', []))
+        index, message_ids = await entry_index(messages)
+        self._require_settled_erasure()
+        return archive_scope_digest(archive_erasure_plan(
+            profile_id, messages, session_ids, entry_index=index, message_ids=message_ids))
+
+    async def async_erase_archived_sessions(
+        self, profile_id, session_ids, *, prepare_intent, entry_index,
+        message_ids=frozenset(),
+    ):
+        """Existing Store owner commits an exact private plan after durable intent.
+
+        prepare_intent runs inside this owner's write boundary. It must persist
+        the minimal plan before returning it, or return its SAME durable plan on
+        recovery. No SQL transaction is kept open across a Store await.
+        """
+        if self._store is None:
+            raise RuntimeError('history_delete_outcome_unknown')
+        async with self._write_lock:
+            if self._erasure_uncertain or not self._loaded:
+                data = _normalize_store_data(await self._store.async_load())
+            else:
+                data = deepcopy(self._data)
+            scope = 'profile:' + profile_id
+            state = data.get('users', {}).get(scope)
+            messages = state.get('messages', []) if state else []
+            if callable(entry_index):
+                entry_index, message_ids = await entry_index(messages)
+            plan = archive_erasure_plan(
+                profile_id, messages, session_ids,
+                message_ids=message_ids, entry_index=entry_index,
+                pending_client_ids=self._pending_session_requests.get(scope, {}),
+            )
+            # Capacity never evicts a still useful original-request fence.
+            if len(set(state.get('cleared_request_hashes', []) if state else [])
+                   | set(plan['retry_hashes'])) > 1000:
+                raise ValueError('history_delete_capacity')
+            self._erasure_uncertain = True
+            durable = await prepare_intent(deepcopy(plan))
+            validate_archive_erasure_plan(durable)
+            if state is None:
+                state = {'history_revision': 0, 'clear_revision': 0,
+                         'targeted_clear_revision': 0, 'messages': []}
+                data.setdefault('users', {})[scope] = state
+            removed = set(durable['remove_message_ids'])
+            redacted = set(durable['redact_message_ids'])
+            hashes = set(state.get('cleared_request_hashes', [])) | set(durable['retry_hashes'])
+            if len(hashes) > 1000:
+                raise ValueError('history_delete_capacity')
+            messages = state.get('messages', [])
+            changed = bool(removed.intersection(m['id'] for m in messages)
+                           or any(m['id'] in redacted and m.get('content_state') != 'source_withdrawn'
+                                  for m in messages))
+            state['messages'] = [
+                _unavailable_history_message(m) if m['id'] in redacted else m
+                for m in messages if m['id'] not in removed
+            ]
+            state['cleared_request_hashes'] = sorted(hashes)
+            if changed:
+                state['history_revision'] += 1
+                state['clear_revision'] += 1
+                state['targeted_clear_revision'] = _targeted_clear_revision(state) + 1
+                state['updated_at'] = _now()
+            self.dialogue.forget_archived_sessions(scope, session_ids, entry_ids=frozenset(
+                entry_index[m][1] for m in durable['redact_message_ids'] if m in entry_index))
+
+            async def save():
+                await self._store.async_save(_compact_store_data(data))
+                self._data, self._loaded, self._erasure_uncertain = data, True, False
+                return durable
+
+            task = asyncio.create_task(save())
+            try:
+                return await asyncio.shield(task)
+            except asyncio.CancelledError:
+                await _settle_store_writer(task)
+                raise
+
+    async def async_settle_rejected_deletion(self, barrier):
+        """Only after the coordinator proves no durable intent was installed."""
+        async with self._write_lock:
+            loaded = await self._store.async_load() if self._store is not None else None
+            self._data = _normalize_store_data(loaded)
+            self._loaded, self._erasure_uncertain = True, False
+            self._deletion_barriers.discard(barrier)
 
     async def async_forget_archived_sessions(
         self, profile_id: str, session_ids: frozenset[str], *, message_ids: frozenset[str] = frozenset()

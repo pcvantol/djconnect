@@ -79,7 +79,7 @@ def source_hashes():
     }
 
 
-async def main():
+async def main(*, qualification_extension=None):
     qualified_sources = source_hashes()
     directory = Path(os.environ.get("DJC_LAB_ROOT", "/lab"))
     config = directory / ("config-" + secrets.token_hex(4))
@@ -212,6 +212,7 @@ async def main():
     identity = {"device_id": device_id, "client_type": "ios"}
     headers = {"Authorization": "Bearer " + token, "X-DJConnect-Device-ID": device_id}
     receipts = []
+    extension_result = None
     async with AsyncExitStack() as stack:
         stack.enter_context(patch.object(pipeline, "_call_conversation_process_transport", fixture_agent_transport))
         client = await stack.enter_async_context(TestClient(TestServer(hass.http.app)))
@@ -439,6 +440,8 @@ async def main():
         assert after_clear["clear_revision"] > restored["clear_revision"]
         withdrawn, status = await request("GET", timeline_path)
         assert status == 200 and all(not e["kind"].startswith("conversation_") for e in withdrawn["entries"])
+        if qualification_extension is not None:
+            extension_result = await qualification_extension(hass, manager, history, request, client)
     await async_shutdown_persistence(hass)
     assert source_hashes() == qualified_sources, "source changed during qualification"
     assert len(fixture_agent_calls) == 2, "Only explicit text and STT-derived requests use the fixture"
@@ -457,6 +460,8 @@ async def main():
         "model_provider_calls": 0,
         "source_unchanged": True,
     }
+    if extension_result is not None:
+        result['extension'] = extension_result
     output = directory / "http-producer-receipt.json"
     output.write_text(json.dumps(result, indent=2, ensure_ascii=False))
     print(json.dumps({"result": "PASS", "requests": len(receipts), "receipt": str(output)}))

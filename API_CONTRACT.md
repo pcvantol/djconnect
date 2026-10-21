@@ -2218,3 +2218,20 @@ Session/generation/environment/topic/expiry tuple and explicit relay content
 permission. No client credentials or rich content in hints; no lease from push.
 Background capability remains false until connected Core/API/Apple delivery and
 source-purpose gates pass. Existing writers only; no consumer/relay code adopted.
+
+
+## Owner whole/bulk archive deletion producer — 21 October2026
+
+The current Core increment implements the selected owner-only
+`POST /api/djconnect/v1/session/history/delete`,
+`GET /api/djconnect/v1/session/history/delete_snapshot` and
+`POST /api/djconnect/v1/session/history/delete_all` contracts, with additive
+`session_history_delete:1` / `session_history_bulk_delete:1` discovery.
+The [canonical payload/error contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md#selected-manual-deletion-of-an-archived-session--18-october2026)
+and [recovery/qualification boundary](docs/verification/OWNER_ARCHIVE_DELETION_20261021.md)
+apply. An opaque detail revision additionally binds the captured Store cascade;
+list integer revisions are never destructive CAS tokens. Original paired device,
+Profile, grant and runtime authority is checked at admission and delivery.
+Only exact Store-plus-SQL completion returns success. Individual content deletion
+#1225, native adoption, protected delivery and actual HA-dev install remain
+separate; no source receipt proves an installation or personal-data acceptance.

@@ -42,6 +42,12 @@ async def async_initialize_persistence(hass: Any) -> PersistenceService:
             service = PersistenceService(_database_path(hass), SQLitePersistenceProvider())
             domain_data[PERSISTENCE_SERVICE_KEY] = service
         await service.async_initialize()
+        # Pending deletion obligations survive request expiry. Finish BOTH
+        # storage owners before reconciliation/maintenance can project or prune.
+        from .history_deletion import HistoryDeletionRepository
+        if await HistoryDeletionRepository(service).async_pending():
+            from ..history_deletion import deletion_coordinator
+            await deletion_coordinator(hass).async_recover()
         # Reconcile crash leftovers once, before any entry can start a Runtime.
         # Entry setup/reload must never interrupt another entry's live Session.
         if not domain_data.get(_RECONCILED_KEY):

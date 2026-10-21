@@ -11,6 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 COLLECTION_PATH = ROOT / "examples" / "djconnect.postman_collection.json"
 POSTMAN_SCHEMA = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 AUTH_REQUIRED_PATHS = {
+    "/api/djconnect/v1/session/history/delete",
+    "/api/djconnect/v1/session/history/delete_snapshot",
+    "/api/djconnect/v1/session/history/delete_all",
     "/api/djconnect/v1/transport/context",
     "/api/djconnect/v1/transport/operation",
     "/api/djconnect/v1/status",

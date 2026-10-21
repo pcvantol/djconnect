@@ -1,5 +1,56 @@
 # Current Core1210 same-band story variety checkpoint — 19 October 2026
 
+## Owner archive deletion — source preparation, 21 October 2026
+
+### Repository Status
+
+The sole Core writer is implementing the whole/bulk archive producer dependency
+of history deletion #1225 on protected base8d0b2c19. Branch
+`codex/core-history-owner-deletion-20261021`; no parallel source writer.
+[Verification and architecture](docs/verification/OWNER_ARCHIVE_DELETION_20261021.md)
+records implementation, crash recovery and investigation. Exact frozen review,
+applicable Owner Authorization, protected source/CI and separate Finalization
+remain pending. Source flags are not installed/native acceptance.
+
+### Management Summary
+
+Confirmed single deletion compares the opaque detail revision. Bulk uses one
+server-owned complete terminal snapshot; changed captured targets reject before
+effects, and a later unrelated completion is retained. Identifier-only schema11
+intents bridge the existing HA Store and SQLite writers. Both owners must finish
+before a receipt. Lost acknowledgement and restart retain fail-closed fences;
+legacy/history/media/speech paths share those fences. Independent content,
+Profile defaults, DNA and playback are preserved. Individual bubble/Moment/
+uncertain-attempt deletion is still OPEN and is not replaced by Session deletion.
+
+### Roadmap Position
+
+Generation2 / Phase1, explicit twelve-hour Core order: history deletion; shared
+settings; Core VibeCast contracts; narrative PR1248; personal DJ experience.
+Window07:10:02–19:10:02UTC (21:10:02Amsterdam), including delivery and safe stop.
+Each coherent delivered increment requires source, separate Finalization,
+workspace reconciliation and authorized HA-dev install. This does not create
+consumer writers or paid model budgets. PR1248/a31 stays preserved until its turn;
+the current user mandate covers delivery authorization but does not invent review.
+
+### Risks and Next Actions
+
+Actual isolated HA interim run:33 HTTP requests PASS, Store/SQLite lost-ack and
+separate-process recovery PASS; synthetic records only. Directed tests reproduce
+and fix a nested Store lock, missing-plan release callback and own-barrier retry.
+Final freeze tests/review/checks and HA-dev rollback/install/readback remain open.
+Native/physical/audible acceptance and real model quality remain separate.
+
+### Repository State
+
+Repository State: `IMPLEMENTATION_IN_PROGRESS`. This source preparation does not
+claim its own merge, reconciliation, installation or completion of #1225.
+
+### Workspace State
+
+One own WIP on Shared Data; previous narrative WIP, unrelated lock and unique
+receipts preserved. No cleanup until actual separate Finalization and exact proof.
+
 ## Pi cache-isolated consumer binding — separate Finalization, 21 October 2026
 
 ### Repository Status
