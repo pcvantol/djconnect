@@ -1247,7 +1247,11 @@ def qualify_agent(hass, identifier):
 def explicit_subject(text: str) -> str | None:
     """Small reference lens, not an answer/knowledge engine; explicit names win chips."""
     match = re.match(
-        r"^(?:who (?:is|was)|tell me about|explain|wie (?:is|was)|vertel (?:me )?over|wer (?:ist|war)|erzähl mir (?:etwas )?über|qui (?:est|était)|parle-moi de|quién (?:es|era)|háblame de)\s+(.+?)[?.!]*$",
+        r"^(?:who (?:is|was)|tell me (?:(?:a bit|a little|something|more) )?about|explain|"
+        r"wie (?:is|was)|vertel (?:me )?(?:eens )?(?:(?:wat|iets|meer) )?over|"
+        r"wer (?:ist|war)|erz[aä]hl(?:e)? (?:mir )?(?:mal )?(?:(?:etwas|mehr|ein wenig) )?[uü]ber|"
+        r"qui (?:est|était)|parle-moi (?:un peu )?de|"
+        r"quién (?:es|era)|h[aá]blame (?:un poco )?de)\s+(.+?)[?.!]*$",
         text.strip().lstrip("¿¡"),
         re.IGNORECASE,
     )
@@ -1257,7 +1261,7 @@ def explicit_subject(text: str) -> str | None:
     # Articles such as German 'die' do not turn an explicit band name into
     # a pronoun. Only a wholly deictic subject keeps the existing selection.
     if re.fullmatch(
-        r"(?:dat|die|dit|hem|haar|deze|that|this|him|her|he|she|it|them|er|sie|das|diese|celui|celle|ça|il|elle|ese|esa|él|ella|the|de|der|le|la|el)(?:\s+(?:artist|artiest|band|album|track|moment|contribution|bijdrage|beitrag|contribución|künstler|artiste|artista|persoon|person|composer|producer|singer|componist|producent|zanger|komponist|produzent|sänger|compositeur|producteur|chanteur|compositor|productor|cantante))?",
+        r"(?:dat|die|dit|hem|haar|deze|that|this|him|her|he|she|it|them|er|sie|das|diese|celui|celle|ça|il|elle|ce|cet|cette|ese|esa|este|esta|él|ella|the|de|der|le|la|el)(?:\s+(?:artist|artiest|band|album|track|moment|contribution|bijdrage|beitrag|contribución|künstler|artiste|artista|persoon|person|composer|producer|singer|componist|producent|zanger|komponist|produzent|sänger|compositeur|producteur|chanteur|compositor|productor|cantante))?",
         subject.casefold(),
     ):
         return None

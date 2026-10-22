@@ -93,6 +93,26 @@ loading/expired states out of the live Session/Flow media projector. A regressio
 first reproduced its missing-projection failure with a genuinely attached
 projector; unit and isolated actual-HA HTTP checks cover creation and expiry.
 
+## Conversational named-artist introductions
+
+Peter reported “Vertel eens wat over Metallica” failing with a client message
+about an unconfirmed action. The actual live error was not captured. A Core
+regression independently reproduced a narrower failure: conversational fillers
+were absent from the explicit-subject lens, so this wording plus an expired
+selected contribution failed with `history_unavailable` before public research.
+The shared subject extraction now recognizes these introductory forms in all
+five languages while retaining deictic questions as contextual reads. The same
+lens drives topic detachment and public-source retrieval; no new model call,
+factual shortcut, playback command or automatic retry is introduced.
+
+The real handler regression uses synthetic public-source and agent transport
+boundaries, researches the named band and performs the existing two generation/
+assessment calls, without an old selected reference or playback action. An
+explicit stale top-level Session still fails `session_context_changed` before
+web/model work; this change grants no bypass of that Session admission. Apple
+owns the separate incorrect “action” error wording and transport/context UI.
+The screenshot does not establish which of these conditions occurred live.
+
 ## Remaining selected work in this same Core PR
 
 - Human Forecast from the next3–5 actual queued tracks and real genre evidence;

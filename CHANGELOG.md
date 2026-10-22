@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Recognize conversational named-artist questions such as “Vertel eens wat over
+  Metallica” as independent public research, so an old selected contribution
+  cannot block the new subject. Keep explicit Session and owner guards intact.
+
 - Show the exact observed album cover alongside current-recording identification
   answers, including “Wie zijn dit?”. Keep the original source and edition
   checks; do not borrow later playback artwork or add archive permission.
