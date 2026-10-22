@@ -1014,7 +1014,9 @@ class SpotifyBackend:
             items = []
         tracks = [
             track
-            for track in (_normalize_profile_track(item) for item in items if isinstance(item, dict))
+            for track in (_normalize_profile_track(item) for item in items
+                          if isinstance(item, dict) and item.get("is_playable") is not False
+                          and not item.get("restrictions") and item.get("is_local") is not True)
             if track.get("uri")
         ][:limit]
         return {

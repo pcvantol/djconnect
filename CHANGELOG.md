@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Preserve requested mixes through Ask DJ genre clarification, accept supported
+  alternatives such as techno outside the offered examples, and offer an exact
+  Spotify recommendation mix with an explicit play control. Report unavailable
+  recommendations without implying that playback was attempted.
+
 - Recover unpublished Session fact preparation once after a transient insight
   failure, with original source/settings admission and no repeat general AI
   call. Keep rejected stories, expired evidence and committed effects closed.

@@ -53,7 +53,7 @@ class MoodMusicSteeringTests(unittest.IsolatedAsyncioTestCase):
         projection=json.loads(data['text'].split('\nData:\n',1)[1])
         self.models.append(projection)
         if 'allowed' in projection:
-            reply={'decision':'selected','genre':'soul'}
+            reply={'decision':'selected','genre':'soul','request_kind':'tracks'}
         elif 'frame' in projection:
             reply={'language_ok':True,'style_ok':True,'meaning_ok':True}
         else:
@@ -590,7 +590,8 @@ class MoodMusicSteeringTests(unittest.IsolatedAsyncioTestCase):
                     active=f.fixture.manager.current_active('profile-a')
                     await f.fixture.manager.async_update_mood(owner_profile_id='profile-a',
                         session_id=active.session_id,selected_mood='party' if active.selected_mood!='party' else 'chill')
-                reply={'decision':decision,'genre':'soul' if decision=='selected' else None}
+                reply={'decision':decision,'genre':'soul' if decision=='selected' else None,
+                       'request_kind':'tracks' if decision=='selected' else None}
                 return {'response':{'speech':{'plain':{'speech':json.dumps(reply)}}}}
             return await original(hass,data,**kwargs)
         with patch('custom_components.djconnect.use_cases.run_music_command',empty),patch.object(
