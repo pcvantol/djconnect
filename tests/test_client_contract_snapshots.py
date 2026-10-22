@@ -44,6 +44,7 @@ class ClientContractSnapshotsTest(unittest.TestCase):
         from custom_components.djconnect.ask_dj.example_catalogue import capability as examples_capability
         from custom_components.djconnect.ask_dj.exploration import capability as exploration_capability
         from custom_components.djconnect.mood_music_steering import capability as mood_music_capability
+        from custom_components.djconnect.visual_director_catalogue import capability as visual_capability
         generated = {
             "success": True,
             "domain": "djconnect",
@@ -60,6 +61,7 @@ class ClientContractSnapshotsTest(unittest.TestCase):
             "ask_dj_examples": examples_capability(),
             "ask_dj_contextual_exploration": exploration_capability(),
             "session_mood_music_feedback": mood_music_capability(),
+            "vibescape_visual_director": visual_capability(),
             "transports": {
                 "http": True,
                 "websocket": True,

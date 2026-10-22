@@ -252,6 +252,7 @@ async def websocket_capabilities(hass: Any, connection: Any, msg: dict[str, Any]
     from .ask_dj.example_catalogue import capability as examples_capability
     from .ask_dj.exploration import capability as exploration_capability
     from .mood_music_steering import capability as mood_music_capability
+    from .visual_director_catalogue import capability as visual_capability
     commands = _supported_websocket_commands()
     connection.send_result(
         msg["id"],
@@ -269,6 +270,7 @@ async def websocket_capabilities(hass: Any, connection: Any, msg: dict[str, Any]
             "ask_dj_examples": examples_capability(),
             "ask_dj_contextual_exploration": exploration_capability(),
             "session_mood_music_feedback": mood_music_capability(),
+            "vibescape_visual_director": visual_capability(),
             "dj_announcement": {
                 "outputs": ["client_device", "both", "ha_speaker", "text_only"],
                 "audio_transport": "http_audio_url",

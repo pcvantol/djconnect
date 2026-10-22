@@ -24,6 +24,7 @@ from askdj_release_inventory import validate as validate_inventory, validate_mom
 # agent/provider fixtures; their PASS is not paid-model or physical acceptance.
 TEST_PATTERNS = (
     'test_pipeline.py', 'test_processor_runtime.py',
+    'test_visual_director*.py',
     'test_ask_dj*.py', 'test_askdj_contextual_release_gate.py', 'test_voice_intents.py', 'test_http_voice_helpers.py',
     'test_historical_playback.py', 'test_history_playback_application.py', 'test_captured_reply_artwork.py',
     'test_music_dna*.py', 'test_session_conversation*.py', 'test_history_deletion*.py', 'test_content_deletion*.py',

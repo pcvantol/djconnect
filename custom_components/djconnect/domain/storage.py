@@ -191,6 +191,9 @@ class ProfilePlatformStorage:
         self.authority_revision += 1
         if self.hass is not None:
             domain = self.hass.data.get("djconnect", {})
+            visual = domain.get("vibescape_visual_director")
+            if visual is not None:
+                visual.invalidate_all()
             if "tts_audio_authority_revision" in domain:
                 from ..dj_response import invalidate_private_speech_sources
                 invalidate_private_speech_sources(self.hass)

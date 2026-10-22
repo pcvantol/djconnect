@@ -159,3 +159,16 @@ Capabilities should move through maturity stages:
 6. removed.
 
 A client should advertise capabilities explicitly. Backend and clients should not infer support from version strings when a capability contract exists.
+
+## VibeScape visual-only producer v1 — 22 October2026
+
+Paired foreground iOS/macOS may feature-detect `vibescape_visual_director` /version1
+and use the dedicated bounded-text context/interpret/revoke routes. Core owns
+original admission, observed occurrence and visual-only interpretation; native
+owns microphone/STT/readiness, rendering, scene/revision/dynamics/undo and late
+response rejection. HTTP and WebSocket capabilities carry one five-language
+help catalogue fetched fresh from the connected server on every help-button
+tap/open beside the microphone; no embedded or stale-list fallback. Shared VibeCast display
+principals gain no voice, playback, generic AskDJ or HA action. Producer details:
+[Visual Director v1](docs/product/VIBESCAPE_VISUAL_DIRECTOR_V1.md). Native adoption,
+GPU/STT/physical acceptance and human visual judgment remain owning-client work.

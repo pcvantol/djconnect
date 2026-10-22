@@ -187,6 +187,7 @@ class SpotifyBackendTest(unittest.TestCase):
             calls.append((method, path))
             return {
                 "is_playing": True,
+                "device": {"id": "synthetic-exact-output", "name": "Same display name"},
                 "item": {
                     "uri": "spotify:track:observed",
                     "name": "Never enters Runtime",
@@ -205,6 +206,8 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(observed.title, "Never enters Runtime")
         self.assertEqual(observed.artist, "Hidden metadata")
         self.assertEqual(observed.state, "playing")
+        self.assertEqual(observed.target_id, "synthetic-exact-output")
+        self.assertNotIn("synthetic-exact-output", repr(observed))
         self.assertEqual(observed.artwork_url, "")
         self.assertEqual(observed.duration_ms, 180000)
         self.assertEqual(observed.position_ms, 12000)

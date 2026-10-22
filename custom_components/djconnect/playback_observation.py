@@ -51,6 +51,8 @@ class _SpotifyObservationSession:
     enrichment_media_identity: str = ""
     unavailable: bool = False
     command_revision: int = 0
+    visual_source: object = field(default_factory=object, repr=False)
+    visual_sample_serial: int = field(default=0, repr=False)
 
 
 class PlaybackObservationManager:
@@ -130,6 +132,8 @@ class PlaybackObservationManager:
         if observed is None or (session_id and observed.session_id != session_id):
             return
         self._spotify_sessions.pop(owner_profile_id, None)
+        from .visual_director_runtime import withdraw_source
+        withdraw_source(self._hass, observed)
         await session_runtime_manager(self._hass).async_invalidate_intra_track_opportunity(
             owner_profile_id=owner_profile_id, session_id=observed.session_id
         )
@@ -315,6 +319,10 @@ class PlaybackObservationManager:
                 return
             previous_media_identity = active.last_accepted_media_identity
             captured_command_revision = observed.command_revision
+            from .visual_director_runtime import capture_observer, accept_observation, invalidate_observer_metadata
+            # Capture the original source before provider and storage awaits;
+            # never turn a late result into a newly authorized admission.
+            visual_admission = capture_observer(self._hass, observed)
             try:
                 result = await SpotifyBackend(
                     self._hass, observed.integration_runtime
@@ -326,6 +334,7 @@ class PlaybackObservationManager:
                         exc.__class__.__name__,
                     )
                 observed.unavailable = True
+                invalidate_observer_metadata(self._hass, observed)
                 return
             except Exception as exc:  # noqa: BLE001
                 if not observed.unavailable:
@@ -334,6 +343,7 @@ class PlaybackObservationManager:
                         exc.__class__.__name__,
                     )
                 observed.unavailable = True
+                invalidate_observer_metadata(self._hass, observed)
                 return
             observed.unavailable = False
             if (self._spotify_sessions.get(observed.owner_profile_id) is not observed
@@ -363,6 +373,7 @@ class PlaybackObservationManager:
                 position_ms=getattr(result, "position_ms", None),
                 forecast_authority=forecast_authority,
             )
+            accept_observation(self._hass, observed, result, visual_admission)
             catalog = getattr(result, "catalog", {})
             if (result.is_playing and result.media_identity and forecast_authority()
                     and isinstance(catalog, dict) and catalog.get("artist_ids")

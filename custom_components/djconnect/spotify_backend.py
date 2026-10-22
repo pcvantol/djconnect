@@ -82,6 +82,8 @@ class SpotifyPlaybackObservation:
     duration_ms: int | None = None
     position_ms: int | None = None
     catalog: dict[str, Any] = field(default_factory=dict)
+    # Private Stage1 identity; display names are not unique output identities.
+    target_id: str = field(default="", repr=False)
 
 
 async def handle_spotify_command(
@@ -589,6 +591,7 @@ class SpotifyBackend:
             album=str(playback.get("album_name") or ""),
             artwork_url=str(playback.get("album_image_url") or ""),
             target_name=str(device.get("name") or ""),
+            target_id=device.get("id") if isinstance(device.get("id"), str) else "",
             duration_ms=_int_or_none(playback.get("duration_ms")),
             position_ms=_int_or_none(playback.get("progress_ms")),
             catalog={key: playback[key] for key in ("uri", "title", "artist", "album_name", "album_uri", "release_date", "release_date_precision", "isrc", "artist_ids") if key in playback},

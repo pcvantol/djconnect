@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib
+import json
 import types
 import unittest
 
@@ -17,7 +18,10 @@ class TransportCapabilitiesTest(unittest.TestCase):
     def test_http_capability_response_reports_current_transport_truth(self) -> None:
         view = types.SimpleNamespace(json=lambda payload: payload)
 
-        result = asyncio.run(http.DJConnectTransportCapabilitiesView.get(view, object()))
+        response = asyncio.run(http.DJConnectTransportCapabilitiesView.get(view, object()))
+        self.assertEqual(response.headers["Cache-Control"], "no-store")
+        self.assertEqual(response.headers["Referrer-Policy"], "no-referrer")
+        result = json.loads(response.text)
 
         self.assertTrue(result["success"])
         self.assertEqual(result["transports"], {"http": True, "websocket": True})
@@ -60,7 +64,10 @@ class TransportCapabilitiesTest(unittest.TestCase):
 
     def test_display_discovery_declares_support_without_fabricating_route_or_consent(self) -> None:
         view = types.SimpleNamespace(json=lambda payload: payload)
-        result = asyncio.run(http.DJConnectTransportCapabilitiesView.get(view, object()))
+        response = asyncio.run(http.DJConnectTransportCapabilitiesView.get(view, object()))
+        self.assertEqual(response.headers["Cache-Control"], "no-store")
+        self.assertEqual(response.headers["Referrer-Policy"], "no-referrer")
+        result = json.loads(response.text)
         contract = result["session_broadcast"]["paired_display_admission"]
         self.assertTrue(contract["supported"])
         self.assertEqual(contract["version"], 1)

@@ -357,7 +357,9 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
 
     async def test_http_capabilities_advertises_same_history_versions(self):
         response = await self.http.DJConnectTransportCapabilitiesView().get(None)
-        body = response["payload"]
+        import json
+        self.assertEqual(response.headers["Cache-Control"], "no-store")
+        body = json.loads(response.text)
         self.assertTrue(body["capabilities"]["session_conversation_history"])
         self.assertTrue(body["capabilities"]["session_flow_text_search"])
         self.assertEqual(body["contract_versions"]["session_conversation_history"], 1)
