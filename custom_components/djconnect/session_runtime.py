@@ -3558,6 +3558,8 @@ class DJSessionBroadcastEngine:
     owner_moment_speech_delivery: Any = field(default=None, repr=False)
     passive_grants: dict = field(default_factory=dict, repr=False)
     passive_observation: Any = field(default=None, repr=False)
+    # Content-free freshness token for actual accepted Stage1 samples only.
+    passive_observation_serial: int = field(default=0, init=False, repr=False)
     passive_state_observed: tuple = field(default_factory=lambda: (time.monotonic(), time.time()), repr=False)
     _media_revision: str = field(default="", init=False, repr=False)
     pending_events: tuple[BroadcastEventType, ...] = ()
@@ -4398,6 +4400,8 @@ class SessionRuntimeManager:
 
     def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None, monotonic_source: Callable[[], float] | None = None, *, settings_repository=None) -> None:
         self._active_by_profile: dict[str, DJSessionRuntime] = {}
+        self._visual_withdrawals: dict[tuple[str, str], tuple[object, Callable]] = {}
+        self._visual_ending: set[tuple[str, str]] = set()
         self._history_source_contexts: dict[str, dict[str, str]] = {}
         self._playback_progress_clocks: dict[str, PlaybackProgressClock] = {}
         self._intra_track_opportunities: dict[str, IntraTrackOpportunity] = {}
@@ -4414,6 +4418,22 @@ class SessionRuntimeManager:
         self._narration_providers: dict[str, tuple[str, Callable, Callable, Callable | None]] = {}
         self._opening_tasks: dict[str, asyncio.Task] = {}
         self._opening_prepared: dict[str, tuple[DJMoment, DJMoment]] = {}
+
+    def register_visual_withdrawal(self, owner_profile_id, session_id, source, callback):
+        """One bounded opaque RAM-only teardown hook; never a durable Session."""
+        key = (owner_profile_id, session_id)
+        active = self._active_by_profile.get(owner_profile_id)
+        if active is None or active.session_id != session_id or key in self._visual_ending:
+            return False
+        previous = self._visual_withdrawals.get(key)
+        if previous is not None and previous[0] is source:
+            return True
+        if previous is None and len(self._visual_withdrawals) + len(self._visual_ending) >= 256:
+            return False
+        if previous is not None:
+            previous[1]()
+        self._visual_withdrawals[key] = (source, callback)
+        return True
 
     def _migrate_legacy_presence_locked(self, owner_profile_id):
         """Canonicalize a retired live value once under the lifecycle lock.
@@ -4897,6 +4917,7 @@ class SessionRuntimeManager:
                 active.broadcast.forecast.authority = forecast_authority
             # Only a genuinely accepted backend observation starts this clock;
             # progress ticks, queue updates and snapshot reads never renew it.
+            active.broadcast.passive_observation_serial += 1
             active.broadcast.passive_observation = (time.monotonic(), time.time(), projection)
             active.broadcast.passive_state_observed = active.broadcast.passive_observation[:2]
             changed = active.broadcast.update_playback(projection)
@@ -6855,6 +6876,16 @@ class SessionRuntimeManager:
                 return None
             if session_id and active.session_id != session_id:
                 return None
+            visual_key = (owner_profile_id, active.session_id)
+            visual_withdrawal = self._visual_withdrawals.pop(visual_key, None)
+            if visual_withdrawal is not None:
+                # Latch before any persistence await. Even a failed transition
+                # or teardown callback cannot make old visual requests current.
+                self._visual_ending.add(visual_key)
+                try:
+                    visual_withdrawal[1]()
+                except Exception:
+                    pass  # No body/exception logging or baseline-end failure.
             if self._persistent_sessions is not None:
                 await self._persistent_sessions.async_transition(
                     owner_profile_id,active.session_id,PERSISTENT_SESSION_ENDED,
@@ -6892,6 +6923,7 @@ class SessionRuntimeManager:
             active.broadcast.close()
             self._narration_providers.pop(owner_profile_id, None)
             self._active_by_profile.pop(owner_profile_id, None)
+            self._visual_ending.discard(visual_key)
             self._history_source_contexts.pop(session_id, None)
             return ended
 

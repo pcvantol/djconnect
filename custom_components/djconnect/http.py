@@ -3285,6 +3285,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
         from .ask_dj.example_catalogue import capability as examples_capability
         from .ask_dj.exploration import capability as exploration_capability
         from .mood_music_steering import capability as mood_music_capability
+        from .visual_director_catalogue import capability as visual_capability
         from .session_mood import capability as mood_capability
         from .session_persona import capability as persona_capability
         from .session_presence import capability as presence_capability
@@ -3292,8 +3293,8 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
         from .session_artwork import capability as artwork_capability
         from .session_speech import capability as speech_capability
         from .passive_session import capability as passive_capability
-        return self.json(
-            {
+        return web.Response(
+            text=json.dumps({
                 "success": True,
                 "domain": DOMAIN,
                 "ha_version": VERSION,
@@ -3304,6 +3305,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "ask_dj_examples": examples_capability(),
                 "ask_dj_contextual_exploration": exploration_capability(),
                 "session_mood_music_feedback": mood_music_capability(),
+                "vibescape_visual_director": visual_capability(),
                 "active_session_mood": mood_capability(),
                 "active_session_persona": persona_capability(),
                 "active_session_presence": presence_capability(),
@@ -3312,7 +3314,9 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "passive_session_surface": passive_capability(),
                 "session_speech": speech_capability(),
                 "hybrid_transport": hybrid_transport_capability(),
-            }
+            }),
+            content_type="application/json",
+            headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},
         )
 
 

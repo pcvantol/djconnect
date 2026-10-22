@@ -1853,12 +1853,14 @@ def register_http_views(hass: HomeAssistant) -> None:
         from .display_transport import transition_views
         from .display_live import DisplayLiveView
         from .display_shell import DisplayShellView
+        from .visual_director_http import VibeScapeContextView, VibeScapeInterpretView, VibeScapeRevokeView
 
         for view in [
             *transition_views(hass), DisplayLiveView(hass), DisplayShellView(hass),
             HybridActionsView(hass), HybridContextView(hass), HybridOperationView(hass),
             HybridOperationStatusView(hass), HybridRecoveryView(hass),
             DJConnectPairedLiveView(hass),
+            VibeScapeContextView(hass), VibeScapeInterpretView(hass), VibeScapeRevokeView(hass),
             DJConnectVoiceView(hass),
             DJConnectAskDjView(hass),
             DJConnectAskDjMessageView(hass),
@@ -3407,6 +3409,9 @@ async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    # Conservative immediate revocation, before platform unload can yield.
+    from .visual_director_runtime import withdraw_all
+    withdraw_all(hass)
     from .client_retirement import is_retired_entry
 
     retired = is_retired_entry(entry)

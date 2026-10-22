@@ -22,6 +22,7 @@ def _load_modules():
     const = types.ModuleType(f"{PACKAGE}.const")
     const.DOMAIN = "djconnect"
     const.MUSIC_BACKEND_SPOTIFY_DIRECT = "spotify_direct"
+    const.DEFAULT_MUSIC_BACKEND = "spotify_direct"
     const.API_IMAGE_PROXY_BASE = "/api/djconnect/v1/image_proxy"
     sys.modules[f"{PACKAGE}.const"] = const
 

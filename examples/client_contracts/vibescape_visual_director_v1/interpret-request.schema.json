@@ -1,0 +1,124 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "client_type": {
+      "enum": [
+        "ios",
+        "macos"
+      ]
+    },
+    "device_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "visit_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "client_turn_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "base_scene_revision": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2147483647
+    },
+    "context_lease_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "observed_occurrence_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "active_scene": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "palette": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "motion": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "depth": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "roughness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "deformation": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "palette",
+        "motion",
+        "depth",
+        "roughness",
+        "deformation"
+      ]
+    },
+    "dynamics_bias": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "scope": {
+      "enum": [
+        "current_track",
+        "while_in_vibescape"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "client_type",
+    "device_id",
+    "session_id",
+    "visit_id",
+    "client_turn_id",
+    "base_scene_revision",
+    "context_lease_id",
+    "observed_occurrence_id",
+    "text",
+    "active_scene",
+    "dynamics_bias",
+    "scope"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DJConnect VibeScape Visual Director v1 interpret-request"
+}
