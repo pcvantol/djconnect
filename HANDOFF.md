@@ -1,3 +1,7 @@
+## Urgent wall4 Timer compatibility V2 producer —22October2026
+
+Same sole Core writer on clean qualified `2945bd331f17f99138c1841cdf82c5da5cba4de8` after completed1278/Final1279. First owning recovery39695635601 is failed/inconclusive; no automatic retry. Actual OS-shape/oldhelper replay proves missing Timer MainPID blocks11ce (earliest previous guard unknown). Concrete correctedhelper `c395af61f47c42633c65013d61853c66c442781832ed4225d035d9209e9f0be2` has bounded Root byte-review GO and owning176tests; no physical execution. [New closed V2 contract](docs/release/PI_RC6_WALL4_RECOVERY_CONTRACT_V2.md) preserves every V1 byte, pins c395/unchangedobserver4ae5/newfixedV2path/newV2publicrefs/schema5 and previousfailedattempt/raw identity. No APPROVED manifest, future matchingconsumer, pair/device/HA effect or broader privilege. [Verification](docs/verification/PI_RC6_WALL4_TIMER_V2_PRODUCER_20261022.md). Normal exact review/protected source+distinctFinal/raw/readback required, then actual PiV2adoption, then separate operativebinding. Vibe16purePASS2fileWIP frozen/preserved; other selectedopenwork retained. Hard22October06:00UTC unchanged.
+
 ## Closed wall4 recovery binding — source candidate,22October2026
 
 ## Closed wall4 recovery binding — separate Finalization,22October2026
