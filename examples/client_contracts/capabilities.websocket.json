@@ -75,14 +75,19 @@
     "ask_dj_contextual_dialogue": true,
     "ask_dj_examples": true,
     "ask_dj_contextual_exploration": true,
-    "session_mood_music_feedback": true,
+    "session_mood_music_feedback": false,
+    "settings_confirmation_moment": true,
     "moment_track_insight_navigation_v1": true,
+    "current_track_insight_subject_v1": true,
     "session_flow_text_search": true,
     "active_session_mood": true,
     "active_session_persona": true,
     "active_session_presence": true,
     "session_forecast": true,
     "session_history_summary": true,
+    "historical_exact_track_playback": true,
+    "captured_reply_artwork": true,
+    "vibescape_visual_director": true,
     "session_history_delete": true,
     "session_history_bulk_delete": true,
     "session_content_delete": true,
@@ -91,11 +96,7 @@
     "session_artwork": true,
     "session_speech": true,
     "passive_session_surface": true,
-    "profile_session_settings": true,
-    "current_track_insight_subject_v1": true,
-    "historical_exact_track_playback": true,
-    "captured_reply_artwork": true,
-    "vibescape_visual_director": true
+    "profile_session_settings": true
   },
   "contract_versions": {
     "profile_context": 1,
@@ -106,7 +107,9 @@
     "ask_dj_examples": 1,
     "ask_dj_contextual_exploration": 1,
     "session_mood_music_feedback": 1,
+    "settings_confirmation_moment": 1,
     "moment_track_insight_navigation": 1,
+    "current_track_insight_subject": 1,
     "session_flow_text_search": 1,
     "active_session_mood": 1,
     "active_session_persona": 1,
@@ -117,19 +120,14 @@
     "session_speech": 1,
     "passive_session_surface": 1,
     "session_history_summary": 1,
+    "historical_exact_track_playback": 1,
+    "captured_reply_artwork": 1,
+    "vibescape_visual_director": 1,
     "session_history_delete": 1,
     "session_history_bulk_delete": 1,
     "session_content_delete": 1,
     "session_history_delete_status": 1,
-    "profile_session_settings": 3,
-    "current_track_insight_subject": 1,
-    "historical_exact_track_playback": 1,
-    "captured_reply_artwork": 1,
-    "vibescape_visual_director": 1
-  },
-  "transports": {
-    "http": true,
-    "websocket": true
+    "profile_session_settings": 3
   },
   "hybrid_transport": {
     "available": true,
@@ -217,7 +215,9 @@
   },
   "session_mood_music_feedback": {
     "version": 1,
-    "trigger": "accepted_active_session_mood_change",
+    "available": false,
+    "superseded_by": "settings_confirmation_moment_v1",
+    "trigger": "historical_feedback_readback_only",
     "settings_path": "/api/djconnect/v1/profile/settings",
     "result": "existing_session_flow",
     "generation": "asynchronous_coalesced",
@@ -499,5 +499,9 @@
         ]
       }
     }
+  },
+  "transports": {
+    "http": true,
+    "websocket": true
   }
 }

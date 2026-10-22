@@ -65,7 +65,8 @@ MIX_PRESENTATION = {
 
 def capability():
     """Producer semantics; the actual proposal remains backend/owner qualified."""
-    return {"version":1, "trigger":"accepted_active_session_mood_change",
+    return {"version":1, "available":False, "superseded_by":"settings_confirmation_moment_v1",
+        "trigger":"historical_feedback_readback_only",
         "settings_path":"/api/djconnect/v1/profile/settings", "result":"existing_session_flow",
         "generation":"asynchronous_coalesced", "automatic_playback":False,
         "choices":"existing_result_set_action_ids", "supported_effects":["start_context_now"],

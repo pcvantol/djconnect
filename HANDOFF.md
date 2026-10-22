@@ -3372,3 +3372,13 @@ Source delivery/Finalization and installed/native acceptance remain distinct.
 No HA-dev install/restart, Swift change or receiver deployment is included.
 No dependency upgrade is required; frozen runtime dependencies and existing
 five-language UI resources are retained for this bounded auth correction.
+
+Accepted settings confirmation v1 is being qualified in the same draft PR1290:
+one owner-only narrative Moment per successful actual Mood/Persona/Presence
+operation, in the accepted style, including the one explicit Music-only response.
+No-op/replay/automatic Mood changes produce no extra semantic event. Profile-only
+changes acknowledge without Session creation. SQL history-off, original-clock
+postcommit recovery and existing speech/output choices are preserved. The old
+automatic Mood mix-question trigger is withdrawn; explicit Ask DJ mix offers
+are unaffected. See docs/product/SETTINGS_CONFIRMATION_MOMENT_V1.md. Apple/native
+and audible acceptance remain open. No merge/install until direct Peter merge.

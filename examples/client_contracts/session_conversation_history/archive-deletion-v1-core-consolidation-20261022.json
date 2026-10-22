@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "qualification": "ACTUAL_ISOLATED_HA_PAIRED_HTTP_TLS_WEBSOCKET_STORE_SQLITE_SEPARATE_PROCESS_RECOVERY_SYNTHETIC_ONLY",
+  "qualification": "paired HTTP/WebSocket/HA Store/SQLite plus separate-process recovery; synthetic data only; no native/installed acceptance",
   "ha_sdk_version": "2026.10.0",
   "source_pins": {
     "custom_components/djconnect/__init__.py": "643363884a9e211fd58f84fe0ff6e1b213166e2caf60fed74a5d642c6cea62d6",
     "custom_components/djconnect/api_handlers.py": "5dd6d9c59d00641ce268df0a48a5ab6b82e49b79c50a31cab171159ba0659142",
     "custom_components/djconnect/ask_dj/dialogue.py": "6ae94a3290b4526ab124d7ada0d371ba23572522c7e204d0dfdab442ee901761",
     "custom_components/djconnect/ask_dj_history.py": "d421ab2d17f85746671a0e242e63a4d429c021b6346be05f11bd551c60c6a325",
-    "custom_components/djconnect/capability_contract.py": "ab44750c5c8ff6f569cd7860dd3c9c928a98d4474fdbba228b2e2e1023a50c6d",
+    "custom_components/djconnect/capability_contract.py": "e6475b84ce72d16fa71678be4bb5edbbfe72969d4e436fa52f339e28435c238d",
     "custom_components/djconnect/dj_response.py": "464ccc3aea7c812bd389daf8b3682305cc0e7bbe5b65c47e5546ceec74859776",
     "custom_components/djconnect/historical_projection_query.py": "0d1ae0a71ec19bb0a517a9762d19904125ec4ad30b05218dd5f643a1a3af8ff1",
     "custom_components/djconnect/history_deletion.py": "adf077184493e6f9a5a6b57ce21f13815e188da5b711d23226d9fffb5ebcf5f4",
@@ -16,14 +16,14 @@
     "custom_components/djconnect/http.py": "f35723230b74b6ecb504cbc3a236db3c631ae9973a4cdbe38399986065e335d6",
     "custom_components/djconnect/hybrid_service.py": "b25320b38560df85dc4b081d6f70c88aadb29e98685459a7f76554b9a2060fae",
     "custom_components/djconnect/persistence/bootstrap.py": "cb239bd1fb477800436baee9a7496e5af48429f890dcdb5e1fa1ce01cad1b27d",
-    "custom_components/djconnect/persistence/history.py": "ca24682d2c5bc9c11f032780aa71761bb09355de04313f5e8100192fe591d774",
+    "custom_components/djconnect/persistence/history.py": "8aa351534cee24a2a40a090f9797360371e12e920a791bb88ce287a0a5ec7102",
     "custom_components/djconnect/persistence/history_deletion.py": "38150f6f0685261d7be745ce3e4789279ba760af21a02a9c5b12cee281fcda3c",
     "custom_components/djconnect/persistence/schema.py": "d8b3e0daa4c3263f6b660a78c7a51ffb385840c08a9827fc720823fdb8f2300e",
-    "custom_components/djconnect/session_speech.py": "e1974a3efb3da8208034e5ff095486f7f31264131f392163f1ddcebb32cf9f07"
+    "custom_components/djconnect/session_speech.py": "779d2316e3ca93df81d18c5a880ef1ec731f48f22c5bc963af75927681f7d805"
   },
   "harness": "scripts/verification/verify_archive_deletion_http.py",
   "harness_sha256": "5d36f90bac1d6412a29aeea055d57053cddba991ba39e58b3753092ff99b75f7",
-  "actual_ha_receipt_sha256": "09a5472e139b32c4b9e614d91c5372585235a89ca2da9745b729154ecb27f144",
+  "actual_ha_receipt_sha256": "59fb3789eabafba3b22e3eba68d9ebf259afcfa66c1b294159c318f1a6979c2b",
   "requests_observed": 37,
   "cases": [
     "actual_paired_foreign_target_hidden",
@@ -40,9 +40,9 @@
   },
   "examples": {
     "single_request": {
-      "session_id": "session-c1ae2c1605b04e49bc2777bd76762ad8",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:05ec96e308ca6c5e0d34842d34d2871c4ca480d92d0b328cb4e4ea06e8466d62",
-      "operation_id": "01a163c9-1dd1-7000-8000-000000000001",
+      "session_id": "session-6095788eb96f4b24b3ec1d27e0282527",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:27d871f3943eb76a0244083286774bad663ceb78abf445d3506e3274d900b868",
+      "operation_id": "01a163fd-abae-7000-8000-000000000001",
       "confirmed": true,
       "history_contract_version": 2
     },
@@ -53,96 +53,96 @@
     "single_status_query": {
       "contract_version": "1",
       "operation": "single",
-      "operation_id": "01a163c9-1dd1-7000-8000-000000000001",
-      "session_id": "session-c1ae2c1605b04e49bc2777bd76762ad8",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:05ec96e308ca6c5e0d34842d34d2871c4ca480d92d0b328cb4e4ea06e8466d62"
+      "operation_id": "01a163fd-abae-7000-8000-000000000001",
+      "session_id": "session-6095788eb96f4b24b3ec1d27e0282527",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:27d871f3943eb76a0244083286774bad663ceb78abf445d3506e3274d900b868"
     },
     "single_pending_status": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "operation_id": "01a163c9-1dd1-7000-8000-000000000001",
+      "operation_id": "01a163fd-abae-7000-8000-000000000001",
       "operation": "single",
-      "request_digest": "e3a3b7a8f73189465b6430f38e152df32b1e71f3eb147f8b300f70e99de9343e",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:05ec96e308ca6c5e0d34842d34d2871c4ca480d92d0b328cb4e4ea06e8466d62",
-      "session_id": "session-c1ae2c1605b04e49bc2777bd76762ad8",
+      "request_digest": "104916ad0239e6c815966a2fbe92266e31d70be7a4151283334971401385e684",
+      "session_id": "session-6095788eb96f4b24b3ec1d27e0282527",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:27d871f3943eb76a0244083286774bad663ceb78abf445d3506e3274d900b868",
       "state": "pending",
       "definitive": false
     },
     "single_response": {
       "success": true,
       "schema_version": 1,
-      "operation_id": "01a163c9-1dd1-7000-8000-000000000001",
+      "operation_id": "01a163fd-abae-7000-8000-000000000001",
       "owner_profile_id": "profile-a",
       "deleted": true,
-      "deleted_session_id": "session-c1ae2c1605b04e49bc2777bd76762ad8"
+      "deleted_session_id": "session-6095788eb96f4b24b3ec1d27e0282527"
     },
     "single_completed_status": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "operation_id": "01a163c9-1dd1-7000-8000-000000000001",
+      "operation_id": "01a163fd-abae-7000-8000-000000000001",
       "operation": "single",
-      "request_digest": "e3a3b7a8f73189465b6430f38e152df32b1e71f3eb147f8b300f70e99de9343e",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:05ec96e308ca6c5e0d34842d34d2871c4ca480d92d0b328cb4e4ea06e8466d62",
-      "session_id": "session-c1ae2c1605b04e49bc2777bd76762ad8",
+      "request_digest": "104916ad0239e6c815966a2fbe92266e31d70be7a4151283334971401385e684",
+      "session_id": "session-6095788eb96f4b24b3ec1d27e0282527",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:27d871f3943eb76a0244083286774bad663ceb78abf445d3506e3274d900b868",
       "state": "completed",
       "definitive": true,
       "receipt": {
         "success": true,
         "schema_version": 1,
-        "operation_id": "01a163c9-1dd1-7000-8000-000000000001",
+        "operation_id": "01a163fd-abae-7000-8000-000000000001",
         "owner_profile_id": "profile-a",
         "deleted": true,
-        "deleted_session_id": "session-c1ae2c1605b04e49bc2777bd76762ad8"
+        "deleted_session_id": "session-6095788eb96f4b24b3ec1d27e0282527"
       }
     },
     "snapshot_response": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "snapshot_id": "tSPz5wRVR-8RITfddYRDbYNON9eM1laWhSMuCJnzbJ4",
+      "snapshot_id": "BBukXCb8JKdlwHIhnvacAFpQZgl4CZGFgcSZ_2RYH3w",
       "target_count": 3,
-      "created_at": "2026-10-22T13:24:48.342012+00:00",
-      "expires_at": "2026-10-22T13:29:48.342012+00:00"
+      "created_at": "2026-10-22T14:22:12.773651+00:00",
+      "expires_at": "2026-10-22T14:27:12.773651+00:00"
     },
     "bulk_request": {
-      "snapshot_id": "tSPz5wRVR-8RITfddYRDbYNON9eM1laWhSMuCJnzbJ4",
-      "operation_id": "01a163c9-2271-7000-8000-000000000002",
+      "snapshot_id": "BBukXCb8JKdlwHIhnvacAFpQZgl4CZGFgcSZ_2RYH3w",
+      "operation_id": "01a163fd-b147-7000-8000-000000000002",
       "confirmed": true
     },
     "bulk_response": {
       "success": true,
       "schema_version": 1,
-      "operation_id": "01a163c9-2271-7000-8000-000000000002",
+      "operation_id": "01a163fd-b147-7000-8000-000000000002",
       "owner_profile_id": "profile-a",
       "deleted": true,
-      "snapshot_id": "tSPz5wRVR-8RITfddYRDbYNON9eM1laWhSMuCJnzbJ4",
+      "snapshot_id": "BBukXCb8JKdlwHIhnvacAFpQZgl4CZGFgcSZ_2RYH3w",
       "deleted_session_count": 3
     },
     "bulk_status_query": {
       "contract_version": "1",
       "operation": "all",
-      "operation_id": "01a163c9-2271-7000-8000-000000000002",
-      "snapshot_id": "tSPz5wRVR-8RITfddYRDbYNON9eM1laWhSMuCJnzbJ4"
+      "operation_id": "01a163fd-b147-7000-8000-000000000002",
+      "snapshot_id": "BBukXCb8JKdlwHIhnvacAFpQZgl4CZGFgcSZ_2RYH3w"
     },
     "bulk_completed_status": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "operation_id": "01a163c9-2271-7000-8000-000000000002",
+      "operation_id": "01a163fd-b147-7000-8000-000000000002",
       "operation": "all",
-      "request_digest": "437accd0d9284bda6f6e6e0867e66c4df9f863cbb488502abead6d68875886a0",
-      "snapshot_id": "tSPz5wRVR-8RITfddYRDbYNON9eM1laWhSMuCJnzbJ4",
+      "request_digest": "669c57b97473acf7a5b89cdbe95578b80232c94800a27d317a8693b5a03a1cf7",
+      "snapshot_id": "BBukXCb8JKdlwHIhnvacAFpQZgl4CZGFgcSZ_2RYH3w",
       "state": "completed",
       "definitive": true,
       "receipt": {
         "success": true,
         "schema_version": 1,
-        "operation_id": "01a163c9-2271-7000-8000-000000000002",
+        "operation_id": "01a163fd-b147-7000-8000-000000000002",
         "owner_profile_id": "profile-a",
         "deleted": true,
-        "snapshot_id": "tSPz5wRVR-8RITfddYRDbYNON9eM1laWhSMuCJnzbJ4",
+        "snapshot_id": "BBukXCb8JKdlwHIhnvacAFpQZgl4CZGFgcSZ_2RYH3w",
         "deleted_session_count": 3
       }
     }
@@ -160,5 +160,5 @@
     "sha256": "4a064175859e423673af34c62b345ce924de83008e4f1b473d1ac9412f00be4a",
     "disposition": "immutable prior producer evidence; current source requalified separately"
   },
-  "requalification_context": "Current Music DNA artwork API projection; actual network-isolated disposable HA; historical fixtures unchanged; no installed/native/live-provider claim."
+  "requalification_context": "Same draft PR1290 accepted settings confirmation increment; actual isolated HA source snapshot. No installed or native claim."
 }

@@ -689,7 +689,7 @@ class MoodSettingsTriggerTests(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.f.asyncTearDown()
 
-    async def test_only_confirmed_active_mood_changes_schedule_once_and_reads_do_not(self):
+    async def test_settings_changes_confirm_without_scheduling_an_extra_mix_question(self):
         from custom_components.djconnect import mood_music_steering as m
         f=self.f
         scheduled=[]
@@ -708,10 +708,11 @@ class MoodSettingsTriggerTests(unittest.IsolatedAsyncioTestCase):
             before,_=await f.read()
             accepted,status=await f.choose(before,{'mood':'party'},counter=2)
             self.assertEqual(status,200,accepted)
-            self.assertEqual(len(scheduled),1)
-            self.assertIn('mood_music_feedback',accepted)
+            self.assertEqual(scheduled,[])
+            self.assertIn('settings_confirmation',accepted)
+            self.assertNotIn('mood_music_feedback',accepted)
             replay,status=await f.choose(before,{'mood':'party'},counter=2)
             self.assertEqual(status,200,replay)
             self.assertTrue(replay['replayed'])
             await f.read()
-            self.assertEqual(len(scheduled),1)
+            self.assertEqual(scheduled,[])

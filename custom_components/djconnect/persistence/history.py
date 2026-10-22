@@ -746,6 +746,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
             if body.get("archive_basis") not in {
                 "cc0_normalized_fields_v1",
                 "runtime_authored_direction_v1",
+                "runtime_accepted_settings_v1",
                 "public_artist_narration_v1",
             }:
                 continue

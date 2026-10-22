@@ -23,6 +23,7 @@ LITERAL_PROCESSING_BASES = frozenset({
     "spotify_owner_local_read_v1", "retained_owner_local_read_v1", "accepted_local_reply",
     "core_owned_voice_preview_v1",
     "core_owned_persona_reaction_v1",
+    "runtime_accepted_settings_v1",
 })
 
 
@@ -349,7 +350,9 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
         return unavailable(reference, "silence_has_no_speech")
     from .session_opening import opening_context
     opening = opening_context(moment)
-    if (broadcast.state.selected_presence == 'music_only'
+    from .settings_confirmation import context as settings_context
+    confirmation = settings_context(moment)
+    if confirmation is None and (broadcast.state.selected_presence == 'music_only'
             or (opening is not None and opening.presence == 'music_only')):
         autoplay = False
     output = getattr(broadcast, 'owner_speech_output', None)
@@ -359,12 +362,15 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
         admission = next((a for a in broadcast.native_delivery()["admissions"]
                           if a["moment_id"] == moment.moment_id), None)
     boundary = broadcast._moment_delivery_boundaries.get(moment.moment_id)
+    if confirmation is not None and (not admission or not admission['current_display_allowed']):
+        return unavailable(reference, 'original_source_unavailable')
     if (boundary is None or not admission or admission["qualification"] != "qualified"
             or not (admission["current_display_allowed"] or admission["active_flow_display_allowed"])):
         return unavailable(reference, "original_source_unavailable")
     # No read renews the source window. Current-only catalog retains its display
     # deadline; CC0 Flow uses the source deadline, authored direction1800s.
-    expiry = (admission["source_expires_at"] or boundary.utc_at(boundary.published_monotonic + 1800)
+    expiry = (admission['display_expires_at'] if confirmation is not None else
+              admission["source_expires_at"] or boundary.utc_at(boundary.published_monotonic + 1800)
               if admission["active_flow_display_allowed"] else admission["display_expires_at"])
     if not expiry or datetime.fromisoformat(expiry).timestamp() <= time.time():
         return unavailable(reference, "original_source_expired")
@@ -404,7 +410,9 @@ async def resolve_moment(hass, profile_id, reference):
         moment_id=moment.moment_id)
     source = moment.source_fact
     from .public_artist_narration import ResearchMomentAcceptance
-    guard.processor_basis = ("qualified_dialogue_v1" if type(moment.narration_acceptance) is ResearchMomentAcceptance
+    from .settings_confirmation import context as settings_context
+    guard.processor_basis = ("runtime_accepted_settings_v1" if settings_context(moment) is not None
+        else "qualified_dialogue_v1" if type(moment.narration_acceptance) is ResearchMomentAcceptance
         else "spotify_owner_local_read_v1" if (source is not None and source.provider == "Spotify") or moment.observed_playback is not None or moment.genre_transition is not None
         else "cc0_normalized_fields_v1" if source is not None else "runtime_authored_direction_v1")
     broadcast.speech_cleanup = lambda: invalidate_private_speech_sources(hass, session_id=active.session_id)
@@ -417,7 +425,7 @@ def retained_projection(entry):
     """Pure owner-entry speech state; no resources or new read-time deadline."""
     reference = {"session_id": entry["session_id"], "entry_id": entry["entry_id"]}
     if entry["kind"] == "dj_moment" and entry.get("archive_basis") in {
-            "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "owner_metadata_narration_v1", "public_artist_narration_v1"}:
+            "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "runtime_accepted_settings_v1", "owner_metadata_narration_v1", "public_artist_narration_v1"}:
         style = {"language": entry.get("locale"), "persona": entry.get("persona"),
                  "mood": entry.get("mood"),
                  "persona_revision": entry.get("persona_revision")}

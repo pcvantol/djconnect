@@ -42,7 +42,8 @@ def source_deadline(fact: QualifiedSessionFact) -> float:
 
 def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
               session_id: str, active: bool, flow_ids: set[str],
-              playback_item_id: str, playing: bool, now: float) -> dict[str, Any]:
+              playback_item_id: str, playing: bool, now: float,
+              settings_revision: tuple[str, int] | None = None) -> dict[str, Any]:
     """Fail closed without inferring provenance from rendered text or names."""
     result = {
         "moment_id": moment.moment_id,
@@ -80,6 +81,17 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
         return result
     source = getattr(moment, 'source_fact', None)
     history_allowed = False
+    from .settings_confirmation import context as settings_context
+    confirmation = settings_context(moment)
+    if confirmation is not None:
+        data = confirmation.data()
+        result['qualification'] = 'qualified'
+        result['display_expires_at'] = boundary.utc_at(deadline)
+        result['active_flow_display_allowed'] = moment.moment_id in flow_ids
+        result['current_display_allowed'] = bool(
+            settings_revision == (data['settings_generation'], data['settings_revision'])
+            and boundary.published_monotonic <= now < deadline)
+        return result
     from .public_artist_narration import ResearchMomentAcceptance, admitted
     if type(getattr(moment, 'narration_acceptance', None)) is ResearchMomentAcceptance:
         receipt = moment.narration_acceptance
