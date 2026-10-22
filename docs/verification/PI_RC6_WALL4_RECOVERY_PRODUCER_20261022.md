@@ -31,3 +31,22 @@ is present; personal OAuth expired with0entries; no new human readiness or code
 loop. Hard Core deadline22October06:00UTC/08:00Amsterdam unchanged.
 
 Actual validation: 3 synthetic positive cases and 149 rejection cases PASS; no device effects or approval/readiness claim. Existing17 lifecycle/roadmap/HACS tests PASS; changed Ruff, offline projection and diff PASS. All16 prior Pi release files retain their exact SHA256. Schema datetime format alone is not a timestamp verifier: the harness uses an explicit standard-library aware timestamp check because optional RFC3339 plugins are absent; consumers must enforce the normative semantic timestamp check independently. No dependency installed or lock/runtime file changed.
+
+
+## Additive latest-failure V3 draft in consolidation PR1290
+
+The actual next failed recovery39775941080 requires a new closed discriminator,
+not a free-text V2 authority override. The selected additive draft is
+[contract V3](../release/PI_RC6_WALL4_RECOVERY_CONTRACT_V3.md),
+[request V3](../release/PI_RC6_WALL4_RECOVERY_REQUEST_V3.schema.json) and
+[manifest V3](../release/PI_RC6_WALL4_RECOVERY_MANIFEST_V3.schema.json).
+Its machine-closed original raw binding is3058bytes/SHA256
+`eb57af222e6be4f9d7e9e40be488f3f395ae2e6e94a583e6d4ea7e9d839c6b4d`,
+artifact12423814908, and preserves the exact nested original V1 attempt.
+`verify_pi_wall4_recovery_v3_contract.py` qualifies only synthetic schemas and
+reference joins. V2-path in V3 is explicitly rejected. Helperc395, observer4ae5,
+original exclusive durable claim and all80 runtime bytes remain unchanged.
+This is draft producer preparation, not an operative manifest, qualified
+consumer pin, dispatch, root grant or repair claim. Protected source/Final and
+actual matching consumer/operative binding remain separate after Peter's
+explicit merge. Historical producer/delivery evidence above stays unchanged.
