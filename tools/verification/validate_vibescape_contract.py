@@ -31,7 +31,7 @@ def validate():
     for row in structural["schema_negative"]:
         assert list(validators[row["schema"]].iter_errors(row["value"])), row["name"]
         negative += 1
-    fixture = json.loads((DIRECTORY / "actual-ha-wire.json").read_text())
+    fixture = json.loads((DIRECTORY / "actual-ha-wire-story-recovery-20261022.json").read_text())
     examples = fixture["examples"]
     for key, schema in (
         ("context_request", "context-request"),

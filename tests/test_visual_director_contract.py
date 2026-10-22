@@ -14,7 +14,7 @@ DIRECTORY = ROOT / "examples/client_contracts/vibescape_visual_director_v1"
 
 class VisualDirectorContractTests(unittest.TestCase):
     def fixture(self):
-        return json.loads((DIRECTORY / "actual-ha-wire.json").read_text())
+        return json.loads((DIRECTORY / "actual-ha-wire-story-recovery-20261022.json").read_text())
 
     def test_actual_registered_wire_pins_current_producer_and_declares_boundary(self):
         data = self.fixture()

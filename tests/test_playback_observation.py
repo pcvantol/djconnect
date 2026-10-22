@@ -7,7 +7,7 @@ from pathlib import Path
 import sys
 import types
 import unittest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -112,6 +112,20 @@ class PlaybackObservationTest(unittest.TestCase):
         self.hass = types.SimpleNamespace(data={})
         self.manager = self.runtime.session_runtime_manager(self.hass)
         self.observer = self.observation.playback_observation_manager(self.hass)
+        # These unit observations use object() runtimes without a paired
+        # Profile. Declare that boundary instead of depending on test order
+        # to preload a real Profile/HA module graph.
+        from custom_components.djconnect import forecast_imagery
+        patcher = patch.object(forecast_imagery, "artist_authority", return_value=lambda: False)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        profile = types.ModuleType(f"{PACKAGE}.profile_context")
+        def absent_storage(_hass):
+            raise RuntimeError("synthetic runtime has no paired Profile")
+        profile.profile_storage = absent_storage
+        patcher = patch.dict(sys.modules, {profile.__name__: profile})
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def _observation(self, uri: str = "", *, playing: bool = True, artwork_url: str = ""):
         return types.SimpleNamespace(
@@ -169,6 +183,170 @@ class PlaybackObservationTest(unittest.TestCase):
         asyncio.run(self.scheduled[0]["callback"](None))
         active = asyncio.run(self.manager.async_get_active("profile-a"))
         self.assertEqual(len(active.moment_engine.moments), 1)
+
+    def test_initial_insight_failure_recovers_on_same_recording(self) -> None:
+        self._initial_insight_recovery("facts")
+
+    def test_empty_fact_recovery_never_retries_general_insight(self) -> None:
+        self._initial_insight_recovery("empty")
+
+    def test_failed_fact_recovery_is_once_only(self) -> None:
+        self._initial_insight_recovery("failure")
+
+    def test_recovery_does_not_rearm_after_authority_changed_back(self) -> None:
+        self._initial_insight_recovery("authority")
+
+    def test_recovery_does_not_rearm_after_presence_changed_back(self) -> None:
+        self._initial_insight_recovery("presence")
+
+    def test_recovery_rejects_authority_change_during_source_await(self) -> None:
+        self._initial_insight_recovery("late_authority")
+
+    def test_recovery_rejects_original_source_loss(self) -> None:
+        self._initial_insight_recovery("source")
+
+    def test_concurrent_poll_cannot_repeat_fact_recovery(self) -> None:
+        self._initial_insight_recovery("concurrent")
+
+    def test_later_recording_empty_recovery_never_enters_legacy_planning(self) -> None:
+        self._initial_insight_recovery("later_empty")
+
+    def test_cancelled_recovery_cannot_be_repeated(self) -> None:
+        self._initial_insight_recovery("cancel")
+
+    def test_recovery_cannot_publish_expired_facts(self) -> None:
+        self._initial_insight_recovery("expired")
+
+    def test_recovery_does_not_rearm_after_pause_resume(self) -> None:
+        self._initial_insight_recovery("pause")
+
+    def _initial_insight_recovery(self, outcome):
+        async def scenario():
+            from custom_components.djconnect import session_facts, forecast_imagery
+
+            now = [100.0]
+            self.manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: now[0])
+            self.hass.data.setdefault("djconnect", {})["session_runtime_manager"] = self.manager
+            session = await self.manager.async_start(
+                owner_profile_id="profile-a", music_backend="spotify_direct", locale="nl"
+            )
+            session = await self.manager.async_update_presence(
+                owner_profile_id=session.owner_profile_id, session_id=session.session_id,
+                selected_presence="presenter",
+            )
+            uri = "spotify:track:" + "A" * 22
+            catalog = {"uri": uri, "title": "Test recording", "artist": "Test artist"}
+            qualified_catalog = {**catalog, "album_name": "Test edition",
+                                 "album_uri": "spotify:album:" + "B" * 22,
+                                 "release_date": "2001-03-04", "release_date_precision": "day"}
+            facts = tuple(session_facts.catalog_facts(qualified_catalog))
+            self.assertTrue(facts)
+            observation = types.SimpleNamespace(
+                is_playing=True, state="playing", media_identity=uri,
+                title=catalog["title"], artist=catalog["artist"], album="Test edition",
+                artwork_url="", target_name="", duration_ms=300000, position_ms=0,
+                catalog=catalog,
+            )
+            self.spotify.SpotifyBackend.responses = [observation] * 8
+            if outcome == "later_empty":
+                self.spotify.SpotifyBackend.responses.insert(0, self._observation("spotify:track:" + "C" * 22))
+            source_calls = 0
+            insight_calls = 0
+            source_valid = [True]
+            started, release = asyncio.Event(), asyncio.Event()
+
+            async def resolve(_catalog):
+                nonlocal source_calls
+                source_calls += 1
+                if source_calls == 1 or outcome in {"empty", "later_empty"}:
+                    return ()
+                if outcome == "failure":
+                    raise TimeoutError("synthetic source unavailable")
+                if outcome == "late_authority":
+                    storage.authority_revision += 1
+                if outcome in {"concurrent", "cancel"}:
+                    started.set()
+                    await release.wait()
+                if outcome == "expired":
+                    from dataclasses import replace
+                    return tuple(replace(f, source_expires_at=0) for f in facts)
+                return facts
+
+            async def insight():
+                nonlocal insight_calls
+                insight_calls += 1
+                raise TimeoutError("synthetic unavailable insight")
+
+            # Synthetic admission boundary; no Profile persistence or artwork I/O.
+            profile = types.ModuleType(f"{PACKAGE}.profile_context")
+            storage = types.SimpleNamespace(authority_revision=1)
+            def no_storage(_hass):
+                return storage
+            profile.profile_storage = no_storage
+            forbidden = AsyncMock(side_effect=AssertionError("fact recovery entered general planning"))
+            fallback = AsyncMock(side_effect=AssertionError("fact recovery assembled legacy insight"))
+            narration = AsyncMock(side_effect=AssertionError("fact recovery entered general narration"))
+            with patch.dict(sys.modules, {profile.__name__: profile}), \
+                    patch.object(forecast_imagery, "artist_authority", return_value=lambda: source_valid[0]), \
+                    patch.object(self.spotify.SpotifyBackend, "async_observe_current_genres",
+                                 new=AsyncMock(return_value={}), create=True), \
+                    patch.object(session_facts, "session_facts_resolver",
+                                 return_value=types.SimpleNamespace(resolve=resolve)), \
+                    patch.object(type(session.planning_coordinator), "async_coordinate_track_started", new=forbidden), \
+                    patch.object(self.runtime.DJKnowledgeEngine, "async_assemble_track_context", new=fallback), \
+                    patch.object(self.manager, "_async_enrich_runtime_moment", new=narration):
+                await self.observer.async_start_spotify(
+                    integration_runtime=object(), session=session, insight_provider=insight
+                )
+                if outcome == "later_empty":
+                    await self.scheduled[0]["callback"](None)
+                self.assertEqual(len(session.broadcast.state.dj_moments), 0)
+                now[0] += 15
+                await self.scheduled[0]["callback"](None)
+                self.assertEqual(source_calls, 1)
+                if outcome == "authority":
+                    storage.authority_revision += 1
+                elif outcome == "source":
+                    source_valid[0] = False
+                elif outcome == "presence":
+                    for presence in ("music_only", "presenter"):
+                        await self.manager.async_update_presence(
+                            owner_profile_id=session.owner_profile_id, session_id=session.session_id,
+                            selected_presence=presence)
+                elif outcome == "pause":
+                    await self.manager.async_update_playback_projection(
+                        owner_profile_id=session.owner_profile_id, session_id=session.session_id,
+                        state="paused", media_identity=uri, title=catalog["title"],
+                        artist=catalog["artist"], album="Test edition",
+                        duration_ms=300000, position_ms=0)
+                now[0] += 15
+                if outcome in {"concurrent", "cancel"}:
+                    pending = asyncio.create_task(self.scheduled[0]["callback"](None))
+                    await asyncio.wait_for(started.wait(), 2)
+                    await self.scheduled[0]["callback"](None)
+                    self.assertEqual(source_calls, 2)
+                    if outcome == "cancel":
+                        pending.cancel()
+                    else:
+                        release.set()
+                    await pending
+                else:
+                    await self.scheduled[0]["callback"](None)
+                if outcome == "source":
+                    source_valid[0] = True
+                expected_sources = 1 if outcome in {"authority", "presence", "source", "pause"} else 2
+                expected_moments = int(outcome in {"facts", "concurrent"})
+                for _ in range(2):
+                    now[0] += 15
+                    await self.scheduled[0]["callback"](None)
+                self.assertEqual(source_calls, expected_sources)
+                self.assertEqual(insight_calls, 1)
+                self.assertEqual(len(session.broadcast.state.dj_moments), expected_moments)
+                forbidden.assert_not_called()
+                fallback.assert_not_called()
+                narration.assert_not_called()
+
+        asyncio.run(scenario())
 
     def test_observer_delivers_a_second_evidenced_type_on_one_long_track(self) -> None:
         async def scenario():

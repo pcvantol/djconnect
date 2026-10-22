@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Recover unpublished Session fact preparation once after a transient insight
+  failure, with original source/settings admission and no repeat general AI
+  call. Keep rejected stories, expired evidence and committed effects closed.
+
 - Prepare Brand V2 from the exact approved glass-headphones source: transparent
   glass contours, headset-only micro icons, primary/compact light/dark wordmarks,
   consistent HA packaging and canonical VibeCast brand input. Add deterministic

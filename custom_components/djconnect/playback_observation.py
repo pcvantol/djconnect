@@ -433,7 +433,10 @@ class PlaybackObservationManager:
         observed.enrichment_task = current_task
         observed.enrichment_media_identity = result.media_identity
         try:
-            async def qualified_insight() -> dict[str, Any]:
+            def source_authorize():
+                return False
+            async def qualified_insight(*, facts_only: bool = False) -> dict[str, Any]:
+                nonlocal source_authorize
                 from .session_facts import session_facts_resolver, catalog_facts, observed_genre_facts
                 catalog = getattr(result, "catalog", {})
                 # Capture before source awaits. Neither a catalogue descriptor
@@ -463,6 +466,7 @@ class PlaybackObservationManager:
                     return not source_lost
 
                 admitted_genre_lookup = genre_current()
+                source_authorize = genre_current
                 async def facts() -> tuple[Any, ...]:
                     try:
                         return await session_facts_resolver(self._hass).resolve(catalog)
@@ -483,6 +487,8 @@ class PlaybackObservationManager:
                             title=getattr(result, "title", ""), artist=getattr(result, "artist", ""))
                         evidence = (*evidence, *genres[:1])
                     return {"_qualified_facts": evidence}
+                if facts_only:
+                    return {"_qualified_facts": ()}
                 return {**await observed.insight_provider(), "_qualified_facts": ()}
 
             await session_runtime_manager(self._hass).async_process_track_started(
@@ -492,6 +498,8 @@ class PlaybackObservationManager:
                 media_identity=result.media_identity,
                 require_current_playback=True,
                 allow_initial_facts=bool(getattr(result, "catalog", {})),
+                recovery_insight_provider=lambda: qualified_insight(facts_only=True),
+                recovery_authorize=lambda: source_authorize(),
             )
         except asyncio.CancelledError:
             await session_runtime_manager(self._hass).async_restore_track_started_media(
