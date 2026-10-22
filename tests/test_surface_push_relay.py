@@ -162,6 +162,22 @@ class RelayTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaisesRegex(SurfacePushError, "surface_relay_response_invalid"):
                 await self.call()
 
+    async def test_response_json_cannot_normalize_duplicate_fields_or_non_utf8(self):
+        for body in (b'{"success":false,"success":true}',
+                     b'{"success":true,"nested":{"revision":1,"revision":2}}',
+                     '{"success":true}'.encode("utf-16"),
+                     b'{"success":true,"revision":NaN}',
+                     b'{"success":true,"revision":1e999}',
+                     b'{"success":true,"message":"\\ud800"}'):
+            with self.subTest(body=body), self.assertRaisesRegex(
+                    SurfacePushError, "surface_relay_response_invalid"):
+                self.response = Response(body)
+                before = len(self.calls)
+                try:
+                    await self.call()
+                finally:
+                    self.assertEqual(len(self.calls), before + 1)
+
     async def test_authority_withdrawn_during_reply_cannot_accept_result(self):
         def withdraw():
             self.valid = False

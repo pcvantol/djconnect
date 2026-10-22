@@ -11,9 +11,30 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .central_api import _api_base_url, _assert_safe_payload
 from .surface_push_contract import SurfacePushError, require
 from .surface_push_purpose import SurfacePurposeCredential
+from .surface_push_wire import canonical
 
 ROUTES = {name: "/v1/push/surface/" + name for name in ("register", "revoke", "event", "status")}
 MAX_RESPONSE_BYTES = 8192
+
+
+def strict_response(raw):
+    """Never turn duplicate or non-UTF8 upstream fields into an apparent ACK."""
+    def pairs(values):
+        result = {}
+        for key, value in values:
+            require(key not in result, "surface_relay_response_invalid", 502)
+            result[key] = value
+        return result
+    def constant(_):
+        raise SurfacePushError("surface_relay_response_invalid", 502)
+    try:
+        result = json.loads(raw.decode("utf-8", errors="strict"),
+            object_pairs_hook=pairs, parse_constant=constant)
+        require(type(result) is dict, "surface_relay_response_invalid", 502)
+        canonical(result)  # Bounded depth, safe integer domain, valid UTF8 text.
+    except (ValueError, UnicodeError, RecursionError):
+        raise SurfacePushError("surface_relay_response_invalid", 502) from None
+    return result
 
 
 async def post_once(hass, runtime, action, payload, admission):
@@ -72,9 +93,7 @@ async def post_once(hass, runtime, action, payload, admission):
                 purpose.authorize(action, body)
                 require(_api_base_url(runtime).rstrip("/") == purpose.origin,
                     "surface_purpose_origin_mismatch", 403)
-                result = json.loads(raw)
-                require(type(result) is dict, "surface_relay_response_invalid", 502)
-                return result
+                return strict_response(raw)
     except asyncio.CancelledError:
         raise
     except SurfacePushError:

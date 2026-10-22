@@ -17,6 +17,9 @@ import time
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 import xml.etree.ElementTree as ET
 
+from defusedxml.common import DefusedXmlException
+from defusedxml.ElementTree import DefusedXMLParser
+
 WINDOW_SECONDS = 1800
 POLL_SECONDS = 300
 MAX_BYTES = 524288
@@ -180,8 +183,11 @@ def parse_feed(source, body, *, now, monotonic=None):
     if source not in SOURCES or type(body) is not bytes or len(body) > MAX_BYTES:
         raise IntakeError("invalid_bulletin_feed")
     try:
-        root = ET.fromstring(body, parser=ET.XMLParser(target=_SafeTree()))
-    except ET.ParseError:
+        parser = DefusedXMLParser(target=_SafeTree(), forbid_dtd=True,
+            forbid_entities=True, forbid_external=True)
+        parser.feed(body)
+        root = parser.close()
+    except (ET.ParseError, DefusedXmlException):
         raise IntakeError("invalid_bulletin_xml") from None
     if root.tag == "rss" and root.find("channel") is not None:
         entries = root.findall("channel/item")

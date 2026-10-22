@@ -93,3 +93,30 @@ source review, qualified issuer adoption and Apple/API native interoperability
 remain release gates. The candidate stays in the existing draft PR under the
 human merge/deployment hold. No partial native-delivery or installed claim is
 made by this document.
+
+## Signed issuer wire preparation (API 134 / 2a6)
+
+`surface_issuer_wire.py` implements only the closed offline statement grammar,
+exact POST route/action/domain serialization, canonical public P-256 key
+thumbprint and raw64 ES256 verification against API's unchanged public vectors.
+It uses HA's standard cryptography implementation; the wire never accepts DER,
+padded base64url, extra/private JWK fields or a changed operation/route/scope.
+The public test vectors are expired synthetic proofs with no enrolled key.
+Valid signatures establish byte compatibility, not operator approval or current
+owner, source, grant, Session or deadline authority.
+
+This increment supplies no key generator, key custody, operator enrolment,
+challenge/issue/status/withdraw HTTP client or credential adoption. The live
+purpose map stays empty. Challenge and issue must eventually share the same
+original operation, status must retain that original issue operation, and an
+actual withdrawal must use a fresh separately admitted operation. Lost nonce or
+issue response must remain unavailable; no retry with a new operation or
+reconstructed bearer is authorized. Those lifecycle transitions still require
+separate original-authority, cancellation, expiry and once-only qualification
+before any live integration is enabled. Activity profiles remain closed.
+
+The relay response boundary also requires strict UTF-8 JSON with unique object
+keys at every depth. Non-finite/ambiguous numeric values, invalid Unicode text
+and over-deep objects are rejected before any ACK is interpreted. The bounded
+single network attempt remains consumed on such a response; parsing never
+normalizes conflicting fields into readiness or triggers another send.

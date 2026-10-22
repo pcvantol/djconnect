@@ -3492,3 +3492,35 @@ merges or deployments; the explicit human merge hold remains. All other selected
 items, historical queue-preservation qualification, actual musical analysis,
 client/native adoption, paid-test permission and production readiness remain
 separate open gates. Preserve original receipts/backups and all current WIP.
+
+### Overnight source preparation: issuer wire, strict relay JSON and XML scan remediation
+
+On22October22:03UTC the same draftPR1293 has committed source preparation
+`3b4589347f61863ecad483e2d60f4deb6b8f7998`; the subsequent candidate remains
+unmerged source preparation. It adds only offline signed-issuer grammar and
+standard P-256 verification against API134/2a6 public expired vectors, strict
+UTF-8/unique-field relay JSON, and `defusedxml==0.7.1` for fixed feed parsing.
+The original XML CI failures are retained. The unchanged medium-severity Bandit
+check now reports zero findings/errors locally; no scanner waiver was added.
+Runtime/dev dependency pins and upstream PSF2 notices are recorded.
+
+The current coherent candidate ran3,325 tests in84.386s with seven existing
+skips and exit0; all53 changed Python files pass Ruff. Ten actual isolated
+HA2026.10.0 runtime harnesses and a separate offline crypto harness use the same
+256 product files. Crypto accepts4 original public proofs and rejects33 invalid
+variants. All own containers are removed; current wire derivatives join fresh
+original receipts. External model/feed/provider boundaries remain synthetic.
+These results do not provide operator enrolment, key custody, signed issuer
+lifecycle/adoption, Activity content rights, APNs/native or audible acceptance.
+The live issuer-purpose map remains empty and unavailable. Whole exact source
+review, subsequent commit/readback and normal CI remain separate gates.
+
+Root separately reviewed Apple's three-file settings-fence remediation against
+its prior18-file current Insight/artwork snapshot: bounded P2 remediation has no
+remaining blockers, with24 causal pending/accepted Session/Profile/ABA cases.
+This does not grant whole-Apple or native approval. Historical exact play still
+has no qualified atomic provider guarantee that preserves every remaining queue
+occurrence/order; ordinary Spotify play must not be reported as that guarantee.
+All other selected work and the physical Pi recovery remain open as recorded.
+No intermediate merge/deployment is authorized; the existing timer ends on
+23October06:00UTC, with05:50 cutoff and safe pause by the end.
