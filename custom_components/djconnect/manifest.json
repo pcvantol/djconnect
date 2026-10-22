@@ -31,7 +31,7 @@
   "issue_tracker": "https://github.com/pcvantol/djconnect/issues",
   "requirements": [
     "segno>=1.6.1",
-    "defusedxml==0.7.1"
+    "defusedxml>=0.7.1"
   ],
   "version": "4.0.0-rc.1"
 }

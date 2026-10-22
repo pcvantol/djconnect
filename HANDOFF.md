@@ -3524,3 +3524,19 @@ occurrence/order; ordinary Spotify play must not be reported as that guarantee.
 All other selected work and the physical Pi recovery remain open as recorded.
 No intermediate merge/deployment is authorized; the existing timer ends on
 23October06:00UTC, with05:50 cutoff and safe pause by the end.
+
+#### Hassfest runtime-dependency minimum follow-up
+
+Commit8ce2's two actual CI Bandit checks passed. Both hassfest jobs rejected
+its exact runtime dependency pin because Home Assistant already manages that
+package. The follow-up declares `defusedxml>=0.7.1` in the integration manifest;
+only development qualification stays pinned to0.7.1. Dependency notices and the
+inventory distinguish these roles. Product Python remains byte-equal to8ce2;
+no validation rule, exception list or CI workflow is weakened.
+
+The corrected candidate has a new3,325-test result in85.843s, seven existing
+skips and exit0. Fresh baseline6/news11/push12 runtime receipts plus offline
+crypto4 again join the same256 product files, with all own containers removed.
+Current derivatives refer to these new original receipts; earlier failed and
+successful evidence remains separate. Exact source review and real post-push
+hassfest results are still separate gates. No merge or deployment occurs here.
