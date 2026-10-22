@@ -3456,3 +3456,39 @@ The previous merged consolidation's original Final qualification is still an
 external GitHub blocker; this candidate does not claim to resolve it. All
 parked push WIP remains outside this source branch. Merge awaits Peter's direct
 instruction under the existing one-PR policy.
+
+## 22 October 2026, overnight: current news/surface source preparation
+
+This current checkpoint supersedes the older observed-queue paragraph's pending
+Final/parked-push status. Protected Source1290/Final1292 is fully originally
+qualified at `103dc6c58862b9ef277fbaa02d59039d5f13eefe`; HA-dev's 240-file
+installation was independently verified at18:26:40UTC, before the later hold.
+Production has not been updated; its pending native configuration-check result
+must not be inferred. Do not repeat that completed HA-dev installation.
+
+The sole active draft remains PR1293 on `codex/core-dj-bulletin-20261022`.
+The observed-queue musical outlook and the distinct NEWS bulletin are both
+preserved. Push preparation is now active in this source branch, including the
+confirmed SQLite effect journal, original-purpose/HTTP/lifecycle fences and
+once-only semantic widget signals. Its default purpose map is empty and public
+availability is false; issuer/operator key adoption and Apple Activity rights
+remain unqualified. It supplies no APNs/native delivery or physical recovery
+claim. See `docs/product/NATIVE_SURFACE_PUSH_V1.md`.
+
+Ten isolated actual-HA harnesses qualified the 255-file source snapshot before
+the final review correction. The full suite executed3314 tests with7 existing
+skips in84.517seconds; all50 changed Python files passed Ruff. Those receipts
+remain historical evidence, not approval for later bytes. Whole-source review
+then found cancellation swallowed during the NEWS SQLite reservation commit
+could still start two model calls. A real-SQLite causal regression reproduced
+that failure. The corrected builder preserves the committed reservations and
+honours the original task cancellation before any generation/assessment;
+128 targeted tests pass. Fresh exact source joins/full checks and independent
+review are required for the corrected candidate before source delivery.
+
+Peter's overnight window ends23October06:00UTC/08:00Amsterdam, with the05:50UTC
+cutoff. The same automation/thread and sole Core writer continue. No interim
+merges or deployments; the explicit human merge hold remains. All other selected
+items, historical queue-preservation qualification, actual musical analysis,
+client/native adoption, paid-test permission and production readiness remain
+separate open gates. Preserve original receipts/backups and all current WIP.

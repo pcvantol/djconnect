@@ -1,0 +1,209 @@
+"""Disposable actual HA routes/SQLite/lifecycle; explicit synthetic issuer/API boundary.
+
+No operator enrolment, key custody, remote request, APNs or native proof.
+"""
+from __future__ import annotations
+import asyncio
+import inspect
+import json
+import os
+from pathlib import Path
+import sys
+import time
+from unittest.mock import patch
+ROOT = Path(os.environ.get("DJC_SOURCE_ROOT",Path(__file__).resolve().parents[2]))
+sys.path[:0] = [str(ROOT),str(ROOT/"scripts/verification")]
+
+async def qualify(hass,manager,history,request,client):
+    from custom_components.djconnect import api_handlers
+    from custom_components.djconnect.playback_observation import PlaybackObservationManager
+    from custom_components.djconnect.surface_push_service import start_surface_service,close_surface_service
+    from custom_components.djconnect.surface_push_purpose import SurfacePurposeCredential
+    from custom_components.djconnect.surface_push_wire import canonical
+    from custom_components.djconnect.hybrid_service import PairedAuthority
+    from custom_components.djconnect.persistence import persistence_service
+    from custom_components.djconnect import surface_push_relay
+    owner = "profile-a"
+    old = manager.current_active(owner)
+    if old:
+        await manager.async_end(owner_profile_id=owner,session_id=old.session_id)
+    # Build an actual loaded synthetic provider connection, not a patched
+    # authority check. The reused history harness starts in manual mode.
+    from dataclasses import replace
+    from custom_components.djconnect import DJConnectRuntime
+    from custom_components.djconnect.profile_context import profile_storage
+    storage = profile_storage(hass)
+    profile = storage.household.profiles[owner]
+    await storage.async_update_profile(owner,preferences=replace(profile.preferences,
+        default_backend_id="source-spotify",default_music_account_id="source-account"))
+    source = hass.config_entries.async_get_entry("source-entry")
+    hass.config_entries.async_update_entry(source,data={**source.data,"music_backend":"source-spotify",
+        "profile_id":owner,"spotify_client_id":"synthetic-source-client"})
+    hass.data["djconnect"]["source-entry"] = DJConnectRuntime(source)
+    paired = hass.config_entries.async_get_entry("owner-entry")
+    hass.config_entries.async_update_entry(paired,data={**paired.data,
+        "profile_backend_entry_id":"source-entry","music_backend":"source-spotify",
+        "music_account_id":"source-account"})
+    async def no_external(*args,**kwargs):
+        pass
+    with patch.object(api_handlers,"_async_generate_initial_session_moment",no_external), patch.object(
+            PlaybackObservationManager,"async_start_spotify",no_external):
+        body,status = await request("POST","/api/djconnect/v1/session/start",{"mood":"groove","locale":"nl"})
+    assert status==201,body
+    sid = manager.current_active(owner).session_id
+    start_surface_service(hass)
+    service = hass.data["djconnect"]["surface_push_service"]
+    base = "/api/djconnect/v1/push/surface/"
+    secrets = inspect.getclosurevars(request).nonlocals
+    headers,identity = secrets["headers"],secrets["identity"]
+    evidence = []
+    async def raw(method,kind,expected,**kwargs):
+        response = await client.request(method,base+kind,**kwargs)
+        value = await response.json()
+        assert response.status==expected,(method,kind,response.status,value)
+        for name,wanted in (("Cache-Control","no-store"),("Referrer-Policy","no-referrer")):
+            assert response.headers.get(name)==wanted
+        evidence.append({"method":method,"kind":kind,"status":response.status,"no_store":True})
+        return value
+    calls = []
+    async def relay(hass_arg,runtime,action,payload,admission):
+        assert hass_arg is hass
+        admission.validate()
+        rows = await persistence_service(hass).async_in_transaction(lambda tx:tx.fetchone(
+            "SELECT body FROM djconnect_surface_journal WHERE singleton=1"))
+        assert any(r["phase"]=="sent_unknown" for r in json.loads(rows[0])["records"].values())
+        calls.append(action)
+        return {**{k:payload[k] for k in ("registration_id","generation","revision","operation_id")},
+            "success":True,"contract_version":1,"replayed":False,
+            "expires_at_ms":payload["expires_at_ms"] if action=="register" else expiry if action=="event" else 0,
+            "state":"registered" if action in {"register","event"} else "revoked",
+            "operation_state":"registered" if action=="register" else "provider_accepted" if action=="event" else "revoked",
+            "current_revision":payload["revision"],"provider_status":200 if action=="event" else None}
+    try:
+        for method in ("GET","PUT","PATCH","DELETE","OPTIONS","HEAD"):
+            if method=="HEAD":
+                response = await client.request(method,base+"context")
+                assert response.status==405 and response.headers.get("Cache-Control")=="no-store"
+                await response.read()
+                evidence.append({"method":method,"kind":"context","status":405,"no_store":True})
+            else:
+                await raw(method,"context",405)
+        for data,status in ((b'{"contract_version":1,"contract_version":1}',400),
+                (b'{"x":NaN}',400),(b'x'*16385,413)):
+            await raw("POST","context",status,data=data,headers={"Content-Type":"application/json"})
+        context = {**identity,"contract_version":1,"session_id":sid}
+        await raw("POST","context",401,json=context)
+        await raw("POST","context",503,json=context,headers=headers)
+        assert not service._purposes and not calls
+        authority = await PairedAuthority.resolve(hass,identity,headers)
+        authority.validate_now()
+        from custom_components.djconnect.forecast_imagery import artist_authority
+        assert artist_authority(hass,authority.runtime,owner_profile_id=owner,
+            expected_source=manager._history_source_contexts.get(sid,{}))(), "synthetic source must really qualify"
+        now = int(time.time()*1000)
+        expiry = now+600000
+        target = {"instance_id":"synthetic-widget","app_bundle_id":"dev.djconnect.ios",
+            "extension_bundle_id":"dev.djconnect.ios.widget","widget_kind":"DJConnectSessionWidget"}
+        policy = {"token_role":"widget","platform":"ios","apns_environment":"sandbox",
+            "target":{k:v for k,v in target.items() if k!="instance_id"},"activity_profile":None,
+            "external_content_allowed":False,"original_grant_expires_at_ms":expiry,
+            "max_operations":100,"max_events":20,"max_challenges":4}
+        purpose = SurfacePurposeCredential("djcs_"+"A"*43,"https://api.djconnect.dev",
+            "synthetic-capability","synthetic-delegation","d"*64,authority.binding,authority.device,
+            authority.owner,"e"*64,"f"*64,canonical(policy),now,time.monotonic(),lambda:True)
+        # Declared synthetic issuer boundary. The production default map stays empty.
+        service._purposes[(authority.owner,authority.device,authority.binding,sid)] = purpose
+        await raw("POST","context",200,json=context,headers=headers)
+        from uuid import UUID
+        operation = str(UUID(int=(now<<80)|(7<<76)|(2<<62)|1))
+        payload = {**context,"operation_id":operation,"platform":"ios","os_version":"26.0",
+            "token_role":"widget","target":target,"apns_token":"a"*64,
+            "apns_environment":"sandbox","expected_registration":None,
+            "consent":{"background_read":True,"os_snapshot_cache":True,"locked_display":False,
+                "external_push_content":False,"allow_remote_start":False}}
+        with patch.object(surface_push_relay,"post_once",relay):
+            registered = await raw("POST","register",200,json=payload,headers=headers)
+            assert registered["success"] and calls==["register"]
+            replay = await raw("POST","register",200,json=payload,headers=headers)
+            assert replay["replayed"] and calls==["register"]
+        grant = registered["background_read"]
+        read = {"contract_version":1,"registration_id":grant["registration_id"]}
+        await raw("POST","read",401,json=read,headers=headers)
+        bg_headers = {"Authorization":"Bearer "+grant["credential"]}
+        result = await raw("POST","read",200,json=read,headers=bg_headers)
+        assert result["registration"]["expires_at_ms"]==expiry
+        assert result["passive_session"]["artwork"]==[]
+        with patch.object(surface_push_relay,"post_once",relay):
+            admission = await service.admission(payload,headers)
+            coordinate = {k:registered["registration"][k] for k in ("registration_id","generation","revision")}
+            event_id = str(UUID(int=(now<<80)|(7<<76)|(2<<62)|2))
+            signal = await service.run(service.registry.signal_widget(admission,coordinate,operation_id=event_id))
+            again = await service.run(service.registry.signal_widget(admission,coordinate,operation_id=event_id))
+            assert signal["provider_accepted"] and again["replayed"] and calls==["register","event"]
+            # Original real Broadcast subscription: progress is signal-free;
+            # an accepted Runtime Mood change queues one bounded widget signal.
+            from custom_components.djconnect.session_runtime import BroadcastEventType
+            broadcast = manager.current_active(owner).broadcast
+            assert len(service._signals)==1
+            for _ in range(100):
+                broadcast._publish(BroadcastEventType.PLAYBACK_PROGRESS,{})
+            await asyncio.sleep(0)
+            assert calls==["register","event"]
+            await manager.async_update_mood(owner_profile_id=owner,session_id=sid,selected_mood="energy")
+            for _ in range(5):
+                tasks = tuple(service._tasks)
+                if not tasks:
+                    break
+                await asyncio.gather(*tasks)
+                await asyncio.sleep(0)
+            assert calls==["register","event","event"],calls
+            assert not service._tasks
+            previous = len(calls)
+            recording = None
+            for playback_state in ("playing","paused","playing"):
+                await manager.async_update_playback_projection(owner_profile_id=owner,session_id=sid,
+                    state=playback_state,media_identity="spotify:track:"+"A"*22,
+                    title="Synthetic recording",artist="Synthetic artist",album="Synthetic edition",
+                    duration_ms=300000,position_ms=10000)
+                for _ in range(5):
+                    tasks = tuple(service._tasks)
+                    if not tasks:
+                        break
+                    await asyncio.gather(*tasks)
+                    await asyncio.sleep(0)
+                current_frame = admission.projection()
+                observed = current_frame["now_playing"]
+                assert observed is not None and current_frame["playback_state"]==playback_state
+                identity_fields = {k:observed[k] for k in ("item_id","track","artist","album")}
+                if recording is not None:
+                    assert identity_fields==recording
+                recording = identity_fields
+                previous += 1
+                assert len(calls)==previous and calls[-1]=="event",calls
+            assert len(calls)==6
+            # Fixture-only clock boundary: registration collection must retire
+            # an idle/paused owner's watch WITHOUT any Broadcast callback.
+            watch = next(iter(service._signals.values()))
+            object.__setattr__(purpose,"wall",lambda:expiry)
+            service.registry.journal._wall = lambda:expiry+1
+            service.registry._collect()
+            assert not service._signals and watch.row is None and watch.broadcast is None
+            broadcast._publish(BroadcastEventType.PLAYBACK_PROGRESS,{})
+            assert len(calls)==6  # No expiry retry, replay or renewal.
+        await manager.async_end(owner_profile_id=owner,session_id=sid)
+        assert not purpose.is_current() and not service._purposes
+        await raw("POST","read",401,json=read,headers=bg_headers)
+        assert len(calls)==6 and not service._signals
+        return {"scenario":"actual_ha_surface_http_SQL14_and_lifecycle",
+            "requests":evidence,"SQL_commit_before_synthetic_relay":True,
+            "synthetic_issuer_admission":True,"synthetic_API_responses":calls,
+            "actual_operator_enrolment":"NOT_RUN","external_API_calls":0,
+            "APNs_native_or_installed_acceptance":"NOT_RUN"}
+    finally:
+        await close_surface_service(hass)
+        assert service.closed and not service._tasks
+        await manager.async_end(owner_profile_id=owner,session_id=sid)
+
+if __name__=="__main__":
+    from verify_session_conversation_history_http import main
+    asyncio.run(main(qualification_extension=qualify))

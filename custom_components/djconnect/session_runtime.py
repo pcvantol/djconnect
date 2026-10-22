@@ -188,6 +188,7 @@ class KnowledgeIntentType(StrEnum):
     RECOMMENDATION = "recommendation"
     TRANSITION = "transition"
     SESSION_DIRECTION = "session_direction"
+    DJ_BULLETIN = "dj_bulletin"
     SILENCE = "silence"
 
 
@@ -200,6 +201,7 @@ class PlannerDecisionType(StrEnum):
     CREATE_RECOMMENDATION = "create_recommendation"
     CREATE_TRANSITION = "create_transition"
     CREATE_DISCOVERY = "create_discovery"
+    CREATE_DJ_BULLETIN = "create_dj_bulletin"
     NO_TRANSITION = "no_transition"
     SILENCE = "silence"
 
@@ -274,6 +276,7 @@ class DJMomentType(StrEnum):
     RECOMMENDATION = "recommendation"
     TRANSITION = "transition"
     SESSION = "session"
+    DJ_BULLETIN = "dj_bulletin"
     SILENCE = "silence"
 
 
@@ -474,10 +477,14 @@ class DJMoment:
     narration_acceptance: Any = field(default=None, repr=False, compare=False)
     session_opening: SessionOpeningContext | None = field(default=None, repr=False)
     settings_confirmation: Any = field(default=None, repr=False)
+    bulletin: Any = field(default=None, repr=False)
 
     def as_dict(self) -> dict[str, Any]:
         from .public_artist_narration import sources_for
         research_sources = sources_for(self)
+        if self.bulletin is not None:
+            from .bulletin_runtime import sources as bulletin_sources
+            research_sources = bulletin_sources(self)
         from .settings_confirmation import context as settings_context
         proof = settings_context(self)
         confirmation = proof.data() if proof is not None else None
@@ -1869,6 +1876,19 @@ class DJSessionPlanner:
             session_update_direction=decision.proposed_session_direction,
             planner_decision=decision,
         )
+
+    def evaluate_bulletin_candidate(self, *, ready, duration, remaining):
+        """Low-priority ready news within an ordinary observed music opportunity.
+
+        Runtime owns presence/ownership/freshness; no bulletin clock or quota.
+        Caller invokes this only after higher-priority music selection returned none.
+        """
+        if not ready or remaining < duration + 5:
+            return None
+        self.last_decision = PlannerDecision(PlannerDecisionType.CREATE_DJ_BULLETIN,
+            "ready_bulletin_fits_ordinary_opportunity",
+            KnowledgeIntent(KnowledgeIntentType.DJ_BULLETIN, "Share fresh public news."))
+        return self.last_decision
 
     def append_moment(
         self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT
@@ -4072,7 +4092,8 @@ class DJSessionBroadcastEngine:
         # Use all scopes for redaction even when the receiver lacks an owner card.
         all_admissions = self.native_delivery()["admissions"]
         ended = self.state.runtime_state is not SessionRuntimeState.ACTIVE
-        source_ids = {moment.moment_id for moment in self.state.dj_moments if moment.source_attribution}
+        source_ids = {moment.moment_id for moment in self.state.dj_moments
+            if moment.source_attribution or moment.moment_type is DJMomentType.DJ_BULLETIN}
         excluded = {entry["moment_id"] for entry in all_admissions
                     if entry["moment_id"] in source_ids and entry["qualification"] != "qualified"}
         excluded.update(self.content_pending_moment_ids | self.deleted_moment_ids)
@@ -4370,6 +4391,10 @@ class DJSessionRuntime:
         """Only the genuine one-time welcome is informative at Music-only."""
         if moment.moment_id in self.deleted_moment_ids:
             return False
+        if moment.moment_type is DJMomentType.DJ_BULLETIN:
+            from .bulletin_runtime import admitted
+            if not admitted(moment):
+                return False
         from .content_deletion_runtime import moment_dependencies
         if moment_dependencies(moment) & self.deleted_moment_ids:
             return False
@@ -4464,6 +4489,8 @@ class SessionRuntimeManager:
         self._settings_defaults_revisions: dict[str, int] = {}
         self._pending_settings_confirmations: dict[str, DJMoment] = {}
         self._narration_providers: dict[str, tuple[str, Callable, Callable, Callable | None]] = {}
+        self._bulletin_providers = {}
+        self._bulletin_service = None
         self._opening_tasks: dict[str, asyncio.Task] = {}
         self._opening_prepared: dict[str, tuple[DJMoment, DJMoment]] = {}
 
@@ -4516,6 +4543,12 @@ class SessionRuntimeManager:
         active = self._active_by_profile.get(owner_profile_id)
         if active is not None and active.session_id == session_id:
             self._narration_providers[owner_profile_id] = (session_id, provider, authorize, capture_authority, archive_admission)
+
+    def connect_bulletin(self, owner_profile_id, session_id, generate, authorize, capture_authority):
+        """Reuse the existing authenticated Session expression owner, no client endpoint."""
+        active = self.current_active(owner_profile_id)
+        if active is not None and active.session_id == session_id:
+            self._bulletin_providers[owner_profile_id] = (session_id, generate, authorize, capture_authority)
 
     def dj_settings_fence_token(self, owner_profile_id):
         """RAM equality fence only; the repository remains the durable owner."""
@@ -5141,6 +5174,18 @@ class SessionRuntimeManager:
         opportunity.first_read_seconds = moment.presentation_intent.maximum_duration_seconds
 
     async def async_maybe_publish_intra_track_moment(
+        self, *, owner_profile_id: str, session_id: str, media_identity: str
+    ) -> DJMoment | None:
+        """Music selection first, then a ready lower-priority news candidate."""
+        moment = await self._async_maybe_publish_music_moment(owner_profile_id=owner_profile_id,
+            session_id=session_id, media_identity=media_identity)
+        if moment is not None:
+            return moment
+        from .bulletin_runtime import publish_if_selected
+        return await publish_if_selected(self, owner_profile_id=owner_profile_id,
+            session_id=session_id, media_identity=media_identity)
+
+    async def _async_maybe_publish_music_moment(
         self, *, owner_profile_id: str, session_id: str, media_identity: str
     ) -> DJMoment | None:
         """Realize one later Moment only from fresh observed current playback."""
@@ -6911,6 +6956,10 @@ class SessionRuntimeManager:
             # Runs on the event loop after provider-lock waiting, never in SQLite's worker.
             from .narration_brief import RuntimeNarrationAcceptance
             receipt = moment.narration_acceptance
+            if moment.bulletin is not None:
+                from .bulletin_runtime import admitted as bulletin_admitted
+                if not bulletin_admitted(moment):
+                    return False
             from .public_artist_narration import ResearchMomentAcceptance, admitted
             if type(receipt) is ResearchMomentAcceptance and not admitted(moment):
                 return False
@@ -7123,6 +7172,9 @@ class SessionRuntimeManager:
                 return None
             if session_id and active.session_id != session_id:
                 return None
+            surface_service = getattr(self,"_surface_push_service",None)
+            if surface_service is not None:
+                surface_service.invalidate_session(owner_profile_id,active.session_id)
             visual_key = (owner_profile_id, active.session_id)
             visual_withdrawal = self._visual_withdrawals.pop(visual_key, None)
             if visual_withdrawal is not None:
@@ -7169,6 +7221,7 @@ class SessionRuntimeManager:
                 active.broadcast.media_cleanup()
             active.broadcast.close()
             self._narration_providers.pop(owner_profile_id, None)
+            self._bulletin_providers.pop(owner_profile_id, None)
             self._active_by_profile.pop(owner_profile_id, None)
             self._pending_settings_confirmations.pop(owner_profile_id, None)
             self._visual_ending.discard(visual_key)

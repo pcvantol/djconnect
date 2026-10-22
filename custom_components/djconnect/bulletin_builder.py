@@ -145,6 +145,12 @@ class BulletinBuilder:
             raise BuilderError("bulletin_reservation_unavailable") from None
 
     def _current(self, session, guard, items, deadline=None):
+        # SQLite waits for a definitive commit and can consume cancellation
+        # delivery. Its original task cancellation count still fences ALL
+        # subsequent model/assessment/candidate work; never clear that intent.
+        task = asyncio.current_task()
+        if task is not None and task.cancelling():
+            raise asyncio.CancelledError
         guard()  # Original owner/Session/source/settings admission, never recreated here.
         now = self._now()
         if (session.presence not in {"occasional", "balanced", "presenter"}
@@ -214,7 +220,7 @@ class BulletinBuilder:
                     answer = _object(raw)
                     text = answer.get("text")
                     if (set(answer) != {"text", "story_ids"} or type(text) is not str
-                            or not 60 <= len(text.split()) <= 110 or len(text) > 1400
+                            or not 60 <= len(text.split()) <= 110 or len(text) > 1200
                             or any(c in text for c in ("<", ">", "\x00"))
                             or type(answer["story_ids"]) is not list
                             or len(answer["story_ids"]) != 2

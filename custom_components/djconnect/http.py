@@ -3294,6 +3294,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
         from .session_artwork import capability as artwork_capability
         from .session_speech import capability as speech_capability
         from .passive_session import capability as passive_capability
+        from .surface_push_contract import capability as surface_push_capability
         return web.Response(
             text=json.dumps({
                 "success": True,
@@ -3313,6 +3314,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "session_forecast": forecast_capability(),
                 "session_artwork": artwork_capability(),
                 "passive_session_surface": passive_capability(),
+                "surface_push_registration": surface_push_capability(),
                 "session_speech": speech_capability(),
                 "hybrid_transport": hybrid_transport_capability(),
             }),

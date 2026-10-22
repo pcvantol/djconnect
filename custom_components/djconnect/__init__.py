@@ -1849,6 +1849,7 @@ def register_http_views(hass: HomeAssistant) -> None:
     hass.data.setdefault(DOMAIN, {})
     if not hass.data[DOMAIN].get("http_registered"):
         from .paired_live import DJConnectPairedLiveView
+        from .surface_push_http import surface_views
         from .hybrid_transport import HybridActionsView, HybridContextView, HybridOperationView, HybridOperationStatusView, HybridRecoveryView
         from .display_transport import transition_views
         from .display_live import DisplayLiveView
@@ -1856,6 +1857,7 @@ def register_http_views(hass: HomeAssistant) -> None:
         from .visual_director_http import VibeScapeContextView, VibeScapeInterpretView, VibeScapeRevokeView
 
         for view in [
+            *surface_views(hass),
             *transition_views(hass), DisplayLiveView(hass), DisplayShellView(hass),
             HybridActionsView(hass), HybridContextView(hass), HybridOperationView(hass),
             HybridOperationStatusView(hass), HybridRecoveryView(hass),
@@ -3304,6 +3306,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if option_updates != dict(entry.options):
         hass.config_entries.async_update_entry(entry, options=option_updates)
     runtime = _restore_runtime(hass, entry)
+    from .bulletin_service import async_start_bulletin_service
+    await async_start_bulletin_service(hass)
+    from .surface_push_service import start_surface_service
+    start_surface_service(hass)
     from .session_history_maintenance import schedule_history_maintenance
     schedule_history_maintenance(hass)
     session_manager = hass.data[DOMAIN].get("session_runtime_manager")
@@ -3412,6 +3418,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Conservative immediate revocation, before platform unload can yield.
     from .visual_director_runtime import withdraw_all
     withdraw_all(hass)
+    surface_service = hass.data.get(DOMAIN,{}).get("surface_push_service")
+    if surface_service is not None:
+        surface_service.invalidate_entry(entry.entry_id)
     from .client_retirement import is_retired_entry
 
     retired = is_retired_entry(entry)
@@ -3432,6 +3441,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if runtime and runtime.entry.entry_id == entry.entry_id:
             hass.data[DOMAIN].pop("runtime", None)
         if not _has_runtime_entries(hass):
+            from .bulletin_service import async_close_bulletin_service
+            await async_close_bulletin_service(hass)
+            from .surface_push_service import close_surface_service
+            await close_surface_service(hass)
             if session_manager is not None:
                 await session_manager.async_clear_display_admission()
             images = hass.data[DOMAIN].pop("session_images", None)

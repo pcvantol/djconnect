@@ -1,11 +1,16 @@
 # DJ Bulletin V1 — Core1291 / Apple182
 
-Status: **implementation in progress in draft Core PR1293**. Intake and reserved
-candidate preparation have local synthetic tests. They are not connected to HA
-startup, the approved conversation owner, Planner, native Moment admission or
-speech yet. There is no installed producer, published bulletin or native claim.
-The existing musical queue preview is a separate feature; it is not this news
-bulletin.
+Status: **implementation in progress in draft Core PR1293**. Commit4e8d0336
+contains the first intake/Builder component. Current uncommitted work connects
+one HA lifecycle, the existing no-tools conversation owner, ordinary Planner
+opportunities, owner-only Moment/native delivery and existing speech.57 focused
+tests pass. One actual isolated HA2026.10.0 run passed28 paired HTTP requests,
+real agent admission, hash reservations before two synthetic model transports,
+Planner/Presence publication, owner privacy, expiry and unload. The external
+RSS, model response and initial music acquisition are declared fixtures; no
+provider call, installed runtime, native audio or narrative-quality claim is
+made. Full-source qualification and exact review remain open. The musical
+queue preview is a separate feature; it is not this news bulletin.
 
 ## Product and ownership
 
@@ -16,6 +21,8 @@ Persona. Source text is untrusted data. Existing configured HA generation is the
 only permitted model boundary; this feature introduces no provider, key or
 paid-test budget. Generation and a separate grounding/independence/style check
 are bounded to two calls per reserved input pair. Failed checks mean silence.
+The narrative must also fit the existing1200character Moment speech extent;
+unsupported length is rejected rather than truncated into a different story.
 
 Only the existing Runtime/Planner may accept a ready candidate and publish a
 new `dj_bulletin` Moment. Music content has priority. The existing four-level
@@ -103,16 +110,37 @@ publication+30minute deadline on both UTC and monotonic clocks. Reads never
 renew it. Planner consumption is once-only; failed publication must not trigger
 a second model generation or forced catch-up announcement.
 
+Internal persistence migration13 adds hash/expiry attempts and a clock table;
+it changes no Profile preference or client schema. Reservations use confirmed
+transactions in the existing SQLite persistence service. Actual HA SDK inspection
+showed that HA Store.async_save can swallow write failures or defer a shutdown
+write, so it is not used as the model-admission proof. The normal provider's
+commit/rollback and process-restart guarantees apply; no new physical power-loss
+durability guarantee is claimed. Failed or corrupt storage quarantines both
+preparation and consumption, including already-waiting tasks.
+
+One HA-owned cancellable background task and one dedicated cookie-free HTTP
+client are created after persistence bootstrap. The technical interval callback
+is an HA coroutine job, not executor-thread work. Last-entry unload cancels
+preparation and closes the client before persistence shuts down. Original
+owner/source/entry/agent/settings authority is captured before awaits. Agent
+identity and public no-tools metadata are rechecked across both model calls.
+Background news clears inherited Ask DJ turn context and writes no Ask DJ turn.
+A published Moment privately retains the same original throwing authority guard.
+Display and speech recheck it synchronously, including service identity/unload;
+revocation latches closed. Reads never reconstruct or revive admission. The
+private guard is excluded from wire serialization and historical persistence.
+
 ## Integration and qualification still required
 
-1. One HA lifecycle owner for the dedicated HTTP client, storage, cancellable
-   collector and candidate preparation; no per-device model work or new endpoint.
+1. Qualify the connected HA lifecycle owner, dedicated HTTP client, confirmed
+   SQLite reservations and cancellable preparation in the actual isolated SDK.
 2. Original active owner/Session/source/settings authority captured before the
    first await and checked after each await and under the final Runtime lock.
    Normal progress may replace Runtime values; do not require false object
    equality across progress. Owner/Persona/Mood/Presence ABA must invalidate work.
-3. Existing Planner opportunity selection, music priority, same Presence debit,
-   original candidate expiry, tail fit and immutable `dj_bulletin` semantic commit.
+3. Qualify the connected existing Planner opportunity selection, music priority,
+   same Presence debit, original expiry, tail fit and `dj_bulletin` semantic commit.
 4. Explicit owner-only native display/speech proof and provenance; no shared
    projection, event/recovery leak or new executable action. Initially retain
    only publication metadata in historical storage until content-retention
@@ -125,3 +153,27 @@ a second model generation or forced catch-up announcement.
 
 All current work stays in the existing draftPR1293. No intermediate merge,
 deployment, real provider test, HACS release or native build is implied.
+
+## Current source qualification checkpoint — overnight 22/23 October
+
+The lifecycle, original authority, existing Planner/Presence/Flow and speech paths
+above are now connected in source and have isolated actual-HA coverage. The
+external RSS/model response boundaries in that harness are synthetic, not a
+live bulletin or model-style assessment. Eight existing baseline harnesses and
+the separate surface harness also passed against the same255 product files.
+The pre-final-correction complete suite ran3314 tests with7 existing skips; it
+is not approval for subsequently changed source bytes.
+
+Whole-source review identified a cancellation during the confirmed SQLite
+reservation commit that could continue into generation. The actual-SQLite
+regression first observed two model-transport calls after cancellation. The
+current correction checks the original task cancellation count at each builder
+admission boundary, retains all four committed hash reservations, propagates
+cancellation and starts zero generation/assessment calls. Its combined targeted
+suite passes128 tests. The original failure is retained separately.
+
+Refresh exact HA/source-fixture joins and full tests for the corrected bytes,
+then obtain independent exact review. Approved provider operation, semantic
+story independence/style quality, protected delivery, installed runtime and
+Apple native/audible/user acceptance remain open. No paid model test, provider
+request, native acceptance or intermediate deployment is implied here.

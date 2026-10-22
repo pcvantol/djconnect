@@ -240,3 +240,8 @@ class BulletinBuilderTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(BuilderError):
             await task
         self.assertEqual(self.calls, [])
+
+    async def test_candidate_cannot_exceed_existing_moment_speech_character_extent(self):
+        self.text = " ".join(["abcdefghijklmnopqrst"] * 64)
+        self.assertTrue(1200 < len(self.text) <= 1400)
+        self.assertIsNone(await self.prepare())

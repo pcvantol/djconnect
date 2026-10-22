@@ -494,6 +494,10 @@ async def _post_relay(
 
 
 def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[str, Any]) -> dict[str, Any]:
+    # Native WidgetKit/ActivityKit tokens have distinct topic/lifecycle owners.
+    # Silently accepting their metadata here would overwrite the app alert row.
+    if any(key in payload for key in ('token_role', 'widget_kind', 'activity_id', 'surface_target')):
+        return {}
     device_id = _clean_text(payload.get("device_id"), 160)
     client_type = _clean_client_type(payload.get("client_type"))
     push_token = _clean_text(payload.get("apns_token") or payload.get("push_token"), 4096)

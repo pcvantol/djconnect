@@ -143,6 +143,21 @@ class PushTest(unittest.TestCase):
         self.assertTrue(install_id.startswith("ha_"))
         self.assertEqual(runtime.config["ha_install_id"], install_id)
 
+    def test_surface_roles_cannot_overwrite_ordinary_app_registration(self) -> None:
+        runtime = self._runtime()
+        hass = types.SimpleNamespace(session=FakeSession())
+        original = {"device_id": "djconnect-ios-ABCDEF123456", "client_type": "ios",
+                    "apns_token": "a" * 64, "push_environment": "production",
+                    "app_bundle_id": "dev.djconnect.ios"}
+        for role in ("widget", "live_activity_update", "live_activity_start"):
+            result = asyncio.run(self.push.async_register(hass, runtime, user_id="synthetic-owner",
+                payload={**original, "token_role": role}))
+            self.assertFalse(result["success"], role)
+        self.assertEqual(hass.session.calls, [])
+        accepted = asyncio.run(self.push.async_register(hass, runtime, user_id="synthetic-owner", payload=original))
+        self.assertTrue(accepted["success"])
+        self.assertEqual(len(hass.session.calls), 1)
+
     def test_register_bootstraps_install_token_with_pairing_proof(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession(), config_entries=types.SimpleNamespace())
         hass.config_entries.async_update_entry = lambda entry, **kwargs: setattr(entry, "options", kwargs["options"])
