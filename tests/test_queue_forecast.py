@@ -182,4 +182,3 @@ class QueueProjectionTests(unittest.TestCase):
             self.assertTrue(f.withdrawn)
             self.assertEqual(f._queue, {})
         asyncio.run(scenario())
-
