@@ -181,4 +181,3 @@ def stage_moment(tx, repository, owner, data):
                      'locale': data['locale'], 'generation_metadata': dict(moment.generation_metadata)}}])
         record_event_tx(tx, data['session_id'], 'dj_moment', moment.moment_id, ids[0] if ids else '')
     return moment
-
