@@ -3963,6 +3963,10 @@ class DJSessionBroadcastEngine:
         semantic = active.planner.forecast_semantics(playback=self.state.playback,
             direction=active.session_direction, mood=active.selected_mood,
             presence=active.selected_presence, allowed_intents=active.allowed_capability_intents)
+        if semantic['has_current']:
+            queue = self.forecast.queue_context(self.state.playback.item_id)
+            if queue:
+                semantic['queue_preview'] = queue
         imagery = self.forecast_artwork.public(self.state.playback.item_id) if semantic["has_current"] else ()
         if self.forecast.update(semantic, locale=active.locale, persona=active.dj_persona.value, imagery=imagery, current_item_id=self.state.playback.item_id):
             self._publish(BroadcastEventType.FORECAST_CHANGED, {"session_forecast": self.forecast.as_dict()})
@@ -4110,7 +4114,7 @@ class DJSessionBroadcastEngine:
         if historical:
             result.pop("session_forecast", None)
             return result
-        forecast = self.forecast.as_dict(locale=forecast_locale)
+        forecast = self.forecast.as_dict(locale=forecast_locale, include_queue=include_owner_only)
         frame_playback = result.get("playback", self.state.playback.as_dict())
         if forecast["state"] == "ready" and (frame_playback.get("state") != "playing"
                 or self.forecast.context_item_id != frame_playback.get("item_id")):
@@ -5033,11 +5037,12 @@ class SessionRuntimeManager:
             return changed
 
     async def async_update_next_item_projection(self, *, owner_profile_id: str, session_id: str,
-                                                 media_identity: str, target_name: str, up_next: dict[str, Any]) -> bool:
+                                                 media_identity: str, target_name: str, up_next: dict[str, Any],
+                                                 authority=None) -> bool:
         """Apply optional queue data only to the still-current item/output."""
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
-            if active is None or active.session_id != session_id:
+            if active is None or active.session_id != session_id or (authority is not None and not authority()):
                 return False
             playback = active.broadcast.state.playback
             expected = hashlib.sha256(media_identity.encode()).hexdigest()[:24] if media_identity else ""
@@ -5045,6 +5050,22 @@ class SessionRuntimeManager:
                 return False
             normalized = RendererSafePlaybackProjection.from_observation(state=playback.state, media_identity=media_identity, up_next=up_next)
             return active.broadcast.update_playback(RendererSafePlaybackProjection(**{**playback.__dict__, "up_next": normalized.up_next}))
+
+    async def async_update_forecast_queue(self, *, owner_profile_id, session_id,
+                                          media_identity, target_name, preview, authority):
+        """Commit an original bounded observation; never renew from a read."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id or not authority():
+                return False
+            playback = active.broadcast.state.playback
+            expected = hashlib.sha256(media_identity.encode()).hexdigest()[:24] if media_identity else ''
+            if (playback.item_id != expected or playback.target_name != _bounded_text(target_name, 256)
+                    or playback.state != 'playing'):
+                return False
+            active.broadcast.forecast.accept_queue(preview, expected, authority)
+            active.broadcast.update_forecast(active)
+            return True
 
     async def async_update_allowed_capability_intents(
         self,

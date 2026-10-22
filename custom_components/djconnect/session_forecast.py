@@ -50,6 +50,25 @@ class ForecastProjection:
     wall_clock: Any = field(default=time.time, repr=False)
     _semantic: dict[str, Any] = field(default_factory=dict, repr=False)
     _persona: str = field(default='home_dj', repr=False)
+    _locale: str = field(default='en', repr=False)
+    _queue: dict = field(default_factory=dict, repr=False)
+    _queue_item_id: str = field(default='', repr=False)
+    _queue_authority: Any = field(default=lambda: False, repr=False)
+
+    def accept_queue(self, value, item_id, authority) -> None:
+        from .queue_forecast import valid_preview
+        self._queue = ({k: copy.deepcopy(value[k]) for k in ('items', 'deadline', 'wall_deadline')}
+                       if authority() and valid_preview(value, self.clock()) and value['wall_deadline'] > self.wall_clock() else {})
+        self._queue_item_id = item_id
+        self._queue_authority = authority
+
+    def queue_context(self, item_id):
+        from .queue_forecast import valid_preview
+        if (item_id != self._queue_item_id or not self._queue_authority()
+                or not valid_preview(self._queue, self.clock())
+                or self._queue['wall_deadline'] <= self.wall_clock()):
+            return {}
+        return copy.deepcopy(self._queue)
 
     def accept_observation(self) -> None:
         """Only an accepted provider observation renews current-context authority."""
@@ -72,11 +91,14 @@ class ForecastProjection:
         summary, sections = realize(semantic, locale, persona)
         self._semantic = copy.deepcopy(semantic)
         self._persona = persona
+        self._locale = locale
         self.revision += 1
         self.signature = signature
         self.context_item_id = current_item_id if semantic.get("has_current") else ""
         self.refreshed_at = now
         self.deadline = min(now + FRESHNESS_SECONDS, self.observation_deadline)
+        if semantic.get('queue_preview'):
+            self.deadline = min(self.deadline, semantic['queue_preview']['deadline'])
         self.expired = False
         wall = self.wall_clock()
         self.value = {'contract_version': VERSION, 'session_id': self.session_id,
@@ -86,9 +108,12 @@ class ForecastProjection:
                       'supported_window_seconds': 900 if semantic.get('supported') else 0,
                       'current_anchor': {'item_id': self.context_item_id, 'source_url': semantic.get('source_url', '')} if self.context_item_id else None,
                       'summary': summary, 'sections': sections[:3], 'imagery': copy.deepcopy(list(imagery[:2]))}
+        if semantic.get('queue_preview'):
+            self.value['valid_until'] = timestamp(min(wall + self.deadline - now,
+                self.observation_wall_deadline, semantic['queue_preview']['wall_deadline']))
         return True
 
-    def as_dict(self, *, locale: str | None = None) -> dict[str, Any]:
+    def as_dict(self, *, locale: str | None = None, include_queue: bool = True) -> dict[str, Any]:
         """Expiry projection does not advance revisions/deadlines or do work."""
         result = copy.deepcopy(self.value or {'contract_version': VERSION,
                                              'session_id': self.session_id, 'revision': self.revision,
@@ -96,14 +121,20 @@ class ForecastProjection:
                                              'supported_window_seconds': 0, 'summary': '',
                                              'sections': [], 'imagery': [], 'current_anchor': None})
         denied = not self.authority()
-        if self.withdrawn or denied or (self.value and (self.expired or self.clock() >= self.deadline)):
+        if self._semantic.get('queue_preview') and not self._queue_authority():
+            denied = True
+        if self.withdrawn or denied or (self.value and (self.expired or self.clock() >= self.deadline
+                or (self._semantic.get('queue_preview') and self.wall_clock() >= self._semantic['queue_preview']['wall_deadline']))):
             result.update(state='withdrawn' if self.withdrawn or denied else 'expired', summary='',
                           supported_window_seconds=0, sections=[], imagery=[], current_anchor=None)
         else:
-            if locale is not None and self._semantic:
+            if self._semantic and (locale is not None or not include_queue):
                 # Re-render the original accepted meanings only. Reads never
                 # consult the Planner, mutate the stored language or renew time.
-                result['summary'], result['sections'] = realize(self._semantic, locale, self._persona)
+                semantic = dict(self._semantic)
+                if not include_queue:
+                    semantic.pop('queue_preview', None)
+                result['summary'], result['sections'] = realize(semantic, locale or self._locale, self._persona)
             # Never send a reference after its earlier asset deadline.
             result['imagery'] = [a for a in result['imagery']
                                  if _valid_wall_deadline(a.get('expires_at'), self.wall_clock())]
@@ -123,12 +154,15 @@ class ForecastProjection:
 
     def tick(self) -> bool:
         """Commit one expiry update on an existing observation tick."""
-        if not self.authority() and not self.withdrawn:
+        queue = self._semantic.get('queue_preview')
+        if (not self.authority() or (queue and not self._queue_authority())) and not self.withdrawn:
             return self.withdraw()
-        if not self.value or self.expired or self.withdrawn or self.clock() < self.deadline:
+        if (not self.value or self.expired or self.withdrawn
+                or (self.clock() < self.deadline and (not queue or self.wall_clock() < queue['wall_deadline']))):
             return False
         self.expired = True
         self._semantic = {}
+        self._queue = {}
         self.revision += 1
         self.value['revision'] = self.revision
         return True
@@ -138,6 +172,7 @@ class ForecastProjection:
             return False
         self.withdrawn = True
         self._semantic = {}
+        self._queue = {}
         self.revision += 1
         self.value = {**self.as_dict(), 'revision': self.revision}
         return True

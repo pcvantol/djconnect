@@ -284,3 +284,43 @@ work and renews no state or validity. Expired/withdrawn meanings stay unavailabl
 Five-language shared-route causal regressions and original-deadline/withdrawal
 negatives are required; these source proofs do not qualify native or installed
 adoption. No new wire keys or consumer setting are introduced.
+
+
+## Observed-queue DJ bulletin (source increment, 22 October 2026)
+
+Peter's selected extension makes the existing `guidance` narrative reflect the
+actual contiguous next three to five Spotify tracks, stopping after at least
+three when the observed durations cover roughly fifteen minutes, with an
+absolute maximum of five. A shorter valid prefix remains shorter. An episode,
+unknown identity or incomplete metadata ends the prefix; Core never skips it,
+pads the queue or searches for replacements. Artist genres are optional exact-ID
+Spotify artist metadata, not measurements of a recording's sound, BPM, energy
+or emotional trajectory. Missing genres remain missing.
+
+This is observed-queue context for authored wording, not an Upcoming Playback
+Projection: no upcoming artwork, media anchors, actions, playback reservation or
+promised order is emitted. The existing three section types and v1 transports
+remain unchanged. The music backend supplies bounded facts; Runtime accepts
+those facts under the original observer command/source/owner/Session admission;
+the existing presentation owner writes four Persona variants in all five
+languages. No model call, new Moment, Presence budget, queue mutation, history,
+Music DNA or persistent Forecast storage is introduced.
+
+The optional Stage-1 lookup has one three-second total bound. It shares one queue
+observation between up-next and narrative, with at most one bounded artist batch.
+Artist failures/backoff preserve known track names without invented genres.
+Account/credential-scoped cache age starts before the original fetch and expires
+at thirty seconds; neither a poll/cache read nor localized projection renews it.
+The accepted narrative deadline is capped by that original deadline and current
+playback observation. Changed source, owner, Session, output, command generation,
+current recording, revocation or expiry rejects/withdraws late content. HTTP and
+Broadcast reads remain pure. Queue narrative is owner-only: shared display projections
+retain their prior current-context narrative without queue names or genres;
+this extension grants no background/widget/external display rights. Missing/expired queue falls back to the existing
+honest current-context Forecast rather than a fictional future.
+
+Local source validation: 3168 tests PASS (seven existing skips), Ruff and eight
+isolated actual-HA HTTP harnesses PASS on all241 product files. See
+[the local qualification report](../verification/OBSERVED_QUEUE_DJ_BULLETIN_20261022.md).
+Exact committed review, protected delivery, installed runtime and native visible
+acceptance remain separate pending gates; this is not a release/install claim.

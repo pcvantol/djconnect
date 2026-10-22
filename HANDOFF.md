@@ -3434,3 +3434,25 @@ postcommit recovery and existing speech/output choices are preserved. The old
 automatic Mood mix-question trigger is withdrawn; explicit Ask DJ mix offers
 are unaffected. See docs/product/SETTINGS_CONFIRMATION_MOMENT_V1.md. Apple/native
 and audible acceptance remain open. No merge/install until direct Peter merge.
+
+
+## 22 October 2026: observed-queue DJ bulletin (review candidate)
+
+The existing Forecast guidance can now describe the actual contiguous next
+three to five Spotify tracks (max five, roughly fifteen minutes when durations
+are known), with optional exact-ID artist genres and four authored Persona
+variants in five languages. It never invents acoustic measurements or guarantees
+playback. Source/cache admission includes original owner/Session/account/source,
+command, output ID/occurrence, current recording and original thirty-second
+expiry. Final authority checks occur inside the Runtime lock; reads do no work.
+No new Moment, playback, model call or durable queue storage is introduced.
+
+The standalone bounded HA-lab script is
+`scripts/verification/verify_queue_forecast_http.py`. Its external Spotify/CDN
+responses are synthetic; it exercises real pairing, HTTP, observer, backend and
+Runtime. Full source/fixture validation and independent review remain separate
+from protected delivery, HA-dev/prod installation and native visible acceptance.
+The previous merged consolidation's original Final qualification is still an
+external GitHub blocker; this candidate does not claim to resolve it. All
+parked push WIP remains outside this source branch. Merge awaits Peter's direct
+instruction under the existing one-PR policy.

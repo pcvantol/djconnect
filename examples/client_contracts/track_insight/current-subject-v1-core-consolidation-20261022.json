@@ -22,7 +22,7 @@
   "responses": {
     "current": {
       "id": "track_insight_46f2f86799b7612de36684bd",
-      "created_at": "2026-10-22T15:25:19.219133+00:00",
+      "created_at": "2026-10-22T17:55:11.312567+00:00",
       "source": "current_detail",
       "language": "nl",
       "mood_context": null,
@@ -89,7 +89,7 @@
         "schema_version": 1,
         "media_identity": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
         "observation_id": "<opaque-observation-redacted>",
-        "expires_at": 1792682749.2186365,
+        "expires_at": 1792691741.3120337,
         "expires_in": 29
       }
     },
@@ -119,19 +119,19 @@
     "custom_components/djconnect/track_insight.py": "c582c0fae1e5bd50096684d5801dd253cc150205e94aecb5bf77306e670404e8",
     "custom_components/djconnect/track_insight_target.py": "6b599c7d0bb465ca7c30c5d6c47538fe5b8b13e18fb3f5be6e6307c0fcca625c",
     "custom_components/djconnect/capability_contract.py": "e6475b84ce72d16fa71678be4bb5edbbfe72969d4e436fa52f339e28435c238d",
-    "custom_components/djconnect/playback_observation.py": "3c68b3ebe03bbbaaaa6b6f226d5e91f8e01382a54abe8ea063fc52ab16985fe5",
-    "custom_components/djconnect/spotify_backend.py": "f41969cbc70192c29f5627cccea6f21980430b65a0d2f61fbd902976904ae3e6",
+    "custom_components/djconnect/playback_observation.py": "90bfe43beb0c84964c20b0825fbfa2fad2dc4bea47e54717f0e9a4f49b103d6b",
+    "custom_components/djconnect/spotify_backend.py": "3cd4337aa6664d1dd293f40afbecef7063baba94cbe9cf17276e8bb1e1eefb45",
     "custom_components/djconnect/profile_context.py": "b65b5bc6159b10b4f8c864c5af4a2bdaeda34449eb8e839e0f253db302a58320",
     "custom_components/djconnect/api_handlers.py": "5dd6d9c59d00641ce268df0a48a5ab6b82e49b79c50a31cab171159ba0659142",
     "custom_components/djconnect/transport_delivery.py": "70b45afe6e25f960973affd39ae6d77e8a695db41df8919e749ca6885aedd8af",
-    "custom_components/djconnect/session_runtime.py": "10fa26e35afd940347fbb6282b992c686c2663bf8ad5d64b36b317783a9070c5",
+    "custom_components/djconnect/session_runtime.py": "95f803ad5977241e94109fd0c873b63ee9a5bb71110f08173530b3ba7f342481",
     "custom_components/djconnect/forecast_imagery.py": "28c15f023ddc1df1c43a3997d8a551fc74ae08a473b494398165d226c9e2fd9c",
     "custom_components/djconnect/session_facts.py": "0cb8d6a0984baccdccc4ce3df5430c3b4dddf70c963537d45d2f7ce78acd79d7",
     "custom_components/djconnect/session_conversation.py": "166df3182f09fc43320adeaeb544accbc552672fa7d80a47582718ba9e48b9d7"
   },
   "harness": "scripts/verification/verify_current_track_insight_http.py",
   "harness_sha256": "f28b155e194a021f4ce92c6ea8f021b97155ab9fc73facfcfd7784762101f957",
-  "actual_ha_receipt_sha256": "0bffaaed746fb1496c88b9071bbf8c18141094c7767c4ec1dab452e6fedc32d3",
+  "actual_ha_receipt_sha256": "28b282c4d1b58af66b250c728a537653a6e7e5adfd2f4d4ef4fd38174eb86a11",
   "source_unchanged": true,
   "playback_mutations": 0
 }

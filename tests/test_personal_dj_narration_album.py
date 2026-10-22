@@ -320,6 +320,7 @@ class AlbumNarrationTest(unittest.IsolatedAsyncioTestCase):
                 self.base.runtime.backend_cache = {}
                 with patch.object(SpotifyBackend,'async_observe_current_playback',AsyncMock(return_value=current_result)), \
                         patch.object(SpotifyBackend,'async_observe_next_item',AsyncMock(return_value={})), \
+                        patch.object(SpotifyBackend,'async_observe_forecast_queue',AsyncMock(return_value={})), \
                         patch.object(SpotifyBackend,'_request',request), \
                         patch.object(forecast_imagery,'artist_authority',return_value=lambda:True), \
                         patch.object(session_facts,'session_facts_resolver',return_value=resolver), \

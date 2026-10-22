@@ -57,3 +57,14 @@ Discovery grants and unknown future media never leave Core. Reads are pure and
 expiry/authority/end remove content. Current Core, native view, shared compatibility,
 visible ambient adoption and joint acceptance retain separate qualification.
 Earlier future-design wording above is the preserved pre-implementation baseline.
+
+
+### Observed queue as bounded narrative context
+
+The 22 October 2026 DJ-bulletin increment enriches existing Forecast prose with
+an admitted observed contiguous queue prefix (max five, original thirty-second
+expiry), owned by the music backend. It does not export a provider queue,
+advance Planner slots, promise order or qualify upcoming imagery/actions. The
+original design's prohibition on represented predicted tracks remains; the
+explicit extension is factual, conditional narrative context only. See
+`docs/product/SESSION_FORECAST_V1.md` for admission, expiry and privacy bounds.
