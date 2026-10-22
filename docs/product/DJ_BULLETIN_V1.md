@@ -73,6 +73,43 @@ exceptions and native attribution before producer delivery; a feed's existence
 is not blanket permission for its images or articles. Generated wording must
 be identified as a DJ summary with the original source links and times.
 
+### Metadata exceptions and generated-output notice
+
+Explicit RSS channel/item or Atom feed/entry rights, copyright, licence or
+licence-link declarations are not replaced by a publisher default. Such a feed
+or entry is unavailable until its particular conditions are separately
+qualified. Even empty or apparently permissive declarations fail closed; there
+is no free-text permission classifier. A restricted item does not suppress its
+otherwise eligible siblings, while an item cannot override restricted feed
+conditions. No linked article is fetched to infer permission.
+
+The closed five-source policy follows the linked publisher defaults and their
+exceptions. CBS/EEA require original-source acknowledgement and preserved
+meaning; KNMI requests source credit and separation from derived work. NASA's
+AI guidance separates factual source-material disclosure from authorship of
+generated output. Eurostat requires edited/translated reuse to be identified
+and disclaims responsibility for that derivative text. A NASA guidance label
+is not a generic Creative Commons licence or blanket third-party permission.
+
+The complete candidate therefore includes a deterministic notice in en/nl/de/fr/es:
+DJConnect authors the AI adaptation; translation is included where applicable;
+the two publishers are identified strictly as source material and have not
+reviewed or endorsed this summary and are not responsible for its contents.
+This conditional translation wording does not assert that every source was
+translated. The fixed notice travels in the ordinary content field through
+owner Flow, native delivery and speech, without an extra screen or setting.
+Existing source cards retain original links, dates and default licence labels.
+
+The generation word budget subtracts the exact localized notice. The final
+complete text remains 60–110 words and at most 1200 Unicode characters. The
+existing second model call assesses that complete text, including consistency
+with the notice and absence of publisher-authored/approved AI-output framing;
+no additional call is introduced. Every candidate eligibility check recomputes
+the notice against the same closed publisher policy. A missing, changed or
+stripped notice cannot become a deliverable candidate. This is a bounded
+metadata-summary policy, not certification of rights absent from feed metadata.
+Actual source/style and native/audio acceptance remain separate qualification.
+
 ## Intake and reservation semantics
 
 The parser accepts RSS2 or Atom, explicit publication dates with timezone, and

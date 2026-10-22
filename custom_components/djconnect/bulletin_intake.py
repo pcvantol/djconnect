@@ -174,6 +174,22 @@ class _SafeTree(ET.TreeBuilder):
         return result
 
 
+def _explicit_rights(elements):
+    """No item/feed exception has been qualified to inherit a default licence.
+
+    Inspect XML metadata, never classify arbitrary rights prose as permissive.
+    Even a familiar licence spelling needs its own source-use qualification;
+    absent/empty/unknown/third-party terms cannot silently widen permission.
+    """
+    for element in elements:
+        local = element.tag.rsplit("}", 1)[-1].casefold()
+        if local in {"rights", "copyright", "license", "licence"}:
+            return True
+        if local == "link" and "license" in element.get("rel", "").casefold().split():
+            return True
+    return False
+
+
 def parse_feed(source, body, *, now, monotonic=None):
     """Parse a fixed publisher's metadata, rejecting unknown XML and dates."""
     _clock(now)
@@ -190,16 +206,22 @@ def parse_feed(source, body, *, now, monotonic=None):
     except (ET.ParseError, DefusedXmlException):
         raise IntakeError("invalid_bulletin_xml") from None
     if root.tag == "rss" and root.find("channel") is not None:
-        entries = root.findall("channel/item")
+        container = root.find("channel")
+        entries = container.findall("item")
         atom = False
     elif root.tag == ATOM + "feed":
+        container = root
         entries = root.findall(ATOM + "entry")
         atom = True
     else:
         raise IntakeError("invalid_bulletin_feed")
+    if _explicit_rights(child for child in container if child not in entries):
+        return ()  # Item-level claims cannot override an unqualified feed condition.
     result, seen = [], set()
     for entry in entries[:MAX_ITEMS]:
         try:
+            if _explicit_rights(entry.iter()):
+                continue
             prefix = ATOM if atom else ""
             title = plain(entry.findtext(prefix + "title"), 240)
             description = plain(entry.findtext(prefix + ("summary" if atom else "description")) or "", 640)

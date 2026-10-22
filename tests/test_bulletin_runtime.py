@@ -202,6 +202,12 @@ class BulletinRuntimeTests(unittest.IsolatedAsyncioTestCase):
         from custom_components.djconnect.session_speech import moment_projection
         off = moment_projection(self.active.broadcast, moment, autoplay=False)
         on = moment_projection(self.active.broadcast, moment, autoplay=True)
+        from custom_components.djconnect.bulletin_source_policy import source_notice
+        notice = source_notice(self.candidate.items, self.candidate.session.locale)
+        self.assertTrue(moment.content.endswith('\n\n' + notice))
+        self.assertEqual(moment.as_dict()['content'], self.candidate.text)
+        self.assertIn(notice, json.dumps(self.active.broadcast.as_dict(), ensure_ascii=False))
+        self.assertIn(notice, json.dumps(on, ensure_ascii=False))
         self.assertTrue(off["manual_allowed"])
         self.assertFalse(off["autoplay_eligible"])
         self.assertTrue(on["autoplay_eligible"])

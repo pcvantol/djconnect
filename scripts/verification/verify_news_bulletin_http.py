@@ -163,6 +163,14 @@ async def qualify(hass, manager, history, request, client):
             assert text not in json.dumps(active.broadcast.as_dict(include_owner_only=False))
             off = moment_projection(active.broadcast, moment, autoplay=False)
             on = moment_projection(active.broadcast, moment, autoplay=True)
+            from custom_components.djconnect.bulletin_source_policy import source_notice
+            notice = source_notice(moment.bulletin.candidate.items,
+                moment.bulletin.candidate.session.locale)
+            assert moment.content == text + '\n\n' + notice
+            assert moment.as_dict()['content'] == moment.content
+            assert notice in json.dumps(response, ensure_ascii=False)
+            assert notice in json.dumps(on, ensure_ascii=False)
+            assert 60 <= len(moment.content.split()) <= 110 and len(moment.content) <= 1200
             assert off["manual_allowed"] and not off["autoplay_eligible"]
             assert on["autoplay_eligible"] and off["expires_at"] == on["expires_at"]
             assert len(moment.as_dict()["sources"]) == 2
@@ -195,6 +203,7 @@ async def qualify(hass, manager, history, request, client):
             "one_HA_lifecycle_cookie_free_client", "control_capable_HA_agent_denied", "actual_SQL_commit_before_two_model_calls",
             "collector_prepares_never_publishes", "existing_Planner_and_shared_Presence_once",
             "owner_only_HTTP_and_shared_redaction", "existing_autoplay_toggle_original_expiry",
+            "complete_source_notice_retained_in_HTTP_native_and_speech",
             "expired_source_redacts_text_and_speech", "metadata_only_history",
             "original_authority_withdrawal", "service_closed_and_task_removed"],
             "sample": sample, "revoked_native_delivery": revoked, "model_provider_calls": 0, "external_RSS_calls": 0,

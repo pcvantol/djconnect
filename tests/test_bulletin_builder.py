@@ -84,6 +84,46 @@ class BulletinBuilderTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(await self.builder.prepare((self.items[0], duplicate), session=self.session, guard=self.guard))
         self.assertEqual(self.calls, [])
 
+    async def test_restricted_feed_metadata_never_reaches_reservation_or_model(self):
+        items = []
+        for source in SOURCES[:2]:
+            body = rss(source).replace(b'</channel>',
+                b'<copyright>Third-party material, all rights reserved</copyright></channel>')
+            items.extend(parse_feed(source, body, now=NOW))
+        self.assertEqual(items, [])
+        self.assertIsNone(await self.builder.prepare(items, session=self.session, guard=self.guard))
+        self.assertEqual(self.calls, [])
+        self.assertIsNone(self.store.data)
+
+    async def test_complete_candidate_and_assessment_include_deterministic_product_source_notice(self):
+        candidate = await self.prepare()
+        self.assertIsNotNone(candidate)
+        self.assertIn('AI-bewerking door DJConnect', candidate.text)
+        self.assertIn('CBS', candidate.text)
+        self.assertIn('KNMI', candidate.text)
+        self.assertIn('niet verantwoordelijk', candidate.text)
+        assessed = json.loads(self.calls[1].rsplit('\n', 1)[1])
+        self.assertEqual(assessed['candidate'], candidate.text)
+        self.assertTrue(60 <= len(candidate.text.split()) <= 110)
+        self.assertLessEqual(len(candidate.text), 1200)
+        stripped = replace(candidate, text=self.text)
+        self.assertFalse(stripped.eligible(session=self.session, now=NOW, monotonic=100))
+
+    async def test_unknown_or_changed_source_policy_prevents_reservation_and_model(self):
+        for changed in (replace(self.items[0], source_id='unknown'),
+                replace(self.items[0], license='All rights reserved'),
+                replace(self.items[0], source_title='NASA endorsed this output')):
+            with self.subTest(item=changed.source_id, license=changed.license):
+                self.assertIsNone(await self.builder.prepare((changed, self.items[1]),
+                    session=self.session, guard=self.guard))
+        self.assertEqual(self.calls, [])
+        self.assertIsNone(self.store.data)
+
+    async def test_notice_is_included_in_final_word_and_character_limits(self):
+        self.text = ' '.join(['synthetisch'] * 105)
+        self.assertIsNone(await self.prepare())
+        self.assertLessEqual(len(self.calls), 1)
+
     async def test_music_only_never_calls_model_and_store_failure_never_falls_through(self):
         with self.assertRaises(BuilderError):
             await self.prepare(session=replace(self.session, presence="music_only"))

@@ -3562,3 +3562,22 @@ SSH, retry, claim reset/rearm or privilege grant occurs. Screen NOT_RECOVERED.
 Current human/readiness/noReplay/exclusive durable claim and separate V3 smoke
 remain owning Pi. Protected source, separate Final/original qualifications and
 the complete batch installation/readback process remain mandatory before release.
+
+
+#### News metadata exceptions and complete output notice
+
+The next draft-only increment closes the two concrete rights-policy review gaps:
+explicit feed/item rights declarations fail closed before reservations or models,
+and the AI adaptation carries a fixed localized product/source/derivative notice
+in the complete candidate text. The existing second assessment sees that complete
+text, and eligibility rechecks the original notice at every delivery boundary.
+The whole text, including the notice, remains 60–110 words and at most1200 Unicode
+characters; no extra model calls, UI, scheduler, audio route or storage is added.
+
+Causal old-source failures are retained.62 focused tests and all56 changed Python
+Ruff checks pass. Fresh ten isolated actualHA2026.10.0 harnesses match the same257
+product files and remove their own containers; external feed/model/issuer edges
+remain declared synthetic fixtures. New derivatives join those original receipts,
+not historical product hashes. Full-suite and exact whole-source review are
+separate gates. No general rights guarantee, actual news-style/model quality,
+native/audio acceptance, protected merge, deployment or operative Pi use follows.

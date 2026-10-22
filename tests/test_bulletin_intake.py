@@ -101,6 +101,44 @@ class BulletinIntakeTests(unittest.TestCase):
         self.assertFalse(hasattr(items[0], "article_body"))
         self.assertEqual(self.parse(rss(self.source, title="a" * 241)), ())
 
+    def test_explicit_rights_never_inherit_a_broader_publisher_default(self):
+        original = rss(self.source)
+        declarations = (
+            b'<copyright>Restricted third-party material</copyright>',
+            b'<dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">All rights reserved</dc:rights>',
+            b'<rights xmlns="urn:synthetic-rights">Unknown conditions</rights>',
+            b'<license>CC-BY-4.0</license>',  # Not separately qualified per-item permission.
+            b'<link rel="license" href="https://example.invalid/terms"/>',
+            b'<copyright/>',  # Absence of text is not permission either.
+        )
+        for declaration in declarations:
+            for closing in (b'</item>', b'</channel>'):
+                with self.subTest(declaration=declaration, level=closing):
+                    self.assertEqual(self.parse(original.replace(closing, declaration + closing)), ())
+        self.assertEqual(len(self.parse(original)), 1)
+
+    def test_atom_rights_at_feed_or_entry_are_unqualified_and_cannot_override_each_other(self):
+        source = intake.SOURCES[-1]
+        stamp = datetime.fromtimestamp(NOW - 5, timezone.utc).isoformat()
+        original = ('<feed xmlns="http://www.w3.org/2005/Atom"><entry>'
+            '<title>Synthetic independent economic announcement</title><published>' + stamp + '</published>'
+            '<link href="https://ec.europa.eu/eurostat/news/one"/></entry></feed>').encode()
+        for closing in (b'</entry>', b'</feed>'):
+            for declaration in (b'<rights>All rights reserved</rights>',
+                    b'<link rel="license" href="https://creativecommons.org/licenses/by/4.0/"/>'):
+                with self.subTest(level=closing, declaration=declaration):
+                    self.assertEqual(intake.parse_feed(source,
+                        original.replace(closing, declaration + closing), now=NOW), ())
+        self.assertEqual(len(intake.parse_feed(source, original, now=NOW)), 1)
+
+    def test_restricted_item_does_not_poison_its_unrestricted_sibling(self):
+        restricted = rss(self.source).replace(b'</item>', b'<copyright>Restricted</copyright></item>')
+        sibling = rss(self.source, suffix="two", title="Different synthetic announcement about employment")
+        body = restricted.replace(b'</channel></rss>',
+            sibling.split(b'<item>', 1)[1].join((b'<item>', b'')))
+        result = self.parse(body)
+        self.assertEqual([item.source_url for item in result], ['https://www.cbs.nl/news/two'])
+
 
 class Content:
     def __init__(self, body):
