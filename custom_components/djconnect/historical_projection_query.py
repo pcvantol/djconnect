@@ -133,6 +133,9 @@ class HistoricalProjectionQueryService:
             row = {**row,'kind':'dj_publication',
                    'body':json.dumps(publication_receipt(body,'source_withdrawn'))}
         entry = project_entry(row)
+        if entry is not None:
+            from .historical_playback import offer
+            entry = offer(row, entry)
         if entry is not None and self.media_projector is not None:
             entry = self.media_projector(owner, row, entry)
         if entry is None or "conversation_reference" not in entry:

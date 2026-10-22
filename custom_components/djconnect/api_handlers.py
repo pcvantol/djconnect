@@ -177,8 +177,16 @@ async def async_handle_session_history_payload(
     from .history_entry_contract import (request_version, represent, version_context,
                                           HistoryEntryUpgradeRequired, upgrade_error)
 
+    from .historical_playback import offers_enabled, offer_locale
+    playback_token = None
+    playback_locale_token = None
     version_token = None
     try:
+        playback_version = data.get('historical_playback_contract_version')
+        if playback_version is not None and not (type(playback_version) is int and playback_version == 1 or type(playback_version) is str and playback_version == '1'):
+            raise HistoryQueryError('unsupported_historical_playback_contract')
+        playback_token = offers_enabled.set(playback_version is not None)
+        playback_locale_token = offer_locale.set(str(data.get('locale') or data.get('language') or 'en').split('-',1)[0].lower())
         entry_version = request_version(data.get('history_contract_version'))
         version_token = version_context.set(entry_version)
         query = query_service(hass, _history_manager(hass, runtime))
@@ -271,6 +279,10 @@ async def async_handle_session_history_payload(
     finally:
         if version_token is not None:
             version_context.reset(version_token)
+        if playback_token is not None:
+            offers_enabled.reset(playback_token)
+        if playback_locale_token is not None:
+            offer_locale.reset(playback_locale_token)
 async def async_handle_session_start_payload(
     hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
 ) -> tuple[dict[str, Any], int]:
@@ -836,7 +848,7 @@ async def async_handle_command_payload(
     if isinstance(data, dict):
         command = str(data.get("command") or "").strip().lower()
         value = data.get("value")
-        action_commands = {"ask_dj_play_recommendation", "ask_dj_play_recommendation_on_output",
+        action_commands = {"play_history_item", "ask_dj_play_recommendation", "ask_dj_play_recommendation_on_output",
                            "ask_dj_play_request_on_output", "ask_dj_followup_response"}
         text = _current_track_question_text(data, command, value)
         if command == "ask_dj_message":
@@ -845,6 +857,18 @@ async def async_handle_command_payload(
             normalized = {**data, **part, "text": text}
         else:
             normalized = {**data, "text": text or command}
+        if command == "play_history_item":
+            from .historical_playback import checked_reference
+            try:
+                reference = checked_reference(value)
+            except ValueError:
+                return _error_payload("invalid_historical_playback_reference"), 400
+            context = data.get("conversation_context") or {}
+            if not isinstance(context, dict) or set(context) - {"thread_id"}:
+                return _error_payload("invalid_conversation_context"), 400
+            normalized["text"] = "Play the selected historical recording."
+            normalized["conversation_context"] = {**context, "selected_entry": {
+                k: reference[k] for k in ("session_id", "entry_id")}}
         if command in action_commands or command in {"ask_dj_message", "help", "hulp", "commands", "show_help", "show_commands"} or text:
             if not normalized.get("text"):
                 return _error_payload("missing_ask_dj_text"), 400
@@ -2790,7 +2814,8 @@ async def _async_handle_ask_dj_history_payload(
             != archive_revision
             or await async_history_grant_revision(hass, context.profile_id) != grant_revision):
             return _error_payload("conversation_history_changed"), 409
-        result["messages"]=safe
+        from .reply_artwork import public as public_reply_media
+        result["messages"] = public_reply_media(safe)
         result["user_id"]=None
         result["owner_profile_id"]=context.profile_id
         result["history_scope"]="profile"

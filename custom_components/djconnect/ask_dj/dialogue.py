@@ -188,6 +188,10 @@ class DialogueTurn:
     accepted_playback_narration: bool = False
     music_steering_offer: dict | None = None
     provider_display_source: dict | None = None  # Original archive binding, never model input.
+    reply_source_context: dict | None = None
+    reply_source_authority: Any = None
+    reply_media_candidate: Any = None  # Exact image/subject from this response only.
+    historical_playback_admission: Any = None  # RAM-only original-source validator.
     interpreted_context_research: bool = False  # Validated selected-source read only.
     explicit_research_subject: bool = False  # Full public name anchored in current question.
     interpreted_music_direction: bool = False  # Validated reply to Core's genre clarification.
@@ -586,6 +590,8 @@ class DialogueState:
                 "generation": turn.generation,
                 "session_id": turn.session_id,
             }
+            if turn.historical_playback_admission is not None:
+                frame.result_set["historical_playback_admission"] = turn.historical_playback_admission
             steering_offer = result.get("music_steering") if result.get("origin") == "mood_change" else turn.music_steering_offer
             if isinstance(steering_offer, dict):
                 frame.result_set["music_steering"] = deepcopy(steering_offer)

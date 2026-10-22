@@ -90,8 +90,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         raise SessionConversationError("invalid_conversation_text", 400)
     from . import classify_ask_dj
     intent = classify_ask_dj(text)
-    fast = intent.category == "action"
+    historical_play = (payload.get("_command_action") or (None,))[0] == "play_history_item"
+    fast = not historical_play and intent.category == "action"
     explicit_action = intent.category in {"action", "hybrid"} and intent.action not in {None, "none", "announce"}
+    explicit_action = historical_play or explicit_action
     digest = hashlib.sha256(json.dumps({"context": context, "text": text,
         "choice_action": payload.get("choice_action"), "command_action": payload.get("_command_action"),
         "track_insight_target":payload.get("track_insight_target"),
@@ -173,7 +175,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             # A broad question grammar can capture a clause instead of a name.
             # It is not an independent public topic or authority to drop a chip.
             new_subject = None
-        detached = bool((target or live) and not references_selected_subject
+        detached = bool(not historical_play and (target or live) and not references_selected_subject
                         and (new_subject or (not references_topic(text) and intent.intent != "ask_music_info"))
                         and not explicit_quote(text))
         reset_topic = (detached or bool(new_subject and not references_selected_subject) or independent_search
@@ -346,6 +348,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                             dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
         turn.source_request_hashes = source_request_hashes
+        from ..reply_artwork import source_admission
+        turn.reply_source_context, turn.reply_source_authority = source_admission(hass, runtime, profile_id)
         # The exact same synchronous source deadline also guards retained speech,
         # including synthesis/provider awaits after the chat has been accepted.
         turn.delivery_validators.extend((validate_retained_deadline, validate_content_dependencies))
@@ -412,6 +416,17 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         turn_record['dependency_moments'] = [d for d in dependencies if 'moment_id' in d]
         if turn.provider_display_source is not None:
             turn_record["provider_display_source"] = deepcopy(turn.provider_display_source)
+        from ..reply_artwork import accepted as accepted_reply_media, KEY as REPLY_MEDIA_KEY
+        reply_media = accepted_reply_media(turn, result)
+        if persist_history and reply_media is not None:
+            from ..session_conversation import async_metadata_archive_admission
+            reply_archive = await async_metadata_archive_admission(
+                hass, profile_id, reply_media['source_context'], turn.reply_source_authority)
+            await turn.guard()
+            if reply_archive is not None:
+                reply_archive()
+                turn.delivery_validators.append(reply_archive)
+                turn_record[REPLY_MEDIA_KEY] = reply_media
         ids = []
         if persist_history:
             new = saved is None
@@ -544,6 +559,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                                         for message in response["messages"]]
         # RAM-only admission travels with this bounded in-flight future. Each
         # waiter rechecks the original evidence with its own caller authority.
+        from ..reply_artwork import public as public_reply_media
+        response = public_reply_media(response)
         future.set_result((deepcopy(response), joined_admission))
         history_manager.dialogue.remember_catalogue_read(turn, response, future)
         return response

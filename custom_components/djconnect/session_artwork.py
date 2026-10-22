@@ -26,7 +26,8 @@ def capability():
             'max_targets': 8, 'image_requires_device_auth': True,
             'historical_resolution': 'exact_subject_original_source_only',
             'supported_contract_versions':[1,2],
-            'artist_image_sources_v2':['spotify','wikimedia_commons']}
+            'artist_image_sources_v2':['spotify','wikimedia_commons'],
+            'captured_reply_subjects':True}
 
 
 def subject_for_fact(fact, *, contract_version=1):
@@ -258,11 +259,13 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
                            'captured_at': datetime.fromtimestamp(wall, UTC).isoformat(),
                            'expires_at': datetime.fromtimestamp(wall + TTL, UTC).isoformat(),
                            'current_display_allowed': fresh_current and not historical,
-                           'active_flow_display_allowed': not historical,
+                           'active_flow_display_allowed': not historical and role != 'captured_reply_subject',
                            'historical_display_allowed': historical, 'cache_policy': 'no-store',
                            'crop_allowed': False, 'requires_device_auth': True,
                            'width': width, 'height': height, 'alt_text': alt_text(name, ':artist:' in uri),
                            'url': PATH.format(session_id=session_id, asset_id=asset_id)}
+                if role == 'captured_reply_subject':
+                    artwork['reply_display_allowed'] = True
                 if contract_version==2 and identity is not None:
                     artwork['subject']['wikidata_id']=identity.wikidata_id
                     artwork['upscale_allowed']=False
@@ -385,6 +388,26 @@ async def resolve_target(hass, runtime, context, session_id, target, *, contract
             elif body.get('moment_type')=='track':
                 return None  # An old cover is not an artist identity.
 
+    elif row['kind'] == 'conversation_dj':
+        from .reply_artwork import checked, KEY
+        ref = body
+        history = query._conversation_history
+        if history is None or ref.get('history_scope') != 'profile:' + context.profile_id:
+            return None
+        messages = await history.async_messages_by_id(ref['history_scope'], {str(ref.get('message_id') or '')})
+        message = messages.get(ref.get('message_id'))
+        if (not message or message.get('role') != 'assistant'
+                or message.get('session_turn', {}).get('turn_id') != ref.get('turn_id')):
+            return None
+        captured = checked(message.get('session_turn', {}).get(KEY))
+        if captured is None:
+            return None
+        uri, source, album = captured['subject_uri'], captured['source_context'], captured['album_uri']
+        from .session_conversation import async_qualify_history_source
+        if not await async_qualify_history_source(hass, context.profile_id, {
+                'kind':'playback_observed', 'body':json.dumps({'provider':'Spotify','source_context':source})}):
+            return None
+        role = 'captured_reply_subject'
     else:
         return None
     if not isinstance(uri, str) or not URI.fullmatch(uri) or not source:
@@ -458,7 +481,10 @@ def project(asset, *, current, historical):
     value = deepcopy(asset['projection'])
     artwork = value['artwork']
     artwork['current_display_allowed'] = bool(current and not historical)
-    artwork['active_flow_display_allowed'] = not historical
+    reply = artwork.get('role') == 'captured_reply_subject'
+    artwork['active_flow_display_allowed'] = not historical and not reply
+    if reply:
+        artwork['reply_display_allowed'] = True
     artwork['historical_display_allowed'] = historical
     value['revision'] = projection_revision(artwork)
     return value
@@ -560,7 +586,7 @@ async def handle_prepare(hass, data, *, headers=None, user_id=None):
 
 def project_history_media(hass, owner, row, entry):
     """Pure already-authorized row projection; no IO, renewal or provider work."""
-    if row['kind'] not in {'playback_observed', 'dj_moment'}:
+    if row['kind'] not in {'playback_observed', 'dj_moment', 'conversation_dj'}:
         return entry
     registry = hass.data.get('djconnect', {}).get('session_images')
     key = (owner, row['session_id'], (('entry_id', row['entry_id']),))
