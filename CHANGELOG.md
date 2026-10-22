@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Prefer an already qualified public-research story opportunity over bare
+  catalogue fields in proactive DJ planning. Keep the existing source checks,
+  persona/Mood, publication guards and two-call limit; reject metadata tutoring
+  in the spoken contribution rather than treating it as personal storytelling.
+
 - Recognize conversational named-artist questions such as “Vertel eens wat over
   Metallica” as independent public research, so an old selected contribution
   cannot block the new subject. Keep explicit Session and owner guards intact.

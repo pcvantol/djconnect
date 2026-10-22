@@ -1727,6 +1727,7 @@ class DJSessionPlanner:
         selected_mood: str, persona: DJPersona, performance_memory: PerformanceMemory,
         remaining_seconds: float,
         realized_copies: dict[int, tuple[str, str] | None] | None = None,
+        research_owner_connected: bool = False,
     ) -> tuple[KnowledgeIntent, QualifiedSessionFact] | None:
         """Rank only qualified, fitting current facts; never widen eligibility."""
         candidates = []
@@ -1762,6 +1763,17 @@ class DJSessionPlanner:
                            "artist_story": DJMomentType.ARTIST, "genre_story": DJMomentType.GENRE, "recommendation": DJMomentType.RECOMMENDATION}[fact.intent]
             score = {DJMomentType.TRACK: 30, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 10, DJMomentType.GENRE: 5, DJMomentType.RECOMMENDATION: 10}[moment_type]
             reasons = ["current_scope"]
+            from .narration_brief import qualify
+            from .public_artist_narration import can_research
+            brief = qualify(fact, locale=locale, persona=persona.value,
+                            mood=selected_mood, seed=localized[1])
+            if research_owner_connected and brief is not None and can_research(brief):
+                # Prefer an already qualified public research opportunity to a
+                # bare catalogue field. This performs no retrieval/model work
+                # and retains the existing one-candidate/two-call allowance.
+                # Published relationship priorities and variety fences remain.
+                score += 60
+                reasons.append("researchable_story")
             if isinstance(fact, ProducerRecommendationFact):
                 score += 150
                 reasons.append("published_credit_revisit")
@@ -5245,6 +5257,8 @@ class SessionRuntimeManager:
             performance_memory=active.performance_memory,
             remaining_seconds=(playback.duration_ms - opportunity.last_observed_position_ms) / 1000,
             realized_copies={key:((value.summary,value.content) if value else None) for key,value in realizations.items()},
+            research_owner_connected=bool((narrator := self._narration_providers.get(owner_profile_id))
+                and narrator[0] == active.session_id),
         )
         if selected is None:
             return None

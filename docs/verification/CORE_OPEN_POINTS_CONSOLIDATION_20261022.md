@@ -113,6 +113,40 @@ web/model work; this change grants no bypass of that Session admission. Apple
 owns the separate incorrect “action” error wording and transport/context UI.
 The screenshot does not establish which of these conditions occurred live.
 
+## Rich sources and personal DJ narration
+
+Peter's Andy Williams screenshot reads out an artist genre and then explains
+the limitations of that Spotify field. This is not rich personal storytelling.
+A normal read-only active-Session observation found Wikipedia among current
+source references, but does not correlate that Session or contribution with the
+screenshot. The screenshot's particular fetch/identity/review outcome remains
+unknown; no private text or identifiers were exported and no live model or
+playback was invoked for this investigation.
+
+A synthetic real Runtime/Flow/SQLite/publication regression reproduced a
+concrete selection weakness: a bare Spotify edition could win while an already
+qualified public-artist research opportunity was available. Planner scoring now
+gives eligible research scopes a preference when the same Session has a
+connected narration owner, before existing direction, persona,
+variety and published-relationship priorities finish ranking. This is a pure
+qualification check, not a new fetch or source grant. Missing, ambiguous,
+expired or rejected evidence remains closed; eligibility does not guarantee
+retrieval success. The existing single candidate and two generation/assessment
+calls remain the limit. Without that owner, planning retains its existing local
+fact order rather than favoring a research path that cannot actually run.
+
+The regression also checks an eligible public story against a genre field after
+a recent Artist contribution, including a matrix across supported personas,
+Moods and directions, then follows actual synthetic public-source
+retrieval, two model-boundary fixtures, retained source acceptance and one
+publication. Genre narration guidance and review now reject an extended lesson
+about labels, measurements or database limitations. Necessary source attribution
+and the artist-versus-recording truth boundary remain. Existing qualified
+Wikipedia episode, persona and Mood instructions are retained; no invented
+biography, audio traits or remembered listening are permitted. Synthetic tests
+prove selection, grounding and ownership mechanics; they do not establish real
+model literary quality, Persona contrast, installed speech or user acceptance.
+
 ## Remaining selected work in this same Core PR
 
 - Human Forecast from the next3–5 actual queued tracks and real genre evidence;

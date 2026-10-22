@@ -145,7 +145,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
             output=json.dumps(output)
         return {'response':{'speech':{'plain':{'speech':output}}}}
 
-    async def publish(self):
+    async def publish(self, facts=None):
         def authorize():
             if not self.authorized:
                 raise PermissionError('fixture_source_owner_revoked')
@@ -154,7 +154,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
                 admission=guard, fallback_text=brief.seed, conf=self.runtime.config, debug=self.debug)
         self.manager.connect_narration('profile-a', self.session.session_id, provider, authorize)
         async def insight():
-            return {'_qualified_facts':(self.fact,)}
+            return {'_qualified_facts':(self.fact,) if facts is None else facts}
         async def network(fetch, url, **kwargs):
             return await self.fetch(fetch, url, **kwargs)
         with patch.object(self.research.PublicFetch, 'request', network), \
@@ -163,6 +163,59 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
             return await self.manager.async_process_track_started(owner_profile_id='profile-a',
                 session_id=self.session.session_id, media_identity=self.catalog['uri'],
                 insight_provider=insight, require_current_playback=True, allow_initial_facts=True)
+
+    async def test_researchable_public_story_wins_over_bare_catalogue_edition(self):
+        from custom_components.djconnect import session_facts
+        await self.manager.async_update_allowed_capability_intents(owner_profile_id='profile-a',
+            session_id=self.session.session_id,
+            allowed_capability_intents=frozenset({'artist_story','album_story','genre_story'}))
+        self.session=self.manager.current_active('profile-a')
+        edition=session_facts.catalog_facts(self.catalog)[0]
+        import time
+        genre=session_facts.observed_genre_facts({
+            'source':'spotify_playback_status','backend':'spotify_direct','is_playing':True,
+            'media_identity':self.catalog['uri'],'title':self.catalog['title'],'artist':self.catalog['artist'],
+            'artist_ids':['Z'*22],'genres':['christmas'],
+            'genre_source_expires_at':time.monotonic()+100},
+            media_identity=self.catalog['uri'],title=self.catalog['title'],artist=self.catalog['artist'])[0]
+        # Recent Artist presentation may rotate angles, but must not make a
+        # bare artist-genre field outrank this eligible public-story scope.
+        choice=self.session.planner.select_qualified_current_fact(
+            facts=(genre,self.fact),media_identity=self.catalog['uri'],used_keys=set(),locale='nl',
+            allowed_intents=self.session.allowed_capability_intents,
+            session_start_strategy=self.session.session_start_strategy,
+            session_direction=self.session.session_direction.direction,
+            selected_mood=self.session.selected_mood,persona=self.session.dj_persona,
+            performance_memory=replace(self.session.performance_memory,
+                recent_moment_types=(self.r.DJMomentType.ARTIST,)),remaining_seconds=300,
+            research_owner_connected=True)
+        self.assertIsNotNone(choice)
+        self.assertIs(choice[1],self.fact)
+        moment=await self.publish((genre,edition,self.fact))
+        self.assertIsNotNone(moment,self.debug)
+        self.assertEqual(moment.content,self.answer,self.debug)
+        self.assertEqual(len(self.calls),2)
+        self.assertIn('Wikipedia',moment.source_references)
+        self.assertEqual(moment.source_fact,self.fact)
+        self.assertIn('researchable_story',self.session.planner.last_decision.reason)
+        self.assertEqual(self.session.presence_ledger.total_published,1)
+
+    async def test_connected_rich_story_preference_survives_supported_style_and_direction_variation(self):
+        from custom_components.djconnect import session_facts
+        edition=session_facts.catalog_facts(self.catalog)[0]
+        memory=replace(self.session.performance_memory,recent_moment_types=(self.r.DJMomentType.ARTIST,))
+        for persona in self.r.DJPersona:
+            for mood in ('chill','groove','energy','party','neutral'):
+                for direction in self.r.SessionDirectionType:
+                    with self.subTest(persona=persona,mood=mood,direction=direction):
+                        choice=self.session.planner.select_qualified_current_fact(
+                            facts=(edition,self.fact),media_identity=self.catalog['uri'],used_keys=set(),
+                            locale='nl',allowed_intents=frozenset({'artist_story','album_story'}),
+                            session_start_strategy=self.r.SessionStartStrategy.MANUAL,
+                            session_direction=direction,selected_mood=mood,persona=persona,
+                            performance_memory=memory,remaining_seconds=300,research_owner_connected=True)
+                        self.assertIsNotNone(choice)
+                        self.assertIs(choice[1],self.fact)
 
     async def test_complete_publication_reopen_sources_speech_and_selected_subject(self):
         from custom_components.djconnect import public_artist_narration as narration
