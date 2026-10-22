@@ -1,5 +1,15 @@
 # DJConnect Client Capability Matrix
 
+## Historical recording and captured reply media — contract1
+
+The [bounded Core producer](docs/product/HISTORICAL_PLAYBACK_AND_REPLY_ARTWORK_V1.md)
+adds `historical_exact_track_playback` and `captured_reply_artwork`, both version1,
+for paired Profile owners. History play actions require explicit negotiation and
+a human tap; existing output selection is reused. Original reply subject/edition
+and current temporary media authority remain separate. Shared/guest display gains
+no permission. Exact protected delivery, installed readback and native/physical
+adoption each require their own evidence.
+
 ## Current shared settings3 / target-aware speech3 producer
 
 Protected source main `e8cc70ddffb4112b09babdda4d45140b98926ae5`, PR [#1193](https://github.com/pcvantol/djconnect/pull/1193). [Exact source readback](docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md). Six-field producer/capabilities are delivered in Core; earlier local-candidate/design checkpoints below are historical. Consumer adoption, complete legacy removal, Finalization and actual installed/native/audible/joint outcomes remain separately qualified.

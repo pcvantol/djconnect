@@ -2,7 +2,7 @@
   "qualification": "ACTUAL_SQLITE_QUERY_TAIL_AND_REPRESENTATION_FROM_SYNTHETIC_ADMITTED_ROWS",
   "source_pins": {
     "custom_components/djconnect/session_history_projection.py": "7c389b8f46a5f4fcb30603ec81b188758f4faccf6c99b58db575e813b3d382df",
-    "custom_components/djconnect/historical_projection_query.py": "bce8d7a865fecb782915fdf9a52476b383f64cbf393c03516180efe2be415e4f",
+    "custom_components/djconnect/historical_projection_query.py": "0d1ae0a71ec19bb0a517a9762d19904125ec4ad30b05218dd5f643a1a3af8ff1",
     "custom_components/djconnect/session_speech.py": "e1974a3efb3da8208034e5ff095486f7f31264131f392163f1ddcebb32cf9f07",
     "custom_components/djconnect/history_entry_contract.py": "2cb333b1a9f8fce4471449857f735aa28f462e78d5ae95f952fa48ad8d17628f"
   },

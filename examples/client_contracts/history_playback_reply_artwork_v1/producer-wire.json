@@ -1,0 +1,121 @@
+{
+  "qualification": "ACTUAL_PAIRED_APPLICATION_SQLITE_AND_RAM_IMAGE_OWNER_SYNTHETIC_PROVIDER_IO",
+  "historical_entry": {
+    "entry_id": "entry-9fb4b98ab51e58eebb4c18689e58051e",
+    "session_id": "session-b14b1872fa15420191379a4da801ea93",
+    "order": 1,
+    "kind": "playback_observed",
+    "occurred_at": "2026-10-22T06:43:07.454280+00:00",
+    "retained_until": "2027-01-20T06:43:07.454711+00:00",
+    "historical_view_only": true,
+    "current_display_allowed": false,
+    "playback": {
+      "album": "Synthetic original edition",
+      "album_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB",
+      "artist": "Synthetic original artist",
+      "coverage": "observed_playing_not_full_listen",
+      "item_id": "02e3d582594577327c335fc0",
+      "provider": "Spotify",
+      "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
+      "title": "Synthetic original recording"
+    },
+    "text": "Synthetic original recording · Synthetic original artist · Synthetic original edition",
+    "requires_spotify_attribution": true,
+    "playback_actions": [
+      {
+        "kind": "historical_track",
+        "command": "play_history_item",
+        "label": "Play this recording",
+        "required_capability": "historical_exact_track_playback",
+        "value": {
+          "schema_version": 1,
+          "session_id": "session-b14b1872fa15420191379a4da801ea93",
+          "entry_id": "entry-9fb4b98ab51e58eebb4c18689e58051e"
+        }
+      }
+    ],
+    "session_media": {
+      "schema_version": 1,
+      "session_id": "session-b14b1872fa15420191379a4da801ea93",
+      "entry_id": "entry-9fb4b98ab51e58eebb4c18689e58051e",
+      "revision": "not_prepared",
+      "artwork": {
+        "state": "unavailable",
+        "reason": "not_prepared",
+        "current_display_allowed": false,
+        "active_flow_display_allowed": false,
+        "historical_display_allowed": false
+      }
+    }
+  },
+  "command_value": {
+    "schema_version": 1,
+    "session_id": "session-b14b1872fa15420191379a4da801ea93",
+    "entry_id": "entry-9fb4b98ab51e58eebb4c18689e58051e"
+  },
+  "observed_effects": [
+    [
+      "play",
+      "spotify:track:AAAAAAAAAAAAAAAAAAAAAA"
+    ]
+  ],
+  "captured_reply_media": {
+    "schema_version": 1,
+    "session_id": "session-eb1dd3c50b5c44bfa1a2f59f6b54c31a",
+    "entry_id": "entry-34048455ee7e5d30a201948c654af25f",
+    "revision": "08c3e40b65d818348ab53264",
+    "artwork": {
+      "state": "ready",
+      "subject": {
+        "provider": "spotify",
+        "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
+        "type": "track",
+        "album_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB"
+      },
+      "role": "captured_reply_subject",
+      "resolution_basis": "resolved_now",
+      "edition_basis": "original_bound",
+      "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
+      "attribution": {
+        "provider": "Spotify",
+        "mark": "spotify",
+        "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "usage_basis": "spotify_temporary_owner_display",
+      "captured_at": "2026-10-22T06:43:07.500476+00:00",
+      "expires_at": "2026-10-22T06:48:07.500476+00:00",
+      "current_display_allowed": false,
+      "active_flow_display_allowed": false,
+      "historical_display_allowed": false,
+      "cache_policy": "no-store",
+      "crop_allowed": false,
+      "requires_device_auth": true,
+      "width": 1,
+      "height": 1,
+      "alt_text": {
+        "en": "Artwork for Synthetic recording",
+        "nl": "Hoes van Synthetic recording",
+        "de": "Cover von Synthetic recording",
+        "fr": "Pochette de Synthetic recording",
+        "es": "Portada de Synthetic recording"
+      },
+      "url": "/api/djconnect/v1/session/media/image/session-eb1dd3c50b5c44bfa1a2f59f6b54c31a/j36rhgxET4740KsZctqCQXSgS3Pj-jQi",
+      "reply_display_allowed": true,
+      "media_revision": "08c3e40b65d818348ab53264"
+    }
+  },
+  "source_pins": {
+    "historical_playback.py": "cc0139f12fa158210583c81632cc8afc6368498d0590ad709d904e8ebbcb3ba8",
+    "reply_artwork.py": "40c9fcc76f93edb46b17a8cfc45ccf8e60bdc18e8660320455a251e22bc88a44",
+    "session_artwork.py": "d625b35a33ed133f99f65393fda3d9097e5eda67ad4cf59bc527d2a396e9d6e7",
+    "ask_dj/dialogue.py": "dca21084419933bcb758c349f4d1fd3c9c3770649ebf04f8fbb436bd23a1f672",
+    "ask_dj/service.py": "d076a5ff14274b2dd7dc460ccf361ecf25f9d0c9299f0fa53e4c9f4d4b99837d",
+    "ask_dj/__init__.py": "5b185847c14909e38da944ebf44a5e517951d6ef76458c11a4b389d7b89df052",
+    "api_handlers.py": "5dd6d9c59d00641ce268df0a48a5ab6b82e49b79c50a31cab171159ba0659142"
+  },
+  "paid_attempts": 0,
+  "installed": "NOT_RUN",
+  "native": "NOT_RUN",
+  "audible": "NOT_RUN",
+  "note": "Generated synthetic identifiers and recorded media lease are decoding examples, never executable grants."
+}

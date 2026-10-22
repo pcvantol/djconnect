@@ -28,6 +28,7 @@ _IMAGE_KEYS = frozenset(
         "artwork_url",
         "artwork_reference_version",
         "artwork_recent_reference_version",
+        "reply_media_reference",
         "images",
         "album_art_url",
         "media_image_url",

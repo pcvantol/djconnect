@@ -9077,9 +9077,20 @@ def _images_from_context(
     playback_context: dict[str, Any],
 ) -> list[dict[str, Any]]:
     images = _provided_images(hass, result.get("images"))
-    album_art = _context_album_art_image(
-        hass, (result, *_nested_image_sources(result), playback_context),
-    )
+    # Only the reply's own resolved subject can become a retained identity.
+    # Current playback and device-response fallbacks remain live decoration.
+    reply_sources = [result]
+    for key in ("media", "resolved_media", "track"):
+        source = result.get(key)
+        if isinstance(source, dict):
+            reply_sources.append(source)
+            reply_sources.extend(source[k] for k in ("media", "resolved_media", "track")
+                                 if isinstance(source.get(k), dict))
+    album_art = _context_album_art_image(hass, tuple(reply_sources), capture_reply_subject=True)
+    if album_art is None:
+        album_art = _context_album_art_image(
+            hass, (result, *_nested_image_sources(result), playback_context),
+        )
     return [*images, *([album_art] if album_art else [])]
 
 
@@ -9115,11 +9126,14 @@ def _nested_image_sources(result: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def _context_album_art_image(
-    hass: HomeAssistant, sources: tuple[Any, ...],
+    hass: HomeAssistant, sources: tuple[Any, ...], *, capture_reply_subject=False,
 ) -> dict[str, Any] | None:
     for source in sources:
         image = _album_art_image_for_source(hass, source)
         if image:
+            if capture_reply_subject:
+                from ..reply_artwork import remember_image
+                remember_image(source, image)
             return image
     return None
 
@@ -9134,7 +9148,8 @@ def _album_art_image_for_source(hass: HomeAssistant, source: Any) -> dict[str, A
     if not url:
         return None
     proxy = register_image_proxy_url(hass, str(url))
-    return {"url": proxy, "thumbnail_url": proxy, "title": source.get("track_name") or source.get("title") or source.get("name") or "Album art", "subtitle": source.get("artist") or source.get("artist_name") or source.get("album_name") or "", "kind": "album_art", "source": "spotify"}
+    image = {"url": proxy, "thumbnail_url": proxy, "title": source.get("track_name") or source.get("title") or source.get("name") or "Album art", "subtitle": source.get("artist") or source.get("artist_name") or source.get("album_name") or "", "kind": "album_art", "source": "spotify"}
+    return image
 
 
 def _links_from_context(
@@ -10196,6 +10211,22 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
 
 async def _activate_dialogue_output(hass, runtime, payload, action, turn, *, play=False):
     from .dialogue import EffectGrant, effect_media, DialogueError
+    # Original archive authority belongs to the offer, not the later current account.
+    # Consume before any await: different/concurrent client IDs cannot repeat an
+    # accepted or uncertain transfer/play attempt.
+    shown = turn.frame.result_set or {}
+    admission = shown.get("historical_playback_admission")
+    if admission is not None:
+        if (not play or action.get("command") != "ask_dj_play_recommendation_on_output"
+                or not isinstance(admission, dict) or not callable(admission.get("validate"))):
+            raise DialogueError("choice_expired")
+        if shown.get("historical_playback_attempted"):
+            raise DialogueError("choice_expired")
+        validate_original = admission["validate"]
+        validate_original()
+        turn.effect_validators.append(validate_original)
+        turn.delivery_validators.append(validate_original)
+        shown["historical_playback_attempted"] = True
     # Revalidate the exact ID using the same existing backend inventory.
     inventory = await run_music_command(hass, runtime, "devices")
     devices = inventory.get("devices", []) if isinstance(inventory, dict) else []
@@ -10263,6 +10294,9 @@ async def _execute_dialogue_command(hass, runtime, payload, action_request, *, u
     if turn is None:
         raise DialogueError("conversation_authority_required", 403)
     command, value = action_request
+    if command == "play_history_item":
+        from ..historical_playback import execute
+        return await execute(hass, runtime, payload, value)
     handler = {"ask_dj_play_recommendation": _handle_ask_dj_play_recommendation,
                "ask_dj_play_recommendation_on_output": _handle_ask_dj_play_recommendation_on_output,
                "ask_dj_play_request_on_output": _handle_ask_dj_play_request_on_output,
