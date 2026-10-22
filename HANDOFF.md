@@ -3540,3 +3540,25 @@ crypto4 again join the same256 product files, with all own containers removed.
 Current derivatives refer to these new original receipts; earlier failed and
 successful evidence remains separate. Exact source review and real post-push
 hassfest results are still separate gates. No merge or deployment occurs here.
+
+#### Actual Pi V3 consumer binding preparation
+
+The next source increment in the same draftPR1293 supplies the fixed V3 manifest
+for actual qualified Pi Finalbea606ae, with original source128/Final129 evidence
+independently downloaded and verified. All three normative V3 files remain
+byte-equal to protected Core103dc6 and Pi Finalbea. Fresh public readback matches
+the original Zero archive, installer, both locks and all80 runtime files. Native
+release immutable:false remains explicit; no installed or physical claim follows.
+
+The actual consumer's pure validation AST passes3 positive/33 negative checks.
+The offline Core binding verifier passes3/24; historical V1/V2/V3 verifiers pass
+3/149,3/208,3/274. The first invalid-date failure is retained and fixed explicitly.
+No product bytes change in this increment; the prior full batch runtime proof is
+not replaced by these narrower checks. Source review/commit/normal CI are separate.
+
+The schema approval records selected scope only. Peter's no-interim-merge/deploy
+hold remains in force; no operative handoff, Pi pair/configuration, workflow,
+SSH, retry, claim reset/rearm or privilege grant occurs. Screen NOT_RECOVERED.
+Current human/readiness/noReplay/exclusive durable claim and separate V3 smoke
+remain owning Pi. Protected source, separate Final/original qualifications and
+the complete batch installation/readback process remain mandatory before release.
