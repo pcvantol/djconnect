@@ -206,12 +206,12 @@ def current_artist_question(text: str) -> bool:
     if any(re.fullmatch(pattern, value) for pattern in current_artist_patterns):
         return True
     return value in {
-        "welke artiest is dit", "welke band is dit", "wie is dit", "wie hoor ik nu",
+        "welke artiest is dit", "welke band is dit", "wie is dit", "wie zijn dit", "wie hoor ik nu",
         "wie zingt dit", "who is this", "which artist is this", "who is this artist",
-        "who am i listening to", "who is singing this", "wer ist das",
+        "who am i listening to", "who is singing this", "who are these", "wer ist das", "wer sind das",
         "welcher künstler ist das", "welche band ist das", "wen höre ich gerade",
-        "qui est cet artiste", "qui est-ce", "qui chante", "quel artiste est-ce",
-        "quién es este artista", "qué artista es este", "quién canta esto",
+        "qui est cet artiste", "qui est-ce", "qui sont-ils", "qui chante", "quel artiste est-ce",
+        "quién es este artista", "qué artista es este", "quién canta esto", "quiénes son",
     }
 
 
@@ -245,6 +245,15 @@ async def current_artist_read(hass, runtime, selected=None, *, require_recording
     }
 
     subject = _identified_playback
+    image_samples = []
+    image_admission=None
+    if turn is not None:
+        manager=hass.data.get('djconnect',{}).get('session_runtime_manager')
+        active=manager.current_active(turn.scope.removeprefix('profile:')) if manager else None
+        if active is not None:
+            image_admission=(manager,active.session_id,active.broadcast.state.playback.item_id)
+        elif manager is not None:
+            image_admission=(manager,'','')
 
     async def fresh():
         if turn:
@@ -269,7 +278,21 @@ async def current_artist_read(hass, runtime, selected=None, *, require_recording
                 except (TypeError, ValueError):
                     return None
             turn.speech_deadline = min(turn.speech_deadline or deadline, deadline)
-        return subject(result.get("playback")) if isinstance(result, dict) and result.get("success") is not False else None
+        playback=result.get('playback') if isinstance(result,dict) and result.get('success') is not False else None
+        identity=subject(playback)
+        sample=None
+        if identity and turn is not None:
+            from ..reply_artwork import subject as image_subject
+            from ..discovery_artwork import provider_asset_id
+            reference=image_subject(playback,turn.reply_source_context)
+            if reference is not None:
+                url=next(playback[k] for k in ('album_image_url','media_image_url','image_url','thumbnail_url')
+                         if playback.get(k))
+                sample=(reference,provider_asset_id(url),{
+                    'uri':reference['subject_uri'],'album_uri':reference['album_uri'],
+                    'album_image_url':url,'title':identity[2],'artist':identity[1]})
+        image_samples.append(sample)
+        return identity
 
     answer = None
     target = None
@@ -307,11 +330,23 @@ async def current_artist_read(hass, runtime, selected=None, *, require_recording
             url = selected["playback"].get("source_url", "")
             if isinstance(url, str) and re.fullmatch(r"https://open\.spotify\.com/track/[A-Za-z0-9]{22}", url):
                 sources[0]["url"] = url
+    images=[]
+    if (answer and selected is None and len(image_samples)==2 and image_samples[0] is not None
+            and image_samples[1] is not None and image_samples[0][:2]==image_samples[1][:2]
+            and turn.reply_source_authority is not None and turn.reply_source_authority()):
+        from ..reply_artwork import observed_current_image
+        def validate_image_source():
+            if not turn.reply_source_authority():
+                raise DialogueError('source_withdrawn',409)
+        turn.delivery_validators.append(validate_image_source)
+        image=await observed_current_image(hass,turn,image_admission,image_samples[1][2])
+        if image is not None:
+            images=[image]
     if turn:
         await turn.guard()
     return {"success": True, "text": answer or unavailable[locale], "dj_text": answer or unavailable[locale],
             "action": "none", "intent": {"category": "informational", "intent": "current_artist_information"},
-            "images": [], "links": [dict(source) for source in sources if source.get("url")], "sources": sources,
+            "images": images, "links": [dict(source) for source in sources if source.get("url")], "sources": sources,
             "playback_actions": [], "_private_current_context": True,
             "speech_processing_basis": "spotify_owner_local_read_v1" if answer and target else "accepted_local_reply"}
 

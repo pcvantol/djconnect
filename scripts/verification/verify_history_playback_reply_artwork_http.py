@@ -319,6 +319,66 @@ async def qualify(hass, manager, history, request, client):
     assert revoked.status == 404
     cases["authenticated_png_delivery_and_clear_revokes_original_resource"] = "PASS"
 
+    # Real current-identification route and real registered image GETs. Only
+    # Spotify/CDN I/O is synthetic; no provider/model request leaves this lab.
+    from custom_components.djconnect import reply_artwork
+    await manager.async_update_playback_projection(
+        owner_profile_id='profile-a',session_id=active.session_id,state='playing',
+        media_identity=media['uri'],title=media['title'],artist=media['artist'],
+        album_uri=media['album_uri'])
+    session_artwork.attach_live_projection(hass,'profile-a',active.session_id)
+    media_before=active.broadcast.media_projector()
+    status_reads=[]
+    async def current_status(hass,runtime,command,*args,**kwargs):
+        assert command=='status'
+        status_reads.append(command)
+        return {'success':True,'playback':dict(media)}
+    async def current_pixels(hass,url,guard,registry):
+        assert url==media['album_image_url']
+        await guard()
+        return png,'image/png'
+    with patch.object(ask_dj,'run_music_command',current_status),patch.object(
+            reply_artwork,'_download_observed_cover',current_pixels):
+        current,status=await request('POST','/api/djconnect/v1/ask_dj/message',{
+            'client_message_id':'current-cover-session','text':'Wie zijn dit?',
+            'language':'nl','audio_response':'never',
+            'conversation_context':{'session_id':active.session_id}})
+        assert status==200 and not current['history_persisted'] and len(current['images'])==1,current
+        assert len(status_reads)==2 and not current['playback_actions']
+        assert active.broadcast.media_projector()==media_before
+        active.broadcast.native_delivery()
+        current_url=current['images'][0]['url']
+        assert (await client.get(current_url)).status==401
+        response=await client.get(current_url,params=identity,headers=headers)
+        assert response.status==200 and await response.read()==png
+        assert response.headers['Cache-Control']=='no-store'
+        registry=domain['session_images']
+        asset_id=current_url.rsplit('/',1)[-1]
+        next(a for a in registry.assets.values() if a['asset_id']==asset_id)['deadline']=0
+        assert (await client.get(current_url,params=identity,headers=headers)).status==404
+        assert active.broadcast.media_projector()==media_before
+        active.broadcast.native_delivery()
+        cases['current_reply_resource_excluded_from_attached_live_projector_even_after_expiry']='PASS'
+        cases['current_cover_original_observation_authenticated_GET_and_expiry']='PASS'
+        examples['current_identification_reply']=current
+        await manager.async_end(owner_profile_id='profile-a',session_id=active.session_id)
+        general,status=await request('POST','/api/djconnect/v1/ask_dj/message',{
+            'client_message_id':'current-cover-general','text':'Wie zijn dit?',
+            'language':'nl','audio_response':'never','conversation_context':{}})
+        assert status==200 and not general['history_persisted'] and len(general['images'])==1,general
+        assert manager.current_active('profile-a') is None and len(status_reads)==4
+        general_url=general['images'][0]['url']
+        assert general_url.startswith('/api/djconnect/v1/ask_dj/reply/image/')
+        assert (await client.get(general_url)).status==401
+        response=await client.get(general_url,params=identity,headers=headers)
+        assert response.status==200 and await response.read()==png
+        cases['general_Profile_current_cover_without_creating_Session']='PASS'
+        provider=domain['source-entry']
+        provider._receiver_end_generation=getattr(provider,'_receiver_end_generation',0)+1
+        assert (await client.get(general_url,params=identity,headers=headers)).status==404
+        cases['general_current_cover_original_source_withdrawal_revokes_GET']='PASS'
+        examples['general_current_identification_reply']=general
+
     return {
         "qualification": "ACTUAL_HA_PAIRED_HTTP_REAL_SQLITE_STORE_RAM_IMAGE_OWNER_SYNTHETIC_PLAYBACK_CDN_REPLY_BOUNDARIES",
         "cases": cases,

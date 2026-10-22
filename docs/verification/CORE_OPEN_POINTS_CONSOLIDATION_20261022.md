@@ -53,6 +53,46 @@ expiry during lookup, invalid/duplicate/unplayable records and explicit ordered
 mix playback exactly once. It does not prove the live screenshot's cause or
 native Apple presentation. Full checks and independent review remain gates.
 
+## Current-identification answer artwork
+
+Peter reported a missing cover beside “Dit is Enigma, met Gravity Of Love.”
+after “Wie zijn dit”. The direct current-identification route explicitly
+returned an empty image list despite reading the current recording twice.
+A synthetic real-owner regression reproduced that empty list before the fix.
+The exact live request/response was not captured; the screenshot alone is not
+proof of which live route ran.
+
+The candidate uses the existing two qualified status reads, without another
+provider or model call. A cover is admitted only when both reads agree on the
+exact recording, album edition and provider asset, and the original paired
+Profile/account/source authority still holds. An optional bounded CDN-only read
+of that observed asset uses the existing managed RAM image owner and decoder
+limits. The reply exposes an authenticated, no-store `album_art` image with the
+original observation deadline (at most60seconds); raw provider URLs and internal
+source bindings are not returned. The existing image GET checks the current
+requester and original source/Session/observation again. It rejects anonymous,
+other-owner, withdrawn and expired reads. A changed recording rejects the
+answer; a changed/missing edition
+or asset omits the image. Selected historical contributions never borrow the
+currently playing cover through this path.
+
+The existing private-current-context policy is preserved: display of this
+current read does not grant persistent conversation/Session archival rights.
+This is distinct from already delivered captured-reply identities for responses
+that have independent archive admission. Plural artist-identification wording
+is covered in all five supported languages. Focused identification, captured
+artwork, wording and real image-view/auth-handler regressions use synthetic
+provider/CDN I/O; native Apple display remains separate. The first generic-proxy
+implementation failed independent privacy review and was replaced before merge.
+General Profile questions without an active Session use the same RAM owner and
+authenticated image view through `/api/djconnect/v1/ask_dj/reply/image/{asset_id}`.
+No Session is fabricated or created to provide that image. The original absence
+of a Session, owner/source, privacy and observation deadline remain guarded.
+An explicit current-reply resource namespace keeps these assets and their
+loading/expired states out of the live Session/Flow media projector. A regression
+first reproduced its missing-projection failure with a genuinely attached
+projector; unit and isolated actual-HA HTTP checks cover creation and expiry.
+
 ## Remaining selected work in this same Core PR
 
 - Human Forecast from the next3–5 actual queued tracks and real genre evidence;
@@ -63,7 +103,7 @@ native Apple presentation. Full checks and independent review remain gates.
 - Accepted-recommendation artwork with exact original owner/recording/source
   admission; captured Ask DJ reply artwork remains a separate delivered producer.
 - Track Insight content/measurement qualification; no dummy numeric values.
-- Further bounded Core fixes from the retained17-item request registry.
+- Further bounded Core fixes from the retained18-item request registry.
 
 Apple owns catalogue single presentation and play controls, live help retrieval
 on every help-icon tap, captured-reply artwork and historical-playback adoption.

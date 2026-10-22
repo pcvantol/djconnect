@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Show the exact observed album cover alongside current-recording identification
+  answers, including “Wie zijn dit?”. Keep the original source and edition
+  checks; do not borrow later playback artwork or add archive permission.
+
 - Preserve requested mixes through Ask DJ genre clarification, accept supported
   alternatives such as techno outside the offered examples, and offer an exact
   Spotify recommendation mix with an explicit play control. Report unavailable

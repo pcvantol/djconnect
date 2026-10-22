@@ -508,8 +508,12 @@ def attach_live_projection(hass, owner, session_id):
         result = []
         registry.collect()
         for key in set(registry.assets) | set(registry.states) | set(registry.inflight):
-            if key[:2] != (owner, session_id) or ('media_contract_version','2') in key[2]:
-                continue  # v2 is explicit-response-only; preserve legacy consumers.
+            if (key[:2] != (owner, session_id)
+                    or ('media_contract_version','2') in key[2]
+                    or ('resource_scope','current_reply') in key[2]):
+                # Explicit-response resources never become Session/Flow cards,
+                # including their loading, expired or withdrawn state entries.
+                continue
             target = {k:v for k,v in key[2] if k in {'moment_id','entry_id'}}
             a = admissions.get(target.get('moment_id'), {})
             if 'moment_id' in target and not (a.get('current_display_allowed') or a.get('active_flow_display_allowed')):

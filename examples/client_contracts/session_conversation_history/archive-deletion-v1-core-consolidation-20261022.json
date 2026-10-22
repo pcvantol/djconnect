@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "qualification": "ACTUAL_ISOLATED_HA_PAIRED_HTTP_TLS_WEBSOCKET_STORE_SQLITE_SEPARATE_PROCESS_RECOVERY_SYNTHETIC_ONLY",
+  "ha_sdk_version": "2026.10.0",
+  "source_pins": {
+    "custom_components/djconnect/__init__.py": "643363884a9e211fd58f84fe0ff6e1b213166e2caf60fed74a5d642c6cea62d6",
+    "custom_components/djconnect/api_handlers.py": "5dd6d9c59d00641ce268df0a48a5ab6b82e49b79c50a31cab171159ba0659142",
+    "custom_components/djconnect/ask_dj/dialogue.py": "dca21084419933bcb758c349f4d1fd3c9c3770649ebf04f8fbb436bd23a1f672",
+    "custom_components/djconnect/ask_dj_history.py": "d421ab2d17f85746671a0e242e63a4d429c021b6346be05f11bd551c60c6a325",
+    "custom_components/djconnect/capability_contract.py": "ab44750c5c8ff6f569cd7860dd3c9c928a98d4474fdbba228b2e2e1023a50c6d",
+    "custom_components/djconnect/dj_response.py": "464ccc3aea7c812bd389daf8b3682305cc0e7bbe5b65c47e5546ceec74859776",
+    "custom_components/djconnect/historical_projection_query.py": "0d1ae0a71ec19bb0a517a9762d19904125ec4ad30b05218dd5f643a1a3af8ff1",
+    "custom_components/djconnect/history_deletion.py": "adf077184493e6f9a5a6b57ce21f13815e188da5b711d23226d9fffb5ebcf5f4",
+    "custom_components/djconnect/history_deletion_api.py": "390d4b6725963864ea540ea39af759d20ae9f09253bd634febb74004052e4ced",
+    "custom_components/djconnect/history_deletion_snapshots.py": "e51d1d5718564aa0ee7722252356cc7b1566b14154d65de500f7a36f56519dff",
+    "custom_components/djconnect/http.py": "f35723230b74b6ecb504cbc3a236db3c631ae9973a4cdbe38399986065e335d6",
+    "custom_components/djconnect/hybrid_service.py": "b25320b38560df85dc4b081d6f70c88aadb29e98685459a7f76554b9a2060fae",
+    "custom_components/djconnect/persistence/bootstrap.py": "cb239bd1fb477800436baee9a7496e5af48429f890dcdb5e1fa1ce01cad1b27d",
+    "custom_components/djconnect/persistence/history.py": "ca24682d2c5bc9c11f032780aa71761bb09355de04313f5e8100192fe591d774",
+    "custom_components/djconnect/persistence/history_deletion.py": "38150f6f0685261d7be745ce3e4789279ba760af21a02a9c5b12cee281fcda3c",
+    "custom_components/djconnect/persistence/schema.py": "d8b3e0daa4c3263f6b660a78c7a51ffb385840c08a9827fc720823fdb8f2300e",
+    "custom_components/djconnect/session_speech.py": "e1974a3efb3da8208034e5ff095486f7f31264131f392163f1ddcebb32cf9f07"
+  },
+  "harness": "scripts/verification/verify_archive_deletion_http.py",
+  "harness_sha256": "5d36f90bac1d6412a29aeea055d57053cddba991ba39e58b3753092ff99b75f7",
+  "actual_ha_receipt_sha256": "6b7013dd73ee7d7cba132ae1478aa7fb8b3896c33c793f261046af14ea727c0a",
+  "requests_observed": 37,
+  "cases": [
+    "actual_paired_foreign_target_hidden",
+    "actual_archive_original_body_status_is_read_only_and_does_not_settle_pending",
+    "actual_store_save_lost_ack_no_success_or_reread",
+    "separate_process_durable_sqlite_store_recovery",
+    "exact_completed_receipt_after_process_recovery",
+    "actual_bulk_snapshot_new_completion_active_foreign_playback_preserved",
+    "actual_paired_websocket_keeps_original_active_session_across_bulk_erasure"
+  ],
+  "paired_identity": {
+    "device_id": "djconnect-ios-ABCDEF123456",
+    "client_type": "ios"
+  },
+  "examples": {
+    "single_request": {
+      "session_id": "session-56da5f4c7018449099a53153d5dc7d1d",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:b8da7e0fef4a4c8529f70eef44d9af35b41a74fd0b36192897c762a7d135443f",
+      "operation_id": "01a163af-5dcf-7000-8000-000000000001",
+      "confirmed": true,
+      "history_contract_version": 2
+    },
+    "pending_response": {
+      "success": false,
+      "error": "history_delete_outcome_unknown"
+    },
+    "single_status_query": {
+      "contract_version": "1",
+      "operation": "single",
+      "operation_id": "01a163af-5dcf-7000-8000-000000000001",
+      "session_id": "session-56da5f4c7018449099a53153d5dc7d1d",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:b8da7e0fef4a4c8529f70eef44d9af35b41a74fd0b36192897c762a7d135443f"
+    },
+    "single_pending_status": {
+      "success": true,
+      "schema_version": 1,
+      "owner_profile_id": "profile-a",
+      "operation_id": "01a163af-5dcf-7000-8000-000000000001",
+      "operation": "single",
+      "request_digest": "d5d051a63952521e2904059eec9de01f80c7af9c0607852a0a309e474dacb7d4",
+      "session_id": "session-56da5f4c7018449099a53153d5dc7d1d",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:b8da7e0fef4a4c8529f70eef44d9af35b41a74fd0b36192897c762a7d135443f",
+      "state": "pending",
+      "definitive": false
+    },
+    "single_response": {
+      "success": true,
+      "schema_version": 1,
+      "operation_id": "01a163af-5dcf-7000-8000-000000000001",
+      "owner_profile_id": "profile-a",
+      "deleted": true,
+      "deleted_session_id": "session-56da5f4c7018449099a53153d5dc7d1d"
+    },
+    "single_completed_status": {
+      "success": true,
+      "schema_version": 1,
+      "owner_profile_id": "profile-a",
+      "operation_id": "01a163af-5dcf-7000-8000-000000000001",
+      "operation": "single",
+      "request_digest": "d5d051a63952521e2904059eec9de01f80c7af9c0607852a0a309e474dacb7d4",
+      "session_id": "session-56da5f4c7018449099a53153d5dc7d1d",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:b8da7e0fef4a4c8529f70eef44d9af35b41a74fd0b36192897c762a7d135443f",
+      "state": "completed",
+      "definitive": true,
+      "receipt": {
+        "success": true,
+        "schema_version": 1,
+        "operation_id": "01a163af-5dcf-7000-8000-000000000001",
+        "owner_profile_id": "profile-a",
+        "deleted": true,
+        "deleted_session_id": "session-56da5f4c7018449099a53153d5dc7d1d"
+      }
+    },
+    "snapshot_response": {
+      "success": true,
+      "schema_version": 1,
+      "owner_profile_id": "profile-a",
+      "snapshot_id": "Zun4dAk8_iy0XXN7WPl3zUK119atEahxXOsHQBsClfc",
+      "target_count": 3,
+      "created_at": "2026-10-22T12:56:40.971411+00:00",
+      "expires_at": "2026-10-22T13:01:40.971411+00:00"
+    },
+    "bulk_request": {
+      "snapshot_id": "Zun4dAk8_iy0XXN7WPl3zUK119atEahxXOsHQBsClfc",
+      "operation_id": "01a163af-6328-7000-8000-000000000002",
+      "confirmed": true
+    },
+    "bulk_response": {
+      "success": true,
+      "schema_version": 1,
+      "operation_id": "01a163af-6328-7000-8000-000000000002",
+      "owner_profile_id": "profile-a",
+      "deleted": true,
+      "snapshot_id": "Zun4dAk8_iy0XXN7WPl3zUK119atEahxXOsHQBsClfc",
+      "deleted_session_count": 3
+    },
+    "bulk_status_query": {
+      "contract_version": "1",
+      "operation": "all",
+      "operation_id": "01a163af-6328-7000-8000-000000000002",
+      "snapshot_id": "Zun4dAk8_iy0XXN7WPl3zUK119atEahxXOsHQBsClfc"
+    },
+    "bulk_completed_status": {
+      "success": true,
+      "schema_version": 1,
+      "owner_profile_id": "profile-a",
+      "operation_id": "01a163af-6328-7000-8000-000000000002",
+      "operation": "all",
+      "request_digest": "c02a62ed85c2bbeb25cdc095881ca4d98efd209e47543656cd9b9d7b8db9c79f",
+      "snapshot_id": "Zun4dAk8_iy0XXN7WPl3zUK119atEahxXOsHQBsClfc",
+      "state": "completed",
+      "definitive": true,
+      "receipt": {
+        "success": true,
+        "schema_version": 1,
+        "operation_id": "01a163af-6328-7000-8000-000000000002",
+        "owner_profile_id": "profile-a",
+        "deleted": true,
+        "snapshot_id": "Zun4dAk8_iy0XXN7WPl3zUK119atEahxXOsHQBsClfc",
+        "deleted_session_count": 3
+      }
+    }
+  },
+  "source_unchanged": true,
+  "model_provider_calls": 0,
+  "installed": "NOT_RUN",
+  "native": "NOT_RUN",
+  "audible": "NOT_RUN",
+  "individual_content_deletion": "OPEN_CORE1225",
+  "derivative_of": "examples/client_contracts/session_conversation_history/archive-deletion-v1-20261021.json",
+  "previous_fixture_sha256": "79fac1e077a157df0851797c84de2f1f61bc14be08f3048c703ba9acec9f2a67",
+  "previous_qualification": {
+    "path": "examples/client_contracts/session_conversation_history/archive-deletion-v1-content-status-20261021.json",
+    "sha256": "4a064175859e423673af34c62b345ce924de83008e4f1b473d1ac9412f00be4a",
+    "disposition": "immutable prior producer evidence; current source requalified separately"
+  },
+  "requalification_context": "Current Music DNA artwork API projection; actual network-isolated disposable HA; historical fixtures unchanged; no installed/native/live-provider claim."
+}
