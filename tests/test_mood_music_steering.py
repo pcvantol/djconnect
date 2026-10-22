@@ -53,7 +53,7 @@ class MoodMusicSteeringTests(unittest.IsolatedAsyncioTestCase):
         projection=json.loads(data['text'].split('\nData:\n',1)[1])
         self.models.append(projection)
         if 'allowed' in projection:
-            reply={'decision':'selected','genre':'soul'}
+            reply={'decision':'selected','genre':'soul','request_kind':'tracks'}
         elif 'frame' in projection:
             reply={'language_ok':True,'style_ok':True,'meaning_ok':True}
         else:
@@ -590,7 +590,8 @@ class MoodMusicSteeringTests(unittest.IsolatedAsyncioTestCase):
                     active=f.fixture.manager.current_active('profile-a')
                     await f.fixture.manager.async_update_mood(owner_profile_id='profile-a',
                         session_id=active.session_id,selected_mood='party' if active.selected_mood!='party' else 'chill')
-                reply={'decision':decision,'genre':'soul' if decision=='selected' else None}
+                reply={'decision':decision,'genre':'soul' if decision=='selected' else None,
+                       'request_kind':'tracks' if decision=='selected' else None}
                 return {'response':{'speech':{'plain':{'speech':json.dumps(reply)}}}}
             return await original(hass,data,**kwargs)
         with patch('custom_components.djconnect.use_cases.run_music_command',empty),patch.object(
@@ -688,7 +689,7 @@ class MoodSettingsTriggerTests(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.f.asyncTearDown()
 
-    async def test_only_confirmed_active_mood_changes_schedule_once_and_reads_do_not(self):
+    async def test_settings_changes_confirm_without_scheduling_an_extra_mix_question(self):
         from custom_components.djconnect import mood_music_steering as m
         f=self.f
         scheduled=[]
@@ -707,10 +708,11 @@ class MoodSettingsTriggerTests(unittest.IsolatedAsyncioTestCase):
             before,_=await f.read()
             accepted,status=await f.choose(before,{'mood':'party'},counter=2)
             self.assertEqual(status,200,accepted)
-            self.assertEqual(len(scheduled),1)
-            self.assertIn('mood_music_feedback',accepted)
+            self.assertEqual(scheduled,[])
+            self.assertIn('settings_confirmation',accepted)
+            self.assertNotIn('mood_music_feedback',accepted)
             replay,status=await f.choose(before,{'mood':'party'},counter=2)
             self.assertEqual(status,200,replay)
             self.assertTrue(replay['replayed'])
             await f.read()
-            self.assertEqual(len(scheduled),1)
+            self.assertEqual(scheduled,[])

@@ -3236,9 +3236,10 @@ class DJConnectSessionMediaPrepareView(_DJConnectSessionView):
 
 class DJConnectSessionMediaImageView(_DJConnectSessionView):
     url = "/api/djconnect/v1/session/media/image/{session_id}/{asset_id}"
+    extra_urls = ["/api/djconnect/v1/ask_dj/reply/image/{asset_id}"]
     name = "api:djconnect:session:media:image"
 
-    async def get(self, request, session_id, asset_id):
+    async def get(self, request, session_id="", asset_id=""):
         from .api_handlers import _session_profile_context
         from .session_artwork import image
 

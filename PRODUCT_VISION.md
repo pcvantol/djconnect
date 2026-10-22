@@ -214,3 +214,12 @@ software. They are sharing an evening with an AI DJ.
 - Presentation adapts to the device; meaning remains identical.
 - The user is not controlling software. The user is sharing an evening with an
   AI DJ.
+
+### Explicit settings acknowledgement
+
+A user changing Mood, DJ Persona or DJ Presence receives one brief narrative
+confirmation in the newly accepted style. This explicit response also confirms
+Music-only before returning to its quiet cadence; it does not consume proactive
+story budget or claim playback changes. See
+`docs/product/SETTINGS_CONFIRMATION_MOMENT_V1.md` for original-identity, privacy
+and client-adoption semantics. Automatic Mood evolution is not a user change.

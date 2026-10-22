@@ -139,3 +139,103 @@ def accepted(turn, result):
         return None
     urls = {i.get("url") for i in result.get("images", []) if isinstance(i, dict)}
     return checked(candidate[0]) if candidate[1] in urls else None
+
+
+async def _download_observed_cover(hass, url, guard, registry):
+    """Only the already observed CDN asset; no new Spotify metadata/model call."""
+    from aiohttp import ClientTimeout
+    from homeassistant.helpers.aiohttp_client import async_get_clientsession
+    from .session_artwork import MAX_BYTES, _decoded_size
+    from .forecast_imagery import image_format
+
+    async with async_get_clientsession(hass).get(
+        url, allow_redirects=False, timeout=ClientTimeout(total=4)
+    ) as response:
+        await guard()
+        if response.status != 200:
+            raise ValueError('source_unavailable')
+        mime=response.headers.get('Content-Type','').split(';')[0].strip().lower()
+        body=bytearray()
+        async for chunk in response.content.iter_chunked(65536):
+            await guard()
+            body.extend(chunk)
+            if len(body)>MAX_BYTES:
+                raise ValueError('image_too_large')
+    pixels=bytes(body)
+    if not image_format(pixels,mime):
+        raise ValueError('unsafe_image')
+    await registry.decode(_decoded_size,pixels)
+    await guard()
+    return pixels,mime
+
+
+async def observed_current_image(hass, turn, admission, sample):
+    """Bounded current-reply pixels under the existing authenticated RAM owner.
+
+    An originally general Profile turn uses no Session identity and never
+    creates a Session to obtain images.
+    """
+    import asyncio
+    import secrets
+    import time
+    from datetime import UTC, datetime
+    from .image_proxy import session_images
+    from .session_artwork import PATH
+
+    if admission is None or turn.reply_source_authority is None:
+        return None
+    manager,session_id,item_id=admission
+    owner=turn.scope.removeprefix('profile:')
+    remaining=(turn.speech_deadline or 0)-turn.history.dialogue.clock()
+    if remaining<=0:
+        return None
+    deadline=time.monotonic()+min(remaining,60)
+    registry=session_images(hass)
+    def authority():
+        from .profile_context import profile_storage
+        from .profile_privacy import resolve_profile_privacy_policy
+        active=manager.current_active(owner)
+        profile=profile_storage(hass).household.profiles.get(owner)
+        same_scope=(active is None if not session_id else active is not None
+                    and active.session_id==session_id and active.broadcast.state.playback.item_id==item_id)
+        return bool(not registry.closed and time.monotonic()<deadline
+            and hass.data.get('djconnect',{}).get('session_runtime_manager') is manager
+            and profile is not None and resolve_profile_privacy_policy(profile,{}).allow_personal_read
+            and turn.reply_source_authority() and same_scope)
+    async def allowed():
+        if not authority():
+            return False
+        try:
+            await turn.guard()
+        except Exception:
+            return False
+        return authority()
+    async def guard():
+        if not await allowed():
+            raise PermissionError('source_withdrawn')
+    registry.collect()
+    if not authority() or len(registry.assets)+len(registry.inflight)>=64:
+        return None
+    try:
+        async with asyncio.timeout(4),registry.semaphore:
+            await guard()
+            body,mime=await _download_observed_cover(hass,sample['album_image_url'],guard,registry)
+            await guard()
+    except asyncio.CancelledError:
+        raise
+    except Exception:
+        # Optional pixels do not invent another image, metadata source or retry.
+        return None
+    asset_id=secrets.token_urlsafe(24)
+    key=(owner,session_id,(('resource_scope','current_reply'),('reply_id',turn.digest)))
+    asset={'body':body,'mime':mime,'deadline':deadline,'authority':authority,'allowed':allowed,
+           'asset_id':asset_id,'subject':sample['uri'],'historical':False,
+           'expected_source':dict(turn.reply_source_context)}
+    if not registry.commit(key,asset):
+        return None
+    url=(PATH.format(session_id=session_id,asset_id=asset_id) if session_id else
+         '/api/djconnect/v1/ask_dj/reply/image/'+asset_id)
+    return {'url':url,'thumbnail_url':url,'title':sample['title'],'subtitle':sample['artist'],
+            'kind':'album_art','source':'spotify','requires_device_auth':True,
+            'expires_at':datetime.fromtimestamp(time.time()+max(0,deadline-time.monotonic()),UTC).isoformat(),
+            'cache_policy':'no-store'}

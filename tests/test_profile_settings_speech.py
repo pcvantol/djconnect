@@ -855,3 +855,31 @@ class SharedSettingsSpeechTests(unittest.IsolatedAsyncioTestCase):
                 self.assertIn(status,(400,404),denied)
             self.assertEqual(calls,[])
             self.assertEqual(self.f.effects,[])
+
+    async def test_explicit_settings_confirmation_music_only_schedules_existing_speaker_owner_once(self):
+        from unittest.mock import patch
+        from custom_components.djconnect import speaker_delivery
+        from custom_components.djconnect.session_runtime import session_runtime_manager
+        manager = session_runtime_manager(self.hass)
+        self.runtime.config['dj_announcement_speaker_entity_id'] = 'media_player.owned_speaker'
+        self.hass.states = SimpleNamespace(get=lambda _: SimpleNamespace(state='idle', attributes={'supported_features':512}))
+        stack, _, _, _, _ = self.provider()
+        scheduled = []
+        def capture(coroutine, name):
+            scheduled.append(name)
+            coroutine.close()  # No synthesis, network or physical speaker in this test.
+        self.hass.async_create_task = capture
+        with stack:
+            await self.choose('marin', extra={'announcement_output':'ha_speaker'})
+            session, _, _ = await self.f.selected_credit()
+            speaker_delivery.connect_automatic(self.hass, self.runtime, session,self.f.identity,self.f.headers)
+            with patch.object(speaker_delivery, 'output_policy',return_value=SimpleNamespace(speaker_available=True,revision='synthetic-target')):
+                await self.choose('marin',counter=2,extra={'presence':'music_only'})
+                active = manager.current_active('profile-a')
+                moment = active.broadcast.state.dj_moments[-1]
+                self.assertEqual(moment.source_references,('accepted_settings',))
+                self.assertEqual(len(scheduled),1)
+                active.broadcast.publish_moment(moment)
+                self.assertEqual(len(scheduled),1)
+                await self.choose('marin',counter=3,extra={'presence':'music_only'})
+                self.assertEqual(len(scheduled),1)

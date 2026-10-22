@@ -148,6 +148,7 @@ class ProfileDJSettingsRepository(PersistenceRepository):
         self, owner, *, operation_id, binding, patch, expected_defaults_revision,
         now_ms, session: SessionSettingsContext | None = None, authorize,
         validate_choices=None, require_full_selection=False, initial_selection_guard=None,
+        confirm_acceptance=None,
     ):
         """Commit once; no HA API, Runtime mutation, synthesis or event publication."""
         _identifier(owner)
@@ -260,6 +261,13 @@ class ProfileDJSettingsRepository(PersistenceRepository):
                 )
             result = {'operation_id': operation_id, 'accepted': True, 'replayed': False,
                       'expires_ms': expires, 'snapshot': self._snapshot(tx, owner, session.session_id if session else '')}
+            if confirm_acceptance is not None:
+                confirmation = confirm_acceptance(tx, result,
+                    effective if session is not None else defaults,
+                    next_effective if session is not None else selected,
+                    datetime.fromtimestamp(clock / 1000, UTC).isoformat())
+                if confirmation is not None:
+                    result['settings_confirmation'] = confirmation
             tx.execute('INSERT INTO djconnect_settings_operations VALUES (?,?,?,?,?,?)',
                        (key, owner, binding, digest, expires, _json(result)))
             tx.execute('UPDATE djconnect_settings_clock SET high_water_ms=? WHERE singleton=1', (clock,))

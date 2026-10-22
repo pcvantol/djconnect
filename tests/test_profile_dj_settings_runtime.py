@@ -64,7 +64,8 @@ class ProfileSettingsRuntimeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(active.effective_dj_settings().as_dict(), result['snapshot']['defaults'])
         self.assertEqual(active.presence_ledger.total_published, 3)
         self.assertEqual((active.mood_revision, active.persona_revision, active.presence_revision), (1, 1, 1))
-        self.assertEqual(active.broadcast.state.dj_moments, ())
+        self.assertEqual(len(active.broadcast.state.dj_moments), 1)
+        self.assertEqual(active.broadcast.state.dj_moments[0].source_references, ('accepted_settings',))
         self.assertNotIn('selected_voice', active.broadcast.as_dict()['session'])
         row = await self.service.async_in_transaction(lambda tx: tx.fetchone(
             'SELECT mood_current FROM djconnect_session_summaries WHERE session_id=?', (active.session_id,)))

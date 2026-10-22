@@ -41,6 +41,11 @@ class CurrentArtistWordsTests(unittest.IsolatedAsyncioTestCase):
                         ("de", "Wer ist der Künstler des aktuellen Liedes?"),
                         ("fr", "Qui est l’artiste du morceau actuel ?"),
                         ("es", "¿Quién es el artista de la canción actual?"),
+                        ("nl", "Wie zijn dit?"),
+                        ("en", "Who are these?"),
+                        ("de", "Wer sind das?"),
+                        ("fr", "Qui sont-ils ?"),
+                        ("es", "¿Quiénes son?"),
                     )
                 ):
                     answer, code = await f.request(

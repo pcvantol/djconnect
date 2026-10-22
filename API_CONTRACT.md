@@ -2281,3 +2281,39 @@ pending, completed and expired_unknown without renewing or executing a request.
 See the canonical field/authority/limits/error and recovery contract above.
 Source/fixture qualification, protected merge, distinct Finalization, actual
 installation and native acceptance remain separately evidenced.
+
+## Current Ask DJ identification reply images
+
+Current-recording identification may return an `images[]` entry with
+`kind:"album_art"`, `requires_device_auth:true`, `expires_at` and
+`cache_policy:"no-store"`. The client must stop displaying/caching the pixels
+when that original expiry or its owner/source admission ends; fetching again
+does not renew the lease.
+Use the image URL supplied by that response with the current paired device
+credentials; clients must not reconstruct a URI or borrow the current player's
+cover for an older reply. The existing Session image route applies when the
+original question had an active Session. A general Profile-only reply uses
+`GET /api/djconnect/v1/ask_dj/reply/image/{asset_id}`, an alias on the same
+managed image view with no Session identity. Both routes authenticate and
+resolve the requester and original owner/source again. Anonymous reads fail401;
+withdrawn or expired resources fail404. Successful delivery is no-store and
+no-referrer. No current-read image grants history/Session archival permission.
+
+The admitted pixels belong to the two matching original status observations:
+exact recording, album edition and provider asset. Their lease never exceeds
+the original status deadline or60seconds. Bounded optional CDN fetch/decoding
+uses existing shared RAM limits; no Spotify search, new model call, implicit
+playback or Session creation occurs. An unavailable image leaves the qualified
+text response intact. Native presentation and loading these authenticated image
+URLs remain the client's responsibility.
+
+### Accepted settings confirmation Moment v1 (draft PR1290)
+
+Profile settings v3 adds `settings_confirmation` to an accepted operation receipt
+only for actual Mood/Persona/Presence changes, and advertises
+`settings_confirmation_contract`. Existing paired auth, CAS and original operation
+readback remain authoritative. Active Sessions publish one owner-only Moment;
+Profile-only saves return an acknowledgement without creating a Session.
+`settings_confirmation_moment` / contract version 1 permits feature detection.
+Clients deduplicate the original identity; no replay/GET renews or re-autoplays it.
+See `docs/product/SETTINGS_CONFIRMATION_MOMENT_V1.md`. Native adoption remains open.

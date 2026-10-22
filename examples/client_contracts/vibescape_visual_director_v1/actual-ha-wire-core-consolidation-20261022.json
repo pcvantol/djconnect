@@ -1,0 +1,1659 @@
+{
+  "qualification": "ACTUAL_HA_REGISTERED_PAIRED_HTTP_STAGE1_SQLITE_VISUAL_ONLY_SYNTHETIC_PROVIDER_IO",
+  "cases": {
+    "actual_bootstrap_view_registration_and_capability": "PASS",
+    "live_help_GET_no_store_reads_current_server_catalogue_each_time": "PASS",
+    "initial_context_requires_actual_stage1_sample": "PASS",
+    "initial_unavailable_context_no_SQL_Profile_history_access_after_task_drain": "PASS",
+    "forty_examples_across_five_locales_interpreted_not_applied": "PASS",
+    "visual_only_reads_leave_SQLite_Profile_history_and_provider_unchanged": "PASS",
+    "unsupported_mixed_script_negated_music_and_HA_intents_rejected": "PASS",
+    "ordinary_pairing_token_enforced": "PASS",
+    "all_twenty_one_unsupported_method_routes_private_no_store": "PASS",
+    "raw_byte_duplicate_UTF8_content_type_bounds": "PASS",
+    "both_provider_error_paths_clear_metadata_then_new_occurrence": "PASS",
+    "different_output_ids_with_same_name_fence_original_lease": "PASS",
+    "actual_stage1_A_B_A_invalidates_original_turn": "PASS",
+    "revoke_then_non_Vibe_poll_releases_old_projection_with_only_contentfree_serials": "PASS",
+    "revoke_tombstone_prevents_late_rearm": "PASS"
+  },
+  "examples": {
+    "context_request": {
+      "schema_version": 1,
+      "client_type": "ios",
+      "device_id": "djconnect-ios-ABCDEF123456",
+      "session_id": "session-2a5de0d31892417397210be31a3d91bc",
+      "visit_id": "458d85bb-61fd-42b0-94a1-598942065e7e"
+    },
+    "context_response": {
+      "schema_version": 1,
+      "success": true,
+      "visit_id": "458d85bb-61fd-42b0-94a1-598942065e7e",
+      "context_lease_id": "SZGaAER0qNS6kHVMVYnl3f155MEonTds",
+      "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+      "issued_at": "2026-10-22T15:25:52.664798Z",
+      "expires_at": "2026-10-22T15:26:07.664798Z",
+      "lease_duration_ms": 15000,
+      "music_context": {
+        "basis": "authorized_current_observation_and_selected_session_mood",
+        "recording": {
+          "title": "Synthetic visual recording",
+          "artist": "Synthetic artist"
+        },
+        "symbolic_session_mood": "energy",
+        "genres": [],
+        "audio_features": null
+      }
+    },
+    "capability": {
+      "contract_version": 1,
+      "input": "bounded_text_from_on_device_stt_or_text",
+      "interpretation": "closed_visual_grammar",
+      "application": "native_client_only",
+      "microphone_readiness": "client_owned",
+      "context_required": true,
+      "endpoints": {
+        "context": "/api/djconnect/v1/vibescape/context",
+        "interpret": "/api/djconnect/v1/vibescape/interpret",
+        "revoke": "/api/djconnect/v1/vibescape/revoke"
+      },
+      "limits": {
+        "body_bytes": 8192,
+        "text_utf8_bytes": 1024,
+        "lease_ms": 15000,
+        "visit_ms": 1800000,
+        "turns_per_visit": 32
+      },
+      "actions": [
+        "patch",
+        "undo",
+        "reset",
+        "variant",
+        "hold"
+      ],
+      "help": {
+        "en": {
+          "examples": [
+            {
+              "id": "calmer_fluid",
+              "text": "Make it calmer and fluid"
+            },
+            {
+              "id": "faster",
+              "text": "Make it faster"
+            },
+            {
+              "id": "more_depth",
+              "text": "More depth"
+            },
+            {
+              "id": "more_gold",
+              "text": "More gold"
+            },
+            {
+              "id": "variant",
+              "text": "Make a variant"
+            },
+            {
+              "id": "hold",
+              "text": "Keep this style"
+            },
+            {
+              "id": "undo",
+              "text": "Go back"
+            },
+            {
+              "id": "reset",
+              "text": "Follow DJ"
+            }
+          ],
+          "scopes": [
+            {
+              "id": "current_track",
+              "text": "Only this track"
+            },
+            {
+              "id": "while_in_vibescape",
+              "text": "This whole visit"
+            }
+          ]
+        },
+        "nl": {
+          "examples": [
+            {
+              "id": "calmer_fluid",
+              "text": "Maak het rustiger en vloeibaarder"
+            },
+            {
+              "id": "faster",
+              "text": "Maak het sneller"
+            },
+            {
+              "id": "more_depth",
+              "text": "Meer diepte"
+            },
+            {
+              "id": "more_gold",
+              "text": "Iets meer goud"
+            },
+            {
+              "id": "variant",
+              "text": "Maak een variant"
+            },
+            {
+              "id": "hold",
+              "text": "Hou deze stijl aan"
+            },
+            {
+              "id": "undo",
+              "text": "Ga een stap terug"
+            },
+            {
+              "id": "reset",
+              "text": "Terug naar de DJ"
+            }
+          ],
+          "scopes": [
+            {
+              "id": "current_track",
+              "text": "Alleen dit nummer"
+            },
+            {
+              "id": "while_in_vibescape",
+              "text": "Zolang ik hier ben"
+            }
+          ]
+        },
+        "de": {
+          "examples": [
+            {
+              "id": "calmer_fluid",
+              "text": "Mach es ruhiger und flüssiger"
+            },
+            {
+              "id": "faster",
+              "text": "Mach es schneller"
+            },
+            {
+              "id": "more_depth",
+              "text": "Mehr Tiefe"
+            },
+            {
+              "id": "more_gold",
+              "text": "Mehr Gold"
+            },
+            {
+              "id": "variant",
+              "text": "Eine Variante"
+            },
+            {
+              "id": "hold",
+              "text": "Diesen Stil beibehalten"
+            },
+            {
+              "id": "undo",
+              "text": "Rückgängig"
+            },
+            {
+              "id": "reset",
+              "text": "Zurück zum DJ"
+            }
+          ],
+          "scopes": [
+            {
+              "id": "current_track",
+              "text": "Nur dieses Lied"
+            },
+            {
+              "id": "while_in_vibescape",
+              "text": "Während dieses Besuchs"
+            }
+          ]
+        },
+        "fr": {
+          "examples": [
+            {
+              "id": "calmer_fluid",
+              "text": "Un peu calme et fluide"
+            },
+            {
+              "id": "faster",
+              "text": "Un peu rapide"
+            },
+            {
+              "id": "more_depth",
+              "text": "Plus de profondeur"
+            },
+            {
+              "id": "more_gold",
+              "text": "Plus doré"
+            },
+            {
+              "id": "variant",
+              "text": "Une variante"
+            },
+            {
+              "id": "hold",
+              "text": "Garde ce style"
+            },
+            {
+              "id": "undo",
+              "text": "Revenir en arrière"
+            },
+            {
+              "id": "reset",
+              "text": "Retour au DJ"
+            }
+          ],
+          "scopes": [
+            {
+              "id": "current_track",
+              "text": "Seulement ce morceau"
+            },
+            {
+              "id": "while_in_vibescape",
+              "text": "Pendant cette visite"
+            }
+          ]
+        },
+        "es": {
+          "examples": [
+            {
+              "id": "calmer_fluid",
+              "text": "Haz lo tranquilo y fluido"
+            },
+            {
+              "id": "faster",
+              "text": "Haz lo rápido"
+            },
+            {
+              "id": "more_depth",
+              "text": "Más profundidad"
+            },
+            {
+              "id": "more_gold",
+              "text": "Más dorado"
+            },
+            {
+              "id": "variant",
+              "text": "Una variante"
+            },
+            {
+              "id": "hold",
+              "text": "Mantener este estilo"
+            },
+            {
+              "id": "undo",
+              "text": "Volver atrás"
+            },
+            {
+              "id": "reset",
+              "text": "Volver al DJ"
+            }
+          ],
+          "scopes": [
+            {
+              "id": "current_track",
+              "text": "Solo esta canción"
+            },
+            {
+              "id": "while_in_vibescape",
+              "text": "Durante esta visita"
+            }
+          ]
+        }
+      }
+    },
+    "interpret_request": {
+      "schema_version": 1,
+      "client_type": "ios",
+      "device_id": "djconnect-ios-ABCDEF123456",
+      "session_id": "session-2a5de0d31892417397210be31a3d91bc",
+      "visit_id": "0a27cd2f-85a9-4223-87a9-c4eb09b38b85",
+      "client_turn_id": "f0d3debd-9b94-4c97-95fe-d4da86b5dfb8",
+      "base_scene_revision": 0,
+      "context_lease_id": "mhy67l8Bt5-h0BIpmAxgfN7qeJU5hWO6",
+      "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+      "text": "Maak het rustiger en vloeibaarder",
+      "active_scene": {
+        "palette": [
+          0.3,
+          0.8,
+          0.6
+        ],
+        "motion": 0.4,
+        "depth": 0.5,
+        "roughness": 0.3,
+        "deformation": 0.2
+      },
+      "dynamics_bias": 0.5,
+      "scope": "current_track"
+    },
+    "interpret_response": {
+      "schema_version": 1,
+      "success": true,
+      "status": "interpreted",
+      "visit_id": "0a27cd2f-85a9-4223-87a9-c4eb09b38b85",
+      "client_turn_id": "f0d3debd-9b94-4c97-95fe-d4da86b5dfb8",
+      "base_scene_revision": 0,
+      "context_lease_id": "mhy67l8Bt5-h0BIpmAxgfN7qeJU5hWO6",
+      "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+      "expires_at": "2026-10-22T15:26:07.671991Z",
+      "directive": {
+        "kind": "patch",
+        "scope": "current_track",
+        "patch": {
+          "motion": 0.28,
+          "roughness": 0.225,
+          "deformation": 0.3
+        }
+      },
+      "effect_code": "visual_patch"
+    },
+    "transport_errors": [
+      {
+        "status": 413,
+        "body": {
+          "schema_version": 1,
+          "success": false,
+          "error": "request_too_large"
+        }
+      },
+      {
+        "status": 400,
+        "body": {
+          "schema_version": 1,
+          "success": false,
+          "error": "invalid_request"
+        }
+      },
+      {
+        "status": 400,
+        "body": {
+          "schema_version": 1,
+          "success": false,
+          "error": "invalid_request"
+        }
+      },
+      {
+        "status": 415,
+        "body": {
+          "schema_version": 1,
+          "success": false,
+          "error": "unsupported_media_type"
+        }
+      }
+    ]
+  },
+  "visual_receipts": [
+    {
+      "kind": "context",
+      "status": 503,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "current_playback_unavailable"
+      }
+    },
+    {
+      "kind": "context",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "458d85bb-61fd-42b0-94a1-598942065e7e",
+        "context_lease_id": "SZGaAER0qNS6kHVMVYnl3f155MEonTds",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "issued_at": "2026-10-22T15:25:52.664798Z",
+        "expires_at": "2026-10-22T15:26:07.664798Z",
+        "lease_duration_ms": 15000,
+        "music_context": {
+          "basis": "authorized_current_observation_and_selected_session_mood",
+          "recording": {
+            "title": "Synthetic visual recording",
+            "artist": "Synthetic artist"
+          },
+          "symbolic_session_mood": "energy",
+          "genres": [],
+          "audio_features": null
+        }
+      }
+    },
+    {
+      "kind": "context",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "40708729-58ed-44ad-b15c-ad8d8fa6977c",
+        "context_lease_id": "1eW-aovn2Z0jj5kkAK7_6I1eKyI-nGe-",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "issued_at": "2026-10-22T15:25:52.668541Z",
+        "expires_at": "2026-10-22T15:26:07.668541Z",
+        "lease_duration_ms": 15000,
+        "music_context": {
+          "basis": "authorized_current_observation_and_selected_session_mood",
+          "recording": {
+            "title": "Synthetic visual recording",
+            "artist": "Synthetic artist"
+          },
+          "symbolic_session_mood": "energy",
+          "genres": [],
+          "audio_features": null
+        }
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "40708729-58ed-44ad-b15c-ad8d8fa6977c",
+        "client_turn_id": "f413872c-8a51-4fe2-a9d8-127435f8ce12",
+        "base_scene_revision": 0,
+        "context_lease_id": "1eW-aovn2Z0jj5kkAK7_6I1eKyI-nGe-",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.668541Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "motion": 0.28,
+            "roughness": 0.225,
+            "deformation": 0.3
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "40708729-58ed-44ad-b15c-ad8d8fa6977c",
+        "client_turn_id": "2fad2409-9b15-4013-9192-c39b4f74cc6d",
+        "base_scene_revision": 1,
+        "context_lease_id": "1eW-aovn2Z0jj5kkAK7_6I1eKyI-nGe-",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.668541Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "motion": 0.55
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "40708729-58ed-44ad-b15c-ad8d8fa6977c",
+        "client_turn_id": "1125ce36-0813-4191-8344-2a9ab84d1fc8",
+        "base_scene_revision": 2,
+        "context_lease_id": "1eW-aovn2Z0jj5kkAK7_6I1eKyI-nGe-",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.668541Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "depth": 0.65
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "40708729-58ed-44ad-b15c-ad8d8fa6977c",
+        "client_turn_id": "370229d5-07d4-4033-ac50-c8fe5f0d1e1f",
+        "base_scene_revision": 3,
+        "context_lease_id": "1eW-aovn2Z0jj5kkAK7_6I1eKyI-nGe-",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.668541Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "palette": [
+              0.468,
+              0.772,
+              0.488
+            ]
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "40708729-58ed-44ad-b15c-ad8d8fa6977c",
+        "client_turn_id": "adc7bad9-cd98-446f-a42a-46ff17053344",
+        "base_scene_revision": 4,
+        "context_lease_id": "1eW-aovn2Z0jj5kkAK7_6I1eKyI-nGe-",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.668541Z",
+        "directive": {
+          "kind": "variant"
+        },
+        "effect_code": "visual_variant"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "40708729-58ed-44ad-b15c-ad8d8fa6977c",
+        "client_turn_id": "24586d76-216e-4428-8763-4c56aa58beef",
+        "base_scene_revision": 5,
+        "context_lease_id": "1eW-aovn2Z0jj5kkAK7_6I1eKyI-nGe-",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.668541Z",
+        "directive": {
+          "kind": "hold",
+          "scope": "while_in_vibescape"
+        },
+        "effect_code": "visual_hold"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "40708729-58ed-44ad-b15c-ad8d8fa6977c",
+        "client_turn_id": "c27b1bc5-c000-4f75-9550-2c372a461a9a",
+        "base_scene_revision": 6,
+        "context_lease_id": "1eW-aovn2Z0jj5kkAK7_6I1eKyI-nGe-",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.668541Z",
+        "directive": {
+          "kind": "undo"
+        },
+        "effect_code": "visual_undo"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "40708729-58ed-44ad-b15c-ad8d8fa6977c",
+        "client_turn_id": "f31c7058-faf2-4264-b45e-33113c34ca84",
+        "base_scene_revision": 7,
+        "context_lease_id": "1eW-aovn2Z0jj5kkAK7_6I1eKyI-nGe-",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.668541Z",
+        "directive": {
+          "kind": "reset"
+        },
+        "effect_code": "visual_reset"
+      }
+    },
+    {
+      "kind": "revoke",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "40708729-58ed-44ad-b15c-ad8d8fa6977c",
+        "status": "revoked"
+      }
+    },
+    {
+      "kind": "context",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "0a27cd2f-85a9-4223-87a9-c4eb09b38b85",
+        "context_lease_id": "mhy67l8Bt5-h0BIpmAxgfN7qeJU5hWO6",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "issued_at": "2026-10-22T15:25:52.671991Z",
+        "expires_at": "2026-10-22T15:26:07.671991Z",
+        "lease_duration_ms": 15000,
+        "music_context": {
+          "basis": "authorized_current_observation_and_selected_session_mood",
+          "recording": {
+            "title": "Synthetic visual recording",
+            "artist": "Synthetic artist"
+          },
+          "symbolic_session_mood": "energy",
+          "genres": [],
+          "audio_features": null
+        }
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "0a27cd2f-85a9-4223-87a9-c4eb09b38b85",
+        "client_turn_id": "f0d3debd-9b94-4c97-95fe-d4da86b5dfb8",
+        "base_scene_revision": 0,
+        "context_lease_id": "mhy67l8Bt5-h0BIpmAxgfN7qeJU5hWO6",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.671991Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "motion": 0.28,
+            "roughness": 0.225,
+            "deformation": 0.3
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "0a27cd2f-85a9-4223-87a9-c4eb09b38b85",
+        "client_turn_id": "d11c28c2-d643-422d-a463-1c6e606c2a81",
+        "base_scene_revision": 1,
+        "context_lease_id": "mhy67l8Bt5-h0BIpmAxgfN7qeJU5hWO6",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.671991Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "motion": 0.55
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "0a27cd2f-85a9-4223-87a9-c4eb09b38b85",
+        "client_turn_id": "e01d1ac0-79d9-4da0-be92-e28313a70d89",
+        "base_scene_revision": 2,
+        "context_lease_id": "mhy67l8Bt5-h0BIpmAxgfN7qeJU5hWO6",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.671991Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "depth": 0.65
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "0a27cd2f-85a9-4223-87a9-c4eb09b38b85",
+        "client_turn_id": "7edab8bd-6bc0-4a95-aa20-80bd58e0fa61",
+        "base_scene_revision": 3,
+        "context_lease_id": "mhy67l8Bt5-h0BIpmAxgfN7qeJU5hWO6",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.671991Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "palette": [
+              0.468,
+              0.772,
+              0.488
+            ]
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "0a27cd2f-85a9-4223-87a9-c4eb09b38b85",
+        "client_turn_id": "401aad16-2a99-4fef-812f-cdf75a2c6871",
+        "base_scene_revision": 4,
+        "context_lease_id": "mhy67l8Bt5-h0BIpmAxgfN7qeJU5hWO6",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.671991Z",
+        "directive": {
+          "kind": "variant"
+        },
+        "effect_code": "visual_variant"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "0a27cd2f-85a9-4223-87a9-c4eb09b38b85",
+        "client_turn_id": "6b90e80e-25b5-4141-8f53-0c0c7181a16c",
+        "base_scene_revision": 5,
+        "context_lease_id": "mhy67l8Bt5-h0BIpmAxgfN7qeJU5hWO6",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.671991Z",
+        "directive": {
+          "kind": "hold",
+          "scope": "while_in_vibescape"
+        },
+        "effect_code": "visual_hold"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "0a27cd2f-85a9-4223-87a9-c4eb09b38b85",
+        "client_turn_id": "6680ce38-43de-4c23-a25a-0ccaf572252a",
+        "base_scene_revision": 6,
+        "context_lease_id": "mhy67l8Bt5-h0BIpmAxgfN7qeJU5hWO6",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.671991Z",
+        "directive": {
+          "kind": "undo"
+        },
+        "effect_code": "visual_undo"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "0a27cd2f-85a9-4223-87a9-c4eb09b38b85",
+        "client_turn_id": "a88367e6-83b6-460c-a323-541ffab94fe9",
+        "base_scene_revision": 7,
+        "context_lease_id": "mhy67l8Bt5-h0BIpmAxgfN7qeJU5hWO6",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.671991Z",
+        "directive": {
+          "kind": "reset"
+        },
+        "effect_code": "visual_reset"
+      }
+    },
+    {
+      "kind": "revoke",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "0a27cd2f-85a9-4223-87a9-c4eb09b38b85",
+        "status": "revoked"
+      }
+    },
+    {
+      "kind": "context",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "5a6bc987-d42d-49e2-9ec6-fbb170ed853a",
+        "context_lease_id": "z0NLxoakWiK17ohbkePaWq-8URZIgYI1",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "issued_at": "2026-10-22T15:25:52.674932Z",
+        "expires_at": "2026-10-22T15:26:07.674932Z",
+        "lease_duration_ms": 15000,
+        "music_context": {
+          "basis": "authorized_current_observation_and_selected_session_mood",
+          "recording": {
+            "title": "Synthetic visual recording",
+            "artist": "Synthetic artist"
+          },
+          "symbolic_session_mood": "energy",
+          "genres": [],
+          "audio_features": null
+        }
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "5a6bc987-d42d-49e2-9ec6-fbb170ed853a",
+        "client_turn_id": "19667a0f-b2c7-4869-9399-3835f3f07da3",
+        "base_scene_revision": 0,
+        "context_lease_id": "z0NLxoakWiK17ohbkePaWq-8URZIgYI1",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.674932Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "motion": 0.28,
+            "roughness": 0.225,
+            "deformation": 0.3
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "5a6bc987-d42d-49e2-9ec6-fbb170ed853a",
+        "client_turn_id": "ea251f1c-daf2-4d83-993f-3a317285b827",
+        "base_scene_revision": 1,
+        "context_lease_id": "z0NLxoakWiK17ohbkePaWq-8URZIgYI1",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.674932Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "motion": 0.55
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "5a6bc987-d42d-49e2-9ec6-fbb170ed853a",
+        "client_turn_id": "58ac71ec-8a86-445a-8250-d180d35c43c1",
+        "base_scene_revision": 2,
+        "context_lease_id": "z0NLxoakWiK17ohbkePaWq-8URZIgYI1",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.674932Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "depth": 0.65
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "5a6bc987-d42d-49e2-9ec6-fbb170ed853a",
+        "client_turn_id": "5df91724-0f11-4e1b-92ad-3e34451a698d",
+        "base_scene_revision": 3,
+        "context_lease_id": "z0NLxoakWiK17ohbkePaWq-8URZIgYI1",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.674932Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "palette": [
+              0.468,
+              0.772,
+              0.488
+            ]
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "5a6bc987-d42d-49e2-9ec6-fbb170ed853a",
+        "client_turn_id": "7330b49e-14fa-431a-b73f-474abe19f812",
+        "base_scene_revision": 4,
+        "context_lease_id": "z0NLxoakWiK17ohbkePaWq-8URZIgYI1",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.674932Z",
+        "directive": {
+          "kind": "variant"
+        },
+        "effect_code": "visual_variant"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "5a6bc987-d42d-49e2-9ec6-fbb170ed853a",
+        "client_turn_id": "b1912045-9613-46a0-ae11-2bb23d937a64",
+        "base_scene_revision": 5,
+        "context_lease_id": "z0NLxoakWiK17ohbkePaWq-8URZIgYI1",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.674932Z",
+        "directive": {
+          "kind": "hold",
+          "scope": "while_in_vibescape"
+        },
+        "effect_code": "visual_hold"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "5a6bc987-d42d-49e2-9ec6-fbb170ed853a",
+        "client_turn_id": "86cec146-233f-4071-99a9-8735d1ad36b3",
+        "base_scene_revision": 6,
+        "context_lease_id": "z0NLxoakWiK17ohbkePaWq-8URZIgYI1",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.674932Z",
+        "directive": {
+          "kind": "undo"
+        },
+        "effect_code": "visual_undo"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "5a6bc987-d42d-49e2-9ec6-fbb170ed853a",
+        "client_turn_id": "6fbd6104-9aa8-434c-bcf0-b53f546dbf56",
+        "base_scene_revision": 7,
+        "context_lease_id": "z0NLxoakWiK17ohbkePaWq-8URZIgYI1",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.674932Z",
+        "directive": {
+          "kind": "reset"
+        },
+        "effect_code": "visual_reset"
+      }
+    },
+    {
+      "kind": "revoke",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "5a6bc987-d42d-49e2-9ec6-fbb170ed853a",
+        "status": "revoked"
+      }
+    },
+    {
+      "kind": "context",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "d8669461-db40-4e04-b37b-f23999156c46",
+        "context_lease_id": "ALo40SEBmMb3tDUGt6DR0N4UyWtTh-2Q",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "issued_at": "2026-10-22T15:25:52.677555Z",
+        "expires_at": "2026-10-22T15:26:07.677555Z",
+        "lease_duration_ms": 15000,
+        "music_context": {
+          "basis": "authorized_current_observation_and_selected_session_mood",
+          "recording": {
+            "title": "Synthetic visual recording",
+            "artist": "Synthetic artist"
+          },
+          "symbolic_session_mood": "energy",
+          "genres": [],
+          "audio_features": null
+        }
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "d8669461-db40-4e04-b37b-f23999156c46",
+        "client_turn_id": "00e15e6b-55d4-4691-b190-e0e8d5d1b19c",
+        "base_scene_revision": 0,
+        "context_lease_id": "ALo40SEBmMb3tDUGt6DR0N4UyWtTh-2Q",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.677555Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "motion": 0.28,
+            "roughness": 0.225,
+            "deformation": 0.3
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "d8669461-db40-4e04-b37b-f23999156c46",
+        "client_turn_id": "65030bb1-c4b9-44d5-90af-f810070d7211",
+        "base_scene_revision": 1,
+        "context_lease_id": "ALo40SEBmMb3tDUGt6DR0N4UyWtTh-2Q",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.677555Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "motion": 0.55
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "d8669461-db40-4e04-b37b-f23999156c46",
+        "client_turn_id": "86a30d82-cb90-4829-b680-1950fc599eb2",
+        "base_scene_revision": 2,
+        "context_lease_id": "ALo40SEBmMb3tDUGt6DR0N4UyWtTh-2Q",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.677555Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "depth": 0.65
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "d8669461-db40-4e04-b37b-f23999156c46",
+        "client_turn_id": "a07d9931-e34f-4328-8857-0a62e844b607",
+        "base_scene_revision": 3,
+        "context_lease_id": "ALo40SEBmMb3tDUGt6DR0N4UyWtTh-2Q",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.677555Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "palette": [
+              0.468,
+              0.772,
+              0.488
+            ]
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "d8669461-db40-4e04-b37b-f23999156c46",
+        "client_turn_id": "5f497a32-b7f6-42ec-a12c-20f2c93e6717",
+        "base_scene_revision": 4,
+        "context_lease_id": "ALo40SEBmMb3tDUGt6DR0N4UyWtTh-2Q",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.677555Z",
+        "directive": {
+          "kind": "variant"
+        },
+        "effect_code": "visual_variant"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "d8669461-db40-4e04-b37b-f23999156c46",
+        "client_turn_id": "255944bf-f9b7-4f87-8c17-3d72951b0122",
+        "base_scene_revision": 5,
+        "context_lease_id": "ALo40SEBmMb3tDUGt6DR0N4UyWtTh-2Q",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.677555Z",
+        "directive": {
+          "kind": "hold",
+          "scope": "while_in_vibescape"
+        },
+        "effect_code": "visual_hold"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "d8669461-db40-4e04-b37b-f23999156c46",
+        "client_turn_id": "03211976-713c-468d-ba3f-51017f59a5ce",
+        "base_scene_revision": 6,
+        "context_lease_id": "ALo40SEBmMb3tDUGt6DR0N4UyWtTh-2Q",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.677555Z",
+        "directive": {
+          "kind": "undo"
+        },
+        "effect_code": "visual_undo"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "d8669461-db40-4e04-b37b-f23999156c46",
+        "client_turn_id": "ef361bcf-aac2-4975-a37b-03c51bc4a0cd",
+        "base_scene_revision": 7,
+        "context_lease_id": "ALo40SEBmMb3tDUGt6DR0N4UyWtTh-2Q",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.677555Z",
+        "directive": {
+          "kind": "reset"
+        },
+        "effect_code": "visual_reset"
+      }
+    },
+    {
+      "kind": "revoke",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "d8669461-db40-4e04-b37b-f23999156c46",
+        "status": "revoked"
+      }
+    },
+    {
+      "kind": "context",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "fa2e455c-ca6c-4204-a95b-2f02a07ec152",
+        "context_lease_id": "zJ2Zlz41poWbW3-mE6f5t8j_uBJ7FT97",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "issued_at": "2026-10-22T15:25:52.680508Z",
+        "expires_at": "2026-10-22T15:26:07.680508Z",
+        "lease_duration_ms": 15000,
+        "music_context": {
+          "basis": "authorized_current_observation_and_selected_session_mood",
+          "recording": {
+            "title": "Synthetic visual recording",
+            "artist": "Synthetic artist"
+          },
+          "symbolic_session_mood": "energy",
+          "genres": [],
+          "audio_features": null
+        }
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "fa2e455c-ca6c-4204-a95b-2f02a07ec152",
+        "client_turn_id": "a342752d-284d-4db9-8fd8-56ac6acbdbbf",
+        "base_scene_revision": 0,
+        "context_lease_id": "zJ2Zlz41poWbW3-mE6f5t8j_uBJ7FT97",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.680508Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "motion": 0.28,
+            "roughness": 0.225,
+            "deformation": 0.3
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "fa2e455c-ca6c-4204-a95b-2f02a07ec152",
+        "client_turn_id": "f8471e5d-1693-4b70-b442-ffd67185eb38",
+        "base_scene_revision": 1,
+        "context_lease_id": "zJ2Zlz41poWbW3-mE6f5t8j_uBJ7FT97",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.680508Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "motion": 0.55
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "fa2e455c-ca6c-4204-a95b-2f02a07ec152",
+        "client_turn_id": "d255ec82-c904-41ee-b525-9ba101728447",
+        "base_scene_revision": 2,
+        "context_lease_id": "zJ2Zlz41poWbW3-mE6f5t8j_uBJ7FT97",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.680508Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "depth": 0.65
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "fa2e455c-ca6c-4204-a95b-2f02a07ec152",
+        "client_turn_id": "7167aeac-b8f1-4e0e-8ae6-dac35b7a947e",
+        "base_scene_revision": 3,
+        "context_lease_id": "zJ2Zlz41poWbW3-mE6f5t8j_uBJ7FT97",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.680508Z",
+        "directive": {
+          "kind": "patch",
+          "scope": "current_track",
+          "patch": {
+            "palette": [
+              0.468,
+              0.772,
+              0.488
+            ]
+          }
+        },
+        "effect_code": "visual_patch"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "fa2e455c-ca6c-4204-a95b-2f02a07ec152",
+        "client_turn_id": "e9e9d1a2-faf2-4c46-ab42-62be8022c0b0",
+        "base_scene_revision": 4,
+        "context_lease_id": "zJ2Zlz41poWbW3-mE6f5t8j_uBJ7FT97",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.680508Z",
+        "directive": {
+          "kind": "variant"
+        },
+        "effect_code": "visual_variant"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "fa2e455c-ca6c-4204-a95b-2f02a07ec152",
+        "client_turn_id": "8818e24e-a3ac-4f66-99c5-e6a358e0ecc4",
+        "base_scene_revision": 5,
+        "context_lease_id": "zJ2Zlz41poWbW3-mE6f5t8j_uBJ7FT97",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.680508Z",
+        "directive": {
+          "kind": "hold",
+          "scope": "while_in_vibescape"
+        },
+        "effect_code": "visual_hold"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "fa2e455c-ca6c-4204-a95b-2f02a07ec152",
+        "client_turn_id": "942b11ae-b056-43bf-8cd5-b9b15bf92757",
+        "base_scene_revision": 6,
+        "context_lease_id": "zJ2Zlz41poWbW3-mE6f5t8j_uBJ7FT97",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.680508Z",
+        "directive": {
+          "kind": "undo"
+        },
+        "effect_code": "visual_undo"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "status": "interpreted",
+        "visit_id": "fa2e455c-ca6c-4204-a95b-2f02a07ec152",
+        "client_turn_id": "9650f173-d97f-4baa-854f-9c83250370a0",
+        "base_scene_revision": 7,
+        "context_lease_id": "zJ2Zlz41poWbW3-mE6f5t8j_uBJ7FT97",
+        "observed_occurrence_id": "Sr75Y7FxJv5DUBkfItNjU3_-x7v1v_j7",
+        "expires_at": "2026-10-22T15:26:07.680508Z",
+        "directive": {
+          "kind": "reset"
+        },
+        "effect_code": "visual_reset"
+      }
+    },
+    {
+      "kind": "revoke",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "fa2e455c-ca6c-4204-a95b-2f02a07ec152",
+        "status": "revoked"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 422,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "visual_direction_ambiguous"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 422,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "visual_only_unsupported"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 422,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "visual_only_unsupported"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 422,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "visual_only_unsupported"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 422,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "visual_only_unsupported"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 422,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "visual_only_unsupported"
+      }
+    },
+    {
+      "kind": "context",
+      "status": 401,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "unauthorized"
+      }
+    },
+    {
+      "kind": "context",
+      "status": 503,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "current_playback_unavailable"
+      }
+    },
+    {
+      "kind": "context",
+      "status": 503,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "current_playback_unavailable"
+      }
+    },
+    {
+      "kind": "context",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "458d85bb-61fd-42b0-94a1-598942065e7e",
+        "context_lease_id": "FSNeSnyFYmAjV_j81p9v2_9_63hcFsfa",
+        "observed_occurrence_id": "xK-u3ztjQIkLSXGS8XbCQuKe9_VGjHrD",
+        "issued_at": "2026-10-22T15:25:52.735197Z",
+        "expires_at": "2026-10-22T15:26:07.735197Z",
+        "lease_duration_ms": 15000,
+        "music_context": {
+          "basis": "authorized_current_observation_and_selected_session_mood",
+          "recording": {
+            "title": "Synthetic visual recording",
+            "artist": "Synthetic artist"
+          },
+          "symbolic_session_mood": "energy",
+          "genres": [],
+          "audio_features": null
+        }
+      }
+    },
+    {
+      "kind": "context",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "458d85bb-61fd-42b0-94a1-598942065e7e",
+        "context_lease_id": "0CXjCQn4BdLvlRb745uXDra-QkT56AM-",
+        "observed_occurrence_id": "pnIRrmJ-sjqp1QB0MyEYNFXwJpcd1rlH",
+        "issued_at": "2026-10-22T15:25:52.735781Z",
+        "expires_at": "2026-10-22T15:26:07.735781Z",
+        "lease_duration_ms": 15000,
+        "music_context": {
+          "basis": "authorized_current_observation_and_selected_session_mood",
+          "recording": {
+            "title": "Synthetic visual recording",
+            "artist": "Synthetic artist"
+          },
+          "symbolic_session_mood": "energy",
+          "genres": [],
+          "audio_features": null
+        }
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 409,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "visual_context_changed"
+      }
+    },
+    {
+      "kind": "interpret",
+      "status": 409,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "visual_context_changed"
+      }
+    },
+    {
+      "kind": "revoke",
+      "status": 200,
+      "body": {
+        "schema_version": 1,
+        "success": true,
+        "visit_id": "458d85bb-61fd-42b0-94a1-598942065e7e",
+        "status": "revoked"
+      }
+    },
+    {
+      "kind": "context",
+      "status": 410,
+      "body": {
+        "schema_version": 1,
+        "success": false,
+        "error": "visual_context_expired"
+      }
+    }
+  ],
+  "model_provider_calls": 0,
+  "real_microphone_native_GPU_user_acceptance": "NOT_RUN",
+  "harness_sha256": "917b8ec104f8b3f980f25275efc6fb637165b8b7ac65b57c7182031e0b656f1e",
+  "ha_sdk_version": "2026.10.0",
+  "actual_ha_receipt_sha256": "3ff895ec2446dcbc2c9234193c9c87d26a4eabf5cf75ce0ea2ab5a18fdb122a7",
+  "source_pins": {
+    "custom_components/djconnect/__init__.py": "643363884a9e211fd58f84fe0ff6e1b213166e2caf60fed74a5d642c6cea62d6",
+    "custom_components/djconnect/visual_director.py": "24894213d09baa82cf52e4b613b8b019a61adade4a6f58e607678c15134b4e05",
+    "custom_components/djconnect/visual_director_http.py": "acfd399ea33433fabfbe14dbca7ecb744e4c36c1affd9ff8919545bb25422255",
+    "custom_components/djconnect/visual_director_runtime.py": "93ab79731d71f114d850bfaa7b4a9dad9690885867a80391c0db544dcaecd7ec",
+    "custom_components/djconnect/visual_director_catalogue.py": "cf4004a0ec6f4960bfd1f797d656403752574f3f60fc3ca6f7a08ff4926fec84",
+    "custom_components/djconnect/playback_observation.py": "3c68b3ebe03bbbaaaa6b6f226d5e91f8e01382a54abe8ea063fc52ab16985fe5",
+    "custom_components/djconnect/session_runtime.py": "10fa26e35afd940347fbb6282b992c686c2663bf8ad5d64b36b317783a9070c5",
+    "custom_components/djconnect/domain/storage.py": "c987c50a79fdf23cad26c27e3b85f437ed5f117392994603c235b0347eb81f02",
+    "custom_components/djconnect/spotify_backend.py": "f41969cbc70192c29f5627cccea6f21980430b65a0d2f61fbd902976904ae3e6",
+    "custom_components/djconnect/capability_contract.py": "e6475b84ce72d16fa71678be4bb5edbbfe72969d4e436fa52f339e28435c238d",
+    "custom_components/djconnect/http.py": "f35723230b74b6ecb504cbc3a236db3c631ae9973a4cdbe38399986065e335d6",
+    "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
+  },
+  "request_count": 93,
+  "privacy_scope": "Firstunavailablecontext AND all40example/negative/auth calls; pre/post HA-owned task drain with live SQL/Profile/history spies; Stage1 normal acceptedprojection outside measuredwindow.",
+  "prior_unexplained_failure": "final2 combined SQL/household assertion failed without separate diagnostics; preserved, not attributed to an unproven listener; later separately instrumented and quiesced qualification does not erase it.",
+  "original_raw_location": "/Volumes/Shared Data/tmp/pcvantol/core-window-20261021-12h/consolidation-artwork-ha-lab/settings5/new/http-producer-receipt.json",
+  "installed": "NOT_RUN",
+  "consumer_adoption": "NOT_RUN"
+}

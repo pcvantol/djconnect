@@ -8182,7 +8182,7 @@
         },
         {
           "file": "tests/test_mood_music_steering.py",
-          "method": "test_only_confirmed_active_mood_changes_schedule_once_and_reads_do_not"
+          "method": "test_settings_changes_confirm_without_scheduling_an_extra_mix_question"
         },
         {
           "file": "tests/test_mood_music_steering.py",
@@ -8410,7 +8410,7 @@
           "owning_tests": [
             {
               "file": "tests/test_mood_music_steering.py",
-              "method": "test_only_confirmed_active_mood_changes_schedule_once_and_reads_do_not"
+              "method": "test_settings_changes_confirm_without_scheduling_an_extra_mix_question"
             }
           ],
           "acceptance_status": "owner_contract",
@@ -8612,7 +8612,7 @@
             },
             {
               "file": "tests/test_mood_music_steering.py",
-              "method": "test_only_confirmed_active_mood_changes_schedule_once_and_reads_do_not"
+              "method": "test_settings_changes_confirm_without_scheduling_an_extra_mix_question"
             }
           ],
           "acceptance_status": "open_real_quality",

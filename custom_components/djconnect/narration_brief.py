@@ -60,7 +60,7 @@ class NarrationBrief:
             'artist_description':'Introduce this exact artist naturally using the qualified descriptor, rather than reporting what a database offers.',
             'artist_begin':'A short human introduction with one exact person-birth or group-formation detail, without turning a date into an invented biography.',
             'album_release':'One small detail about this exact edition. Keep it short; do not pretend the date alone is a substantial album story.',
-            'genre_context':'Orient the listener to the artist-level genre context, without claiming measured sonic properties of the track.',
+            'genre_context':'One brief artist-level orientation, not a story about a catalogue field. Never expand it into a lesson about artist-versus-track metadata, measurement or what Spotify can prove. Do not claim measured sonic properties of the track.',
         }.get(self.fact.key,'Preserve the exact qualified relationship.')
 
     def family(self):
@@ -105,7 +105,10 @@ class NarrationBrief:
             "style_ok: a conversational, personal DJ contribution appropriate to the requested host and Mood, "
             "rather than a database citation. Concise artist introductions and precise short credits can pass; "
             "don't require a joke, an extra sentence, a stock greeting or a fixed number of sentences. "
-            "Reject irrelevant appended jokes, self-defence about answer precision and repetitive generic filler.\nData:\n"
+            "Reject irrelevant appended jokes, self-defence about answer precision and repetitive generic filler. "
+            "Reject technical metadata tutoring: explaining artist-versus-track labels, measurements, database "
+            "limitations or why this is merely context is not a personal DJ contribution. Keep any necessary "
+            "source attribution without turning it into the subject of the telling.\nData:\n"
         ) + json.dumps({"reference": self.reference, "meaning": self.semantics,
                         "narrative_focus": self.narrative_focus(),
                         "required_placeholders": self.anchors, "candidate": text,

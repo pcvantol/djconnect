@@ -23,9 +23,11 @@ def connect_automatic(hass, runtime, session, identity, headers):
                if (value := headers.get(name)) is not None}
 
     def publication(moment):
+        from .settings_confirmation import context as settings_context
+        confirmation = settings_context(moment)
         current = manager.current_active(session.owner_profile_id)
         if (current is None or current.session_id != session.session_id
-                or current.selected_presence == 'music_only'
+                or (current.selected_presence == 'music_only' and confirmation is None)
                 or (getattr(moment, 'session_opening', None) is not None
                     and moment.session_opening.presence == 'music_only')
                 or current.selected_announcement_output not in {'ha_speaker', 'both'}):

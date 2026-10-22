@@ -231,21 +231,16 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
                 return error('settings_binding_changed', 409)
             def migration_requires_review():
                 return migration_state()['requires_review']
-            previous_mood_session = manager.current_active(context.profile_id)
             result = await manager.async_accept_dj_settings(
                 owner_profile_id=context.profile_id, operation_id=data['operation_id'], binding=binding,
                 patch=data['patch'], expected_defaults_revision=data['expected_defaults_revision'],
                 expected_session=data['expected_session'], now_ms=int(datetime.now(UTC).timestamp()*1000),
                 authorize=commit_authority, validate_voice=validate_selection,
-                migration_requires_review=migration_requires_review)
+                migration_requires_review=migration_requires_review,
+                confirmation_locale={**entry.data, **entry.options}.get('conversation_language')
+                    or getattr(getattr(hass, 'config', None), 'language', 'en'))
             snapshot = result['snapshot']
             if not result['replayed']:
-                if 'mood' in data['patch']:
-                    from .mood_music_steering import schedule
-                    feedback = schedule(hass, runtime, manager, context.profile_id,
-                        previous_mood_session, identity=identity, headers=headers, authorize=authority)
-                    if feedback is not None:
-                        result = {**result, 'mood_music_feedback': feedback}
                 bus = getattr(hass, 'bus', None)
                 if bus is not None:
                     try:
@@ -265,7 +260,9 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
         register_delivery_admission(lambda: _require_authority(authority))
         from .mood_music_steering import feedback_status
         feedback = feedback_status(manager, context.profile_id)
+        from .settings_confirmation import capability as confirmation_capability
         return {'success': True, **result, **({'mood_music_feedback':feedback} if feedback is not None else {}), 'contract_version': SETTINGS_VERSION, 'binding': binding,
+                'settings_confirmation_contract': confirmation_capability(),
                 'scope': 'profile_and_active_session',
                 'migration': migration_state(activated=snapshot['activated'],
                                             accepted_contract_version=snapshot['accepted_contract_version']),

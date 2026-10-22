@@ -262,7 +262,7 @@ class MusicDNAArtworkTest(unittest.IsolatedAsyncioTestCase):
         import hashlib
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
-        path = root / "examples/client_contracts/music_dna_artwork_v1/profile-and-legacy-story-recovery-20261022.json"
+        path = root / "examples/client_contracts/music_dna_artwork_v1/profile-and-legacy-core-consolidation-20261022.json"
         fixture = json.loads(path.read_text())
         for relative, expected in fixture["source_pins"].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), expected)
