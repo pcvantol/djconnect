@@ -2,6 +2,29 @@
 
 Status: In progress; no release, installed, native or audible acceptance.
 
+### Unpublished insight preparation recovery — 22 October
+
+A transient exception during the first insight preparation must not reserve a
+recording forever without a prepared fact. The existing Runtime opportunity
+may admit one fact-only recovery after thirty seconds, on a normal accepted
+playback observation. It consumes that allowance before awaiting source work.
+It never repeats the failed general insight/model call or starts a new timer.
+
+Recovery retains the original source/account/observer admission, authority and
+settings revisions, content epoch and opportunity generation. A changed or
+withdrawn admission, pause/resume, cancellation, expired fact, empty evidence or
+second source failure cannot reopen the allowance. The original publication,
+presence, remaining-time, expiry, Flow and persistence guards still decide
+whether any recovered fact may become a Moment. Empty recovery on a later
+recording also stops before general planning or fallback narration.
+
+This does not retry rejected researched stories, reset used fact keys, repeat
+committed effects, invent prose or expand the existing model allowance. The
+reported active Presenter Session had no current Moment, but the particular
+live cause was not captured. A synthetic causal reproduction proves this
+reachable starvation path; it does not establish that every quiet card has the
+same cause. See [verification](../verification/STORY_PREPARATION_RECOVERY_20261022.md).
+
 ### Artist descriptor and spotlight correction — 19 October
 
 A raw Wikidata descriptor is not a personal artist story. With registered

@@ -4192,6 +4192,10 @@ class IntraTrackOpportunity:
     last_fact_position_ms: int | None = None
     last_fact_read_seconds: int = 0
     pending_transition: tuple[PlannerDecision, int, int, DJPersona, SessionDirection, int, float] | None = None
+    insight_recovery_after: float | None = None
+    insight_recovery_used: bool = False
+    insight_recovery_admission: tuple[int, ...] = ()
+    insight_recovery_authorize: Callable[[], bool] | None = field(default=None, repr=False)
 
 
 def _safe_intra_track_insight(raw_insight: dict[str, Any]) -> dict[str, Any]:
@@ -5276,6 +5280,9 @@ class SessionRuntimeManager:
             return None
 
         def guard(*, require_pending=True):
+            if (opportunity.insight_recovery_used
+                    and not self._insight_recovery_is_current(opportunity, active)):
+                raise PermissionError("narration_recovery_context_changed")
             if provider is not None:
                 try:
                     if (provider[0] != active.session_id
@@ -5553,6 +5560,8 @@ class SessionRuntimeManager:
         upcoming_playback: UpcomingPlaybackProjection | None = None,
         require_current_playback: bool = False,
         allow_initial_facts: bool = False,
+        recovery_insight_provider: Callable[[], Awaitable[dict[str, Any]]] | None = None,
+        recovery_authorize: Callable[[], bool] | None = None,
     ) -> DJMoment | None:
         """Orchestrate Planner → Knowledge → Moment → Flow → Broadcast."""
         prepared_fact = None
@@ -5567,13 +5576,30 @@ class SessionRuntimeManager:
             started_content_epoch = prior.broadcast.content_epoch if prior is not None else -1
             previous_media_identity = prior.last_accepted_media_identity if prior is not None else ""
             initial = prior is not None and not prior.last_accepted_media_identity
+            recovery = self._intra_track_opportunities.get(owner_profile_id)
+            recovering = (require_current_playback and recovery is not None
+                          and recovery.media_identity == media_identity
+                          and recovery.insight_recovery_after is not None)
+            recovery_admission = (recovery.generation, started_presence_revision,
+                                  started_mood_revision, started_persona_revision,
+                                  started_settings_revision, started_content_epoch) if recovery else ()
+            if recovering and not self._insight_recovery_is_current(recovery, prior):
+                recovery.insight_recovery_used = True
+                return None
+            if recovering and (recovery.insight_recovery_used
+                    or self._monotonic_source() < recovery.insight_recovery_after
+                    or recovery_insight_provider is None):
+                return None
             active = self._accept_track_started_media(owner_profile_id, session_id, media_identity, allow_initial=allow_initial_facts)
             if active is None:
                 return None
             started_opportunity = self._intra_track_opportunities.get(owner_profile_id)
             started_generation = started_opportunity.generation if started_opportunity else None
+            if recovering:
+                recovery.insight_recovery_used = True
+        insight_failed = False
         try:
-            raw_insight = await insight_provider()
+            raw_insight = await (recovery_insight_provider() if recovering else insight_provider())
         except asyncio.CancelledError:
             await self.async_restore_track_started_media(owner_profile_id=owner_profile_id,
                 session_id=session_id, media_identity=media_identity, previous_media_identity=previous_media_identity)
@@ -5581,6 +5607,7 @@ class SessionRuntimeManager:
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Track Insight unavailable: %s", exc.__class__.__name__)
             raw_insight = {}
+            insight_failed = True
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
             if not self._track_started_result_is_current(
@@ -5606,6 +5633,29 @@ class SessionRuntimeManager:
                     or not active.allows_proactive()):
                 self._restore_track_started_media_locked(owner_profile_id, session_id, media_identity, previous_media_identity)
                 return None
+            if recovering and not self._insight_recovery_is_current(started_opportunity, active):
+                return None
+            if insight_failed and require_current_playback:
+                # One fact-only recovery on a later normal observation. Never
+                # retry the general insight/model call, manufacture a fallback,
+                # or rearm an already consumed/rejected semantic effect.
+                if (not recovering and recovery_insight_provider is not None
+                        and recovery_authorize is not None
+                        and started_opportunity is not None
+                        and started_opportunity.insight_recovery_after is None
+                        and not started_opportunity.fact_count
+                        and not started_opportunity.used_fact_keys
+                        and started_opportunity.first_moment_type is None
+                        and not started_opportunity.pending):
+                    started_opportunity.insight_recovery_after = self._monotonic_source() + 30
+                    started_opportunity.insight_recovery_admission = recovery_admission
+                    started_opportunity.insight_recovery_authorize = recovery_authorize
+                    if self._insight_recovery_is_current(started_opportunity, active):
+                        self._restore_track_started_media_locked(
+                            owner_profile_id, session_id, media_identity, previous_media_identity)
+                    else:
+                        started_opportunity.insight_recovery_used = True
+                return None
             raw_insight = dict(raw_insight)
             raw_insight.pop("_qualified_genre_fact", None)
             facts = raw_insight.get("_qualified_facts")
@@ -5627,6 +5677,10 @@ class SessionRuntimeManager:
                     if prepared_fact is None:
                         return None
             if prepared_fact is None:
+                if recovering:
+                    # Fact-only recovery must also stay closed on later tracks;
+                    # an empty evidence set cannot enter legacy/model planning.
+                    return None
                 if initial and allow_initial_facts:
                     # Initial metadata establishes the old baseline unless a new
                     # qualified source fact exists; never manufacture an intro.
@@ -5956,6 +6010,22 @@ class SessionRuntimeManager:
                 await self._submit_transition_approval(owner_profile_id, active, transition_decision)
             self._record_performance_memory(owner_profile_id, active)
             return moment
+
+    @staticmethod
+    def _insight_recovery_is_current(opportunity, active) -> bool:
+        """Keep one unpublished recovery bound to its original admission."""
+        if (active is None or active.session_id != opportunity.session_id
+                or opportunity.blocked
+                or opportunity.insight_recovery_admission != (
+                    opportunity.generation, active.presence_revision,
+                    active.mood_revision, active.persona_revision,
+                    active.settings_revision, active.broadcast.content_epoch)):
+            return False
+        try:
+            return (opportunity.insight_recovery_authorize is not None
+                    and bool(opportunity.insight_recovery_authorize()))
+        except Exception:
+            return False
 
     async def async_restore_track_started_media(
         self,
