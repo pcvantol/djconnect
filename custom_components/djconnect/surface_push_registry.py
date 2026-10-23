@@ -172,7 +172,10 @@ class SurfacePushRegistry:
         finally:
             self.journal.release(key)
 
-    async def register(self, intent: RegistrationIntent, admission: SurfaceAdmission):
+    async def register(self, intent: RegistrationIntent, admission: SurfaceAdmission, *, guard=None):
+        stable_admission = admission
+        if guard is not None:
+            admission = replace(admission, current=lambda: stable_admission.is_current() and guard() is True)
         self._require_open()
         admission.validate()
         metadata = intent.metadata()
@@ -258,7 +261,7 @@ class SurfacePushRegistry:
                     existing.generation if existing else secrets.token_hex(16),
                     existing.revision + 1 if existing else 1,
                     target,
-                    admission,
+                    stable_admission,
                     metadata,
                     existing.expires_ms if existing else admission.purpose.original_expiry_ms(),
                     "djcsurface_" + secrets.token_urlsafe(32),
