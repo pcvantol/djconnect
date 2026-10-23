@@ -3615,3 +3615,21 @@ weakening migration checks; the failed output is retained separately.
 Exact coherent-source review and normal post-push CI remain separate. There is
 no actual operator/key custody, service admission, APNs/native/provider delivery,
 installed or physical recovery claim. The human merge/deployment hold remains.
+
+#### Current TrackInsight Runtime continuity preparation
+
+Current TrackInsight retains the original Session, Broadcast, source identity
+and authority/settings revisions while normal PerformanceMemory updates replace
+the frozen Runtime value. Original recording observation and expiry remain
+unchanged across provider reads and both existing model stages. Any observed
+authority withdrawal or contradictory recording metadata permanently invalidates
+that subject; restoring the old value cannot revive it. No new source rights,
+numeric audio measurements or model budget are introduced.
+
+The metadata-denial regression failed before the fix. All27 focused tests pass;
+the extended isolated HA current-recording harness passes18 cases, including
+actual Runtime copies and a real paired-owner metadata-denial fence. All twelve
+isolated HA harnesses pass on the same262 product files with their own container
+removed. External provider/model/issuer boundaries remain synthetic. New original
+receipt derivatives replace prior fixture pins; installed/native acceptance and
+the exact screenshot cause remain unproven. No interim merge or deployment.

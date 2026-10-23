@@ -225,6 +225,11 @@ async def main():
     model_calls = []
     async def conversation(hass, data, **kwargs):
         assert data.get("agent_id") == model_entry.entry_id and kwargs.get("allow_agent_fallback") is False
+        if mode.get("copy_runtime_during_model"):
+            original_runtime = manager.current_active("artwork-profile")
+            replacement = manager._record_performance_memory("artwork-profile", original_runtime)
+            assert replacement is not original_runtime and replacement.broadcast is original_runtime.broadcast
+            mode["model_runtime_copies"] = mode.get("model_runtime_copies", 0) + 1
         model_calls.append("EXTERNAL_MODEL_REPLY_FIXTURE_NOT_REAL_PROVIDER")
         assert mode.get("allow_model"), "Catalog-only or old-source context has no model grant"
         body = ({"supported": True, "language_ok": True, "style_ok": True}
@@ -242,9 +247,15 @@ async def main():
             return web.json_response({"artists": [ARTIST]})
         assert req.path == "/v1/me/player", req.path
         mode["reads"] += 1
+        if mode.get("copy_runtime_during_provider"):
+            original_runtime = manager.current_active("artwork-profile")
+            replacement = manager._record_performance_memory("artwork-profile", original_runtime)
+            assert replacement is not original_runtime and replacement.broadcast is original_runtime.broadcast
+            mode["provider_runtime_copies"] = mode.get("provider_runtime_copies", 0) + 1
         item = deepcopy(TRACK)
         item["uri"] = mode["uri"]
         item["id"] = mode["uri"].split(":")[-1]
+        item["name"] = mode.get("metadata_title", TRACK["name"])
         body = {"is_playing": True, "progress_ms": mode["position"], "item": item,
                 "device": {"id": "fixture-output", "name": "Fixture output"}}
         if mode["delay_at"] == mode["reads"]:
@@ -364,11 +375,52 @@ async def main():
             # Current CC0 knowledge is independent of the Planner's publication
             # decision; no Moment publication is manufactured to make detail available.
             mode["allow_model"] = True
+            mode["copy_runtime_during_provider"] = True
+            mode["copy_runtime_during_model"] = True
             code, qualified = await detail()
             assert code == 200 and qualified["analysis"]["basis"] == "qualified_credit_and_interpretation_v1", qualified
             assert len(model_calls) == 2
+            assert mode["provider_runtime_copies"] >= 2
+            assert mode["model_runtime_copies"] == 2
+            mode["copy_runtime_during_provider"] = False
+            mode["copy_runtime_during_model"] = False
+            repeated_subject = qualified["subject"]
+            mode["copy_runtime_during_provider"] = True
+            code, same_subject = await detail()
+            mode["copy_runtime_during_provider"] = False
+            assert code == 200, same_subject
+            assert same_subject["subject"]["observation_id"] == repeated_subject["observation_id"]
+            assert same_subject["subject"]["expires_at"] == repeated_subject["expires_at"]
+            assert len(model_calls) == 2  # Real guarded cache; no extra generation.
+            cases["actual_Runtime_value_copies_across_provider_generation_assessment_final_read_keep_original_admission"] = "PASS"
+            cases["repeated_value_copies_retain_original_frame_and_expiry_without_extra_model_calls"] = "PASS"
             assert qualified["analysis"]["energy"] is None
             cases["actual_cc0_original_source_shared_generation_assessment_fixture"] = "PASS"
+            # A real paired owner stays current while contradictory provider
+            # metadata withdraws this original subject permanently.
+            from custom_components.djconnect.hybrid_service import PairedAuthority
+            from custom_components.djconnect.current_track_insight import resolve as resolve_current
+            from custom_components.djconnect.track_insight import TrackInsightRequest, TrackInsightError
+            bound = await PairedAuthority.resolve(hass, ident, headers)
+            metadata_subject = await resolve_current(hass, rt, TrackInsightRequest(locale="nl"),
+                owner_profile_id="artwork-profile", validate_owner=bound.validate_now)
+            mode["metadata_title"] = "Contradictory provider metadata"
+            try:
+                await metadata_subject.verify()
+            except TrackInsightError as error:
+                assert error.code == "track_insight_context_changed"
+            else:
+                raise AssertionError("contradictory provider metadata was accepted")
+            mode.pop("metadata_title")
+            bound.validate_now()
+            try:
+                metadata_subject.guard()
+            except TrackInsightError as error:
+                assert error.code == "track_insight_context_changed"
+            else:
+                raise AssertionError("observed metadata denial rearmed original subject")
+            cases["contradictory_metadata_with_real_paired_owner_latches_original_subject"] = "PASS"
+
             assert rt.memory.data == memory_before
             assert storage.household == before_storage
             cases["closed_current_no_profile_dna_history_or_playback_effect"] = "PASS"

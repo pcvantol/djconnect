@@ -253,18 +253,26 @@ def current_knowledge_context(hass, profile_id, track, *, source_authority=None)
         return None
     fact = min(facts, key=lambda f:(f.key, f.source_url))
     grant = history_grant_revision(hass, profile_id)
-    captured = (opportunity.generation, active.mood_revision, active.persona_revision, active.settings_revision)
+    from .current_track_insight import session_scope
+    captured = (opportunity.generation, session_scope(active))
+    withdrawn = False
     def guard():
-        current = manager.current_active(profile_id)
-        if (not source_authority()
-                or current is not active or manager._intra_track_opportunities.get(profile_id) is not opportunity
-                or (opportunity.generation, active.mood_revision, active.persona_revision, active.settings_revision) != captured
-                or history_grant_revision(hass, profile_id) != grant
-                or active.broadcast.state.playback.item_id != identity
-                or active.broadcast.state.playback.state != 'playing'
-                or not any(f is fact for f in opportunity.qualified_facts)
-                or not fact.eligible(uri, time.monotonic())):
-            raise TrackInsightError('track_insight_context_changed', 'The current qualified recording context changed.', status=409)
+        nonlocal withdrawn
+        try:
+            current = manager.current_active(profile_id)
+            if (withdrawn or not source_authority()
+                    or current is None or current.broadcast is not active.broadcast
+                    or manager._intra_track_opportunities.get(profile_id) is not opportunity
+                    or (opportunity.generation, session_scope(current)) != captured
+                    or history_grant_revision(hass, profile_id) != grant
+                    or active.broadcast.state.playback.item_id != identity
+                    or active.broadcast.state.playback.state != 'playing'
+                    or not any(f is fact for f in opportunity.qualified_facts)
+                    or not fact.eligible(uri, time.monotonic())):
+                raise TrackInsightError('track_insight_context_changed', 'The current qualified recording context changed.', status=409)
+        except BaseException:
+            withdrawn = True
+            raise
     guard()
     context = model_source({'archive_basis':'cc0_normalized_fields_v1',
         'text':fact.copy_for(active.locale)[1], 'qualified_fact_text':fact.copy_for(active.locale)[1],

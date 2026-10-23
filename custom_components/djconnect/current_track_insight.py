@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import re
 import secrets
 import time
@@ -115,6 +115,22 @@ def observe_runtime_playback(runtime):
         observe(runtime, *value)
 
 
+def session_scope(active):
+    """Original Session/Broadcast and authority axes, not a transient value copy.
+
+    Runtime progress/PerformanceMemory can replace the frozen value while the
+    original Session, Broadcast and settings admission remain unchanged.
+    """
+    if active is None:
+        return None
+    fields = ('session_id', 'owner_profile_id', 'music_backend', 'runtime_state',
+        'created_at', 'started_at', 'settings_generation', 'settings_revision',
+        'settings_contract_version', 'defaults_revision', 'mood_revision',
+        'persona_revision', 'presence_revision', 'selected_mood', 'dj_persona',
+        'selected_presence', 'locale')
+    return (id(active.broadcast), *(getattr(active, key, None) for key in fields))
+
+
 @dataclass
 class CurrentSubject:
     runtime: Any
@@ -128,8 +144,18 @@ class CurrentSubject:
     observed: Any
     original_deadline: float
     knowledge_authority: Any = None
+    _withdrawn: bool = field(default=False, init=False, repr=False)
 
     def guard(self):
+        if self._withdrawn:
+            raise _error("track_insight_context_changed", self.locale, 409)
+        try:
+            self._check_current()
+        except BaseException:
+            self._withdrawn = True
+            raise
+
+    def _check_current(self):
         if self.validate_owner is not None:
             self.validate_owner()
         try:
@@ -152,6 +178,7 @@ class CurrentSubject:
         observe(self.runtime, observed.media_identity, observed.state, observed.position_ms, observed.target_name)
         self.guard()
         if (observed.title, observed.artist, observed.album) != (self.observed.title, self.observed.artist, self.observed.album):
+            self._withdrawn = True
             raise _error("track_insight_context_changed", self.locale, 409)
 
     def limit_deadline(self, deadline):
@@ -188,10 +215,15 @@ async def resolve(hass, runtime, request, *, owner_profile_id, validate_owner):
     def source_scope():
         active = manager.current_active(owner_profile_id) if manager else None
         opportunity = manager._intra_track_opportunities.get(owner_profile_id) if manager else None
-        return (runtime_scope(runtime), credential_cache_scope(runtime), id(active), id(opportunity),
+        source = manager._history_source_contexts.get(active.session_id) if active else None
+        entry = getattr(runtime, 'entry', None)
+        storage = getattr(hass, 'data', {}).get('djconnect', {}).get('djconnect_profile_platform')
+        return (runtime_scope(runtime), credential_cache_scope(runtime), session_scope(active), id(opportunity),
                 getattr(opportunity, "generation", None),
-                tuple(sorted(manager._history_source_contexts.get(active.session_id, {}).items())) if active else (),
-                tuple(getattr(active, key, None) for key in ("mood_revision", "persona_revision", "settings_revision")))
+                id(source), tuple(sorted((source or {}).items())),
+                id(storage), getattr(storage, 'authority_revision', None),
+                id(entry), getattr(entry, 'modified_at', None),
+                id(getattr(hass, 'data', {}).get('djconnect', {}).get('session_runtime_manager')))
     scope = source_scope()
     if not getattr(runtime, "_current_insight_requested", False):
         # Existing last_playback is a baseline, never a fresh observation.
@@ -252,13 +284,42 @@ def original_source_authority(hass, runtime, owner_profile_id):
     from .forecast_imagery import artist_authority
     manager = session_runtime_manager(hass) if owner_profile_id else None
     active = manager.current_active(owner_profile_id) if manager else None
-    captured = dict(manager._history_source_contexts.get(active.session_id, {})) if active else {}
+    original_source = manager._history_source_contexts.get(active.session_id) if active else None
+    captured = dict(original_source or {})
     keys = {"backend_id", "music_account_id", "provider_entry_id", "provider_account_id"}
     if active is None or not keys <= captured.keys():
         return lambda: False
     authority = artist_authority(hass, runtime, owner_profile_id=owner_profile_id, expected_source=captured)
+    original_session = session_scope(active)
+    def revision_scope():
+        from .discovery_artwork import runtime_scope, credential_cache_scope
+        data = getattr(hass, 'data', {}).get('djconnect', {})
+        storage = data.get('djconnect_profile_platform')
+        provider = data.get(captured['provider_entry_id'])
+        provider_entry = getattr(provider, 'entry', None)
+        entry = getattr(runtime, 'entry', None)
+        return (runtime_scope(runtime), credential_cache_scope(runtime),
+            id(storage), getattr(storage, 'authority_revision', None),
+            id(entry), getattr(entry, 'modified_at', None),
+            id(provider), id(provider_entry), getattr(provider_entry, 'modified_at', None),
+            getattr(provider, '_receiver_end_generation', None))
+    original_revisions = revision_scope()
+    withdrawn = False
     def allowed():
-        return (manager.current_active(owner_profile_id) is active
-                and manager._history_source_contexts.get(active.session_id) == captured
+        nonlocal withdrawn
+        try:
+            current = manager.current_active(owner_profile_id)
+            valid = (not withdrawn
+                and getattr(hass, 'data', {}).get('djconnect', {}).get('session_runtime_manager') is manager
+                and current is not None and current.broadcast is active.broadcast
+                and session_scope(current) == original_session
+                and str(current.runtime_state) == 'active'
+                and manager._history_source_contexts.get(active.session_id) is original_source
+                and original_source == captured and revision_scope() == original_revisions
                 and authority())
+        except Exception:
+            valid = False
+        if not valid:
+            withdrawn = True
+        return valid
     return allowed
