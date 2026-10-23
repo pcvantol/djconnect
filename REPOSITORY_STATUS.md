@@ -1,5 +1,9 @@
 # DJConnect Repository Status
 
+## Fresh closed API deployment binding — 23 October 2026
+
+The current binding candidate selects qualified API sourcec048/artifact12489837064/TAR4ecd after separate qualified API Final812. [Exact human scope, original evidence and fresh rollback](docs/verification/API_CLOSED_DEPLOYMENT_BINDING_20261023.md) accompany the unchanged workflow's fixed RC2 manifest path; previous20October bytes are archived unchanged. This candidate still requires its own protected source and separate Final qualification before dispatch. Only closed Worker plus two exact additive migrations and matching health smoke are admitted; all22 service gates and actual enrollment/key custody/purpose/Activity/native acceptance remain OPEN. No deployment or push activation is claimed. Core HA-dev262 remains installedGO; production HA remains unchanged/pendingnativeconfig. All24+9open tasks remain in the consolidated register. Same09:20cutoff/09:30hardstop applies.
+
 ## Post-install reconciliation — 23 October 2026, 08:52 UTC
 
 This current reconciliation supersedes the delivery/install projections in the historical sections below. The complete open-work register remains [CORE_OPEN_WORK_REGISTER_20261023.md](docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md); all 24 retained requests and nine later gates remain tracked.
