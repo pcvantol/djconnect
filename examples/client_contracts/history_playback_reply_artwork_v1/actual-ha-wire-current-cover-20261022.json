@@ -14,12 +14,12 @@
   },
   "examples": {
     "history_entry": {
-      "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5",
-      "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
+      "entry_id": "entry-35c4408ba8305df492611e4966c221a7",
+      "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
       "order": 1,
       "kind": "playback_observed",
-      "occurred_at": "2026-10-23T12:43:03.735612+00:00",
-      "retained_until": "2027-01-21T12:43:03.736852+00:00",
+      "occurred_at": "2026-10-23T19:16:21.767430+00:00",
+      "retained_until": "2027-01-21T19:16:21.769279+00:00",
       "historical_view_only": true,
       "current_display_allowed": false,
       "playback": {
@@ -42,15 +42,15 @@
           "required_capability": "historical_exact_track_playback",
           "value": {
             "schema_version": 1,
-            "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-            "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+            "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+            "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
           }
         }
       ],
       "session_media": {
         "schema_version": 1,
-        "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-        "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5",
+        "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+        "entry_id": "entry-35c4408ba8305df492611e4966c221a7",
         "revision": "not_prepared",
         "artwork": {
           "state": "unavailable",
@@ -105,8 +105,8 @@
           "device_id": "synthetic-speaker",
           "device_name": "Synthetic speaker",
           "reason": "Kies deze Spotify Connect speaker en start daarna de aanbeveling.",
-          "result_set_id": "choices-67f99f85127941159eb10786c14aa7f4",
-          "action_id": "ee65e47a3e7d047e3149cda626f0266f"
+          "result_set_id": "choices-d2238def652e4885a339d8a119fc7b84",
+          "action_id": "4d0c5f519427cf0b5b0bb98e303f465f"
         }
       ],
       "recommendation": {
@@ -116,12 +116,12 @@
       },
       "historical_playback_reference": {
         "schema_version": 1,
-        "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-        "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+        "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+        "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
       },
       "result_set": {
         "schema_version": 1,
-        "result_set_id": "choices-67f99f85127941159eb10786c14aa7f4",
+        "result_set_id": "choices-d2238def652e4885a339d8a119fc7b84",
         "expires_in": 600.0,
         "items": [
           {
@@ -157,18 +157,18 @@
             "device_id": "synthetic-speaker",
             "device_name": "Synthetic speaker",
             "reason": "Kies deze Spotify Connect speaker en start daarna de aanbeveling.",
-            "result_set_id": "choices-67f99f85127941159eb10786c14aa7f4",
-            "action_id": "ee65e47a3e7d047e3149cda626f0266f"
+            "result_set_id": "choices-d2238def652e4885a339d8a119fc7b84",
+            "action_id": "4d0c5f519427cf0b5b0bb98e303f465f"
           }
         ]
       },
       "user_id": null,
       "user_message": {
-        "id": "server-a8017f11-7428-4f26-b41c-145b23b49c3b",
+        "id": "server-70d68b00-fc12-4079-a2ea-677f6d480753",
         "client_message_id": "synthetic-offer",
         "role": "user",
         "text": "Play the selected historical recording.",
-        "created_at": "2026-10-23T12:43:03.775445Z",
+        "created_at": "2026-10-23T19:16:21.827875Z",
         "client_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "status": "delivered",
@@ -179,12 +179,12 @@
         "playback_actions": [],
         "session_turn": {
           "turn_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-          "request_digest": "8dae6feb26c2959f86dcd9c66f7f493d25c376a4054b8347993a0102b0850819",
+          "request_digest": "ad20e3625c2a76a73816eca7638442a3f881f989e56ba0e82fad360817475ab1",
           "profile_id": "profile-a",
           "context": {
             "selected_entry": {
-              "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-              "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+              "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+              "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
             }
           },
           "effective_style": {
@@ -201,8 +201,8 @@
           "implicit_playback_entry": null,
           "dependency_entries": [
             {
-              "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-              "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+              "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+              "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
             }
           ],
           "dependency_request_hashes": [
@@ -212,25 +212,25 @@
         },
         "historical_entry_references": [
           {
-            "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-            "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+            "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+            "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
           },
           {
-            "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-            "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+            "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+            "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
           }
         ],
         "exchange_id": "synthetic-offer",
         "exchange_order": 0
       },
       "assistant_message": {
-        "id": "server-5277f036-a04f-488b-a39a-e4c10d0e1640",
+        "id": "server-00474517-9462-463f-a905-7ab491f1774c",
         "client_message_id": "synthetic-offer",
         "role": "assistant",
         "message_kind": "assistant",
         "text": "Ik weet nog niet op welke speaker ik Synthetic original recording moet afspelen. Kies een speaker, dan start ik hem meteen.",
         "speech_processing_basis": "accepted_local_reply",
-        "created_at": "2026-10-23T12:43:03.775455Z",
+        "created_at": "2026-10-23T19:16:21.827896Z",
         "client_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "status": "delivered",
@@ -272,8 +272,8 @@
             "device_id": "synthetic-speaker",
             "device_name": "Synthetic speaker",
             "reason": "Kies deze Spotify Connect speaker en start daarna de aanbeveling.",
-            "result_set_id": "choices-67f99f85127941159eb10786c14aa7f4",
-            "action_id": "ee65e47a3e7d047e3149cda626f0266f"
+            "result_set_id": "choices-d2238def652e4885a339d8a119fc7b84",
+            "action_id": "4d0c5f519427cf0b5b0bb98e303f465f"
           }
         ],
         "intent": {
@@ -283,12 +283,12 @@
         "action": "select_output",
         "session_turn": {
           "turn_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-          "request_digest": "8dae6feb26c2959f86dcd9c66f7f493d25c376a4054b8347993a0102b0850819",
+          "request_digest": "ad20e3625c2a76a73816eca7638442a3f881f989e56ba0e82fad360817475ab1",
           "profile_id": "profile-a",
           "context": {
             "selected_entry": {
-              "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-              "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+              "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+              "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
             }
           },
           "effective_style": {
@@ -305,8 +305,8 @@
           "implicit_playback_entry": null,
           "dependency_entries": [
             {
-              "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-              "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+              "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+              "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
             }
           ],
           "dependency_request_hashes": [
@@ -316,12 +316,12 @@
         },
         "historical_entry_references": [
           {
-            "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-            "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+            "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+            "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
           },
           {
-            "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-            "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+            "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+            "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
           }
         ],
         "exchange_id": "synthetic-offer",
@@ -333,7 +333,7 @@
           },
           "source_kind": "accepted_ask_dj",
           "source_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-          "session_id": "session-8d235724fbfd4fba99a4bd7557efdefb",
+          "session_id": "session-8a2c5bdd568e400b941ae7de3b8a82bd",
           "text_revision": "00758f16850f92f6fd95572a",
           "presentation_revision": "00758f16850f92f6fd95572a",
           "persona": "home_dj",
@@ -355,7 +355,7 @@
             "ha_configured"
           ],
           "processor_qualification_required": true,
-          "expires_at": "2026-10-23T12:48:03.779865+00:00",
+          "expires_at": "2026-10-23T19:21:21.834260+00:00",
           "cache_policy": "private,no-store",
           "attribution": []
         },
@@ -368,11 +368,11 @@
       },
       "messages": [
         {
-          "id": "server-a8017f11-7428-4f26-b41c-145b23b49c3b",
+          "id": "server-70d68b00-fc12-4079-a2ea-677f6d480753",
           "client_message_id": "synthetic-offer",
           "role": "user",
           "text": "Play the selected historical recording.",
-          "created_at": "2026-10-23T12:43:03.775445Z",
+          "created_at": "2026-10-23T19:16:21.827875Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -383,12 +383,12 @@
           "playback_actions": [],
           "session_turn": {
             "turn_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-            "request_digest": "8dae6feb26c2959f86dcd9c66f7f493d25c376a4054b8347993a0102b0850819",
+            "request_digest": "ad20e3625c2a76a73816eca7638442a3f881f989e56ba0e82fad360817475ab1",
             "profile_id": "profile-a",
             "context": {
               "selected_entry": {
-                "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-                "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+                "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+                "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
               }
             },
             "effective_style": {
@@ -405,8 +405,8 @@
             "implicit_playback_entry": null,
             "dependency_entries": [
               {
-                "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-                "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+                "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+                "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
               }
             ],
             "dependency_request_hashes": [
@@ -416,25 +416,25 @@
           },
           "historical_entry_references": [
             {
-              "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-              "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+              "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+              "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
             },
             {
-              "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-              "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+              "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+              "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
             }
           ],
           "exchange_id": "synthetic-offer",
           "exchange_order": 0
         },
         {
-          "id": "server-5277f036-a04f-488b-a39a-e4c10d0e1640",
+          "id": "server-00474517-9462-463f-a905-7ab491f1774c",
           "client_message_id": "synthetic-offer",
           "role": "assistant",
           "message_kind": "assistant",
           "text": "Ik weet nog niet op welke speaker ik Synthetic original recording moet afspelen. Kies een speaker, dan start ik hem meteen.",
           "speech_processing_basis": "accepted_local_reply",
-          "created_at": "2026-10-23T12:43:03.775455Z",
+          "created_at": "2026-10-23T19:16:21.827896Z",
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_type": "ios",
           "status": "delivered",
@@ -476,8 +476,8 @@
               "device_id": "synthetic-speaker",
               "device_name": "Synthetic speaker",
               "reason": "Kies deze Spotify Connect speaker en start daarna de aanbeveling.",
-              "result_set_id": "choices-67f99f85127941159eb10786c14aa7f4",
-              "action_id": "ee65e47a3e7d047e3149cda626f0266f"
+              "result_set_id": "choices-d2238def652e4885a339d8a119fc7b84",
+              "action_id": "4d0c5f519427cf0b5b0bb98e303f465f"
             }
           ],
           "intent": {
@@ -487,12 +487,12 @@
           "action": "select_output",
           "session_turn": {
             "turn_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-            "request_digest": "8dae6feb26c2959f86dcd9c66f7f493d25c376a4054b8347993a0102b0850819",
+            "request_digest": "ad20e3625c2a76a73816eca7638442a3f881f989e56ba0e82fad360817475ab1",
             "profile_id": "profile-a",
             "context": {
               "selected_entry": {
-                "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-                "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+                "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+                "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
               }
             },
             "effective_style": {
@@ -509,8 +509,8 @@
             "implicit_playback_entry": null,
             "dependency_entries": [
               {
-                "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-                "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+                "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+                "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
               }
             ],
             "dependency_request_hashes": [
@@ -520,12 +520,12 @@
           },
           "historical_entry_references": [
             {
-              "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-              "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+              "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+              "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
             },
             {
-              "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-              "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+              "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+              "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
             }
           ],
           "exchange_id": "synthetic-offer",
@@ -537,7 +537,7 @@
             },
             "source_kind": "accepted_ask_dj",
             "source_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-            "session_id": "session-8d235724fbfd4fba99a4bd7557efdefb",
+            "session_id": "session-8a2c5bdd568e400b941ae7de3b8a82bd",
             "text_revision": "00758f16850f92f6fd95572a",
             "presentation_revision": "00758f16850f92f6fd95572a",
             "persona": "home_dj",
@@ -559,7 +559,7 @@
               "ha_configured"
             ],
             "processor_qualification_required": true,
-            "expires_at": "2026-10-23T12:48:03.779865+00:00",
+            "expires_at": "2026-10-23T19:21:21.834260+00:00",
             "cache_policy": "private,no-store",
             "attribution": []
           },
@@ -576,7 +576,7 @@
       "history_limit": 1000,
       "history_trimmed_before": null,
       "history_trimmed_count": 0,
-      "server_time": "2026-10-23T12:43:03.777721Z",
+      "server_time": "2026-10-23T19:16:21.831236Z",
       "media_delivery_basis": "current_response_only",
       "owner_profile_id": "profile-a",
       "client_message_id": "synthetic-offer",
@@ -586,8 +586,8 @@
         "thread_id": "default",
         "context": {
           "selected_entry": {
-            "session_id": "session-8cfe87d54c5542e6806202851c9718ee",
-            "entry_id": "entry-b61514501cdf559d9863b87839f5cdc5"
+            "session_id": "session-b33edf9fe9114210b13060aed65ce7da",
+            "entry_id": "entry-35c4408ba8305df492611e4966c221a7"
           }
         },
         "entry_ids": [],
@@ -622,7 +622,7 @@
         },
         "source_kind": "accepted_ask_dj",
         "source_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-        "session_id": "session-8d235724fbfd4fba99a4bd7557efdefb",
+        "session_id": "session-8a2c5bdd568e400b941ae7de3b8a82bd",
         "text_revision": "00758f16850f92f6fd95572a",
         "presentation_revision": "00758f16850f92f6fd95572a",
         "persona": "home_dj",
@@ -644,16 +644,16 @@
           "ha_configured"
         ],
         "processor_qualification_required": true,
-        "expires_at": "2026-10-23T12:48:03.779865+00:00",
+        "expires_at": "2026-10-23T19:21:21.834260+00:00",
         "cache_policy": "private,no-store",
         "attribution": []
       }
     },
     "reply_media": {
       "schema_version": 1,
-      "session_id": "session-8d235724fbfd4fba99a4bd7557efdefb",
-      "entry_id": "entry-755c49e6ce05584a8acb1e8651a848ea",
-      "revision": "c7e48d1ddf7f1d8c7e6cd1cb",
+      "session_id": "session-8a2c5bdd568e400b941ae7de3b8a82bd",
+      "entry_id": "entry-50a4c83b4df65de7b937ff1cf732c787",
+      "revision": "c763245a942a427aa86455d9",
       "artwork": {
         "state": "ready",
         "subject": {
@@ -672,8 +672,8 @@
           "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
         },
         "usage_basis": "spotify_temporary_owner_display",
-        "captured_at": "2026-10-23T12:43:03.810088+00:00",
-        "expires_at": "2026-10-23T12:48:03.810088+00:00",
+        "captured_at": "2026-10-23T19:16:21.880383+00:00",
+        "expires_at": "2026-10-23T19:21:21.880383+00:00",
         "current_display_allowed": false,
         "active_flow_display_allowed": false,
         "historical_display_allowed": false,
@@ -689,9 +689,9 @@
           "fr": "Pochette de Synthetic recording",
           "es": "Portada de Synthetic recording"
         },
-        "url": "/api/djconnect/v1/session/media/image/session-8d235724fbfd4fba99a4bd7557efdefb/ayagUHkrCYmiIGYwTyxstvVxF7q1BsD8",
+        "url": "/api/djconnect/v1/session/media/image/session-8a2c5bdd568e400b941ae7de3b8a82bd/-eDQyJ_qWvrm_fqn93v88E6JcmKKvgVr",
         "reply_display_allowed": true,
-        "media_revision": "c7e48d1ddf7f1d8c7e6cd1cb"
+        "media_revision": "c763245a942a427aa86455d9"
       }
     },
     "current_identification_reply": {
@@ -705,14 +705,14 @@
       },
       "images": [
         {
-          "url": "/api/djconnect/v1/session/media/image/session-8d235724fbfd4fba99a4bd7557efdefb/mmFelPSnPLG9g_GWBoTCPaNmu0Mo6H9d",
-          "thumbnail_url": "/api/djconnect/v1/session/media/image/session-8d235724fbfd4fba99a4bd7557efdefb/mmFelPSnPLG9g_GWBoTCPaNmu0Mo6H9d",
+          "url": "/api/djconnect/v1/session/media/image/session-8a2c5bdd568e400b941ae7de3b8a82bd/iEjBLvyOCEnquFQNEwggZa5YO2dgg0ls",
+          "thumbnail_url": "/api/djconnect/v1/session/media/image/session-8a2c5bdd568e400b941ae7de3b8a82bd/iEjBLvyOCEnquFQNEwggZa5YO2dgg0ls",
           "title": "Synthetic original recording",
           "subtitle": "Synthetic artist",
           "kind": "album_art",
           "source": "spotify",
           "requires_device_auth": true,
-          "expires_at": "2026-10-23T12:44:03.838901+00:00",
+          "expires_at": "2026-10-23T19:17:21.924740+00:00",
           "cache_policy": "no-store"
         }
       ],
@@ -743,7 +743,7 @@
         "turn_id": "turn-e0c809db34525f24ad17a09492c0d6e6",
         "thread_id": "default",
         "context": {
-          "session_id": "session-8d235724fbfd4fba99a4bd7557efdefb"
+          "session_id": "session-8a2c5bdd568e400b941ae7de3b8a82bd"
         },
         "entry_ids": [],
         "history_scope": "private_ephemeral",
@@ -777,7 +777,7 @@
         },
         "source_kind": "accepted_ask_dj",
         "source_id": "turn-e0c809db34525f24ad17a09492c0d6e6",
-        "session_id": "session-8d235724fbfd4fba99a4bd7557efdefb",
+        "session_id": "session-8a2c5bdd568e400b941ae7de3b8a82bd",
         "text_revision": "46f13cf0f4bea2d3e4762cef",
         "presentation_revision": "46f13cf0f4bea2d3e4762cef",
         "persona": "home_dj",
@@ -799,7 +799,7 @@
           "ha_configured"
         ],
         "processor_qualification_required": true,
-        "expires_at": "2026-10-23T12:44:03.838925+00:00",
+        "expires_at": "2026-10-23T19:17:21.924779+00:00",
         "cache_policy": "private,no-store",
         "attribution": [
           {
@@ -822,14 +822,14 @@
       },
       "images": [
         {
-          "url": "/api/djconnect/v1/ask_dj/reply/image/km1AgcUCRZZazPoEufNq82faiRuiSN8N",
-          "thumbnail_url": "/api/djconnect/v1/ask_dj/reply/image/km1AgcUCRZZazPoEufNq82faiRuiSN8N",
+          "url": "/api/djconnect/v1/ask_dj/reply/image/1A9r1E00NWZmAnCEGbghv8AmH3whnRrL",
+          "thumbnail_url": "/api/djconnect/v1/ask_dj/reply/image/1A9r1E00NWZmAnCEGbghv8AmH3whnRrL",
           "title": "Synthetic original recording",
           "subtitle": "Synthetic artist",
           "kind": "album_art",
           "source": "spotify",
           "requires_device_auth": true,
-          "expires_at": "2026-10-23T12:44:03.852533+00:00",
+          "expires_at": "2026-10-23T19:17:21.944418+00:00",
           "cache_policy": "no-store"
         }
       ],
@@ -914,7 +914,7 @@
           "ha_configured"
         ],
         "processor_qualification_required": true,
-        "expires_at": "2026-10-23T12:44:03.852555+00:00",
+        "expires_at": "2026-10-23T19:17:21.944471+00:00",
         "cache_policy": "private,no-store",
         "attribution": [
           {
@@ -934,7 +934,7 @@
   "native": "NOT_RUN",
   "audible": "NOT_RUN",
   "ha_sdk_version": "2026.10.0",
-  "actual_ha_receipt_sha256": "cdccc9c3b74507d0f26d25ccd9170275e4ef9046b73a062dac600ec5936a489c",
+  "actual_ha_receipt_sha256": "ec1a8ac63c5dc03b0545dd81506891c87adeabb933f430be4e238e4a078f6f1f",
   "requests_observed": 39,
   "source_unchanged": true,
   "source_pins": {
@@ -942,7 +942,7 @@
     "reply_artwork.py": "4d8723f6c14360a59d596a477ec167348103ab4d6ef0b6e59b4f0df4b61c41b4",
     "api_handlers.py": "cdc2a5246da7eb8f0a1c1ba265b8c8b0aca66074be63033d26e3ad10f8ebc23d",
     "ask_dj/__init__.py": "5b185847c14909e38da944ebf44a5e517951d6ef76458c11a4b389d7b89df052",
-    "ask_dj/dialogue.py": "6ae94a3290b4526ab124d7ada0d371ba23572522c7e204d0dfdab442ee901761",
+    "ask_dj/dialogue.py": "87d0c360e2a775fcdb0bcfec3c53b61fd420b698052f9aab1c44845efc38bdbd",
     "ask_dj/service.py": "d076a5ff14274b2dd7dc460ccf361ecf25f9d0c9299f0fa53e4c9f4d4b99837d",
     "session_artwork.py": "d870878c8e816e5ec404510af363c3746f0a199091b6cf1ec222e18c7c480f63",
     "capability_contract.py": "e6475b84ce72d16fa71678be4bb5edbbfe72969d4e436fa52f339e28435c238d",

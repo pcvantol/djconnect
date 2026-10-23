@@ -923,7 +923,7 @@ def rich_introduction(text):
 
 def explicit_public_subject(text):
     """One shared extraction rule for owner topic reset and source retrieval."""
-    from .dialogue import explicit_subject
+    from .dialogue import deictic_subject, explicit_subject
 
     named = explicit_subject(text)
     # These patterns extract only the public musical subject, not the surrounding
@@ -943,6 +943,8 @@ def explicit_public_subject(text):
         if match:
             named = match[1].strip(" .?!")[:160]
             break
+    if named and deictic_subject(named):
+        return None
     if named:
         named = re.sub(
             r"^(?:the album|het album|das album|l['’]album|el álbum)\s+", "", named, flags=re.I
@@ -958,6 +960,8 @@ def explicit_public_subject(text):
     )
     if match:
         candidate = match[1].strip(" .?!")[:160]
+        if deictic_subject(candidate):
+            return None
         music_concept = bool(
             MUSIC.search(candidate)
             or re.search(

@@ -1,3 +1,9 @@
+# Current Help deictic routing correction - 23 October 2026
+
+Cost-free static review found listen.artist current-context loss in DE/FR/ES. The shared closed subject lens and owning context recognition are corrected; canonical70 examples remain unchanged and unqualified. Both manual100 failures stay consumed/unknown paid usage. See docs/verification/HELP_DEICTIC_ROUTING_20261023.md. All24 requests and nine gates and prior bodies remain below.
+
+---
+
 # Current Help setup correction - 23 October 2026
 
 Both original manual100 runs failed/incomplete and remain consumed, possible paid usage unknown. Catalogue stays false/70pending. Current source fixes unknown agent availability and container UID ownership, and adds network-none, zero-call setup-only CI. See docs/verification/HELP_CONTAINER_SETUP_20261023.md. No new paid execution, catalogue qualification, installation or native claim. All24 requests and nine gates remain preserved below.
