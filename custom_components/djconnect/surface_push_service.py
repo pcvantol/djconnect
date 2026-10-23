@@ -1,7 +1,7 @@
 """One HA-owned surface registry; no purpose enrolment or credential repair.
 
-The purpose map is populated only by a future separately qualified issuer
-adoption. It is empty by default, is never read from config/Store/client JSON,
+The internal widget adoption port requires a separately qualified enrolled
+owner; normal startup supplies none. It is empty by default, is never read from config/Store/client JSON,
 and disappears at unload/restart. HTTP cannot import a credential into it.
 """
 from __future__ import annotations
@@ -24,6 +24,8 @@ class SurfacePushService:
         self.closed = False
         manager._surface_push_service = self
         self._purposes = {}  # Never a public client/enrolment/config ingestion route.
+        from .surface_widget_adoption import WidgetPurposeAdoptions
+        self._widget_adoptions = WidgetPurposeAdoptions(self, persistence)
         self._tasks = set()
         self._signals = {}
         self._unsubscribe_stop = None
@@ -31,6 +33,17 @@ class SurfacePushService:
             from .surface_push_relay import post_once
             return await post_once(hass, admission.runtime, action, request, admission)
         self.registry = SurfacePushRegistry(OperationJournal(SurfaceOperationStore(persistence)), relay)
+
+    def begin_widget_adoption(self, lifecycle, operation_id, identity, headers):
+        """Internal required-owner port; captures before caller task scheduling."""
+        return self._widget_adoptions.begin(lifecycle, operation_id, identity, headers)
+
+    async def adopt_widget(self, handle):
+        return await self.run(self._widget_adoptions.acquire(handle))
+
+    def withdraw_widget_adoption(self, handle):
+        """Local irreversible fence; remote withdrawal retains its own authority."""
+        self._widget_adoptions.fence(handle)
 
     async def run(self, coroutine):
         if self.closed or len(self._tasks) >= MAX_TASKS:
@@ -153,6 +166,7 @@ class SurfacePushService:
         """Latch original grants before Session teardown can yield or fail."""
         import hashlib
         owner_binding = hashlib.sha256(owner.encode()).hexdigest()
+        self._widget_adoptions.invalidate(owner_binding, session_id)
         for key,purpose in tuple(self._purposes.items()):
             if key[0]==owner_binding and key[3]==session_id:
                 purpose.withdraw()
@@ -170,6 +184,7 @@ class SurfacePushService:
         Do this synchronously before platform-unload awaits. A failed unload
         must not silently rearm a previously withdrawn background grant.
         """
+        self._widget_adoptions.invalidate()
         for purpose in self._purposes.values():
             purpose.withdraw()
         self._purposes.clear()
@@ -181,6 +196,7 @@ class SurfacePushService:
         if self.closed:
             return
         self.closed = True
+        self._widget_adoptions.invalidate()
         if getattr(self.manager,"_surface_push_service",None) is self:
             self.manager._surface_push_service = None
         if self._unsubscribe_stop is not None:
