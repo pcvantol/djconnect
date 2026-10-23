@@ -150,3 +150,17 @@ class EnrolledIssuerOwner(ABC):
     @abstractmethod
     async def sign(self, capture: IssuerOwnerCapture, path: str, message: bytes, *, action: str) -> str:
         raise NotImplementedError
+
+
+class WidgetIssuerOwner(EnrolledIssuerOwner):
+    """Required original service-attestation port; no concrete custodian/default.
+
+    A future qualified owner must join this exact service capture to the SAME
+    original enrolled witness/install/grant/source/policy. Matching opaque hashes
+    or a paired app credential alone cannot implement this permission.
+    """
+
+    @abstractmethod
+    def validate_widget_adoption(self, original: IssuerOwnerCapture, service_capture) -> None:
+        """Return None or raise, synchronously; widget-only, no Activity rights."""
+        raise NotImplementedError
