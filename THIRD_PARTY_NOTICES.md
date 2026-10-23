@@ -21,11 +21,19 @@ copyrights remain with their respective authors and contributors.
 
 The integration uses these runtime packages/components. Home Assistant Core
 provides `aiohttp` and `awesomeversion`; the integration manifest requests
-`segno` separately:
+`segno` and `defusedxml` separately:
 
 - `aiohttp` for HTTP client/server helpers used through Home Assistant.
 - `awesomeversion` for firmware version comparisons.
 - `segno` for generating local inline SVG QR codes in app pairing flows.
+- `defusedxml>=0.7.1` for RSS/Atom XML parsing with DTD, entities and external
+  references forbidden, alongside DJConnect's byte/depth/node bounds. Christian
+  Heimes and contributors retain their copyrights; the upstream package uses
+  the Python Software Foundation License Version 2. Source and license:
+  https://github.com/tiran/defusedxml/tree/v0.7.1 and
+  https://github.com/tiran/defusedxml/blob/v0.7.1/LICENSE. No package source is
+  vendored or modified by this integration. Home Assistant owns its installed
+  version; the development qualification environment pins `defusedxml==0.7.1`.
 - `voluptuous` for Home Assistant config-flow schemas.
 - `zeroconf` / Home Assistant zeroconf support for local device discovery.
 - Home Assistant `bluetooth` and `bluetooth_adapters` integrations for BLE WiFi

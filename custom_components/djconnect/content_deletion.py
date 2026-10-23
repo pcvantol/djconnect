@@ -14,6 +14,12 @@ from .persistence.history import HistoricalProjectionRepository
 from .persistence.history_deletion import HistoryDeletionError
 
 
+def _message_session_id(message):
+    """Standalone turns use JSON null; their explicit delete selector uses ''."""
+    session = message.get('session_turn', {}).get('context', {}).get('session_id')
+    return '' if session is None else session
+
+
 @asynccontextmanager
 async def runtime_lock(manager):
     if manager is None:
@@ -60,7 +66,7 @@ class ContentDeletionCoordinator(ArchiveDeletionCoordinator):
             selected = next((m for m in messages if m['id'] == target), None)
             if selected is None:
                 raise HistoryDeletionError('content_unavailable')
-            actual_session = selected.get('session_turn', {}).get('context', {}).get('session_id', '')
+            actual_session = _message_session_id(selected)
             if session != actual_session:
                 raise HistoryDeletionError('content_unavailable')
             session = actual_session
@@ -70,7 +76,7 @@ class ContentDeletionCoordinator(ArchiveDeletionCoordinator):
         elif unit_kind == 'request':
             original_ids.add(target)
             selected_ids.update(m['id'] for m in messages if m.get('client_message_id') == target)
-            if any(m.get('session_turn', {}).get('context', {}).get('session_id', '') != session
+            if any(_message_session_id(m) != session
                    for m in messages if m['id'] in selected_ids):
                 raise HistoryDeletionError('content_unavailable')
             unit_kind, target = 'attempt', _request_hash('profile:' + owner, target)

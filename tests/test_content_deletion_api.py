@@ -48,6 +48,37 @@ class PairedContentDeleteTests(unittest.IsolatedAsyncioTestCase):
             {**self.identity, 'confirmation_id': preview['confirmation_id'],
              'operation_id': self.operation, **changes}, headers=self.f.headers, operation='status')
 
+    async def assert_standalone_null_session_delete(self, kind):
+        request_id = 'synthetic-standalone-null-' + kind
+        created = await self.f.history.async_append_exchange('profile:profile-a',
+            {'client_message_id': request_id, 'text': 'Synthetic standalone question'},
+            {'success': True, 'text': 'Synthetic standalone answer'},
+            session_turn={'turn_id': request_id, 'context': {'session_id': None}})
+        target = {'kind': kind, 'session_id': '',
+                  'target_id': created['user_message']['id'] if kind == 'message' else request_id}
+        before = (await self.f.history.async_history('profile:profile-a'))['messages']
+        self.assertIsNone(created['user_message']['session_turn']['context']['session_id'])
+        wrong, status = await self.prepare({**target, 'session_id': self.fixture.target.session_id})
+        self.assertEqual((status, wrong['error']), (404, 'content_unavailable'))
+        preview, status = await self.prepare(target)
+        self.assertEqual(status, 200, preview)
+        self.assertEqual(preview['unit']['session_id'], '')
+        self.assertEqual(set(preview['removed_message_ids']), {m['id'] for m in created['messages']})
+        result, status = await self.delete(preview)
+        self.assertEqual((status, result['state']), (200, 'completed'))
+        self.assertEqual(await self.delete(preview), (result, 200))
+        remaining = (await self.f.history.async_history('profile:profile-a'))['messages']
+        self.assertEqual({m['id'] for m in remaining},
+                         {m['id'] for m in before} - set(preview['removed_message_ids']))
+        self.assertIsNotNone(await self.fixture.query._repository.async_session_record(
+            self.fixture.target.session_id))
+
+    async def test_standalone_null_session_message_uses_empty_selector_and_preserves_session(self):
+        await self.assert_standalone_null_session_delete('message')
+
+    async def test_standalone_null_session_request_uses_empty_selector_and_original_receipt(self):
+        await self.assert_standalone_null_session_delete('request')
+
     async def test_explicit_server_exchange_confirmation_either_bubble_and_original_receipt(self):
         preview, status = await self.prepare()
         self.assertEqual(status, 200, preview)

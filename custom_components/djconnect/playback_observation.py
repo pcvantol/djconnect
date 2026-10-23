@@ -53,6 +53,10 @@ class _SpotifyObservationSession:
     command_revision: int = 0
     visual_source: object = field(default_factory=object, repr=False)
     visual_sample_serial: int = field(default=0, repr=False)
+    forecast_output_id: str = field(default='', repr=False)
+    forecast_output_serial: int = field(default=0, repr=False)
+    forecast_recording: tuple[str, str] = field(default=(), repr=False)
+    forecast_recording_serial: int = field(default=0, repr=False)
 
 
 class PlaybackObservationManager:
@@ -323,6 +327,8 @@ class PlaybackObservationManager:
             # Capture the original source before provider and storage awaits;
             # never turn a late result into a newly authorized admission.
             visual_admission = capture_observer(self._hass, observed)
+            from .queue_forecast import capture_source
+            queue_authority, queue_epoch = capture_source(self._hass, observed)
             try:
                 result = await SpotifyBackend(
                     self._hass, observed.integration_runtime
@@ -349,6 +355,25 @@ class PlaybackObservationManager:
             if (self._spotify_sessions.get(observed.owner_profile_id) is not observed
                 or observed.command_revision != captured_command_revision):
                 return
+            output_id = getattr(result, 'target_id', '')
+            output_id = output_id if type(output_id) is str and 0 < len(output_id) <= 256 else ''
+            if output_id != observed.forecast_output_id:
+                observed.forecast_output_id = output_id
+                observed.forecast_output_serial += 1
+            output_serial = observed.forecast_output_serial
+            recording = (result.media_identity, getattr(result, 'state', ''))
+            if recording != observed.forecast_recording:
+                observed.forecast_recording = recording
+                observed.forecast_recording_serial += 1
+            recording_serial = observed.forecast_recording_serial
+            source_authority = queue_authority
+            def queue_authority():
+                return (source_authority() and bool(output_id)
+                        and observed.forecast_output_id == output_id
+                        and observed.forecast_output_serial == output_serial
+                        and observed.forecast_recording == recording
+                        and observed.forecast_recording_serial == recording_serial)
+            queue_epoch += f':{output_id}:{output_serial}:{recording_serial}'
             from .current_track_insight import observe
             if getattr(observed.integration_runtime, "_current_insight_requested", False):
                 observe(observed.integration_runtime, result.media_identity, result.state,
@@ -383,20 +408,37 @@ class PlaybackObservationManager:
                         hass=self._hass, integration_runtime=observed.integration_runtime,
                         owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
                         media_identity=result.media_identity, catalog=getattr(result, "catalog", {})))
-            # Optional queue lookup must not delay or invalidate current playback.
-            next_item = {}
-            if result.is_playing and result.media_identity:
+            # One bounded optional queue observation serves both existing up-next
+            # and the Forecast. Capture source/command admission before awaits.
+            next_item, preview = {}, {}
+            queue_requested = False
+            if result.is_playing and result.media_identity and queue_authority():
+                queue_requested = True
                 try:
-                    next_item = await asyncio.wait_for(SpotifyBackend(self._hass, observed.integration_runtime).async_observe_next_item(result.media_identity), timeout=3)
-                except Exception:  # Best-effort queue absence is not playback failure.
-                    next_item = {}
+                    backend = SpotifyBackend(self._hass, observed.integration_runtime)
+                    if hasattr(backend, 'async_observe_forecast_queue'):
+                        preview = await asyncio.wait_for(backend.async_observe_forecast_queue(result.media_identity,
+                            observation_key=queue_epoch + ':' + getattr(result, 'target_name', '')), timeout=3)
+                        next_item = dict(preview.get('up_next') or {})
+                    else:  # Older backend adapter: keep up-next without a Forecast claim.
+                        next_item = await asyncio.wait_for(backend.async_observe_next_item(result.media_identity), timeout=3)
+                except Exception:  # Queue absence is not playback failure.
+                    next_item, preview = {}, {}
                 if next_item:
                     next_item["artwork_url"] = register_image_proxy_url(self._hass, next_item.get("artwork_url", ""))
-            if self._spotify_sessions.get(observed.owner_profile_id) is not observed:
+            if (self._spotify_sessions.get(observed.owner_profile_id) is not observed
+                    or observed.command_revision != captured_command_revision
+                    or (queue_requested and not queue_authority())):
                 return
             await session_runtime_manager(self._hass).async_update_next_item_projection(
                 owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
                 media_identity=result.media_identity, target_name=getattr(result, "target_name", ""), up_next=next_item,
+                authority=queue_authority,
+            )
+            await session_runtime_manager(self._hass).async_update_forecast_queue(
+                owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                media_identity=result.media_identity, target_name=getattr(result, 'target_name', ''),
+                preview=preview, authority=queue_authority,
             )
         if not result.is_playing or not result.media_identity:
             previous = observed.enrichment_task

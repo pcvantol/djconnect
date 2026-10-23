@@ -1404,6 +1404,53 @@ def _connect_session_narration(hass, runtime, context, session, identity, header
         context.profile_id, session.session_id, realize, authorize,
         capture_authority=capture_authority, archive_admission=archive_admission)
 
+    async def generate_bulletin(prompt, original_session, guard):
+        from .pipeline import (_assist_context, _speech_from_response,
+            call_conversation_process_with_agent_retry)
+        authorize()
+        guard()
+        selected = _assist_context(hass, runtime.config)
+        if not selected.get("agent_id"):
+            raise PermissionError("bulletin_agent_unavailable")
+        def current():
+            guard()
+            authorize()
+            if _assist_context(hass, runtime.config) != selected:
+                raise PermissionError("bulletin_agent_changed")
+        from .ask_dj.dialogue import current_turn
+        token = current_turn.set(None)  # Background news is never an Ask DJ turn.
+        try:
+            result = await call_conversation_process_with_agent_retry(hass,
+                {"text": prompt, "language": original_session.locale,
+                    "agent_id": selected["agent_id"]}, model_guard=current)
+        finally:
+            current_turn.reset(token)
+        current()
+        return _speech_from_response((result or {}).get("response") or {})
+
+    def capture_bulletin_authority():
+        from .pipeline import _assist_context
+        from .ask_dj.dialogue import qualify_agent
+        try:
+            original = capture_authority()
+            selected = _assist_context(hass, runtime.config)
+            if not selected.get("agent_id"):
+                raise PermissionError("bulletin_agent_unavailable")
+            agent = qualify_agent(hass, selected["agent_id"])
+        except Exception:
+            raise PermissionError("bulletin_agent_unavailable") from None
+        def guard():
+            try:
+                original()
+                if qualify_agent(hass, selected["agent_id"]) is not agent:
+                    raise PermissionError("bulletin_agent_changed")
+            except Exception:
+                raise PermissionError("bulletin_agent_changed") from None
+        return guard
+
+    session_runtime_manager(hass).connect_bulletin(context.profile_id, session.session_id,
+        generate_bulletin, authorize, capture_bulletin_authority)
+
 
 def _conversation_profile_fence(hass, runtime, identity, headers, context, *, _ha_service_runtime=None):
     """A synchronous owner fence after the final Store/source/Profile await."""

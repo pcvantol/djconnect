@@ -368,8 +368,12 @@ def realize(semantic: dict, locale: str, persona: str) -> tuple[str, list[dict]]
     code = semantic['guidance']
     forms = INTENT_FORMS[language].get(code)
     text = forms[PERSONAS.index(persona) if persona in PERSONAS else 0].format(**values) if forms else c.get(code, c['empty'])
+    queue = semantic.get('queue_preview')
+    if queue:
+        from .queue_forecast import realize_queue
+        text = realize_queue(queue['items'], language, persona)
     if forms or code == 'quiet':
         sections.append({'id': 'guidance', 'title': c['titles'][1], 'claim_type': 'intention', 'text': text})
-    if semantic.get('aim') in ('chill', 'groove', 'energy', 'party'):
+    if not queue and semantic.get('aim') in ('chill', 'groove', 'energy', 'party'):
         sections.append({'id': 'aim', 'title': c['titles'][2], 'claim_type': 'conditional_target', 'text': c[semantic['aim']]})
     return text, sections

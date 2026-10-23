@@ -3434,3 +3434,217 @@ postcommit recovery and existing speech/output choices are preserved. The old
 automatic Mood mix-question trigger is withdrawn; explicit Ask DJ mix offers
 are unaffected. See docs/product/SETTINGS_CONFIRMATION_MOMENT_V1.md. Apple/native
 and audible acceptance remain open. No merge/install until direct Peter merge.
+
+
+## 22 October 2026: observed-queue DJ bulletin (review candidate)
+
+The existing Forecast guidance can now describe the actual contiguous next
+three to five Spotify tracks (max five, roughly fifteen minutes when durations
+are known), with optional exact-ID artist genres and four authored Persona
+variants in five languages. It never invents acoustic measurements or guarantees
+playback. Source/cache admission includes original owner/Session/account/source,
+command, output ID/occurrence, current recording and original thirty-second
+expiry. Final authority checks occur inside the Runtime lock; reads do no work.
+No new Moment, playback, model call or durable queue storage is introduced.
+
+The standalone bounded HA-lab script is
+`scripts/verification/verify_queue_forecast_http.py`. Its external Spotify/CDN
+responses are synthetic; it exercises real pairing, HTTP, observer, backend and
+Runtime. Full source/fixture validation and independent review remain separate
+from protected delivery, HA-dev/prod installation and native visible acceptance.
+The previous merged consolidation's original Final qualification is still an
+external GitHub blocker; this candidate does not claim to resolve it. All
+parked push WIP remains outside this source branch. Merge awaits Peter's direct
+instruction under the existing one-PR policy.
+
+## 22 October 2026, overnight: current news/surface source preparation
+
+This current checkpoint supersedes the older observed-queue paragraph's pending
+Final/parked-push status. Protected Source1290/Final1292 is fully originally
+qualified at `103dc6c58862b9ef277fbaa02d59039d5f13eefe`; HA-dev's 240-file
+installation was independently verified at18:26:40UTC, before the later hold.
+Production has not been updated; its pending native configuration-check result
+must not be inferred. Do not repeat that completed HA-dev installation.
+
+The sole active draft remains PR1293 on `codex/core-dj-bulletin-20261022`.
+The observed-queue musical outlook and the distinct NEWS bulletin are both
+preserved. Push preparation is now active in this source branch, including the
+confirmed SQLite effect journal, original-purpose/HTTP/lifecycle fences and
+once-only semantic widget signals. Its default purpose map is empty and public
+availability is false; issuer/operator key adoption and Apple Activity rights
+remain unqualified. It supplies no APNs/native delivery or physical recovery
+claim. See `docs/product/NATIVE_SURFACE_PUSH_V1.md`.
+
+Ten isolated actual-HA harnesses qualified the 255-file source snapshot before
+the final review correction. The full suite executed3314 tests with7 existing
+skips in84.517seconds; all50 changed Python files passed Ruff. Those receipts
+remain historical evidence, not approval for later bytes. Whole-source review
+then found cancellation swallowed during the NEWS SQLite reservation commit
+could still start two model calls. A real-SQLite causal regression reproduced
+that failure. The corrected builder preserves the committed reservations and
+honours the original task cancellation before any generation/assessment;
+128 targeted tests pass. Fresh exact source joins/full checks and independent
+review are required for the corrected candidate before source delivery.
+
+Peter's overnight window ends23October06:00UTC/08:00Amsterdam, with the05:50UTC
+cutoff. The same automation/thread and sole Core writer continue. No interim
+merges or deployments; the explicit human merge hold remains. All other selected
+items, historical queue-preservation qualification, actual musical analysis,
+client/native adoption, paid-test permission and production readiness remain
+separate open gates. Preserve original receipts/backups and all current WIP.
+
+### Overnight source preparation: issuer wire, strict relay JSON and XML scan remediation
+
+On22October22:03UTC the same draftPR1293 has committed source preparation
+`3b4589347f61863ecad483e2d60f4deb6b8f7998`; the subsequent candidate remains
+unmerged source preparation. It adds only offline signed-issuer grammar and
+standard P-256 verification against API134/2a6 public expired vectors, strict
+UTF-8/unique-field relay JSON, and `defusedxml==0.7.1` for fixed feed parsing.
+The original XML CI failures are retained. The unchanged medium-severity Bandit
+check now reports zero findings/errors locally; no scanner waiver was added.
+Runtime/dev dependency pins and upstream PSF2 notices are recorded.
+
+The current coherent candidate ran3,325 tests in84.386s with seven existing
+skips and exit0; all53 changed Python files pass Ruff. Ten actual isolated
+HA2026.10.0 runtime harnesses and a separate offline crypto harness use the same
+256 product files. Crypto accepts4 original public proofs and rejects33 invalid
+variants. All own containers are removed; current wire derivatives join fresh
+original receipts. External model/feed/provider boundaries remain synthetic.
+These results do not provide operator enrolment, key custody, signed issuer
+lifecycle/adoption, Activity content rights, APNs/native or audible acceptance.
+The live issuer-purpose map remains empty and unavailable. Whole exact source
+review, subsequent commit/readback and normal CI remain separate gates.
+
+Root separately reviewed Apple's three-file settings-fence remediation against
+its prior18-file current Insight/artwork snapshot: bounded P2 remediation has no
+remaining blockers, with24 causal pending/accepted Session/Profile/ABA cases.
+This does not grant whole-Apple or native approval. Historical exact play still
+has no qualified atomic provider guarantee that preserves every remaining queue
+occurrence/order; ordinary Spotify play must not be reported as that guarantee.
+All other selected work and the physical Pi recovery remain open as recorded.
+No intermediate merge/deployment is authorized; the existing timer ends on
+23October06:00UTC, with05:50 cutoff and safe pause by the end.
+
+#### Hassfest runtime-dependency minimum follow-up
+
+Commit8ce2's two actual CI Bandit checks passed. Both hassfest jobs rejected
+its exact runtime dependency pin because Home Assistant already manages that
+package. The follow-up declares `defusedxml>=0.7.1` in the integration manifest;
+only development qualification stays pinned to0.7.1. Dependency notices and the
+inventory distinguish these roles. Product Python remains byte-equal to8ce2;
+no validation rule, exception list or CI workflow is weakened.
+
+The corrected candidate has a new3,325-test result in85.843s, seven existing
+skips and exit0. Fresh baseline6/news11/push12 runtime receipts plus offline
+crypto4 again join the same256 product files, with all own containers removed.
+Current derivatives refer to these new original receipts; earlier failed and
+successful evidence remains separate. Exact source review and real post-push
+hassfest results are still separate gates. No merge or deployment occurs here.
+
+#### Actual Pi V3 consumer binding preparation
+
+The next source increment in the same draftPR1293 supplies the fixed V3 manifest
+for actual qualified Pi Finalbea606ae, with original source128/Final129 evidence
+independently downloaded and verified. All three normative V3 files remain
+byte-equal to protected Core103dc6 and Pi Finalbea. Fresh public readback matches
+the original Zero archive, installer, both locks and all80 runtime files. Native
+release immutable:false remains explicit; no installed or physical claim follows.
+
+The actual consumer's pure validation AST passes3 positive/33 negative checks.
+The offline Core binding verifier passes3/24; historical V1/V2/V3 verifiers pass
+3/149,3/208,3/274. The first invalid-date failure is retained and fixed explicitly.
+No product bytes change in this increment; the prior full batch runtime proof is
+not replaced by these narrower checks. Source review/commit/normal CI are separate.
+
+The schema approval records selected scope only. Peter's no-interim-merge/deploy
+hold remains in force; no operative handoff, Pi pair/configuration, workflow,
+SSH, retry, claim reset/rearm or privilege grant occurs. Screen NOT_RECOVERED.
+Current human/readiness/noReplay/exclusive durable claim and separate V3 smoke
+remain owning Pi. Protected source, separate Final/original qualifications and
+the complete batch installation/readback process remain mandatory before release.
+
+
+#### News metadata exceptions and complete output notice
+
+The next draft-only increment closes the two concrete rights-policy review gaps:
+explicit feed/item rights declarations fail closed before reservations or models,
+and the AI adaptation carries a fixed localized product/source/derivative notice
+in the complete candidate text. The existing second assessment sees that complete
+text, and eligibility rechecks the original notice at every delivery boundary.
+The whole text, including the notice, remains 60–110 words and at most1200 Unicode
+characters; no extra model calls, UI, scheduler, audio route or storage is added.
+
+Causal old-source failures are retained.62 focused tests and all56 changed Python
+Ruff checks pass. Fresh ten isolated actualHA2026.10.0 harnesses match the same257
+product files and remove their own containers; external feed/model/issuer edges
+remain declared synthetic fixtures. New derivatives join those original receipts,
+not historical product hashes. Full-suite and exact whole-source review are
+separate gates. No general rights guarantee, actual news-style/model quality,
+native/audio acceptance, protected merge, deployment or operative Pi use follows.
+
+#### Required-owner issuer lifecycle preparation
+
+The same draft now adds a bounded hash-only SQL15 issuer stage journal and
+required owner/transport ports. Synchronous `begin` captures original admission
+and clocks before caller scheduling and returns an original in-process handle.
+Challenge and issue share one UUID with separate committed phases before their
+signer/network effects. Restart, duplicate/lost replies and new operation IDs do
+not recreate a credential or budget. Only a winning checked issue followed by
+the committed stage/current guards constructs an original-anchor RAM purpose.
+The service purpose map is still empty; no actual enrolled owner or adoption is
+connected. Normal pairing is not issuer authority and no key is provisioned.
+
+Historical status retains the original handle/UUID with its separate current
+authority; withdrawal uses a fresh bounded UUID and fences the local purpose
+before waits. Synchronous lifecycle close scrubs purposes and rejects late ACKs.
+API review found implicit HTTP decompression/media handling; retained causal
+failures precede the explicit no-decompression/identity-only JSON fix. Original
+pre-await challenge deadlines remain locally capped despite server/network
+latency. No automatic retry, credential reconstruction or lease renewal occurs.
+
+89 focused tests pass. A fresh coherent isolated HA2026.10.0 run covers all
+twelve existing and issuer harnesses on the same262 product files, removing its
+own container. Issuer checks use actual ES256/SQLite15 with a synthetic owner/RPC;
+eight actual aiohttp loopback HTTPS controls use synthetic DNS and a temporary
+TLS test trust root/key in container RAM, with certificate verification enabled.
+Current derivatives join the new original receipts. The initial whole-suite
+failure exposed two fixture errors: an omitted NOT_RUN queue label and a SQL15
+table left behind while reconstructing a v5 test database. Both are fixed without
+weakening migration checks; the failed output is retained separately.
+
+Exact coherent-source review and normal post-push CI remain separate. There is
+no actual operator/key custody, service admission, APNs/native/provider delivery,
+installed or physical recovery claim. The human merge/deployment hold remains.
+
+#### Current TrackInsight Runtime continuity preparation
+
+Current TrackInsight retains the original Session, Broadcast, source identity
+and authority/settings revisions while normal PerformanceMemory updates replace
+the frozen Runtime value. Original recording observation and expiry remain
+unchanged across provider reads and both existing model stages. Any observed
+authority withdrawal or contradictory recording metadata permanently invalidates
+that subject; restoring the old value cannot revive it. No new source rights,
+numeric audio measurements or model budget are introduced.
+
+The metadata-denial regression failed before the fix. All27 focused tests pass;
+the extended isolated HA current-recording harness passes18 cases, including
+actual Runtime copies and a real paired-owner metadata-denial fence. All twelve
+isolated HA harnesses pass on the same262 product files with their own container
+removed. External provider/model/issuer boundaries remain synthetic. New original
+receipt derivatives replace prior fixture pins; installed/native acceptance and
+the exact screenshot cause remain unproven. No interim merge or deployment.
+
+#### KNMI feed owner metadata preparation
+
+A bounded public read found the fixed KNMI feed's copyright owner identification
+was suppressing all its items. The exact channel declaration is now separately
+matched to the reviewed official CC0 default; item exceptions and all unknown
+rights remain closed. Feed rights hidden in nested metadata are rejected as well.
+Three new causal tests failed before the correction; all46 focused news tests
+pass. Actual reads of all five feeds returned HTTP200 but no original publication
+within30minutes; no live bulletin/model/storage/publication occurred. The coherent full suite passes3410tests in86.762seconds with7existing skips.
+All twelve actual isolated HA harnesses pass on262equal product files and remove
+their own container; nine original-receipt-derived fixtures are refreshed.
+Ruff finds no issues in all72changedPython files; Bandit retains one unchanged
+LOW import warning against8fd, with0new findings/errors and no waiver.
+Independent whole-source and exactcommit review remain separate gates.

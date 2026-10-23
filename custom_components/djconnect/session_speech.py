@@ -24,6 +24,7 @@ LITERAL_PROCESSING_BASES = frozenset({
     "core_owned_voice_preview_v1",
     "core_owned_persona_reaction_v1",
     "runtime_accepted_settings_v1",
+    "public_news_bulletin_v1",
 })
 
 
@@ -411,7 +412,9 @@ async def resolve_moment(hass, profile_id, reference):
     source = moment.source_fact
     from .public_artist_narration import ResearchMomentAcceptance
     from .settings_confirmation import context as settings_context
-    guard.processor_basis = ("runtime_accepted_settings_v1" if settings_context(moment) is not None
+    from .bulletin_runtime import admitted as bulletin_admitted
+    guard.processor_basis = ("public_news_bulletin_v1" if bulletin_admitted(moment)
+        else "runtime_accepted_settings_v1" if settings_context(moment) is not None
         else "qualified_dialogue_v1" if type(moment.narration_acceptance) is ResearchMomentAcceptance
         else "spotify_owner_local_read_v1" if (source is not None and source.provider == "Spotify") or moment.observed_playback is not None or moment.genre_transition is not None
         else "cc0_normalized_fields_v1" if source is not None else "runtime_authored_direction_v1")

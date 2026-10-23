@@ -41856,7 +41856,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "f9128db586304516ba74907c8ca061a7171f5328f647a93149e1eb86e7219f84"
+        "sha256": "acd3aaf846e5431d15723e63f9e783ec92f6949896a9e31ac68320a165689d43"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -41892,11 +41892,11 @@
       },
       {
         "path": "docs/product/SESSION_FORECAST_V1.md",
-        "sha256": "fa959a90cd6636735d9885768641a5be3be08425622e4af050b1d4ce4ae4ed8a"
+        "sha256": "0f4503346b7b41bf308f34dd011d664f0f85720e2678109510f7c69cf8d59781"
       },
       {
         "path": "docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md",
-        "sha256": "2cd12d11dc721aa95ac145fa5e4e418ea054017016c3fa1379ec31cdac027f10"
+        "sha256": "1c9328e8a3c051a6facb65f9850b0404d6461e957d99d9d4291dd51ca70a2223"
       },
       {
         "path": "ROLLING_SESSION_HORIZON_ARCHITECTURE.md",

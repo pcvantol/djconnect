@@ -643,6 +643,93 @@ class SpotifyBackend:
                 "artist_ids": playback["artist_ids"], "genres": playback.get("genres", []),
                 "genre_source_expires_at": playback.get("_artist_genres_expires_monotonic")}
 
+    async def async_observe_forecast_queue(self, media_identity: str, *, observation_key: str = "") -> dict[str, Any]:
+        """Observe a contiguous real queue prefix, never search/recommend or play."""
+        from .queue_forecast import safe_text
+        scope = (runtime_scope(self.runtime), credential_cache_scope(self.runtime))
+        cache_key = "forecast_queue:v1:" + hashlib.sha256((media_identity + "|" + observation_key).encode()).hexdigest()
+        async def load():
+            observed_wall = time.time()
+            raw = await self._request("GET", "/me/player/queue")
+            if not isinstance(raw, dict) or not isinstance(raw.get("queue"), list):
+                return {}
+            current = raw.get("currently_playing")
+            if not isinstance(current, dict):
+                return {}
+            first = raw['queue'][0] if raw['queue'] and isinstance(raw['queue'][0], dict) else {}
+            upcoming = _normalize_queue_item(first) if first.get('type') == 'track' else None
+            up_next = ({'title':str(upcoming.get('title') or '')[:256],
+                        'artist':str(upcoming.get('artist') or '')[:256],
+                        'artwork_url':str(upcoming.get('image_url') or '')}
+                       if upcoming and upcoming.get('title') and upcoming.get('artist') else {})
+            items = []
+            duration = 0
+            for track in raw["queue"][:5]:
+                if not isinstance(track, dict) or track.get("type") != "track":
+                    break  # Never skip an unknown position and imply adjacency.
+                uri = track.get("uri")
+                if not isinstance(uri, str) or re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}", uri) is None:
+                    break
+                item = _normalize_queue_item(track)
+                if not item or not safe_text(item.get("title")) or not safe_text(item.get("artist")):
+                    break
+                artist_ids = [a["id"] for a in (track.get("artists") or [])[:4]
+                              if isinstance(a, dict) and _looks_like_spotify_id(a.get("id", ""))]
+                items.append({"title": item["title"], "artist": item["artist"],
+                              "artist_ids": artist_ids, "genres": [], "image_url": item.get("image_url", "")})
+                ms = item.get("duration_ms")
+                if type(ms) is int and 0 < ms <= 3600000:
+                    duration += ms
+                if len(items) >= 3 and duration >= 900000:
+                    break
+            return {"current_uri": current.get("uri"), "items": items,
+                    "wall_deadline": observed_wall + 30, "up_next": up_next}
+        try:
+            data = await self._cached(cache_key, load, ttl=30)
+        except SpotifyBackendError:
+            return {}
+        cached = self.runtime.backend_cache.get(self._scoped_cache_key(cache_key))
+        if (scope != (runtime_scope(self.runtime), credential_cache_scope(self.runtime))
+                or not cached or cached[1] is not data or data.get("current_uri") != media_identity
+                or not data.get("up_next")):
+            return {}
+        # Cache start, not cache read, is the original observation deadline.
+        deadline = cached[0] + 30
+        items = [dict(i) for i in data["items"]]
+        ids = sorted(set(a for i in items for a in i["artist_ids"]))[:20]
+        if ids:
+            key = "artists:" + ",".join(ids)
+            backoff_key = self._scoped_cache_key(key + ":error_backoff")
+            backoff = self.runtime.backend_cache.get(backoff_key)
+            if not backoff or time.monotonic() - backoff[0] >= ARTIST_GENRE_ERROR_BACKOFF_SECONDS:
+                async def load_artists():
+                    return await self._request("GET", "/artists?ids=" + ",".join(ids))
+                try:
+                    artists = await asyncio.wait_for(self._cached(key, load_artists,
+                        ttl=LISTENING_PROFILE_CACHE_TTL_SECONDS), timeout=1)
+                    source = self.runtime.backend_cache.get(self._scoped_cache_key(key))
+                    if source and source[1] is artists:
+                        deadline = min(deadline, source[0] + LISTENING_PROFILE_CACHE_TTL_SECONDS)
+                        rows = artists.get("artists", []) if isinstance(artists, dict) else []
+                        genres = {}
+                        for artist in rows if isinstance(rows, list) else []:
+                            if isinstance(artist, dict) and artist.get("id") in ids:
+                                values = artist.get("genres")
+                                if isinstance(values, list):
+                                    genres[artist["id"]] = [g for g in values[:10] if safe_text(g, 48)][:3]
+                        for item in items:
+                            item["genres"] = list(dict.fromkeys(g for a in item["artist_ids"]
+                                                               for g in genres.get(a, [])))[:3]
+                except (SpotifyBackendError, TimeoutError):
+                    self.runtime.backend_cache[backoff_key] = (time.monotonic(), True)
+        remaining = deadline - time.monotonic()
+        if remaining <= 0 or scope != (runtime_scope(self.runtime), credential_cache_scope(self.runtime)):
+            return {}
+        return {"items": [{k: i[k] for k in ("title", "artist", "genres")} for i in items],
+                "deadline": deadline, "wall_deadline": data['wall_deadline'],
+                "up_next": {**data["up_next"],
+                            "expires_at": datetime.fromtimestamp(time.time() + remaining, UTC).isoformat()}}
+
     async def async_observe_next_item(self, media_identity: str) -> dict[str, str]:
         """Read one queue item, bound to the exact current account playback."""
         async def load() -> dict[str, Any]:

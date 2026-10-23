@@ -81,6 +81,24 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
         return result
     source = getattr(moment, 'source_fact', None)
     history_allowed = False
+    if getattr(moment, 'bulletin', None) is not None:
+        from .bulletin_runtime import BulletinProof, admitted as bulletin_admitted
+        if not bulletin_admitted(moment, monotonic=now):
+            if type(moment.bulletin) is BulletinProof:
+                candidate = moment.bulletin.candidate
+                import time
+                if now >= candidate.monotonic_deadline or time.time() >= candidate.expires_at:
+                    result['qualification'] = 'expired'
+            return result
+        candidate = moment.bulletin.candidate
+        limit = candidate.monotonic_deadline
+        result['qualification'] = 'qualified'
+        result['source_expires_at'] = datetime.fromtimestamp(candidate.expires_at, stamp.tzinfo).isoformat()
+        result['display_expires_at'] = min(boundary.utc_at(min(deadline, limit)), result['source_expires_at'])
+        result['current_display_allowed'] = bool(playing and boundary.playback_item_id
+            and boundary.playback_item_id == playback_item_id and boundary.published_monotonic <= now < min(deadline, limit))
+        result['active_flow_display_allowed'] = moment.moment_id in flow_ids and now < limit
+        return result
     from .settings_confirmation import context as settings_context
     confirmation = settings_context(moment)
     if confirmation is not None:

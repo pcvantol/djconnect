@@ -2317,3 +2317,44 @@ Profile-only saves return an acknowledgement without creating a Session.
 `settings_confirmation_moment` / contract version 1 permits feature detection.
 Clients deduplicate the original identity; no replay/GET renews or re-autoplays it.
 See `docs/product/SETTINGS_CONFIRMATION_MOMENT_V1.md`. Native adoption remains open.
+
+
+## Additive DJ Bulletin Moment1 — draft Core1291 / Apple182
+
+See [DJ Bulletin V1](docs/product/DJ_BULLETIN_V1.md) and the actual isolated
+[owner wire fixture](examples/client_contracts/dj_bulletin_v1/actual-ha-wire.json).
+`dj_bulletin` is an ordinary owner-only live Flow Moment, not a new endpoint or
+Ask DJ turn. `generation_metadata.bulletin_schema` is `"1"`; two `sources` carry
+public provider, original URL, license, title and publication time. Existing
+`native_delivery` and Session speech descriptors remain authoritative. The
+original publication+30-minute expiry and original owner/source/agent/settings
+admission apply to display and speech; reads do not renew them. Existing client
+speech autoplay controls rendition and does not debit a second contribution.
+Unknown consumers skip this unsupported Moment/speech while retaining surrounding
+Flow; no VibeCast, actions, shared projection or retained news archive is granted.
+This is unmerged candidate source, not installed or native acceptance.
+
+## Additive native surface push1 — unavailable pending issuer qualification
+
+`surface_push_registration` describes the closed role/platform matrix and five
+POST paths beneath `/api/djconnect/v1/push/surface/`: `context`, `register`,
+`revoke`, `status`, `read`. Its `available` flag is currently `false`; normal
+pairing or an installation token does not supply operator-enrolled push purpose
+authority. Clients must not show unavailable registration as ready or fall back
+to ordinary app registration. See [Native surface push V1](docs/product/NATIVE_SURFACE_PUSH_V1.md).
+
+Foreground operations require the original paired owner and a separately
+qualified RAM purpose credential with exact Session/source/device/target/expiry.
+The background `read` path accepts only the separate original registration read
+credential, never the ordinary app bearer. It projects accepted passive state
+without fetching content, extending expiry or granting mutation rights. Responses
+and errors use no-store/no-referrer; other methods return405. No public endpoint
+imports purpose credentials, exposes an issuer key or dispatches a widget event.
+
+Confirmed widget registrations can signal original semantic Broadcast changes
+through the internal once-only `widget_reload` operation. Progress, snapshot and
+registration replay do not generate fresh intents. The external relay receives
+no contribution text, track metadata, artwork or paired headers. Provider ACK
+acceptance does not demonstrate delivery or rendering. Exact Activity external
+content profiles are not admitted. This is unmerged source preparation without
+operator provisioning, APNs/native or installed acceptance.

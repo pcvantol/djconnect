@@ -30,9 +30,16 @@ MIGRATIONS = (
     Migration(10, "0010_four_level_presence", "aceb4702"),
     Migration(11, "0011_history_deletion_intents", "9bf47a12"),
     Migration(12, "0012_content_deletion_fences", "54e23f9a"),
+    Migration(13, "0013_bulletin_attempt_reservations", "d728b7e1"),
+    Migration(14, "0014_surface_effect_journal", "36bf941a"),
+    Migration(15, "0015_surface_issuer_stages", "59d7ac42"),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_surface_issuer_journal": {"singleton", "revision", "high_water_ms", "body"},
+    "djconnect_surface_journal": {"singleton", "revision", "high_water_ms", "body"},
+    "djconnect_bulletin_attempts": {"story_hash", "expires_at"},
+    "djconnect_bulletin_clock": {"singleton", "high_water"},
     "djconnect_content_tombstones": {"owner_profile_id", "session_id", "kind", "reference_id", "entry_id", "created_ms"},
     "djconnect_content_request_fences": {"owner_profile_id", "request_hash", "created_ms"},
     "djconnect_history_deletions": {
@@ -312,6 +319,38 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
             "owner_profile_id TEXT NOT NULL,request_hash TEXT NOT NULL,created_ms INTEGER NOT NULL,"
             "PRIMARY KEY(owner_profile_id,request_hash))"
         )
+    elif version == 13:
+        transaction.execute(
+            "CREATE TABLE djconnect_bulletin_attempts ("
+            "story_hash TEXT PRIMARY KEY CHECK(length(story_hash)=64 AND story_hash NOT GLOB '*[^a-f0-9]*'),"
+            "expires_at REAL NOT NULL CHECK(expires_at>0))"
+        )
+        transaction.execute(
+            "CREATE TABLE djconnect_bulletin_clock ("
+            "singleton INTEGER PRIMARY KEY CHECK(singleton=1),"
+            "high_water REAL NOT NULL CHECK(high_water>=0))"
+        )
+        transaction.execute("INSERT INTO djconnect_bulletin_clock VALUES (1,0)")
+    elif version == 14:
+        transaction.execute(
+            "CREATE TABLE djconnect_surface_journal ("
+            "singleton INTEGER PRIMARY KEY CHECK(singleton=1),"
+            "revision INTEGER NOT NULL CHECK(revision>=0),"
+            "high_water_ms INTEGER NOT NULL CHECK(high_water_ms>=0),"
+            "body TEXT NOT NULL CHECK(length(body)<=524288))"
+        )
+        transaction.execute("INSERT INTO djconnect_surface_journal VALUES (1,0,0,?)",
+            ('{"version":1,"high_water_ms":0,"records":{}}',))
+    elif version == 15:
+        transaction.execute(
+            "CREATE TABLE djconnect_surface_issuer_journal ("
+            "singleton INTEGER PRIMARY KEY CHECK(singleton=1),"
+            "revision INTEGER NOT NULL CHECK(revision>=0),"
+            "high_water_ms INTEGER NOT NULL CHECK(high_water_ms>=0),"
+            "body TEXT NOT NULL CHECK(length(body)<=65536))"
+        )
+        transaction.execute("INSERT INTO djconnect_surface_issuer_journal VALUES (1,0,0,?)",
+            ('{"high_water_ms":0,"records":{},"version":1}',))
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(
         "INSERT OR REPLACE INTO djconnect_schema_metadata "
