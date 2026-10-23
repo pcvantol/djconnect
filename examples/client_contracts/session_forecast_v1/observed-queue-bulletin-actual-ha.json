@@ -242,7 +242,7 @@
     "custom_components/djconnect/ask_dj/artist_tracks.py": "45047d54f079952d6486fded5b1eae7dbce5cfc41a9cef4f0acf3bf39695cdf4",
     "custom_components/djconnect/ask_dj/biographical_dates.py": "cddbbed54dbfe68a41449f0ad87e7f9a173c2a69159fe5f0f428169fea9b940b",
     "custom_components/djconnect/ask_dj/dialogue.py": "6ae94a3290b4526ab124d7ada0d371ba23572522c7e204d0dfdab442ee901761",
-    "custom_components/djconnect/ask_dj/example_catalogue.py": "7411381fab33a74029eb27f59339c0cd4d8d5a33b874d32c5daee63996af1957",
+    "custom_components/djconnect/ask_dj/example_catalogue.py": "6f19b63e39d64ae5e370c4c0cbd239acfdcf204928c9d384b016ab1740a0c187",
     "custom_components/djconnect/ask_dj/example_catalogue_data.py": "81a987d2d2aada9d79b2c3148982a6f5f13401852b667174647ed823414c6544",
     "custom_components/djconnect/ask_dj/examples_v1.json": "dfaa98a1659ef5673037da26f98136314b314beea8afe8e31af4ffd5bd6ac4e7",
     "custom_components/djconnect/ask_dj/exploration.py": "8f982680a1e108cab2fa19cca46bff0c7d55542a846fe99b1c59d9165d9e3a50",
@@ -495,5 +495,5 @@
   "ha_credentials_issued": 0,
   "installed": "NOT_RUN",
   "native": "NOT_RUN",
-  "actual_ha_receipt_sha256": "71491cfdfe2a240606e411d2b51cc92120ce325d63f9888602acdd1e1791076c"
+  "actual_ha_receipt_sha256": "3fcddbe6756ba7d30dc457e88655e4f6c6b654705377f5b5a13657605199a648"
 }

@@ -169,7 +169,7 @@ def help_context(hass, runtime):
         try:
             pipeline = async_get_pipeline(hass, runtime.config.get("assist_pipeline_id") or None)
             agent = async_get_agent(hass, pipeline.conversation_engine)
-            result["agent_available"] = (agent is not None and getattr(agent, "available", True) is True
+            result["agent_available"] = (agent is not None and getattr(agent, "available", False) is True
                                          and callable(getattr(agent, "async_process", None)))
         except Exception:
             result["agent_available"] = False

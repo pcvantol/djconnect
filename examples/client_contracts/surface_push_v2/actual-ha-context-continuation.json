@@ -5,8 +5,8 @@
   "ha_sdk_version": "2026.10.0",
   "harness": "scripts/verification/verify_surface_widget_adoption.py",
   "harness_sha256": "2a8a790144118d8a35ea7f853bfe40196e713cb096d96ae87f616c097e78d2f3",
-  "original_raw_sha256": "1872520c7fb7ba27bb9c5e6bf212f8b4967a102fae4b49acab89891a0f47010d",
-  "original_admission_sha256": "6fb31d14b56da0b75e8cd8e08338d5282e10d31df9308f91e04b1da87de1e6b0",
+  "original_raw_sha256": "6bdeb44462be377e9f5bffbc6270f1d8494ec69ca8e1513f7818ffcf4e60d2d0",
+  "original_admission_sha256": "377787e3c697bc7c09b64cc280997445721c9af01ecac4de080f34be15037e5e",
   "source_pins": {
     "custom_components/djconnect/AGENTS.md": "8fb8891e3a2cca055067fbbacafe6c189f38bc00c514a6bf6984639a182a70cf",
     "custom_components/djconnect/__init__.py": "b4733d5bb6319a51eff2ba65c82c4c2d19cd10b2024d42e4cedcd0d3e94c765c",
@@ -24,7 +24,7 @@
     "custom_components/djconnect/ask_dj/artist_tracks.py": "45047d54f079952d6486fded5b1eae7dbce5cfc41a9cef4f0acf3bf39695cdf4",
     "custom_components/djconnect/ask_dj/biographical_dates.py": "cddbbed54dbfe68a41449f0ad87e7f9a173c2a69159fe5f0f428169fea9b940b",
     "custom_components/djconnect/ask_dj/dialogue.py": "6ae94a3290b4526ab124d7ada0d371ba23572522c7e204d0dfdab442ee901761",
-    "custom_components/djconnect/ask_dj/example_catalogue.py": "7411381fab33a74029eb27f59339c0cd4d8d5a33b874d32c5daee63996af1957",
+    "custom_components/djconnect/ask_dj/example_catalogue.py": "6f19b63e39d64ae5e370c4c0cbd239acfdcf204928c9d384b016ab1740a0c187",
     "custom_components/djconnect/ask_dj/example_catalogue_data.py": "81a987d2d2aada9d79b2c3148982a6f5f13401852b667174647ed823414c6544",
     "custom_components/djconnect/ask_dj/examples_v1.json": "dfaa98a1659ef5673037da26f98136314b314beea8afe8e31af4ffd5bd6ac4e7",
     "custom_components/djconnect/ask_dj/exploration.py": "8f982680a1e108cab2fa19cca46bff0c7d55542a846fe99b1c59d9165d9e3a50",
@@ -277,40 +277,40 @@
     "device_id": "djconnect-ios-ABCDEF123456",
     "client_type": "ios",
     "contract_version": 2,
-    "session_id": "session-bee9b9a0a78a4f439009f1421e0015e9",
-    "operation_id": "01a168c8-9115-7000-8000-000000000001"
+    "session_id": "session-fa9f0250cf934eae9d8cd49eeb1e71a1",
+    "operation_id": "01a16a1d-66bd-7000-8000-000000000001"
   },
   "context_response": {
     "success": true,
     "contract_version": 2,
     "available": true,
-    "context_handle": "djcctx_Wrnv-QBDdKFnBwr8j57Oby8bcjVSteTH-NPcHkd3joc",
-    "operation_id": "01a168c8-9115-7000-8000-000000000001",
-    "purpose_ref": "djcpref_qgbGIDsdR5Mwm6N0r4yYm6WvpocHcmIr6v9m0hG9_kA",
-    "expires_at_ms": 1792759937289,
-    "context_expires_at_ms": 1792759367288,
+    "context_handle": "djcctx_ZZ7UThynjc9WnvIKp1JZmXEaqgJbS1v5EL_TmgKM5jY",
+    "operation_id": "01a16a1d-66bd-7000-8000-000000000001",
+    "purpose_ref": "djcpref_xZpEqv2AaNVC0u6kWjcua6f55PlzxZYG2NxsMiuzrJA",
+    "expires_at_ms": 1792782274282,
+    "context_expires_at_ms": 1792781704282,
     "cache_policy": "private,no-store"
   },
   "same_operation_context_replay_equal": true,
   "registered_echoes": {
-    "context_handle": "djcctx_Wrnv-QBDdKFnBwr8j57Oby8bcjVSteTH-NPcHkd3joc",
-    "operation_id": "01a168c8-9115-7000-8000-000000000001",
-    "purpose_ref": "djcpref_qgbGIDsdR5Mwm6N0r4yYm6WvpocHcmIr6v9m0hG9_kA"
+    "context_handle": "djcctx_ZZ7UThynjc9WnvIKp1JZmXEaqgJbS1v5EL_TmgKM5jY",
+    "operation_id": "01a16a1d-66bd-7000-8000-000000000001",
+    "purpose_ref": "djcpref_xZpEqv2AaNVC0u6kWjcua6f55PlzxZYG2NxsMiuzrJA"
   },
   "registration": {
-    "registration_id": "surface-599da0832cfddd54164c447bb1b89a90",
-    "generation": "266b11eb2b3e07a98f296af657da04ef",
+    "registration_id": "surface-f66f3b4c43c1012a66d68b0516b3ddf1",
+    "generation": "d8eb854690117e3f9fc68dee902e2626",
     "revision": 1,
     "state": "registered",
-    "expires_at_ms": 1792759937289,
+    "expires_at_ms": 1792782274282,
     "token_role": "widget",
     "platform": "ios",
     "last_error": null,
     "cache_policy": "private,no-store"
   },
   "background_read_metadata": {
-    "expires_at_ms": 1792759937289,
-    "registration_id": "surface-599da0832cfddd54164c447bb1b89a90",
+    "expires_at_ms": 1792782274282,
+    "registration_id": "surface-f66f3b4c43c1012a66d68b0516b3ddf1",
     "scope": "exact_original_surface_read_only",
     "cache_policy": "private,no-store"
   },
