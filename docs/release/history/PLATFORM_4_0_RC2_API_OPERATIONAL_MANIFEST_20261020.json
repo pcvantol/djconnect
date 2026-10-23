@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.0.0-rc.2-api-consolidation-20261020",
+  "platform_version": "4.0",
+  "release_version": "4.0.0-rc.2",
+  "release_profile": "INTERNAL_RELEASE",
+  "generated_at": "2026-10-20T18:31:32Z",
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-10-20",
+    "approved_statement": "On 20 October 2026 Peter explicitly requested consolidation of all executed API work to main and deployment to API production in the Core conversation, then instructed to do what is necessary to install. This binds the actual qualified API main 3458ad603350ab9481073277c7dbe561433b4453 to artifact12275167706/run39442858762 and the SHA256 of its tar payload.",
+    "authority_record": "docs/verification/CORE_CONSOLIDATION_20261020.md#human-scope",
+    "effect": "Only the current compiled-OFF Cloudflare Workers production deployment and matching health smoke are authorized. Public rendezvous activation, D1 reset/restore, secret rotation and client/device admission are not added."
+  },
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect-api",
+      "source_sha": "3458ad603350ab9481073277c7dbe561433b4453",
+      "version": "4.0.0-rc.2",
+      "artifact_run": "39442858762"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "cloudflare_workers_production",
+      "required": true
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "pcvantol/djconnect-api",
+      "target": "cloudflare_workers_production",
+      "artifact_id": "12275167706",
+      "artifact_sha256": "e1fda102658e1dbcf59c13c78d477a7a541547b094920f11a6e2bcc5b71a1748",
+      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/39442858762"
+    }
+  ],
+  "constraints": [
+    "The candidate is an internal prerelease and must not be represented as a stable or public product release.",
+    "The Cloudflare Worker deployment and public health smoke remain separately dispatched and must use the exact artifact binding above.",
+    "The release is valid only after the matching post-deployment smoke confirms the public health version and release SHA.",
+    "Current public VibeCast rendezvous remains compiled OFF/service unavailable503; deployment is not activation or native/public QR acceptance."
+  ],
+  "next_authorized_action": "Dispatch the Cloudflare Workers production deployment, then its matching post-deployment smoke, for the exact binding above.",
+  "rollback": {
+    "previous_deployment_id": "35f47d4e-11fe-48cc-a8fe-82f770e260d2",
+    "retained_worker_version_id": "d7f38154-51ca-4066-9d61-f64e0df0dda5",
+    "source_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+    "deployed_worker_sha256": "1c8974cded5f2ac191afa3450cb0a30ae8af67510eb33b43ad41beca70f995d8",
+    "schema_sha256": "0880e28f14ff5a6f0b2c340ac22838931f87d7f95e2569b6b09d091150fa47ab",
+    "pending_migrations": 0,
+    "rule": "Redeploy the previous retained Worker version; preserve D1 schema/rows and existing secret/bindings. No D1 reset, restore, migration or secret rotation. The expired prior GitHub artifact is not claimed available."
+  }
+}

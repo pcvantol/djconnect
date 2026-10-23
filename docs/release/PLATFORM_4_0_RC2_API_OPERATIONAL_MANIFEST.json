@@ -2,24 +2,24 @@
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
   "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
-  "manifest_id": "release-4.0.0-rc.2-api-consolidation-20261020",
+  "manifest_id": "release-4.0.0-rc.2-api-closed-push-20261023",
   "platform_version": "4.0",
   "release_version": "4.0.0-rc.2",
   "release_profile": "INTERNAL_RELEASE",
-  "generated_at": "2026-10-20T18:31:32Z",
+  "generated_at": "2026-10-23T09:02:52.430638+00:00",
   "approval": {
     "state": "APPROVED",
-    "approved_at": "2026-10-20",
-    "approved_statement": "On 20 October 2026 Peter explicitly requested consolidation of all executed API work to main and deployment to API production in the Core conversation, then instructed to do what is necessary to install. This binds the actual qualified API main 3458ad603350ab9481073277c7dbe561433b4453 to artifact12275167706/run39442858762 and the SHA256 of its tar payload.",
-    "authority_record": "docs/verification/CORE_CONSOLIDATION_20261020.md#human-scope",
-    "effect": "Only the current compiled-OFF Cloudflare Workers production deployment and matching health smoke are authorized. Public rendezvous activation, D1 reset/restore, secret rotation and client/device admission are not added."
+    "approved_at": "2026-10-23",
+    "approved_statement": "Peter directly instructed Core to finish push with API and directly instructed the API owner ga deployen dan (actual human message01a167d3-c223-7900-b2c6-80d3f31d9da5 personally read by Core). This binds only qualified closed API sourcec04864ce7c885e0de5fb365aa0139a64c7921b22 to its actual immutable artifact12489837064/TAR4ecd3a6cbb597ece37a3b6d4099e25e0c750605db8eb30ef0f9bd7c15bdb7b5b after separately qualified API Final812eec9a6bf6393a8d98889dc73aa7d1fca25d6f.",
+    "authority_record": "docs/verification/API_CLOSED_DEPLOYMENT_BINDING_20261023.md#human-scope",
+    "effect": "Only the exact compiled-closed Cloudflare Worker, two exact additive migrations and matching health smoke. No issuer/public/fixedQA activation, key provision/custody, enrollment, servicepurpose, Activity/native/devicegrant, destructiveD1change or secretrotation."
   },
   "repositories": [
     {
       "repository": "pcvantol/djconnect-api",
-      "source_sha": "3458ad603350ab9481073277c7dbe561433b4453",
+      "source_sha": "c04864ce7c885e0de5fb365aa0139a64c7921b22",
       "version": "4.0.0-rc.2",
-      "artifact_run": "39442858762"
+      "artifact_run": "39926787789"
     }
   ],
   "required_targets": [
@@ -32,25 +32,56 @@
     {
       "owner": "pcvantol/djconnect-api",
       "target": "cloudflare_workers_production",
-      "artifact_id": "12275167706",
-      "artifact_sha256": "e1fda102658e1dbcf59c13c78d477a7a541547b094920f11a6e2bcc5b71a1748",
-      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/39442858762"
+      "artifact_id": "12489837064",
+      "artifact_sha256": "4ecd3a6cbb597ece37a3b6d4099e25e0c750605db8eb30ef0f9bd7c15bdb7b5b",
+      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/39926787789"
     }
   ],
   "constraints": [
-    "The candidate is an internal prerelease and must not be represented as a stable or public product release.",
-    "The Cloudflare Worker deployment and public health smoke remain separately dispatched and must use the exact artifact binding above.",
-    "The release is valid only after the matching post-deployment smoke confirms the public health version and release SHA.",
-    "Current public VibeCast rendezvous remains compiled OFF/service unavailable503; deployment is not activation or native/public QR acceptance."
+    "Internal prerelease only; not stable/public release.",
+    "Deploy only the exact qualified sourcec048 artifact12489837064; Final812 is independently qualified documentary reconciliation, not the selected Worker artifact.",
+    "Execute only through normal approved deployment workflow and then exact matching health smoke; pending smoke is not production acceptance.",
+    "Issuer/public rendezvous/fixedQA compiled CLOSED. All22 operational gates remain OPEN; no purpose/readiness flag/key/capability/Activity/native/device authority is added.",
+    "Only the two exact additive migrations are permitted; preserve existing D1 rows, eight previous migration bytes, secrets and bindings."
   ],
-  "next_authorized_action": "Dispatch the Cloudflare Workers production deployment, then its matching post-deployment smoke, for the exact binding above.",
+  "next_authorized_action": "After this exact manifest source and its separate Core documentary Final are normally protected-merged and originally qualified, the owning API lane may dispatch the exact bound Worker deployment and its matching health smoke. Private candidate files confer no operative authority.",
   "rollback": {
-    "previous_deployment_id": "35f47d4e-11fe-48cc-a8fe-82f770e260d2",
-    "retained_worker_version_id": "d7f38154-51ca-4066-9d61-f64e0df0dda5",
-    "source_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
-    "deployed_worker_sha256": "1c8974cded5f2ac191afa3450cb0a30ae8af67510eb33b43ad41beca70f995d8",
-    "schema_sha256": "0880e28f14ff5a6f0b2c340ac22838931f87d7f95e2569b6b09d091150fa47ab",
-    "pending_migrations": 0,
-    "rule": "Redeploy the previous retained Worker version; preserve D1 schema/rows and existing secret/bindings. No D1 reset, restore, migration or secret rotation. The expired prior GitHub artifact is not claimed available."
+    "previous_deployment_id": "d17b035d-ff02-40c5-bfde-ad004f5c1297",
+    "retained_worker_version_id": "0ab3ffc5-416f-4e81-9428-e213192c7635",
+    "source_sha": "3458ad603350ab9481073277c7dbe561433b4453",
+    "preserved_actual_deployed_worker_sha256": "7f62a93b6107955b9fb3d941f8201375108cf908762a58ded074282e7c23bf71",
+    "worker_hash_scope": "Freshly rehashed preserved actual deployed3458 module and identical original release archive; current provider version/etag and live source stamp independently match; no new direct provider module-byte export",
+    "retained_archive_sha256": "e1fda102658e1dbcf59c13c78d477a7a541547b094920f11a6e2bcc5b71a1748",
+    "prior_artifact_id_available": false,
+    "existing_schema_readback_sha256": "33dea165f33c66e49d3be51e9fff302b7770f39e1d52b81a32dddecdbd7a0a86",
+    "rule": "Only retained pre-deploy Worker version0ab; preserve D1 schema/data/new additive empty tables and all existing bindings/secrets. No database restore/drop/reset/secret rotation. Separate actual rollback effect authorization remains required."
+  },
+  "separate_finalization": {
+    "repository": "pcvantol/djconnect-api",
+    "source_sha": "812eec9a6bf6393a8d98889dc73aa7d1fca25d6f",
+    "reviewed_sha": "abe8f4a6fce5ce3bbcd110a35ee743d2d2945a6e",
+    "original_qualification": "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED",
+    "original_run": "39928648112",
+    "original_raw_sha256": "847c3923f6e3da138bd1554e9f54cd2225384a02b1047562bf7ec80406b5ea8c",
+    "main_native_browser": "39928453020SUCCESS",
+    "durable_asset": "668561178",
+    "durable_raw_sha256": "2465555c7750a02905088e6c454b10c174c1a4b9e9ff2abc3270cb44e64c7f77"
+  },
+  "source_qualification": {
+    "original_run": "39926788415",
+    "evidence_digest": "823417ba5112b04679c0a84da92f86f32dbcf7a161cef35246f1db033d948525",
+    "original_raw_sha256": "68677b0248741034bc87cb721a25a21d88aba7fb64a54329af63b9e77deb9abf",
+    "main_native_browser": "39926574420attempt2SUCCESS; originalattemptCANCELLEDpreserved",
+    "durable_asset": "668522576",
+    "durable_raw_sha256": "85c09b6a203252b0944851fbdd0b7fd5c2d0421e0f26e79d4f259ebd770c0616"
+  },
+  "migration_boundary": {
+    "existing_0001_through_0008_bytes_unchanged": true,
+    "permitted_pending_additive": [
+      "0009_surface_push.sql",
+      "0010_surface_delegations.sql"
+    ],
+    "no_seeded_capability_or_enrollment": true,
+    "no_reset_drop_restore_secret_rotation": true
   }
 }
