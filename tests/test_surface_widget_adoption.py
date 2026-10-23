@@ -381,7 +381,7 @@ class WidgetActualHAContractTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         wire = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-actual-ha.json').read_text())
         self.assertEqual(wire['ha_sdk_version'], '2026.10.0')
-        self.assertEqual(len(wire['source_pins']), 263)
+        self.assertEqual(len(wire['source_pins']), 264)
         for relative, expected in wire['source_pins'].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), expected, relative)
         self.assertEqual(hashlib.sha256((root / wire['harness']).read_bytes()).hexdigest(), wire['harness_sha256'])

@@ -88,6 +88,8 @@ class WidgetPurposeAdoptions:
         was_closed = h.closed
         h.closed = True  # Before lifecycle, map, watch cleanup or any await.
         purpose = h.purpose
+        if purpose is not None:
+            self.service.contexts.invalidate(purpose=purpose)
         # Replay metadata must not retain a withdrawn Session, Broadcast, paired
         # request headers, Runtime/source closure or PairedAuthority. Historical
         # issuer management uses its separate original opaque capture only.

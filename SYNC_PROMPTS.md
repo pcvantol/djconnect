@@ -1,5 +1,9 @@
 ## Urgent wall4 Timer compatibility V2 producer —22October2026
 
+## Surface context v2 — accepted design, implementation in progress
+
+The exact [Core context/registration continuation](docs/product/SURFACE_CONTEXT_CONTINUATION_V2.md) and [closed r2 record](examples/client_contracts/surface_push_v2/context-continuation-design-r2.json) define separate original grant and submit deadlines, stable server purpose_ref across native token rotation, the same original UUID and closed v2 echoes. Apple/API design acceptance is not source or operative GO; new implementation/actual HA/independent qualification is pending. No custody, Activity right, production activation or native delivery is claimed.
+
 ## Widget issuer-to-service source — separate documentary Finalization, 23 October 2026
 
 ### Repository Status

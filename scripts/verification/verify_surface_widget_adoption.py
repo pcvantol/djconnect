@@ -216,8 +216,18 @@ async def qualify(hass,manager,history,request,client):
                 (b'{"x":NaN}',400),(b'x'*16385,413)):
             await raw("POST","context",status,data=data,headers={"Content-Type":"application/json"})
         context = {**identity,"contract_version":1,"session_id":sid}
-        await raw("POST","context",401,json=context)
-        await raw("POST","context",503,json=context,headers=headers)
+        await raw("POST","context",409,json=context,headers=headers)
+        from uuid import UUID
+        context_now = int(time.time()*1000)
+        context_operation = str(UUID(int=(context_now<<80)|(7<<76)|(2<<62)|1))
+        v2context = {**context,"contract_version":2,"operation_id":context_operation}
+        await raw("POST","context",401,json=v2context)
+        before_unauthorized = (len(service.contexts._starts), len(service.contexts._contexts))
+        for sequence in range(64):
+            forged = {**v2context, "operation_id":str(UUID(int=(context_now<<80)|(7<<76)|(2<<62)|(1000+sequence)))}
+            await raw("POST","context",401,json=forged)
+        assert (len(service.contexts._starts), len(service.contexts._contexts)) == before_unauthorized
+        await raw("POST","context",503,json=v2context,headers=headers)
         assert not service._purposes and not calls
         authority = await PairedAuthority.resolve(hass,identity,headers)
         authority.validate_now()
@@ -234,16 +244,59 @@ async def qualify(hass,manager,history,request,client):
             "max_operations":100,"max_events":20,"max_challenges":4}
         purpose, adoption_handle = await adopt_original_widget(hass,service,manager,authority,
             identity,headers,sid,now,policy)
-        await raw("POST","context",200,json=context,headers=headers)
-        from uuid import UUID
-        operation = str(UUID(int=(now<<80)|(7<<76)|(2<<62)|1))
-        payload = {**context,"operation_id":operation,"platform":"ios","os_version":"26.0",
+        # Actual paired/source admission is completed before the interposed late
+        # failure. Only the disposable clock/error boundary is synthetic.
+        from custom_components.djconnect.surface_push_context import SurfaceContextContinuations
+        from custom_components.djconnect.surface_push_contract import SurfacePushError
+        real_admission = service.admission
+        for number, failure in enumerate((SurfacePushError("surface_purpose_unavailable",503), OSError("synthetic-offline"))):
+            clock = [int(time.time()*1000), time.monotonic()]
+            isolated = SurfaceContextContinuations(service,wall=lambda:clock[0],monotonic=lambda:clock[1])
+            attempt = {**v2context,"operation_id":str(UUID(int=(clock[0]<<80)|(7<<76)|(2<<62)|(2000+number)))}
+            async def fail_after_paired(payload, request_headers):
+                original = await real_admission(payload, request_headers)
+                original.validate()
+                clock[0] += 31000
+                clock[1] += 31
+                raise failure
+            with patch.object(service,"admission",fail_after_paired):
+                try:
+                    await isolated.acquire(attempt,headers)
+                except type(failure):
+                    pass
+                else:
+                    raise AssertionError("late admission error was not observed")
+            assert attempt["operation_id"] in isolated._starts
+            try:
+                await isolated.acquire(attempt,headers)
+            except SurfacePushError as problem:
+                assert problem.code=="surface_context_expired"
+            else:
+                raise AssertionError("late admission failure reanchored submit lease")
+        assert not calls
+        captured = await raw("POST","context",200,json=v2context,headers=headers)
+        recovered = await raw("POST","context",200,json=v2context,headers=headers)
+        assert recovered == captured and captured["expires_at_ms"]==expiry
+        assert captured["context_expires_at_ms"] < expiry
+        async def context_for(body):
+            reply = await raw("POST","context",200,
+                json={**context,"contract_version":2,"operation_id":body["operation_id"]},headers=headers)
+            assert reply["purpose_ref"]==captured["purpose_ref"] and reply["expires_at_ms"]==expiry
+            return reply["context_handle"]
+        operation = context_operation
+        payload = {**context,"contract_version":2,"context_handle":captured["context_handle"],
+            "operation_id":operation,"platform":"ios","os_version":"26.0",
             "token_role":"widget","target":target,"apns_token":"a"*64,
             "apns_environment":"sandbox","expected_registration":None,
             "consent":{"background_read":True,"os_snapshot_cache":True,"locked_display":False,
                 "external_push_content":False,"allow_remote_start":False}}
+        legacy = {k:v for k,v in payload.items() if k!="context_handle"}
+        legacy["contract_version"] = 1
+        await raw("POST","register",409,json=legacy,headers=headers)
+        assert not calls
         with patch.object(surface_push_relay,"post_once",relay):
             registered = await raw("POST","register",200,json=payload,headers=headers)
+            assert all(registered[k]==captured[k] for k in ("context_handle","purpose_ref","operation_id"))
             assert registered["success"] and calls==["register"]
             replay = await raw("POST","register",200,json=payload,headers=headers)
             assert replay["replayed"] and calls==["register"]
@@ -308,6 +361,7 @@ async def qualify(hass,manager,history,request,client):
             rotated_payload = deepcopy(payload)
             rotated_payload.update(operation_id=str(UUID(int=(now<<80)|(7<<76)|(2<<62)|20)),
                 expected_registration=coordinate,apns_token="b"*64)
+            rotated_payload["context_handle"] = await context_for(rotated_payload)
             rotated = await raw("POST","register",200,json=rotated_payload,headers=headers)
             assert rotated["success"] and rotated["registration"]["generation"]==coordinate["generation"]
             assert rotated["registration"]["revision"]==coordinate["revision"]+1
@@ -320,6 +374,7 @@ async def qualify(hass,manager,history,request,client):
             separate = deepcopy(payload)
             separate["target"]["instance_id"]="synthetic-revoked-widget"
             separate["operation_id"]=str(UUID(int=(now<<80)|(7<<76)|(2<<62)|21))
+            separate["context_handle"] = await context_for(separate)
             extra = await raw("POST","register",200,json=separate,headers=headers)
             extra_read = {"contract_version":1,"registration_id":extra["registration"]["registration_id"]}
             extra_headers = {"Authorization":"Bearer "+extra["background_read"]["credential"]}
@@ -333,6 +388,7 @@ async def qualify(hass,manager,history,request,client):
                 raise TimeoutError("synthetic lost reply")
             separate["target"]["instance_id"]="synthetic-unknown-widget"
             separate["operation_id"]=str(UUID(int=(now<<80)|(7<<76)|(2<<62)|23))
+            separate["context_handle"] = await context_for(separate)
             with patch.object(surface_push_relay,"post_once",unknown_relay):
                 unknown = await raw("POST","register",200,json=separate,headers=headers)
                 assert not unknown["success"] and unknown["operation"]["phase"]=="unknown"

@@ -37,8 +37,24 @@ def parse(raw):
 
 
 def validate(kind, data):
-    if kind == "register":
-        return validate_registration(data,now_ms=now_ms())
+    if kind in {"register", "context"}:
+        require(type(data) is dict, "invalid_request")
+        require(not (type(data.get("contract_version")) is int and data["contract_version"] == 1),
+            "surface_context_required", 409)
+        require(type(data.get("contract_version")) is int and data["contract_version"] == 2, "invalid_request")
+        if kind == "register":
+            require("context_handle" in data and type(data["context_handle"]) is str
+                and data["context_handle"].startswith("djcctx_") and len(data["context_handle"]) == 50,
+                "surface_context_required", 409)
+            legacy = {k:v for k,v in data.items() if k != "context_handle"}
+            legacy["contract_version"] = 1
+            return validate_registration(legacy,now_ms=now_ms())
+        require(set(data) == COMMON | {"operation_id"}, "invalid_request")
+        for key in COMMON - {"contract_version"}:
+            require(type(data[key]) is str and IDENTIFIER.fullmatch(data[key]), "invalid_request")
+        from .transport_operations import operation_created_ms
+        operation_created_ms(data["operation_id"])
+        return None
     expected = ({"contract_version","registration_id"} if kind=="read" else
         COMMON | ({"registration_id"} if kind=="status" else
             {"operation_id","expected_registration"} if kind=="revoke" else set()))
@@ -64,14 +80,11 @@ async def handle(hass, kind, data, headers):
         require(type(authorization) is str and re.fullmatch(r"Bearer djcsurface_[A-Za-z0-9_-]{43}",authorization),
             "surface_read_unauthorized",401)
         return service.registry.read(data["registration_id"],authorization[7:]),200
-    admission = await service.admission(intent.metadata() if intent else data,headers)
-    if kind=="context":
-        return {"success":True,"contract_version":1,"available":True,
-            "expires_at_ms":admission.purpose.original_expiry_ms(),"cache_policy":"private,no-store"},200
-    if kind=="register":
-        result = await service.run(service.registry.register(intent,admission))
-        service.track_registration(result)
-        return result,200
+    if kind == "context":
+        return await service.run(service.contexts.acquire(data, headers)), 200
+    if kind == "register":
+        return await service.run(service.contexts.register(data["context_handle"], intent, headers)), 200
+    admission = await service.admission(data, headers)
     if kind=="revoke":
         result = await service.run(service.registry.revoke(admission,data["expected_registration"],
             operation_id=data["operation_id"],digest=hashlib.sha256(canonical(data).encode()).hexdigest()))

@@ -33,6 +33,8 @@ class SurfacePushService:
             from .surface_push_relay import post_once
             return await post_once(hass, admission.runtime, action, request, admission)
         self.registry = SurfacePushRegistry(OperationJournal(SurfaceOperationStore(persistence)), relay)
+        from .surface_push_context import SurfaceContextContinuations
+        self.contexts = SurfaceContextContinuations(self, wall=self.registry.journal.now_ms, monotonic=time.monotonic)
 
     def begin_widget_adoption(self, lifecycle, operation_id, identity, headers):
         """Internal required-owner port; captures before caller task scheduling."""
@@ -91,19 +93,28 @@ class SurfacePushService:
                 signals.stop()
                 self._signals.pop(key,None)
 
+    def _context_runtime(self, payload, headers):
+        from .request_auth import resolve_runtime, authorize_runtime_device_request
+        identity = {key: payload[key] for key in ("device_id", "client_type")}
+        runtime = resolve_runtime(self.hass, identity["device_id"], headers)
+        require(runtime is not None and authorize_runtime_device_request(runtime, headers, **identity),
+            "unauthorized", 401)
+        return runtime
+
+    def preauthorize_context(self, payload, headers):
+        """Synchronous paired check before any bounded context reservation."""
+        self._context_runtime(payload, headers)
+
     async def admission(self, payload, headers):
         """Original paired/source/Session/issuer snapshot BEFORE async resolution."""
         from .const import DOMAIN
         from .domain.storage import STORE_KEY
-        from .request_auth import resolve_runtime, authorize_runtime_device_request
         from .hybrid_service import PairedAuthority
         from .forecast_imagery import artist_authority
         from .passive_session import SurfaceGrant, projection
         from .surface_push_purpose import SurfacePurposeCredential
         identity = {key:payload[key] for key in ("device_id","client_type")}
-        runtime = resolve_runtime(self.hass,identity["device_id"],headers)
-        require(runtime is not None and authorize_runtime_device_request(runtime,headers,**identity),
-            "unauthorized",401)
+        runtime = self._context_runtime(payload, headers)
         data = self.hass.data.get(DOMAIN,{})
         storage = data.get(STORE_KEY)
         require(not self.closed and data.get("surface_push_service") is self and storage is not None,
@@ -166,6 +177,7 @@ class SurfacePushService:
         """Latch original grants before Session teardown can yield or fail."""
         import hashlib
         owner_binding = hashlib.sha256(owner.encode()).hexdigest()
+        self.contexts.invalidate(owner_binding, session_id)
         self._widget_adoptions.invalidate(owner_binding, session_id)
         for key,purpose in tuple(self._purposes.items()):
             if key[0]==owner_binding and key[3]==session_id:
@@ -184,6 +196,7 @@ class SurfacePushService:
         Do this synchronously before platform-unload awaits. A failed unload
         must not silently rearm a previously withdrawn background grant.
         """
+        self.contexts.invalidate()
         self._widget_adoptions.invalidate()
         for purpose in self._purposes.values():
             purpose.withdraw()
@@ -196,6 +209,7 @@ class SurfacePushService:
         if self.closed:
             return
         self.closed = True
+        self.contexts.invalidate()
         self._widget_adoptions.invalidate()
         if getattr(self.manager,"_surface_push_service",None) is self:
             self.manager._surface_push_service = None
