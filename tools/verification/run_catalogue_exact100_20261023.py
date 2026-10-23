@@ -184,6 +184,11 @@ def profile_source_hashes(root):
              'scripts/verification/askdj_catalogue_provider_fixture.py', 'custom_components/djconnect/ask_dj/examples_v1.json',
              'scripts/verification/source_fixture_urls.py']
     files += [root / n for n in names]
+    # Historical fixed1c has no checkpoint module. Never change its exact map;
+    # a separately authorized future target must bind its diagnostic code too.
+    progress = root / 'scripts/verification/catalogue_progress.py'
+    if progress.is_file():
+        files.append(progress)
     return {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
 
 

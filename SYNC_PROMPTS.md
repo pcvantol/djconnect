@@ -1,3 +1,25 @@
+## Catalogue incomplete-run evidence and bounded diagnostic preparation - 23 October 2026
+
+The one authorized manual100 run39980138736 actually failed at15:49:42UTC.
+Its original artifact12513766840 contains four receipts and no final answers
+report. Paid attempts and failure cause remain unknown; cleanup is VERIFIED_ABSENT
+and all264 product hashes join fixed1c551. The invocation remains consumed:
+no rerun, rename, reset, new paid call or catalogue qualification follows.
+
+The evaluation-only [failure checkpoint increment](docs/verification/CATALOGUE_FAILURE_CHECKPOINTS_20261023.md)
+preserves bounded private progress and stops future SDK calls after checkpoint
+failure. Original exceptions/cancellation survive teardown failures; late
+callbacks cannot rewrite terminal records. The existing fixed-source workflow,
+first-run guard, reservation and upload allowlist remain unchanged. New private
+progress is not a public artifact or execution grant. Source review and normal
+protected delivery are still pending for this increment. A future paid run and
+any diagnostic-publication change require their own exact review and authority.
+
+Catalogue false/70pending, actual iPhone push, original-clock qualification,
+authentic custody, API delivery and integral VibeCast gates remain open. All24
+requests and nine later gates remain preserved. Earlier complete bodies below
+are historical scopes and do not override this actual failure receipt.
+
 ## Authorized catalogue qualification route — source Finalization, 23 October 2026
 
 ### Repository Status
