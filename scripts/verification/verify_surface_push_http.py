@@ -4,6 +4,7 @@ No operator enrolment, key custody, remote request, APNs or native proof.
 """
 from __future__ import annotations
 import asyncio
+from copy import deepcopy
 import inspect
 import json
 import os
@@ -63,7 +64,12 @@ async def qualify(hass,manager,history,request,client):
         assert response.status==expected,(method,kind,response.status,value)
         for name,wanted in (("Cache-Control","no-store"),("Referrer-Policy","no-referrer")):
             assert response.headers.get(name)==wanted
-        evidence.append({"method":method,"kind":kind,"status":response.status,"no_store":True})
+        evidence.append({"method":method,"kind":kind,"status":response.status,"no_store":True,
+            "request_json":deepcopy(kwargs.get("json")),"response_body":deepcopy(value),
+            "authentication_kind":("synthetic_background_read" if
+                str((kwargs.get("headers") or {}).get("Authorization","")).startswith("Bearer djcsurface_")
+                else "synthetic_paired" if kwargs.get("headers")==headers else "none"),
+            "fixture_boundary":"disposable synthetic identities/credentials; not operator/native authority"})
         return value
     calls = []
     async def relay(hass_arg,runtime,action,payload,admission):
@@ -181,6 +187,45 @@ async def qualify(hass,manager,history,request,client):
                 previous += 1
                 assert len(calls)==previous and calls[-1]=="event",calls
             assert len(calls)==6
+            # Capture actual closed HTTP replies for native consumers. Every
+            # credential and identity belongs only to this disposable harness.
+            old_bg_headers = bg_headers
+            rotated_payload = deepcopy(payload)
+            rotated_payload.update(operation_id=str(UUID(int=(now<<80)|(7<<76)|(2<<62)|20)),
+                expected_registration=coordinate,apns_token="b"*64)
+            rotated = await raw("POST","register",200,json=rotated_payload,headers=headers)
+            assert rotated["success"] and rotated["registration"]["generation"]==coordinate["generation"]
+            assert rotated["registration"]["revision"]==coordinate["revision"]+1
+            assert rotated["registration"]["expires_at_ms"]==expiry
+            await raw("POST","read",401,json=read,headers=old_bg_headers)
+            bg_headers = {"Authorization":"Bearer "+rotated["background_read"]["credential"]}
+            await raw("POST","read",200,json=read,headers=bg_headers)
+            await raw("POST","status",200,json={**context,
+                "registration_id":read["registration_id"]},headers=headers)
+            separate = deepcopy(payload)
+            separate["target"]["instance_id"]="synthetic-revoked-widget"
+            separate["operation_id"]=str(UUID(int=(now<<80)|(7<<76)|(2<<62)|21))
+            extra = await raw("POST","register",200,json=separate,headers=headers)
+            extra_read = {"contract_version":1,"registration_id":extra["registration"]["registration_id"]}
+            extra_headers = {"Authorization":"Bearer "+extra["background_read"]["credential"]}
+            revoke = {**context,"operation_id":str(UUID(int=(now<<80)|(7<<76)|(2<<62)|22)),
+                "expected_registration":{k:extra["registration"][k] for k in
+                    ("registration_id","generation","revision")}}
+            revoked = await raw("POST","revoke",200,json=revoke,headers=headers)
+            assert revoked["success"] and revoked["registration"]["state"]=="revoked"
+            await raw("POST","read",401,json=extra_read,headers=extra_headers)
+            async def unknown_relay(*args,**kwargs):
+                raise TimeoutError("synthetic lost reply")
+            separate["target"]["instance_id"]="synthetic-unknown-widget"
+            separate["operation_id"]=str(UUID(int=(now<<80)|(7<<76)|(2<<62)|23))
+            with patch.object(surface_push_relay,"post_once",unknown_relay):
+                unknown = await raw("POST","register",200,json=separate,headers=headers)
+                assert not unknown["success"] and unknown["operation"]["phase"]=="unknown"
+                assert "background_read" not in unknown
+                again_unknown = await raw("POST","register",200,json=separate,headers=headers)
+                assert again_unknown["replayed"] and "background_read" not in again_unknown
+            effect_count = len(calls)
+            assert effect_count==9 and calls[-3:]==["register","register","revoke"]
             # Fixture-only clock boundary: registration collection must retire
             # an idle/paused owner's watch WITHOUT any Broadcast callback.
             watch = next(iter(service._signals.values()))
@@ -189,11 +234,11 @@ async def qualify(hass,manager,history,request,client):
             service.registry._collect()
             assert not service._signals and watch.row is None and watch.broadcast is None
             broadcast._publish(BroadcastEventType.PLAYBACK_PROGRESS,{})
-            assert len(calls)==6  # No expiry retry, replay or renewal.
+            assert len(calls)==effect_count  # No expiry retry, replay or renewal.
         await manager.async_end(owner_profile_id=owner,session_id=sid)
         assert not purpose.is_current() and not service._purposes
         await raw("POST","read",401,json=read,headers=bg_headers)
-        assert len(calls)==6 and not service._signals
+        assert len(calls)==effect_count and not service._signals
         return {"scenario":"actual_ha_surface_http_SQL14_and_lifecycle",
             "requests":evidence,"SQL_commit_before_synthetic_relay":True,
             "synthetic_issuer_admission":True,"synthetic_API_responses":calls,

@@ -161,3 +161,10 @@ keys at every depth. Non-finite/ambiguous numeric values, invalid Unicode text
 and over-deep objects are rejected before any ACK is interpreted. The bounded
 single network attempt remains consumed on such a response; parsing never
 normalizes conflicting fields into readiness or triggers another send.
+
+
+## Actual isolated HTTP consumer fixture
+
+`examples/client_contracts/surface_push_v1/actual-ha-wire.json` retains actual HA2026.10.0 HTTP request JSON and response bodies from the disposable producer harness, with exact product/harness and original RAW hashes. It covers unavailable/no-purpose context, registration winner and replay, generation-preserving revision+1 rotation, separate background reads, status, revoke and unknown-outcome replay. HEAD is status/header-only. Synthetic issuer/API boundaries are explicit. Fixture credentials and captured original timestamps are test data, never enrollment, a fresh lease or native delivery evidence. Do not replace original timestamps or mint a grant from this fixture.
+
+Rotation retains the registration ID, generation and original expiry; only revision increments by exactly one. The `djcsurface_` read credential is separate from paired app authentication and issuer `djcs_` mutation authority. Unknown outcomes do not return a read credential or authorize a new operation retry.
