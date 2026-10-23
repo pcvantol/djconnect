@@ -3633,3 +3633,18 @@ isolated HA harnesses pass on the same262 product files with their own container
 removed. External provider/model/issuer boundaries remain synthetic. New original
 receipt derivatives replace prior fixture pins; installed/native acceptance and
 the exact screenshot cause remain unproven. No interim merge or deployment.
+
+#### KNMI feed owner metadata preparation
+
+A bounded public read found the fixed KNMI feed's copyright owner identification
+was suppressing all its items. The exact channel declaration is now separately
+matched to the reviewed official CC0 default; item exceptions and all unknown
+rights remain closed. Feed rights hidden in nested metadata are rejected as well.
+Three new causal tests failed before the correction; all46 focused news tests
+pass. Actual reads of all five feeds returned HTTP200 but no original publication
+within30minutes; no live bulletin/model/storage/publication occurred. The coherent full suite passes3410tests in86.762seconds with7existing skips.
+All twelve actual isolated HA harnesses pass on262equal product files and remove
+their own container; nine original-receipt-derived fixtures are refreshed.
+Ruff finds no issues in all72changedPython files; Bandit retains one unchanged
+LOW import warning against8fd, with0new findings/errors and no waiver.
+Independent whole-source and exactcommit review remain separate gates.

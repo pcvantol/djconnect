@@ -117,6 +117,52 @@ class BulletinIntakeTests(unittest.TestCase):
                     self.assertEqual(self.parse(original.replace(closing, declaration + closing)), ())
         self.assertEqual(len(self.parse(original)), 1)
 
+    def test_exact_knmi_feed_owner_notice_uses_reviewed_cc0_default_without_new_lease(self):
+        source = next(source for source in intake.SOURCES if source.source_id == 'knmi')
+        notice = b'<copyright>Copyright: KNMI, https://www.knmi.nl/</copyright>'
+        body = rss(source, age=1799).replace(b'</channel>', notice + b'</channel>')
+        items = intake.parse_feed(source, body, now=NOW, monotonic=100)
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].license, 'CC0-1.0')
+        self.assertEqual(items[0].published_at, NOW-1799)
+        self.assertEqual(items[0].monotonic_deadline, 101)
+        self.assertEqual(intake.parse_feed(source, body, now=NOW+1, monotonic=101), ())
+
+    def test_feed_rights_wrappers_cannot_hide_unqualified_conditions(self):
+        for source in intake.SOURCES:
+            original = rss(source)
+            for declaration in (b'<copyright>Restricted third party</copyright>',
+                    b'<rights/>', b'<link rel="license" href="https://example.invalid/terms"/>'):
+                body = original.replace(b'</channel>', b'<metadata>' + declaration + b'</metadata></channel>')
+                with self.subTest(source=source.source_id, declaration=declaration):
+                    self.assertEqual(intake.parse_feed(source, body, now=NOW), ())
+
+    def test_knmi_notice_is_not_generic_feed_or_item_permission(self):
+        notice = b'<copyright>Copyright: KNMI, https://www.knmi.nl/</copyright>'
+        knmi = next(source for source in intake.SOURCES if source.source_id == 'knmi')
+        variants = (notice.replace(b'KNMI,', b'Other publisher,'),
+            notice.replace(b'https://www.knmi.nl/', b'https://example.invalid/'),
+            notice.replace(b'<copyright>', b'<copyright scope="all">'),
+            notice.replace(b'<copyright>', b'<copyright><extra/>'),
+            b'<rights>Copyright: KNMI, https://www.knmi.nl/</rights>',
+            b'<copyright xmlns="urn:other">Copyright: KNMI, https://www.knmi.nl/</copyright>',
+            b'<copyright/>', notice + notice, b'<metadata>' + notice + b'</metadata>',
+            notice + b'<license>CC0-1.0</license>')
+        for value in variants:
+            with self.subTest(value=value):
+                self.assertEqual(intake.parse_feed(knmi,
+                    rss(knmi).replace(b'</channel>', value+b'</channel>'), now=NOW), ())
+        for source in intake.SOURCES:
+            with self.subTest(source=source.source_id):
+                self.assertEqual(intake.parse_feed(source,
+                    rss(source).replace(b'</item>', notice+b'</item>'), now=NOW), ())
+                if source is not knmi:
+                    self.assertEqual(intake.parse_feed(source,
+                        rss(source).replace(b'</channel>', notice+b'</channel>'), now=NOW), ())
+        restricted = rss(knmi).replace(b'</item>', b'<rights>Restricted</rights></item>')
+        self.assertEqual(intake.parse_feed(knmi,
+            restricted.replace(b'</channel>', notice+b'</channel>'), now=NOW), ())
+
     def test_atom_rights_at_feed_or_entry_are_unqualified_and_cannot_override_each_other(self):
         source = intake.SOURCES[-1]
         stamp = datetime.fromtimestamp(NOW - 5, timezone.utc).isoformat()

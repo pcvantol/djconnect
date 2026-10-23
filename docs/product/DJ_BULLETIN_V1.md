@@ -83,6 +83,17 @@ is no free-text permission classifier. A restricted item does not suppress its
 otherwise eligible siblings, while an item cannot override restricted feed
 conditions. No linked article is fetched to infer permission.
 
+One narrowly reviewed channel declaration is admitted: the fixed KNMI RSS feed's
+exact top-level, attribute-free, child-free copyright value
+`Copyright: KNMI, https://www.knmi.nl/`. The official KNMI copyright page applies
+CC0 to site content by default while preserving item exceptions; the existing
+source/adaptation notice remains mandatory. This owner identification alone does
+not create a new licence. Any changed/duplicate/namespaced/nested declaration,
+additional feed restriction, or item-level rights declaration remains unavailable.
+The same text on another publisher's feed is not admitted. Original publication
+and monotonic expiry still apply; the actual observed KNMI items were too old,
+so this source preparation generated no live bulletin.
+
 The closed five-source policy follows the linked publisher defaults and their
 exceptions. CBS/EEA require original-source acknowledgement and preserved
 meaning; KNMI requests source credit and separation from derived work. NASA's

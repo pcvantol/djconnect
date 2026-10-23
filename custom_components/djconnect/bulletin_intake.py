@@ -175,10 +175,11 @@ class _SafeTree(ET.TreeBuilder):
 
 
 def _explicit_rights(elements):
-    """No item/feed exception has been qualified to inherit a default licence.
+    """Recognize rights declarations without interpreting their prose.
 
     Inspect XML metadata, never classify arbitrary rights prose as permissive.
-    Even a familiar licence spelling needs its own source-use qualification;
+    Apart from the separately reviewed fixed KNMI channel owner notice,
+    even a familiar licence spelling needs its own source-use qualification;
     absent/empty/unknown/third-party terms cannot silently widen permission.
     """
     for element in elements:
@@ -188,6 +189,31 @@ def _explicit_rights(elements):
         if local == "link" and "license" in element.get("rel", "").casefold().split():
             return True
     return False
+
+
+def _feed_rights_admitted(source, container, entries):
+    """One reviewed publisher-owner notice, never generic licence inference.
+
+    The actual fixed KNMI RSS channel has this exact owner notice. Its official
+    copyright policy applies CC0 by default, with item exceptions preserved.
+    Unknown/changed declarations, nested declarations and item rights stay closed.
+    """
+    known_owner_notices = 0
+    for child in container:
+        if child in entries:
+            continue
+        for element in child.iter():
+            if not _explicit_rights((element,)):
+                continue
+            if (source.source_id == "knmi" and element is child
+                    and element.tag == "copyright" and not element.attrib
+                    and not list(element)
+                    and element.text == "Copyright: KNMI, https://www.knmi.nl/"):
+                known_owner_notices += 1
+                if known_owner_notices == 1:
+                    continue
+            return False
+    return True
 
 
 def parse_feed(source, body, *, now, monotonic=None):
@@ -215,7 +241,7 @@ def parse_feed(source, body, *, now, monotonic=None):
         atom = True
     else:
         raise IntakeError("invalid_bulletin_feed")
-    if _explicit_rights(child for child in container if child not in entries):
+    if not _feed_rights_admitted(source, container, entries):
         return ()  # Item-level claims cannot override an unqualified feed condition.
     result, seen = [], set()
     for entry in entries[:MAX_ITEMS]:

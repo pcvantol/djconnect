@@ -267,7 +267,7 @@
     "custom_components/djconnect/brand/mark-40.png": "b07eb1d01fc37044eef22e3f376635b0f623eec384c18f89046a49c80bb8c257",
     "custom_components/djconnect/broadcast_handoff.py": "a34aa12b5dab42c6ce54fae9f1f7aabb94f185ed62bb28b00f824ffd5195e1c3",
     "custom_components/djconnect/bulletin_builder.py": "b7ce73c3b963ab577143bfceb5df0aff82c63e70c5c0e4ff443fa10e4ce11c9f",
-    "custom_components/djconnect/bulletin_intake.py": "1e46ff20e49c7e7228297b202f3ca9440a057120ebd1fd98d2c634835026de25",
+    "custom_components/djconnect/bulletin_intake.py": "86b800cfc9bc4afa43eb38e81bab93d935accd644b9486db4f77daaca31b1d24",
     "custom_components/djconnect/bulletin_reservations.py": "f24caaba2987e986110d2f83f03548fd6915c6445147d31f7890e776634c1c17",
     "custom_components/djconnect/bulletin_runtime.py": "29277160aa7e3ab96afcbc03e8b401c6d6d0f678930bc519c02008b5048c1771",
     "custom_components/djconnect/bulletin_service.py": "1d487d0cb3d8d4d45930365ea9a1b0b8cd4cee5dc0ead8e82878c1a0f5d69ccb",
