@@ -3581,3 +3581,37 @@ remain declared synthetic fixtures. New derivatives join those original receipts
 not historical product hashes. Full-suite and exact whole-source review are
 separate gates. No general rights guarantee, actual news-style/model quality,
 native/audio acceptance, protected merge, deployment or operative Pi use follows.
+
+#### Required-owner issuer lifecycle preparation
+
+The same draft now adds a bounded hash-only SQL15 issuer stage journal and
+required owner/transport ports. Synchronous `begin` captures original admission
+and clocks before caller scheduling and returns an original in-process handle.
+Challenge and issue share one UUID with separate committed phases before their
+signer/network effects. Restart, duplicate/lost replies and new operation IDs do
+not recreate a credential or budget. Only a winning checked issue followed by
+the committed stage/current guards constructs an original-anchor RAM purpose.
+The service purpose map is still empty; no actual enrolled owner or adoption is
+connected. Normal pairing is not issuer authority and no key is provisioned.
+
+Historical status retains the original handle/UUID with its separate current
+authority; withdrawal uses a fresh bounded UUID and fences the local purpose
+before waits. Synchronous lifecycle close scrubs purposes and rejects late ACKs.
+API review found implicit HTTP decompression/media handling; retained causal
+failures precede the explicit no-decompression/identity-only JSON fix. Original
+pre-await challenge deadlines remain locally capped despite server/network
+latency. No automatic retry, credential reconstruction or lease renewal occurs.
+
+89 focused tests pass. A fresh coherent isolated HA2026.10.0 run covers all
+twelve existing and issuer harnesses on the same262 product files, removing its
+own container. Issuer checks use actual ES256/SQLite15 with a synthetic owner/RPC;
+eight actual aiohttp loopback HTTPS controls use synthetic DNS and a temporary
+TLS test trust root/key in container RAM, with certificate verification enabled.
+Current derivatives join the new original receipts. The initial whole-suite
+failure exposed two fixture errors: an omitted NOT_RUN queue label and a SQL15
+table left behind while reconstructing a v5 test database. Both are fixed without
+weakening migration checks; the failed output is retained separately.
+
+Exact coherent-source review and normal post-push CI remain separate. There is
+no actual operator/key custody, service admission, APNs/native/provider delivery,
+installed or physical recovery claim. The human merge/deployment hold remains.

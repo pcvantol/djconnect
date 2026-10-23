@@ -94,7 +94,7 @@ remain release gates. The candidate stays in the existing draft PR under the
 human merge/deployment hold. No partial native-delivery or installed claim is
 made by this document.
 
-## Signed issuer wire preparation (API 134 / 2a6)
+## Signed issuer and original lifecycle preparation (API 134 / 2a6)
 
 `surface_issuer_wire.py` implements only the closed offline statement grammar,
 exact POST route/action/domain serialization, canonical public P-256 key
@@ -105,15 +105,56 @@ The public test vectors are expired synthetic proofs with no enrolled key.
 Valid signatures establish byte compatibility, not operator approval or current
 owner, source, grant, Session or deadline authority.
 
-This increment supplies no key generator, key custody, operator enrolment,
-challenge/issue/status/withdraw HTTP client or credential adoption. The live
-purpose map stays empty. Challenge and issue must eventually share the same
-original operation, status must retain that original issue operation, and an
-actual withdrawal must use a fresh separately admitted operation. Lost nonce or
-issue response must remain unavailable; no retry with a new operation or
-reconstructed bearer is authorized. Those lifecycle transitions still require
-separate original-authority, cancellation, expiry and once-only qualification
-before any live integration is enabled. Activity profiles remain closed.
+The required-port lifecycle supplies no actual enrolled-key owner, key generator,
+key custody, operator enrolment or service adoption. Its constructor requires
+an independently qualified owner and transport; neither normal pairing nor a
+boolean approval can fill that role. The live purpose map stays empty and the
+public capability stays unavailable. Activity profiles remain closed.
+
+`begin(original_operation_id)` synchronously captures the original owner/key
+generation witness, source, origin, closed widget policy and both clocks before
+the caller schedules acquisition. Its opaque in-process management handle is
+accepted only by its original lifecycle; a clone or a handle from another
+instance confers no authority. Schema15 adds a separate hash-only issuer stage
+journal, with at most64 identities and no eviction to restore an attempt budget.
+Definitive SQLite commits precede both the challenge and issue signer/network
+attempts. They share one original UUID but retain separate signed-body digests.
+Nonces, signatures, keys, raw identity fields and bearer credentials are not
+stored. Cancellation after a definitive commit still blocks the next effect.
+
+Every suspending boundary rechecks the same original authority and UTC plus
+monotonic deadlines. The server's challenge deadline can start after network
+latency; the accepted local deadline is capped at the earlier original
+pre-await120-second limit, UUID lifetime and grant expiry. It is never anchored
+to response arrival. Only an exact winning nonreplayed issue response, followed
+by the committed issue stage and current original guards, produces a RAM purpose
+with the original grant anchors. Lost or duplicate responses remain unavailable;
+there is no reissue with a new operation or a reconstructed bearer after restart.
+
+Historical status uses the retained original handle and issue UUID, with a
+separate current enrolled-key status authority even after grant expiry. It
+returns unavailable metadata and never restores readiness. Withdrawal closes
+the local purpose before cancellation, storage, signer or network waits, then
+requires its own enrolled-key authority and a fresh bounded UUID. A lifecycle
+close synchronously scrubs every purpose and prevents late ACK adoption. A lost
+key requires the owning operator's reconciliation; it does not create a new key.
+
+The dedicated issuer HTTPS adapter makes one request with no ambient bearer,
+cookies, environment proxy, redirect, bootstrap or retry. The lifecycle independently
+verifies the original raw64 ES256 envelope before invoking it. Requests are bounded
+to16KiB and replies to8KiB, with an original deadline and at most10seconds for
+the signing/network phase. Automatic response decompression is disabled;
+`Accept-Encoding: identity` is explicit. Nonidentity encoding, non-JSON media,
+duplicate relevant headers, duplicate JSON fields, invalid UTF-8 and unsafe
+numeric values cannot become an acknowledgement.
+
+Isolated qualification exercises real ES256 and SQLite15 with an explicitly
+synthetic pre-enrolled owner and RPC boundary. A separate actual aiohttp loopback
+HTTPS harness executes the product adapter with synthetic DNS and a temporary
+test TLS trust root/key in container RAM. It accepts ordinary JSON and rejects
+compressed, wrong-media, duplicate-header, overlarge, malformed and redirected
+responses. This does not prove actual operator custody, production DNS/TLS,
+service adoption, APNs delivery, native rendering or an installed integration.
 
 The relay response boundary also requires strict UTF-8 JSON with unique object
 keys at every depth. Non-finite/ambiguous numeric values, invalid Unicode text

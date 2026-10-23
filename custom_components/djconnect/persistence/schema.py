@@ -32,9 +32,11 @@ MIGRATIONS = (
     Migration(12, "0012_content_deletion_fences", "54e23f9a"),
     Migration(13, "0013_bulletin_attempt_reservations", "d728b7e1"),
     Migration(14, "0014_surface_effect_journal", "36bf941a"),
+    Migration(15, "0015_surface_issuer_stages", "59d7ac42"),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_surface_issuer_journal": {"singleton", "revision", "high_water_ms", "body"},
     "djconnect_surface_journal": {"singleton", "revision", "high_water_ms", "body"},
     "djconnect_bulletin_attempts": {"story_hash", "expires_at"},
     "djconnect_bulletin_clock": {"singleton", "high_water"},
@@ -339,6 +341,16 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
         )
         transaction.execute("INSERT INTO djconnect_surface_journal VALUES (1,0,0,?)",
             ('{"version":1,"high_water_ms":0,"records":{}}',))
+    elif version == 15:
+        transaction.execute(
+            "CREATE TABLE djconnect_surface_issuer_journal ("
+            "singleton INTEGER PRIMARY KEY CHECK(singleton=1),"
+            "revision INTEGER NOT NULL CHECK(revision>=0),"
+            "high_water_ms INTEGER NOT NULL CHECK(high_water_ms>=0),"
+            "body TEXT NOT NULL CHECK(length(body)<=65536))"
+        )
+        transaction.execute("INSERT INTO djconnect_surface_issuer_journal VALUES (1,0,0,?)",
+            ('{"high_water_ms":0,"records":{},"version":1}',))
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(
         "INSERT OR REPLACE INTO djconnect_schema_metadata "
