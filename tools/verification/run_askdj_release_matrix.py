@@ -177,6 +177,7 @@ def expected_source_hashes():
     files.append(ROOT/'scripts/verification/askdj_catalogue_provider_fixture.py')
     files.append(ROOT/'custom_components/djconnect/ask_dj/examples_v1.json')
     files.append(ROOT/'scripts/verification/source_fixture_urls.py')
+    files.append(ROOT/'scripts/verification/catalogue_progress.py')
     return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
 
 
