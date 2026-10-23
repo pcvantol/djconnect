@@ -1,3 +1,18 @@
+<!-- CORE_OWNER_PIPELINE_FIXTURE_20261023 -->
+# Current standalone pipeline fixture correction
+
+The isolated owning pipeline suite previously lacked the complete shared HTTP
+fixture, although broad discovery passed. Use the existing named fixture;
+retain all22test methods/assertions and genuine dialogue code. Causal original
+network-none22-test FAIL→PASS evidence and historical limits are recorded in
+`docs/verification/PIPELINE_OWNER_FIXTURE_ISOLATION_20261023.md`.
+
+Source preparation only until normal independent/protected delivery and a
+separate Final. Original manual100 failure/unknown usage/no-retry and Help
+qualified:false70pending remain. No paid rerun, workflow/reservation change,
+HA restart, provider/native activation or integral VibeCast claim. All24+9
+requests/gates and the complete earlier body below are preserved.
+
 ## Catalogue failure checkpoints — source Finalization, 23 October 2026
 
 ### Repository Status
