@@ -1,3 +1,7 @@
+## Current Help qualification preparation — 23 October 2026
+
+New explicit human authorization permits one distinct bounded Help100 run; original 39980138736 remains consumed. See docs/verification/HELP_NEW100_QUALIFICATION_20261023.md. No paid execution or catalogue qualification is claimed by this source preparation. Preserve all 24 requests and nine gates.
+
 ## New direct Help instruction, 23 October 2026
 
 Peter subsequently authorized a paid test and instructed Core to finish Help.
