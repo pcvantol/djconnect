@@ -1,3 +1,9 @@
+## Exact100 catalogue test — bounded CI preparation,23October2026
+
+A new manual-only one-shot workflow and runner are prepared against original-qualified fixed target1c5516d51c01c688b595ed2f0cccf28606e1ba13, catalogue dfaa98a/70questions+30continuations. Peter's exact one-run392attempt/3000token/1800s/noautoretry approval was unspent in the earlier window and remains separate from automatic paid-release cancellation. Existing named GitHub test-secret metadata is present; no value is exported or copied from HA. No test is dispatched by this source preparation.
+
+See docs/verification/CORE_CATALOGUE_EXACT100_CI_20261023.md. Whole/exact review, normal protected source+separateFinal and original qualifications precede manual dispatch. Only first workflow run/attempt on main/owner can enter; no broader matrix/automatic triggers or repeatedgrant. Strictactual100 and independent editorial/language/effect acceptance must precede any qualification flag or Apple new hash adoption. Product264/HA-dev/runtime/cataloguebytes remain unchanged; no restart/provider/native effect. Same sole Core writer until today22:00Europe/Amsterdam=20:00UTC, cutoff19:50, exactcheckpoint+PAUSEsameautomation/no automaticextension. All24+9, pushclock/custody/provider/native, VibeCast/Pi/HAprod gates remain preserved.
+
 ## Context continuation v2 — separate source Finalization, 23 October 2026
 
 ### Repository Status
