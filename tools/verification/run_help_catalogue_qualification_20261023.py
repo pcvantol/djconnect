@@ -286,7 +286,8 @@ def execute(root, directory, coordinates, files, profile, env):
     name = 'djc-help100-' + secrets.token_hex(8)
     work = directory / 'private-work'
     work.mkdir(mode=0o700)
-    command = ['docker', 'run', '--rm', '-i', '--name', name, '--network', 'bridge',
+    command = ['docker', 'run', '--rm', '-i', '--name', name,
+               '--user', f'{os.getuid()}:{os.getgid()}', '--network', 'bridge',
                '--memory', '1g', '--cpus', '2', '--pids-limit', '256', '--cap-drop', 'ALL',
                '--security-opt', 'no-new-privileges', '--entrypoint', 'python',
                '--workdir', '/candidate', '-e', 'PYTHONPATH=/candidate',

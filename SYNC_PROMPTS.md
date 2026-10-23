@@ -1,3 +1,9 @@
+# Current Help setup correction - 23 October 2026
+
+Both original manual100 runs failed/incomplete and remain consumed, possible paid usage unknown. Catalogue stays false/70pending. Current source fixes unknown agent availability and container UID ownership, and adds network-none, zero-call setup-only CI. See docs/verification/HELP_CONTAINER_SETUP_20261023.md. No new paid execution, catalogue qualification, installation or native claim. All24 requests and nine gates remain preserved below.
+
+---
+
 # New bounded Help catalogue test source finalization — 23 October 2026
 
 Source PR [#1311](https://github.com/pcvantol/djconnect/pull/1311) merged as `27c80c1374eef2c7089dd10ad87daa581d16b182`, independently reviewed commit `bce2949027245254a7594e0c1810a14e7ea37ee9`. Repository State: `MERGED_RECONCILED` for that source increment; this documentary Final still awaits its own delivery and original qualification. Original own-main run `39999832628` succeeded. Original reconciliation `40000564323` is POST_MERGE_RELEASE_EVIDENCE_QUALIFIED. Formal receipt 2398 bytes SHA256 `160e8d968241b21d0a3c02141121c7459afa0298243a9b20c2c4ba89d184a50e`; durable receipt 1812 bytes SHA256 `11cbb3e783c0c177e69a46cd2f48df54234f9417ccafee106db7f0f07d1e21ed`. Root separately checked original provider digests, coverage source and canonical durable/source join. This separate documentary Final still requires its own protected delivery and original qualification.
