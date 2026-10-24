@@ -1,3 +1,9 @@
+## Dependency review: safe Pico Ruff patch, HA Pillow pin retained (24 October 2026)
+
+PR #1294 is narrowed to developer-only Ruff0.17.0 to0.17.1 plus its dependency notices/design record. Preserve requirements-dev.txt Pillow12.3.0, which matches the actual pinned Home Assistant2026.10.0 regression image; offline branding continues to use its separate Pillow13.0.0 environment. The duplicate Pillow-only #1306 is deferred because the proposed HA-regression version mismatch is not qualified. Original PR bodies, exact branch commits and audit receipts are preserved; no unsupported Pillow upgrade is presented as delivered.
+
+The preceding Help source PRs #1313/#1314 and cumulative Final #1315 have original source qualifications; their separate receipts retain their own exact scopes. Help remains qualifiedfalse/70pending, both manual100 failures remain consumed with unknown possible paid usage, and no new paid calls, HA install, provider activation or native acceptance follow from this tooling patch. Preserve all24 selected requests and nine gates, including the original-clock v3 contract, operational push and VibeCast acceptance.
+
 # Cumulative Help source finalization - 24 October 2026
 
 This separate documentary Final consolidates two normally protected, independently reviewed Help source increments. Source PR1313 merged as `a591d0848ba8967f38ccd018279a7d06c9bda8d5`, reviewed `3456c4a89a10cf0fc89d361976138bff8ae91a84`; original own-main `40008834199` succeeded and reconciliation `40009500783` qualified it. Original formal receipt 3526 bytes SHA256 `29704e90f138268f65cd3a4f64e7a87a3323ba85dceb22e70fabfaff38ce4a3f`; durable receipt 1812 bytes SHA256 `8f44e862aac3a30180341c34d1a889490026a1c9a4c1daa4b709a39f0f6bbbe9`.
