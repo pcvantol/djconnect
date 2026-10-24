@@ -115,7 +115,7 @@ class BulletinRuntimeTests(unittest.IsolatedAsyncioTestCase):
         return await self.manager.async_maybe_publish_intra_track_moment(owner_profile_id="synthetic-owner",
             session_id=self.sid, media_identity="synthetic-media")
 
-    async def test_one_normal_moment_same_ledger_owner_flow_no_guest_or_shared_event_content(self):
+    async def test_one_normal_moment_same_ledger_and_shared_vibecast_flow(self):
         events, shared = [], []
         self.active.broadcast.subscribe(events.append)
         self.active.broadcast.subscribe_with_broadcast_token(self.active.broadcast.broadcast_token, shared.append)
@@ -129,9 +129,17 @@ class BulletinRuntimeTests(unittest.IsolatedAsyncioTestCase):
         owner = json.dumps(self.active.broadcast.as_dict(include_owner_only=True))
         guest = json.dumps(self.active.broadcast.as_dict(include_owner_only=False))
         self.assertIn(self.text, owner)
-        for private in (self.text, moment.moment_id, self.items[0].title, self.items[0].source_url, "dj_bulletin"):
-            self.assertNotIn(private, guest)
-            self.assertNotIn(private, json.dumps(shared))
+        for public in (self.text, moment.moment_id, self.items[0].title, self.items[0].source_url, "dj_bulletin"):
+            self.assertIn(public, guest)
+            self.assertIn(public, json.dumps(shared))
+        self.assertEqual(moment.presentation_intent.visibility.value, "session_shared")
+        self.assertEqual(tuple(c.value for c in moment.presentation_intent.delivery_channels),
+                         ("broadcast", "owner", "shared"))
+        self.assertEqual(self.active.broadcast.native_delivery(include_owner_only=False)["current_moment_id"],
+                         moment.moment_id)
+        # Viewer authority remains readonly and never acquires owner speech/settings.
+        self.assertNotIn("session_speech", json.loads(guest))
+        self.assertNotIn("session_media", json.loads(guest))
         self.assertTrue(any(e["event_type"] == "dj_moment_published" for e in events))
         self.assertIsNone(await self.publish())
         self.assertEqual(self.active.presence_ledger.total_published, before + 1)
@@ -144,6 +152,32 @@ class BulletinRuntimeTests(unittest.IsolatedAsyncioTestCase):
             self.assertIs(await self.publish(), marker)
         self.assertEqual(self.active.presence_ledger.total_published, 0)
         self.assertIs(self.builder._candidate, self.candidate)
+
+    async def test_shared_reconnect_keeps_original_deadline_and_expiry_withdraws_content(self):
+        moment = await self.publish()
+        broadcast = self.active.broadcast
+        token = broadcast.broadcast_token
+        _, first = broadcast.subscribe_with_broadcast_token(token, lambda event: None)
+        _, second = broadcast.subscribe_with_broadcast_token(token, lambda event: None)
+        self.assertEqual(first["native_delivery"], second["native_delivery"])
+        self.assertIn(self.text, json.dumps(second))
+        with patch("time.time", return_value=moment.bulletin.candidate.expires_at + 1):
+            _, expired = broadcast.subscribe_with_broadcast_token(token, lambda event: None)
+            self.assertNotIn(self.text, json.dumps(expired))
+            self.assertNotIn(moment.moment_id, json.dumps(expired["session_flow"]))
+            self.assertIsNone(expired["native_delivery"]["current_moment_id"])
+
+    async def test_pending_shared_frame_rechecks_original_owner_before_delivery(self):
+        broadcast = self.active.broadcast
+        events = []
+        subscription, _ = broadcast.subscribe_with_broadcast_token(broadcast.broadcast_token, events.append)
+        broadcast._pending_subscriptions[subscription] = []
+        await self.publish()
+        self.assertEqual(events, [])
+        self.authorized = False
+        broadcast.activate_subscription(subscription)
+        self.assertNotIn(self.text, json.dumps(events))
+        self.assertNotIn(self.items[0].source_url, json.dumps(events))
 
     async def test_tail_pause_pending_and_used_presence_ledger_suppress_without_consuming_candidate(self):
         for field in ("pending", "blocked"):

@@ -19,8 +19,13 @@ class BulletinWireContractTests(unittest.TestCase):
         moment = sample["moment"]
         self.assertEqual(moment["type"], "dj_bulletin")
         self.assertEqual(moment["generation_metadata"]["bulletin_schema"], "1")
-        self.assertEqual(moment["visibility"], "owner_only")
-        self.assertEqual(moment["delivery_channels"], ["owner"])
+        self.assertEqual(moment["visibility"], "session_shared")
+        self.assertEqual(moment["delivery_channels"], ["broadcast", "owner", "shared"])
+        shared_moment = next(item for item in sample["shared_snapshot"]["dj_moments"]
+                             if item["moment_id"] == moment["moment_id"])
+        self.assertEqual(shared_moment["content"], moment["content"])
+        self.assertEqual(sample["shared_snapshot"]["native_delivery"]["current_moment_id"], moment["moment_id"])
+        self.assertNotIn("session_speech", sample["shared_snapshot"])
         self.assertEqual(len(moment["sources"]), 2)
         self.assertEqual(sample["native_delivery"]["current_moment_id"], moment["moment_id"])
         self.assertTrue(sample["speech_off"]["manual_allowed"])

@@ -61,6 +61,8 @@ class PublicFeedFixture:
 
 
 async def qualify(hass, manager, history, request, client):
+    from aiohttp import ClientSession as ViewerClientSession, TCPConnector, web
+    from verify_hybrid_transport_http import tls
     from custom_components.djconnect import api_handlers, pipeline
     from custom_components.djconnect.bulletin_intake import SOURCES
     from custom_components.djconnect.bulletin_runtime import capture_work
@@ -132,7 +134,7 @@ async def qualify(hass, manager, history, request, client):
     # Capture a new work only after explicit safe original admission; old work stays revoked.
     work = capture_work(manager, owner)
     assert work is not None
-    service = None
+    service = secure_site = viewer_client = viewer_ws = None
     try:
         with patch("aiohttp.ClientSession", return_value=http) as factory, \
                 patch.object(pipeline, "_call_conversation_process_transport", fixture_transport):
@@ -150,6 +152,16 @@ async def qualify(hass, manager, history, request, client):
             assert factory.call_count == 1 and service._task is original_task
             assert not active.broadcast.state.dj_moments, "collector may never publish"
             assert service.ready("other-owner", sid) is None
+            server_ssl, client_ssl = tls(Path(hass.config.config_dir))
+            secure_site = web.TCPSite(client.server.runner, "127.0.0.1", 0, ssl_context=server_ssl)
+            await secure_site.start()
+            viewer_client = ViewerClientSession(connector=TCPConnector(ssl=client_ssl))
+            viewer_url = ("https://127.0.0.1:" + str(secure_site._server.sockets[0].getsockname()[1])
+                + "/api/djconnect/v1/session/broadcast/ws/" + sid
+                + "?broadcast_token=" + active.broadcast.broadcast_token)
+            viewer_ws = await viewer_client.ws_connect(viewer_url)
+            initial = await asyncio.wait_for(viewer_ws.receive_json(), 10)
+            assert initial["type"] == "snapshot" and not initial["snapshot"]["dj_moments"]
             before = active.presence_ledger.total_published
             moment = await manager.async_maybe_publish_intra_track_moment(
                 owner_profile_id=owner, session_id=sid, media_identity="synthetic-news-music")
@@ -160,7 +172,18 @@ async def qualify(hass, manager, history, request, client):
                 owner_profile_id=owner, session_id=sid, media_identity="synthetic-news-music") is None
             response, code = await request("GET", "/api/djconnect/v1/session/active")
             assert code == 200 and text in json.dumps(response), response
-            assert text not in json.dumps(active.broadcast.as_dict(include_owner_only=False))
+            assert text in json.dumps(active.broadcast.as_dict(include_owner_only=False))
+            for _ in range(10):
+                shared_event = await asyncio.wait_for(viewer_ws.receive_json(), 10)
+                if text in json.dumps(shared_event):
+                    break
+            else:
+                raise AssertionError("real TLS readonly Broadcast did not deliver bulletin")
+            await viewer_ws.close()
+            viewer_ws = await viewer_client.ws_connect(viewer_url)
+            shared_reconnect = await asyncio.wait_for(viewer_ws.receive_json(), 10)
+            assert shared_reconnect["type"] == "snapshot" and text in json.dumps(shared_reconnect)
+            assert "session_speech" not in shared_reconnect["snapshot"]
             off = moment_projection(active.broadcast, moment, autoplay=False)
             on = moment_projection(active.broadcast, moment, autoplay=True)
             from custom_components.djconnect.bulletin_source_policy import source_notice
@@ -184,7 +207,9 @@ async def qualify(hass, manager, history, request, client):
             assert "source_retention_not_qualified" in str(rows)
             sample = {"moment": moment.as_dict(), "speech_off": off, "speech_on": on,
                       "native_delivery": active.broadcast.native_delivery(),
-                      "owner_snapshot": active.broadcast.as_dict()}
+                      "owner_snapshot": active.broadcast.as_dict(),
+                      "initial_shared_snapshot": initial["snapshot"],
+                      "shared_snapshot": shared_reconnect["snapshot"], "shared_event": shared_event}
             assert sample["native_delivery"]["current_moment_id"] == moment.moment_id
             # Original source/entry change cannot be rearmed by returning to the same value.
             runtime = hass.data["djconnect"]["owner-entry"]
@@ -202,7 +227,7 @@ async def qualify(hass, manager, history, request, client):
         return {"state": "PASS", "cases": ["paired_start_connects_approved_agent",
             "one_HA_lifecycle_cookie_free_client", "control_capable_HA_agent_denied", "actual_SQL_commit_before_two_model_calls",
             "collector_prepares_never_publishes", "existing_Planner_and_shared_Presence_once",
-            "owner_only_HTTP_and_shared_redaction", "existing_autoplay_toggle_original_expiry",
+            "owner_HTTP_and_real_TLS_readonly_shared_snapshot_event_reconnect", "existing_autoplay_toggle_original_expiry",
             "complete_source_notice_retained_in_HTTP_native_and_speech",
             "expired_source_redacts_text_and_speech", "metadata_only_history",
             "original_authority_withdrawal", "service_closed_and_task_removed"],
@@ -210,6 +235,12 @@ async def qualify(hass, manager, history, request, client):
             "declared_model_transport_calls": calls, "synthetic_music_boundaries": music_boundaries,
             "installed_or_native_acceptance": "NOT_RUN"}
     finally:
+        if viewer_ws:
+            await viewer_ws.close()
+        if viewer_client:
+            await viewer_client.close()
+        if secure_site:
+            await secure_site.stop()
         await async_close_bulletin_service(hass)
         if service:
             assert service.closed and http.closed and manager._bulletin_service is None

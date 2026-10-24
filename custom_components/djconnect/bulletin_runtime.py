@@ -74,8 +74,8 @@ def admitted(moment, *, monotonic=None, wall=None):
         and moment.content == candidate.text and not moment.summary
         and not moment.actions and not moment.artwork_url and not moment.source_attribution
         and moment.source_references == ("fixed_rss_metadata_v1",)
-        and moment.presentation_intent.visibility.value == "owner_only"
-        and tuple(c.value for c in moment.presentation_intent.delivery_channels) == ("owner",)
+        and moment.presentation_intent.visibility.value == "session_shared"
+        and tuple(c.value for c in moment.presentation_intent.delivery_channels) == ("broadcast", "owner", "shared")
         and moment.presentation_intent.dj_persona.value == candidate.session.persona
         and moment.presentation_intent.source_session_mood == (candidate.session.mood.strip() or "neutral")
         and candidate.eligible(session=candidate.session, now=utc, monotonic=mono))
@@ -93,8 +93,7 @@ def sources(moment):
 def create_moment(core, candidate, original_guard):
     session = candidate.session
     intent = replace(core._presentation_intent(session.mood, core.DJPersona(session.persona),
-        reading_characters=len(candidate.text)), visibility=core.DJMomentVisibility.OWNER_ONLY,
-        delivery_channels=(core.DeliveryChannel.OWNER,), delivery_style="short source-grounded news story")
+        reading_characters=len(candidate.text)), delivery_style="short source-grounded news story")
     language = session.locale.replace("_", "-").split("-", 1)[0].lower()
     return core.DJMoment(moment_id="moment-" + candidate.candidate_id[:32],
         session_id=session.session_id, created_at=core._timestamp(),
