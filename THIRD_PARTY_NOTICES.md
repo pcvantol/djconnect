@@ -1,3 +1,7 @@
+## Pico developer-tool Ruff pin (24 October 2026)
+
+The isolated developer-tool environment uses [Ruff0.17.1](https://github.com/astral-sh/ruff/releases/tag/0.17.1), maintained by Astral and contributors under the [MIT license](https://github.com/astral-sh/ruff/blob/0.17.1/LICENSE). This lint tool is not included in a Pico firmware image or the Home Assistant integration package; no upstream Ruff source is vendored or modified. The Home Assistant image/decode qualification environment remains on Pillow12.3.0; the separate offline brand generator's Pillow13.0.0 pin remains unchanged.
+
 # Third-Party Notices
 
 DJConnect includes a Home Assistant custom integration and is designed to work

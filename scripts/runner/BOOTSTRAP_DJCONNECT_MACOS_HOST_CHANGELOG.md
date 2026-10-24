@@ -6,6 +6,16 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.23] - 2026-10-24
+
+- Version the desired-state profile3.3.2 and operations component1.3.15 with
+  their exact component/aggregate hashes; retain all tamper denials.
+- Require the separately versioned developer-onboarding4.5.5 package for the
+  Pico developer Ruff0.17.1 patch. Preserve exact desired/actual-version
+  guards, all earlier immutable bundles and read-only verification behavior.
+- This source-version migration does not invoke onboarding, repair or install
+  tools. Package4.5.4 remains unchanged in the distribution catalog.
+
 ## [2.0.22] - 2026-10-19
 
 - Generate the verification-artifact cron command with shell-safe paths, including

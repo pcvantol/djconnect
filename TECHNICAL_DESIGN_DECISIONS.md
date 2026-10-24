@@ -1,3 +1,13 @@
+## Versioned onboarding package identity for the Ruff patch (24 October 2026)
+
+This coherent maintenance increment publishes developer-onboarding4.5.5 and macOS bootstrap2.0.23. The new deterministic bundle contains the reviewed Ruff0.17.1 requirement and updated package documentation/tests. The complete4.5.4 bundle and all prior distributions remain byte-unchanged. Matching exact desired/actual-package guards and their negative tests move together to4.5.5; no check is removed or weakened. Delivery requires the human-approved version migration and normal independent source/commit review, protected merge and separate Final. No host installer, repair, tool installation, Home Assistant runtime change or provider/device effect is performed by this source increment.
+
+## Pico developer Ruff patch and HA decoder qualification pin (24 October 2026)
+
+The isolated Pico developer-tool environment pins Ruff0.17.1 instead of0.17.0. This is a developer lint tool, with no firmware image, Home Assistant runtime dependency or release-version change. The exact upstream release and MIT license are linked in THIRD_PARTY_NOTICES.md.
+
+Keep requirements-dev.txt at Pillow12.3.0 to match the pinned Home Assistant2026.10.0 image used for actual image-byte/decode regression qualification. The independently pinned offline brand generator keeps Pillow13.0.0. Those environments serve different checks; the branding dependency does not authorize changing the HA decoder baseline. The combined dependency proposal #1294 is narrowed to the Ruff patch. The overlapping Pillow-only #1306 is deferred as unsupported by the current HA-image qualification and may be closed as superseded; original branch commits and receipts remain preserved. A future Pillow decoder upgrade needs a newly qualified HA image/environment and actual byte/decode evidence.
+
 # Current original-clock v3 producer candidate — 24 October 2026
 
 The bounded Core implementation now captures original pre-await weak Runtime/purpose roots including absence, exact original G0/L0/P0/K0 and downward final server deadlines. Context/register use closed strict outer v3; v1/v2 receive typed409. Inner issuer/registry/relay and old registered read/status/revoke remain v1 with original expiry. See docs/verification/ORIGINAL_CLOCK_V3_PRODUCER_SOURCE_20261024.md and the unchanged full normative docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md. No new purpose, owner, Activity profile or client clock witness is fabricated.

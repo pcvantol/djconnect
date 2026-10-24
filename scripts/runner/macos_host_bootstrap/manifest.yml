@@ -1,9 +1,9 @@
 # Canonical version manifest for the macOS development-host bootstrap package.
 schema_version: 1
 package.name: djconnect-macos-development-host-bootstrap
-package.version: 2.0.22
+package.version: 2.0.23
 package.entry_point: scripts/runner/bootstrap_djconnect_macos_host.sh
-package.aggregate_sha256: 40c5e6926c658c80ac53ed4400cd64532d581126ed5f46a5cb796e850a9354a6
+package.aggregate_sha256: c68d42c8b66fc465383fa4c2a30530301764a25cde682f71ade46a921db93e11
 component.entry.file: ../bootstrap_djconnect_macos_host.sh
 component.entry.version: 2.0.5
 component.entry.sha256: ff2bbdc139b910b5396ffd8fc492028c5f2c3dfc67a7d4e4be733e5c22a21709
@@ -20,8 +20,8 @@ component.security.file: security.sh
 component.security.version: 1.1.0
 component.security.sha256: c62b7eedd73e4886c78a1181cd941d1bfbd7957fdcb9ba66802ea9f0121e3ac6
 component.operations.file: operations.sh
-component.operations.version: 1.3.14
-component.operations.sha256: 59f3364a1bf0031e165601ecd0dceac5967917ba402a2944b019b3fb91204731
+component.operations.version: 1.3.15
+component.operations.sha256: aac4bc312d7d12e69963f4e717184e1d2551d865336ca30a04ff132dbd3846d7
 component.runners.file: runners.sh
 component.runners.version: 1.1.0
 component.runners.sha256: da46de6d589b4de99ac19e0e54f92169bf7f58e1dbb16d0abf39ab71ea2313ac
