@@ -2117,6 +2117,7 @@ def _output_actions_for_recommendation(
     devices: list[dict[str, Any]],
     recommendation: dict[str, Any],
 ) -> list[dict[str, Any]]:
+    from .ask_dj.read_copy import text as action_text
     actions: list[dict[str, Any]] = []
     seen: set[str] = set()
     for device in devices:
@@ -2133,8 +2134,8 @@ def _output_actions_for_recommendation(
                     "id": f"play_on_output:{device_id}",
                     "title": name,
                     "subtitle": device_type,
-                    "label": "Speel hier",
-                    "button_label": "Speel hier",
+                    "label": action_text("play_here"),
+                    "button_label": action_text("play_here"),
                     "kind": "output",
                     "command": "ask_dj_play_recommendation_on_output",
                     "value": {
@@ -2145,7 +2146,7 @@ def _output_actions_for_recommendation(
                     },
                     "device_id": device_id,
                     "device_name": name,
-                    "reason": "Kies deze Spotify Connect speaker en start daarna de aanbeveling.",
+                    "reason": action_text("play_recommendation_on_output"),
                 }.items()
                 if value not in ("", None)
             }

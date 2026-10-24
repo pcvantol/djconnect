@@ -56,6 +56,12 @@ class PlaybackRequestBrief(NarrationBrief):
             'with the named selection, rather than reporting a title and its media type. '
             'The host stance is about this handover, never a personal listening memory or a '
             'new claim about what the music sounds like. '
+            'Prefer one short, plain, idiomatic spoken sentence over an elaborate translated '
+            'metaphor. Do not force a shared moment, an unusual construction about taking a '
+            'moment, or an invitation to do something together. Natural grammar matters more '
+            'than decorative wording. The listener selected this music; that does not prove '
+            'they own the playlist or album. Avoid possessive your/votre/dein/tu on a media '
+            'collection: refer to the named selection instead. '
             'Every required placeholder must occur exactly once with its original role. '
             'If {media_kind} is required it is a bare localized noun for selection_kind: '
             'supply the natural article/preposition in the requested language, never call it a format. '
@@ -85,7 +91,10 @@ class PlaybackRequestBrief(NarrationBrief):
             'placeholders are replaced locally and are not foreign-language prose. '
             'style_ok: a warm personal DJ handover in the requested Persona/Mood, not a '
             'request receipt, metadata listing or generic appended slogan. Do not demand '
-            'a joke, a new factual detail or a fixed number of sentences.\nData:\n'
+            'a joke, a new factual detail or a fixed number of sentences. A concise idiomatic '
+            'first-person handover can carry that voice; do not demand an elaborate metaphor '
+            'or a separate listening invitation. Do not infer ownership of a playlist/album '
+            'from its being the listener’s accepted choice.\nData:\n'
         ) + json.dumps({'reference':self.reference,'meaning':self.semantics,
                         'selection_kind':self.selection_kind,
                         'candidate':text,'style':self.style_instructions()},ensure_ascii=False)

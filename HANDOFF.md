@@ -1,3 +1,12 @@
+## Current Help narration remediation — 25 October 2026
+
+Original full100 completed with175 responses,93 casePASS/sevenFAIL; catalogue
+remains false/70pending. Current source repairs idiomatic handovers, grounded
+artist-role/count wording and five-language action labels. Validation/review is
+pending. A separate bounded repaired-source qualification is prepared, not run;
+no installation or publication. Consumed test slots and all24+9
+requests remain retained. See [verification record](docs/verification/HELP_NARRATION_REMEDIATION_20261025.md).
+
 # Delivered Help100 supervision source — 24 October 2026
 
 CoreSource [PR1330](https://github.com/pcvantol/djconnect/pull/1330) protected

@@ -195,7 +195,7 @@ class GoldenConversationChains(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(len(actions), 10)
                 self.assertEqual({a["kind"] for a in actions}, {"album", "playlist"})
                 self.assertEqual(len({a["uri"] for a in actions}), 10)
-                self.assertTrue(all(a["label"] == "Play Now" and a["image_url"].startswith(
+                self.assertTrue(all(a["label"] == {"en":"Play", "nl":"Afspelen", "de":"Abspielen", "fr":"Lire", "es":"Reproducir"}[language] and a["image_url"].startswith(
                     "/api/djconnect/v1/image_proxy/") for a in actions))
                 self.assertEqual(answer["result_set"]["items"], actions)
                 self.assertEqual(answer["assistant_message"]["playback_actions"], actions)
