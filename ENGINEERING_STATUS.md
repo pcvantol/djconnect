@@ -1,3 +1,17 @@
+# Qualified historical queue-preservation V2 source — 24 October 2026
+
+Core Source [PR1326](https://github.com/pcvantol/djconnect/pull/1326) is normally protected `207656bb842aa2681266dfd1731ee86e4110cf94`, independently reviewed `7a801f8d3de6bf255e193b65ea4838ef753fc2e0`; both trees are `26548e825055d021fc4ffdd0a0b4b9c783db2f35`. Its original formal/durable source qualification is verified. This separate Final is documentary only; its own normal protected delivery and original qualification are controlled by the actual post-merge receipts, not self-declared here.
+
+Historical playback now advertises capability false/version2 and denies cached/direct/output replays before new effects, because no qualified atomic provider operation proves preservation of all remaining queue occurrences and their order. Browsing and captured reply artwork remain readable/independent; ordinary output and implicit current-playback duplicate controls retain their existing semantics. This is qualified negative admission, not a delivered queue-preserving player. [Source evidence](docs/verification/HISTORICAL_QUEUE_PRESERVATION_V2_20261024.md) and [Final reconciliation](docs/verification/HISTORICAL_QUEUE_PRESERVATION_V2_FINALIZATION_20261024.md) bind exact original receipts.
+
+Actual final source verification is3536total/3529PASS/7existingSKIP in118.678seconds,47focused controls, all13isolated actual HA groups with264hashes equal before/after and owned container absent,2actual-schema positives/9negatives, whole Ruff/configured Bandit/projection/diff PASS. The automatic paid release workflow was actually cancelled once; its overall conclusion is cancelled, not model/package PASS or zero-spend proof. The original formal evidence still qualifies its exact source and all12durable required checks PASS. No new manual paid call occurred.
+
+This Final preserves all264product files, runtime/release inputs, Source fixtures and all previous document bodies byte-for-byte. HA-dev retains actual installed Source98/Finalf0; HA production configuration remains pending. API94 production is unchanged; independent maintenance Source151 and Apple Source202/Final203 have their own original source qualifications. Authentic push owner/custody/enrollment/purpose/Activity/client-clock/native/provider, Helpfalse70pending, complete VibeCast, Pi106's unqualified dependency crash fix and physical/user acceptance stay open. All24requests/ninegates remain selected. No new deployment, provider/key/enrollment/paid-model budget or device grant follows from these documents.
+
+Prior snapshots below retain their own transaction scopes.
+
+---
+
 # Historical queue-preservation V2 — source candidate, 24 October 2026
 
 Current protected predecessor is Core Final1325 `a1fee6c73734c4e34aad283a01551b8b179a796c`; its original qualification is complete. This new bounded candidate closes historical playback because no qualified provider operation preserves every remaining queue occurrence and its order. Capability is false/version2; V1/V2 browsing remains available without play offers. Cached taps and historical output continuations return typed409 before new effects. Ordinary output/recommendation paths and captured reply artwork remain independent.

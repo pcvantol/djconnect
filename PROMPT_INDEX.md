@@ -1,3 +1,13 @@
+# Historical queue-preservation V2 separate Final — 24 October 2026
+
+- [Documentary Final task](docs/history/prompts/2026-10-24-historical-queue-preservation-v2-finalization.md).
+- [Original source/finalization evidence](docs/verification/HISTORICAL_QUEUE_PRESERVATION_V2_FINALIZATION_20261024.md).
+- Source1326/207656 is original-qualified negative admission; this Final changes documents only and has its own normal receipt gates. Product264/release/fixtures and all24requests/ninegates remain intact. No installed/provider/native/paid qualification is inferred.
+
+Earlier records remain unchanged below.
+
+---
+
 # Historical queue-preservation V2 source — 24 October 2026
 
 - [Direct task and bounded source record](docs/history/prompts/2026-10-24-historical-queue-preservation-v2-source.md).
