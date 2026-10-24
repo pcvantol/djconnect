@@ -1,5 +1,38 @@
 # DJ Bulletin V1 — Core1291 / Apple182
 
+## Shared VibeCast delivery — 24 October 2026
+
+Peter explicitly requested that DJ Bulletin Moments also appear in VibeCast.
+This supersedes the owner-only delivery restriction in the original snapshot
+below. The same accepted `dj_bulletin` now uses the ordinary `session_shared`
+visibility and `broadcast`, `owner`, `shared` channels. Runtime, Planner,
+Presence debit, original owner/settings authority, source selection and the
+original wall/monotonic deadlines retain their existing ownership. The poller
+still cannot publish. There is one contribution, not a second VibeCast story.
+
+Read-only Broadcast viewers receive that same Moment, its Flow position,
+source references and original native-delivery admission through normal
+snapshot/event/reconnect delivery. They acquire no owner speech controls,
+Profile/Session settings or playback authority. Revocation, pending deletion,
+source expiry and Session end still remove content at delivery boundaries.
+Retention remains metadata-only: shared display does not license archival prose.
+
+The common local/display/Cast renderer accepts exactly two distinct metadata
+references from the existing five-publisher intake, checks publisher/HTTPS host,
+licence label and original publication window, and requires the matching server
+admission and original display expiry. It shows the unchanged complete adapted
+text and source notice with both source links, credits and publication times.
+The label is localized in all five supported languages. Reconnect cannot renew
+the deadline. Unknown or malformed references and withdrawn admission yield no
+card. No linked articles, images, extra feed, settings or model generation path
+are introduced by this delivery extension.
+
+Verification and release receipts determine source, browser and deployment
+status separately. A generated renderer artifact is not an imported receiver
+release, an installed HA runtime, an audible stream or physical TV acceptance.
+
+### Original implementation snapshot (historical scope)
+
 Status: **implementation in progress in draft Core PR1293**. Commit4e8d0336
 contains the first intake/Builder component. Current uncommitted work connects
 one HA lifecycle, the existing no-tools conversation owner, ordinary Planner

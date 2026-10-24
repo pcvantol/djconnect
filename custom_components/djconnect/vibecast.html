@@ -193,11 +193,11 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
   const e = id => document.getElementById(id), root = document.documentElement;
   const compatibility={en:"This display needs a compatible DJConnect session",nl:"Dit scherm vereist een compatibele DJConnect-sessie",de:"Dieses Display benötigt eine kompatible DJConnect-Session",fr:"Cet écran nécessite une session DJConnect compatible",es:"Esta pantalla necesita una sesión DJConnect compatible"};
   const copy = {
-    en:{idle:"Idle",connecting:"Connecting",live:"Live",unavailable:"No active session",waiting:"Waiting for a session",ambient:"Ambient session",types:{track:"Track",artist:"Artist",album:"Album",genre:"Genre",recommendation:"Recommendation",transition:"Transition",session:"Session"}},
-    nl:{idle:"Inactief",connecting:"Verbinden",live:"Live",unavailable:"Geen actieve sessie",waiting:"Wachten op een sessie",ambient:"Ambient sessie",types:{track:"Nummer",artist:"Artiest",album:"Album",genre:"Genre",recommendation:"Aanbeveling",transition:"Overgang",session:"Sessie"}},
-    de:{idle:"Inaktiv",connecting:"Verbinden",live:"Live",unavailable:"Keine aktive Session",waiting:"Warten auf eine Session",ambient:"Ambient-Session",types:{track:"Titel",artist:"Künstler",album:"Album",genre:"Genre",recommendation:"Empfehlung",transition:"Übergang",session:"Session"}},
-    fr:{idle:"Inactif",connecting:"Connexion",live:"En direct",unavailable:"Aucune session active",waiting:"En attente d’une session",ambient:"Session d’ambiance",types:{track:"Titre",artist:"Artiste",album:"Album",genre:"Genre",recommendation:"Suggestion",transition:"Transition",session:"Session"}},
-    es:{idle:"Inactivo",connecting:"Conectando",live:"En directo",unavailable:"No hay sesión activa",waiting:"Esperando una sesión",ambient:"Sesión ambiental",types:{track:"Canción",artist:"Artista",album:"Álbum",genre:"Género",recommendation:"Recomendación",transition:"Transición",session:"Sesión"}}
+    en:{idle:"Idle",connecting:"Connecting",live:"Live",unavailable:"No active session",waiting:"Waiting for a session",ambient:"Ambient session",types:{dj_bulletin:"DJ Bulletin",track:"Track",artist:"Artist",album:"Album",genre:"Genre",recommendation:"Recommendation",transition:"Transition",session:"Session"}},
+    nl:{idle:"Inactief",connecting:"Verbinden",live:"Live",unavailable:"Geen actieve sessie",waiting:"Wachten op een sessie",ambient:"Ambient sessie",types:{dj_bulletin:"DJ Bulletin",track:"Nummer",artist:"Artiest",album:"Album",genre:"Genre",recommendation:"Aanbeveling",transition:"Overgang",session:"Sessie"}},
+    de:{idle:"Inaktiv",connecting:"Verbinden",live:"Live",unavailable:"Keine aktive Session",waiting:"Warten auf eine Session",ambient:"Ambient-Session",types:{dj_bulletin:"DJ-Bulletin",track:"Titel",artist:"Künstler",album:"Album",genre:"Genre",recommendation:"Empfehlung",transition:"Übergang",session:"Session"}},
+    fr:{idle:"Inactif",connecting:"Connexion",live:"En direct",unavailable:"Aucune session active",waiting:"En attente d’une session",ambient:"Session d’ambiance",types:{dj_bulletin:"Bulletin du DJ",track:"Titre",artist:"Artiste",album:"Album",genre:"Genre",recommendation:"Suggestion",transition:"Transition",session:"Session"}},
+    es:{idle:"Inactivo",connecting:"Conectando",live:"En directo",unavailable:"No hay sesión activa",waiting:"Esperando una sesión",ambient:"Sesión ambiental",types:{dj_bulletin:"Boletín del DJ",track:"Canción",artist:"Artista",album:"Álbum",genre:"Género",recommendation:"Recomendación",transition:"Transición",session:"Sesión"}}
   };
   let language = (navigator.language || "en").slice(0,2), text = copy[language] || copy.en;
   let projection = {}, socket, reconnectTimer, expiryTimer, scrollTimer, exitTimer, attempts = 0, ended = false;
@@ -273,11 +273,36 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
         !/^(?:[0-9.]+|\[.*\])$/.test(host) && !/\.(?:local|localhost|internal)$/.test(host);
     } catch { return false; }
   }
+  function bulletinCitations(citations) {
+    // Same closed publisher metadata as the Core intake; never fetch an article.
+    const publishers = {
+      CBS:{hosts:["www.cbs.nl"],license:"CC-BY-4.0"},
+      KNMI:{hosts:["www.knmi.nl"],license:"CC0-1.0"},
+      NASA:{hosts:["www.nasa.gov","science.nasa.gov"],license:"NASA-media-guidelines"},
+      "European Environment Agency":{hosts:["www.eea.europa.eu"],license:"CC-BY-4.0"},
+      Eurostat:{hosts:["ec.europa.eu"],license:"CC-BY-4.0"}
+    };
+    if (!Array.isArray(citations) || citations.length !== 2) return null;
+    const urls = new Set(), providers = new Set();
+    for (const source of citations) {
+      if (!source || typeof source !== "object" || !Object.prototype.hasOwnProperty.call(publishers,source.provider)) return null;
+      const publisher=publishers[source.provider], published=Date.parse(source.published_at || "");
+      if (typeof source.title !== "string" || !source.title || source.title.length > 240 ||
+          source.license !== publisher.license || !publicCitationURL(source.url) ||
+          !publisher.hosts.includes(new URL(source.url).hostname) ||
+          !Number.isFinite(published) || published > Date.now() || Date.now()-published >= 1800000 ||
+          source.revision_url || urls.has(source.url) || providers.has(source.provider)) return null;
+      urls.add(source.url); providers.add(source.provider);
+    }
+    return citations;
+  }
   function cardFor(item) {
     if (!item || typeof item !== "object" || item.type === "silence") return null;
-    const citations=item.sources === undefined ? [] : qualifiedCitations(item.sources);
+    const bulletin=item.type === "dj_bulletin";
+    const citations=bulletin ? bulletinCitations(item.sources) : item.sources === undefined ? [] : qualifiedCitations(item.sources);
     if (!citations) return null;
-    const summary = String(item.summary || item.content || item.title || "").slice(0,1200);
+    if (bulletin && (typeof item.content !== "string" || item.summary || Array.from(item.content).length > 1200)) return null;
+    const summary = bulletin ? item.content : String(item.summary || item.content || item.title || "").slice(0,1200);
     if (!summary) return null;
     const key = keyFor(item), now = Date.now();
     if (!firstSeen.has(key)) {
@@ -288,11 +313,17 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
     if (stamped && created > now + 10000) return null;
     const rawDuration = Number(read(item,["presentation_intent","maximum_duration_seconds"]));
     const seconds = Number.isFinite(rawDuration) && rawDuration > 0 ? Math.min(90, rawDuration) : 25;
-    const explicitExpiry = Date.parse(item.display_expires_at || "");
+    const admission=bulletin && read(projection,["native_delivery","admissions"]);
+    const original=Array.isArray(admission) ? admission.find(a=>a.moment_id === item.moment_id) : null;
+    if (bulletin && (!original || original.qualification !== "qualified" ||
+        !(original.current_display_allowed || original.active_flow_display_allowed))) return null;
+    const explicitExpiry = Date.parse((bulletin ? original.display_expires_at : item.display_expires_at) || "");
+    if (bulletin && (!stamped || !Number.isFinite(explicitExpiry))) return null;
     const expiry = Math.min((stamped ? created : firstSeen.get(key)) + seconds*1000,
-      Number.isFinite(explicitExpiry) ? explicitExpiry : Infinity);
+      Number.isFinite(explicitExpiry) ? explicitExpiry : Infinity,
+      bulletin ? Math.min(...citations.map(s=>Date.parse(s.published_at)+1800000)) : Infinity);
     return now < expiry ? {key, created:stamped ? created : firstSeen.get(key), expiry, summary,
-      detail:String(item.content || "").slice(0,1200), attribution:item.source_attribution, sources:citations, type:item.type || "", itemId:item.playback_item_id || "", stamped} : null;
+      detail:bulletin ? item.content : String(item.content || "").slice(0,1200), attribution:item.source_attribution, sources:citations, type:item.type || "", itemId:item.playback_item_id || "", stamped} : null;
   }
   function eligibleCards() {
     const p = playback(), items = Array.isArray(projection.dj_moments) ? projection.dj_moments : [];
@@ -348,7 +379,11 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
     if (!stage || !now || !shell || shell.hidden) return;
     const region=stage.getBoundingClientRect(), content=now.getBoundingClientRect();
     const portrait=window.innerHeight>=window.innerWidth;
-    const available=portrait ? Math.max(0,(stage.classList.contains("bubble-below") ? region.bottom-content.bottom : content.top-region.top)-24) : region.height*.7;
+    let available=portrait ? Math.max(0,(stage.classList.contains("bubble-below") ? region.bottom-content.bottom : content.top-region.top)-24) : region.height*.7;
+    if (current && current.type === "dj_bulletin" && shell.parentElement) {
+      const holderLimit=parseFloat(getComputedStyle(shell.parentElement).maxHeight);
+      if (Number.isFinite(holderLimit)) available=Math.min(available,holderLimit);
+    }
     shell.style.maxHeight=`${available}px`;
     if (detail) {
       detail.style.maxHeight=portrait ? "12vh" : "30vh";
@@ -361,10 +396,16 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
     if (animate && !afterExit && shell && !shell.hidden && lastPlacedKey !== card.key && !reduceMotion()) {
       if (exitTimer) window.clearTimeout(exitTimer);
       shell.classList && shell.classList.remove("fresh"); shell.classList && shell.classList.add("exiting");
-      exitTimer=window.setTimeout(()=>{ exitTimer=undefined; if ((current && current.key) === card.key) showCurrent(card,true,true); },800);
+      exitTimer=window.setTimeout(()=>{
+        exitTimer=undefined;
+        if ((current && current.key) !== card.key) return;
+        const stillEligible=eligibleCards().find(item=>item.key === card.key);
+        if (stillEligible) showCurrent(stillEligible,true,true);
+        else { clearCards(); renderCards(false); }
+      },800);
       return;
     }
-    e("moment").textContent = card.summary;
+    e("moment").textContent = card.type === "dj_bulletin" ? "" : card.summary;
     const source=card.attribution;
     const safeSource=source && ({Spotify:"https://open.spotify.com/",MusicBrainz:"https://musicbrainz.org/",Wikidata:"https://www.wikidata.org/wiki/"}[source.provider]) && String(source.url || "").startsWith({Spotify:"https://open.spotify.com/",MusicBrainz:"https://musicbrainz.org/",Wikidata:"https://www.wikidata.org/wiki/"}[source.provider]);
     e("moment-source").hidden=!safeSource;
@@ -382,7 +423,8 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
           const link=document.createElement("a");
           const provider=citation.provider === "Artist website" ? (artistWebsiteLabels[root.lang] || artistWebsiteLabels.en) : citation.provider;
           const attribution=citation.provider === "Artist website" ? citation.publisher : citation.usage_basis ? citation.attributed_author : citation.license;
-          link.textContent=`${citation.title} · ${provider}${citation.language ? ` (${citation.language})` : ""} · ${attribution}`;
+          const published=card.type === "dj_bulletin" ? ` · ${new Date(citation.published_at).toLocaleString(root.lang)}` : "";
+          link.textContent=`${citation.title} · ${provider}${citation.language ? ` (${citation.language})` : ""} · ${attribution}${published}`;
           link.href=citation.revision_url || citation.url;
           link.target="_blank"; link.rel="noopener noreferrer";
           researchSources.appendChild(link);
@@ -398,7 +440,7 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
     }
     if (kind) kind.textContent = text.types[card.type] || "";
     if (detail) {
-      detail.textContent = card.detail && card.detail !== card.summary ? card.detail : "";
+      detail.textContent = card.type === "dj_bulletin" ? card.detail : card.detail && card.detail !== card.summary ? card.detail : "";
       detail.scrollTop = 0;
       detail.classList && detail.classList.remove("scrolled");
     }
@@ -442,10 +484,14 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
       } else if (reduceMotion()) clearCards();
     }
     const cards = eligibleCards(), latest = cards[cards.length-1];
+    if (current && current.type === "dj_bulletin" && !cards.some(card=>card.key === current.key)) clearCards();
+    if (previous && previous.type === "dj_bulletin" && !cards.some(card=>card.key === previous.key)) {
+      previous=null; showPrevious(null);
+    }
     if (!latest) { if (!exitTimer) clearCards(); return; }
     if ((current && current.key) === latest.key) { showPrevious(previous); scheduleCardExpiry(); return; }
     if (latest.created < lastShownAt) return;
-    previous = animate && current && current.itemId === latest.itemId ? current : null;
+    previous = animate && current && current.itemId === latest.itemId && cards.some(card=>card.key === current.key) ? current : null;
     current = latest; lastShownAt = latest.created;
     showPrevious(previous, animate); showCurrent(latest, animate);
   }
@@ -502,7 +548,7 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
     if (frame.event_type === "runtime_ended" || frame.event_type === "broadcast_stopped") {
       snapshotAccepted=false; reportStatus("ended","runtime_end"); ended=true; broadcastToken=null; apply({}); e("state").textContent=text.idle; if (socket) socket.close(); return;
     }
-    for (const key of ["session","playback","planner","session_flow","audience","broadcast"])
+    for (const key of ["session","playback","planner","session_flow","audience","broadcast","native_delivery"])
       if (p[key] && (!ordered || sequence > (fieldSequences[key] || snapshotSequence))) {
         projection[key]=p[key];
         if (ordered) fieldSequences[key]=sequence;
