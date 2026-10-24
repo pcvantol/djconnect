@@ -1,3 +1,52 @@
+# Qualified shared DJ Bulletin source — 24 October 2026
+
+Core Source [PR1328](https://github.com/pcvantol/djconnect/pull/1328) is protected
+`8abef1f1c5a75cdd75d8a5aacff6f42dd4d6353f`, independently reviewed
+`04d0f8821b87b1b4c5c89501be3918efe73981d7`; both trees equal
+`feb588d57c35bb442f28444dc8f9dc160716df3d`. Its own main40132326788 is SUCCESS.
+Original source qualification40132897364 and all12durable checks are verified:
+formal5636bytes SHA256`0cbdd5e42c9e1c981537dd7dc42d0a5f3dcf88797148226ff3cc4c40a697f1b0`,
+durable1812bytes SHA256`2d9c510c6852d05fef15dbce8a22080b5c351976dbbbfa70564b270a13ef4da9`.
+The automatic paid release job was actually cancelled once; its overall run is
+cancelled, not model/package PASS or zero-spend evidence. This separate
+nine-document Final requires its own normal protected delivery and originals.
+
+The same accepted Bulletin now enters ordinary Session sharing and VibeCast
+through existing Broadcast/Flow, with complete source-attributed text, original
+expiry and unchanged owner/source/settings/Presence authority. Read-only viewers
+receive no owner speech/settings control. Unicode, live admission, portrait
+layout and delayed-transition withdrawal/expiry failures were causally closed.
+Final source3539total/3532PASS/seven existing skips130.681seconds; all13actual
+isolated HA groups pass on identical264product hashes; ten ordinary plus six
+active-transition Chromium/WebKit cases pass on the same actual final HA wire.
+[Source and verification](BULLETIN_VIBECAST_SHARED_DELIVERY_20261024.md) and
+[Final reconciliation](BULLETIN_VIBECAST_SHARED_DELIVERY_FINALIZATION_20261024.md)
+retain exact scopes and original failures.
+
+This documentary increment preserves all264product files, Source fixtures,
+execution/release inputs and complete previous bodies. HA-dev still has actual
+Source98/Finalf0; HA production configuration remains pending. The public receiver
+is unchanged. Apple identified its strict previous owner-only Bulletin decoder;
+bounded adoption needs the exact protected producer chain before a joint
+installed/consumer claim. API151/Final152 maintenance is original-qualified with
+production unchanged. Apple reports Source204/Final205 original-qualified;
+physical/native/product acceptance remains separate. Pi106 is still blocked by
+the real supported-Python3.11 native crash.
+
+Peter separately authorized fresh paid Help work now. One new100-step execution
+is being prepared, maximum392model attempts/3000output tokens/1800seconds and no
+automatic whole-run retry. No new manual execution has started. Both old failed
+slots stay consumed/unchanged with unknown possible spend. Help remains
+qualifiedfalse/70pending until actual complete results and independent
+answer/language/route/effect/editorial review. All24requests/ninegates, real push
+custody/enrollment/purpose/Activity/clock/provider/native, full VibeCast, Pi,
+production and user acceptance remain open in their own scope. No new timer,
+writer, provider/key/device grant or deployment follows from these documents.
+
+Previous snapshots below retain their own historical transaction scopes.
+
+---
+
 # Qualified historical queue-preservation V2 source — 24 October 2026
 
 Core Source [PR1326](https://github.com/pcvantol/djconnect/pull/1326) is normally protected `207656bb842aa2681266dfd1731ee86e4110cf94`, independently reviewed `7a801f8d3de6bf255e193b65ea4838ef753fc2e0`; both trees are `26548e825055d021fc4ffdd0a0b4b9c783db2f35`. Its original formal/durable source qualification is verified. This separate Final is documentary only; its own normal protected delivery and original qualification are controlled by the actual post-merge receipts, not self-declared here.
