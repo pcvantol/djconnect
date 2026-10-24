@@ -1,3 +1,15 @@
+# Original-clock v3 follow-on gates — 24 October 2026
+
+The current source publishes a normative DESIGN contract only (docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md). Remaining bounded work, after its normal protected Source+separate Final/original qualification:
+
+- Core owner: implement exact original-root/budget/provenance producer, causal real-module negatives and actual paired HA originals; gate is independently reviewed current source and original receipts, not model-vector success.
+- Apple owner: adopt the exact delivered producer contract and qualified clock/rate/suspend/domain witness; unknown mapping/lost history remains closed. No private-field or v2 fallback adoption.
+- Owning API/operator: real custody/enrollment/servicepurpose/provider setup only under concrete actual effect approvals; current API94 maintenance deployment is delivered, all22fullservicepush gates remain open.
+- Activity owners: separately accepted profile/ContentState/display/export/clock/end-rights contract and real native proof; current widget-only scope grants none. Extension restart/new read delegation B remains unsupported pending separate accepted authorization design.
+- Root/user acceptance: retain all24requests/ninegates, complete Help strict100 only with actual new budget and independent answer/style review, preserve HAprodconfig/Pi/HACS and physical acceptance gates. No new budget, device action or repeated pending question follows from this backlog.
+
+---
+
 # DJConnect Platform Backlog — Generation 1 archive
 
 This document preserves Generation 1 platform-program history and completion

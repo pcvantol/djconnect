@@ -1,3 +1,9 @@
+# Original-clock v3 normative design boundary — 24 October 2026
+
+The complete specification is docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md. It defines future independent v3 paired context/register envelopes and original remaining-duration authority under unchanged widget-only guards. Runtime implementation and actual paired producer/client proof are NOT delivered by this contract source; current active Postman/runtime v2 remains its separate scope. Derived JSON is nonnormative and cannot relax complete Markdown guards. No public API relay-wire change, Activity permission or positive unknown clock mapping is added. Protected contract Source+separate Final/original qualification precede the owning implementation.
+
+---
+
 # DJConnect API Contract
 
 ## Current Core #1212 source: actual device speech availability1

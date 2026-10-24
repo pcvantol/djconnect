@@ -1,3 +1,9 @@
+# Current selected clock contract increment — 24 October 2026
+
+API94 closed production and separate health smoke are delivered and recorded. The selected next bounded increment is the original-clock v3 normative contract only, not shipped widget/Live Activity functionality. Follow with owning Core producer/actual paired HA proof, then exact owning client adoption/qualified clock mapping; real enrollment/custody/rights/provider/native/physical acceptance remains separately gated. Complete24request/ninegate status remains in docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md. This is selected execution ordering, not a claim that later capability/roadmap gates have passed; future human reprioritization remains possible.
+
+---
+
 # DJConnect Product Roadmap
 
 ## HACS onboarding — bounded source Finalization, 20 October 2026
