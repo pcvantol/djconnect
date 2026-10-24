@@ -1,3 +1,15 @@
+## Developer Pillow13 with a separate HA decoder baseline (24 October 2026)
+
+PR #1306 qualifies Pillow13.0.0 for the developer test environment. The actual Home Assistant2026.10.0 image retains Pillow12.3.0. This current decision supersedes the developer-pin deferral recorded below; its historical evidence and runtime scope remain unchanged. It does not upgrade or qualify a different HA runtime.
+
+The permanent compatibility workflow exercises the same22 original synthetic image bodies through the actual production decoder under separately pinned12.3.0 and13.0.0 environments. The developer profile also verifies the exact requirements-dev.txt pin. Eight valid format/mode/size-boundary inputs remain accepted and14 unsupported, animated, oversized, truncated or malformed inputs remain rejected. These finite cases establish bounded compatibility, not equivalence for every possible image. A separate actual isolated HA12.3 decoder run used those identical bytes; the pip matrix is not an HA installation.
+
+No integration product file, runtime requirement, image, release version or image-admission predicate changes. The existing offline brand generator retains its own Pillow13/fonttools pins. Source/commit independent review, normal protected delivery and a separate Final with original qualification remain required. Existing HA deployments, all24requests/ninegates, provider/native/physical and user acceptance keep their own evidence.
+
+See [bounded evidence and qualification scope](docs/verification/DEVELOPER_PILLOW13_COMPATIBILITY_20261024.md). Prior sections below retain their historical scopes.
+
+---
+
 ## Versioned onboarding package identity for the Ruff patch (24 October 2026)
 
 This coherent maintenance increment publishes developer-onboarding4.5.5 and macOS bootstrap2.0.23. The new deterministic bundle contains the reviewed Ruff0.17.1 requirement and updated package documentation/tests. The complete4.5.4 bundle and all prior distributions remain byte-unchanged. Matching exact desired/actual-package guards and their negative tests move together to4.5.5; no check is removed or weakened. Delivery requires the human-approved version migration and normal independent source/commit review, protected merge and separate Final. No host installer, repair, tool installation, Home Assistant runtime change or provider/device effect is performed by this source increment.

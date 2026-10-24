@@ -2,7 +2,8 @@
 PyYAML==6.0.3
 coverage==7.16.2
 pytest==9.1.1
-# Match the pinned HA image for actual image-byte decode regressions.
-Pillow==12.3.0
+# Developer tests use Pillow13; the separate HA2026.10.0 decoder baseline stays12.3.
+# CI qualifies the same original synthetic image bytes under both exact versions.
+Pillow==13.0.0
 # Same hardened XML parser as the integration runtime.
 defusedxml==0.7.1
