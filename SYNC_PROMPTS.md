@@ -1,3 +1,27 @@
+# Delivered Help narration repair source — 25 October 2026
+
+Source [PR1332](https://github.com/pcvantol/djconnect/pull/1332) protected`af36cbb7e14bfe4bf1bf24404acaed2923d90749`,
+reviewed`6b9c2d618d874cb243db78e2ef914b75e061997a`, is originally qualified by run40144135594; original formal
+6194bytes SHA256`dd90f3a6725a76423e2eda79403a9bcfc29d0eb95ca307ece4e105edef21284e`, durable1812bytes
+SHA256`10ca38cc6bfcdd27ac74e0e5a736d1594934b63d08b8cb5d73846e6ce7f974c6`, all12/canonical/source-digest/coverage joinsPASS.
+Automatic release-model cancellation is not content PASS or zero-spend evidence.
+This separate documentary Final still needs its own original qualification.
+
+Five product repairs preserve authority and strict source/language/effect gates.
+3569tests/3562PASS/seven old skips120.886s;13isolatedHA groupsPASS264current product
+hashes; oldRAW/bodies/slots remain immutable. The snapshot-aliasing P2 is causally
+closed. [Source record](docs/verification/HELP_NARRATION_REMEDIATION_20261025.md) and [Final record](docs/verification/HELP_NARRATION_REMEDIATION_FINALIZATION_20261025.md).
+
+The old full100/175response test remains93casePASS/sevenFAIL, consumed without
+retry. One distinct repaired-source100/392/3000/1800 qualification is prepared
+under the current direct paid-fix instruction, not executed. Exact original
+Source+separateFinal and independent concrete admission precede its sole POST.
+Catalogue remainsfalse/70pending until actual100+independent editorial acceptance;
+no new Apple qualified hash or HA/provider/device/native claim follows. All24+9
+requests are preserved; HAdev98/f0 and HAprod pending remain their own scopes.
+
+---
+
 # Delivered Help100 supervision source — 24 October 2026
 
 CoreSource [PR1330](https://github.com/pcvantol/djconnect/pull/1330) protected
