@@ -1,3 +1,11 @@
+# Current API94 Core manifest source finalization — 24 October 2026
+
+Source PR1316 is normally protected55bd7961aa162ce436ec971908ca45bf88047a1d, reviewed9dccb463d45276a5545dcba788600f097f2ec32a/treea64c5bbb6d294baaee512e4a349936e960d39198, and ORIGINAL_QUALIFIED: own-main40081001001SUCCESS, formal40081506996 SHA25618d536043dbe74c1a66a325fc6782f3bfa1f18d451f4817ae4f61b4ccdf8bcfa, durable SHA256b635d104c80465a6627040e7c0152c97f09021c6910f01dea614a0a8c98cbe6d. See docs/verification/API94_CENTRAL_MANIFEST_FINALIZATION_20261024.md for exact original provider/canonical/coverage/source joins and the withdrawn availability finding followed by actual correction and two independent reviews. This separate documentary Final still requires its own normal protected delivery and original qualification; no future Final/deploy/nativeGO is claimed.
+
+The exact current manifest SHA25619d5440811ca0d04ab120ae63940a53606475629b632d238960af7055e3acbb1 and all264HA product/HAexecution-release inputs remain unchanged by this Final. API selectedlatestFinal94 artifact12554174111/TAR628f5d09; actualproductionstillc048/retained6d6531ba/all10applied/pendingempty/data-bindings-secrets preserved. Historicalartifact404 is explicit; retainedarchive/currentversion are rollbackbasis, no old3458/pending9+10 assumptions. OwningAPI single normaldeploy+separatehealthsmoke follow only after qualifiedCoreFinal; all22fullservicegatesOPEN/dispatchfalse/profilesempty. Helpfalse70pending, failedmanualgrantsconsumed, actualrate/Activity/native/VibeCast/Pi/HAprodconfig gates remainopen. All24requests/ninegates and fulloldbodies preserved; no newtimer/automaticextension.
+
+---
+
 # Cumulative Help source finalization - 24 October 2026
 
 This separate documentary Final consolidates two normally protected, independently reviewed Help source increments. Source PR1313 merged as `a591d0848ba8967f38ccd018279a7d06c9bda8d5`, reviewed `3456c4a89a10cf0fc89d361976138bff8ae91a84`; original own-main `40008834199` succeeded and reconciliation `40009500783` qualified it. Original formal receipt 3526 bytes SHA256 `29704e90f138268f65cd3a4f64e7a87a3323ba85dceb22e70fabfaff38ce4a3f`; durable receipt 1812 bytes SHA256 `8f44e862aac3a30180341c34d1a889490026a1c9a4c1daa4b709a39f0f6bbbe9`.
