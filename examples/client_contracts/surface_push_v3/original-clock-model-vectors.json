@@ -1,0 +1,193 @@
+{
+  "kind": "surface_original_clock_v3_design_model_vectors",
+  "status": "SYNTHETIC_DESIGN_MODELS_NOT_ACTUAL_PRODUCER_HA_NATIVE_OR_RATE_PROOF",
+  "proposal_sha256": "0e1b7ab34b8b4da5ec25d2940fb6c315f3630f53bd8101718e59ee3473899432",
+  "arithmetic": [
+    {
+      "name": "original_grant_not_late_object",
+      "G0": "0",
+      "S0": "4/5",
+      "original_wall_ms": 1000,
+      "original_expiry_ms": 2000,
+      "W0_ms": 1800,
+      "uuid_remaining_ms": 300000,
+      "expected_M0_ms": 200,
+      "expected_A0_ms": 200,
+      "expected_P0_ms": 200,
+      "expected_K0_ms": 200
+    },
+    {
+      "name": "known_original_wall_shorter",
+      "G0": "0",
+      "S0": "4/5",
+      "original_wall_ms": 1000,
+      "original_expiry_ms": 1001000,
+      "W0_ms": 1000500,
+      "uuid_remaining_ms": 300000,
+      "expected_M0_ms": 999200,
+      "expected_A0_ms": 500,
+      "expected_P0_ms": 500,
+      "expected_K0_ms": 500
+    },
+    {
+      "name": "mono_shorter_after_wall_correction",
+      "G0": "0",
+      "S0": "4/5",
+      "original_wall_ms": 1000,
+      "original_expiry_ms": 2000,
+      "W0_ms": 1050,
+      "uuid_remaining_ms": 300000,
+      "expected_M0_ms": 200,
+      "expected_A0_ms": 950,
+      "expected_P0_ms": 200,
+      "expected_K0_ms": 200
+    },
+    {
+      "name": "near_original_UUID_end",
+      "G0": "0",
+      "S0": "0",
+      "original_wall_ms": 1000,
+      "original_expiry_ms": 11000,
+      "W0_ms": 1000,
+      "uuid_remaining_ms": 2,
+      "expected_M0_ms": 10000,
+      "expected_A0_ms": 10000,
+      "expected_P0_ms": 10000,
+      "expected_K0_ms": 2
+    },
+    {
+      "name": "submillisecond_downward",
+      "G0": "0",
+      "S0": "1/3000",
+      "original_wall_ms": 1000,
+      "original_expiry_ms": 2000,
+      "W0_ms": 1000,
+      "uuid_remaining_ms": 300000,
+      "expected_M0_ms": 999,
+      "expected_A0_ms": 1000,
+      "expected_P0_ms": 999,
+      "expected_K0_ms": 999
+    },
+    {
+      "name": "maximum_eight_hours",
+      "G0": "0",
+      "S0": "0",
+      "original_wall_ms": 1000,
+      "original_expiry_ms": 28801000,
+      "W0_ms": 1000,
+      "uuid_remaining_ms": 300000,
+      "expected_M0_ms": 28800000,
+      "expected_A0_ms": 28800000,
+      "expected_P0_ms": 28800000,
+      "expected_K0_ms": 30000
+    },
+    {
+      "name": "expired_wall_is_closed",
+      "G0": "0",
+      "S0": "0",
+      "original_wall_ms": 1000,
+      "original_expiry_ms": 2000,
+      "W0_ms": 2000,
+      "uuid_remaining_ms": 300000,
+      "expected_M0_ms": 1000,
+      "expected_A0_ms": 0,
+      "expected_P0_ms": 0,
+      "expected_K0_ms": 0,
+      "expected": "CLOSED"
+    },
+    {
+      "name": "expired_mono_is_closed",
+      "G0": "0",
+      "S0": "1",
+      "original_wall_ms": 1000,
+      "original_expiry_ms": 2000,
+      "W0_ms": 1000,
+      "uuid_remaining_ms": 300000,
+      "expected_M0_ms": 0,
+      "expected_A0_ms": 1000,
+      "expected_P0_ms": 0,
+      "expected_K0_ms": 0,
+      "expected": "CLOSED"
+    }
+  ],
+  "client_mapping": [
+    {
+      "name": "declared_equal_rate_MODEL_ONLY",
+      "rho": "1",
+      "server_budget_ms": 30000,
+      "expected_mapped_ms": 30000
+    },
+    {
+      "name": "declared_slow_lower_bound_MODEL_ONLY",
+      "rho": "999/1000",
+      "server_budget_ms": 30000,
+      "expected_mapped_ms": 29970
+    },
+    {
+      "name": "fractional_result_closed_if_no_positive_integer",
+      "rho": "999/1000",
+      "server_budget_ms": 1,
+      "expected_mapped_ms": 0
+    },
+    {
+      "name": "unknown_mapping",
+      "rho": null,
+      "server_budget_ms": 30000,
+      "expected": "CLOSED"
+    },
+    {
+      "name": "suspended_client_no_positive_bound",
+      "rho": "0",
+      "server_budget_ms": 30000,
+      "expected_mapped_ms": 0,
+      "expected": "CLOSED"
+    }
+  ],
+  "final_addition": {
+    "C0_float_hex": "0x1.0000000000000p+48",
+    "mapped_budget_ms": 937,
+    "naive_elapsed_ms": "1875/2",
+    "greatest_downward_elapsed_ms": "875",
+    "naive_excess_ms": "1/2",
+    "scope": "EXACT_REPRESENTED_FLOAT_MODEL_ONLY"
+  },
+  "history_and_identity": [
+    {
+      "name": "same_purpose_all_context_UUID_rotation_MIN",
+      "candidates_ms": [
+        900,
+        990,
+        950
+      ],
+      "expected_minimum_ms": 900
+    },
+    {
+      "name": "lost_original_pin",
+      "earlier_history": "UNKNOWN",
+      "expected": "CLOSED_NOT_FIRST_USE"
+    },
+    {
+      "name": "original_A_late_error_equal_fields_B",
+      "original": "A",
+      "later": "B",
+      "expected": "CLOSED_NO_ROOT_SUBSTITUTION"
+    },
+    {
+      "name": "initial_root_absent_late_admission",
+      "original": null,
+      "later": "B",
+      "expected": "CLOSED_ORIGINAL_ABSENCE_RETAINED"
+    },
+    {
+      "name": "UUID_future_240seconds",
+      "future_ms": 240000,
+      "unchanged_max_future_ms": 30000,
+      "expected": "REJECT_NO_CLOCK_MARGIN"
+    }
+  ],
+  "semantic_identity_cases_are": "DECLARED_REQUIRED_OUTCOMES_NOT_EXECUTED_PRODUCT_TESTS",
+  "actual_clock_rate_domain_suspend_acceptance": "OPEN",
+  "all_operational_native_acceptance": "NOT_GRANTED",
+  "coverage_scope": "SAMPLE_REFERENCE_MATH_AND_DECLARED_DESIGN_OUTCOMES_NOT_FULL_CONTRACT_OR_PRODUCT_COVERAGE",
+  "all_normative_guards_required_independently": true
+}

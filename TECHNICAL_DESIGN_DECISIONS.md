@@ -1,3 +1,9 @@
+# Original clock lifetime calculation contract — 24 October 2026
+
+The normative v3 design uses original credential G0/L0, immutable pre-await W0/S0/C0 and weak original root identity retained across late errors. Purpose budget is the conservative minimum of exact original monotonic remainder and original expiry minus SERVER W0 plus every original bound; submit budget also respects30seconds/UUID/original submit limits. Client pins preserve all-context minimum and require independently qualified rate/suspend/domain mapping; unknown closes. Final timestamp addition and every conversion are exact/downward, not just duration flooring. See docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md; its JSON summary/model tests are not producer/native evidence. Only existing standard-library Fraction/math is used by reference verification, no dependency/license change or runtime implementation here.
+
+---
+
 # DJConnect Technical Design Decisions
 
 ## Brand V2: exact raster source, deterministic derived identity

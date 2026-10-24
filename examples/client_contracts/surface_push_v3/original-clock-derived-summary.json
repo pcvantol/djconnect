@@ -1,0 +1,190 @@
+{
+  "kind": "derived_surface_original_clock_context_summary",
+  "schema_version": 1,
+  "contract_version": 3,
+  "status": "DERIVED_NONNORMATIVE_SOURCE_COMPANION_RUNTIME_IMPLEMENTATION_PENDING",
+  "proposal_sha256": "0e1b7ab34b8b4da5ec25d2940fb6c315f3630f53bd8101718e59ee3473899432",
+  "admitted_scope": "EXISTING_WIDGET_ONLY_GUARDS_UNCHANGED",
+  "context_request": {
+    "route": "POST /api/djconnect/v1/push/surface/context",
+    "exact_keys": [
+      "contract_version",
+      "device_id",
+      "client_type",
+      "session_id",
+      "operation_id"
+    ],
+    "version": 3,
+    "identity": "existing exact authenticated paired device/client/Session/source contract",
+    "operation": "one original pre-context UUIDv7, unchanged for register/retry"
+  },
+  "context_success": {
+    "exact_keys": [
+      "success",
+      "contract_version",
+      "available",
+      "context_handle",
+      "operation_id",
+      "purpose_ref",
+      "expires_at_ms",
+      "context_expires_at_ms",
+      "purpose_remaining_at_original_start_ms",
+      "context_remaining_at_original_start_ms",
+      "cache_policy"
+    ],
+    "constants": {
+      "success": true,
+      "contract_version": 3,
+      "available": true,
+      "cache_policy": "private,no-store"
+    },
+    "integer_domains": {
+      "expires_at_ms": [
+        1,
+        9007199254740991
+      ],
+      "context_expires_at_ms": [
+        1,
+        9007199254740991
+      ],
+      "purpose_remaining_at_original_start_ms": [
+        1,
+        28800000
+      ],
+      "context_remaining_at_original_start_ms": [
+        1,
+        30000
+      ]
+    },
+    "relations": [
+      "context_remaining_at_original_start_ms <= purpose_remaining_at_original_start_ms",
+      "same operation responses retain exact original opaque handle/purpose/deadlines/budgets",
+      "absolute expiry is identity, never authority minted from foreign client UTC"
+    ]
+  },
+  "register_request": {
+    "route": "POST /api/djconnect/v1/push/surface/register",
+    "exact_keys": [
+      "contract_version",
+      "device_id",
+      "client_type",
+      "operation_id",
+      "session_id",
+      "platform",
+      "os_version",
+      "token_role",
+      "target",
+      "apns_token",
+      "apns_environment",
+      "expected_registration",
+      "consent",
+      "context_handle"
+    ],
+    "version": 3,
+    "original_validators": "all existing identity/native support/target/consent/coordinate predicates unchanged",
+    "new_authority_imports": []
+  },
+  "register_response": {
+    "confirmed_exact_keys": [
+      "contract_version",
+      "context_handle",
+      "operation_id",
+      "purpose_ref",
+      "success",
+      "replayed",
+      "operation",
+      "registration",
+      "background_read"
+    ],
+    "unsuccessful_exact_keys": [
+      "contract_version",
+      "context_handle",
+      "operation_id",
+      "purpose_ref",
+      "success",
+      "replayed",
+      "operation",
+      "registration"
+    ],
+    "http_error_exact_keys": [
+      "success",
+      "error"
+    ],
+    "confirmed_predicate": "existing admitted widget with required original background_read consent and current original ACK",
+    "credential_rule": "only existing original background credential; no null/fabricated credential or Activity shape widening",
+    "all_outer_versions": 3,
+    "inner_API_registry_relay_wire_version": 1
+  },
+  "server_budget": {
+    "retained_before_first_await": [
+      "W0",
+      "S0",
+      "original authenticated operation/service/source/Session/Broadcast",
+      "bounded weak original purpose/root witnesses"
+    ],
+    "G0": "actual credential original_monotonic, not object construction/adoption",
+    "L0_ms": "original_grant_expires_at_ms minus credential.original_wall_ms",
+    "M0_ms": "floor_exact(L0_ms + 1000*(G0-S0))",
+    "A0_ms": "original_grant_expires_at_ms-W0",
+    "P0_ms": "minimum(M0_ms,A0_ms,every existing original purpose bound)",
+    "K0_ms": "minimum(30000,P0_ms,UUID_created_ms+300000-W0,every existing original submit bound)",
+    "nonpositive_or_lost_or_invalid": "CLOSED",
+    "later_wall_or_owner_change": "existing live wall/mono/current-owner/last-no-await-cancel guards remain required"
+  },
+  "client_budget": {
+    "anchor": "original C0 captured before first context await; never arrival/retry/newUUID",
+    "mapping": "independently qualified conservative client/server progress lower-bound witness covering ALL relevant intervals/suspension/domain",
+    "unknown_mapping": "CLOSED_NO_POSITIVE_LOCAL_LIFETIME",
+    "rho_wire_field": false,
+    "candidate": "C0+floor_exact(rho_min*original_budget_ms)/1000, exact/downward final sum and all conversions",
+    "purpose_history": "MINIMUM of every original accepted same-purpose pin across ALL contexts/UUIDs/native-token rotations; missing earlier pin CLOSED_NOT_FIRST_USE",
+    "instant_remote_revocation_or_future_wall_proof": false
+  },
+  "clock_domains": {
+    "monotonic_samples": "original finite represented samples, exact/downward arithmetic, no bool/nonfinite/rollback/domain substitution",
+    "UUID_future_limit_ms": 30000,
+    "UUID_lifetime_ms": 300000,
+    "quantization_is_rate_proof": false
+  },
+  "version_boundary": {
+    "independent_v3_codecs": true,
+    "v1_v2_new_context_register": "existing typed surface_context_required409 before await/effect; no fallback",
+    "old_registered_rows": "original expiry and original separate v1 status/read/revoke only",
+    "old_v2_fixtures": "historical bytes retained; never relabelled current v3 wire"
+  },
+  "delivery_guards": {
+    "this_artifact": "derived nonnormative companion; complete canonical Markdown alone normative; not actual producer receipt",
+    "required_before_operative_use": [
+      "normal protected canonical contract Source and separate Final with original qualification",
+      "owning Core producer implementation and actual paired HA originals/exact source review",
+      "owning client exact codec adoption and actual clock mapping qualification",
+      "real independent owner/custody/enrollment/servicepurpose/rights/provider/native/user gates"
+    ],
+    "native_Widget_Activity_VibeCast_GO": false,
+    "public_dispatch_or_Activity_profiles_added": false
+  },
+  "authority": {
+    "classification": "DERIVED_NONNORMATIVE_COMPANION_NOT_STANDALONE_CONTRACT",
+    "full_normative_proposal_sha256": "0e1b7ab34b8b4da5ec25d2940fb6c315f3630f53bd8101718e59ee3473899432",
+    "canonical_document_sha256": "c78cae89f3da760d08367709b01bdea1e0b01158dd2d81e6e03d6c01595742e8",
+    "precedence": "The complete canonical Markdown alone is normative; this derived summary never relaxes any omitted guard.",
+    "publication_reference_resolution_required": false,
+    "canonical_document_path": "docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md"
+  },
+  "wire_integer_validation": {
+    "applies_to": [
+      "paired contract_version",
+      "outer absolute expiry milliseconds",
+      "outer remaining duration milliseconds"
+    ],
+    "strict_JSON_integer_excluding_boolean": true,
+    "numeric_string_or_fraction_or_NaN_Infinity_coercion": false,
+    "domain_bounds": "inclusive strict finite integer ranges, existing inner-v1 predicates unchanged"
+  },
+  "retained_identity_summary": {
+    "original_root_candidates": "Capture immutable bounded weak original set once before first await and retain exact original absence/root witnesses across503/OSError/cancel/retry; never recapture",
+    "client_origin": "OriginalC0/exact server-owner-target-operation-purpose/client clock-domain binding retained; lostC0/history/process/domain closes",
+    "version_provenance": "Originalv3 context state required for v3 register, not visiblehandlegrammar or matching expiry",
+    "normative_guards": "Full normative Markdown remains authoritative for all details"
+  }
+}
