@@ -3,6 +3,6 @@ PyYAML==6.0.3
 coverage==7.16.2
 pytest==9.1.1
 # Match the pinned HA image for actual image-byte decode regressions.
-Pillow==13.0.0
+Pillow==12.3.0
 # Same hardened XML parser as the integration runtime.
 defusedxml==0.7.1

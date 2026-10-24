@@ -1,3 +1,9 @@
+## Pico developer Ruff patch and HA decoder qualification pin (24 October 2026)
+
+The isolated Pico developer-tool environment pins Ruff0.17.1 instead of0.17.0. This is a developer lint tool, with no firmware image, Home Assistant runtime dependency or release-version change. The exact upstream release and MIT license are linked in THIRD_PARTY_NOTICES.md.
+
+Keep requirements-dev.txt at Pillow12.3.0 to match the pinned Home Assistant2026.10.0 image used for actual image-byte/decode regression qualification. The independently pinned offline brand generator keeps Pillow13.0.0. Those environments serve different checks; the branding dependency does not authorize changing the HA decoder baseline. The combined dependency proposal #1294 is narrowed to the Ruff patch. The overlapping Pillow-only #1306 is deferred as unsupported by the current HA-image qualification and may be closed as superseded; original branch commits and receipts remain preserved. A future Pillow decoder upgrade needs a newly qualified HA image/environment and actual byte/decode evidence.
+
 # DJConnect Technical Design Decisions
 
 ## Brand V2: exact raster source, deterministic derived identity
