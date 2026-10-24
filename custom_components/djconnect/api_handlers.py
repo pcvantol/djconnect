@@ -183,9 +183,9 @@ async def async_handle_session_history_payload(
     version_token = None
     try:
         playback_version = data.get('historical_playback_contract_version')
-        if playback_version is not None and not (type(playback_version) is int and playback_version == 1 or type(playback_version) is str and playback_version == '1'):
+        if playback_version is not None and not (type(playback_version) is int and playback_version in (1, 2) or type(playback_version) is str and playback_version in ('1', '2')):
             raise HistoryQueryError('unsupported_historical_playback_contract')
-        playback_token = offers_enabled.set(playback_version is not None)
+        playback_token = offers_enabled.set(False)
         playback_locale_token = offer_locale.set(str(data.get('locale') or data.get('language') or 'en').split('-',1)[0].lower())
         entry_version = request_version(data.get('history_contract_version'))
         version_token = version_context.set(entry_version)
@@ -1646,7 +1646,9 @@ async def async_handle_ask_dj_message_payload(
         _debug_ask_dj_result("message", result, result_status, runtime=bound_runtime)
         return result, result_status
     except SessionConversationError as exc:
-        return _error_payload(exc.code), exc.status
+        from .historical_playback import UNAVAILABLE, unavailable_message
+        message = unavailable_message(payload.get("locale") or payload.get("language")) if exc.code == UNAVAILABLE else None
+        return _error_payload(exc.code, message), exc.status
     except PermissionError:
         return _error_payload("history_unavailable"), 404
     except (OSError, RuntimeError):

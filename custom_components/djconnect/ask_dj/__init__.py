@@ -10211,22 +10211,13 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
 
 async def _activate_dialogue_output(hass, runtime, payload, action, turn, *, play=False):
     from .dialogue import EffectGrant, effect_media, DialogueError
-    # Original archive authority belongs to the offer, not the later current account.
-    # Consume before any await: different/concurrent client IDs cannot repeat an
-    # accepted or uncertain transfer/play attempt.
+    # Retained V1 output continuations must not bypass the new queue contract.
+    # Deny before inventory awaits, transfers or play/output grants, even if the
+    # original source is still readable and a different client ID is supplied.
     shown = turn.frame.result_set or {}
-    admission = shown.get("historical_playback_admission")
-    if admission is not None:
-        if (not play or action.get("command") != "ask_dj_play_recommendation_on_output"
-                or not isinstance(admission, dict) or not callable(admission.get("validate"))):
-            raise DialogueError("choice_expired")
-        if shown.get("historical_playback_attempted"):
-            raise DialogueError("choice_expired")
-        validate_original = admission["validate"]
-        validate_original()
-        turn.effect_validators.append(validate_original)
-        turn.delivery_validators.append(validate_original)
-        shown["historical_playback_attempted"] = True
+    if shown.get("historical_playback_admission") is not None:
+        from ..historical_playback import UNAVAILABLE
+        raise DialogueError(UNAVAILABLE, 409)
     # Revalidate the exact ID using the same existing backend inventory.
     inventory = await run_music_command(hass, runtime, "devices")
     devices = inventory.get("devices", []) if isinstance(inventory, dict) else []

@@ -1,3 +1,15 @@
+# Historical queue-preservation V2 — source candidate, 24 October 2026
+
+Current protected predecessor is Core Final1325 `a1fee6c73734c4e34aad283a01551b8b179a796c`; its original qualification is complete. This new bounded candidate closes historical playback because no qualified provider operation preserves every remaining queue occurrence and its order. Capability is false/version2; V1/V2 browsing remains available without play offers. Cached taps and historical output continuations return typed409 before new effects. Ordinary output/recommendation paths and captured reply artwork remain independent.
+
+[Contract](docs/product/HISTORICAL_QUEUE_PRESERVATION_V2.md) and [verification](docs/verification/HISTORICAL_QUEUE_PRESERVATION_V2_20261024.md) describe negative admission only, not a delivered queue-preserving player. Current actual isolated HA has all13groups PASS with264 source hashes equal before/after and the owned container absent. Causal initial-play, RAM replay and durable-output replay failures remain preserved with their corrected controls. Exact whole/commit independent review, normal protected Source and separate Final/original qualification remain required.
+
+HA-dev retains independently installed Source98/Finalf0; HA production configuration answer remains pending. API94 production is unchanged. Help stays qualifiedfalse/70pending; both paid manual runs retain consumed/unknown-spend scope and are not repeated. Real push owner/custody/enrollment/purpose/Activity/client-clock/native/provider, full VibeCast/physical/user acceptance and all24requests/ninegates remain open within their own evidence. No new deployment, paid call or device effect is part of this increment.
+
+Earlier snapshots below retain their own historical scopes.
+
+---
+
 # Qualified developer Pillow13 compatibility — 24 October 2026
 
 PR [#1306](https://github.com/pcvantol/djconnect/pull/1306) merged as

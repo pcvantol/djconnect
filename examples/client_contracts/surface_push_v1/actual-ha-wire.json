@@ -1,6 +1,6 @@
 {
   "status": "ACTUAL_ISOLATED_HA_HTTP_CAPTURE_NOT_OPERATIONAL_ADMISSION",
-  "base_source_sha": "fd406723acde37e650b85c29fc5cf45801cae02f",
+  "base_source_sha": "a1fee6c73734c4e34aad283a01551b8b179a796c",
   "producer_product_hashes": {
     "custom_components/djconnect/AGENTS.md": "8fb8891e3a2cca055067fbbacafe6c189f38bc00c514a6bf6984639a182a70cf",
     "custom_components/djconnect/__init__.py": "b4733d5bb6319a51eff2ba65c82c4c2d19cd10b2024d42e4cedcd0d3e94c765c",
@@ -8,9 +8,9 @@
     "custom_components/djconnect/album_narration.py": "0efcf09a26db6dfac6c7a0e90a09a82efc444f69fad4142ce4e39002e1a81c64",
     "custom_components/djconnect/announcement_policy.py": "046b5362490e6d581177fe9456473613e164e10fc9baf4739a5b516b8c95bea7",
     "custom_components/djconnect/announcements.py": "4e34b4b46395f8922482ea6d685867dfa69fb43560e4291c88721849acc192c9",
-    "custom_components/djconnect/api_handlers.py": "cdc2a5246da7eb8f0a1c1ba265b8c8b0aca66074be63033d26e3ad10f8ebc23d",
+    "custom_components/djconnect/api_handlers.py": "f3727a48e2051add6558fd40e513ba5ba99dfc7eeaf3c48fe3d02d909176011a",
     "custom_components/djconnect/artist_photo.py": "49369dedce29fa90fcc545f918ea4ecc10909f58e0df5ebfe1acf35a7af5019c",
-    "custom_components/djconnect/ask_dj/__init__.py": "5b185847c14909e38da944ebf44a5e517951d6ef76458c11a4b389d7b89df052",
+    "custom_components/djconnect/ask_dj/__init__.py": "abc9b6e97150d507ce661ee12d4aa23a5068a418c894d16a17cfc5d0cba40194",
     "custom_components/djconnect/ask_dj/actions.py": "8e42edc5bf0a3a3ef73c99273c5860d1f3ebad42dd8897cf8d2877239a25b053",
     "custom_components/djconnect/ask_dj/album_choices.py": "da7971c89f714a7cedee68a467ed80fcbc22f600af8f68196b359a71a0559d33",
     "custom_components/djconnect/ask_dj/album_tracks.py": "e354c334fb9f3c21510389fd6f5c4923271c2ddd8836e5028a8d9c9419f6bf3e",
@@ -30,7 +30,7 @@
     "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
     "custom_components/djconnect/ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
     "custom_components/djconnect/ask_dj/semantic_reads.py": "905cc818a7358dfd827b1c2ef6b9d2b974af0ed2947e991ea3279c503477ebd2",
-    "custom_components/djconnect/ask_dj/service.py": "d076a5ff14274b2dd7dc460ccf361ecf25f9d0c9299f0fa53e4c9f4d4b99837d",
+    "custom_components/djconnect/ask_dj/service.py": "7ada83633dfc7fd8d73ba3a2c884db48e62d6fa76cf77d362d16d72daa50940e",
     "custom_components/djconnect/ask_dj_history.py": "d421ab2d17f85746671a0e242e63a4d429c021b6346be05f11bd551c60c6a325",
     "custom_components/djconnect/assist_stt.py": "609b5a7ec4c40eda3d87a84d9391256bd930c1dd1c80a5171b03df79c68aa6e5",
     "custom_components/djconnect/ble.py": "2223ccb7fb718e51501e72042588d6920619d05d6b9b83b4a6452edbdf7e389d",
@@ -49,7 +49,7 @@
     "custom_components/djconnect/bulletin_service.py": "1d487d0cb3d8d4d45930365ea9a1b0b8cd4cee5dc0ead8e82878c1a0f5d69ccb",
     "custom_components/djconnect/bulletin_source_policy.py": "a1fb7ecb6babb256fbe74b3f14be7cace712fb042d21c028bf43fc3f396c9202",
     "custom_components/djconnect/button.py": "aa1c3290c4369d99ecf6fc88f865e65e02d438d7e3b0a399621a5791062ba9bc",
-    "custom_components/djconnect/capability_contract.py": "e6475b84ce72d16fa71678be4bb5edbbfe72969d4e436fa52f339e28435c238d",
+    "custom_components/djconnect/capability_contract.py": "92f78ca22d1a0e2a09ba3d9f589a2544ad7814fc99258a53b7fcca8990c7062c",
     "custom_components/djconnect/central_api.py": "78cd4645d9fd1979bbc33e500c525bffc23ae45deaeef02b129adb418674b9e6",
     "custom_components/djconnect/ci_qualification_report.py": "a45c358669fea9cfb57a601a109443c722e10d91b067eacbb550a11cd264229b",
     "custom_components/djconnect/client_identity.py": "31543e0cf3ed7aa8322af24d0835c0fecf77974db0d8a07c7908d9deff7588cd",
@@ -113,7 +113,7 @@
     "custom_components/djconnect/github.py": "90c01724de4de8f2e1bb9603a922ef0a1cb95376465dc0310e8d752c3c65d459",
     "custom_components/djconnect/golden_qualification.py": "e7e7eca3ab4c5ea6c52bc0ae2e6c82c664d81940041ebc6bb327fcde74119561",
     "custom_components/djconnect/ha_urls.py": "cfb435ee2f7f25450fc3f443703a3a466bffd0da103365b3163384797587d558",
-    "custom_components/djconnect/historical_playback.py": "cc0139f12fa158210583c81632cc8afc6368498d0590ad709d904e8ebbcb3ba8",
+    "custom_components/djconnect/historical_playback.py": "2bda01faaabb4a87e3714049cd99dfb7514e36bfd351cd1c9a93f90a0e8122fa",
     "custom_components/djconnect/historical_projection_query.py": "0d1ae0a71ec19bb0a517a9762d19904125ec4ad30b05218dd5f643a1a3af8ff1",
     "custom_components/djconnect/historical_projection_retention.py": "ba93b6476c4b47d716f4d1d03a5ebe26328c395d2b2fe981eaea5e242105bfc6",
     "custom_components/djconnect/history_deletion.py": "adf077184493e6f9a5a6b57ce21f13815e188da5b711d23226d9fffb5ebcf5f4",
@@ -268,7 +268,7 @@
     "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
   },
   "harness_sha256": "c84fdf5e8bc2b78ae46892d81633a4a82d25b9503f46335bda8b68cece7d0468",
-  "original_raw_sha256": "46d8f71e8606c8e9ea191f5f564b740e469e03c7f86d554574ab55e14d84ea57",
+  "original_raw_sha256": "6e1033d53dc27e5553629d97aa3c230bcfb3aa0c180f1c2f0515df4b6ddc0e4c",
   "ha_sdk_version": "2026.10.0",
   "derivation": "Exact deepcopy of extension.requests; no response fields, dates, identifiers or credentials rewritten. HEAD has no response body. Headers replaced by authentication kind; all identities/credentials are disposable synthetic fixture values.",
   "synthetic_boundaries": [
@@ -416,7 +416,7 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 1,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4"
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6"
       },
       "response_body": {
         "success": false,
@@ -434,8 +434,8 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 2,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "operation_id": "01a16dde-597f-7000-8000-000000000001"
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "operation_id": "01a16f46-e98f-7000-8000-000000000001"
       },
       "response_body": {
         "success": false,
@@ -453,8 +453,8 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "operation_id": "01a16dde-597f-7000-8000-000000000001"
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "operation_id": "01a16f46-e98f-7000-8000-000000000001"
       },
       "response_body": {
         "success": false,
@@ -472,8 +472,8 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "operation_id": "01a16dde-597f-7000-8000-000000000001"
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "operation_id": "01a16f46-e98f-7000-8000-000000000001"
       },
       "response_body": {
         "success": false,
@@ -491,8 +491,8 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "operation_id": "01a16dde-597f-7000-8000-000000000001"
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "operation_id": "01a16f46-e98f-7000-8000-000000000001"
       },
       "response_body": {
         "success": false,
@@ -510,18 +510,18 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "operation_id": "01a16dde-5982-7000-8000-000000000003"
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "operation_id": "01a16f46-e992-7000-8000-000000000003"
       },
       "response_body": {
         "success": true,
         "contract_version": 3,
         "available": true,
-        "context_handle": "djcctx_6-bLHEcvFupKIo3fFxSbCF4BfdXsyCHgVgg6u_onONw",
-        "operation_id": "01a16dde-5982-7000-8000-000000000003",
-        "purpose_ref": "djcpref_0A2aOGEKLHmT5ev_lhOXyvV0Embkys-EPzWuZ-IFLeA",
-        "expires_at_ms": 1792845250881,
-        "context_expires_at_ms": 1792844680882,
+        "context_handle": "djcctx_Ri1ENht8PwnI5sAOnSHWbK_qDbkEXl2Bj39KxbMruFU",
+        "operation_id": "01a16f46-e992-7000-8000-000000000003",
+        "purpose_ref": "djcpref_1cg7G1CzpQhZHD_baVw0N2oVFWMsy87L-Hoi-t-HEJs",
+        "expires_at_ms": 1792868880721,
+        "context_expires_at_ms": 1792868310723,
         "purpose_remaining_at_original_start_ms": 599998,
         "context_remaining_at_original_start_ms": 30000,
         "cache_policy": "private,no-store"
@@ -538,18 +538,18 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "operation_id": "01a16dde-5982-7000-8000-000000000003"
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "operation_id": "01a16f46-e992-7000-8000-000000000003"
       },
       "response_body": {
         "success": true,
         "contract_version": 3,
         "available": true,
-        "context_handle": "djcctx_6-bLHEcvFupKIo3fFxSbCF4BfdXsyCHgVgg6u_onONw",
-        "operation_id": "01a16dde-5982-7000-8000-000000000003",
-        "purpose_ref": "djcpref_0A2aOGEKLHmT5ev_lhOXyvV0Embkys-EPzWuZ-IFLeA",
-        "expires_at_ms": 1792845250881,
-        "context_expires_at_ms": 1792844680882,
+        "context_handle": "djcctx_Ri1ENht8PwnI5sAOnSHWbK_qDbkEXl2Bj39KxbMruFU",
+        "operation_id": "01a16f46-e992-7000-8000-000000000003",
+        "purpose_ref": "djcpref_1cg7G1CzpQhZHD_baVw0N2oVFWMsy87L-Hoi-t-HEJs",
+        "expires_at_ms": 1792868880721,
+        "context_expires_at_ms": 1792868310723,
         "purpose_remaining_at_original_start_ms": 599998,
         "context_remaining_at_original_start_ms": 30000,
         "cache_policy": "private,no-store"
@@ -566,8 +566,8 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 1,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "operation_id": "01a16dde-5982-7000-8000-000000000003",
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "operation_id": "01a16f46-e992-7000-8000-000000000003",
         "platform": "ios",
         "os_version": "26.0",
         "token_role": "widget",
@@ -604,9 +604,9 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 2,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "context_handle": "djcctx_6-bLHEcvFupKIo3fFxSbCF4BfdXsyCHgVgg6u_onONw",
-        "operation_id": "01a16dde-5982-7000-8000-000000000003",
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "context_handle": "djcctx_Ri1ENht8PwnI5sAOnSHWbK_qDbkEXl2Bj39KxbMruFU",
+        "operation_id": "01a16f46-e992-7000-8000-000000000003",
         "platform": "ios",
         "os_version": "26.0",
         "token_role": "widget",
@@ -643,9 +643,9 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "context_handle": "djcctx_6-bLHEcvFupKIo3fFxSbCF4BfdXsyCHgVgg6u_onONw",
-        "operation_id": "01a16dde-5982-7000-8000-000000000003",
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "context_handle": "djcctx_Ri1ENht8PwnI5sAOnSHWbK_qDbkEXl2Bj39KxbMruFU",
+        "operation_id": "01a16f46-e992-7000-8000-000000000003",
         "platform": "ios",
         "os_version": "26.0",
         "token_role": "widget",
@@ -671,36 +671,36 @@
         "replayed": false,
         "operation": {
           "contract_version": 1,
-          "operation_id": "01a16dde-5982-7000-8000-000000000003",
-          "operation_epoch": "6ab0ea27adc0b8cd50a0e177265f7956",
+          "operation_id": "01a16f46-e992-7000-8000-000000000003",
+          "operation_epoch": "e13511d001fb7070259e5c97372071dd",
           "phase": "confirmed",
-          "expires_at_ms": 1792844950882,
+          "expires_at_ms": 1792868580722,
           "result_available": false,
           "response_status": 200,
           "error": null
         },
         "registration": {
-          "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f",
-          "generation": "2764c3a7bff439ba47ff5f778172089b",
+          "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754",
+          "generation": "03c14c4862cc8a924b1cbcff0aacfcf1",
           "revision": 1,
           "state": "registered",
-          "expires_at_ms": 1792845250881,
+          "expires_at_ms": 1792868880721,
           "token_role": "widget",
           "platform": "ios",
           "last_error": null,
           "cache_policy": "private,no-store"
         },
         "background_read": {
-          "credential": "djcsurface_ZzPN1_sXEW6MEkA8CBk5HNGuktRs3U96TkKaeVWexKI",
-          "expires_at_ms": 1792845250881,
-          "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f",
+          "credential": "djcsurface_grHUgzd4mafy6b_KDpScKWq-8cTcVHNei-I4Rn1c6oc",
+          "expires_at_ms": 1792868880721,
+          "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754",
           "scope": "exact_original_surface_read_only",
           "cache_policy": "private,no-store"
         },
         "contract_version": 3,
-        "context_handle": "djcctx_6-bLHEcvFupKIo3fFxSbCF4BfdXsyCHgVgg6u_onONw",
-        "operation_id": "01a16dde-5982-7000-8000-000000000003",
-        "purpose_ref": "djcpref_0A2aOGEKLHmT5ev_lhOXyvV0Embkys-EPzWuZ-IFLeA"
+        "context_handle": "djcctx_Ri1ENht8PwnI5sAOnSHWbK_qDbkEXl2Bj39KxbMruFU",
+        "operation_id": "01a16f46-e992-7000-8000-000000000003",
+        "purpose_ref": "djcpref_1cg7G1CzpQhZHD_baVw0N2oVFWMsy87L-Hoi-t-HEJs"
       },
       "authentication_kind": "synthetic_paired",
       "fixture_boundary": "disposable synthetic identities/credentials; not operator/native authority"
@@ -714,9 +714,9 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "context_handle": "djcctx_6-bLHEcvFupKIo3fFxSbCF4BfdXsyCHgVgg6u_onONw",
-        "operation_id": "01a16dde-5982-7000-8000-000000000003",
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "context_handle": "djcctx_Ri1ENht8PwnI5sAOnSHWbK_qDbkEXl2Bj39KxbMruFU",
+        "operation_id": "01a16f46-e992-7000-8000-000000000003",
         "platform": "ios",
         "os_version": "26.0",
         "token_role": "widget",
@@ -742,36 +742,36 @@
         "replayed": true,
         "operation": {
           "contract_version": 1,
-          "operation_id": "01a16dde-5982-7000-8000-000000000003",
-          "operation_epoch": "6ab0ea27adc0b8cd50a0e177265f7956",
+          "operation_id": "01a16f46-e992-7000-8000-000000000003",
+          "operation_epoch": "e13511d001fb7070259e5c97372071dd",
           "phase": "confirmed",
-          "expires_at_ms": 1792844950882,
+          "expires_at_ms": 1792868580722,
           "result_available": false,
           "response_status": 200,
           "error": null
         },
         "registration": {
-          "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f",
-          "generation": "2764c3a7bff439ba47ff5f778172089b",
+          "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754",
+          "generation": "03c14c4862cc8a924b1cbcff0aacfcf1",
           "revision": 1,
           "state": "registered",
-          "expires_at_ms": 1792845250881,
+          "expires_at_ms": 1792868880721,
           "token_role": "widget",
           "platform": "ios",
           "last_error": null,
           "cache_policy": "private,no-store"
         },
         "background_read": {
-          "credential": "djcsurface_ZzPN1_sXEW6MEkA8CBk5HNGuktRs3U96TkKaeVWexKI",
-          "expires_at_ms": 1792845250881,
-          "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f",
+          "credential": "djcsurface_grHUgzd4mafy6b_KDpScKWq-8cTcVHNei-I4Rn1c6oc",
+          "expires_at_ms": 1792868880721,
+          "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754",
           "scope": "exact_original_surface_read_only",
           "cache_policy": "private,no-store"
         },
         "contract_version": 3,
-        "context_handle": "djcctx_6-bLHEcvFupKIo3fFxSbCF4BfdXsyCHgVgg6u_onONw",
-        "operation_id": "01a16dde-5982-7000-8000-000000000003",
-        "purpose_ref": "djcpref_0A2aOGEKLHmT5ev_lhOXyvV0Embkys-EPzWuZ-IFLeA"
+        "context_handle": "djcctx_Ri1ENht8PwnI5sAOnSHWbK_qDbkEXl2Bj39KxbMruFU",
+        "operation_id": "01a16f46-e992-7000-8000-000000000003",
+        "purpose_ref": "djcpref_1cg7G1CzpQhZHD_baVw0N2oVFWMsy87L-Hoi-t-HEJs"
       },
       "authentication_kind": "synthetic_paired",
       "fixture_boundary": "disposable synthetic identities/credentials; not operator/native authority"
@@ -783,7 +783,7 @@
       "no_store": true,
       "request_json": {
         "contract_version": 1,
-        "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f"
+        "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754"
       },
       "response_body": {
         "success": false,
@@ -799,17 +799,17 @@
       "no_store": true,
       "request_json": {
         "contract_version": 1,
-        "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f"
+        "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754"
       },
       "response_body": {
         "success": true,
         "contract_version": 1,
         "registration": {
-          "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f",
-          "generation": "2764c3a7bff439ba47ff5f778172089b",
+          "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754",
+          "generation": "03c14c4862cc8a924b1cbcff0aacfcf1",
           "revision": 1,
           "state": "registered",
-          "expires_at_ms": 1792845250881,
+          "expires_at_ms": 1792868880721,
           "token_role": "widget",
           "platform": "ios",
           "last_error": null,
@@ -818,13 +818,13 @@
         "passive_session": {
           "schema_version": 2,
           "surface": "widget",
-          "binding_id": "c9361f31b9215b998ae0cc6ef3adbe861120147e40dd6cdcf19be42d1f03e908",
+          "binding_id": "a12085e35b1fda49295bd88a6f63430f6c0eb8f75d76dca61405b1e1c83621e7",
           "generation": "synthetic-delegation",
-          "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
+          "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
           "delivery_sequence": 2,
-          "as_of": "2026-10-24T12:24:10.894021+00:00",
-          "observed_at": "2026-10-24T12:24:10.859496+00:00",
-          "expires_at": "2026-10-24T12:26:10.859496+00:00",
+          "as_of": "2026-10-24T18:58:00.739568+00:00",
+          "observed_at": "2026-10-24T18:58:00.690145+00:00",
+          "expires_at": "2026-10-24T19:00:00.690145+00:00",
           "state": "active",
           "playback_state": "idle",
           "cache_policy": {
@@ -842,7 +842,7 @@
           "persona": "home_dj",
           "navigation": {
             "kind": "open_session",
-            "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4"
+            "session_id": "session-a06825f198524c87add7eb7a1eee33e6"
           },
           "contribution": null,
           "now_playing": null,
@@ -859,7 +859,7 @@
             "state": "unavailable",
             "reason": "no_eligible_context"
           },
-          "revision": "bc49571cc977c50d4607e3ee2de64e70"
+          "revision": "67bcba6c5439f747e08131fd93f8009f"
         },
         "cache_policy": "private,no-store"
       },
@@ -875,19 +875,19 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "operation_id": "01a16dde-5981-7000-8000-000000000014"
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "operation_id": "01a16f46-e991-7000-8000-000000000014"
       },
       "response_body": {
         "success": true,
         "contract_version": 3,
         "available": true,
-        "context_handle": "djcctx_9YHQ2BZw0bAfQ9vzO_ZfJXAooFKB7xLNoR-qZDHHLtQ",
-        "operation_id": "01a16dde-5981-7000-8000-000000000014",
-        "purpose_ref": "djcpref_0A2aOGEKLHmT5ev_lhOXyvV0Embkys-EPzWuZ-IFLeA",
-        "expires_at_ms": 1792845250881,
-        "context_expires_at_ms": 1792844680985,
-        "purpose_remaining_at_original_start_ms": 599896,
+        "context_handle": "djcctx_y9YXkklX4-5pIPUAYjg1_4RqmgtPhTeYkwkosfOhZbU",
+        "operation_id": "01a16f46-e991-7000-8000-000000000014",
+        "purpose_ref": "djcpref_1cg7G1CzpQhZHD_baVw0N2oVFWMsy87L-Hoi-t-HEJs",
+        "expires_at_ms": 1792868880721,
+        "context_expires_at_ms": 1792868310916,
+        "purpose_remaining_at_original_start_ms": 599805,
         "context_remaining_at_original_start_ms": 30000,
         "cache_policy": "private,no-store"
       },
@@ -903,9 +903,9 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "context_handle": "djcctx_9YHQ2BZw0bAfQ9vzO_ZfJXAooFKB7xLNoR-qZDHHLtQ",
-        "operation_id": "01a16dde-5981-7000-8000-000000000014",
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "context_handle": "djcctx_y9YXkklX4-5pIPUAYjg1_4RqmgtPhTeYkwkosfOhZbU",
+        "operation_id": "01a16f46-e991-7000-8000-000000000014",
         "platform": "ios",
         "os_version": "26.0",
         "token_role": "widget",
@@ -918,8 +918,8 @@
         "apns_token": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "apns_environment": "sandbox",
         "expected_registration": {
-          "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f",
-          "generation": "2764c3a7bff439ba47ff5f778172089b",
+          "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754",
+          "generation": "03c14c4862cc8a924b1cbcff0aacfcf1",
           "revision": 1
         },
         "consent": {
@@ -935,36 +935,36 @@
         "replayed": false,
         "operation": {
           "contract_version": 1,
-          "operation_id": "01a16dde-5981-7000-8000-000000000014",
-          "operation_epoch": "6ab0ea27adc0b8cd50a0e177265f7956",
+          "operation_id": "01a16f46-e991-7000-8000-000000000014",
+          "operation_epoch": "e13511d001fb7070259e5c97372071dd",
           "phase": "confirmed",
-          "expires_at_ms": 1792844950881,
+          "expires_at_ms": 1792868580721,
           "result_available": false,
           "response_status": 200,
           "error": null
         },
         "registration": {
-          "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f",
-          "generation": "2764c3a7bff439ba47ff5f778172089b",
+          "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754",
+          "generation": "03c14c4862cc8a924b1cbcff0aacfcf1",
           "revision": 2,
           "state": "registered",
-          "expires_at_ms": 1792845250881,
+          "expires_at_ms": 1792868880721,
           "token_role": "widget",
           "platform": "ios",
           "last_error": null,
           "cache_policy": "private,no-store"
         },
         "background_read": {
-          "credential": "djcsurface_x96QT7BEG3vfLTaQGu7lRmEQAKboLaNANmZazHUBAXo",
-          "expires_at_ms": 1792845250881,
-          "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f",
+          "credential": "djcsurface_a2i6uXSiQEc4D7qBbp6HX7UXYrYjq7p09pT3bVhAAVY",
+          "expires_at_ms": 1792868880721,
+          "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754",
           "scope": "exact_original_surface_read_only",
           "cache_policy": "private,no-store"
         },
         "contract_version": 3,
-        "context_handle": "djcctx_9YHQ2BZw0bAfQ9vzO_ZfJXAooFKB7xLNoR-qZDHHLtQ",
-        "operation_id": "01a16dde-5981-7000-8000-000000000014",
-        "purpose_ref": "djcpref_0A2aOGEKLHmT5ev_lhOXyvV0Embkys-EPzWuZ-IFLeA"
+        "context_handle": "djcctx_y9YXkklX4-5pIPUAYjg1_4RqmgtPhTeYkwkosfOhZbU",
+        "operation_id": "01a16f46-e991-7000-8000-000000000014",
+        "purpose_ref": "djcpref_1cg7G1CzpQhZHD_baVw0N2oVFWMsy87L-Hoi-t-HEJs"
       },
       "authentication_kind": "synthetic_paired",
       "fixture_boundary": "disposable synthetic identities/credentials; not operator/native authority"
@@ -976,7 +976,7 @@
       "no_store": true,
       "request_json": {
         "contract_version": 1,
-        "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f"
+        "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754"
       },
       "response_body": {
         "success": false,
@@ -992,17 +992,17 @@
       "no_store": true,
       "request_json": {
         "contract_version": 1,
-        "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f"
+        "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754"
       },
       "response_body": {
         "success": true,
         "contract_version": 1,
         "registration": {
-          "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f",
-          "generation": "2764c3a7bff439ba47ff5f778172089b",
+          "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754",
+          "generation": "03c14c4862cc8a924b1cbcff0aacfcf1",
           "revision": 2,
           "state": "registered",
-          "expires_at_ms": 1792845250881,
+          "expires_at_ms": 1792868880721,
           "token_role": "widget",
           "platform": "ios",
           "last_error": null,
@@ -1011,13 +1011,13 @@
         "passive_session": {
           "schema_version": 2,
           "surface": "widget",
-          "binding_id": "c9361f31b9215b998ae0cc6ef3adbe861120147e40dd6cdcf19be42d1f03e908",
+          "binding_id": "a12085e35b1fda49295bd88a6f63430f6c0eb8f75d76dca61405b1e1c83621e7",
           "generation": "synthetic-delegation",
-          "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
+          "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
           "delivery_sequence": 109,
-          "as_of": "2026-10-24T12:24:10.991727+00:00",
-          "observed_at": "2026-10-24T12:24:10.983042+00:00",
-          "expires_at": "2026-10-24T12:26:10.983042+00:00",
+          "as_of": "2026-10-24T18:58:00.929651+00:00",
+          "observed_at": "2026-10-24T18:58:00.911952+00:00",
+          "expires_at": "2026-10-24T19:00:00.911952+00:00",
           "state": "active",
           "playback_state": "playing",
           "cache_policy": {
@@ -1035,7 +1035,7 @@
           "persona": "home_dj",
           "navigation": {
             "kind": "open_session",
-            "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4"
+            "session_id": "session-a06825f198524c87add7eb7a1eee33e6"
           },
           "contribution": null,
           "now_playing": {
@@ -1044,8 +1044,8 @@
             "track": "Synthetic recording",
             "artist": "Synthetic artist",
             "album": "Synthetic edition",
-            "observed_at": "2026-10-24T12:24:10.982505+00:00",
-            "expires_at": "2026-10-24T12:26:10.982505+00:00",
+            "observed_at": "2026-10-24T18:58:00.910431+00:00",
+            "expires_at": "2026-10-24T19:00:00.910431+00:00",
             "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
             "attribution": {
               "provider": "Spotify",
@@ -1067,7 +1067,7 @@
             "state": "unavailable",
             "reason": "not_prepared"
           },
-          "revision": "bc1499037baba480f5c8dbe1b930b9a8"
+          "revision": "ff4ad081e225c8a6ab8d31f4d1eb880e"
         },
         "cache_policy": "private,no-store"
       },
@@ -1083,18 +1083,18 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 1,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f"
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754"
       },
       "response_body": {
         "success": true,
         "contract_version": 1,
         "registration": {
-          "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f",
-          "generation": "2764c3a7bff439ba47ff5f778172089b",
+          "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754",
+          "generation": "03c14c4862cc8a924b1cbcff0aacfcf1",
           "revision": 2,
           "state": "registered",
-          "expires_at_ms": 1792845250881,
+          "expires_at_ms": 1792868880721,
           "token_role": "widget",
           "platform": "ios",
           "last_error": null,
@@ -1113,19 +1113,19 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "operation_id": "01a16dde-5981-7000-8000-000000000015"
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "operation_id": "01a16f46-e991-7000-8000-000000000015"
       },
       "response_body": {
         "success": true,
         "contract_version": 3,
         "available": true,
-        "context_handle": "djcctx_y4zUykfNPj6lcu1BDqwG8P5T236Fsb7FrdTFks1DPBI",
-        "operation_id": "01a16dde-5981-7000-8000-000000000015",
-        "purpose_ref": "djcpref_0A2aOGEKLHmT5ev_lhOXyvV0Embkys-EPzWuZ-IFLeA",
-        "expires_at_ms": 1792845250881,
-        "context_expires_at_ms": 1792844680993,
-        "purpose_remaining_at_original_start_ms": 599887,
+        "context_handle": "djcctx_k-d_hcD5DMxHEGMZ3PqToTRSVNtaAxNqzRk8WeHq8Mc",
+        "operation_id": "01a16f46-e991-7000-8000-000000000015",
+        "purpose_ref": "djcpref_1cg7G1CzpQhZHD_baVw0N2oVFWMsy87L-Hoi-t-HEJs",
+        "expires_at_ms": 1792868880721,
+        "context_expires_at_ms": 1792868310933,
+        "purpose_remaining_at_original_start_ms": 599788,
         "context_remaining_at_original_start_ms": 30000,
         "cache_policy": "private,no-store"
       },
@@ -1141,9 +1141,9 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "context_handle": "djcctx_y4zUykfNPj6lcu1BDqwG8P5T236Fsb7FrdTFks1DPBI",
-        "operation_id": "01a16dde-5981-7000-8000-000000000015",
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "context_handle": "djcctx_k-d_hcD5DMxHEGMZ3PqToTRSVNtaAxNqzRk8WeHq8Mc",
+        "operation_id": "01a16f46-e991-7000-8000-000000000015",
         "platform": "ios",
         "os_version": "26.0",
         "token_role": "widget",
@@ -1169,36 +1169,36 @@
         "replayed": false,
         "operation": {
           "contract_version": 1,
-          "operation_id": "01a16dde-5981-7000-8000-000000000015",
-          "operation_epoch": "6ab0ea27adc0b8cd50a0e177265f7956",
+          "operation_id": "01a16f46-e991-7000-8000-000000000015",
+          "operation_epoch": "e13511d001fb7070259e5c97372071dd",
           "phase": "confirmed",
-          "expires_at_ms": 1792844950881,
+          "expires_at_ms": 1792868580721,
           "result_available": false,
           "response_status": 200,
           "error": null
         },
         "registration": {
-          "registration_id": "surface-4fc3ba090edbe31627f873f8efeb02b2",
-          "generation": "c9d231643bc70358f56f1ea2975e2ae4",
+          "registration_id": "surface-e2a00d1e4eeddcac8efdbb0fe0c5a508",
+          "generation": "79a81b8c301aa357d56ca23fd9606bde",
           "revision": 1,
           "state": "registered",
-          "expires_at_ms": 1792845250881,
+          "expires_at_ms": 1792868880721,
           "token_role": "widget",
           "platform": "ios",
           "last_error": null,
           "cache_policy": "private,no-store"
         },
         "background_read": {
-          "credential": "djcsurface_eBqGAiM0kJjAEkJoUu2xQDS70OJHKfkA5LGpjlmq7YU",
-          "expires_at_ms": 1792845250881,
-          "registration_id": "surface-4fc3ba090edbe31627f873f8efeb02b2",
+          "credential": "djcsurface_0ldrXVdbJUrfqcRXbqoM70EDOOL2jNcMxEUxQTB47vQ",
+          "expires_at_ms": 1792868880721,
+          "registration_id": "surface-e2a00d1e4eeddcac8efdbb0fe0c5a508",
           "scope": "exact_original_surface_read_only",
           "cache_policy": "private,no-store"
         },
         "contract_version": 3,
-        "context_handle": "djcctx_y4zUykfNPj6lcu1BDqwG8P5T236Fsb7FrdTFks1DPBI",
-        "operation_id": "01a16dde-5981-7000-8000-000000000015",
-        "purpose_ref": "djcpref_0A2aOGEKLHmT5ev_lhOXyvV0Embkys-EPzWuZ-IFLeA"
+        "context_handle": "djcctx_k-d_hcD5DMxHEGMZ3PqToTRSVNtaAxNqzRk8WeHq8Mc",
+        "operation_id": "01a16f46-e991-7000-8000-000000000015",
+        "purpose_ref": "djcpref_1cg7G1CzpQhZHD_baVw0N2oVFWMsy87L-Hoi-t-HEJs"
       },
       "authentication_kind": "synthetic_paired",
       "fixture_boundary": "disposable synthetic identities/credentials; not operator/native authority"
@@ -1212,11 +1212,11 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 1,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "operation_id": "01a16dde-5981-7000-8000-000000000016",
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "operation_id": "01a16f46-e991-7000-8000-000000000016",
         "expected_registration": {
-          "registration_id": "surface-4fc3ba090edbe31627f873f8efeb02b2",
-          "generation": "c9d231643bc70358f56f1ea2975e2ae4",
+          "registration_id": "surface-e2a00d1e4eeddcac8efdbb0fe0c5a508",
+          "generation": "79a81b8c301aa357d56ca23fd9606bde",
           "revision": 1
         }
       },
@@ -1225,20 +1225,20 @@
         "replayed": false,
         "operation": {
           "contract_version": 1,
-          "operation_id": "01a16dde-5981-7000-8000-000000000016",
-          "operation_epoch": "6ab0ea27adc0b8cd50a0e177265f7956",
+          "operation_id": "01a16f46-e991-7000-8000-000000000016",
+          "operation_epoch": "e13511d001fb7070259e5c97372071dd",
           "phase": "confirmed",
-          "expires_at_ms": 1792844950881,
+          "expires_at_ms": 1792868580721,
           "result_available": false,
           "response_status": 200,
           "error": null
         },
         "registration": {
-          "registration_id": "surface-4fc3ba090edbe31627f873f8efeb02b2",
-          "generation": "c9d231643bc70358f56f1ea2975e2ae4",
+          "registration_id": "surface-e2a00d1e4eeddcac8efdbb0fe0c5a508",
+          "generation": "79a81b8c301aa357d56ca23fd9606bde",
           "revision": 1,
           "state": "revoked",
-          "expires_at_ms": 1792845250881,
+          "expires_at_ms": 1792868880721,
           "token_role": "widget",
           "platform": "ios",
           "last_error": null,
@@ -1255,7 +1255,7 @@
       "no_store": true,
       "request_json": {
         "contract_version": 1,
-        "registration_id": "surface-4fc3ba090edbe31627f873f8efeb02b2"
+        "registration_id": "surface-e2a00d1e4eeddcac8efdbb0fe0c5a508"
       },
       "response_body": {
         "success": false,
@@ -1273,19 +1273,19 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "operation_id": "01a16dde-5981-7000-8000-000000000017"
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "operation_id": "01a16f46-e991-7000-8000-000000000017"
       },
       "response_body": {
         "success": true,
         "contract_version": 3,
         "available": true,
-        "context_handle": "djcctx_X-1h28uAdFz_N2msrDpZUx5qBs2OXAVAwAF1ottLyl0",
-        "operation_id": "01a16dde-5981-7000-8000-000000000017",
-        "purpose_ref": "djcpref_0A2aOGEKLHmT5ev_lhOXyvV0Embkys-EPzWuZ-IFLeA",
-        "expires_at_ms": 1792845250881,
-        "context_expires_at_ms": 1792844681003,
-        "purpose_remaining_at_original_start_ms": 599877,
+        "context_handle": "djcctx_c6keCFHvgofQV-s-BqGCzhw3SFIDTmDJqGu4vWqncvg",
+        "operation_id": "01a16f46-e991-7000-8000-000000000017",
+        "purpose_ref": "djcpref_1cg7G1CzpQhZHD_baVw0N2oVFWMsy87L-Hoi-t-HEJs",
+        "expires_at_ms": 1792868880721,
+        "context_expires_at_ms": 1792868310953,
+        "purpose_remaining_at_original_start_ms": 599768,
         "context_remaining_at_original_start_ms": 30000,
         "cache_policy": "private,no-store"
       },
@@ -1301,9 +1301,9 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "context_handle": "djcctx_X-1h28uAdFz_N2msrDpZUx5qBs2OXAVAwAF1ottLyl0",
-        "operation_id": "01a16dde-5981-7000-8000-000000000017",
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "context_handle": "djcctx_c6keCFHvgofQV-s-BqGCzhw3SFIDTmDJqGu4vWqncvg",
+        "operation_id": "01a16f46-e991-7000-8000-000000000017",
         "platform": "ios",
         "os_version": "26.0",
         "token_role": "widget",
@@ -1329,29 +1329,29 @@
         "replayed": false,
         "operation": {
           "contract_version": 1,
-          "operation_id": "01a16dde-5981-7000-8000-000000000017",
-          "operation_epoch": "6ab0ea27adc0b8cd50a0e177265f7956",
+          "operation_id": "01a16f46-e991-7000-8000-000000000017",
+          "operation_epoch": "e13511d001fb7070259e5c97372071dd",
           "phase": "unknown",
-          "expires_at_ms": 1792844950881,
+          "expires_at_ms": 1792868580721,
           "result_available": false,
           "response_status": null,
           "error": "surface_relay_outcome_unknown"
         },
         "registration": {
-          "registration_id": "surface-3e9dd1976f3dbb98d11628c55252e892",
-          "generation": "9539092526f6ce18cfaeebce5d17577e",
+          "registration_id": "surface-701b93737816e5fc2b97caa176e01791",
+          "generation": "359320e4932255d855e107b0333b4bd1",
           "revision": 1,
           "state": "unknown",
-          "expires_at_ms": 1792845250881,
+          "expires_at_ms": 1792868880721,
           "token_role": "widget",
           "platform": "ios",
           "last_error": "surface_relay_outcome_unknown",
           "cache_policy": "private,no-store"
         },
         "contract_version": 3,
-        "context_handle": "djcctx_X-1h28uAdFz_N2msrDpZUx5qBs2OXAVAwAF1ottLyl0",
-        "operation_id": "01a16dde-5981-7000-8000-000000000017",
-        "purpose_ref": "djcpref_0A2aOGEKLHmT5ev_lhOXyvV0Embkys-EPzWuZ-IFLeA"
+        "context_handle": "djcctx_c6keCFHvgofQV-s-BqGCzhw3SFIDTmDJqGu4vWqncvg",
+        "operation_id": "01a16f46-e991-7000-8000-000000000017",
+        "purpose_ref": "djcpref_1cg7G1CzpQhZHD_baVw0N2oVFWMsy87L-Hoi-t-HEJs"
       },
       "authentication_kind": "synthetic_paired",
       "fixture_boundary": "disposable synthetic identities/credentials; not operator/native authority"
@@ -1365,9 +1365,9 @@
         "device_id": "djconnect-ios-ABCDEF123456",
         "client_type": "ios",
         "contract_version": 3,
-        "session_id": "session-f69b5ef2fa6d4c23890efd437491c5c4",
-        "context_handle": "djcctx_X-1h28uAdFz_N2msrDpZUx5qBs2OXAVAwAF1ottLyl0",
-        "operation_id": "01a16dde-5981-7000-8000-000000000017",
+        "session_id": "session-a06825f198524c87add7eb7a1eee33e6",
+        "context_handle": "djcctx_c6keCFHvgofQV-s-BqGCzhw3SFIDTmDJqGu4vWqncvg",
+        "operation_id": "01a16f46-e991-7000-8000-000000000017",
         "platform": "ios",
         "os_version": "26.0",
         "token_role": "widget",
@@ -1393,29 +1393,29 @@
         "replayed": true,
         "operation": {
           "contract_version": 1,
-          "operation_id": "01a16dde-5981-7000-8000-000000000017",
-          "operation_epoch": "6ab0ea27adc0b8cd50a0e177265f7956",
+          "operation_id": "01a16f46-e991-7000-8000-000000000017",
+          "operation_epoch": "e13511d001fb7070259e5c97372071dd",
           "phase": "unknown",
-          "expires_at_ms": 1792844950881,
+          "expires_at_ms": 1792868580721,
           "result_available": false,
           "response_status": null,
           "error": "surface_relay_outcome_unknown"
         },
         "registration": {
-          "registration_id": "surface-3e9dd1976f3dbb98d11628c55252e892",
-          "generation": "9539092526f6ce18cfaeebce5d17577e",
+          "registration_id": "surface-701b93737816e5fc2b97caa176e01791",
+          "generation": "359320e4932255d855e107b0333b4bd1",
           "revision": 1,
           "state": "unknown",
-          "expires_at_ms": 1792845250881,
+          "expires_at_ms": 1792868880721,
           "token_role": "widget",
           "platform": "ios",
           "last_error": "surface_relay_outcome_unknown",
           "cache_policy": "private,no-store"
         },
         "contract_version": 3,
-        "context_handle": "djcctx_X-1h28uAdFz_N2msrDpZUx5qBs2OXAVAwAF1ottLyl0",
-        "operation_id": "01a16dde-5981-7000-8000-000000000017",
-        "purpose_ref": "djcpref_0A2aOGEKLHmT5ev_lhOXyvV0Embkys-EPzWuZ-IFLeA"
+        "context_handle": "djcctx_c6keCFHvgofQV-s-BqGCzhw3SFIDTmDJqGu4vWqncvg",
+        "operation_id": "01a16f46-e991-7000-8000-000000000017",
+        "purpose_ref": "djcpref_1cg7G1CzpQhZHD_baVw0N2oVFWMsy87L-Hoi-t-HEJs"
       },
       "authentication_kind": "synthetic_paired",
       "fixture_boundary": "disposable synthetic identities/credentials; not operator/native authority"
@@ -1427,7 +1427,7 @@
       "no_store": true,
       "request_json": {
         "contract_version": 1,
-        "registration_id": "surface-d1f80e5c602d6e643ddf33b229997b0f"
+        "registration_id": "surface-90dec81a70bc4ba816dc613a8f0ce754"
       },
       "response_body": {
         "success": false,

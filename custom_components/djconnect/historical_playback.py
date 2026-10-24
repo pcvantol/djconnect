@@ -1,4 +1,4 @@
-"""Explicit retained-recording playback through the existing Ask DJ effect owner."""
+"""Retained-recording identity and closed queue-preservation playback contract."""
 
 from __future__ import annotations
 
@@ -92,32 +92,67 @@ def recording(row):
         return None
 
 
+UNAVAILABLE = "historical_queue_preservation_unavailable"
+UNAVAILABLE_MESSAGES = {
+    "en": "Playing from history is unavailable because keeping your queue unchanged cannot be guaranteed.",
+    "nl": "Afspelen vanuit historie is niet beschikbaar omdat behoud van je wachtrij niet kan worden gegarandeerd.",
+    "de": "Die Wiedergabe aus dem Verlauf ist nicht verfügbar, da der Erhalt deiner Warteschlange nicht garantiert werden kann.",
+    "fr": "La lecture depuis l’historique est indisponible, car la conservation de votre file d’attente ne peut être garantie.",
+    "es": "La reproducción desde el historial no está disponible porque no se puede garantizar que se conserve tu cola.",
+}
+
+
+def unavailable_message(locale):
+    language = locale.lower().split("-", 1)[0] if isinstance(locale, str) else "en"
+    return UNAVAILABLE_MESSAGES.get(language, UNAVAILABLE_MESSAGES["en"])
+
+
 def offer(row, entry, *, locale=None):
-    if not offers_enabled.get() or recording(row) is None:
-        return entry
-    locale = locale if locale is not None else offer_locale.get()
-    language = locale.split("-", 1)[0] if isinstance(locale, str) else "en"
-    value = {"schema_version": 1, "session_id": row["session_id"], "entry_id": row["entry_id"]}
-    return {
-        **entry,
-        "playback_actions": [
-            {
-                "kind": "historical_track",
-                "command": COMMAND,
-                "label": LABELS.get(language, LABELS["en"]),
-                "required_capability": CAPABILITY,
-                "value": value,
-            }
-        ],
-    }
+    # V1 proved exact recording identity, never preservation of every remaining
+    # queue occurrence/order. No qualified provider operation exists. Neither a
+    # caller version nor the legacy ContextVar can grant this capability.
+    return entry
+
+
+async def validate_saved_output_replay(query, owner, saved, payload):
+    """Close ambiguous V1 historical output receipts after their RAM offer is lost.
+
+    Legacy receipts did not persist the historical admission marker. Reopen
+    explicit retained playback dependencies; never manufacture positive provider
+    provenance from their absence. Ordinary output receipts and implicit current
+    playback evidence retain their existing duplicate semantics.
+    """
+    from .ask_dj.dialogue import DialogueError
+
+    command = (payload.get("_command_action") or (None,))[0]
+    choice = payload.get("choice_action")
+    if command not in {"ask_dj_play_recommendation_on_output", "ask_dj_play_request_on_output"} and not (
+        isinstance(choice, dict) and choice.get("operation") == "play"
+    ):
+        return
+    turn = saved["assistant_message"].get("session_turn", {})
+    explicit = list(turn.get("dependency_entries", []))
+    selected = turn.get("context", {}).get("selected_entry")
+    if isinstance(selected, dict):
+        explicit.append(selected)
+    implicit = turn.get("implicit_playback_entry")
+    for ref in explicit:
+        if not isinstance(ref, dict) or not ref.get("session_id") or not ref.get("entry_id"):
+            continue
+        target = {k: ref[k] for k in ("session_id", "entry_id")}
+        if isinstance(implicit, dict) and all(implicit.get(k) == target[k] for k in target) and ref != selected:
+            continue
+        await query.async_open_source_entry(owner, target["session_id"], target["entry_id"])
+        row = await query._repository.async_entry_record(owner, target["session_id"], target["entry_id"])
+        if row is not None and row["kind"] == "playback_observed":
+            raise DialogueError(UNAVAILABLE, 409)
 
 
 async def execute(hass, runtime, payload, value):
-    """A manual tap admits one exact original recording, with current source fences."""
-    from .ask_dj.dialogue import current_turn, DialogueError, EffectGrant
+    """Validate the original readable item, then deny before any effect admission."""
+    from .ask_dj.dialogue import current_turn, DialogueError
     from .session_conversation import query_service
     from .forecast_imagery import artist_authority
-    from .http import _handle_ask_dj_play_recommendation
 
     turn = current_turn.get()
     if turn is None or not turn.scope.startswith("profile:"):
@@ -153,18 +188,7 @@ async def execute(hass, runtime, payload, value):
             raise DialogueError("historical_playback_withdrawn", 410)
 
     validate_original()
-    turn.historical_playback_admission = {
-        "validate": validate_original,
-        "reference": dict(reference),
-    }
-    turn.effect_validators.append(validate_original)
-    turn.delivery_validators.append(validate_original)
-    turn.effect_grants = (
-        EffectGrant(frozenset({"play"}), "explicit_historical_recording", media=(track["uri"],)),
-    )
-    action = {"kind": "track", **track}
-    result = await _handle_ask_dj_play_recommendation(hass, runtime, action, payload)
-    await turn.guard()
-    if result.get("success") is not False:
-        result["historical_playback_reference"] = reference
-    return result
+    # Ordinary play replaces provider context and is not an atomic queue insert.
+    # Preserve the original read/owner/source fences, but never issue a play grant,
+    # request output inventory, transfer output, or delegate to ordinary playback.
+    raise DialogueError(UNAVAILABLE, 409)
