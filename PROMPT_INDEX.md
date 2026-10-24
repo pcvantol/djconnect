@@ -1,3 +1,11 @@
+# Current closed API maintenance binding — 24 October 2026
+
+API source147/69ed and separate Final149/94a2 are originally qualified; all eight own-main workflows each actually succeeded. The exact latest Final94 artifact12554174111/run40079531338, TAR628f5d094bea6d6286f2c38d0db218bdefb50c246cb1da19d77f6d8225bf2d61, is selected by the new central manifest. See docs/verification/API_CLOSED_DEPLOYMENT_BINDING_20261024.md for original receipts and directly verified human production scope. This Core manifest candidate still requires independent review, normal protected source plus separate Final and original qualification; deployment/smoke are NOT yet delivered. Old central manifestc353 and all prior document bodies remain byte-preserved.
+
+Production remainsc048/deployment84fdd4eb/version6d6531ba100percent; all ten migrations applied/pendingempty, configuration/migration bytes unchanged, D1read10/write0. Preserve current data/journals/bindings/secrets; no old3458 rollback or pending9/10 assumptions. All264HA product and execution/release inputs unchanged; no HA restart. Issuer/public/fixedQA remainclosed/dispatchfalse/profilesempty/all22gatesOPEN; no key/enrollment/Activity/native/device/paid authority. Help catalogue stillfalse70pending; new paid test and onboarding4.5.5 migration questions pending. All24requests/ninegates/VibeCast/PiNOT_RECOVERED retained. This24October work resumes the sole writer without a new timer; historical deadlines below keep their own closed scopes.
+
+---
+
 # Cumulative Help source finalization - 24 October 2026
 
 This separate documentary Final consolidates two normally protected, independently reviewed Help source increments. Source PR1313 merged as `a591d0848ba8967f38ccd018279a7d06c9bda8d5`, reviewed `3456c4a89a10cf0fc89d361976138bff8ae91a84`; original own-main `40008834199` succeeded and reconciliation `40009500783` qualified it. Original formal receipt 3526 bytes SHA256 `29704e90f138268f65cd3a4f64e7a87a3323ba85dceb22e70fabfaff38ce4a3f`; durable receipt 1812 bytes SHA256 `8f44e862aac3a30180341c34d1a889490026a1c9a4c1daa4b709a39f0f6bbbe9`.
