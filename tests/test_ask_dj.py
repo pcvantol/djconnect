@@ -349,7 +349,7 @@ class AskDjTest(unittest.TestCase):
             "spotify:track:live",
             "spotify:track:cover",
         ])
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertIn("Nothing else matters", result["text"])
         self.assertNotIn("spotify:track:partial", str(result["playback_actions"]))
         self.assertEqual([call[0] for call in calls], ["search_tracks"])
@@ -407,7 +407,7 @@ class AskDjTest(unittest.TestCase):
                     )
                     self.assertTrue(result["success"])
                     self.assertEqual(result["intent"]["intent"], "track_versions_search")
-                    self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
+                    self.assertEqual(result["playback_actions"][0]["label"], "Afspelen")
                     self.assertEqual(next(c[0] for c in calls[before:] if c[0] != "status"), "search_tracks")
                     self.assertEqual(next(c[1] for c in calls[before:] if c[0] == "search_tracks")["query"], expected_query)
                     self.assertEqual(next(c[1] for c in calls[before:] if c[0] == "search_tracks")["limit"], 10)
@@ -864,15 +864,15 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("Volgens Spotify heeft Radiohead", result["dj_text"])
         self.assertIn("- OK Computer (1997)", result["dj_text"])
         self.assertIn("\n\n- Pablo Honey (1993)", result["dj_text"])
-        self.assertIn("Tik op Play Now om een album direct te starten.", result["dj_text"])
+        self.assertIn("Tik op Afspelen om een album direct te starten.", result["dj_text"])
         self.assertEqual(result["sources"][0]["source"], "spotify_artist_albums")
         self.assertTrue(result["images"][0]["url"].startswith(self.const.API_IMAGE_PROXY_BASE))
         self.assertEqual(result["images"][0]["title"], "Pablo Honey")
         self.assertEqual(result["playback_actions"][0]["kind"], "album")
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:album:pablo")
         self.assertEqual(result["playback_actions"][0]["context_uri"], "spotify:album:pablo")
-        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
-        self.assertEqual(result["playback_actions"][0]["button_label"], "Play Now")
+        self.assertEqual(result["playback_actions"][0]["label"], "Afspelen")
+        self.assertEqual(result["playback_actions"][0]["button_label"], "Afspelen")
         self.assertTrue(result["playback_actions"][0]["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE))
 
     def test_released_question_without_album_word_returns_album_overview(self) -> None:
@@ -929,8 +929,8 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("Volgens Spotify heeft The Cranberries", result["dj_text"])
         self.assertIn("- No Need To Argue (1994)", result["dj_text"])
         self.assertEqual([action["kind"] for action in result["playback_actions"]], ["album", "album"])
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
-        self.assertTrue(all(action["button_label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
+        self.assertTrue(all(action["button_label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertTrue(result["playback_actions"][0]["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE))
 
     def test_album_discography_geef_me_variant_returns_album_play_actions(self) -> None:
@@ -1359,7 +1359,7 @@ class AskDjTest(unittest.TestCase):
 
         self.assertEqual([call[0] for call in calls], ["status", "search_tracks"])
         self.assertIn("Ik vond nog meer nummers van above and beyond", result["text"])
-        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
+        self.assertEqual(result["playback_actions"][0]["label"], "Afspelen")
 
     def test_concert_agenda_question_returns_formatted_events_and_links(self) -> None:
         runtime = make_runtime()
@@ -1916,7 +1916,7 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("3. Time of the Season - The Zombies", result["dj_text"])
         self.assertEqual(len(result["playback_actions"]), 3)
         self.assertTrue(all(action["kind"] == "track" for action in result["playback_actions"]))
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertEqual(result["playback_actions"][0]["title"], "Zombie")
         self.assertEqual(result["playback_actions"][0]["subtitle"], "The Cranberries")
         self.assertEqual(result["items"], result["playback_actions"])
@@ -2307,8 +2307,8 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(first["assistant_message"]["images"], first["images"])
         self.assertEqual(first["playback_actions"][0]["kind"], "track")
         self.assertEqual(first["playback_actions"][0]["action_style"], "play_now")
-        self.assertEqual(first["playback_actions"][0]["label"], "Play Now")
-        self.assertEqual(first["playback_actions"][0]["button_label"], "Play Now")
+        self.assertEqual(first["playback_actions"][0]["label"], "Afspelen")
+        self.assertEqual(first["playback_actions"][0]["button_label"], "Afspelen")
         self.assertEqual(first["playback_actions"][1]["kind"], "control")
         self.assertEqual(first["playback_actions"][1]["command"], "ask_dj_message")
         self.assertEqual(first["playback_actions"][1]["value"]["text"], "Meer van Pearl Jam")
@@ -2693,7 +2693,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual([action["kind"] for action in result["playback_actions"]], ["track", "playlist", "album"])
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:dino")
         self.assertEqual(result["playback_actions"][1]["subtitle"], "Spotify")
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertIn("dino", result["dj_text"])
         self.assertIn("spotify_search", {source["source"] for source in result["sources"]})
 
@@ -2885,7 +2885,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["intent"]["intent"], "play_music")
         self.assertEqual([call[1]["type"] for call in calls[1:]], ["track", "playlist", "album"])
         self.assertEqual([action["kind"] for action in result["playback_actions"]], ["track", "playlist", "album"])
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertEqual(result["images"], [])
         self.assertEqual(result["assistant_message"]["images"], [])
         self.assertEqual(result["items"], result["playback_actions"])
@@ -2955,7 +2955,7 @@ class AskDjTest(unittest.TestCase):
             [action["kind"] for action in result["playback_actions"][:4]],
             ["album", "playlist", "album", "playlist"],
         )
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertEqual(result["items"], [])
         self.assertEqual(result["images"], [])
         self.assertIn("albums en playlists voor hardcore", result["dj_text"])
@@ -3033,7 +3033,7 @@ class AskDjTest(unittest.TestCase):
             [action["kind"] for action in result["playback_actions"][:4]],
             ["album", "playlist", "album", "playlist"],
         )
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertEqual(result["items"], [])
         self.assertEqual(result["images"], [])
         self.assertIn("albums en playlists voor scala", result["dj_text"])
@@ -3132,7 +3132,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["assistant_message"]["images"], [])
         self.assertEqual(len(result["playback_actions"]), 5)
         self.assertTrue(all(action["kind"] == "track" for action in result["playback_actions"]))
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertTrue(all(action["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE) for action in result["playback_actions"]))
         self.assertEqual(result["items"], result["playback_actions"])
 
@@ -3216,8 +3216,8 @@ class AskDjTest(unittest.TestCase):
             [action["kind"] for action in result["playback_actions"]],
             ["album", "album", "album", "album", "playlist", "playlist", "playlist", "track", "track", "track"],
         )
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
-        self.assertTrue(all(action["button_label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
+        self.assertTrue(all(action["button_label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertEqual(result["items"], result["playback_actions"])
         self.assertEqual(result["images"], [])
 
@@ -3475,8 +3475,8 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["action"], "none")
         self.assertIn("In And Out Of Love", result["dj_text"])
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:track:in-out-love")
-        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
-        self.assertEqual(result["playback_actions"][0]["button_label"], "Play Now")
+        self.assertEqual(result["playback_actions"][0]["label"], "Afspelen")
+        self.assertEqual(result["playback_actions"][0]["button_label"], "Afspelen")
         self.assertEqual(result["playback_actions"][1]["value"]["text"], "Meer van Armin van Buuren")
         self.assertEqual(result["playback_actions"][1]["label"], "Meer van deze artiest")
         self.assertEqual(result["playback_actions"][2]["command"], "set_current_track_favorite")
@@ -5798,7 +5798,7 @@ class AskDjTest(unittest.TestCase):
         mix_actions = [action for action in result["playback_actions"] if action["kind"] == "track_mix"]
         self.assertEqual(len(track_actions), 10)
         self.assertEqual(track_actions[0]["uri"], "spotify:track:mood-1")
-        self.assertEqual(track_actions[0]["label"], "Play Now")
+        self.assertEqual(track_actions[0]["label"], "Afspelen")
         self.assertEqual(len(mix_actions), 1)
         self.assertEqual(mix_actions[0]["label"], "Zet allemaal in wachtrij & speel af")
         self.assertEqual(len(mix_actions[0]["uris"]), 12)
@@ -6070,8 +6070,8 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:playlist:above-1")
         self.assertEqual(result["playback_actions"][0]["context_uri"], "spotify:playlist:above-1")
         self.assertEqual(result["playback_actions"][0]["kind"], "playlist")
-        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
-        self.assertEqual(result["playback_actions"][0]["button_label"], "Play Now")
+        self.assertEqual(result["playback_actions"][0]["label"], "Afspelen")
+        self.assertEqual(result["playback_actions"][0]["button_label"], "Afspelen")
         self.assertTrue(result["playback_actions"][0]["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE))
         self.assertTrue(result["playback_actions"][0]["thumbnail_url"].startswith(self.const.API_IMAGE_PROXY_BASE))
         self.assertEqual(result["images"], [])
@@ -6169,7 +6169,7 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("vijf Spotify-playlists", result["text"])
         self.assertEqual(len(result["playback_actions"]), 5)
         self.assertTrue(all(action["kind"] == "playlist" for action in result["playback_actions"]))
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertEqual(result["items"], result["playback_actions"])
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:playlist:summer-1")
         self.assertEqual(result["playback_actions"][-1]["uri"], "spotify:playlist:summer-5")
@@ -6223,7 +6223,7 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("hardstyle gabber techno hardcore edm", result["text"])
         self.assertEqual(len(result["playback_actions"]), 5)
         self.assertTrue(all(action["kind"] == "playlist" for action in result["playback_actions"]))
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:playlist:knallen-1")
         self.assertEqual(result["playback_actions"][-1]["uri"], "spotify:playlist:knallen-5")
 
@@ -6273,7 +6273,7 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("Volgens Spotify heeft Radiohead", result["text"])
         self.assertEqual(len(result["playback_actions"]), 3)
         self.assertTrue(all(action["kind"] == "album" for action in result["playback_actions"]))
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertNotIn("Radiohead Album 4", result["text"])
 
     def test_play_another_artist_album_returns_album_choices_without_playing(self) -> None:
@@ -6456,7 +6456,7 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("Ik vond deze nummers van The Cranberries", result["text"])
         self.assertEqual(len(result["playback_actions"]), 4)
         self.assertTrue(all(action["kind"] == "track" for action in result["playback_actions"]))
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertEqual(result["items"], result["playback_actions"])
 
     def test_current_track_live_version_request_returns_play_now_rows(self) -> None:
@@ -6645,7 +6645,7 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("Ik vond deze Spotify-playlists rond The Cranberries", result["text"])
         self.assertEqual(len(result["playback_actions"]), 2)
         self.assertTrue(all(action["kind"] == "playlist" for action in result["playback_actions"]))
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertEqual(result["items"], result["playback_actions"])
 
     def test_plural_playlist_question_returns_search_results(self) -> None:
@@ -6693,7 +6693,7 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertEqual(result["intent"]["intent"], "spotify_playlist_search")
         self.assertEqual(result["playback_actions"][0]["kind"], "playlist")
-        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
+        self.assertEqual(result["playback_actions"][0]["label"], "Afspelen")
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:playlist:snowpatrol-1")
 
     def test_playlist_with_artist_request_returns_playlist_results(self) -> None:
@@ -6793,7 +6793,7 @@ class AskDjTest(unittest.TestCase):
         self.assertNotIn("welke heeft scooter gemaakt", result["text"])
         self.assertEqual(result["playback_actions"][0]["title"], "Nessaja")
         self.assertEqual(result["playback_actions"][0]["subtitle"], "Scooter")
-        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
+        self.assertEqual(result["playback_actions"][0]["label"], "Afspelen")
 
     def test_what_kind_of_playlists_question_returns_track_play_now_list(self) -> None:
         runtime = make_runtime()
@@ -6845,7 +6845,7 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("10. Grunge Track 10 - Artist 10", result["text"])
         self.assertEqual(len(result["playback_actions"]), 10)
         self.assertTrue(all(action["kind"] == "track" for action in result["playback_actions"]))
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertTrue(all(action["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE) for action in result["playback_actions"]))
         self.assertEqual(result["items"], result["playback_actions"])
 
@@ -6896,7 +6896,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(len(result["playback_actions"]), 10)
         self.assertEqual(result["playback_actions"][0]["title"], "My Playlist 1")
         self.assertEqual(result["playback_actions"][0]["kind"], "playlist")
-        self.assertEqual(result["playback_actions"][0]["label"], "Play Now")
+        self.assertEqual(result["playback_actions"][0]["label"], "Afspelen")
         self.assertEqual(result["playback_actions"][0]["context_uri"], "spotify:playlist:mine-1")
         self.assertEqual(result["playback_actions"][9]["context_uri"], "spotify:playlist:mine-10")
         self.assertTrue(result["playback_actions"][0]["image_url"].startswith(self.const.API_IMAGE_PROXY_BASE))
@@ -6949,7 +6949,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["intent"]["intent"], "spotify_user_playlists")
         self.assertEqual(len(result["playback_actions"]), 10)
         self.assertTrue(all(action["kind"] == "playlist" for action in result["playback_actions"]))
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertEqual(result["playback_actions"][0]["uri"], "spotify:playlist:mine-typo-1")
         self.assertEqual(result["playback_actions"][9]["uri"], "spotify:playlist:mine-typo-10")
 
@@ -7691,7 +7691,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["intent"]["intent"], "build_playlist_from_seeds")
         self.assertIn("genres dance, house, pop", result["dj_text"])
         self.assertEqual([action["kind"] for action in result["playback_actions"]], ["track", "track", "track", "track", "track", "track_mix"])
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["playback_actions"] if action["kind"] == "track"))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"] if action["kind"] == "track"))
         self.assertEqual(result["items"], result["playback_actions"])
 
     def test_song_recommendation_question_returns_ten_tracks_and_batch_action(self) -> None:
@@ -7881,7 +7881,7 @@ class AskDjTest(unittest.TestCase):
         self.assertIn("vijf nummers van London Grammar in je wachtrij gezet", result["text"])
         self.assertEqual(len(result["items"]), 5)
         self.assertEqual([action["uri"] for action in result["items"]], [f"spotify:track:london-{index}" for index in range(1, 6)])
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["items"]))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["items"]))
 
     def test_track_and_genre_seed_playlist_requests_are_supported(self) -> None:
         self.assertEqual(
@@ -8055,7 +8055,7 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual([call[0] for call in calls], ["status", "artist_recommendations"])
         track_actions = [action for action in result["playback_actions"] if action["kind"] == "track"]
         self.assertEqual([action["uri"] for action in track_actions], ["spotify:track:similar-1", "spotify:track:similar-2", "spotify:track:similar-3"])
-        self.assertTrue(all(action["label"] == "Play Now" for action in track_actions))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in track_actions))
         self.assertEqual(result["items"], result["playback_actions"])
 
     def test_more_songs_like_this_falls_back_to_artist_track_search_when_mix_is_empty(self) -> None:
@@ -8179,7 +8179,7 @@ class AskDjTest(unittest.TestCase):
         self.assertNotIn("in je wachtrij gezet", result["dj_text"])
         self.assertEqual(len(result["items"]), 11)
         self.assertEqual([action["uri"] for action in result["items"] if action.get("kind") == "track"], [f"spotify:track:similar-{index}" for index in range(1, 11)])
-        self.assertTrue(all(action["label"] == "Play Now" for action in result["items"] if action.get("kind") == "track"))
+        self.assertTrue(all(action["label"] == "Afspelen" for action in result["items"] if action.get("kind") == "track"))
 
     def test_similar_tracks_queue_falls_back_to_current_artist_when_track_seed_is_empty(self) -> None:
         runtime = make_runtime()

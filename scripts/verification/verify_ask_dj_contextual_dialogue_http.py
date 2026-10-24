@@ -1945,22 +1945,33 @@ async def main():
                     return
 
                 if os.environ.get("DJC_SAFETY_PROBE") == "catalogue_golden":
-                    from scripts.verification.askdj_example_catalogue_golden import LANGUAGE_JUDGE, run
+                    from scripts.verification.askdj_example_catalogue_golden import (
+                        LANGUAGE_JUDGE, append_public_support_observation, run)
                     from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
+                    from custom_components.djconnect.ask_dj.dialogue import current_turn
                     from custom_components.djconnect.ask_dj import public_research
                     public_rejections = []
+                    public_grounding_observations = []
                     original_supported = public_research.supported
                     def observe_support(response, answer='', context=None):
                         accepted = original_supported(response, answer, context)
                         # Evaluation-only observation: retain bounded public
                         # source evidence for causal replay, never a full prompt,
                         # household context or an altered validator result.
-                        if not accepted and len(public_rejections) < 20 and isinstance(context, dict):
+                        if isinstance(context, dict):
                             research = context.get('public_music_research') or {}
                             if research.get('schema_version') in {2,3}:
-                                public_rejections.append({'case_id':ACTIVE_CASE.get(),
-                                    'answer':answer,'review':response,
-                                    'public_music_research':research})
+                                owner_turn = current_turn.get()
+                                case_id = ACTIVE_CASE.get() or (owner_turn.client_id if owner_turn else None)
+                                # Capture the same public-only evidence for
+                                # accepted and rejected answers. Never retain
+                                # the enclosing turn or qualified context.
+                                observation = append_public_support_observation(
+                                    public_grounding_observations, case_id=case_id,
+                                    accepted=accepted, answer=answer, review=response, research=research)
+                                if not accepted:
+                                    public_rejections.append({key:value for key,value in observation.items()
+                                        if key != 'accepted'})
                         return accepted
                     async def judge_language(prompt, answer_sha256):
                         token = LANGUAGE_JUDGE.set({'prompt':prompt, 'answer_sha256':answer_sha256})
@@ -2009,6 +2020,7 @@ async def main():
                             judge_language=judge_language, corpus=variation_corpus,
                             progress=catalogue_progress)
                     report['public_review_rejections'] = public_rejections
+                    report['public_grounding_observations'] = public_grounding_observations
                     report.update(source_hashes=initial_source_hashes,
                         source_unchanged=hashes() == initial_source_hashes,
                         configured_maximum_tokens=max_tokens, configured_reasoning_effort='low',

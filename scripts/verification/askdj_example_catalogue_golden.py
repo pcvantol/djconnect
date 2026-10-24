@@ -176,6 +176,41 @@ def manifest_digest(root=ROOT):
         'cases':cases(root), 'chains':chain_cases(root)}, sort_keys=True).encode()).hexdigest()
 
 
+def append_public_support_observation(observations, *, case_id, accepted, answer, review, research):
+    """Bounded public-only snapshot; never retain the caller's live dictionaries."""
+    assert len(observations) < 20, 'public observation bound exceeded'
+    serialized = json.dumps({'case_id':case_id, 'accepted':accepted, 'answer':answer,
+        'review':review, 'public_music_research':research}, ensure_ascii=False, allow_nan=False)
+    assert len(serialized.encode('utf-8')) <= 131072, 'public evidence bound exceeded'
+    snapshot = json.loads(serialized)
+    observations.append(snapshot)
+    return snapshot
+
+
+def check_action_copy(case, body):
+    """Judge the actual visible action labels as well as the spoken answer."""
+    locale = case['language']
+    play = {'en': 'Play', 'nl': 'Afspelen', 'de': 'Abspielen', 'fr': 'Lire', 'es': 'Reproducir'}
+    here = {'en': 'Play here', 'nl': 'Speel hier', 'de': 'Hier abspielen',
+        'fr': 'Lire ici', 'es': 'Reproducir aquí'}
+    album = {'en': 'Play album', 'nl': 'Speel album', 'de': 'Album abspielen',
+        'fr': 'Lire l’album', 'es': 'Reproducir álbum'}
+    findings = []
+    for action in body.get('playback_actions') or []:
+        if not isinstance(action, dict):
+            findings.append('invalid_action_copy')
+            continue
+        expected = None
+        if action.get('command') in {'ask_dj_play_request_on_output', 'ask_dj_play_recommendation_on_output'}:
+            expected = here[locale]
+        elif action.get('kind') in {'track', 'album', 'playlist'} and action.get('action_style') == 'play_now':
+            expected = (album[locale] if case.get('entry_id') == 'listen.album_tracks'
+                and action.get('kind') == 'album' else play[locale])
+        if expected is not None and (action.get('label') != expected or action.get('button_label') != expected):
+            findings.append('action_label_locale_unproved')
+    return sorted(set(findings))
+
+
 def check_response(case, body, writes):
     """Actual accepted values, exact frozen targets and source/effect boundaries."""
     findings = []
@@ -189,6 +224,7 @@ def check_response(case, body, writes):
     if (not isinstance(body, dict) or body.get('success') is not True
             or body.get('error') not in ({None,'no_active_output'} if offer else {None})):
         return ['request_not_accepted']
+    findings.extend(check_action_copy(case, body))
     text = str(body.get('text') or body.get('dj_text') or '')
     if not text.strip():
         findings.append('answer_missing')

@@ -3309,7 +3309,7 @@ def _queue_playback_action(hass: HomeAssistant, result: Any, item: dict[str, Any
     if not uri.startswith("spotify:track:"):
         return {}
     image_url = str(item.get("image_url") or item.get("album_image_url") or item.get("thumbnail_url") or "").strip()
-    action = {"id": uri, "title": str(item.get("title") or item.get("track_name") or f"nummer {index}").strip(), "subtitle": str(item.get("subtitle") or item.get("artist") or "").strip(), "uri": uri, "kind": "track", "label": "Play Now", "button_label": "Play Now", "action_style": "play_now", "reason": "Track uit je Spotify wachtrij."}
+    action = {"id": uri, "title": str(item.get("title") or item.get("track_name") or f"nummer {index}").strip(), "subtitle": str(item.get("subtitle") or item.get("artist") or "").strip(), "uri": uri, "kind": "track", "label": _read_text("play_button"), "button_label": _read_text("play_button"), "action_style": "play_now", "reason": _read_text("queue_track")}
     context_uri = str(item.get("context_uri") or item.get("contextUri") or "").strip()
     if context_uri:
         action.update({"context_uri": context_uri, "offset_uri": uri})
@@ -3768,8 +3768,8 @@ async def _current_track_reference_response(
             "uri": uri,
             "kind": "track",
             "action_style": "play_now",
-            "label": "Play Now",
-            "button_label": "Play Now",
+            "label": _read_text("play_button"),
+            "button_label": _read_text("play_button"),
             "reason": _read_text('current_reason'),
         }
         if images:
@@ -4361,11 +4361,11 @@ def _track_and_album_actions_from_track_item(
             "subtitle": artist,
             "uri": track_uri,
             "kind": "track",
-            "label": "Play Now",
-            "button_label": "Play Now",
+            "label": _read_text("play_button"),
+            "button_label": _read_text("play_button"),
             "action_style": "play_now",
             "image_url": image_url,
-            "reason": "Gevonden track.",
+            "reason": _read_text("track_result"),
         }
         if album_uri.startswith("spotify:album:"):
             action["context_uri"] = album_uri
@@ -4382,11 +4382,11 @@ def _track_and_album_actions_from_track_item(
                     "uri": album_uri,
                     "context_uri": album_uri,
                     "kind": "album",
-                    "label": "Play Now",
-                    "button_label": "Play Now",
+                    "label": _read_text("play_button"),
+                    "button_label": _read_text("play_button"),
                     "action_style": "play_now",
                     "image_url": image_url,
-                    "reason": "Album waarop de gevonden track staat.",
+                    "reason": _read_text("album_for_track"),
                 }.items()
                 if value not in ("", None)
             }
@@ -4444,8 +4444,8 @@ def _current_album_playback_action(
             "subtitle": subtitle,
             "uri": uri,
             "kind": "album",
-            "label": "Play Now",
-            "button_label": "Play Now",
+            "label": _read_text("play_button"),
+            "button_label": _read_text("play_button"),
             "action_style": "play_now",
             "image_url": image_url,
             "reason": "Album van de huidige track.",
@@ -4626,7 +4626,7 @@ def _artist_album_playback_action(
         return {}
     release_date = str(album.get("release_date") or "").strip()
     image_url = str(album.get("image_url") or album.get("album_image_url") or "").strip()
-    action = {"id": uri, "title": str(album.get("name") or album.get("title") or "Album").strip(), "subtitle": f"{artist} · {release_date[:4]}" if release_date[:4] else artist, "uri": uri, "context_uri": uri, "kind": "album", "label": "Play Now", "button_label": "Play Now", "action_style": "play_now", "reason": f"Album van {artist}."}
+    action = {"id": uri, "title": str(album.get("name") or album.get("title") or "Album").strip(), "subtitle": f"{artist} · {release_date[:4]}" if release_date[:4] else artist, "uri": uri, "context_uri": uri, "kind": "album", "label": _read_text("play_button"), "button_label": _read_text("play_button"), "action_style": "play_now", "reason": _read_text("album_by", artist=artist)}
     action["release_date"] = release_date
     action["artist"] = artist
     if image_url:
@@ -7055,8 +7055,9 @@ def _track_recommendation_actions(
         action = _play_now_action_from_spotify_item(hass, {**item, "type": "track"}, runtime=runtime)
         if not action:
             continue
-        action["label"] = "Play Now"
-        action["reason"] = "Aanbevolen op basis van je Ask DJ vraag."
+        action["label"] = _read_text("play_button")
+        action["button_label"] = _read_text("play_button")
+        action["reason"] = _read_text("track_for_request")
         actions.append(action)
         if len(actions) >= limit:
             break
@@ -7931,10 +7932,11 @@ def _playlist_search_playback_actions(
                 "thumbnail_url": proxy_image,
             },
             "playlist",
-            "Spotify playlist-resultaat op basis van je Ask DJ vraag.",
+            _read_text("playlist_result"),
         )
         if not action:
             continue
+        action.update(label=_read_text("play_button"), button_label=_read_text("play_button"))
         actions.append(action)
         if len(actions) >= limit:
             break
@@ -7984,10 +7986,11 @@ def _album_search_playback_actions(
                 "thumbnail_url": proxy_image,
             },
             "album",
-            "Spotify album-resultaat op basis van je Ask DJ vraag.",
+            _read_text("album_result"),
         )
         if not action:
             continue
+        action.update(label=_read_text("play_button"), button_label=_read_text("play_button"))
         actions.append(action)
         if len(actions) >= limit:
             break
@@ -8757,10 +8760,11 @@ def _play_now_action_from_spotify_item(
             "thumbnail_url": proxy_image,
         },
         kind,
-        "Voor je klaargezet terwijl het huidige nummer doorspeelt.",
+        _read_text("available_result"),
     )
     if not action:
         return {}
+    action.update(label=_read_text("play_button"), button_label=_read_text("play_button"))
     context_uri = str(item.get("context_uri") or "").strip()
     if kind == "track" and context_uri:
         action["context_uri"] = context_uri
@@ -9460,8 +9464,8 @@ def _output_device_play_request_actions(
                     "id": f"play_request_on_output:{device_id}",
                     "title": name,
                     "subtitle": device_type,
-                    "label": "Speel hier",
-                    "button_label": "Speel hier",
+                    "label": _read_text("play_here"),
+                    "button_label": _read_text("play_here"),
                     "kind": "output",
                     "command": "ask_dj_play_request_on_output",
                     "value": {
@@ -9472,7 +9476,7 @@ def _output_device_play_request_actions(
                     },
                     "device_id": device_id,
                     "device_name": name,
-                    "reason": "Kies deze Spotify Connect speaker en start daarna het Ask DJ playbackverzoek.",
+                    "reason": _read_text("play_request_on_output"),
                 }.items()
                 if value not in ("", None)
             }
