@@ -1,3 +1,13 @@
+# Current original-clock v3 producer candidate — 24 October 2026
+
+The bounded Core implementation now captures original pre-await weak Runtime/purpose roots including absence, exact original G0/L0/P0/K0 and downward final server deadlines. Context/register use closed strict outer v3; v1/v2 receive typed409. Inner issuer/registry/relay and old registered read/status/revoke remain v1 with original expiry. See docs/verification/ORIGINAL_CLOCK_V3_PRODUCER_SOURCE_20261024.md and the unchanged full normative docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md. No new purpose, owner, Activity profile or client clock witness is fabricated.
+
+Current proof: corrected full3526tests/145.167s exit0/7existing skips;13fresh isolated actual HA groups, all264product hashes equal before/inside/after and own container absent;12current fixtures joined to their actual RAW/admissions. Historical v2 evidence/harness bytes remain unchanged. This is an uncommitted SOURCE CANDIDATE requiring exact independent reviews, normal protected Source and separate Final/original qualifications. It is not installed or operational push/native/rate acceptance. Unknown cross-clock mapping/rate/suspend/domain remains CLOSED; Apple owns its separate original pin/codec proof.
+
+HA-dev Help3 was already separately INSTALLED_GO for8885/fd/264/schema15/all9entries LOADED with complete consistent STOPPED backup6880b983 and independent audit39f634e5; no v3 WIP installation follows. API94 production and separate health smoke are already delivered40083103294/40083269667; no redeploy. Help catalogue dfaa remains qualifiedfalse70pending; pending paid proposal/package4.5.5 are separate, consumed failures never retried. HAprodconfiguration answer pending; PiNOT_RECOVERED; all24requests/ninegates retained. Real custody/enrollment/servicepurpose, Activity rights/ContentState and APNs/iPhone/VibeCast physical/user acceptance remain open. Previous bodies below preserve their historical scopes.
+
+---
+
 # Original-clock v3 normative design boundary — 24 October 2026
 
 The complete specification is docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md. It defines future independent v3 paired context/register envelopes and original remaining-duration authority under unchanged widget-only guards. Runtime implementation and actual paired producer/client proof are NOT delivered by this contract source; current active Postman/runtime v2 remains its separate scope. Derived JSON is nonnormative and cannot relax complete Markdown guards. No public API relay-wire change, Activity permission or positive unknown clock mapping is added. Protected contract Source+separate Final/original qualification precede the owning implementation.

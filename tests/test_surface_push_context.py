@@ -16,6 +16,9 @@ class SurfaceContextTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.f = registry_fixture.SurfaceRegistryTests()
         await self.f.asyncSetUp()
+        device = hashlib.sha256(self.f.payload['device_id'].encode()).hexdigest()
+        self.f.purpose = replace(self.f.purpose, device_binding=device)
+        self.f.admission = replace(self.f.admission, device=device, purpose=self.f.purpose)
         self.service = SimpleNamespace(closed=False, registry=self.f.registry,
             track_registration=lambda result: None, _purposes={}, preauthorize_context=lambda payload, headers: None)
         self.pause = None
@@ -29,12 +32,15 @@ class SurfaceContextTests(unittest.IsolatedAsyncioTestCase):
             return original
         self.service.admission = admission
         self.c = SurfaceContextContinuations(self.service,
-            wall=lambda: self.f.clock[0], monotonic=lambda: self.f.clock[1])
+            wall=self.f.purpose.wall, monotonic=self.f.purpose.monotonic)
+        self.service.contexts = self.c
+        scope = self.f.admission
+        self.service._purposes[(scope.owner, scope.device, scope.binding, scope.session_id)] = scope.purpose
 
     def payload(self, sequence=1):
         intent = self.f.intent(sequence)
         return {**{k:intent.metadata()[k] for k in ('device_id','client_type','session_id','operation_id')},
-            'contract_version': 2}
+            'contract_version': 3}
 
     async def acquire(self, sequence=1):
         return await self.c.acquire(self.payload(sequence), {})
@@ -99,6 +105,8 @@ class SurfaceContextTests(unittest.IsolatedAsyncioTestCase):
         a = await self.acquire()
         self.f.purpose = replace(self.f.purpose)
         self.f.admission = replace(self.f.admission, purpose=self.f.purpose)
+        scope = self.f.admission
+        self.service._purposes[(scope.owner, scope.device, scope.binding, scope.session_id)] = scope.purpose
         b = await self.acquire(2)
         self.assertEqual(a['expires_at_ms'], b['expires_at_ms'])
         self.assertNotEqual(a['purpose_ref'], b['purpose_ref'])
@@ -234,13 +242,16 @@ class SurfaceContextTests(unittest.IsolatedAsyncioTestCase):
         both = asyncio.Event()
         count = 0
         original = self.f.admission
+        other = replace(original.purpose)
+        self.service._purposes[(original.owner, original.device, original.binding, 'other-session')] = other
         async def paused(payload, headers):
             nonlocal count
             count += 1
             if count == 2:
                 both.set()
             await gate.wait()
-            return replace(original, session_id=payload['session_id'])
+            return replace(original, session_id=payload['session_id'],
+                purpose=other if payload['session_id'] == 'other-session' else original.purpose)
         self.service.admission = paused
         a = self.payload()
         b = {**self.payload(2), 'session_id':'other-session'}
@@ -359,8 +370,9 @@ class ContextActualHAContractTests(unittest.TestCase):
         proof = json.loads(raw)
         self.assertNotIn('djcsurface_', raw)
         self.assertEqual(len(proof['source_pins']), 264)
-        for relative, expected in proof['source_pins'].items():
-            self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), expected, relative)
+        self.assertEqual(hashlib.sha256(raw.encode()).hexdigest(),
+            'eb225dbd5a554518f6aad9519a7d7bbf31374901a9e16ce2d7ec43533046c15f')
+        # This byte-preserved v2 original is historical, not evidence for v3.
         self.assertEqual(hashlib.sha256((root / proof['harness']).read_bytes()).hexdigest(), proof['harness_sha256'])
         context = proof['context_response']
         self.assertEqual(context['contract_version'], 2)

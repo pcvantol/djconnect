@@ -103,7 +103,7 @@ class SurfacePushService:
 
     def preauthorize_context(self, payload, headers):
         """Synchronous paired check before any bounded context reservation."""
-        self._context_runtime(payload, headers)
+        return self._context_runtime(payload, headers)
 
     async def admission(self, payload, headers):
         """Original paired/source/Session/issuer snapshot BEFORE async resolution."""
