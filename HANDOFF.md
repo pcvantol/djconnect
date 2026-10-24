@@ -1,3 +1,22 @@
+# Fresh Help qualification supervision — 24 October 2026
+
+Active source increment `codex/core-help100-diagnostics-20261024` follows protected,
+original-qualified BulletinSource1328 `8abef1f1` and Final1329 `6402e13d`. The same
+Core writer prepares one newly authorized100-step paid qualification, bounded392
+attempts/3000output tokens/1800seconds/no whole-run retry. No new paid test has
+started. Both consumed failures remain unchanged; cataloguefalse/70pending.
+
+New test-only supervision preserves original content/validators, writes closed
+failure stages, captures owned-container state before cleanup, and fences both
+original clocks. Actual SDK and actual amd64 HA setup reached the blocked first
+model request with zero network calls and verified cleanup. Full regression,
+independent source/commit review and separate normal Final still precede paid
+execution. [Scope and publication gates](docs/verification/HELP100_CLOSED_DIAGNOSTICS_20261024.md).
+All264product bytes/dependencies/release inputs unchanged; no HA/device/provider
+claim. All24requests/ninegates and prior complete bodies remain below.
+
+---
+
 # Qualified shared DJ Bulletin source — 24 October 2026
 
 Core Source [PR1328](https://github.com/pcvantol/djconnect/pull/1328) is protected
