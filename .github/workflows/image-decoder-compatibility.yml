@@ -1,0 +1,56 @@
+name: Image decoder compatibility
+
+on:
+  pull_request:
+    paths:
+      - 'requirements-dev.txt'
+      - 'custom_components/djconnect/session_artwork.py'
+      - 'tests/test_image_decoder_compatibility.py'
+      - 'tests/fixtures/image_decoder_compatibility_v1/**'
+      - '.github/workflows/image-decoder-compatibility.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'requirements-dev.txt'
+      - 'custom_components/djconnect/session_artwork.py'
+      - 'tests/test_image_decoder_compatibility.py'
+      - 'tests/fixtures/image_decoder_compatibility_v1/**'
+      - '.github/workflows/image-decoder-compatibility.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  decode:
+    name: Decoder corpus (${{ matrix.profile }}, Pillow ${{ matrix.pillow }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - profile: HA2026.10.0
+            pillow: '12.3.0'
+          - profile: developer
+            pillow: '13.0.0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.14'
+      - name: Install exact isolated decoder dependencies
+        run: python -m pip install PyYAML==6.0.3 defusedxml==0.7.1 'Pillow==${{ matrix.pillow }}'
+      - name: Check selected decoder and developer pin
+        env:
+          EXPECTED_PILLOW: ${{ matrix.pillow }}
+          DECODER_PROFILE: ${{ matrix.profile }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from PIL import __version__
+          assert __version__ == os.environ['EXPECTED_PILLOW']
+          if os.environ['DECODER_PROFILE'] == 'developer':
+              assert f'Pillow=={__version__}' in Path('requirements-dev.txt').read_text().splitlines()
+          PY
+      - name: Decode the same original synthetic image bytes
+        run: python -m unittest tests.test_image_decoder_compatibility

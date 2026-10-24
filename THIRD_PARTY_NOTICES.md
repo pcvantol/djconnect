@@ -1,3 +1,7 @@
+## Developer decoder compatibility qualification (24 October 2026)
+
+The developer test environment pins [Pillow13.0.0](https://pypi.org/project/pillow/13.0.0/) under its existing MIT-CMU/HPND license. Pillow requires Python3.11 or newer, including the existing3.11 and3.14 checks. No upstream Pillow source is vendored or modified. A separate exact12.3.0 CI environment and the actual Home Assistant2026.10.0 image preserve the existing HA decoder baseline. The offline brand generator retains its separate13.0.0 pin. New fixtures contain only generated synthetic images and no owner media. This current developer scope supersedes the prior developer12.3 deferral; the historical notices below retain their runtime and delivery scope.
+
 ## Pico developer-tool Ruff pin (24 October 2026)
 
 The isolated developer-tool environment uses [Ruff0.17.1](https://github.com/astral-sh/ruff/releases/tag/0.17.1), maintained by Astral and contributors under the [MIT license](https://github.com/astral-sh/ruff/blob/0.17.1/LICENSE). This lint tool is not included in a Pico firmware image or the Home Assistant integration package; no upstream Ruff source is vendored or modified. The Home Assistant image/decode qualification environment remains on Pillow12.3.0; the separate offline brand generator's Pillow13.0.0 pin remains unchanged.
