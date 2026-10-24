@@ -1,8 +1,28 @@
+## Versioned onboarding package identity for the Ruff patch (24 October 2026)
+
+This coherent maintenance increment publishes developer-onboarding4.5.5 and macOS bootstrap2.0.23. The new deterministic bundle contains the reviewed Ruff0.17.1 requirement and updated package documentation/tests. The complete4.5.4 bundle and all prior distributions remain byte-unchanged. Matching exact desired/actual-package guards and their negative tests move together to4.5.5; no check is removed or weakened. Delivery requires the human-approved version migration and normal independent source/commit review, protected merge and separate Final. No host installer, repair, tool installation, Home Assistant runtime change or provider/device effect is performed by this source increment.
+
 ## Pico developer Ruff patch and HA decoder qualification pin (24 October 2026)
 
 The isolated Pico developer-tool environment pins Ruff0.17.1 instead of0.17.0. This is a developer lint tool, with no firmware image, Home Assistant runtime dependency or release-version change. The exact upstream release and MIT license are linked in THIRD_PARTY_NOTICES.md.
 
 Keep requirements-dev.txt at Pillow12.3.0 to match the pinned Home Assistant2026.10.0 image used for actual image-byte/decode regression qualification. The independently pinned offline brand generator keeps Pillow13.0.0. Those environments serve different checks; the branding dependency does not authorize changing the HA decoder baseline. The combined dependency proposal #1294 is narrowed to the Ruff patch. The overlapping Pillow-only #1306 is deferred as unsupported by the current HA-image qualification and may be closed as superseded; original branch commits and receipts remain preserved. A future Pillow decoder upgrade needs a newly qualified HA image/environment and actual byte/decode evidence.
+
+# Current original-clock v3 producer candidate — 24 October 2026
+
+The bounded Core implementation now captures original pre-await weak Runtime/purpose roots including absence, exact original G0/L0/P0/K0 and downward final server deadlines. Context/register use closed strict outer v3; v1/v2 receive typed409. Inner issuer/registry/relay and old registered read/status/revoke remain v1 with original expiry. See docs/verification/ORIGINAL_CLOCK_V3_PRODUCER_SOURCE_20261024.md and the unchanged full normative docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md. No new purpose, owner, Activity profile or client clock witness is fabricated.
+
+Current proof: corrected full3526tests/145.167s exit0/7existing skips;13fresh isolated actual HA groups, all264product hashes equal before/inside/after and own container absent;12current fixtures joined to their actual RAW/admissions. Historical v2 evidence/harness bytes remain unchanged. This is an uncommitted SOURCE CANDIDATE requiring exact independent reviews, normal protected Source and separate Final/original qualifications. It is not installed or operational push/native/rate acceptance. Unknown cross-clock mapping/rate/suspend/domain remains CLOSED; Apple owns its separate original pin/codec proof.
+
+HA-dev Help3 was already separately INSTALLED_GO for8885/fd/264/schema15/all9entries LOADED with complete consistent STOPPED backup6880b983 and independent audit39f634e5; no v3 WIP installation follows. API94 production and separate health smoke are already delivered40083103294/40083269667; no redeploy. Help catalogue dfaa remains qualifiedfalse70pending; pending paid proposal/package4.5.5 are separate, consumed failures never retried. HAprodconfiguration answer pending; PiNOT_RECOVERED; all24requests/ninegates retained. Real custody/enrollment/servicepurpose, Activity rights/ContentState and APNs/iPhone/VibeCast physical/user acceptance remain open. Previous bodies below preserve their historical scopes.
+
+---
+
+# Original clock lifetime calculation contract — 24 October 2026
+
+The normative v3 design uses original credential G0/L0, immutable pre-await W0/S0/C0 and weak original root identity retained across late errors. Purpose budget is the conservative minimum of exact original monotonic remainder and original expiry minus SERVER W0 plus every original bound; submit budget also respects30seconds/UUID/original submit limits. Client pins preserve all-context minimum and require independently qualified rate/suspend/domain mapping; unknown closes. Final timestamp addition and every conversion are exact/downward, not just duration flooring. See docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md; its JSON summary/model tests are not producer/native evidence. Only existing standard-library Fraction/math is used by reference verification, no dependency/license change or runtime implementation here.
+
+---
 
 # DJConnect Technical Design Decisions
 

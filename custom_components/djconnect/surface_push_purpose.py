@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import base64
 from dataclasses import dataclass, field
+from fractions import Fraction
+import math
 import re
 import time
 from typing import Callable
@@ -20,6 +22,15 @@ TOKEN = re.compile(r"djcs_[A-Za-z0-9_-]{43}\Z")
 HEX = re.compile(r"[a-f0-9]{64}\Z")
 POLICY = frozenset({"token_role", "platform", "apns_environment", "target", "activity_profile",
     "external_content_allowed", "original_grant_expires_at_ms", "max_operations", "max_events", "max_challenges"})
+
+
+def _exact_clock(value):
+    try:
+        if type(value) in (int, float) and math.isfinite(value):
+            return Fraction(value)
+    except (OverflowError, ValueError):
+        pass
+    return None
 
 
 @dataclass(frozen=True, repr=False)
@@ -90,10 +101,13 @@ class SurfacePurposeCredential:
             require(type(policy) is dict and set(policy) == POLICY
                 and canonical(policy) == self.policy_json, "surface_purpose_invalid", 403)
             expires = policy["original_grant_expires_at_ms"]
+            now, sampled_mono = self.wall(), self.monotonic()
+            original_mono, mono = _exact_clock(self.original_monotonic), _exact_clock(sampled_mono)
             require(safe_integer(self.original_wall_ms, 1) and safe_integer(expires, 1)
                 and self.original_wall_ms < expires <= self.original_wall_ms + 28800000
-                and self.wall() < expires
-                and self.monotonic() < self.original_monotonic + (expires-self.original_wall_ms)/1000,
+                and safe_integer(now, 1) and self.original_wall_ms <= now < expires
+                and original_mono is not None and mono is not None
+                and original_mono <= mono < original_mono + Fraction(expires-self.original_wall_ms, 1000),
                 "surface_purpose_expired", 403)
             for key in ("binding_id", "device_binding", "owner_binding"):
                 require(payload.get(key) == getattr(self, key), "surface_purpose_scope_mismatch", 403)

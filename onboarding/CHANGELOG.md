@@ -1,5 +1,14 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.5 — 2026-10-24
+
+- Pin the isolated Pico developer-tool Ruff dependency to0.17.1 and align the
+  tool-version matrix with its existing requirements.
+- Publish a new deterministic4.5.5 distribution. Preserve the complete4.5.4
+  distribution and every earlier bundle unchanged. The matching canonical
+  bootstrap2.0.23 requires package4.5.5; both exact-version guards remain
+  fail-closed. This source release does not install tools or run host repair.
+
 ## 4.5.4 — 2026-10-19
 
 - Quote verification-artifact cleanup script and log paths for relocated GitHub

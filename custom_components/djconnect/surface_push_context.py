@@ -7,12 +7,16 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, field
+from fractions import Fraction
 import hashlib
+import json
 import math
 import secrets
 import weakref
 
 from .surface_push_contract import require, SurfacePushError
+from .surface_push_purpose import SurfacePurposeCredential
+from .surface_push_wire import safe_integer
 from .transport_operations import operation_created_ms, LIFETIME_MS, FUTURE_SKEW_MS
 
 MAX_CONTEXTS = 64
@@ -27,6 +31,55 @@ def _cancelled():
     task = asyncio.current_task()
     if task is not None and task.cancelling():
         raise asyncio.CancelledError
+
+
+def _finite_clock(value):
+    try:
+        return type(value) in (int, float) and math.isfinite(value)
+    except (OverflowError, ValueError):
+        return False
+
+
+def _deadline(original, milliseconds):
+    """Round the complete represented sum downward, including its addition."""
+    exact = Fraction(original) + Fraction(milliseconds, 1000)
+    try:
+        result = float(exact)
+    except (ValueError, OverflowError):
+        raise SurfacePushError('surface_context_expired', 409) from None
+    require(math.isfinite(result), 'surface_context_expired', 409)
+    if Fraction(result) > exact:
+        result = math.nextafter(result, -math.inf)
+    require(result > original, 'surface_context_expired', 409)
+    return result
+
+
+def _facts(purpose):
+    return (purpose.original_wall_ms, purpose.original_monotonic,
+        purpose.owner_binding, purpose.device_binding, purpose.binding_id,
+        purpose.grant_binding, purpose.source_binding, purpose.scope_digest,
+        purpose.delegation_revision,
+        hashlib.sha256(purpose.policy_json.encode()).hexdigest())
+
+
+@dataclass(frozen=True, repr=False)
+class _Root:
+    original: object
+    key: tuple
+    facts: tuple
+    expiry: object
+    clock: object
+
+
+@dataclass(frozen=True, repr=False)
+class _Start:
+    wall: object
+    mono: object
+    identity: tuple
+    roots: tuple
+    runtime: object
+    wall_clock: object
+    mono_clock: object
 
 
 @dataclass(eq=False, repr=False)
@@ -48,6 +101,10 @@ class _Context:
     mono_deadline: float
     last_wall: int
     last_mono: float
+    start: _Start
+    purpose_budget_ms: int
+    submit_budget_ms: int
+    version: int = field(default=3, init=False)
     digest: str | None = None
     task: object = field(default=None, repr=False)
     closed: str | None = None
@@ -61,6 +118,54 @@ class SurfaceContextContinuations:
         self._purposes = []  # Weak original identities; never hash mutable bearer bytes.
         self._pending = {}
         self._starts = {}  # Original pre-await clocks survive cancellation/lost context replies.
+
+    def _roots(self, device, session):
+        roots = []
+        for key, purpose in tuple(getattr(self.service, '_purposes', {}).items()):
+            if (type(key) is not tuple or len(key) != 4 or key[1] != device
+                    or key[3] != session or type(purpose) is not SurfacePurposeCredential):
+                continue
+            try:
+                facts = _facts(purpose)
+                expiry = json.loads(purpose.policy_json)['original_grant_expires_at_ms']
+            except (ValueError, TypeError, KeyError, AttributeError, RecursionError):
+                facts, expiry = (), None  # Retain an invalid original; never recapture it.
+            roots.append(_Root(weakref.ref(purpose),
+                (*key[:3], hashlib.sha256(session.encode()).hexdigest()),
+                facts, expiry, purpose.monotonic))
+        require(len(roots) <= MAX_CONTEXTS, 'surface_context_capacity', 503)
+        return tuple(roots)
+
+    def _root(self, start, admission):
+        require(start.wall_clock is self.wall and start.mono_clock is self.monotonic,
+            'surface_context_expired', 409)
+        runtime = start.runtime() if start.runtime is not None else None
+        require(runtime is admission.runtime and
+            (start.runtime is None or runtime is not None), 'surface_context_conflict', 409)
+        purpose = admission.purpose
+        root = next((r for r in start.roots if r.original() is purpose), None)
+        require(root is not None and root.key == self._key(admission)
+            and bool(root.facts) and root.facts == _facts(purpose)
+            and root.clock is purpose.monotonic and root.clock is self.monotonic,
+            'surface_context_conflict', 409)
+        return root
+
+    @staticmethod
+    def _budgets(start, root, created):
+        wall, origin = root.facts[:2]
+        require(safe_integer(wall, 1) and safe_integer(root.expiry, 1)
+            and 0 < root.expiry - wall <= 28_800_000 and _finite_clock(origin)
+            and safe_integer(start.wall, 1) and _finite_clock(start.mono)
+            and start.wall >= wall and start.mono >= origin,
+            'surface_context_expired', 409)
+        mono = math.floor(Fraction(root.expiry - wall)
+            + 1000 * (Fraction(origin) - Fraction(start.mono)))
+        purpose = min(mono, root.expiry - start.wall)
+        submit = min(SUBMIT_MS, purpose, created + LIFETIME_MS - start.wall)
+        require(safe_integer(purpose, 1) and purpose <= 28_800_000
+            and safe_integer(submit, 1) and submit <= SUBMIT_MS,
+            'surface_context_expired', 409)
+        return purpose, submit
 
     @staticmethod
     def _key(admission):
@@ -98,18 +203,20 @@ class SurfaceContextContinuations:
 
     def _check(self, h, fresh=None):
         _cancelled()
-        require(self._contexts.get(h.handle) is h and not self.service.closed,
+        require(self._contexts.get(h.handle) is h and h.version == 3
+            and self._starts.get(h.operation_id) is h.start and not self.service.closed,
             'surface_context_unknown', 409)
         require(not h.closed, 'surface_context_expired' if h.closed == 'expired'
             else 'surface_context_unknown', 409)
         now, mono = self.wall(), self.monotonic()
-        if (type(now) is not int or not math.isfinite(mono) or now < h.last_wall
+        if (not safe_integer(now, 1) or not _finite_clock(mono) or now < h.last_wall
                 or mono < h.last_mono or now >= h.deadline or mono >= h.mono_deadline):
             self._retire(h, 'expired')
             raise SurfacePushError('surface_context_expired', 409)
         h.last_wall, h.last_mono = now, mono
         try:
             h.admission.validate()
+            self._root(h.start, h.admission)
             require(h.purpose.original() is h.admission.purpose,
                 'surface_context_conflict', 409)
         except BaseException:
@@ -126,14 +233,14 @@ class SurfaceContextContinuations:
 
     async def acquire(self, payload, headers):
         _cancelled()
+        require(type(payload.get('contract_version')) is int
+            and payload['contract_version'] == 3, 'surface_context_required', 409)
         # No unauthenticated UUID may consume retained capacity. This real paired
         # check is synchronous; original clocks still precede every async await.
-        self.service.preauthorize_context(payload, headers)
+        runtime = self.service.preauthorize_context(payload, headers)
         operation = payload['operation_id']
         wall, mono = self.wall(), self.monotonic()
         created = operation_created_ms(operation)
-        require(type(wall) is int and math.isfinite(mono) and created <= wall + FUTURE_SKEW_MS
-            and wall < created + LIFETIME_MS, 'surface_context_expired', 409)
         require(operation not in self._pending and len(self._pending) < MAX_PENDING,
             'surface_context_capacity', 503)
         session_hash = hashlib.sha256(payload['session_id'].encode()).hexdigest()
@@ -143,23 +250,29 @@ class SurfaceContextContinuations:
         new_start = original_start is None
         if new_start:
             require(len(self._starts) < MAX_CONTEXTS
-                and sum(start[2][1] == device_hash for start in self._starts.values()) < MAX_DEVICE,
+                and sum(start.identity[1] == device_hash for start in self._starts.values()) < MAX_DEVICE,
                 'surface_context_capacity', 503)
-            self._starts[operation] = (wall, mono, identity)
+            original_start = _Start(wall, mono, identity,
+                self._roots(device_hash, payload['session_id']),
+                weakref.ref(runtime) if runtime is not None else None,
+                self.wall, self.monotonic)
+            self._starts[operation] = original_start
         else:
-            require(original_start[2] == identity, 'surface_context_conflict', 409)
-            wall, mono = original_start[:2]
+            require(original_start.identity == identity, 'surface_context_conflict', 409)
+        wall, mono = original_start.wall, original_start.mono
+        require(safe_integer(wall, 1) and _finite_clock(mono)
+            and created <= wall + FUTURE_SKEW_MS and wall < created + LIFETIME_MS,
+            'surface_context_expired', 409)
         # Capture weak ORIGINAL map identities before the first await. Device
         # equality alone cannot authorize cancellation across Sessions/purposes.
-        pending_purposes = tuple(weakref.ref(p) for key, p in
-            tuple(getattr(self.service, '_purposes', {}).items())
-            if key[1] == device_hash and key[3] == payload['session_id'])
+        pending_purposes = tuple(root.original for root in original_start.roots)
         self._pending[operation] = (asyncio.current_task(), session_hash, pending_purposes)
         created_context = None
         try:
             admission = await self.service.admission(payload, headers)
             _cancelled()
             admission.validate()
+            root = self._root(original_start, admission)
             require(not self.service.closed, 'surface_context_unknown', 409)
             self._collect()
             previous = self._operations.get(operation)
@@ -172,18 +285,20 @@ class SurfaceContextContinuations:
                 and sum(h.key[1] == key[1] for h in self._contexts.values()) < MAX_DEVICE,
                 'surface_context_capacity', 503)
             original = next((p for p in self._purposes if p.original() is admission.purpose), None)
-            expiry = admission.purpose.original_expiry_ms()
+            expiry = root.expiry
+            purpose_ms, submit_ms = self._budgets(original_start, root, created)
             if original is None:
                 require(len(self._purposes) < MAX_CONTEXTS, 'surface_context_capacity', 503)
                 original = _Purpose(weakref.ref(admission.purpose), 'djcpref_' + secrets.token_urlsafe(32), expiry)
                 self._purposes.append(original)
             require(original.expiry == expiry and original.attempts < MAX_PURPOSE,
                 'surface_context_capacity', 503)
-            deadline = min(expiry, created + LIFETIME_MS, wall + SUBMIT_MS)
+            deadline = wall + submit_ms
             # Retain an authenticated late first attempt BEFORE checking its
             # original deadline. A slow/lost response cannot refund or reanchor it.
             h = _Context('djcctx_' + secrets.token_urlsafe(32), operation, key, original,
-                admission, deadline, mono+(deadline-wall)/1000, wall, mono)
+                admission, deadline, _deadline(mono, submit_ms), wall, mono,
+                original_start, purpose_ms, submit_ms)
             self._contexts[h.handle] = h
             created_context = h
             self._operations[operation] = h
@@ -207,10 +322,13 @@ class SurfaceContextContinuations:
 
     @staticmethod
     def _reply(h):
-        return {'success': True, 'contract_version': 2, 'available': True,
+        return {'success': True, 'contract_version': 3, 'available': True,
             'context_handle': h.handle, 'operation_id': h.operation_id,
             'purpose_ref': h.purpose.reference, 'expires_at_ms': h.purpose.expiry,
-            'context_expires_at_ms': h.deadline, 'cache_policy': 'private,no-store'}
+            'context_expires_at_ms': h.deadline,
+            'purpose_remaining_at_original_start_ms': h.purpose_budget_ms,
+            'context_remaining_at_original_start_ms': h.submit_budget_ms,
+            'cache_policy': 'private,no-store'}
 
     async def register(self, handle, intent, headers):
         _cancelled()
@@ -232,7 +350,7 @@ class SurfaceContextContinuations:
             result = await self.service.registry.register(intent, fresh, guard=lambda: self._check(h, fresh))
             self._check(h, fresh)
             self.service.track_registration(result)
-            return {**result, 'contract_version': 2, 'context_handle': h.handle,
+            return {**result, 'contract_version': 3, 'context_handle': h.handle,
                 'operation_id': h.operation_id, 'purpose_ref': h.purpose.reference}
         except asyncio.CancelledError:
             if bound:

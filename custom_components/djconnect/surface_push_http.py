@@ -39,9 +39,9 @@ def parse(raw):
 def validate(kind, data):
     if kind in {"register", "context"}:
         require(type(data) is dict, "invalid_request")
-        require(not (type(data.get("contract_version")) is int and data["contract_version"] == 1),
+        require(not (type(data.get("contract_version")) is int and data["contract_version"] in {1, 2}),
             "surface_context_required", 409)
-        require(type(data.get("contract_version")) is int and data["contract_version"] == 2, "invalid_request")
+        require(type(data.get("contract_version")) is int and data["contract_version"] == 3, "invalid_request")
         if kind == "register":
             require("context_handle" in data and type(data["context_handle"]) is str
                 and data["context_handle"].startswith("djcctx_") and len(data["context_handle"]) == 50,

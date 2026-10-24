@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 COLLECTION_PATH = ROOT / "examples" / "djconnect.postman_collection.json"
 POSTMAN_SCHEMA = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 AUTH_REQUIRED_PATHS = {
+    "/api/djconnect/v1/push/surface/context",
+    "/api/djconnect/v1/push/surface/register",
     "/api/djconnect/v1/session/content/delete/prepare",
     "/api/djconnect/v1/session/content/delete",
     "/api/djconnect/v1/session/content/delete/status",
@@ -40,6 +42,8 @@ AUTH_REQUIRED_PATHS = {
     "/api/djconnect/v1/voice",
 }
 DEVICE_ID_HEADER_REQUIRED_PATHS = {
+    "/api/djconnect/v1/push/surface/context",
+    "/api/djconnect/v1/push/surface/register",
     "/api/djconnect/v1/session/content/delete/prepare",
     "/api/djconnect/v1/session/content/delete",
     "/api/djconnect/v1/session/content/delete/status",
@@ -54,6 +58,8 @@ DEVICE_ID_HEADER_REQUIRED_PATHS = {
     "/api/djconnect/v1/voice",
 }
 IDENTITY_REQUIRED_PATHS = {
+    "/api/djconnect/v1/push/surface/context",
+    "/api/djconnect/v1/push/surface/register",
     "/api/djconnect/v1/session/content/delete/prepare",
     "/api/djconnect/v1/session/content/delete",
     "/api/djconnect/v1/session/content/delete/status",

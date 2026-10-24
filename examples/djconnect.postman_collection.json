@@ -117,6 +117,38 @@
       "key": "content_delete_operation_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "surface_context_handle",
+      "value": ""
+    },
+    {
+      "key": "surface_os_version",
+      "value": ""
+    },
+    {
+      "key": "surface_instance_id",
+      "value": ""
+    },
+    {
+      "key": "surface_app_bundle_id",
+      "value": ""
+    },
+    {
+      "key": "surface_extension_bundle_id",
+      "value": ""
+    },
+    {
+      "key": "surface_widget_kind",
+      "value": ""
+    },
+    {
+      "key": "surface_apns_token",
+      "value": ""
+    },
+    {
+      "key": "surface_apns_environment",
+      "value": ""
     }
   ],
   "auth": {
@@ -1881,6 +1913,89 @@
               ]
             },
             "description": "Paired owner only; flat device_id/client_type and existing Bearer, no nested identity or caller Profile. Feature-detect advertised capability and exact version. Use only synthetic disposable data for tests. No automatic POST replay or new operation ID after unknown/expired outcome. No music-playback undo or installed/native acceptance follows from this example. Read-only: does not execute or recover erasure. Retain the original confirmation_id and operation_id. Check original receipt binding; unknown/expired_unknown never proves definitive rejection and never permits a new-ID mutation retry."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Widget original-clock context v3 (closed by default)",
+      "item": [
+        {
+          "name": "Original-clock v3 context",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/push/surface/context",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "push",
+                "surface",
+                "context"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"ios\",\n  \"session_id\": \"{{session_id}}\",\n  \"operation_id\": \"{{operation_id}}\",\n  \"contract_version\": 3\n}"
+            },
+            "description": "Inert widget-only source example. Production default stays unavailable without actual qualified owner/purpose admission; ordinary pairing is insufficient. No new enrollment/key/provider/device authority. Capture original client monotonic anchor before first await and use the complete normative original-clock v3 contract; unknown rate/suspend/domain or lost history stays closed. Reuse original operation/handle on a known same operation only; never automatically reissue after unknown/expired outcome. Existing registered read/status/revoke remain v1. No Activity or external-content permission."
+          }
+        },
+        {
+          "name": "Original-clock v3 register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/push/surface/register",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "push",
+                "surface",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"ios\",\n  \"session_id\": \"{{session_id}}\",\n  \"operation_id\": \"{{operation_id}}\",\n  \"contract_version\": 3,\n  \"context_handle\": \"{{surface_context_handle}}\",\n  \"platform\": \"ios\",\n  \"os_version\": \"{{surface_os_version}}\",\n  \"token_role\": \"widget\",\n  \"target\": {\n    \"instance_id\": \"{{surface_instance_id}}\",\n    \"app_bundle_id\": \"{{surface_app_bundle_id}}\",\n    \"extension_bundle_id\": \"{{surface_extension_bundle_id}}\",\n    \"widget_kind\": \"{{surface_widget_kind}}\"\n  },\n  \"apns_token\": \"{{surface_apns_token}}\",\n  \"apns_environment\": \"{{surface_apns_environment}}\",\n  \"expected_registration\": null,\n  \"consent\": {\n    \"background_read\": true,\n    \"os_snapshot_cache\": true,\n    \"locked_display\": false,\n    \"external_push_content\": false,\n    \"allow_remote_start\": false\n  }\n}"
+            },
+            "description": "Inert widget-only source example. Production default stays unavailable without actual qualified owner/purpose admission; ordinary pairing is insufficient. No new enrollment/key/provider/device authority. Capture original client monotonic anchor before first await and use the complete normative original-clock v3 contract; unknown rate/suspend/domain or lost history stays closed. Reuse original operation/handle on a known same operation only; never automatically reissue after unknown/expired outcome. Existing registered read/status/revoke remain v1. No Activity or external-content permission."
           }
         }
       ]

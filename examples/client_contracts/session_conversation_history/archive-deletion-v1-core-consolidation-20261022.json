@@ -23,7 +23,7 @@
   },
   "harness": "scripts/verification/verify_archive_deletion_http.py",
   "harness_sha256": "5d36f90bac1d6412a29aeea055d57053cddba991ba39e58b3753092ff99b75f7",
-  "actual_ha_receipt_sha256": "536a8296c5f182a9a1309e3618642ef45e6da7d623da9022672c7bdb32afbff9",
+  "actual_ha_receipt_sha256": "0c57f411fed219bb11c100ad9b77018c8a1bd13c08f9f555dfc737acf24a584c",
   "requests_observed": 37,
   "cases": [
     "actual_paired_foreign_target_hidden",
@@ -40,9 +40,9 @@
   },
   "examples": {
     "single_request": {
-      "session_id": "session-08d8003d272e49eb935246222f558ffd",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:bc713a6f02a1a49585debc9e9b0cdf592303b3c12e4cd3268522321a981d414c",
-      "operation_id": "01a16a31-0044-7000-8000-000000000001",
+      "session_id": "session-9a38af8d7f0045a5b37813de4be0d291",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:73a2bf41e21d1bf4d3379e7d82687173469bf2d8dce5d25ef3fc4ffaecffc0cf",
+      "operation_id": "01a16ddd-a482-7000-8000-000000000001",
       "confirmed": true,
       "history_contract_version": 2
     },
@@ -53,96 +53,96 @@
     "single_status_query": {
       "contract_version": "1",
       "operation": "single",
-      "operation_id": "01a16a31-0044-7000-8000-000000000001",
-      "session_id": "session-08d8003d272e49eb935246222f558ffd",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:bc713a6f02a1a49585debc9e9b0cdf592303b3c12e4cd3268522321a981d414c"
+      "operation_id": "01a16ddd-a482-7000-8000-000000000001",
+      "session_id": "session-9a38af8d7f0045a5b37813de4be0d291",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:73a2bf41e21d1bf4d3379e7d82687173469bf2d8dce5d25ef3fc4ffaecffc0cf"
     },
     "single_pending_status": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "operation_id": "01a16a31-0044-7000-8000-000000000001",
+      "operation_id": "01a16ddd-a482-7000-8000-000000000001",
       "operation": "single",
-      "request_digest": "91f3be4f575286f263fa4310c54bc43f93e4b994b50c21388c759727dcf8d466",
-      "session_id": "session-08d8003d272e49eb935246222f558ffd",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:bc713a6f02a1a49585debc9e9b0cdf592303b3c12e4cd3268522321a981d414c",
+      "request_digest": "5a981553526a415b5ace552263b6e7c57469c536a93789d7ea0d8c2ee0d0f700",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:73a2bf41e21d1bf4d3379e7d82687173469bf2d8dce5d25ef3fc4ffaecffc0cf",
+      "session_id": "session-9a38af8d7f0045a5b37813de4be0d291",
       "state": "pending",
       "definitive": false
     },
     "single_response": {
       "success": true,
       "schema_version": 1,
-      "operation_id": "01a16a31-0044-7000-8000-000000000001",
+      "operation_id": "01a16ddd-a482-7000-8000-000000000001",
       "owner_profile_id": "profile-a",
       "deleted": true,
-      "deleted_session_id": "session-08d8003d272e49eb935246222f558ffd"
+      "deleted_session_id": "session-9a38af8d7f0045a5b37813de4be0d291"
     },
     "single_completed_status": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "operation_id": "01a16a31-0044-7000-8000-000000000001",
+      "operation_id": "01a16ddd-a482-7000-8000-000000000001",
       "operation": "single",
-      "request_digest": "91f3be4f575286f263fa4310c54bc43f93e4b994b50c21388c759727dcf8d466",
-      "session_id": "session-08d8003d272e49eb935246222f558ffd",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:bc713a6f02a1a49585debc9e9b0cdf592303b3c12e4cd3268522321a981d414c",
+      "request_digest": "5a981553526a415b5ace552263b6e7c57469c536a93789d7ea0d8c2ee0d0f700",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:73a2bf41e21d1bf4d3379e7d82687173469bf2d8dce5d25ef3fc4ffaecffc0cf",
+      "session_id": "session-9a38af8d7f0045a5b37813de4be0d291",
       "state": "completed",
       "definitive": true,
       "receipt": {
         "success": true,
         "schema_version": 1,
-        "operation_id": "01a16a31-0044-7000-8000-000000000001",
+        "operation_id": "01a16ddd-a482-7000-8000-000000000001",
         "owner_profile_id": "profile-a",
         "deleted": true,
-        "deleted_session_id": "session-08d8003d272e49eb935246222f558ffd"
+        "deleted_session_id": "session-9a38af8d7f0045a5b37813de4be0d291"
       }
     },
     "snapshot_response": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "snapshot_id": "CY7Dlz3EZPcO2KakG_jampO7GBKWLwm8vHrLkzeKiPU",
+      "snapshot_id": "jdxg-FssNHaHnvYFcU5N-ZaffIQcX3jVm4dTqFJw3H4",
       "target_count": 3,
-      "created_at": "2026-10-23T19:16:00.180752+00:00",
-      "expires_at": "2026-10-23T19:21:00.180752+00:00"
+      "created_at": "2026-10-24T12:23:26.236356+00:00",
+      "expires_at": "2026-10-24T12:28:26.236356+00:00"
     },
     "bulk_request": {
-      "snapshot_id": "CY7Dlz3EZPcO2KakG_jampO7GBKWLwm8vHrLkzeKiPU",
-      "operation_id": "01a16a31-065b-7000-8000-000000000002",
+      "snapshot_id": "jdxg-FssNHaHnvYFcU5N-ZaffIQcX3jVm4dTqFJw3H4",
+      "operation_id": "01a16ddd-ab42-7000-8000-000000000002",
       "confirmed": true
     },
     "bulk_response": {
       "success": true,
       "schema_version": 1,
-      "operation_id": "01a16a31-065b-7000-8000-000000000002",
+      "operation_id": "01a16ddd-ab42-7000-8000-000000000002",
       "owner_profile_id": "profile-a",
       "deleted": true,
-      "snapshot_id": "CY7Dlz3EZPcO2KakG_jampO7GBKWLwm8vHrLkzeKiPU",
+      "snapshot_id": "jdxg-FssNHaHnvYFcU5N-ZaffIQcX3jVm4dTqFJw3H4",
       "deleted_session_count": 3
     },
     "bulk_status_query": {
       "contract_version": "1",
       "operation": "all",
-      "operation_id": "01a16a31-065b-7000-8000-000000000002",
-      "snapshot_id": "CY7Dlz3EZPcO2KakG_jampO7GBKWLwm8vHrLkzeKiPU"
+      "operation_id": "01a16ddd-ab42-7000-8000-000000000002",
+      "snapshot_id": "jdxg-FssNHaHnvYFcU5N-ZaffIQcX3jVm4dTqFJw3H4"
     },
     "bulk_completed_status": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "operation_id": "01a16a31-065b-7000-8000-000000000002",
+      "operation_id": "01a16ddd-ab42-7000-8000-000000000002",
       "operation": "all",
-      "request_digest": "416ebdd1b07a362e99cb64b4ca7664cd978db3275b98b449cd8a7a3b1b224d2d",
-      "snapshot_id": "CY7Dlz3EZPcO2KakG_jampO7GBKWLwm8vHrLkzeKiPU",
+      "request_digest": "9d9c9d368506e2e85bfe4b08ee9c02d4b91f2f99d778dd1090915be23dad83e7",
+      "snapshot_id": "jdxg-FssNHaHnvYFcU5N-ZaffIQcX3jVm4dTqFJw3H4",
       "state": "completed",
       "definitive": true,
       "receipt": {
         "success": true,
         "schema_version": 1,
-        "operation_id": "01a16a31-065b-7000-8000-000000000002",
+        "operation_id": "01a16ddd-ab42-7000-8000-000000000002",
         "owner_profile_id": "profile-a",
         "deleted": true,
-        "snapshot_id": "CY7Dlz3EZPcO2KakG_jampO7GBKWLwm8vHrLkzeKiPU",
+        "snapshot_id": "jdxg-FssNHaHnvYFcU5N-ZaffIQcX3jVm4dTqFJw3H4",
         "deleted_session_count": 3
       }
     }
