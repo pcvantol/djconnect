@@ -60,6 +60,7 @@ from custom_components.djconnect.spotify_backend import SpotifyBackend
 from custom_components.djconnect.session_facts import SessionFactsResolver
 
 logging.basicConfig(level=logging.ERROR)
+catalogue_progress = None
 
 
 def configured_entry(identifier, domain, data, subentries=None):
@@ -90,6 +91,7 @@ def hashes():
     files.append(ROOT / 'scripts/verification/askdj_catalogue_provider_fixture.py')
     files.append(ROOT / 'custom_components/djconnect/ask_dj/examples_v1.json')
     files.append(ROOT / 'scripts/verification/source_fixture_urls.py')
+    files.append(ROOT / 'scripts/verification/catalogue_progress.py')
     return {
         str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)
     }
@@ -143,11 +145,19 @@ def reserve_quality_attempt(path, case_id, model):
 
 
 async def main():
+    global catalogue_progress
     lab_started = time.monotonic()
     initial_source_hashes = hashes()
     access = json.load(sys.stdin)
     variation_base = access.get('variation_base_report')
     variation_corpus = access.get('variation_corpus')
+    if (os.environ.get('DJC_SAFETY_PROBE') == 'catalogue_golden'
+            and variation_base is None and variation_corpus is None
+            and not os.environ.get('DJC_CATALOGUE_CASES')):
+        from scripts.verification.catalogue_progress import CatalogueProgress
+        from scripts.verification.askdj_example_catalogue_golden import cases, chain_cases, manifest_digest
+        catalogue_progress = CatalogueProgress(Path('/lab/catalogue-progress.json'),
+            case_ids=[c['id'] for c in cases() + chain_cases()], manifest=manifest_digest())
     if variation_base is not None:
         from tools.verification.askdj_catalogue_variations import require_base
         require_base(variation_base, initial_source_hashes)
@@ -410,6 +420,9 @@ async def main():
             # A refused reservation never reached the provider boundary. Once
             # reserved, retain even failed/cancelled attempts in this run too.
             model_receipts.append(receipt)
+        if catalogue_progress is not None:
+            # A failed durable checkpoint stops BEFORE original SDK invocation.
+            catalogue_progress.before_model(case_id)
         began = time.monotonic()
         try:
             stream = await original_create(**kwargs)
@@ -423,6 +436,7 @@ async def main():
             await model_gate["release"].wait()
 
         async def observed_stream():
+            completion_recorded = False
             try:
                 async for event in stream:
                     if event.type in {"response.completed", "response.incomplete", "response.failed"}:
@@ -435,6 +449,10 @@ async def main():
                             output_tokens=response.usage.output_tokens if response.usage else None,
                             generated_text=response.output_text,
                         )
+                        if (catalogue_progress is not None and event.type == 'response.completed'
+                                and not completion_recorded):
+                            catalogue_progress.completed_response()
+                            completion_recorded = True
                     yield event
             finally:
                 receipt['duration_seconds']=round(time.monotonic()-began,3)
@@ -1988,18 +2006,23 @@ async def main():
                     with patch.object(public_research, 'supported', observe_support):
                         report = await run(hass=h, call=call, start=start, end=end,
                             state=state, provider_calls=provider_calls, model_receipts=model_receipts,
-                            judge_language=judge_language, corpus=variation_corpus)
+                            judge_language=judge_language, corpus=variation_corpus,
+                            progress=catalogue_progress)
                     report['public_review_rejections'] = public_rejections
                     report.update(source_hashes=initial_source_hashes,
                         source_unchanged=hashes() == initial_source_hashes,
                         configured_maximum_tokens=max_tokens, configured_reasoning_effort='low',
                         pairing="ordinary_device_token_minted_persisted", core_transports=receipts)
                     filename='catalogue-variations-golden.json' if variation_corpus is not None else 'catalogue-golden.json'
+                    if catalogue_progress is not None:
+                        catalogue_progress.phase('report')
                     Path('/lab/'+filename).write_text(jsonlib(report)+"\n")
                     assert report["status"] == "PASS", [r["id"] for r in report["cases"] if r["status"] != "PASS"]
                     await async_shutdown_persistence(h)
                     await h.async_stop(force=True)
                     await api.close()
+                    if catalogue_progress is not None:
+                        catalogue_progress.terminal('COMPLETE_NOT_QUALIFIED')
                     return
 
                 if os.environ.get("DJC_SAFETY_PROBE") == "semantic_reads":
@@ -2552,7 +2575,12 @@ def jsonlib(value):
 if __name__ == "__main__":
     try:
         asyncio.run(main())
-    except Exception as exc:
+    except BaseException as exc:
+        if catalogue_progress is not None:
+            catalogue_progress.failure_without_masking_primary(
+                cancelled=isinstance(exc, (asyncio.CancelledError, KeyboardInterrupt)))
+        if not isinstance(exc, Exception):
+            raise
         import traceback
 
         print(

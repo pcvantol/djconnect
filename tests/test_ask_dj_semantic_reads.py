@@ -41,7 +41,14 @@ class SemanticReadTests(unittest.IsolatedAsyncioTestCase):
         answers = ('Volbeat is a Danish band.', 'Volbeat is een Deense band.',
             'Volbeat ist eine dänische Band.', 'Volbeat est un groupe danois.',
             'Volbeat es una banda danesa.')
-        for locale, question, text in zip(('en','nl','de','fr','es'), questions, answers, strict=True):
+        from pathlib import Path
+        catalogue = json.loads((Path(__file__).resolve().parents[1] /
+            'custom_components/djconnect/ask_dj/examples_v1.json').read_text())
+        canonical = next(row['templates'] for row in catalogue['entries'] if row['id']=='listen.artist')
+        locales = ('en','nl','de','fr','es')
+        cases = list(zip(locales, questions, answers, strict=True))
+        cases += [(locale, canonical[locale], text) for locale,text in zip(locales,answers,strict=True)]
+        for sequence, (locale, question, text) in enumerate(cases):
             await f.history.async_clear('profile:profile-a')
             calls, commands = [], []
             async def agent(hass, data, **kwargs):
@@ -64,7 +71,7 @@ class SemanticReadTests(unittest.IsolatedAsyncioTestCase):
                     'artist':'Volbeat', 'title':'Private current recording'}}
             with f.research_http(title='Volbeat', text='Volbeat is a Danish band.'), patch.object(
                     f.pipeline, '_call_conversation_process_transport', agent), patch.object(f.core, 'run_music_command', status):
-                answer, code = await f.request(question, identifier='artist-story-'+locale, language=locale)
+                answer, code = await f.request(question, identifier=f'artist-story-{locale}-{sequence}', language=locale)
             self.assertEqual(code, 200, answer)
             self.assertEqual(answer.get('knowledge_basis'), 'fetched_public_music_research_v1', answer)
             self.assertTrue(answer.get('is_generated_text'), answer)

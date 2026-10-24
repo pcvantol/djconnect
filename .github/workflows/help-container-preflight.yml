@@ -1,0 +1,49 @@
+name: Cost-free Help container preflight
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/help-container-preflight.yml'
+      - 'tools/verification/verify_help_container_preflight.py'
+      - 'tools/verification/run_help_catalogue_qualification_20261023.py'
+      - 'scripts/verification/**'
+      - 'custom_components/djconnect/**'
+      - 'tests/test_help_container_preflight.py'
+      - 'tests/test_help_agent_availability.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/help-container-preflight.yml'
+      - 'tools/verification/verify_help_container_preflight.py'
+      - 'tools/verification/run_help_catalogue_qualification_20261023.py'
+      - 'scripts/verification/**'
+      - 'custom_components/djconnect/**'
+      - 'tests/test_help_container_preflight.py'
+      - 'tests/test_help_agent_availability.py'
+
+permissions:
+  contents: read
+
+jobs:
+  setup-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          persist-credentials: false
+      - name: Pull exact existing HA qualification image
+        run: docker pull ghcr.io/home-assistant/home-assistant@sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4
+      - name: Verify ownership, imports and progress without credentials or model calls
+        run: |
+          python3 tools/verification/verify_help_container_preflight.py \
+            --source-root "$GITHUB_WORKSPACE" \
+            --report-dir "$RUNNER_TEMP/help-container-preflight"
+      - name: Preserve only closed cost-free receipt
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: help-container-preflight
+          path: ${{ runner.temp }}/help-container-preflight/preflight.json
+          if-no-files-found: error
+          retention-days: 7

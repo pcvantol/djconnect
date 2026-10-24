@@ -2,26 +2,16 @@ from __future__ import annotations
 
 import importlib
 import asyncio
-from pathlib import Path
-import sys
 import types
 import unittest
 from unittest.mock import patch
 
+from tests.test_http_voice_helpers import install_http_stubs
+
 
 def install_pipeline_stubs() -> None:
-    if "homeassistant.core" in sys.modules:
-        return
-    homeassistant = types.ModuleType("homeassistant")
-    core = types.ModuleType("homeassistant.core")
-    core.HomeAssistant = object
-    sys.modules["homeassistant"] = homeassistant
-    sys.modules["homeassistant.core"] = core
-    package = types.ModuleType("custom_components.djconnect")
-    package.__path__ = [
-        str(Path(__file__).resolve().parents[1] / "custom_components" / "djconnect")
-    ]
-    sys.modules["custom_components.djconnect"] = package
+    """Use the complete shared fixture in isolated owning test processes."""
+    install_http_stubs()
 
 
 class AssistPipelineTest(unittest.TestCase):

@@ -35,6 +35,7 @@ class _OriginalAttempt:
     deadline_mono: float
     last_wall: int
     last_mono: float
+    local_guard: object = field(default=None, repr=False)
     closed: bool = False
     purpose: SurfacePurposeCredential | None = field(default=None, repr=False)
 
@@ -84,6 +85,8 @@ class IssuerLifecycle:
     def _validate(self, attempt, action, *, live):
         _cancelled()
         capture = attempt.capture
+        if action == 'live' and attempt.local_guard is not None:
+            require(attempt.local_guard() is None, 'surface_issuer_owner_unavailable', 503)
         capture.comparisons()
         validate = {'live': self.owner.validate_live, 'status': self.owner.validate_status,
             'withdraw': self.owner.validate_withdrawal}[action]
@@ -100,6 +103,8 @@ class IssuerLifecycle:
                 and mono < attempt.deadline_mono, 'surface_issuer_reply_expired')
             capture.expected.live(now, mono)
             capture.expected.live_operation(now)
+        if action == 'live' and attempt.local_guard is not None:
+            require(attempt.local_guard() is None, 'surface_issuer_owner_unavailable', 503)
         _cancelled()
 
     def _retained(self, handle):
@@ -151,9 +156,10 @@ class IssuerLifecycle:
         require(type(reply) is IssuerHTTPReply, 'surface_issuer_reply_invalid')
         return reply
 
-    def begin(self, operation_id):
+    def begin(self, operation_id, *, local_guard=None):
         """Capture original admission synchronously, BEFORE caller scheduling."""
         _cancelled()
+        require(local_guard is None or callable(local_guard), 'surface_issuer_owner_unavailable', 503)
         require(not self.closed, 'surface_issuer_owner_unavailable', 503)
         capture = self.owner.capture_live(operation_id)
         require(type(capture) is IssuerOwnerCapture
@@ -166,7 +172,8 @@ class IssuerLifecycle:
         end = min(now + 120000, operation_created_ms(operation_id) + 300000,
             capture.expected.original_grant_expires_ms)
         handle = IssuerManagementHandle(capture, self._handle_owner)
-        attempt = _OriginalAttempt(capture, handle, now, mono, end, mono + (end-now)/1000, now, mono)
+        attempt = _OriginalAttempt(capture, handle, now, mono, end, mono + (end-now)/1000, now, mono,
+            local_guard=local_guard)
         require(identity not in self._attempts and len(self._attempts) < MAX_IDENTITIES,
             'surface_issuer_stage_consumed', 503)
         self._attempts[identity] = attempt
@@ -253,6 +260,10 @@ class IssuerLifecycle:
         reply = await self._send(attempt, 'status', self._payload(capture, 'status'), guard, deadline)
         require(reply.status == 200, 'surface_issuer_reply_invalid')
         return status_unavailable(reply.body, capture.expected)
+
+    def fence(self, handle):
+        """Immediately retire the exact RAM attempt before any scheduling/await."""
+        self._retained(handle).close()
 
     async def withdraw(self, handle, operation_id):
         attempt = self._retained(handle)

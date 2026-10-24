@@ -638,7 +638,7 @@ def references_topic(text: str) -> bool:
         return True
     return bool(
         re.search(
-            r"\b(?:dat|die|dit|hem|haar|deze|that|this|these|those|him|his|her|he|she|it|them|their|zijn|diens|hun|er|sie|das|diese|sein|seine|seinen|ihr|ihre|celui|celle|ça|il|elle|son|sa|ses|leur|ese|esa|él|ella|su|sus)\b",
+            r"\b(?:dat|die|dit|hem|haar|deze|that|this|these|those|him|his|her|he|she|it|them|their|zijn|diens|hun|er|sie|das|diese|diesen|diesem|dieser|dieses|sein|seine|seinen|ihr|ihre|celui|celle|ça|il|elle|ce|cet|cette|son|sa|ses|leur|ese|esa|este|esta|él|ella|su|sus)\b",
             text.casefold(),
         )
     )
@@ -1244,6 +1244,14 @@ def qualify_agent(hass, identifier):
     return agent
 
 
+def deictic_subject(subject: str) -> bool:
+    """Closed whole-subject lens; never a source or identity admission."""
+    return bool(re.fullmatch(
+        r"(?:dat|die|dit|hem|haar|deze|that|this|him|her|he|she|it|them|er|sie|das|diese|diesen|diesem|dieser|dieses|celui|celle|ça|il|elle|ce|cet|cette|ese|esa|este|esta|él|ella|the|de|der|le|la|el)(?:\s+(?:artist|artiest|band|album|track|moment|contribution|bijdrage|beitrag|contribución|künstler|artiste|artista|persoon|person|composer|producer|singer|componist|producent|zanger|komponist|produzent|sänger|compositeur|producteur|chanteur|compositor|productor|cantante))?",
+        subject.strip(" .?!").casefold(),
+    ))
+
+
 def explicit_subject(text: str) -> str | None:
     """Small reference lens, not an answer/knowledge engine; explicit names win chips."""
     match = re.match(
@@ -1260,9 +1268,6 @@ def explicit_subject(text: str) -> str | None:
     subject = match[1].strip(" .?!")
     # Articles such as German 'die' do not turn an explicit band name into
     # a pronoun. Only a wholly deictic subject keeps the existing selection.
-    if re.fullmatch(
-        r"(?:dat|die|dit|hem|haar|deze|that|this|him|her|he|she|it|them|er|sie|das|diese|celui|celle|ça|il|elle|ce|cet|cette|ese|esa|este|esta|él|ella|the|de|der|le|la|el)(?:\s+(?:artist|artiest|band|album|track|moment|contribution|bijdrage|beitrag|contribución|künstler|artiste|artista|persoon|person|composer|producer|singer|componist|producent|zanger|komponist|produzent|sänger|compositeur|producteur|chanteur|compositor|productor|cantante))?",
-        subject.casefold(),
-    ):
+    if deictic_subject(subject):
         return None
     return subject[:160]

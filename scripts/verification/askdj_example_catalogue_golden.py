@@ -348,7 +348,8 @@ def check_response(case, body, writes):
     return findings
 
 
-async def run(*, hass, call, start, end, state, provider_calls, model_receipts, judge_language, corpus=None):
+async def run(*, hass, call, start, end, state, provider_calls, model_receipts, judge_language,
+              corpus=None, progress=None):
     """Actual authenticated message path. Source fixtures never author answers."""
     from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
     from custom_components.djconnect.playback_observation import playback_observation_manager
@@ -376,8 +377,11 @@ async def run(*, hass, call, start, end, state, provider_calls, model_receipts, 
     observer = playback_observation_manager(hass)
     rows = []
     offers, original_requests = {}, {}
+    primary_failure = None
     try:
         for case in all_cases:
+            if progress is not None:
+                progress.phase('case', case['id'])
             if case['kind'] == 'catalogue_question' or case.get('operation') == 'offer':
                 await call('ask_dj/history/clear', {}, label=case['id']+'-clear')
             # Original fixture identity A; no per-case expected-answer injection.
@@ -427,8 +431,25 @@ async def run(*, hass, call, start, end, state, provider_calls, model_receipts, 
                 'question_sha256':hashlib.sha256(case['question'].encode()).hexdigest(),
                 'provider_operations':operations, 'provider_writes':writes,
                 'paid_attempts':len(model_receipts)-model_before})
+            if progress is not None:
+                progress.completed_case(case['id'], passed=not failure)
+    except BaseException as exc:
+        primary_failure = exc
+        raise
     finally:
-        await end(active, 'catalogue')
+        checkpoint_failure = None
+        try:
+            if progress is not None:
+                progress.phase('teardown')
+        except BaseException as exc:
+            checkpoint_failure = exc
+        try:
+            await end(active, 'catalogue')
+        except BaseException:
+            if primary_failure is None and checkpoint_failure is None:
+                raise
+        if primary_failure is None and checkpoint_failure is not None:
+            raise checkpoint_failure
     return {'qualification':('REAL_PAIRED_HA_CATALOGUE_VARIATIONS_V1' if corpus is not None else
                             'REAL_PAIRED_HA_SELECTED_CATALOGUE_CASES_V1' if selected_ids else
                             'REAL_PAIRED_HA_EXACT_CATALOGUE_QUESTIONS_V1'),
