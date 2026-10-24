@@ -1,3 +1,15 @@
+# Historical queue-preservation V2 — source candidate, 24 October 2026
+
+Current protected predecessor is Core Final1325 `a1fee6c73734c4e34aad283a01551b8b179a796c`; its original qualification is complete. This new bounded candidate closes historical playback because no qualified provider operation preserves every remaining queue occurrence and its order. Capability is false/version2; V1/V2 browsing remains available without play offers. Cached taps and historical output continuations return typed409 before new effects. Ordinary output/recommendation paths and captured reply artwork remain independent.
+
+[Contract](docs/product/HISTORICAL_QUEUE_PRESERVATION_V2.md) and [verification](docs/verification/HISTORICAL_QUEUE_PRESERVATION_V2_20261024.md) describe negative admission only, not a delivered queue-preserving player. Current actual isolated HA has all13groups PASS with264 source hashes equal before/after and the owned container absent. Causal initial-play, RAM replay and durable-output replay failures remain preserved with their corrected controls. Exact whole/commit independent review, normal protected Source and separate Final/original qualification remain required.
+
+HA-dev retains independently installed Source98/Finalf0; HA production configuration answer remains pending. API94 production is unchanged. Help stays qualifiedfalse/70pending; both paid manual runs retain consumed/unknown-spend scope and are not repeated. Real push owner/custody/enrollment/purpose/Activity/client-clock/native/provider, full VibeCast/physical/user acceptance and all24requests/ninegates remain open within their own evidence. No new deployment, paid call or device effect is part of this increment.
+
+Earlier snapshots below retain their own historical scopes.
+
+---
+
 # Current qualified original-clock v3 source and actual HA-dev installation — 24 October 2026
 
 Core Source PR1321 is protected98f91ed0f1f407ce1fe7852b64a7da30fe73e131, reviewed d936747da5c44e1b3fcd026e10f01406456355e4/tree3df97e79. Separate documentary Final PR1322 is protectedf0c4a1aa51c5758f985f8ddea16e1bffd8938a73, reviewed e38ff9101d85e1d4dc253761c43622b28c7c3eb6/treeaa80ede7. Both are ORIGINAL_QUALIFIED: source ownmain40095105233SUCCESS/formal40095658798 original6352B SHA1d4c874de2dd3c4e5faae2ece368a897462bbf9e6c69ed6095aea8df26240588/durable1812B f417a6b88573a92a7b5edb453fab48e4792e342509fb059ef96d170c8558a39c; Final ownmain40096536833SUCCESS/formal40096946322 original2602B SHA34aec1fb567ac9045f639e8ac3eca979223f27db6f200598a1549badffb3af40/durable1812B7367b4cf8bf65469de7fc5f3d92abb5bb27c305e9d3ae7fed9af5d49c1b24310. Root personally checked original provider ZIP, canonical integrity, coverage exactSHA, source digest and reviewed/protected tree joins. Automatic release-model/package work was cancelled once per release, not PASS or zero-call proof; no new manual paid catalogue run occurred.

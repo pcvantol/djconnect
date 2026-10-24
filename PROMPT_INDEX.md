@@ -1,3 +1,13 @@
+# Historical queue-preservation V2 source — 24 October 2026
+
+- [Direct task and bounded source record](docs/history/prompts/2026-10-24-historical-queue-preservation-v2-source.md).
+- [Contract](docs/product/HISTORICAL_QUEUE_PRESERVATION_V2.md); [actual verification](docs/verification/HISTORICAL_QUEUE_PRESERVATION_V2_20261024.md).
+- Current candidate is negative admission, not positive provider/native/installed acceptance. Protected predecessor Final1325 is qualified; the candidate needs independent exact reviews, normal protected Source and separate Final.
+
+Prior prompt records remain below unchanged.
+
+---
+
 # Qualified developer Pillow13 compatibility — 24 October 2026
 
 PR [#1306](https://github.com/pcvantol/djconnect/pull/1306) merged as

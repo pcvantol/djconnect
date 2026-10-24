@@ -5,7 +5,7 @@ from dataclasses import replace
 import importlib
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 from tests import test_session_conversation_history as fixtures
 
@@ -134,6 +134,10 @@ class HistoricalPlaybackApplicationTests(unittest.IsolatedAsyncioTestCase):
             artist="Different artist",
         )
         self.effects = []
+        self.commands = []
+        # Explicit occurrence identities distinguish both repeated recordings.
+        self.queue = [("occurrence-a1", "A"), ("occurrence-b", "B"), ("occurrence-a2", "A")]
+        self.queue_before = list(self.queue)
         self.no_output = False
         self.before_dispatch = None
         self.before_inventory = None
@@ -142,6 +146,7 @@ class HistoricalPlaybackApplicationTests(unittest.IsolatedAsyncioTestCase):
         await self.f.asyncTearDown()
 
     async def backend(self, hass, runtime, command, value=None, **kwargs):
+        self.commands.append(command)
         turn = self.dialogue.current_turn.get()
         if command in {"play", "set_output"}:
             if self.before_dispatch:
@@ -156,6 +161,8 @@ class HistoricalPlaybackApplicationTests(unittest.IsolatedAsyncioTestCase):
             if not turn.effect_started:
                 await turn.before_effect()
             self.effects.append((command, value))
+            if command == "play":
+                self.queue[:] = [("ordinary-play-replacement", value)]
             return {
                 "success": True,
                 "playback": {
@@ -206,215 +213,220 @@ class HistoricalPlaybackApplicationTests(unittest.IsolatedAsyncioTestCase):
                 headers=self.headers,
             )
 
-    async def test_tap_plays_only_original_recording_and_duplicate_does_not_repeat(self):
-        result, status = await self.call()
-        self.assertEqual(status, 200, result)
-        self.assertTrue(result["success"], result)
-        self.assertEqual(self.effects, [("play", "spotify:track:" + "A" * 22)])
-        again, status = await self.call()
-        self.assertEqual(status, 200, again)
-        self.assertEqual(self.effects, [("play", "spotify:track:" + "A" * 22)])
+    def assert_closed(self, result, status):
+        self.assertEqual(status, 409, result)
+        self.assertEqual(result.get("error"), "historical_queue_preservation_unavailable")
+        self.assertIs(result.get("success"), False)
+        self.assertNotIn("playback_actions", result)
+        self.assertEqual(self.effects, [])
+        self.assertEqual(self.commands, [])
+        self.assertEqual(self.queue, self.queue_before)
+
+    async def test_queue_preservation_unavailable_before_any_play_or_output(self):
+        self.assert_closed(*(await self.call()))
         self.assertIs(self.f.manager.current_active("profile-a").broadcast, self.current.broadcast)
         stored = await self.f.repo.async_session_record(self.reference["session_id"])
         self.assertEqual(stored["lifecycle_status"], "ENDED")
-        self.assertEqual(
-            (
-                await self.f.repo.async_entry_record(
-                    "profile-a", self.reference["session_id"], self.reference["entry_id"]
-                )
-            )["body"],
-            next(r for r in self.rows if r["entry_id"] == self.reference["entry_id"])["body"],
-        )
+        row = await self.f.repo.async_entry_record("profile-a", self.reference["session_id"], self.reference["entry_id"])
+        self.assertEqual(row["body"], next(r for r in self.rows if r["entry_id"] == self.reference["entry_id"])["body"])
 
-    async def test_source_withdrawal_before_effect_prevents_dispatch(self):
-        async def withdraw():
-            self.source.disabled_by = "user"
+    async def test_duplicate_and_new_client_ids_never_repeat_or_admit(self):
+        for client_id in ("same-tap", "same-tap", "different-tap"):
+            self.assert_closed(*(await self.call(client_id=client_id)))
 
-        self.before_dispatch = withdraw
-        result, status = await self.call()
+    async def test_no_output_does_not_offer_chooser_or_query_devices(self):
+        self.no_output = True
+        self.assert_closed(*(await self.call()))
+
+    async def test_concurrent_taps_do_not_mutate_occurrence_multiplicity_or_order(self):
+        results = await asyncio.gather(self.call("concurrent-a"), self.call("concurrent-b"))
+        for result, status in results:
+            self.assertFalse(result.get("success"), result)
+        self.assertEqual(self.effects, [])
+        self.assertEqual(self.commands, [])
+        self.assertEqual(self.queue, self.queue_before)
+
+    async def test_caller_claims_cannot_supply_provider_qualification(self):
+        for index, extra in enumerate((
+            {"queue_preserved": True},
+            {"historical_playback_contract_version": 2},
+            {"provider_capabilities": {"atomic_queue_insert": True}},
+            {"preserve_queue": True, "adapter": "qualified_atomic_provider"},
+        )):
+            self.assert_closed(*(await self.call(client_id=f"claim-{index}", **extra)))
+
+    async def test_no_generic_play_grant_or_previous_success_replay(self):
+        service = importlib.import_module("custom_components.djconnect.ask_dj.service")
+        with (
+            patch.object(service, "request_effect_grants", side_effect=AssertionError("generic grant issued")),
+            patch.object(self.history, "async_saved_exchange", side_effect=AssertionError("legacy success replayed")),
+        ):
+            self.assert_closed(*(await self.call()))
+
+    async def test_original_ram_success_cannot_bypass_new_historical_denial(self):
+        future = asyncio.get_running_loop().create_future()
+        future.set_result(({"success": True, "text": "Original V1 successful playback"}, AsyncMock()))
+        with patch.object(self.history.dialogue, "reserve", return_value=(future, False)):
+            self.assert_closed(*(await self.call()))
+
+    async def test_original_output_saved_success_cannot_bypass_retained_frame_denial(self):
+        original = self.history.dialogue.frame
+        def retained_frame(*args, **kwargs):
+            frame = original(*args, **kwargs)
+            frame.result_set = {"result_set_id": "old-output", "items": [],
+                                "historical_playback_admission": {"validate": lambda: None}}
+            return frame
+        saved = AsyncMock(side_effect=AssertionError("old output success was eligible for replay"))
+        with (
+            patch.object(self.history.dialogue, "frame", retained_frame),
+            patch.object(self.history, "async_saved_exchange", saved),
+        ):
+            self.assert_closed(*(await self.call(command="ask_dj_play_recommendation_on_output",
+                value={"device_id": "speaker-original", "recommendation": {"kind": "track", "uri": "spotify:track:" + "A" * 22}})))
+        saved.assert_not_awaited()
+
+    async def seed_original_output_receipt(self, *, dependencies, implicit=None, selected=None, command="ask_dj_play_recommendation_on_output"):
+        value = {"device_id": "speaker-original", "recommendation": {"kind": "track", "uri": "spotify:track:" + "A" * 22}}
+        if command == "ask_dj_play_request_on_output":
+            value = {"device_id": "speaker-original", "request": {"text": "play the original recording"}}
+        elif command == "ask_dj_message":
+            value = {"text": "play", "choice_action": {"result_set_id": "original-output", "action_id": "original-action", "operation": "play"}}
+        client_id = "legacy-saved-" + command
+        # Capture the real application's normalized digest from a rejected
+        # no-offer request, then seed the original persisted receipt shape.
+        captured = []
+        original_reserve = self.history.dialogue.reserve
+        def reserve(frame, identifier, digest, fast):
+            captured.append(digest)
+            return original_reserve(frame, identifier, digest, fast)
+        context = {"selected_entry": selected} if selected is not None else {}
+        with patch.object(self.history.dialogue, "reserve", reserve):
+            result, status = await self.call(client_id=client_id, command=command, value=value, conversation_context=context)
         self.assertFalse(result.get("success"), result)
+        self.assertEqual(len(captured), 1)
+        digest = captured[0]
+        await self.history.async_append_exchange("profile:profile-a", {**self.identity,
+            "client_message_id": client_id, "text": command},
+            {"success": True, "text": "Original V1 output dispatch receipt", "action": "spotify_start_recommendation"},
+            session_turn={"turn_id": "original-v1-output-turn", "request_digest": digest,
+                "profile_id": "profile-a", "context": context, "dependency_entries": dependencies,
+                "implicit_playback_entry": implicit, "effective_style": {"language": "en", "persona": "home_dj"}})
+        self.history.dialogue.owners.clear()
+        self.assertIsNotNone(await self.history.async_saved_exchange("profile:profile-a", client_id))
+        return client_id, command, value
+
+    async def test_evicted_frame_original_durable_historical_output_receipt_is_closed(self):
+        client_id, command, value = await self.seed_original_output_receipt(dependencies=[self.reference])
+        self.assert_closed(*(await self.call(client_id=client_id, command=command, value=value)))
+
+    async def test_ordinary_durable_output_receipt_without_historical_target_stays_deduplicated(self):
+        client_id, command, value = await self.seed_original_output_receipt(dependencies=[])
+        result, status = await self.call(client_id=client_id, command=command, value=value)
+        self.assertEqual(status, 200, result)
+        self.assertTrue(result.get("deduplicated"), result)
         self.assertEqual(self.effects, [])
 
-    async def test_unknown_owner_entry_and_forged_uri_are_closed(self):
-        for change in (
-            {"entry_id": "other-entry"},
-            {"session_id": "other-session"},
-            {"uri": "spotify:track:" + "Z" * 22},
+    async def test_ordinary_implicit_current_playback_receipt_stays_deduplicated(self):
+        client_id, command, value = await self.seed_original_output_receipt(dependencies=[self.reference], implicit=self.reference)
+        result, status = await self.call(client_id=client_id, command=command, value=value)
+        self.assertEqual(status, 200, result)
+        self.assertTrue(result.get("deduplicated"), result)
+        self.assertEqual(self.effects, [])
+
+    async def test_explicit_original_target_does_not_become_implicit_by_extra_reference_fields(self):
+        selected = {k: self.reference[k] for k in ("session_id", "entry_id")}
+        client_id, command, value = await self.seed_original_output_receipt(
+            dependencies=[self.reference], implicit=self.reference, selected=selected)
+        self.assert_closed(*(await self.call(client_id=client_id, command=command, value=value,
+            conversation_context={"selected_entry": selected})))
+
+    async def test_legacy_request_output_and_play_choice_replays_are_also_closed(self):
+        for command in ("ask_dj_play_request_on_output", "ask_dj_message"):
+            client_id, command, value = await self.seed_original_output_receipt(dependencies=[self.reference], command=command)
+            self.assert_closed(*(await self.call(client_id=client_id, command=command, value=value)))
+
+    async def test_legacy_output_continuation_closes_before_any_await_or_grant(self):
+        for admission in ({"validate": lambda: None}, {}, "old-context"):
+            turn = SimpleNamespace(frame=SimpleNamespace(result_set={"historical_playback_admission": admission}))
+            inventory = AsyncMock(side_effect=AssertionError("output inventory requested"))
+            with patch.object(self.core, "run_music_command", inventory):
+                for client_id in ("original", "replacement"):
+                    with self.assertRaises(self.dialogue.DialogueError) as raised:
+                        await self.core._activate_dialogue_output(self.hass, self.runtime, {"client_message_id": client_id},
+                            {"command": "ask_dj_play_recommendation_on_output", "device_id": "speaker-original"}, turn, play=True)
+                    self.assertEqual(raised.exception.code, "historical_queue_preservation_unavailable")
+                inventory.assert_not_awaited()
+        self.assertEqual(self.effects, [])
+
+    async def test_ordinary_output_play_continuation_keeps_existing_effect_owner(self):
+        turn = SimpleNamespace(frame=SimpleNamespace(result_set={}), guard=AsyncMock())
+        action = {"command": "ask_dj_play_recommendation_on_output", "device_id": "speaker-original", "action_id": "ordinary-action",
+                  "value": {"recommendation": {"kind": "track", "uri": "spotify:track:" + "A" * 22}}}
+        handler = AsyncMock(return_value={"success": True})
+        with (
+            patch.object(self.core, "run_music_command", self.backend),
+            patch.object(self.f.http, "_handle_ask_dj_play_recommendation_on_output", handler),
         ):
-            original = self.reference
+            result = await self.core._activate_dialogue_output(self.hass, self.runtime, {}, action, turn, play=True)
+        self.assertTrue(result["success"])
+        handler.assert_awaited_once()
+        self.assertEqual([grant.families for grant in turn.effect_grants], [frozenset({"output"}), frozenset({"play"})])
+
+    async def test_unknown_entry_and_forged_uri_are_closed(self):
+        original = self.reference
+        for change in ({"entry_id": "other-entry"}, {"session_id": "other-session"}, {"uri": "spotify:track:" + "Z" * 22}):
             self.reference = {**original, **change}
             result, status = await self.call(client_id="bad-" + next(iter(change)))
             self.assertFalse(result.get("success"), result)
             self.assertEqual(self.effects, [])
-            self.reference = original
+        self.reference = original
 
-    async def test_unknown_output_uses_existing_chooser_then_exact_item_and_no_duplicate(self):
-        self.no_output = True
-        first, status = await self.call()
-        self.assertEqual(status, 200, first)
-        self.assertEqual(first.get("action"), "select_output", first)
-        self.assertEqual(self.effects, [])
-        action = first["playback_actions"][0]
-        self.no_output = False
-        result, status = await self.call(
-            client_id="choose-output", command=action["command"], value=action["value"]
-        )
-        self.assertEqual(status, 200, result)
-        self.assertTrue(result["success"], result)
-        self.assertEqual(
-            self.effects,
-            [("set_output", "speaker-original"), ("play", "spotify:track:" + "A" * 22)],
-        )
-        duplicate, status = await self.call(
-            client_id="choose-output", command=action["command"], value=action["value"]
-        )
-        self.assertEqual(status, 200, duplicate)
-        self.assertEqual(len(self.effects), 2)
-
-    async def historical_output_offer(self):
-        self.no_output = True
-        first, status = await self.call()
-        self.assertEqual(status, 200, first)
-        self.assertEqual(first.get("action"), "select_output", first)
-        self.no_output = False
-        return first["playback_actions"][0]
-
-    async def choose(self, action, client_id):
-        return await self.call(
-            client_id=client_id, command=action["command"], value=action["value"]
-        )
-
-    async def test_output_offer_is_single_use_with_a_different_client_id(self):
-        action = await self.historical_output_offer()
-        result, status = await self.choose(action, "first-choice")
-        self.assertTrue(result.get("success"), result)
-        result, status = await self.choose(action, "new-id-same-choice")
-        self.assertFalse(result.get("success"), result)
-        self.assertEqual(len(self.effects), 2)
-
-    async def test_output_choice_retains_original_source_authority(self):
-        action = await self.historical_output_offer()
-        account = self.storage.household.music_accounts["source-account"]
-        self.storage.household.music_accounts["source-account"] = replace(
-            account, provider_account_id="replacement"
-        )
-        result, status = await self.choose(action, "changed-source-choice")
-        self.assertFalse(result.get("success"), result)
-        self.assertEqual(self.effects, [])
-
-    async def test_changed_default_account_cannot_retarget_output_offer(self):
-        action = await self.historical_output_offer()
-        # The original account remains linked and readable; only the selected
-        # current account changes. It must never inherit the original tap.
-        from custom_components.djconnect.domain.music_account import MusicAccountKind
-
-        await self.storage.async_upsert_music_account(
-            "another-account",
-            "source-spotify",
-            kind=MusicAccountKind.PERSONAL,
-            display_name="Synthetic replacement account",
-            linked_profile_ids=frozenset({"profile-a"}),
-            provider_account_id="provider-other",
-        )
-        await self.storage.async_update_profile(
-            "profile-a",
-            preferences=replace(
-                self.storage.household.profiles["profile-a"].preferences,
-                default_music_account_id="another-account",
-            ),
-        )
-        result, status = await self.choose(action, "different-default")
-        self.assertFalse(result.get("success"), result)
-        self.assertEqual(self.effects, [])
-
-    async def test_uncertain_output_attempt_cannot_be_replayed_by_new_id(self):
-        action = await self.historical_output_offer()
-        original = self.backend
-
-        # Keep the normal inventory/status fixture and fail only the first effect.
-        async def dispatch(hass, runtime, command, value=None, **kwargs):
-            if command == "set_output":
-                self.effects.append((command, value))
-                raise TimeoutError("synthetic uncertain dispatch")
-            return await original(hass, runtime, command, value, **kwargs)
-
-        with patch.object(self, "backend", dispatch):
-            result, status = await self.choose(action, "uncertain-first")
-        self.assertFalse(result.get("success"), result)
-        result, status = await self.choose(action, "uncertain-new-id")
-        self.assertFalse(result.get("success"), result)
-        self.assertEqual(self.effects, [("set_output", "speaker-original")])
-
-    async def test_source_withdrawn_during_output_inventory_cannot_dispatch(self):
-        action = await self.historical_output_offer()
-
-        async def withdraw():
-            self.source.disabled_by = "user"
-
-        self.before_inventory = withdraw
-        result, status = await self.choose(action, "withdrawn-choice")
-        self.assertFalse(result.get("success"), result)
-        self.assertEqual(self.effects, [])
-
-    async def test_deleted_original_during_output_inventory_cannot_dispatch(self):
-        action = await self.historical_output_offer()
-
-        async def remove():
-            await self.f.repo.async_remove_entry_records("profile-a", [self.reference["entry_id"]])
-
-        self.before_inventory = remove
-        result, status = await self.choose(action, "deleted-during-choice")
-        self.assertFalse(result.get("success"), result)
-        self.assertEqual(self.effects, [])
-
-    async def test_concurrent_output_choices_cannot_repeat_effects(self):
-        action = await self.historical_output_offer()
-        entered, release = asyncio.Event(), asyncio.Event()
-
-        async def hold():
-            entered.set()
-            await release.wait()
-
-        self.before_inventory = hold
-        first = asyncio.create_task(self.choose(action, "concurrent-first"))
-        await asyncio.wait_for(entered.wait(), 5)
-        second = asyncio.create_task(self.choose(action, "concurrent-second"))
-        await asyncio.sleep(0)
-        release.set()
-        results = await asyncio.gather(first, second)
-        self.assertEqual(sum(bool(result.get("success")) for result, status in results), 1, results)
-        self.assertEqual(len(self.effects), 2)
-
-    async def test_removed_original_entry_during_provider_await_never_dispatches(self):
-        async def remove():
-            self.before_dispatch = None
-            await self.f.repo.async_remove_entry_records("profile-a", [self.reference["entry_id"]])
-
-        self.before_dispatch = remove
+    async def test_deleted_original_is_not_replaced_by_current_playback(self):
+        await self.f.repo.async_remove_entry_records("profile-a", [self.reference["entry_id"]])
         result, status = await self.call()
         self.assertFalse(result.get("success"), result)
-        self.assertEqual(self.effects, [])
+        self.assertEqual(self.commands, [])
 
-    async def test_original_account_cannot_be_replaced_by_another_current_source(self):
-        account = self.storage.household.music_accounts["source-account"]
-        self.storage.household.music_accounts["source-account"] = replace(
-            account, provider_account_id="other-provider"
-        )
+    async def test_withdrawn_source_never_admits_effects(self):
+        self.source.disabled_by = "user"
         result, status = await self.call()
         self.assertFalse(result.get("success"), result)
-        self.assertEqual(self.effects, [])
+        self.assertEqual(self.commands, [])
 
-    async def test_history_read_only_offers_are_opt_in_and_never_play(self):
-        data = {
-            **self.identity,
-            "session_id": self.reference["session_id"],
-            "history_contract_version": 2,
-            "historical_playback_contract_version": 1,
-        }
-        page, status = await self.f.handlers.async_handle_session_history_payload(
-            self.hass, data, operation="timeline", headers=self.headers
-        )
-        self.assertEqual(status, 200, page)
-        row = next(e for e in page["entries"] if e["entry_id"] == self.reference["entry_id"])
-        self.assertEqual(row["playback_actions"][0]["value"], self.reference)
-        self.assertEqual(self.effects, [])
+    async def test_original_account_cannot_be_replaced_by_current_source(self):
+        account = self.storage.household.music_accounts["source-account"]
+        self.storage.household.music_accounts["source-account"] = replace(account, provider_account_id="other-provider")
+        result, status = await self.call()
+        self.assertFalse(result.get("success"), result)
+        self.assertEqual(self.commands, [])
+
+    async def test_capability_and_contract_advertise_closed_v2(self):
+        from custom_components.djconnect.capability_contract import _platform_capabilities, _contract_versions
+        self.assertIs(_platform_capabilities()["historical_exact_track_playback"], False)
+        self.assertEqual(_contract_versions()["historical_exact_track_playback"], 2)
+
+    async def test_history_browsing_legacy_and_v2_keep_readable_original_without_offers(self):
+        for version in (None, 1, "1", 2, "2"):
+            data = {**self.identity, "session_id": self.reference["session_id"], "history_contract_version": 2}
+            if version is not None:
+                data["historical_playback_contract_version"] = version
+            page, status = await self.f.handlers.async_handle_session_history_payload(self.hass, data, operation="timeline", headers=self.headers)
+            self.assertEqual(status, 200, page)
+            row = next(e for e in page["entries"] if e["entry_id"] == self.reference["entry_id"])
+            self.assertNotIn("playback_actions", row)
+            self.assertEqual(self.effects, [])
+
+    async def test_unknown_contract_versions_remain_closed(self):
+        for version in (True, False, 0, 3, "3", {}, []):
+            page, status = await self.f.handlers.async_handle_session_history_payload(self.hass,
+                {**self.identity, "session_id": self.reference["session_id"], "historical_playback_contract_version": version},
+                operation="timeline", headers=self.headers)
+            self.assertEqual(status, 400, page)
+            self.assertEqual(page.get("error"), "unsupported_historical_playback_contract")
+
+    async def test_denial_copy_uses_supported_request_language(self):
+        from custom_components.djconnect.historical_playback import UNAVAILABLE_MESSAGES
+        for language, message in UNAVAILABLE_MESSAGES.items():
+            result, status = await self.call(client_id="language-" + language, language=language)
+            self.assert_closed(result, status)
+            self.assertEqual(result["message"], message)

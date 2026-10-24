@@ -190,8 +190,22 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         frame = history_manager.dialogue.frame(scope, thread,
             scope_revision + ":" + grant + ":" + hashlib.sha256(json.dumps(source_scope(profile)).encode()).hexdigest()
             + ":" + str(payload.get("privacy_mode") or "default"))
+        # A retained V1 historical output offer must close before both RAM and
+        # saved-exchange replay, not only at the final effect adapter. Independent
+        # ordinary requests on the same thread retain their existing semantics.
+        command = (payload.get("_command_action") or (None,))[0]
+        historical_output = (isinstance(frame.result_set, dict)
+            and frame.result_set.get("historical_playback_admission") is not None
+            and (payload.get("choice_action") is not None or command in {
+                "ask_dj_play_recommendation_on_output", "ask_dj_play_request_on_output"}))
+        if historical_output:
+            from ..historical_playback import UNAVAILABLE
+            raise DialogueError(UNAVAILABLE, 409)
         future, reserved = history_manager.dialogue.reserve(frame, client_id, digest, fast)
         if not reserved:
+            if historical_play:
+                from ..historical_playback import UNAVAILABLE
+                raise DialogueError(UNAVAILABLE, 409)
             accepted, admission = await asyncio.shield(future)
             result = deepcopy(accepted)
             if "session_speech" in result:
@@ -369,15 +383,17 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         from ..transport_delivery import register_delivery_admission
         register_delivery_admission(lambda: joined_admission(owner=validate_owner, immediate=validate_immediate))
 
-        turn.effect_grants = request_effect_grants(text, intent)
+        turn.effect_grants = () if historical_play else request_effect_grants(text, intent)
         token = current_turn.set(turn)
-        saved = await history_manager.async_saved_exchange(scope, client_id) if persist_history else None
+        saved = await history_manager.async_saved_exchange(scope, client_id) if persist_history and not historical_play else None
         if saved:
             if not await query().async_conversation_source_visible(profile_id,saved["assistant_message"]):
                 raise SessionConversationError("conversation_source_withdrawn",409)
             old = saved["user_message"].get("session_turn", {})
             if old.get("request_digest") != digest:
                 raise SessionConversationError("client_message_conflict")
+            from ..historical_playback import validate_saved_output_replay
+            await validate_saved_output_replay(query(), profile_id, saved, payload)
             for dep in saved["assistant_message"].get("historical_entry_references", []):
                 await query().async_open_source_entry(profile_id, dep["session_id"], dep["entry_id"])
             result = {**saved["assistant_message"], "success": True,

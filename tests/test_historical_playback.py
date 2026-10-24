@@ -97,34 +97,21 @@ class HistoricalPlaybackContractTests(unittest.TestCase):
         row["body"] = json.dumps(body)
         self.assertIsNone(self.subject.recording(row))
 
-    def test_offers_are_opt_in_reference_only_and_never_execute_on_read(self):
+    def test_legacy_opt_in_cannot_offer_unqualified_queue_playback(self):
         row = self.row()
         entry = {"entry_id": row["entry_id"], "session_id": row["session_id"], "kind": row["kind"]}
-        self.assertEqual(self.subject.offer(row, entry, locale="nl"), entry)
-        token = self.subject.offers_enabled.set(True)
-        try:
-            result = self.subject.offer(row, entry, locale="nl")
-            action = result["playback_actions"][0]
-            self.assertEqual(action["command"], "play_history_item")
-            self.assertEqual(
-                action["value"],
-                {"schema_version": 1, "session_id": "saved-session", "entry_id": "entry-1"},
-            )
-            self.assertNotIn("spotify:", json.dumps(action))
-            self.assertEqual(
-                entry,
-                {"entry_id": "entry-1", "session_id": "saved-session", "kind": "playback_observed"},
-            )
-        finally:
-            self.subject.offers_enabled.reset(token)
+        for enabled in (False, True):
+            token = self.subject.offers_enabled.set(enabled)
+            try:
+                for locale in ("en", "nl", "de", "fr", "es"):
+                    self.assertIs(self.subject.offer(row, entry, locale=locale), entry)
+            finally:
+                self.subject.offers_enabled.reset(token)
 
-    def test_all_five_languages_have_explicit_manual_play_labels(self):
-        token = self.subject.offers_enabled.set(True)
-        try:
-            labels = {
-                self.subject.offer(self.row(), {}, locale=lang)["playback_actions"][0]["label"]
-                for lang in ("en", "nl", "de", "fr", "es")
-            }
-            self.assertEqual(len(labels), 5)
-        finally:
-            self.subject.offers_enabled.reset(token)
+    def test_all_five_languages_explain_why_queue_playback_is_unavailable(self):
+        languages = ("en", "nl", "de", "fr", "es")
+        self.assertEqual(set(self.subject.UNAVAILABLE_MESSAGES), set(languages))
+        self.assertEqual(len({self.subject.unavailable_message(lang) for lang in languages}), 5)
+        self.assertEqual(self.subject.unavailable_message("NL-nl"), self.subject.UNAVAILABLE_MESSAGES["nl"])
+        for invalid in (None, True, {}, "unknown"):
+            self.assertEqual(self.subject.unavailable_message(invalid), self.subject.UNAVAILABLE_MESSAGES["en"])

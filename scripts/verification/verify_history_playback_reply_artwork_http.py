@@ -111,9 +111,13 @@ async def qualify(hass, manager, history, request, client):
     )
     ref = {"schema_version": 1, "session_id": old.session_id, "entry_id": row["entry_id"]}
     effects = []
+    commands = []
+    queue = [("occurrence-a1", "A"), ("occurrence-b", "B"), ("occurrence-a2", "A")]
+    original_queue = list(queue)
     no_output = [False]
 
     async def backend(hass, runtime, command, value=None, **kwargs):
+        commands.append(command)
         turn = current_turn.get()
         if command in ("play", "set_output"):
             await turn.guard()
@@ -124,6 +128,8 @@ async def qualify(hass, manager, history, request, client):
             if not turn.effect_started:
                 await turn.before_effect()
             effects.append((command, value))
+            if command == "play":
+                queue[:] = [("ordinary-context-replacement", value)]
             return {
                 "success": True,
                 "playback": {
@@ -169,43 +175,62 @@ async def qualify(hass, manager, history, request, client):
         patch.object(http, "run_music_command", backend),
         patch.object(ask_dj, "run_music_command", backend),
     ):
-        page, status = await request(
-            "GET",
-            "/api/djconnect/v1/session/history/" + old.session_id,
-            {
-                "session_id": old.session_id,
-                "history_contract_version": 2,
-                "historical_playback_contract_version": 1,
-            },
-        )
-        assert status == 200, page
-        item = next(e for e in page["entries"] if e["entry_id"] == row["entry_id"])
-        assert item["playback_actions"][0]["value"] == ref and effects == []
-        examples["history_entry"] = item
-        played, status = await tap("synthetic-exact-history")
-        assert status == 200 and played["success"], played
-        assert effects == [("play", "spotify:track:" + "A" * 22)]
-        again, status = await tap("synthetic-exact-history")
-        assert status == 200 and len(effects) == 1, again
-        assert manager.current_active("profile-a").broadcast is active.broadcast
-        cases["old_recording_exact_manual_tap_duplicate_and_no_session_revival"] = "PASS"
+        for version in (1, 2):
+            page, status = await request("GET", "/api/djconnect/v1/session/history/" + old.session_id,
+                {"session_id": old.session_id, "history_contract_version": 2,
+                 "historical_playback_contract_version": version})
+            assert status == 200, page
+            item = next(e for e in page["entries"] if e["entry_id"] == row["entry_id"])
+            assert "playback_actions" not in item and effects == []
+            examples["history_entry_v" + str(version)] = item
+        cases["legacy_and_v2_browsing_original_row_without_play_offers"] = "PASS"
+        for client_id in ("same-tap", "same-tap", "different-tap"):
+            denied, status = await tap(client_id)
+            assert status == 409 and denied.get("error") == "historical_queue_preservation_unavailable", denied
+            assert denied["success"] is False and "playback_actions" not in denied
+            assert effects == [] and commands == [] and queue == original_queue
+        examples["queue_preservation_unavailable"] = denied
+        cases["historical_tap_and_duplicate_before_grants_inventory_transfer_play"] = "PASS"
         no_output[0] = True
-        offered, status = await tap("synthetic-offer")
-        assert status == 200 and offered.get("action") == "select_output", offered
+        denied, status = await tap("no-output")
+        assert status == 409 and effects == [] and commands == [] and queue == original_queue, denied
         no_output[0] = False
-        action = offered["playback_actions"][0]
-        chosen, status = await tap("synthetic-choice", action["command"], action["value"])
-        assert status == 200 and chosen["success"], chosen
-        count = len(effects)
-        repeated, status = await tap("synthetic-choice-new-id", action["command"], action["value"])
-        assert not repeated.get("success") and len(effects) == count, repeated
-        cases["existing_output_chooser_new_id_cannot_repeat"] = "PASS"
-        examples["output_offer"] = offered
-        bad, status = await tap(
-            "synthetic-forged", value={**ref, "uri": "spotify:track:" + "Z" * 22}
-        )
-        assert status == 400 and not bad["success"] and len(effects) == count, bad
+        cases["no_output_never_offers_chooser_or_mutates_A_B_A_occurrences"] = "PASS"
+        assert manager.current_active("profile-a").broadcast is active.broadcast
+        bad, status = await tap("synthetic-forged", value={**ref, "uri": "spotify:track:" + "Z" * 22})
+        assert status == 400 and not bad["success"] and effects == [] and commands == [], bad
         cases["closed_reference_rejects_caller_uri"] = "PASS"
+
+        # Persist original V1 receipt shape through the real HA Store, using the
+        # current paired application's own normalized request digest. Its source
+        # dependency is the original real SQLite retained observation above.
+        command = "ask_dj_play_recommendation_on_output"
+        value = {"device_id": "synthetic-speaker", "recommendation": {"kind": "track", "uri": "spotify:track:" + "A" * 22}}
+        for kind, dependencies, implicit in (("historical", [ref], None), ("ordinary", [], None), ("implicit", [ref], ref)):
+            identifier = "legacy-durable-" + kind
+            digests = []
+            original_reserve = history.dialogue.reserve
+            def capture(frame, client_id, digest, fast):
+                digests.append(digest)
+                return original_reserve(frame, client_id, digest, fast)
+            with patch.object(history.dialogue, "reserve", capture):
+                initial, status = await tap(identifier, command, value)
+            assert not initial.get("success") and len(digests) == 1, initial
+            await history.async_append_exchange("profile:profile-a", {"client_message_id": identifier, "text": command},
+                {"success": True, "text": "Synthetic original V1 output receipt", "action": "spotify_start_recommendation"},
+                session_turn={"turn_id": "legacy-v1-" + kind, "request_digest": digests[0], "profile_id": "profile-a",
+                    "context": {}, "dependency_entries": dependencies, "implicit_playback_entry": implicit,
+                    "effective_style": {"language": "en", "persona": "home_dj"}})
+            history.dialogue.owners.clear()
+            replay, status = await tap(identifier, command, value)
+            if kind == "historical":
+                assert status == 409 and replay.get("error") == "historical_queue_preservation_unavailable", replay
+                examples["legacy_saved_output_denial"] = replay
+            else:
+                assert status == 200 and replay.get("deduplicated"), replay
+            assert effects == [] and commands == [] and queue == original_queue
+        cases["real_Store_legacy_output_after_RAM_loss_denied_without_effects"] = "PASS"
+        cases["ordinary_and_implicit_current_Store_duplicates_preserved"] = "PASS"
 
     media = {
         "uri": "spotify:track:" + "A" * 22,
