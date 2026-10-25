@@ -1,3 +1,18 @@
+# Delivered Help verified-drafts Source — 25 October 2026
+
+[PR1334](https://github.com/pcvantol/djconnect/pull/1334) protected`24dbec27c14cc7d9f96088f88541c17b688f6465`,
+reviewed`edcbf853e8a9c1e6172e3887c23ee9d76ce6ac9f`, is ORIGINAL QUALIFIED by run40150629204; original formal
+SHA256`e9682506aaf5d55f0fb4ae37905f74cb1da2280ad31318f7e702949125052ebb`, durable SHA256`41f79650b80667aed8d6e915af5e3857286588bffcac3cc64dc3809385577698`/all12joinsPASS.
+[Source record](docs/verification/HELP_VERIFIED_DRAFTS_20261025.md) and
+[separate Final record](docs/verification/HELP_VERIFIED_DRAFTS_FINALIZATION_20261025.md).
+3572testsPASS/sevenoldSKIP; current14HA/264same/11protocolcases, strictwhole-draft
+index/hash/source/owner/clock gates. Automatic release-model cancellation is not
+content PASS. This documentary Final still requires its own original qualification.
+Actual old100/175 remains90PASS/10FAIL, consumed/no replay. Distinct newsource100
+is only prepared; exact protectedSource+Final/originals/concrete independent
+admission precede its single POST. Cataloguefalse70, HA/provider/native unchanged;
+all24/ninegates/Bulletin→VibeCast preserved.
+
 # Help whole-draft repair in validation — 25 October 2026
 
 The last complete paid test on qualified Final1333 finished100completed,
