@@ -1456,10 +1456,24 @@ def _year_end_bounds_fit(text, quote):
     return all(match.group() not in required or match.span() in covered for match in _YEAR.finditer(text))
 
 
+_FRENCH_REFLEXIVE_STAGE = re.compile(
+    r"\bs[’']est\s+produit(?:e)?(?=\s+(?:au|aux|à|sur)\b)", re.I)
+_QUOTED_STAGE_ACTION = re.compile(r'\b(?:performed|played)\s+at\b', re.I)
+_QUOTED_STAGE_NEGATION = re.compile(r"\b(?:no|not|never|neither|nor|false|untrue)\b|n[’']t\b", re.I)
+
+
 def _assertions_fit(text, quote, *, recording_credit=False):
     """Conservative observed mismatches, including statements without a year."""
+    # French "s'est produit au ..." means performing at a venue. Exclude
+    # only that production-homonym match, with a performance verb in the
+    # actual cited quote. All other production matches and roles remain.
+    stage_ranges = list(_FRENCH_REFLEXIVE_STAGE.finditer(text)) if (
+        _QUOTED_STAGE_ACTION.search(quote) and not _QUOTED_STAGE_NEGATION.search(quote)) else []
     for pattern in (*_EVENT_ACTIONS, *_ASSERTION_ROLES):
         matches = list(pattern.finditer(text))
+        if pattern is _EVENT_ACTIONS[2]:
+            matches = [match for match in matches if not any(
+                stage.start() <= match.start() and match.end() <= stage.end() for stage in stage_ranges)]
         if not matches or pattern.search(quote):
             continue
         if (recording_credit and pattern in _EVENT_ACTIONS[1:]

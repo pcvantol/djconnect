@@ -1,0 +1,222 @@
+{
+  "scope": "CONSUMED_ORIGINAL_FAILURE_NOT_RECLASSIFIED_NEW_PROSPECTIVE_CAUSAL_TEST",
+  "run": 40195148203,
+  "artifact": 12599044733,
+  "zip_sha256": "8b6ea533c3828c7bd6c3449c5e9635b80116a4f8d7a8328ac7e859179b8fbd9c",
+  "report_sha256": "d79654d75597c361e2a6c40d9c7192f42d455ead7eef0c63ae7efdf4c778c61a",
+  "case_id": "catalogue-listen.artist-fr",
+  "original_public_music_research": {
+    "schema_version": 3,
+    "resolved_public_subject": "Volbeat",
+    "status": {
+      "state": "available",
+      "wikipedia": "fetched",
+      "web": "fetched",
+      "requests": 7
+    },
+    "sources": [
+      {
+        "provider": "Wikipedia",
+        "title": "Volbeat",
+        "url": "https://en.wikipedia.org/wiki/Volbeat",
+        "kind": "source",
+        "language": "en",
+        "fetched_at": "2026-10-25T12:56:50.907635+00:00",
+        "expires_at": "2026-10-25T13:56:50.907635+00:00",
+        "license": "CC-BY-SA-4.0",
+        "revision_url": "https://en.wikipedia.org/w/index.php?oldid=1367340200",
+        "wikidata_id": "Q279105",
+        "content_hash": "563b031e86bb1af17b5bfd4e68c3cfec5d2f43473c24f14459f3313be05302a4",
+        "claim_scope": "fetched_public_music_reference",
+        "untrusted_excerpt": "Volbeat are a Danish rock band formed in Copenhagen in 2001. They are best known for their fusion of rock and roll and heavy metal. Their current line-up consists of lead vocalist and guitarist Michael Poulsen, drummer Jon Larsen, bassist Kaspar Boye Larsen, and guitarist Flemming C. Lund. The band is currently signed to Dutch label Mascot Records, and has released nine studio albums, and one DVD.\nSinger Michael Poulsen's first band was death metal act, Dominus. In 2000, Poulsen became fed up with the death metal music scene, causing Dominus to break up. In 2001, Poulsen went on to form a new band with some friends and other former Dominus members. This was the beginning of Volbeat.\nThe band name \"Volbeat\" was derived from Dominus's third album name, Vol.Beat (read as: Volume Beat). After selling 1,000 copies of their Beat the Meat demo tape, Volbeat was signed to a record deal by Rebel Monster Records, a sub-label of Mascot Records.\nIn June 2010, Volbeat performed at Download Festival . and also joined Metallica, Megadeth, Anthrax, Slayer and others in the \"Big Four\" show at Sonisphere Switzerland.\nIn February 2013, Rob Caggiano, formerly of Anthrax, joined the band as second guitarist. He had been producing and recording guest solos on the band's upcoming album, Outlaw Gentlemen & Shady Ladies, before being asked to join as a full-time member. Singer and guitarist Michael Poulsen called the collaboration between Caggiano and the rest of the band \"so inspiring and in good spirit that we the decided to keep him. Basically we went into the studio as a three piece and came out as a whole band!\" The album, Outlaw Gentlemen & Shady Ladies, was released in April 2013.\nVolbeat toured with Danko Jones and Spoken in spring 2013 and played at the Download festival in June 2013.",
+        "source_anchors": [
+          "Outlaw Gentlemen & Shady Ladies",
+          "Vol.Beat",
+          "Beat the Meat"
+        ],
+        "evidence_schema": "original_paragraphs_v1",
+        "literal_passages": [
+          {
+            "text": "Volbeat are a Danish rock band formed in Copenhagen in 2001. They are best known for their fusion of rock and roll and heavy metal. Their current line-up consists of lead vocalist and guitarist Michael Poulsen, drummer Jon Larsen, bassist Kaspar Boye Larsen, and guitarist Flemming C. Lund. The band is currently signed to Dutch label Mascot Records, and has released nine studio albums, and one DVD.",
+            "original_range": [
+              0,
+              400
+            ]
+          },
+          {
+            "text": "Singer Michael Poulsen's first band was death metal act, Dominus. In 2000, Poulsen became fed up with the death metal music scene, causing Dominus to break up. In 2001, Poulsen went on to form a new band with some friends and other former Dominus members. This was the beginning of Volbeat.",
+            "original_range": [
+              1208,
+              1498
+            ]
+          },
+          {
+            "text": "The band name \"Volbeat\" was derived from Dominus's third album name, Vol.Beat (read as: Volume Beat). After selling 1,000 copies of their Beat the Meat demo tape, Volbeat was signed to a record deal by Rebel Monster Records, a sub-label of Mascot Records.",
+            "original_range": [
+              1499,
+              1754
+            ]
+          },
+          {
+            "text": "In June 2010, Volbeat performed at Download Festival . and also joined Metallica, Megadeth, Anthrax, Slayer and others in the \"Big Four\" show at Sonisphere Switzerland.",
+            "original_range": [
+              3607,
+              3775
+            ]
+          },
+          {
+            "text": "In February 2013, Rob Caggiano, formerly of Anthrax, joined the band as second guitarist. He had been producing and recording guest solos on the band's upcoming album, Outlaw Gentlemen & Shady Ladies, before being asked to join as a full-time member. Singer and guitarist Michael Poulsen called the collaboration between Caggiano and the rest of the band \"so inspiring and in good spirit that we the decided to keep him. Basically we went into the studio as a three piece and came out as a whole band!\" The album, Outlaw Gentlemen & Shady Ladies, was released in April 2013.",
+            "original_range": [
+              5150,
+              5724
+            ]
+          },
+          {
+            "text": "Volbeat toured with Danko Jones and Spoken in spring 2013 and played at the Download festival in June 2013.",
+            "original_range": [
+              5725,
+              5832
+            ]
+          }
+        ],
+        "original_document_hash": "7696c414b6a6d1bf8775a5383becd7c5d792c6a7de0e6be77ec4f8f0a7b6e747",
+        "evidence_spans": [
+          {
+            "id": "563b031e86bb1af1:p0",
+            "text": "Volbeat are a Danish rock band formed in Copenhagen in 2001. They are best known for their fusion of rock and roll and heavy metal. Their current line-up consists of lead vocalist and guitarist Michael Poulsen, drummer Jon Larsen, bassist Kaspar Boye Larsen, and guitarist Flemming C. Lund. The band is currently signed to Dutch label Mascot Records, and has released nine studio albums, and one DVD.",
+            "original_range": [
+              0,
+              400
+            ]
+          },
+          {
+            "id": "563b031e86bb1af1:p1",
+            "text": "Singer Michael Poulsen's first band was death metal act, Dominus. In 2000, Poulsen became fed up with the death metal music scene, causing Dominus to break up. In 2001, Poulsen went on to form a new band with some friends and other former Dominus members. This was the beginning of Volbeat.",
+            "original_range": [
+              1208,
+              1498
+            ]
+          },
+          {
+            "id": "563b031e86bb1af1:p2",
+            "text": "The band name \"Volbeat\" was derived from Dominus's third album name, Vol.Beat (read as: Volume Beat). After selling 1,000 copies of their Beat the Meat demo tape, Volbeat was signed to a record deal by Rebel Monster Records, a sub-label of Mascot Records.",
+            "original_range": [
+              1499,
+              1754
+            ]
+          },
+          {
+            "id": "563b031e86bb1af1:p3",
+            "text": "In June 2010, Volbeat performed at Download Festival . and also joined Metallica, Megadeth, Anthrax, Slayer and others in the \"Big Four\" show at Sonisphere Switzerland.",
+            "original_range": [
+              3607,
+              3775
+            ]
+          },
+          {
+            "id": "563b031e86bb1af1:p4",
+            "text": "In February 2013, Rob Caggiano, formerly of Anthrax, joined the band as second guitarist. He had been producing and recording guest solos on the band's upcoming album, Outlaw Gentlemen & Shady Ladies, before being asked to join as a full-time member. Singer and guitarist Michael Poulsen called the collaboration between Caggiano and the rest of the band \"so inspiring and in good spirit that we the decided to keep him. Basically we went into the studio as a three piece and came out as a whole band!\" The album, Outlaw Gentlemen & Shady Ladies, was released in April 2013.",
+            "original_range": [
+              5150,
+              5724
+            ]
+          },
+          {
+            "id": "563b031e86bb1af1:p5",
+            "text": "Volbeat toured with Danko Jones and Spoken in spring 2013 and played at the Download festival in June 2013.",
+            "original_range": [
+              5725,
+              5832
+            ]
+          }
+        ]
+      },
+      {
+        "provider": "Public web",
+        "title": "www.volbeat.dk",
+        "url": "https://www.volbeat.dk/us/",
+        "kind": "source",
+        "language": "us",
+        "fetched_at": "2026-10-25T12:56:52.347031+00:00",
+        "expires_at": "2026-10-25T13:56:52.347031+00:00",
+        "license": "public_page_short_reference",
+        "revision_url": "",
+        "wikidata_id": "",
+        "content_hash": "c2962bf3219d107e4f99264e8948cfb7184b85756dd52225dc761c44457dc659",
+        "claim_scope": "fetched_public_music_reference",
+        "untrusted_excerpt": "VOLBEAT | Official Website\nSkip to Main Content\nClose\nVolbeat\nMenu\nNewsletter\nInstagram\nTikTok\nFacebook\nYouTube\nApple Music\nSpotify\nLog In\nSign Up\nPublic\nRebels&Angels\nHome\nNews\nVideos\nDates\nMusic\nPhotos\nStore\nSpirits\nEN\nUS\nDE\nLog In | Sign Up\nRoute 666\n​Exclusives\nLyrics\nHistory\nDownloads\nNewsletter\nInstagram\nTikTok\nFacebook\nYouTube\nApple Music\nSpotify\nStart\nGod Of Angels Trust\nThe New Album - Out Now\nOrder Album\nListen to ”By A Monster's Hand”\nContinue\nThe new Album\nGod Of Angels Trust\n∼ OUT NOW ∼\nLP\nT-Shirt Bundles\nCD\nMC\nDigital\nBuy now\nVolbeat - God Of Angels Trust - LP\nLtd.",
+        "source_anchors": [],
+        "evidence_spans": [
+          {
+            "id": "c2962bf3219d107e:0",
+            "text": "VOLBEAT | Official Website\nSkip to Main Content\nClose\nVolbeat\nMenu\nNewsletter\nInstagram\nTikTok\nFacebook\nYouTube\nApple Music\nSpotify\nLog In\nSign Up\nPublic\nRebels&Angels\nHome\nNews\nVideos\nDates\nMusic\nPhotos\nStore\nSpirits\nEN\nUS\nDE\nLog In | Sign Up\nRoute 666\n​Exclusives\nLyrics\nHistory\nDownloads\nNewsletter\nInstagram\nTikTok\nFacebook\nYouTube\nApple Music\nSpotify\nStart\nGod Of Angels Trust\nThe New Album - Out Now\nOrder Album\nListen to ”By A Monster's Hand”\nContinue\nThe new Album\nGod Of Angels Trust\n∼ OUT NOW ∼\nLP\nT-Shirt Bundles\nCD\nMC\nDigital\nBuy now\nVolbeat - God Of Angels Trust - LP\nLtd."
+          }
+        ]
+      }
+    ],
+    "editorial_focus": {
+      "kind": "documented_artist_episode",
+      "source_id": "563b031e86bb1af17b5bfd4e68c3cfec5d2f43473c24f14459f3313be05302a4",
+      "episode_span_ids": [
+        "563b031e86bb1af1:p3"
+      ],
+      "authority": "telling_focus_only_full_original_context_remains_evidence"
+    }
+  },
+  "drafts": [
+    {
+      "answer": "Volbeat s’est produit au Download Festival. Qu’aimerais-tu savoir sur cette prestation ?",
+      "original_resolved_review": {
+        "supported": true,
+        "unsupported_claims": [],
+        "claim_checks": [
+          {
+            "text": "Volbeat s’est produit au Download Festival.",
+            "kind": "relationship",
+            "evidence_ids": [
+              "563b031e86bb1af1:p3"
+            ],
+            "quote": "In June 2010, Volbeat performed at Download Festival . and also joined Metallica, Megadeth, Anthrax, Slayer and others in the \"Big Four\" show at Sonisphere Switzerland."
+          },
+          {
+            "text": "Qu’aimerais-tu savoir sur cette prestation ?",
+            "kind": "relationship",
+            "evidence_ids": [
+              "563b031e86bb1af1:p3"
+            ],
+            "quote": "In June 2010, Volbeat performed at Download Festival . and also joined Metallica, Megadeth, Anthrax, Slayer and others in the \"Big Four\" show at Sonisphere Switzerland."
+          }
+        ],
+        "temporal_claims": []
+      },
+      "original_accepted": false
+    },
+    {
+      "answer": "Volbeat a rejoint Metallica, Megadeth, Anthrax, Slayer et d’autres artistes au spectacle « Big Four » de Sonisphere Switzerland. Qu’aimerais-tu découvrir sur cette participation ?",
+      "original_resolved_review": {
+        "supported": true,
+        "unsupported_claims": [],
+        "claim_checks": [
+          {
+            "text": "Volbeat a rejoint Metallica, Megadeth, Anthrax, Slayer et d’autres artistes au spectacle « Big Four » de Sonisphere Switzerland.",
+            "kind": "relationship",
+            "evidence_ids": [
+              "563b031e86bb1af1:p3"
+            ],
+            "quote": "In June 2010, Volbeat performed at Download Festival . and also joined Metallica, Megadeth, Anthrax, Slayer and others in the \"Big Four\" show at Sonisphere Switzerland."
+          },
+          {
+            "text": "Qu’aimerais-tu découvrir sur cette participation ?",
+            "kind": "relationship",
+            "evidence_ids": [
+              "563b031e86bb1af1:p3"
+            ],
+            "quote": "In June 2010, Volbeat performed at Download Festival . and also joined Metallica, Megadeth, Anthrax, Slayer and others in the \"Big Four\" show at Sonisphere Switzerland."
+          }
+        ],
+        "temporal_claims": []
+      },
+      "original_accepted": false
+    }
+  ]
+}

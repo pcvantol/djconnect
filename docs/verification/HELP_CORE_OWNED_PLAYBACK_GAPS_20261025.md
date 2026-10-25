@@ -1,3 +1,5 @@
+> 25 October: the prospectively bounded French reflexive-performance homonym correction and exact original negative/positive witnesses are documented in `HELP_FRENCH_REFLEXIVE_PERFORMANCE_20261025.md`. Original4765 remainsFAIL12/6/46; automated quietFR PASS is not editorial quality. Catalogue70pending/installedunchanged; older evidence below retains its scope.
+
 # Core-owned playback roles, model-owned natural words
 
 Repeated original paid development reports rejected malformed playback alternatives before any normalization: required `media_kind` was omitted even though the prompt illustrated the complete inventory. Source1346 retained those failures. Telling12 run40192692466 also remains 12PASS/6FAIL,44 reserved and completed responses, with no rerun or publication approval.
