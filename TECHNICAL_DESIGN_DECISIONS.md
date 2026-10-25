@@ -1,3 +1,15 @@
+## Current brief musical-work Source candidate — 25 October 2026
+
+Source-only ranking remediation over original-qualified PR1353/d4bdf108:
+prefer an original supplied musical work plus existing musical activity for a
+brief telling topic. Full original review context and all factual guards remain;
+selection within existing anchor caps may change. Latest actual paid22 run
+40239963395 remains consumed FAILURE22PASS/2FAIL,65/65 complete; no retry or
+full100 advance. Catalogue DFAA stays draft/70pending. Structural Source review,
+actual content acceptance, owner/configuration/Apple bridge, separate cumulative
+Final and installed runtime are distinct. All24requests/ninegates/Bulletin
+retained; automation PAUSED. [Exact scope](docs/verification/HELP_BRIEF_MUSICAL_WORK_FOCUS_20261025.md).
+
 ## Current typed playback boundary V2 — 25 October 2026
 
 Original trial40227839784 returned20PASS/4FAIL; its failure and consumed claim remain.

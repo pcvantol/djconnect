@@ -17,12 +17,12 @@
   },
   "examples": {
     "history_entry_v1": {
-      "entry_id": "entry-a8718edbcff951f9a40186a25a41f148",
-      "session_id": "session-e3865b50044143c29ecad1de757efd10",
+      "entry_id": "entry-ff9ca735a07257ef82898b031c0afdd5",
+      "session_id": "session-caeadfd81672486a9a287ab521be0f86",
       "order": 1,
       "kind": "playback_observed",
-      "occurred_at": "2026-10-25T20:37:42.686545+00:00",
-      "retained_until": "2027-01-23T20:37:42.688329+00:00",
+      "occurred_at": "2026-10-25T22:40:17.440103+00:00",
+      "retained_until": "2027-01-23T22:40:17.440948+00:00",
       "historical_view_only": true,
       "current_display_allowed": false,
       "playback": {
@@ -39,8 +39,8 @@
       "requires_spotify_attribution": true,
       "session_media": {
         "schema_version": 1,
-        "session_id": "session-e3865b50044143c29ecad1de757efd10",
-        "entry_id": "entry-a8718edbcff951f9a40186a25a41f148",
+        "session_id": "session-caeadfd81672486a9a287ab521be0f86",
+        "entry_id": "entry-ff9ca735a07257ef82898b031c0afdd5",
         "revision": "not_prepared",
         "artwork": {
           "state": "unavailable",
@@ -52,12 +52,12 @@
       }
     },
     "history_entry_v2": {
-      "entry_id": "entry-a8718edbcff951f9a40186a25a41f148",
-      "session_id": "session-e3865b50044143c29ecad1de757efd10",
+      "entry_id": "entry-ff9ca735a07257ef82898b031c0afdd5",
+      "session_id": "session-caeadfd81672486a9a287ab521be0f86",
       "order": 1,
       "kind": "playback_observed",
-      "occurred_at": "2026-10-25T20:37:42.686545+00:00",
-      "retained_until": "2027-01-23T20:37:42.688329+00:00",
+      "occurred_at": "2026-10-25T22:40:17.440103+00:00",
+      "retained_until": "2027-01-23T22:40:17.440948+00:00",
       "historical_view_only": true,
       "current_display_allowed": false,
       "playback": {
@@ -74,8 +74,8 @@
       "requires_spotify_attribution": true,
       "session_media": {
         "schema_version": 1,
-        "session_id": "session-e3865b50044143c29ecad1de757efd10",
-        "entry_id": "entry-a8718edbcff951f9a40186a25a41f148",
+        "session_id": "session-caeadfd81672486a9a287ab521be0f86",
+        "entry_id": "entry-ff9ca735a07257ef82898b031c0afdd5",
         "revision": "not_prepared",
         "artwork": {
           "state": "unavailable",
@@ -98,9 +98,9 @@
     },
     "reply_media": {
       "schema_version": 1,
-      "session_id": "session-7e60560431c94488aeef4b10a1f2fa8d",
-      "entry_id": "entry-e0e1675f07dc55c2a04ec3df3f3a6a07",
-      "revision": "0bf2c5b09679e299245041b7",
+      "session_id": "session-41c384e881c7472384d39571a4826510",
+      "entry_id": "entry-fe7c130ca7175bcab2acf0e592e81ff5",
+      "revision": "008cfbc43b2a2bf5cb0c72fc",
       "artwork": {
         "state": "ready",
         "subject": {
@@ -119,8 +119,8 @@
           "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
         },
         "usage_basis": "spotify_temporary_owner_display",
-        "captured_at": "2026-10-25T20:37:42.778324+00:00",
-        "expires_at": "2026-10-25T20:42:42.778324+00:00",
+        "captured_at": "2026-10-25T22:40:17.528130+00:00",
+        "expires_at": "2026-10-25T22:45:17.528130+00:00",
         "current_display_allowed": false,
         "active_flow_display_allowed": false,
         "historical_display_allowed": false,
@@ -136,9 +136,9 @@
           "fr": "Pochette de Synthetic recording",
           "es": "Portada de Synthetic recording"
         },
-        "url": "/api/djconnect/v1/session/media/image/session-7e60560431c94488aeef4b10a1f2fa8d/fQdQsdi5_QN2MtVmM4ICcvd6m9i_k_H9",
+        "url": "/api/djconnect/v1/session/media/image/session-41c384e881c7472384d39571a4826510/BAgZnMO-JgWwC5dX-X5poEa7Cgq_FKVn",
         "reply_display_allowed": true,
-        "media_revision": "0bf2c5b09679e299245041b7"
+        "media_revision": "008cfbc43b2a2bf5cb0c72fc"
       }
     },
     "current_identification_reply": {
@@ -152,14 +152,14 @@
       },
       "images": [
         {
-          "url": "/api/djconnect/v1/session/media/image/session-7e60560431c94488aeef4b10a1f2fa8d/nxzVpxRV_WxbgVvev4LQXboj0dnlcSgk",
-          "thumbnail_url": "/api/djconnect/v1/session/media/image/session-7e60560431c94488aeef4b10a1f2fa8d/nxzVpxRV_WxbgVvev4LQXboj0dnlcSgk",
+          "url": "/api/djconnect/v1/session/media/image/session-41c384e881c7472384d39571a4826510/tPzbkW2TvmSXj7fyFMRdlyuIVaueejKD",
+          "thumbnail_url": "/api/djconnect/v1/session/media/image/session-41c384e881c7472384d39571a4826510/tPzbkW2TvmSXj7fyFMRdlyuIVaueejKD",
           "title": "Synthetic original recording",
           "subtitle": "Synthetic artist",
           "kind": "album_art",
           "source": "spotify",
           "requires_device_auth": true,
-          "expires_at": "2026-10-25T20:38:42.821170+00:00",
+          "expires_at": "2026-10-25T22:41:17.618922+00:00",
           "cache_policy": "no-store"
         }
       ],
@@ -190,7 +190,7 @@
         "turn_id": "turn-e0c809db34525f24ad17a09492c0d6e6",
         "thread_id": "default",
         "context": {
-          "session_id": "session-7e60560431c94488aeef4b10a1f2fa8d"
+          "session_id": "session-41c384e881c7472384d39571a4826510"
         },
         "entry_ids": [],
         "history_scope": "private_ephemeral",
@@ -224,7 +224,7 @@
         },
         "source_kind": "accepted_ask_dj",
         "source_id": "turn-e0c809db34525f24ad17a09492c0d6e6",
-        "session_id": "session-7e60560431c94488aeef4b10a1f2fa8d",
+        "session_id": "session-41c384e881c7472384d39571a4826510",
         "text_revision": "46f13cf0f4bea2d3e4762cef",
         "presentation_revision": "46f13cf0f4bea2d3e4762cef",
         "persona": "home_dj",
@@ -246,7 +246,7 @@
           "ha_configured"
         ],
         "processor_qualification_required": true,
-        "expires_at": "2026-10-25T20:38:42.821212+00:00",
+        "expires_at": "2026-10-25T22:41:17.618961+00:00",
         "cache_policy": "private,no-store",
         "attribution": [
           {
@@ -269,14 +269,14 @@
       },
       "images": [
         {
-          "url": "/api/djconnect/v1/ask_dj/reply/image/ZLxFfRtpu3_Kc29Ierc8MSADRuVPPTxt",
-          "thumbnail_url": "/api/djconnect/v1/ask_dj/reply/image/ZLxFfRtpu3_Kc29Ierc8MSADRuVPPTxt",
+          "url": "/api/djconnect/v1/ask_dj/reply/image/cOK2liLf2dNGIKhIpoflaGwHCXBuWdjy",
+          "thumbnail_url": "/api/djconnect/v1/ask_dj/reply/image/cOK2liLf2dNGIKhIpoflaGwHCXBuWdjy",
           "title": "Synthetic original recording",
           "subtitle": "Synthetic artist",
           "kind": "album_art",
           "source": "spotify",
           "requires_device_auth": true,
-          "expires_at": "2026-10-25T20:38:42.840571+00:00",
+          "expires_at": "2026-10-25T22:41:17.636657+00:00",
           "cache_policy": "no-store"
         }
       ],
@@ -361,7 +361,7 @@
           "ha_configured"
         ],
         "processor_qualification_required": true,
-        "expires_at": "2026-10-25T20:38:42.840619+00:00",
+        "expires_at": "2026-10-25T22:41:17.636694+00:00",
         "cache_policy": "private,no-store",
         "attribution": [
           {
@@ -381,7 +381,7 @@
   "native": "NOT_RUN",
   "audible": "NOT_RUN",
   "ha_sdk_version": "2026.10.0",
-  "actual_ha_receipt_sha256": "4eac3379bfb471940a0c0fb12e4df1d14564963580db7c7035f8078fe5615c42",
+  "actual_ha_receipt_sha256": "2c6ab896d11fd4d09beb1ae70d03365c136ad217dfcceab2dfe9f84c65f7d413",
   "requests_observed": 45,
   "source_unchanged": true,
   "source_pins": {
@@ -408,7 +408,7 @@
     "custom_components/djconnect/ask_dj/intents.py": "545c7cf45bc5a66719d66bed5ef2633a4e01343645080af733a11869f1c01032",
     "custom_components/djconnect/ask_dj/observations.py": "ef788fa96d23f124fdb66f4af766831110b7224b3738d884ff8c47550aef54fd",
     "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
-    "custom_components/djconnect/ask_dj/public_research.py": "c4a28ab5e308447646bbb5d720fb024502ced4b76be137ebd140495a835e5404",
+    "custom_components/djconnect/ask_dj/public_research.py": "2134f9d5de69009e12e2be927ae8c3cd34cafa359752523c07592753f20048a3",
     "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
     "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
     "custom_components/djconnect/ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
@@ -654,6 +654,6 @@
   "harness": "scripts/verification/verify_history_playback_reply_artwork_http.py",
   "contract_version": 2,
   "queue_preserving_provider": "NOT_QUALIFIED",
-  "original_admission_sha256": "14ed7fec8d69170cd72143450410ed636169283e5776e4e485668ee7fdae651f",
+  "original_admission_sha256": "36d2d1b4e538d1f31af06037e165f0fb82424f9db05090b3f148e27f434b02ff",
   "source_pins_basis": "FULL_264_FILE_ORIGINAL_RAM_SNAPSHOT_ADMISSION_AND_BEFORE_AFTER_READBACK; CURATED_RAW_SOURCE_SUBSET_JOINED_SEPARATELY"
 }
