@@ -163,13 +163,29 @@ def _spans(research):
                 raise ValueError('public_sdk_ambiguous_span')
             identifiers[span['id']] = (identity, span['text'])
             result[identity] = span['text']
-        # Actual schema3 paragraph sources commit the entire joined excerpt.
-        # Generation omits the duplicate excerpt, assessment retains it.
-        excerpt = '\n'.join(span['text'] for span in spans)
-        if (source.get('evidence_schema') != 'original_paragraphs_v1'
-                or hashlib.sha256(excerpt.encode()).hexdigest() != source['content_hash']
-                or ('untrusted_excerpt' in source and source['untrusted_excerpt'] != excerpt)):
-            raise ValueError('public_sdk_source_content_mismatch')
+        if source.get('evidence_schema') == 'original_paragraphs_v1':
+            # Paragraph sources commit their entire joined excerpt. Generation
+            # omits only this reconstructible duplicate; assessment retains it.
+            excerpt = '\n'.join(span['text'] for span in spans)
+            if (hashlib.sha256(excerpt.encode()).hexdigest() != source['content_hash']
+                    or ('untrusted_excerpt' in source and source['untrusted_excerpt'] != excerpt)):
+                raise ValueError('public_sdk_source_content_mismatch')
+        elif 'evidence_schema' not in source:
+            # Ordinary fetched sources use the existing exact sentence address
+            # scheme. Those first 24 spans cannot reconstruct the full excerpt:
+            # retain and hash the original, including all whitespace and suffix.
+            excerpt = source.get('untrusted_excerpt')
+            if (type(excerpt) is not str or not excerpt
+                    or hashlib.sha256(excerpt.encode()).hexdigest() != source['content_hash']):
+                raise ValueError('public_sdk_source_content_mismatch')
+            sentences = [match.group().strip() for match in
+                re.finditer(r'\S.*?(?:[.!?](?=\s|$)|$)', excerpt, re.S)][:24]
+            expected = [{'id': source['content_hash'][:16] + ':' + str(index), 'text': text}
+                for index, text in enumerate(sentences)]
+            if spans != expected:
+                raise ValueError('public_sdk_sentence_addresses_mismatch')
+        else:
+            raise ValueError('public_sdk_unknown_evidence_schema')
     if len(result) > 256 or sum(len(text.encode()) for text in result.values()) > 65536:
         raise ValueError('public_sdk_span_budget')
     return result

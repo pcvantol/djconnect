@@ -189,6 +189,65 @@ class ArtistEvidenceDraftTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 append_artist_public_input(records, [], case_id=case)
 
+    def test_nonparagraph_web_witness_keeps_full_original_and_canonical_sentence_addresses(self):
+        from custom_components.djconnect.ask_dj.public_research import generation_projection, evidence_spans
+        from scripts.verification.artist_public_input_receipts import resolved_literal_commitments
+        # Ordinary web sources have sentence addresses, not Wikipedia paragraph
+        # ranges. Keep even the original suffix beyond the 24 addressed sentences.
+        excerpt = '\n'.join('Public musical activity number ' + str(i) + '.' for i in range(26))
+        source = {'provider': 'Public web', 'kind': 'source', 'untrusted_excerpt': excerpt,
+            'content_hash': hashlib.sha256(excerpt.encode()).hexdigest(), 'source_anchors': []}
+        source['evidence_spans'] = evidence_spans(source)
+        research = self.research()
+        research['sources'].append(source)
+        corpus = self.n.artist_anchor_corpus(research)
+        projection = generation_projection(research, 'Tell me about this artist',
+            preserve_nonparagraph_sources=True)
+        self.assertEqual(projection['sources'][1]['untrusted_excerpt'], excerpt)
+        self.assertEqual(len(projection['sources'][1]['evidence_spans']), 24)
+        self.assertTrue(resolved_literal_commitments(projection, corpus.projection()))
+        from custom_components.djconnect.public_artist_narration import complete_review_projection
+        for candidate in (research, {**research, 'sources': research['sources'][:1] + [{
+                **source, 'untrusted_excerpt': source['evidence_spans'][0]['text'],
+                'content_hash': hashlib.sha256(source['evidence_spans'][0]['text'].encode()).hexdigest(),
+                'evidence_spans': []}]}):
+            # Exercise both a source with an unaddressed suffix and one whose
+            # complete original text could otherwise be whitespace-compacted.
+            web = candidate['sources'][1]
+            web['evidence_spans'] = evidence_spans(web)
+            reviewed = complete_review_projection({'public_music_research': candidate,
+                'qualified_context': {}}, preserve_nonparagraph_sources=True)
+            self.assertEqual(reviewed['public_music_research']['sources'][1]['untrusted_excerpt'],
+                web['untrusted_excerpt'])
+        for change in ('missing_original', 'suffix', 'span', 'id', 'unknown_schema'):
+            broken = json.loads(json.dumps(projection))
+            web = broken['sources'][1]
+            if change == 'missing_original':
+                del web['untrusted_excerpt']
+            elif change == 'suffix':
+                web['untrusted_excerpt'] += '\nUncommitted suffix.'
+            elif change == 'span':
+                web['evidence_spans'][0]['text'] = 'Invented music fact.'
+            elif change == 'id':
+                web['evidence_spans'][0]['id'] = web['evidence_spans'][1]['id']
+            else:
+                web['evidence_schema'] = 'unrecognized_schema'
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                resolved_literal_commitments(broken, corpus.projection())
+
+    def test_failed_informational_generation_uses_the_accepted_turn_language(self):
+        from types import SimpleNamespace
+        from custom_components.djconnect.ask_dj import _fallback_info_text
+        from custom_components.djconnect.ask_dj.dialogue import current_turn
+        from custom_components.djconnect.ask_dj.public_research import unavailable_answer
+        for locale in ('en', 'nl', 'de', 'fr', 'es'):
+            token = current_turn.set(SimpleNamespace(style={'language': locale}))
+            try:
+                self.assertEqual(_fallback_info_text('Tell me about this artist', {}, {}),
+                    unavailable_answer(locale))
+            finally:
+                current_turn.reset(token)
+
     def test_new_closed_negative_does_not_admit_facts_or_allow_positive_empty_ids(self):
         pool = self.n.verified_drafts('{"drafts":["An unsupported story.","A supported story."]}', str.strip)
         negative = {'review_schema': 'source_id_review_v1', 'supported': False,
