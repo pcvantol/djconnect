@@ -1,3 +1,12 @@
+## Current actual-slot-example source increment — 25 October 2026
+
+Real18run40188270227 is10PASS/8FAIL/42completed, consumed without retry.
+[Actual failures and bounded source correction](HELP_ACTUAL_SLOT_EXAMPLE_20261025.md).
+The new complete example changes Source-owned executable prompt construction;
+a new normally protected/original-qualified controller is required before paid
+execution. Catalogue remains false70; no installed/provider/native acceptance.
+All historical bodies and24requests/ninegates below retain their own scopes.
+
 ## Current structural increment
 
 [Brief activity v2](HELP_BRIEF_ACTIVITY_V2_20261025.md) defines the new closed18
