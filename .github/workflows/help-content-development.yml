@@ -1,0 +1,104 @@
+name: Short-cycle Help content development
+run-name: Help content ${{ inputs.mode }} ${{ inputs.content_digest }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Independently reviewed immutable telling-only candidate
+        required: true
+        type: string
+      controller_sha:
+        description: Restriction to the actual protected qualified main revision
+        required: true
+        type: string
+      content_digest:
+        description: Exact content identity from the trusted instruction-only verifier
+        required: true
+        type: string
+      plan_digest:
+        description: Reviewed Root plan with its durable before-POST content/mode claim
+        required: true
+        type: string
+      mode:
+        required: true
+        type: choice
+        options: [target6, full100]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: help-content-${{ inputs.content_digest }}-${{ inputs.mode }}
+  cancel-in-progress: false
+
+jobs:
+  content-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      DJC_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      DJC_CONTROLLER_SHA: ${{ inputs.controller_sha }}
+      DJC_CONTENT_DIGEST: ${{ inputs.content_digest }}
+      DJC_PLAN_DIGEST: ${{ inputs.plan_digest }}
+      DJC_CONTENT_MODE: ${{ inputs.mode }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          ref: ${{ github.sha }}
+          path: qualification-controller
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          ref: ${{ inputs.candidate_sha }}
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate protected controller and exact instruction-only candidate before test secret access
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 qualification-controller/tools/verification/run_help_content_probe.py \
+            --controller-root "$GITHUB_WORKSPACE/qualification-controller" \
+            --candidate-root "$GITHUB_WORKSPACE/candidate" \
+            --report-dir "$RUNNER_TEMP/help-content" --phase admit
+      - name: Pull exact existing test image
+        run: docker pull ghcr.io/home-assistant/home-assistant@sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4
+      - name: Exercise actual HA setup with no network or test credential
+        run: |
+          python3 qualification-controller/tools/verification/run_help_content_probe.py \
+            --controller-root "$GITHUB_WORKSPACE/qualification-controller" \
+            --candidate-root "$GITHUB_WORKSPACE/candidate" \
+            --report-dir "$RUNNER_TEMP/help-content" --phase setup
+      - name: Execute one reserved bounded development probe
+        env:
+          DJCONNECT_GOLDEN_OPENAI_API_KEY: ${{ secrets.DJCONNECT_GOLDEN_OPENAI_API_KEY }}
+        run: |
+          python3 qualification-controller/tools/verification/run_help_content_probe.py \
+            --controller-root "$GITHUB_WORKSPACE/qualification-controller" \
+            --candidate-root "$GITHUB_WORKSPACE/candidate" \
+            --report-dir "$RUNNER_TEMP/help-content" --phase execute
+      - name: Preserve only original closed synthetic reports and counters
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: help-content-development-${{ inputs.mode }}
+          path: |
+            ${{ runner.temp }}/help-content/admission.json
+            ${{ runner.temp }}/help-content/setup-preflight.json
+            ${{ runner.temp }}/help-content/setup-cleanup.json
+            ${{ runner.temp }}/help-content/once-reservation.json
+            ${{ runner.temp }}/help-content/container-created.json
+            ${{ runner.temp }}/help-content/container-state.json
+            ${{ runner.temp }}/help-content/cleanup.json
+            ${{ runner.temp }}/help-content/summary.json
+            ${{ runner.temp }}/help-content/diagnostic-progress.json
+            ${{ runner.temp }}/help-content/catalogue-progress.json
+            ${{ runner.temp }}/help-content/catalogue-golden.json
+            ${{ runner.temp }}/help-content/child-IMPORT.json
+            ${{ runner.temp }}/help-content/child-MAIN.json
+            ${{ runner.temp }}/help-content/child-TERMINAL.json
+          if-no-files-found: error
+          retention-days: 7

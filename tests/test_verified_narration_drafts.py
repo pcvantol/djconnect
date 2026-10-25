@@ -4,6 +4,7 @@ import hashlib
 from dataclasses import replace
 import importlib
 import json
+import re
 from pathlib import Path
 import time
 from types import SimpleNamespace
@@ -90,7 +91,7 @@ class VerifiedNarrationDraftTests(unittest.TestCase):
                 self.assertEqual(data['playback_state'], 'observed')
                 self.assertEqual(json.loads(calls[0]['text'].split('\nData:\n')[1])['playback_state'], 'observed')
 
-    async def realize(self, positives, *, withdraw=False, cancel=False, legacy=False):
+    async def realize(self, positives, *, withdraw=False, cancel=False, legacy=False, slots=False):
         brief, calls = self.brief(), []
         active = True
         pool = self.pool()
@@ -100,6 +101,11 @@ class VerifiedNarrationDraftTests(unittest.TestCase):
                 calls.append(data)
                 if len(calls) == 1:
                     reply = json.dumps({'text': pool.texts[0]}) if legacy else json.dumps({'drafts': list(pool.texts)})
+                    if slots:
+                        reply = json.dumps({'schema': 'playback_slot_drafts_v1', 'drafts': [
+                            {'parts': [({'slot': part[1:-1]} if part.startswith('{') else {'literal': part})
+                                       for part in re.split(r'(\{title\}|\{status\})', text) if part]}
+                            for text in pool.texts]})
                 else:
                     if cancel:
                         raise asyncio.CancelledError
@@ -113,6 +119,18 @@ class VerifiedNarrationDraftTests(unittest.TestCase):
             result = await self.pipeline.realize_session_narration(SimpleNamespace(services=Services()),
                 narration=brief, admission=admission, fallback_text=brief.seed, conf={})
         return result, calls
+
+    def test_core_slot_compilation_preserves_whole_hash_review_owner_and_two_calls(self):
+        result, calls = asyncio.run(self.realize([False, True], slots=True))
+        self.assertEqual(result, self.brief().render(self.pool().texts[1]))
+        self.assertEqual(len(calls), 2)
+        reviewed = json.loads(calls[1]['text'].split('\nData:\n', 1)[1])
+        self.assertEqual(reviewed['drafts'], self.pool().records())
+        self.assertNotIn('Private title', json.dumps(calls))
+        result, calls = asyncio.run(self.realize([True, True], slots=True, withdraw=True))
+        self.assertEqual(result, 'Local fallback.')
+        with self.assertRaises(asyncio.CancelledError):
+            asyncio.run(self.realize([True, True], slots=True, cancel=True))
 
     def test_original_owner_withdrawal_and_cancellation_close_all_alternatives(self):
         result, calls = asyncio.run(self.realize([True, True], withdraw=True))
@@ -130,14 +148,19 @@ class VerifiedNarrationDraftTests(unittest.TestCase):
     def test_actual_receipt_state_owns_both_prompts_and_local_confirmation_in_all_locales(self):
         async def scenario():
             from custom_components.djconnect.ask_dj.dialogue import current_turn
+            from custom_components.djconnect.ask_dj.dialogue import DialogueError
             async def guard():
                 pass
             for locale in ('en', 'nl', 'de', 'fr', 'es'):
                 for state, matched, expected in [('observed', True, 'observed'),
                         ('observed', False, 'dispatched'), ('dispatched', True, 'dispatched'),
                         ('unknown', True, 'dispatched'), ('observed', 1, 'dispatched')]:
+                    replay_clock = [100.0]
                     turn = SimpleNamespace(style={'language': locale, 'persona': 'home_dj', 'mood': 'groove'},
                         effect_started=True, accepted_playback_narration=False, agent_calls=0,
+                        playback_reply_deadline=None,
+                        delivery_validators=[],
+                        history=SimpleNamespace(dialogue=SimpleNamespace(clock=lambda: replay_clock[0])),
                         generation=1, frame=SimpleNamespace(generation=1), effect_validators=[], guard=guard)
                     receipt = {'schema_version': 1, 'state': state, 'observed_match': matched,
                         'selection': {'kind': 'playlist', 'media': {'uri': 'local-only', 'name': 'Private title'}}}
@@ -152,6 +175,16 @@ class VerifiedNarrationDraftTests(unittest.TestCase):
                     finally:
                         current_turn.reset(token)
                     brief = seen[0]
+                    if state in {'observed', 'dispatched'}:
+                        self.assertEqual(turn.playback_reply_deadline, 123.0)
+                        self.assertEqual(len(turn.delivery_validators), 1)
+                        turn.delivery_validators[0]()
+                        replay_clock[0] = 123.0
+                        # Mutating the field cannot renew the original captured
+                        # first-caller callback after owner/source awaits.
+                        turn.playback_reply_deadline = 999.0
+                        with self.assertRaises(DialogueError):
+                            turn.delivery_validators[0]()
                     for prompt in (brief.prompt(verified_drafts=True), brief.assessment_prompt(self.pool().texts[0])):
                         projection = json.loads(prompt.split('\nData:\n')[1])
                         self.assertEqual(projection['playback_state'], expected)
@@ -169,6 +202,43 @@ class VerifiedArtistDraftTests(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def tearDownClass(cls):
         shared.SharedDialogueTest.tearDownClass()
+
+    async def test_accepted_playback_retry_keeps_original_envelope_deadline_and_withdrawal(self):
+        from custom_components.djconnect.ask_dj.dialogue import DialogueState, DialogueError
+        from custom_components.djconnect.ask_dj_history import _request_hash
+        clock = [100.0]
+        state = DialogueState(clock=lambda: clock[0])
+        frame = state.frame('profile:fixture', 'default', 'g')
+        response = {'success': True, 'text': 'Original accepted reply.',
+                    'playback_outcome': {'state': 'observed'}, 'text_source': 'generated',
+                    'resolved_media': {'title': 'Original captured title'}}
+        turn = SimpleNamespace(frame=frame, client_id='original', digest='digest',
+            effect_started=True, accepted_playback_narration=True,
+            playback_reply_deadline=123.0, fast_control=True)
+        future = asyncio.get_running_loop().create_future()
+        future.set_result((response, None))
+        state.remember_catalogue_read(turn, response, future)
+        original_row = frame.catalogue_replays['original']
+        clock[0] = 110.0
+        replay, reserved = state.reserve(frame, 'original', 'digest', True)
+        self.assertFalse(reserved)
+        self.assertIs(replay, future)
+        self.assertEqual((await replay)[0], response)
+        self.assertEqual(frame.catalogue_replays['original'], original_row)
+        with self.assertRaises(DialogueError):
+            state.reserve(frame, 'original', 'altered_request', True)
+        state.withdraw_content('profile:fixture', request_hashes={_request_hash('profile:fixture', 'original')},
+                               turn_ids=frozenset())
+        self.assertIsNone(frame.catalogue_replays['original'][1])
+        with self.assertRaises(DialogueError):
+            state.reserve(frame, 'original', 'digest', True)
+        turn.client_id = 'expires'
+        state.remember_catalogue_read(turn, response, future)
+        clock[0] = 123.0
+        state.frame('profile:fixture', 'default', 'g')
+        self.assertIsNone(frame.catalogue_replays['expires'][1])
+        with self.assertRaises(DialogueError):
+            state.reserve(frame, 'expires', 'digest', True)
 
     async def test_artist_generation_separates_wire_contract_from_natural_story_in_all_locales(self):
         from tests.test_ask_dj_semantic_reads import id_review_fixture

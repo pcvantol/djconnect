@@ -577,7 +577,15 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         # waiter rechecks the original evidence with its own caller authority.
         from ..reply_artwork import public as public_reply_media
         response = public_reply_media(response)
-        future.set_result((deepcopy(response), joined_admission))
+        async def response_admission(*, owner, immediate):
+            def deadline():
+                if (turn.playback_reply_deadline is not None
+                        and history_manager.dialogue.clock() >= turn.playback_reply_deadline):
+                    raise SessionConversationError('choice_expired', 409)
+            deadline()
+            await joined_admission(owner=owner, immediate=immediate)
+            deadline()
+        future.set_result((deepcopy(response), response_admission))
         history_manager.dialogue.remember_catalogue_read(turn, response, future)
         return response
     except (SessionConversationError, DialogueError) as exc:

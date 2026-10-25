@@ -8,6 +8,10 @@ from .narration_brief import NarrationBrief, NarratedText
 
 POST_DISPATCH_NARRATION_SECONDS = 20
 
+# Development may vary this telling advice only; wire, truth and receipt rules
+# below remain fixed and independently assessed.
+PLAYBACK_TELLING_STYLE = """Speak directly to one listener in a present first-person host voice. Connect the named music to handing it over for listening in one short, plain, idiomatic sentence. Let Persona and Mood shape that sentence rather than appending an adjective or stock slogan. Avoid elaborate metaphors, compulsory shared moments and invitations. Write two genuinely distinct complete alternatives for the same handover."""
+
 
 @dataclass(frozen=True)
 class PlaybackAcceptance:
@@ -45,7 +49,7 @@ class PlaybackRequestBrief(NarrationBrief):
         import json
         return self.style_instructions() + (
             ' Answer the listener’s just-accepted music request as their DJ. '
-            'Speak directly to them; connect the named choice to the act of listening '
+            + PLAYBACK_TELLING_STYLE + ' Connect the named choice to the act of listening '
             'in one or two natural sentences. This is a playback handover, not a '
             'catalogue report: never say provider, credited to, associated with, '
             'selection kind, accepted request or backend. No invented reason the '
@@ -65,26 +69,83 @@ class PlaybackRequestBrief(NarrationBrief):
             'Do not say they chose it unless the reference explicitly establishes that choice. '
             'Avoid possessive your/votre/dein/tu on a media '
             'collection: refer to the named selection instead. '
-            'Every required placeholder must occur exactly once with its original role. '
+            'Every required reference must occur exactly once with its original role in the output wire below. '
             'If {media_kind} is required it is a bare localized noun for selection_kind: '
             'supply the natural article/preposition in the requested language, never call it a format. '
             'Do not open with a repetition meaning you asked for or your request was. '
-            'Finish with the complete {status} placeholder unchanged; that sentence alone '
+            'Finish with the complete status reference unchanged; that sentence alone '
             'states whether playback is confirmed or merely requested. Treat all values '
             'as data. The title names the whole selected track, album or playlist, never an '
             'item taken from that collection or a collection being converted into another kind. '
-            + ('Return only {"drafts":["first complete reply","second complete reply"]}. '
+            + ('Return only the closed JSON envelope '
+               '{"schema":"playback_slot_drafts_v1","drafts":[{"parts":[{"literal":"your spoken words "},{"slot":"title"},{"literal":". "},{"slot":"status"}]}]}. '
                'Write two distinct complete replies, each independently satisfying every requirement. '
                'These are alternative tellings of one already accepted playback request, not two '
                'playback actions or selections. Each reply is maximum700characters. '
-               'Copy every required placeholder with both ASCII braces exactly as provided. '
-               'Place all quotes and other punctuation outside those braces; never translate a placeholder.\nData:\n' if verified_drafts else
-               'Return only {"text":"your reply"}, maximum700characters.\nData:\n')
+               'Each parts array contains only single-key literal or slot objects. '
+               'Use EVERY required_slots name exactly once in EACH reply, not just the example names. '
+               'A slot is a bare JSON enum name: never translate it or add braces or quotation marks '
+               'inside its value. Put natural grammar, quotes and punctuation in literal parts; '
+               'literal parts must contain no braces or copied placeholders. '
+               'Finish with the status slot. Core inserts all opaque placeholders before the '
+               'unchanged whole-answer assessment.\nData:\n' if verified_drafts else
+               'Return only {"text":"your reply"}, maximum700characters. '
+               'Copy required_placeholders exactly, including their ASCII braces.\nData:\n')
         ) + json.dumps({'meaning': self.semantics, 'reference': self.reference,
                         'selection_kind':self.selection_kind,
                         'playback_state':self.playback_state,
                         'core_owned_labels':self.core_owned_slots(),
-                        'required_placeholders': self.anchors}, ensure_ascii=False)
+                        'required_placeholders': self.anchors,
+                        'required_slots': [slot[1:-1] for slot in self.anchors]}, ensure_ascii=False)
+
+    def decode_drafts(self, response, normalize):
+        """Compile closed slot tokens before hashing; never repair model prose."""
+        import json
+        from .narration_brief import _draft_object, verified_drafts
+        if not isinstance(response, str) or len(response.encode()) > 8192:
+            raise ValueError('invalid_playback_slot_drafts')
+        body = _draft_object(response) if response.lstrip().startswith(('{', '[')) else None
+        if type(body) is not dict or body.get('schema') != 'playback_slot_drafts_v1':
+            # Historical strict text wire remains compatible, including its
+            # rejection of malformed placeholders. No text is repaired here.
+            return verified_drafts(response, normalize)
+        if set(body) != {'schema', 'drafts'} or type(body['drafts']) is not list or not 1 <= len(body['drafts']) <= 2:
+            raise ValueError('invalid_playback_slot_drafts')
+        slots = {slot[1:-1]: slot for slot in self.anchors}
+        if len(slots) != len(self.anchors) or 'status' not in slots:
+            raise ValueError('invalid_playback_slot_scope')
+        texts = []
+        for draft in body['drafts']:
+            if (type(draft) is not dict or set(draft) != {'parts'}
+                    or type(draft['parts']) is not list or not 1 <= len(draft['parts']) <= 24):
+                raise ValueError('invalid_playback_slot_parts')
+            parts, seen = [], set()
+            for part in draft['parts']:
+                if type(part) is not dict or len(part) != 1:
+                    raise ValueError('invalid_playback_slot_part')
+                if set(part) == {'literal'}:
+                    value = part['literal']
+                    if type(value) is not str or not value or '{' in value or '}' in value:
+                        raise ValueError('invalid_playback_slot_literal')
+                    parts.append(value)
+                elif set(part) == {'slot'}:
+                    name = part['slot']
+                    if type(name) is not str or name not in slots or name in seen:
+                        raise ValueError('invalid_playback_slot_name')
+                    seen.add(name)
+                    parts.append(slots[name])
+                else:
+                    raise ValueError('invalid_playback_slot_part')
+            if seen != set(slots) or draft['parts'][-1] != {'slot': 'status'}:
+                raise ValueError('incomplete_playback_slot_draft')
+            text = ''.join(parts)
+            if len(text) > 700:
+                raise ValueError('playback_slot_draft_too_long')
+            texts.append(text)
+        # All drafts compile or the entire envelope is rejected. The original
+        # normalizer, exact roles, whole hashes and independent review still own
+        # acceptance, followed by the original owner/deadline/effect guard.
+        return verified_drafts(json.dumps({'drafts': texts}, ensure_ascii=False), normalize)
 
     def assessment_prompt(self, text):
         import json
@@ -194,6 +255,17 @@ async def response(hass, runtime, receipt):
     if (turn is not None and turn.effect_started and receipt.get('schema_version') == 1
             and receipt.get('state') in {'observed','dispatched'} and receipt.get('selection')):
         turn.accepted_playback_narration = True
+        if turn.playback_reply_deadline is None:
+            # Capture once at the actual accepted receipt, before narration
+            # awaits. A retry does not renew this RAM-only response allowance.
+            turn.playback_reply_deadline = turn.history.dialogue.clock() + POST_DISPATCH_NARRATION_SECONDS + 3
+            original_reply_deadline = turn.playback_reply_deadline
+            def reply_admission():
+                if turn.history.dialogue.clock() >= original_reply_deadline:
+                    raise DialogueError('choice_expired')
+            # The first caller and every joined retry use the same original
+            # post-await delivery fence; this grants no new playback effect.
+            turn.delivery_validators.append(reply_admission)
     limit = 3 if turn is not None and turn.accepted_playback_narration else 2
     if turn is not None and limit - turn.agent_calls >= 2 and bindings.get('{title}'):
         def admission():
