@@ -297,6 +297,10 @@ class ArtistEvidencePairedTests(unittest.IsolatedAsyncioTestCase):
                         reply = {'read': 'artist_story', 'reference': 'current', 'exclude_current': False}
                     elif 'evidence' not in projection:
                         self.assertEqual(projection['artist_draft_schema'], 'artist_evidence_drafts_v1')
+                        self.assertIn('resolved_public_subject naturally inside EACH whole draft', data['text'])
+                        self.assertIn('one coherent musical episode', data['text'])
+                        self.assertIn('Prefer two genuinely distinct', data['text'])
+                        self.assertIn('Never manufacture a second', data['text'])
                         anchors = projection['literal_anchors']
                         self.assertGreaterEqual(len(anchors), 2)
                         reply = {'schema': 'artist_evidence_drafts_v1', 'drafts': [

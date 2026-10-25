@@ -1,3 +1,14 @@
+## Current Help request-bound alternatives candidate — 25 October 2026
+
+A prospective two-product prompt correction is prepared over original-qualified
+Source1340/Final1341, protected `3a71037097275c23366624564acb52e509f97f0a`.
+The actual manual40166596788 completed100cases/175responses with93PASS/7FAIL;
+its original negative result and all earlier consumed executions remain immutable.
+The catalogue stays revision1/false70. No publication or installation is implied.
+[Exact candidate scope](docs/verification/HELP_REQUEST_BOUND_ALTERNATIVES_20261025.md).
+All24requests/ninegates, shared Bulletin→VibeCast work and separate runtime,
+provider/native/physical acceptance remain retained. Automation stays PAUSED.
+
 # Delivered Help public-source correction — 25 October 2026
 
 [PR1340](https://github.com/pcvantol/djconnect/pull/1340) protected `f3c92634d66e1163f954ee200334fb54f5796fa2`,
