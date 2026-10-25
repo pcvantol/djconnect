@@ -1,3 +1,5 @@
+> 25 October: prospective Core-owned playback literal-gap wire and German synthetic-search fidelity repair are described in `HELP_CORE_OWNED_PLAYBACK_GAPS_20261025.md`. Original consumed telling12 remains12PASS6FAIL/44responses; catalogue70pending, no new model/publication/installed GO. All prior evidence below retains its own scope.
+
 # Actual playback slot example — 25 October 2026
 
 The first real18-case execution40188270227 used revieweddb254 and protected,

@@ -22,7 +22,7 @@ def handle(method, path, query, body, state, tracks):
         kinds = set(','.join(query.get('type', [])).split(','))
         named = 'volbeat' in value or 'beyond hell' in value
         exact_artist = bool(re.fullmatch(r'(?:artist:)?[\"]?volbeat[\"]?',value.strip()))
-        cooking = bool(re.search(r'cook|koken|kochen|cuisin|cocin',value))
+        cooking = bool(re.search(r'cook|koken|koch|cuisin|cocin',value))
         quiet = bool(re.search(r'quiet|relax|rustig|ruhig|calm|tranquil',value))
         if cooking or quiet:
             state['collection'] = 'cooking' if cooking else 'quiet'

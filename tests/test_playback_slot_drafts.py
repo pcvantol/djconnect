@@ -43,7 +43,7 @@ class PlaybackSlotDraftTests(unittest.TestCase):
 
     def example(self, brief):
         instructions = brief.prompt(verified_drafts=True).split('\nData:\n', 1)[0]
-        match = re.search(r'\{"schema"\s*:\s*"playback_slot_drafts_v1"', instructions)
+        match = re.search(r'\{"schema"\s*:\s*"playback_literal_gaps_v2"', instructions)
         self.assertIsNotNone(match)
         return json.JSONDecoder().raw_decode(instructions[match.start():])[0]
 
@@ -76,11 +76,10 @@ class PlaybackSlotDraftTests(unittest.TestCase):
                                              {anchor[1:-1] for anchor in brief.anchors})
                             self.assertEqual(len(example['drafts']), 2)
                             for draft in example['drafts']:
-                                names = [part['slot'] for part in draft['parts'] if 'slot' in part]
-                                self.assertCountEqual(names, data['required_slots'])
-                                self.assertEqual(len(names), len(set(names)))
-                                self.assertEqual(draft['parts'][-1], {'slot': 'status'})
-                                self.assertRegex(draft['parts'][-2]['literal'], r'[.!?] $')
+                                self.assertEqual(len(draft['gaps']), len(data['core_slot_order']))
+                                self.assertEqual(set(data['core_slot_order']), set(data['required_slots']))
+                                self.assertEqual(data['core_slot_order'][-1], 'status')
+                                self.assertRegex(draft['gaps'][-1], r'[.!?] $')
                             compiled = self.decode(example, brief)
                             self.assertEqual(len(compiled.texts), 2)
                             for text in compiled.texts:
@@ -97,7 +96,7 @@ class PlaybackSlotDraftTests(unittest.TestCase):
         self.assertEqual(fixture['run'], 40188270227)
         self.assertEqual(len(fixture['cases']), 7)
         brief = self.collection_brief()
-        complete = self.example(brief)['drafts'][0]
+        complete = {'parts': [{'slot': name} for name in brief.literal_gap_slots()]}
         for row in fixture['cases']:
             raw = row['original_generated_text']
             self.assertEqual(hashlib.sha256(raw.encode()).hexdigest(), row['original_generated_sha256'])
@@ -127,6 +126,46 @@ class PlaybackSlotDraftTests(unittest.TestCase):
             self.assertNotIn('PRIVATE_', prompt)
             self.assertEqual(json.loads(prompt.split('\nData:\n', 1)[1])['required_slots'],
                              ['title', 'artist', 'status'])
+
+    def test_gap_wire_binds_every_original_role_without_adding_any_model_prose(self):
+        brief = self.brief()
+        value = {'schema': 'playback_literal_gaps_v2', 'drafts': [
+            {'gaps': ['I hand “', '” by ', ' over to you. ']}]}
+        self.assertEqual(self.decode(value).texts,
+                         ('I hand “{title}” by {artist} over to you. {status}',))
+        # A grammatical defect or factual assertion is not corrected here:
+        # the unchanged whole-answer assessor still owns their acceptance.
+        value['drafts'][0]['gaps'][0] = 'The best music ever: '
+        self.assertIn('The best music ever:', self.decode(value).texts[0])
+        self.assertIn('Reject new music facts', brief.assessment_prompt(self.decode(value).texts[0]))
+
+    def test_new_gap_wire_malformed_second_draft_rejects_entire_batch_before_normalization(self):
+        base = {'schema': 'playback_literal_gaps_v2', 'drafts': [
+            {'gaps': ['I hand ', ' by ', ' to you. ']}]}
+        bad_gaps = [[], ['x'], ['a', 'b'], ['a', 'b', '. ', 'extra'],
+                    ['a', 1, '. '], ['a', True, '. '], ['a', None, '. '],
+                    ['{title}', ' by ', '. '], ['a', '\x00', '. '],
+                    ['a', '\n', '. '], ['a', '\x7f', '. '],
+                    ['a', '\ud800', '. '], ['a', 'b', 'no separator'],
+                    ['x' * 701, 'b', '. ']]
+        variants = [{'gaps': gaps} for gaps in bad_gaps]
+        variants += [{'gaps': base['drafts'][0]['gaps'], 'slot': 'title'},
+                     {'parts': [{'slot': 'title'}]}, None]
+        for bad in variants:
+            value = deepcopy(base)
+            value['drafts'].append(bad)
+            calls = []
+            with self.subTest(bad=repr(bad)), self.assertRaises(ValueError):
+                self.brief().decode_drafts(json.dumps(value), lambda text: calls.append(text) or text)
+            self.assertEqual(calls, [])
+        for anchors in (('{title}', '{status}', '{status}'), ('{title}',),
+                        ('{unknown}', '{title}', '{status}')):
+            with self.subTest(anchors=anchors), self.assertRaises(ValueError):
+                self.decode(base, replace(self.brief(), anchors=anchors))
+        for value in ({**base, 'extra': True}, {**base, 'drafts': []},
+                      {**base, 'drafts': base['drafts'] * 3}):
+            with self.assertRaises(ValueError):
+                self.decode(value)
 
     def test_every_part_and_every_draft_must_be_valid_before_any_normalization(self):
         base = self.wire()
