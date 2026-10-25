@@ -1,3 +1,5 @@
+> Current structural preparation25October: named-role playback gapsv3 explicitly bind every Core role key, then use the unchanged literal compiler and whole-answer judge. Old malformed anonymous arrays remain denied. See [current implementation and evidence](HELP_PLAYBACK_ROLE_GAPS_V3_20261025.md). Actual18b6/40206158531 remains19PASS5FAIL/61responses; all prior model failures/claims retain their own scope. New protected Source/original qualification and a new same-content24PASS/editorial gate precede100/publication. Cataloguefalse70, all24requests/ninegates and installed/provider/native gates remain. Historical body below retained byteexact.
+
 # Help single-draft delivery and complete short diagnostic coverage
 
 ## Actual problem

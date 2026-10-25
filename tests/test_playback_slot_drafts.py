@@ -43,7 +43,7 @@ class PlaybackSlotDraftTests(unittest.TestCase):
 
     def example(self, brief):
         instructions = brief.prompt(verified_drafts=True).split('\nData:\n', 1)[0]
-        match = re.search(r'\{"schema"\s*:\s*"playback_literal_gaps_v2"', instructions)
+        match = re.search(r'\{"schema"\s*:\s*"playback_role_gaps_v3"', instructions)
         self.assertIsNotNone(match)
         return json.JSONDecoder().raw_decode(instructions[match.start():])[0]
 
@@ -76,10 +76,11 @@ class PlaybackSlotDraftTests(unittest.TestCase):
                                              {anchor[1:-1] for anchor in brief.anchors})
                             self.assertEqual(len(example['drafts']), 1)
                             for draft in example['drafts']:
-                                self.assertEqual(len(draft['gaps']), len(data['core_slot_order']))
+                                self.assertIs(type(draft['gaps']), dict)
+                                self.assertEqual(set(draft['gaps']), set(data['core_slot_order']))
                                 self.assertEqual(set(data['core_slot_order']), set(data['required_slots']))
                                 self.assertEqual(data['core_slot_order'][-1], 'status')
-                                self.assertRegex(draft['gaps'][-1], r'[.!?] $')
+                                self.assertRegex(draft['gaps']['status'], r'[.!?] $')
                             compiled = self.decode(example, brief)
                             self.assertEqual(len(compiled.texts), 1)
                             for text in compiled.texts:
@@ -201,3 +202,66 @@ class PlaybackSlotDraftTests(unittest.TestCase):
         for failed in ('supported', 'language_ok', 'style_ok'):
             review = {k: k != failed for k in ('supported', 'language_ok', 'style_ok')}
             self.assertFalse(self.n.assessed(json.dumps(review)))
+
+    def test_role_map_orders_complete_named_gaps_without_adding_prose(self):
+        value = {'schema': 'playback_role_gaps_v3', 'drafts': [{'gaps': {
+            'status': ' to you. ', 'artist': ' by ', 'title': 'I hand '}}]}
+        self.assertEqual(self.decode(value).texts,
+            ('I hand {title} by {artist} to you. {status}',))
+
+    def test_role_map_rejects_bad_second_map_before_any_normalization(self):
+        good = {'title': 'I hand ', 'artist': ' by ', 'status': ' to you. '}
+        bad = [{k: v for k, v in good.items() if k != 'artist'},
+               {**good, 'genre': 'wrong '}, {'title': 'I hand ', 'artist': ' by ', 'status': ''},
+               {**good, 'status': 'no separator'}, {**good, 'title': '{title}'},
+               {**good, 'artist': True}, {**good, 'artist': None}, {**good, 'artist': [' by ']},
+               {**good, 'artist': '\x00'}, {**good, 'artist': '\x7f'},
+               {**good, 'artist': '\ud800'}, {**good, 'title': 'x' * 701},
+               list(good.values()), None]
+        for gaps in bad:
+            value = {'schema': 'playback_role_gaps_v3',
+                     'drafts': [{'gaps': good}, {'gaps': gaps}]}
+            calls = []
+            with self.subTest(gaps=repr(gaps)), self.assertRaises(ValueError):
+                self.brief().decode_drafts(json.dumps(value), lambda text: calls.append(text) or text)
+            self.assertEqual(calls, [])
+        raw = ('{"schema":"playback_role_gaps_v3","drafts":[{"gaps":'
+               '{"title":"I hand ","artist":" by ","status":". ","status":". "}}]}')
+        with self.assertRaises(ValueError):
+            self.brief().decode_drafts(raw, str.strip)
+
+    def test_original_18b6_two_gap_failures_stay_denied_without_repair(self):
+        fixture = json.loads((Path(__file__).parent / 'fixtures/playback_role_gaps/'
+                              'consumed_18b6_original.json').read_text())
+        self.assertEqual(fixture['run'], 40206158531)
+        self.assertEqual(len(fixture['rows']), 4)
+        for row in fixture['rows']:
+            raw = row['original_wire']
+            self.assertEqual(hashlib.sha256(raw.encode()).hexdigest(), row['original_wire_sha256'])
+            self.assertEqual(len(json.loads(raw)['drafts'][0]['gaps']), 2)
+            brief = self.collection_brief(kind=row['selection_kind'], locale=row['locale'])
+            self.assertEqual(brief.literal_gap_slots(), row['required_roles'])
+            calls = []
+            with self.subTest(case=row['case_id']), self.assertRaises(ValueError):
+                brief.decode_drafts(raw, lambda text: calls.append(text) or text)
+            self.assertEqual(calls, [])
+
+    def test_role_map_envelope_and_original_scope_are_closed(self):
+        good = {'schema': 'playback_role_gaps_v3', 'drafts': [{'gaps': {
+            'title': 'I hand ', 'artist': ' by ', 'status': ' to you. '}}]}
+        invalid = [{**good, 'extra': True}, {**good, 'drafts': []},
+                   {**good, 'drafts': True}, {**good, 'drafts': good['drafts'] * 3},
+                   {**good, 'drafts': [{'gaps': good['drafts'][0]['gaps'], 'extra': True}]},
+                   {**good, 'drafts': [None]}, {**good, 'drafts': [{'gaps': {}}]}]
+        for value in invalid:
+            calls = []
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                self.brief().decode_drafts(json.dumps(value), lambda text: calls.append(text) or text)
+            self.assertEqual(calls, [])
+        for anchors in (('{title}', '{status}', '{status}'), ('{title}',),
+                        ('{unknown}', '{title}', '{status}')):
+            brief = replace(self.brief(), anchors=anchors)
+            value = {'schema': 'playback_role_gaps_v3', 'drafts': [{'gaps': {
+                name: '. ' for name in brief.literal_gap_slots()}}]}
+            with self.subTest(anchors=anchors), self.assertRaises(ValueError):
+                self.decode(value, brief)
