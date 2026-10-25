@@ -1096,11 +1096,13 @@ def introduction_brief(research, question):
         'pronoun_policy':'independent_full_context_resolution_required'}
 
 
-def generation_projection(research, question):
+def generation_projection(research, question, *, preserve_nonparagraph_sources=False):
     """All literal spans once; the focus changes no fact rights or source bytes."""
     sources = research.get('sources', [])
     result = {**research, 'sources': [
-        {**{k: v for k, v in source.items() if k not in {'untrusted_excerpt', 'evidence_spans','literal_passages'}},
+        {**{k: v for k, v in source.items() if k not in {'evidence_spans','literal_passages'}
+            and (k != 'untrusted_excerpt' or (preserve_nonparagraph_sources
+                and source.get('evidence_schema') != 'original_paragraphs_v1'))},
          'evidence_spans': evidence_spans(source)} for source in sources]}
     from .biographical_dates import candidates
     result['biographical_date_events'] = candidates(research)

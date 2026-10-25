@@ -1,3 +1,17 @@
+## Current Help public-source correction — 25 October 2026
+
+Original manual40162708970 completed100/166 with94PASS/6FAIL; consumed FAILURE,
+not qualified. Current correction preserves full mixed-source input witnesses,
+accepted locale and whole-batch/grounding guards. Source preparation and synthetic
+5x2 SDK bridge are not real content/publication GO. Canonical catalogue remains
+false70pending. A separately bounded changed-source execution requires normal
+protected Source+separateFinal/originals and exact concrete preadmission first.
+All24requests/ninegates/Bulletin-to-VibeCast retained; no new installation,
+provider/native/Pi acceptance. Automation PAUSED. See
+`docs/verification/HELP_PUBLIC_SOURCE_WITNESS_20261025.md`.
+
+--- Previous complete body preserved below ---
+
 # Delivered Help evidence-first Source — 25 October 2026
 
 [PR1338](https://github.com/pcvantol/djconnect/pull/1338) protected`2eae7dbfb86d6dc4ec1f1d0b6567d1d2ff8956e2`,

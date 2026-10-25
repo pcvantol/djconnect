@@ -3079,7 +3079,8 @@ async def _informational_assist_response(
             id_review = bool((turn.interpreted_artist_research or turn.interpreted_context_research)
                 and turn.public_research.get('schema_version') == 3)
             from ..public_artist_narration import complete_review_projection, resolve_review_quotes
-            review_context = complete_review_projection(grounding_context) if id_review else grounding_context
+            review_context = complete_review_projection(grounding_context,
+                preserve_nonparagraph_sources=artist_corpus is not None) if id_review else grounding_context
             review_prompt = public_research.assessment_prompt(
                 message, review_context, language, text, allow_prefix=not id_review, quote_by_id=id_review,
                 closed_negative=artist_corpus is not None)
@@ -9028,7 +9029,10 @@ def _fallback_info_text(
     track = _track_label(playback_context)
     if "artiest" in normalized and track:
         return f"Ik kijk naar de huidige context rond {track}. Meer brondata is nog niet beschikbaar."
-    return "Ik heb nu niet genoeg betrouwbare broninformatie om daar zeker antwoord op te geven."
+    from .dialogue import current_turn
+    from .public_research import unavailable_answer
+    turn = current_turn.get()
+    return unavailable_answer(turn.style.get('language', 'en') if turn else 'en')
 
 
 def _unrecognized_request_text() -> str:

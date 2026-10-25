@@ -314,7 +314,7 @@ def plain_work_titles(text, projection):
     return text if '*' in normalized else normalized
 
 
-def complete_review_projection(context):
+def complete_review_projection(context, *, preserve_nonparagraph_sources=False):
     """Omit duplicated prose only after literal full-corpus coverage proof."""
     from .ask_dj.public_research import evidence_spans, selected_credit_spans
     def compact(text):
@@ -324,7 +324,9 @@ def complete_review_projection(context):
         spans = evidence_spans(source)
         original = source.get('untrusted_excerpt','')
         source = {**source,'evidence_spans':spans}
-        if original and compact(original) == compact(''.join(s['text'] for s in spans)):
+        if (original and compact(original) == compact(''.join(s['text'] for s in spans))
+                and not (preserve_nonparagraph_sources
+                    and source.get('evidence_schema') != 'original_paragraphs_v1')):
             source = {k:v for k,v in source.items() if k not in {'untrusted_excerpt','literal_passages'}}
         sources.append(source)
     result = {**context,'public_music_research':{**context['public_music_research'],'sources':sources}}
