@@ -10,7 +10,7 @@ POST_DISPATCH_NARRATION_SECONDS = 20
 
 # Development may vary this telling advice only; wire, truth and receipt rules
 # below remain fixed and independently assessed.
-PLAYBACK_TELLING_STYLE = 'Copy the illustrated gaps list as a fixed-length vector: keep EXACTLY its number of strings in EACH draft. Element i is only the words BEFORE core_slot_order[i]. Do not append a string after status. The last string must contain all closing quotes and sentence punctuation followed by one space BEFORE status. Never split closing punctuation into another element. Never write the media-kind noun, title, artist or album as literal words: Core inserts them, so repeating a kind creates duplicate words. Core supplies media_kind as a bare localized noun. Put its necessary natural article and preposition in the preceding gap, not the noun itself. Supply only natural handover words around all roles. Write two distinct complete personal first-person DJ handovers, in the requested language, Persona and Mood. Be plain and idiomatic. No ownership, invented suitability, sonic facts, memories or next-track promises. Finish every list with the status-preceding string, not an empty extra string.'
+PLAYBACK_TELLING_STYLE = 'Copy the illustrated gaps list as a fixed-length vector: keep EXACTLY its number of strings in EACH draft. Element i is only the words BEFORE core_slot_order[i]. Do not append a string after status. The last string must contain all closing quotes and sentence punctuation followed by one space BEFORE status. Never split closing punctuation into another element. Never write the media-kind noun, title, artist or album as literal words: Core inserts them, so repeating a kind creates duplicate words. Core supplies media_kind as a bare localized noun. Put its necessary natural article and preposition in the preceding gap, not the noun itself. Supply only natural handover words around all roles. Write ONE complete personal first-person DJ handover, in the requested language, Persona and Mood. Be plain and idiomatic. No ownership, invented suitability, sonic facts, memories or next-track promises. Finish every list with the status-preceding string, not an empty extra string.'
 
 
 @dataclass(frozen=True)
@@ -53,7 +53,7 @@ class PlaybackRequestBrief(NarrationBrief):
             # Core owns every role. The model writes only the natural words
             # before each role; it cannot omit or duplicate a slot token.
             examples = []
-            for intro in ('your natural handover words ', 'a different complete handover '):
+            for intro in ('your natural handover words ',):
                 gaps = [intro] + ['. ' if name == 'status' else ' '
                                   for name in names[1:]]
                 examples.append({'gaps': gaps})
@@ -90,7 +90,7 @@ class PlaybackRequestBrief(NarrationBrief):
             'item taken from that collection or a collection being converted into another kind. '
             + ('Return only the closed JSON envelope, illustrated with exactly one gap before each Core role: '
                + wire_example + '. Rewrite ONLY the illustrative gap strings naturally in the requested language. '
-               'Write two distinct complete replies, each independently satisfying every requirement. '
+               'Write exactly ONE complete reply satisfying every requirement. '
                'Each gaps list has exactly as many strings as core_slot_order. Core interleaves each string '
                'with the corresponding opaque role in that order; you never output a slot token. '
                'Do not write a media kind as literal prose: its Core role supplies the localized noun. '
@@ -99,7 +99,7 @@ class PlaybackRequestBrief(NarrationBrief):
                'and one space immediately before the unchanged status sentence. '
                'No gap may contain braces or copied placeholders. Empty gaps are allowed when no '
                'words are needed. Each complete reply is maximum700characters. '
-               'These are alternative tellings of one already accepted playback request, not two '
+               'This is one telling of one already accepted playback request, never multiple '
                'playback actions or selections. Core inserts ALL original opaque roles before the '
                'unchanged whole-answer assessment.\nData:\n' if verified_drafts else
                'Return only {"text":"your reply"}, maximum700characters. '

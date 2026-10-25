@@ -23,7 +23,7 @@ on:
       mode:
         required: true
         type: choice
-        options: [target6, target18_activity_v2, full100]
+        options: [target6, target18_activity_v2, target24_delivery_v3, full100]
 
 permissions:
   contents: read
