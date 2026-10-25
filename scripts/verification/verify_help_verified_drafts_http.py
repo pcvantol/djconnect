@@ -71,6 +71,23 @@ async def qualify(hass, manager, history, request, client):
                     for text in frames]}
                 if mode == 'slots_bad_second':
                     answer['drafts'][1]['parts'][-1] = {'slot': 'status”'}
+            elif mode.startswith('roles_'):
+                import re
+                maps = []
+                for text in frames:
+                    pieces = re.split(r'(\{title\}|\{status\})', text)
+                    gaps, literal = {}, ''
+                    for piece in pieces:
+                        if piece.startswith('{'):
+                            gaps[piece[1:-1]], literal = literal, ''
+                        else:
+                            literal += piece
+                    assert literal == ''
+                    maps.append({'gaps': dict(reversed(list(gaps.items())))
+                                 if mode == 'roles_reordered' else gaps})
+                answer = {'schema': 'playback_role_gaps_v3', 'drafts': maps}
+                if mode == 'roles_bad_second':
+                    answer['drafts'][1]['gaps'].pop('status')
         else:
             reviews = []
             for row in projection['drafts']:
@@ -98,7 +115,8 @@ async def qualify(hass, manager, history, request, client):
          patch.object(ask_dj, 'run_music_command', playback), \
          patch.object(public_research.PublicFetch, 'request', source):
         for route in ('frame', 'artist'):
-            for mode in (('second', 'all_false', 'swapped', 'malformed', 'slots_second', 'slots_bad_second') if route == 'frame' else
+            for mode in (('second', 'all_false', 'swapped', 'malformed', 'slots_second', 'slots_bad_second',
+                          'roles_second', 'roles_reordered', 'roles_bad_second') if route == 'frame' else
                          ('second', 'all_false', 'swapped', 'malformed', 'first_bad_claim', 'first_bad_temporal', 'control')):
                 if route == 'artist':
                     # Each case asks about CURRENT playback, not the previous
@@ -114,8 +132,8 @@ async def qualify(hass, manager, history, request, client):
                         selection_kind='playlist', playback_state='observed')
                     answer = await pipeline.realize_session_narration(hass, narration=brief,
                         admission=lambda: None, fallback_text=brief.seed, conf=runtime.config)
-                    assert str(answer) == (brief.render(frames[1]) if mode in ('second', 'slots_second') else brief.seed)
-                    assert len(calls) == (1 if mode == 'slots_bad_second' else 2)
+                    assert str(answer) == (brief.render(frames[1]) if mode in ('second', 'slots_second', 'roles_second', 'roles_reordered') else brief.seed)
+                    assert len(calls) == (1 if mode in ('slots_bad_second', 'roles_bad_second') else 2)
                     assert calls[0]['playback_state'] == 'observed'
                     if len(calls) == 2:
                         assert calls[1]['playback_state'] == 'observed'

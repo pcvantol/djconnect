@@ -1,0 +1,69 @@
+{
+  "scope": "SYNTHETIC_ORIGINAL_PAID_FAILURES_NOT_REPAIRED_OR_RERATED",
+  "run": 40206158531,
+  "artifact": 12603449306,
+  "zip_sha256": "ccd7ffce2b3f0c6142cfb04b3ee89e5b48c61fa01fecff68dbd1e30f5dd7bacc",
+  "report_sha256": "33c1731f66f412b58a8184674a6e007a1caa73ffaa7e73b7ad2e5a914fa75ee7",
+  "rows": [
+    {
+      "case_id": "catalogue-play.quiet-en",
+      "locale": "en",
+      "selection_kind": "playlist",
+      "required_roles": [
+        "media_kind",
+        "title",
+        "status"
+      ],
+      "original_wire": "{\"schema\":\"playback_literal_gaps_v2\",\"drafts\":[{\"gaps\":[\"I’m putting the playlist \",\" on for you now. \"]}]}",
+      "original_wire_sha256": "7aba88bcc2121a2eb2c55e665aba3f923c9a0248f104fde941baa778505cf50d",
+      "original_findings": [
+        "accepted_playback_narration_missing"
+      ]
+    },
+    {
+      "case_id": "catalogue-play.quiet-de",
+      "locale": "de",
+      "selection_kind": "playlist",
+      "required_roles": [
+        "media_kind",
+        "title",
+        "status"
+      ],
+      "original_wire": "{\"schema\":\"playback_literal_gaps_v2\",\"drafts\":[{\"gaps\":[\"Ich spiele dir die Playlist \",\" jetzt ab. \"]}]}",
+      "original_wire_sha256": "260959a84a04341bd6f6c7d41d628a66c56043cba258b7f11e4bce65df79e7fd",
+      "original_findings": [
+        "accepted_playback_narration_missing"
+      ]
+    },
+    {
+      "case_id": "catalogue-chain-album-nl-accept",
+      "locale": "nl",
+      "selection_kind": "album",
+      "required_roles": [
+        "media_kind",
+        "title",
+        "status"
+      ],
+      "original_wire": "{\"schema\":\"playback_literal_gaps_v2\",\"drafts\":[{\"gaps\":[\"Ik speel het \",\" nu voor je af. \"]}]}",
+      "original_wire_sha256": "509a667926d2e695598ab44942ee26a6773bff1e890fc71eab59a73f0359f337",
+      "original_findings": [
+        "accepted_playback_narration_missing"
+      ]
+    },
+    {
+      "case_id": "catalogue-chain-album-es-accept",
+      "locale": "es",
+      "selection_kind": "album",
+      "required_roles": [
+        "media_kind",
+        "title",
+        "status"
+      ],
+      "original_wire": "{\"schema\":\"playback_literal_gaps_v2\",\"drafts\":[{\"gaps\":[\"Te dejo el \",\" para que lo escuches. \"]}]}",
+      "original_wire_sha256": "f1720811e20352a51f90349a4b736cbef1cf980c2776315cf049faee11ca6b9c",
+      "original_findings": [
+        "accepted_playback_narration_missing"
+      ]
+    }
+  ]
+}
