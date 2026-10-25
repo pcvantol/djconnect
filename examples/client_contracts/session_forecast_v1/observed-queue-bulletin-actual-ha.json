@@ -393,7 +393,7 @@
     "custom_components/djconnect/persona_reactions.py": "4a4a98a3caf9d208e69d69a716e6478baecebd3fbc1a68b7ac0dc81f7878cc22",
     "custom_components/djconnect/pipeline.py": "a13280f47e2b6cffd40eb1725b25735639e3f548f89cff465dd70aabfeff9416",
     "custom_components/djconnect/playback_observation.py": "90bfe43beb0c84964c20b0825fbfa2fad2dc4bea47e54717f0e9a4f49b103d6b",
-    "custom_components/djconnect/playback_request.py": "32862308d33ccd4a01ca1e5edab6b04307435ac30f979c1b48ce3a90f89405f5",
+    "custom_components/djconnect/playback_request.py": "2148dbddceb3324816d62025c35c12e7568f503764bae8b7fc4544bbac02151b",
     "custom_components/djconnect/presence_policy.py": "d89ba4afe96b279b8f530121b4978fe37051c744d5dc6a6bc6fa7c6179fb892c",
     "custom_components/djconnect/presentation_composer.py": "bc16ebcf1c9e2fd2d53d8c7ba488b2e174771501d08030589af972baff5355a5",
     "custom_components/djconnect/processor.py": "6e1138e9205fb9ac80ab0cc2d454e3f9619249e7e59ea35e9e192f96f2713017",
@@ -496,5 +496,5 @@
   "ha_credentials_issued": 0,
   "installed": "NOT_RUN",
   "native": "NOT_RUN",
-  "actual_ha_receipt_sha256": "bcc7db080aa4a162eaab4bffce50c6e81e19c4619995532debeea1b0ad7a5001"
+  "actual_ha_receipt_sha256": "903568ee05e1d3d65632d617fb1f63e723a7230fc6c83b15f43677b93bfa0fa6"
 }

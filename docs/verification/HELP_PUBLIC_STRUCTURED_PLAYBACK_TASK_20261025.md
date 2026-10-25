@@ -1,3 +1,9 @@
+# 2026-10-25 verified playback alternatives — source scope
+
+The verified playback prompt now asks for two grammatically distinct complete handovers using the existing closed 1..2-draft ABI and whole-batch compiler. Both describe the same already accepted selection/state; the existing independent full-text reviews select only a whole draft with all support/language/style checks true. No extra generation/review, playback effect, prose repair, missing-key default, deadline extension or guard relaxation. Legacy single replies and artist research remain unchanged.
+
+See `docs/verification/HELP_TWO_PLAYBACK_ALTERNATIVES_20261025.md`. This is source preparation, not actual model quality, catalogue publication, configuration, installation or native acceptance. The last two genuine short trials remain failures (22/24 and19/24); all claims remain consumed. Catalogue DFAA stays draft/70 pending. Future publication also requires the separately reviewed current-configuration/consumer readiness bridge; local source qualification is not current task/provider authority. All24 requests/nine gates and prior receipts remain in the byte-preserved body below with their own historical scopes.
+
 # Optional public Home Assistant task for playback replies
 
 This source adds an explicit, optional `assist_structured_task_id` selection alongside Assist. An empty selection retains the existing conversation path. A selected task is strict: missing, retired, unsafe, changed or incompatible configuration fails closed, without selecting a preferred task or silently switching back to conversation. It creates no task, provider account, credential or installed configuration.

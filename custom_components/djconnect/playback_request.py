@@ -52,11 +52,15 @@ class PlaybackRequestBrief(NarrationBrief):
         if verified_drafts:
             # Core owns every role. The model writes only the natural words
             # before each role; it cannot omit or duplicate a slot token.
-            gaps = {name: '. ' if name == 'status' else
-                    'your natural handover words ' if index == 0 else ' '
-                    for index, name in enumerate(names)}
+            alternatives = [
+                {'gaps': {name: '. ' if name == 'status' else
+                          introduction if index == 0 else ' '
+                          for index, name in enumerate(names)}}
+                for introduction in ('your natural handover words ',
+                                     'your alternative handover words ')
+            ]
             wire_example = json.dumps({'schema': 'playback_role_gaps_v3',
-                                       'drafts': [{'gaps': gaps}]})
+                                       'drafts': alternatives})
         return self.style_instructions() + (
             ' Answer the listener’s just-accepted music request as their DJ. '
             + PLAYBACK_TELLING_STYLE + ' Connect the named choice to the act of listening '
@@ -89,7 +93,11 @@ class PlaybackRequestBrief(NarrationBrief):
             'item taken from that collection or a collection being converted into another kind. '
             + ('Return only the closed JSON envelope, illustrated with exactly one named gap before each Core role: '
                + wire_example + '. Rewrite ONLY the illustrative gap strings naturally in the requested language. '
-               'Write exactly ONE complete reply satisfying every requirement. '
+               'Write TWO complete alternative replies satisfying every requirement. '
+               'Use a different natural grammatical construction for each alternative, '
+               'not different music, playback states or actions. Each is one handover '
+               'of the same already accepted selection. Both are assessed independently '
+               'as complete texts; do not split one sentence between the alternatives. '
                'The gaps object has EXACTLY the illustrated role keys, with one string value per key. '
                'Every key is required, even when its value is empty. Core orders these values by '
                'core_slot_order and inserts the corresponding opaque role; JSON key order has no authority. '
