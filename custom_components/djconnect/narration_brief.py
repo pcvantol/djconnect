@@ -9,6 +9,7 @@ import json
 import re
 import time
 import base64
+import hashlib
 
 from .narration_style import instructions
 from .session_facts import QualifiedSessionFact, DisplayFactCore, SharedProducerFact, AlbumContinuityFact, ProducerRecommendationFact
@@ -423,3 +424,152 @@ def assessed(response):
         return False
     return (type(body) is dict and set(body) == {"supported", "language_ok", "style_ok"}
             and all(value is True for value in body.values()))
+
+
+@dataclass(frozen=True)
+class VerifiedDrafts:
+    """Original ordered whole texts, frozen after existing normalization.
+
+    This carries no authority. One existing independent review call must bind
+    every verdict to its exact index and UTF-8 digest before any text is used.
+    """
+    texts: tuple[str, ...]
+    batch: bool
+
+    def records(self):
+        return [{"index": i, "sha256": hashlib.sha256(text.encode()).hexdigest(),
+                 "text": text} for i, text in enumerate(self.texts)]
+
+
+def _draft_object(response):
+    """Closed bounded JSON, including depth and non-finite rejection."""
+    value = _object(response)
+    count = 0
+    def check(item, depth=0):
+        nonlocal count
+        count += 1
+        if depth > 16 or count > 1024:
+            raise ValueError('invalid_draft_structure')
+        if isinstance(item, dict):
+            for nested in item.values():
+                check(nested, depth + 1)
+        elif isinstance(item, list):
+            for nested in item:
+                check(nested, depth + 1)
+        elif isinstance(item, str):
+            if any((ord(char) < 32 and char != '\n') or 0xD800 <= ord(char) <= 0xDFFF
+                   for char in item):
+                raise ValueError('invalid_draft_control')
+        elif isinstance(item, float):
+            import math
+            if not math.isfinite(item):
+                raise ValueError('invalid_draft_number')
+    check(value)
+    return value
+
+
+def verified_drafts(response, normalize):
+    """Normalize all or reject all; malformed JSON never becomes legacy prose."""
+    if not isinstance(response, str) or len(response.encode()) > 8192:
+        raise ValueError('invalid_drafts')
+    batch = False
+    if response.lstrip().startswith(('{', '[')):
+        body = _draft_object(response)
+        if type(body) is dict and set(body) == {'drafts'}:
+            raw, batch = body['drafts'], True
+            if type(raw) is not list or not 1 <= len(raw) <= 2:
+                raise ValueError('invalid_drafts')
+        elif type(body) is dict and set(body) == {'text'}:
+            raw = [body['text']]
+        else:
+            raise ValueError('invalid_drafts')
+    else:
+        raw = [response]
+    texts = []
+    for item in raw:
+        if type(item) is not str:
+            raise ValueError('invalid_draft_text')
+        if any((ord(char) < 32 and char != '\n') or 0xD800 <= ord(char) <= 0xDFFF for char in item):
+            raise ValueError('invalid_draft_control')
+        text = normalize(item)
+        if not isinstance(text, str) or not text or text in texts:
+            raise ValueError('invalid_draft_text')
+        texts.append(text)
+    return VerifiedDrafts(tuple(texts), batch)
+
+
+def draft_review_prompt(prompt, drafts, *, text_field):
+    """Apply the original whole-answer contract independently, in one call."""
+    if not drafts.batch:
+        return prompt
+    instructions, separator, data = prompt.partition('\nData:\n')
+    if not separator:
+        raise ValueError('missing_draft_review_context')
+    data = json.loads(data)
+    if data.pop(text_field) != drafts.texts[0]:
+        raise ValueError('draft_context_mismatch')
+    data['drafts'] = drafts.records()
+    return ('Review each whole draft independently against the SAME original evidence. '
+        'All the following single-answer review requirements apply separately INSIDE each review. '
+        'Never spread a positive verdict across drafts. Return ONLY '
+        '{"draft_reviews":[{"index":0,"sha256":"copy the supplied digest","review":{...}}]}. '
+        'Return exactly one record per supplied draft, in the original order, with exactly '
+        'index, sha256, review fields. Copy each supplied index and digest exactly; do not compute '
+        'or change them. The nested review has exactly the original single-answer schema. '
+        + instructions + '\nData:\n' + json.dumps(data, ensure_ascii=False, allow_nan=False))
+
+
+def bound_draft_reviews(response, drafts, *, public_story=False):
+    """Validate the complete envelope before exposing any independent verdict."""
+    if not drafts.batch:
+        return (response,)
+    body = _draft_object(response)
+    if type(body) is not dict or set(body) != {'draft_reviews'}:
+        raise ValueError('invalid_draft_reviews')
+    rows = body['draft_reviews']
+    expected = drafts.records()
+    if type(rows) is not list or len(rows) != len(expected):
+        raise ValueError('invalid_draft_reviews')
+    result = []
+    for row, original in zip(rows, expected, strict=True):
+        if (type(row) is not dict or set(row) != {'index', 'sha256', 'review'}
+                or type(row['index']) is not int or row['index'] != original['index']
+                or row['sha256'] != original['sha256'] or type(row['review']) is not dict):
+            raise ValueError('unbound_draft_review')
+        review = row['review']
+        flags = {'supported', 'language_ok', 'style_ok'}
+        if not flags <= review.keys() or any(type(review[key]) is not bool for key in flags):
+            raise ValueError('invalid_draft_verdict')
+        if public_story:
+            required = flags | {'review_schema', 'unsupported_claims', 'claim_checks'}
+            if (not required <= review.keys() or review.keys() - required - {'temporal_claims'}
+                    or review['review_schema'] != 'source_id_review_v1'
+                    or type(review['unsupported_claims']) is not list
+                    or len(review['unsupported_claims']) > 3
+                    or any(type(value) is not str for value in review['unsupported_claims'])
+                    or type(review['claim_checks']) is not list or len(review['claim_checks']) > 24):
+                raise ValueError('invalid_draft_story_review')
+            for claim in review['claim_checks']:
+                if (type(claim) is not dict or set(claim) != {'text', 'kind', 'evidence_ids'}
+                        or type(claim['text']) is not str or not 1 <= len(claim['text']) <= 1200
+                        or claim['kind'] not in ('fact', 'relationship', 'dj_appreciation')
+                        or type(claim['evidence_ids']) is not list
+                        or len(claim['evidence_ids']) != (0 if claim['kind'] == 'dj_appreciation' else 1)
+                        or any(type(identifier) is not str or not 1 <= len(identifier) <= 512
+                               for identifier in claim['evidence_ids'])):
+                    raise ValueError('invalid_draft_claim_shape')
+            temporal = review.get('temporal_claims', [])
+            if type(temporal) is not list or len(temporal) > 8:
+                raise ValueError('invalid_draft_temporal_shape')
+            for claim in temporal:
+                from .ask_dj.biographical_dates import KEYS, SCHEMA
+                fields = KEYS if type(claim) is dict and claim.get('schema') == SCHEMA else {
+                    'claim', 'event_anchor', 'year', 'source_id', 'quote'}
+                if (type(claim) is not dict or set(claim) != fields
+                        or any(type(value) is not str or not 1 <= len(value) <= 1200
+                               for value in claim.values())):
+                    raise ValueError('invalid_draft_temporal_shape')
+        elif set(review) != flags:
+            raise ValueError('invalid_draft_frame_review')
+        result.append(json.dumps(row['review'], ensure_ascii=False, allow_nan=False))
+    return tuple(result)

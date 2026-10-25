@@ -2917,6 +2917,21 @@ async def _informational_assist_response(
                         "knowledge_basis": "public_research_unavailable",
                         "public_research_status": research_state}
 
+    # Only the original fetched schema3 artist route admits alternatives. Other
+    # research (including interpreted album/producer context) keeps its ABI.
+    draft_context = None
+    draft_pool = None
+    if (turn and fetched_sources and turn.interpreted_artist_research
+            and not turn.interpreted_context_research
+            and turn.public_research.get('schema_version') == 3):
+        from .dialogue import selected_public_focus
+        draft_context = {"public_music_research": turn.public_research,
+                         "qualified_context": turn.source_context}
+        if focus := selected_public_focus(turn):
+            draft_context['selected_contribution'] = focus
+        # Plain literal evidence only; no copy/reconstruction of typed authority.
+        # Freeze before the FIRST await, not separately for each alternative.
+        draft_context = json.loads(json.dumps(draft_context, ensure_ascii=False, allow_nan=False))
     prompt = _informational_prompt(
         text,
         payload,
@@ -2924,6 +2939,7 @@ async def _informational_assist_response(
         playback_context,
         output_devices,
         getattr(runtime, "config", {}) or {},
+        **({'verified_drafts': True} if draft_context is not None else {}),
     )
     if semantic_scope is not None:
         prompt = semantic_reads.augment_answer_prompt(prompt, semantic_scope)
@@ -2976,7 +2992,8 @@ async def _informational_assist_response(
             answer = public_research.without_duplicate_source_footer(answer, fetched_sources)
             if research_subject:
                 from ..public_artist_narration import plain_work_titles
-                answer = plain_work_titles(answer, turn.public_research)
+                answer = plain_work_titles(answer, draft_context['public_music_research']
+                    if draft_context is not None else turn.public_research)
         if turn and requests_lookup(text) and (
             operation.get("intent") not in {"lookup", "refine"} or not operation.get("query")
         ):
@@ -2993,7 +3010,22 @@ async def _informational_assist_response(
         return answer, operation
 
     try:
-        message, plan = parse_reply(message)
+        if draft_context is not None:
+            from ..narration_brief import verified_drafts
+            def normalize_draft(value):
+                answer, operation = parse_reply(value)
+                if operation or _looks_like_internal_prompt_leak(answer):
+                    raise DialogueError('conversation_model_response_invalid', 502)
+                return answer
+            try:
+                draft_pool = verified_drafts(message, normalize_draft)
+            except (ValueError, TypeError, RecursionError, UnicodeError) as exc:
+                raise DialogueError('conversation_model_response_invalid', 502) from exc
+            message, plan = draft_pool.texts[0], {}
+            if not draft_pool.batch:
+                draft_pool = None  # Preserve the existing single-review ABI and failure reasons.
+        else:
+            message, plan = parse_reply(message)
     except DialogueError as exc:
         if exc.code != "conversation_model_response_invalid" or not turn:
             raise
@@ -3028,12 +3060,15 @@ async def _informational_assist_response(
         accepted = False
         answer_state = 'assessment_unavailable'
         if turn.agent_calls < (3 if turn.interpreted_artist_research or turn.interpreted_context_research else 2):
-            grounding_context = {"public_music_research": turn.public_research,
-                                 "qualified_context": turn.source_context}
-            grounding_context = public_research.selected_credit_context(grounding_context, turn)
-            from .dialogue import selected_public_focus
-            if focus := selected_public_focus(turn):
-                grounding_context['selected_contribution'] = focus
+            if draft_context is not None:
+                grounding_context = draft_context
+            else:
+                grounding_context = {"public_music_research": turn.public_research,
+                                     "qualified_context": turn.source_context}
+                grounding_context = public_research.selected_credit_context(grounding_context, turn)
+                from .dialogue import selected_public_focus
+                if focus := selected_public_focus(turn):
+                    grounding_context['selected_contribution'] = focus
             id_review = bool((turn.interpreted_artist_research or turn.interpreted_context_research)
                 and turn.public_research.get('schema_version') == 3)
             from ..public_artist_narration import complete_review_projection, resolve_review_quotes
@@ -3056,12 +3091,38 @@ async def _informational_assist_response(
                     'fact evidence: each new detail still needs its fetched literal passage. '
                     + story_style(persona=turn.style['persona'], mood=turn.style['mood'], locale=language)
                     + '\nData:\n', 1)
+            if draft_pool is not None:
+                from ..narration_brief import draft_review_prompt
+                review_prompt = draft_review_prompt(review_prompt, draft_pool, text_field='answer')
             checked = await _call_dialogue_agent(hass, {**data, "text": review_prompt})
             await turn.guard()
             check_response = (checked or {}).get("response") or {}
             assessment = _speech_from_response(check_response)
             quality_ok = True
-            if id_review:
+            if draft_pool is not None:
+                from ..narration_brief import bound_draft_reviews, _object
+                try:
+                    reviews = bound_draft_reviews(assessment, draft_pool, public_story=True)
+                    # Complete envelope was checked before any positive verdict.
+                    for draft, raw_review in zip(draft_pool.texts, reviews, strict=True):
+                        review = _object(raw_review)
+                        language_ok = review.pop('language_ok', None) is True
+                        style_ok = review.pop('style_ok', None) is True
+                        if review.get('supported') is True:
+                            review = resolve_review_quotes(review, grounding_context)
+                        else:
+                            review.pop('review_schema', None)
+                        if (not check_response.get('error') and language_ok and style_ok
+                                and public_research.supported(json.dumps(review), draft, grounding_context)):
+                            await turn.guard()
+                            message = draft
+                            response.update(text=message, dj_text=message)
+                            accepted = True
+                            break
+                    answer_state = 'full_answer_supported' if accepted else 'drafts_unqualified'
+                except (ValueError, TypeError, KeyError, RecursionError, UnicodeError):
+                    answer_state = 'drafts_unqualified'
+            elif id_review:
                 # Reuse the existing literal-ID wire decoder; factual coverage,
                 # source identity, temporal and relationship checks are unchanged.
                 from ..narration_brief import _object
@@ -3076,9 +3137,10 @@ async def _informational_assist_response(
                     assessment = json.dumps(review)
                 except (ValueError, TypeError, KeyError):
                     assessment = '{}'
-            accepted = (not check_response.get("error") and quality_ok
-                and public_research.supported(assessment, message, grounding_context))
-            if not check_response.get("error"):
+            if draft_pool is None:
+                accepted = (not check_response.get("error") and quality_ok
+                    and public_research.supported(assessment, message, grounding_context))
+            if draft_pool is None and not check_response.get("error"):
                 answer_state = ('full_answer_supported' if accepted
                                 else 'narration_quality_unverified' if not quality_ok
                                 else public_research.assessment_failure_reason(assessment))
@@ -8935,9 +8997,10 @@ def _informational_prompt(
     playback_context: dict[str, Any],
     output_devices: list[dict[str, Any]],
     conf: dict[str, Any] | None = None,
+    *, verified_drafts=False,
 ) -> str:
     from .dialogue import model_prompt
-    return model_prompt(text, payload)
+    return model_prompt(text, payload, **({'verified_drafts': True} if verified_drafts else {}))
 
 
 def _fallback_info_text(

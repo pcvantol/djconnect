@@ -1,3 +1,15 @@
+# Help whole-draft repair in validation — 25 October 2026
+
+The last complete paid test on qualified Final1333 finished100completed,
+175responses,90PASS/10FAIL. It remains FAILURE, consumed without replay. Catalogue
+remainsfalse/70pending. [Current source record](docs/verification/HELP_VERIFIED_DRAFTS_20261025.md)
+repairs missing actual playback-state evidence and adds at most two separately
+bound whole drafts inside the SAME existing generation/assessment calls. Strict
+source, language, style, chronology, owner and expiry gates remain required.
+Two preliminary protocol P2s are causally closed; whole-source qualification is
+still pending. No flags, model run, HA installation, provider/native or user GO
+follows from this WIP. All24 requests/ninegates and Bulletin→VibeCast remain preserved.
+
 # Delivered Help narration repair source — 25 October 2026
 
 Source [PR1332](https://github.com/pcvantol/djconnect/pull/1332) protected`af36cbb7e14bfe4bf1bf24404acaed2923d90749`,

@@ -1,3 +1,7 @@
+# Current Help repair — 25 October 2026
+
+All24 requests and nine gates below remain preserved. Full100/175responses90PASS/10FAIL is consumed FAILURE. Catalogue remainsfalse/70pending. [Current verified-draft source scope](HELP_VERIFIED_DRAFTS_20261025.md) has no new installed/provider/native claim.
+
 # Delivered Help narration repair source — 25 October 2026
 
 Source [PR1332](https://github.com/pcvantol/djconnect/pull/1332) protected`af36cbb7e14bfe4bf1bf24404acaed2923d90749`,

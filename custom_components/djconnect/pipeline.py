@@ -462,9 +462,22 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
                 # Source/owner/playback/fit guards remain active throughout.
                 # Failure does not buy another two-call symbolic attempt.
                 return await realize(narration, ask=ask, admission=guard, debug=debug) or fallback_text
-            text = candidate(narration, await ask(narration.prompt()))
-            if text is None or not assessed(await ask(narration.assessment_prompt(text))):
-                return fallback_text
+            if type(narration) is PlaybackRequestBrief:
+                import json
+                from .narration_brief import verified_drafts, draft_review_prompt, bound_draft_reviews
+                drafts = verified_drafts(await ask(narration.prompt(verified_drafts=True)),
+                    lambda value: candidate(narration, json.dumps({'text': value})))
+                prompt = draft_review_prompt(narration.assessment_prompt(drafts.texts[0]),
+                    drafts, text_field='candidate')
+                reviews = bound_draft_reviews(await ask(prompt), drafts)
+                text = next((text for text, review in zip(drafts.texts, reviews, strict=True)
+                             if assessed(review)), None)
+                if text is None:
+                    return fallback_text
+            else:
+                text = candidate(narration, await ask(narration.prompt()))
+                if text is None or not assessed(await ask(narration.assessment_prompt(text))):
+                    return fallback_text
             guard()
             if debug is not None:
                 debug.update(fallback_used=False, block_reason=None)

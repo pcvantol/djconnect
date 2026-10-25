@@ -200,10 +200,14 @@ class RepairedHelp100Test(unittest.TestCase):
         for name, digest in expected.items():
             self.assertEqual(hashlib.sha256((ROOT / name).read_bytes()).hexdigest(), digest, name)
 
-    def test_current_product_delta_is_bound_to_real_original_base_blobs(self):
-        # Ordinary unit CI has a shallow checkout. Exercise the current map
-        # separately from the real Git-blob seam; paid admission runs both.
-        with patch.object(r, 'verify_original_base'):
+    def test_consumed_product_delta_stays_frozen_and_rejects_changed_current_source(self):
+        # This once slot is consumed. Future source repairs must not repin its
+        # execution map. Exercise the frozen historical admission with explicit
+        # original hash fixtures; real admission still reads actual bytes/Git.
+        original_pin = json.loads(RUNNER.with_name('help100_remediation_content_20261025.json').read_text())
+        with patch.object(r, 'verify_original_base'), \
+             patch.object(r.safe, 'product_hashes', return_value=original_pin['product_hashes']), \
+             patch.object(r.safe, 'profile_source_hashes', return_value=original_pin['profile_hashes']):
             pin = r.maps(ROOT)
         self.assertNotIn('original_source', pin)
         self.assertEqual(pin['source_base'], 'bddfe7b9300cbded30c8900b299b8ebda2895e35')
