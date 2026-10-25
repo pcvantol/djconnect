@@ -1,3 +1,16 @@
+# Delivered Help artist-envelope Source — 25 October 2026
+
+[PR1336](https://github.com/pcvantol/djconnect/pull/1336) protected`6efaf1da19346508ff6aea032788f3d207641d2a`,
+reviewed`b221925134b74bd82b25afed88209312cddd3949`, is originally qualified by run40155265373; formal
+SHA256`10204c02c231367b82878e200df14a529e74666126cb52bbee34f26e6e5be903`, durableSHA256`6d68d1dc13db01572719ec29a65047c5973dc75d3d24fd0453b00ec5f6132f56`/all12joinsPASS.
+[Source record](docs/verification/HELP_ARTIST_ENVELOPE_20261025.md) and
+[separate Final record](docs/verification/HELP_ARTIST_ENVELOPE_FINALIZATION_20261025.md).
+3578testsPASS/7oldSKIP; all14actualHA264same, later diagnostic-binding proof
+separate/currentSDKzero-network. This Final needs its own qualification. Original
+paid100 remains95PASS/5artistFAIL/175responses and consumed. New-source100 is only
+prepared, not started; cataloguefalse70, HA/provider/native unchanged. Preserve
+all24requests/ninegates and Bulletin→VibeCast. No model-quality or installed GO.
+
 # Help artist-only repair in validation — 25 October 2026
 
 The complete paid100 on qualified Final1335 finished95PASS/5artistFAIL with
