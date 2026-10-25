@@ -63,6 +63,14 @@ async def qualify(hass, manager, history, request, client):
                 answer = {'schema': 'artist_evidence_drafts_v1', 'drafts': [
                     {'anchors': [anchor['id']], 'text': text} for anchor, text in
                     zip(projection['literal_anchors'][:2], answer['drafts'], strict=True)]}
+            elif mode.startswith('slots_'):
+                import re
+                answer = {'schema': 'playback_slot_drafts_v1', 'drafts': [
+                    {'parts': [({'slot': part[1:-1]} if part.startswith('{') else {'literal': part})
+                               for part in re.split(r'(\{title\}|\{status\})', text) if part]}
+                    for text in frames]}
+                if mode == 'slots_bad_second':
+                    answer['drafts'][1]['parts'][-1] = {'slot': 'status”'}
         else:
             reviews = []
             for row in projection['drafts']:
@@ -90,7 +98,7 @@ async def qualify(hass, manager, history, request, client):
          patch.object(ask_dj, 'run_music_command', playback), \
          patch.object(public_research.PublicFetch, 'request', source):
         for route in ('frame', 'artist'):
-            for mode in (('second', 'all_false', 'swapped', 'malformed') if route == 'frame' else
+            for mode in (('second', 'all_false', 'swapped', 'malformed', 'slots_second', 'slots_bad_second') if route == 'frame' else
                          ('second', 'all_false', 'swapped', 'malformed', 'first_bad_claim', 'first_bad_temporal', 'control')):
                 if route == 'artist':
                     # Each case asks about CURRENT playback, not the previous
@@ -106,9 +114,11 @@ async def qualify(hass, manager, history, request, client):
                         selection_kind='playlist', playback_state='observed')
                     answer = await pipeline.realize_session_narration(hass, narration=brief,
                         admission=lambda: None, fallback_text=brief.seed, conf=runtime.config)
-                    assert str(answer) == (brief.render(frames[1]) if mode == 'second' else brief.seed)
-                    assert len(calls) == 2
-                    assert calls[0]['playback_state'] == calls[1]['playback_state'] == 'observed'
+                    assert str(answer) == (brief.render(frames[1]) if mode in ('second', 'slots_second') else brief.seed)
+                    assert len(calls) == (1 if mode == 'slots_bad_second' else 2)
+                    assert calls[0]['playback_state'] == 'observed'
+                    if len(calls) == 2:
+                        assert calls[1]['playback_state'] == 'observed'
                 else:
                     answer, code = await request('POST', '/api/djconnect/v1/ask_dj/message', {
                         'client_message_id': 'verified-drafts-' + mode,

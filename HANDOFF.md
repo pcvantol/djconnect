@@ -1,3 +1,14 @@
+## Current Help short-cycle development candidate — 25 October 2026
+
+Latest original manual40170118656:100complete/96PASS/4FAIL/174responses, consumed
+failure; catalogue remains revision1/false70. Source1342/Final1343 original-qualified.
+A typed playback-role compiler and brief artist telling correction accompany
+one restricted reusable six-case→full100 development controller. Prompt-only
+cycles require exact review/immutable byte fences/durable content-mode claims;
+strict100 plus full editorial review and winning Source+separate Final byte
+joins still precede publication. No new paid, installed or native GO claimed.
+[Exact scope](docs/verification/HELP_SHORT_CYCLE_CONTENT_20261025.md). All24requests/ninegates/Bulletin retained; automation PAUSED.
+
 ## Current Help request-bound Source1342 original qualification — 25 October2026
 
 Protected `21e66a0ba14f2fea425a8e7d3e2a359ac3d995a0` is ORIGINAL_QUALIFIED from actual run40169184595.
