@@ -1,3 +1,16 @@
+# Delivered Help public-source correction — 25 October 2026
+
+[PR1340](https://github.com/pcvantol/djconnect/pull/1340) protected `f3c92634d66e1163f954ee200334fb54f5796fa2`,
+reviewed `5f28bc60281e38bddfbe394143be70a771535235`, ORIGINAL_QUALIFIED run40165250427; formalSHA256
+`bbb2fd17796838b306ea64424a38f462fdebb3cdb06a7138d180e26143bdaa37`, durableSHA256 `7d9a1ec8546de7a78665f747c7003420e29bd82f93dc0faa90c5c487d833a037`, all12joinsPASS.
+[Source record](HELP_PUBLIC_SOURCE_WITNESS_20261025.md) and
+[separate Final record](HELP_PUBLIC_SOURCE_WITNESS_FINALIZATION_20261025.md).
+3596testsPASS/7existingSKIP; actual14HA264equal/12RAWjoins and syntheticSDK5x2
+pass. Original paid100/166 remains94PASS/6FAIL, consumed; new qualification has
+not started. This Final needs its own original qualification. Cataloguefalse70;
+all24/ninegates/Bulletin retained, no installed/provider/native/content GO.
+Automation PAUSED.
+
 ## Current Help public-source correction — 25 October 2026
 
 Original manual40162708970 completed100/166 with94PASS/6FAIL; consumed FAILURE,
