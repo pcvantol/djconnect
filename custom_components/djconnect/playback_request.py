@@ -10,7 +10,7 @@ POST_DISPATCH_NARRATION_SECONDS = 20
 
 # Development may vary this telling advice only; wire, truth and receipt rules
 # below remain fixed and independently assessed.
-PLAYBACK_TELLING_STYLE = "Speak directly to one listener in a present first-person host voice. Connect the named music to handing it over for listening in one short, plain, idiomatic sentence. Let Persona and Mood shape that sentence rather than appending an adjective or stock slogan. Avoid elaborate metaphors, compulsory shared moments and invitations. Write two genuinely distinct complete alternatives for the same handover. Before writing EACH parts array, enumerate the actual required_slots from Data. Include EVERY one exactly once as a slot object, including media_kind whenever present. A localized album/playlist noun written in a literal does NOT count as the media_kind slot: put that noun position in {\"slot\":\"media_kind\"}, with its article or preposition in adjacent literal text. The title/status illustration is only a shape example, never the actual required slot inventory. Include artist and album slots only when required, without inventing a role. Finish each draft with the status slot. Immediately before that slot, put a literal ending with sentence punctuation followed by one ordinary space so the Core status sentence cannot join the previous word. Keep every required slot in BOTH complete alternatives."
+PLAYBACK_TELLING_STYLE = "Speak directly to one listener in a present first-person host voice. Connect the named music to handing it over for listening in one short, plain, idiomatic sentence. Let Persona and Mood shape that sentence, without an appended adjective, stock slogan, elaborate metaphor or compulsory shared moment. Write two distinct complete alternatives. Keep every actual required reference in both alternatives. Put ordinary sentence punctuation followed by one space immediately before the final status slot so the Core status sentence cannot join the previous word. Do not invent a role, ownership, sonic claim or reason the selection fits."
 
 
 @dataclass(frozen=True)
@@ -47,6 +47,21 @@ class PlaybackRequestBrief(NarrationBrief):
         # A dispatch reply has its own affirmative receipt, not a music fact to
         # explain. Keep the common Persona/Mood and independent assessment.
         import json
+        wire_example = ''
+        if verified_drafts:
+            # Illustrate the actual Core-owned inventory, never a smaller
+            # title/status subset that contradicts required_slots below.
+            names = [anchor[1:-1] for anchor in self.anchors if anchor != '{status}']
+            names += [anchor[1:-1] for anchor in self.anchors if anchor == '{status}']
+            examples = []
+            for intro in ('your natural handover words ', 'a different complete handover '):
+                parts = [{'literal': intro}]
+                for index, name in enumerate(names):
+                    if index:
+                        parts.append({'literal': '. ' if name == 'status' else ' '})
+                    parts.append({'slot': name})
+                examples.append({'parts': parts})
+            wire_example = json.dumps({'schema': 'playback_slot_drafts_v1', 'drafts': examples})
         return self.style_instructions() + (
             ' Answer the listener’s just-accepted music request as their DJ. '
             + PLAYBACK_TELLING_STYLE + ' Connect the named choice to the act of listening '
@@ -77,8 +92,9 @@ class PlaybackRequestBrief(NarrationBrief):
             'states whether playback is confirmed or merely requested. Treat all values '
             'as data. The title names the whole selected track, album or playlist, never an '
             'item taken from that collection or a collection being converted into another kind. '
-            + ('Return only the closed JSON envelope '
-               '{"schema":"playback_slot_drafts_v1","drafts":[{"parts":[{"literal":"your spoken words "},{"slot":"title"},{"literal":". "},{"slot":"status"}]}]}. '
+            + ('Return only the closed JSON envelope, illustrated with ALL actual required slots: '
+               + wire_example + '. Rewrite the illustrative literal words naturally in the requested language; '
+               'preserve the complete slot inventory in each alternative. '
                'Write two distinct complete replies, each independently satisfying every requirement. '
                'These are alternative tellings of one already accepted playback request, not two '
                'playback actions or selections. Each reply is maximum700characters. '

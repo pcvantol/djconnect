@@ -2,7 +2,10 @@
 from copy import deepcopy
 from dataclasses import replace
 import importlib
+import hashlib
 import json
+from pathlib import Path
+import re
 import time
 import unittest
 
@@ -37,6 +40,77 @@ class PlaybackSlotDraftTests(unittest.TestCase):
         brief = brief or self.brief()
         return brief.decode_drafts(json.dumps(value, ensure_ascii=False),
             lambda text: self.n.candidate(brief, json.dumps({'text': text})))
+
+    def example(self, brief):
+        instructions = brief.prompt(verified_drafts=True).split('\nData:\n', 1)[0]
+        match = re.search(r'\{"schema"\s*:\s*"playback_slot_drafts_v1"', instructions)
+        self.assertIsNotNone(match)
+        return json.JSONDecoder().raw_decode(instructions[match.start():])[0]
+
+    def collection_brief(self, kind='playlist', locale='en', *, observed=False, rich=False):
+        media = {'uri': 'PRIVATE_URI_CANARY', 'title': 'PRIVATE_TITLE_CANARY'}
+        if rich:
+            media.update(artist='PRIVATE_ARTIST_CANARY', album_name='PRIVATE_ALBUM_CANARY')
+        receipt = {'selection': {'kind': kind, 'media': media},
+                   'state': 'observed' if observed else 'dispatched', 'observed_match': observed}
+        bindings, fallback = self.p._copy(receipt, locale)
+        if kind == 'artist_tracks':
+            bindings.pop('{media_kind}')
+            bindings.pop('{album}', None)
+        return replace(self.brief(), locale=locale, selection_kind=kind,
+                       playback_state='observed' if observed else 'dispatched', seed=fallback,
+                       anchors=tuple(bindings), bindings=tuple(bindings.items()))
+
+    def test_actual_core_inventories_are_complete_in_each_illustrated_draft_in_five_locales(self):
+        for locale in ('en', 'nl', 'de', 'fr', 'es'):
+            for kind in ('track', 'artist_tracks', 'album', 'playlist'):
+                for observed in (False, True):
+                    for rich in (False, True):
+                        brief = self.collection_brief(kind, locale, observed=observed, rich=rich)
+                        prompt = brief.prompt(verified_drafts=True)
+                        data = json.loads(prompt.split('\nData:\n', 1)[1])
+                        example = self.example(brief)
+                        with self.subTest(locale=locale, kind=kind, observed=observed, rich=rich):
+                            self.assertNotIn('PRIVATE_', prompt)
+                            self.assertEqual(set(data['required_slots']),
+                                             {anchor[1:-1] for anchor in brief.anchors})
+                            self.assertEqual(len(example['drafts']), 2)
+                            for draft in example['drafts']:
+                                names = [part['slot'] for part in draft['parts'] if 'slot' in part]
+                                self.assertCountEqual(names, data['required_slots'])
+                                self.assertEqual(len(names), len(set(names)))
+                                self.assertEqual(draft['parts'][-1], {'slot': 'status'})
+                                self.assertRegex(draft['parts'][-2]['literal'], r'[.!?] $')
+                            compiled = self.decode(example, brief)
+                            self.assertEqual(len(compiled.texts), 2)
+                            for text in compiled.texts:
+                                self.assertTrue(text.endswith('. {status}'))
+                                self.assertTrue(all(text.count(anchor) == 1 for anchor in brief.anchors))
+                            legacy = brief.prompt()
+                            self.assertIn('Return only {"text":"your reply"}', legacy)
+                            self.assertNotIn('playback_slot_drafts_v1', legacy)
+                            self.assertNotIn('PRIVATE_', legacy)
+
+    def test_seven_consumed_missing_kind_wires_and_bad_second_drafts_still_reject_before_normalization(self):
+        fixture = json.loads((Path(__file__).parent / 'fixtures/playback_slot_example/'
+                              'consumed_0d115_missing_kind.json').read_text())
+        self.assertEqual(fixture['run'], 40188270227)
+        self.assertEqual(len(fixture['cases']), 7)
+        brief = self.collection_brief()
+        complete = self.example(brief)['drafts'][0]
+        for row in fixture['cases']:
+            raw = row['original_generated_text']
+            self.assertEqual(hashlib.sha256(raw.encode()).hexdigest(), row['original_generated_sha256'])
+            self.assertCountEqual(row['required_slots'], [a[1:-1] for a in brief.anchors])
+            bad = json.loads(raw)
+            for draft in bad['drafts']:
+                self.assertNotIn('media_kind', [p.get('slot') for p in draft['parts']])
+            for value in (bad, {'schema': bad['schema'], 'drafts': [complete, bad['drafts'][0]]}):
+                calls = []
+                with self.subTest(case=row['case_id']), self.assertRaisesRegex(
+                        ValueError, 'incomplete_playback_slot_draft'):
+                    brief.decode_drafts(json.dumps(value), lambda text: calls.append(text) or text)
+                self.assertEqual(calls, [])
 
     def test_original_misquoted_placeholder_is_rejected_but_core_compiles_valid_slot_names(self):
         brief = self.brief()

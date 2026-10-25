@@ -1,0 +1,80 @@
+{
+  "scope": "CONSUMED_ORIGINAL_BAD_WIRES_STAY_REJECTED_NOT_QUALIFICATION",
+  "run": 40188270227,
+  "controller": "544793106b24613555d49c20768fe2e7f9a45043",
+  "candidate": "db25410e1fb2990c5f514b6771d3bcb8704eb1f4",
+  "original_zip_sha256": "1fa6552f42edafc9a2ae638a668704f3c52ed18705f30a74419d7de317c3fe63",
+  "original_report_sha256": "be636c243059b334848b7c44505aba0a515f23c3bee23d02bbd5abed500f81ee",
+  "cases": [
+    {
+      "case_id": "catalogue-play.cooking-nl",
+      "required_slots": [
+        "media_kind",
+        "title",
+        "status"
+      ],
+      "original_generated_text": "{\"schema\":\"playback_slot_drafts_v1\",\"drafts\":[{\"parts\":[{\"literal\":\"Ik zet de afspeellijst ‘\"},{\"slot\":\"title\"},{\"literal\":\"’ voor je op. \"},{\"slot\":\"status\"}]},{\"parts\":[{\"literal\":\"Hier komt de afspeellijst ‘\"},{\"slot\":\"title\"},{\"literal\":\"’; ik geef ’m graag aan je door om naar te luisteren. \"},{\"slot\":\"status\"}]}]}",
+      "original_generated_sha256": "f378862f1c75ed1d057197d79106b393ee852a561d307bb2f0fa27e6e0854215"
+    },
+    {
+      "case_id": "catalogue-play.cooking-de",
+      "required_slots": [
+        "media_kind",
+        "title",
+        "status"
+      ],
+      "original_generated_text": "{\"schema\":\"playback_slot_drafts_v1\",\"drafts\":[{\"parts\":[{\"literal\":\"Ich gebe dir jetzt die Playlist „\"},{\"slot\":\"title\"},{\"literal\":\"“ zum Hören weiter. \"},{\"slot\":\"status\"}]},{\"parts\":[{\"literal\":\"Jetzt überlasse ich dir gern die Playlist „\"},{\"slot\":\"title\"},{\"literal\":\"“ zum Anhören. \"},{\"slot\":\"status\"}]}]}",
+      "original_generated_sha256": "cfe64ec7b2d41d54604c6b626332d3240133af58761f155e0bfff986492e8c7b"
+    },
+    {
+      "case_id": "catalogue-play.cooking-es",
+      "required_slots": [
+        "media_kind",
+        "title",
+        "status"
+      ],
+      "original_generated_text": "{\"schema\":\"playback_slot_drafts_v1\",\"drafts\":[{\"parts\":[{\"literal\":\"Ahora te paso la lista de reproducción «\"},{\"slot\":\"title\"},{\"literal\":\"».\"},{\"slot\":\"status\"}]},{\"parts\":[{\"literal\":\"Te doy paso ahora a la lista de reproducción «\"},{\"slot\":\"title\"},{\"literal\":\"».\"},{\"slot\":\"status\"}]}]}",
+      "original_generated_sha256": "05115dd89aebc38ff6da9ec673cee5d219fc36ff2c3d8ca6b06e947ecfe7f8cd"
+    },
+    {
+      "case_id": "catalogue-play.quiet-de",
+      "required_slots": [
+        "media_kind",
+        "title",
+        "status"
+      ],
+      "original_generated_text": "{\"schema\":\"playback_slot_drafts_v1\",\"drafts\":[{\"parts\":[{\"literal\":\"Ich lege dir jetzt die Playlist „\"},{\"slot\":\"title\"},{\"literal\":\"“ zum Hören auf. \"},{\"slot\":\"status\"}]},{\"parts\":[{\"literal\":\"Jetzt gebe ich dir die Playlist „\"},{\"slot\":\"title\"},{\"literal\":\"“ zum Hören. \"},{\"slot\":\"status\"}]}]}",
+      "original_generated_sha256": "2706546235e8aea8b428552fbe8c265404040c10260dd15df276e8b6488310b1"
+    },
+    {
+      "case_id": "catalogue-play.quiet-fr",
+      "required_slots": [
+        "media_kind",
+        "title",
+        "status"
+      ],
+      "original_generated_text": "{\"schema\":\"playback_slot_drafts_v1\",\"drafts\":[{\"parts\":[{\"literal\":\"Je vous passe la playlist « \"},{\"slot\":\"title\"},{\"literal\":\" » pour l’écoute. \"},{\"slot\":\"status\"}]},{\"parts\":[{\"literal\":\"Je vous confie la playlist « \"},{\"slot\":\"title\"},{\"literal\":\" » ; je vous la passe maintenant. \"},{\"slot\":\"status\"}]}]}",
+      "original_generated_sha256": "8e3f5597bde08b19c1feb2d46a7a71c11202e1e1d176942613e2bad1d5c06f1b"
+    },
+    {
+      "case_id": "catalogue-chain-album-nl-accept",
+      "required_slots": [
+        "media_kind",
+        "title",
+        "status"
+      ],
+      "original_generated_text": "{\"schema\":\"playback_slot_drafts_v1\",\"drafts\":[{\"parts\":[{\"literal\":\"Ik geef je graag het album ‘\"},{\"slot\":\"title\"},{\"literal\":\"’ om naar te luisteren. \"},{\"slot\":\"status\"}]},{\"parts\":[{\"literal\":\"Dan laat ik je graag luisteren naar het album ‘\"},{\"slot\":\"title\"},{\"literal\":\"’. \"},{\"slot\":\"status\"}]}]}",
+      "original_generated_sha256": "55c99d980fc8734d16af5895fbef344ade178f3cc7b1e5f35961946030e262b6"
+    },
+    {
+      "case_id": "catalogue-chain-album-es-accept",
+      "required_slots": [
+        "media_kind",
+        "title",
+        "status"
+      ],
+      "original_generated_text": "{\"schema\":\"playback_slot_drafts_v1\",\"drafts\":[{\"parts\":[{\"literal\":\"Te pongo el álbum \"},{\"slot\":\"title\"},{\"literal\":\" para que lo escuches. \"},{\"slot\":\"status\"}]},{\"parts\":[{\"literal\":\"Ahora te paso el álbum \"},{\"slot\":\"title\"},{\"literal\":\"; te lo dejo para escuchar. \"},{\"slot\":\"status\"}]}]}",
+      "original_generated_sha256": "d8c21142975cd1a5e4230ddabfcec9e4eb01df51e8747ac74f0d1803d1dec9c9"
+    }
+  ]
+}
