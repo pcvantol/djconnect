@@ -1077,18 +1077,21 @@ def documented_episode_focus(research, *, angle="", require_work=False, brief=Fa
             continue
         spans = evidence_spans(source)
         for index, span in enumerate(spans):
-            if require_work:
+            has_work = False
+            if require_work or brief:
                 local_titles = source_work_anchors(span['text'])
-                if not any(isinstance(anchor, str) and anchor and (
-                        anchor in local_titles if len(anchor) < 4 else
-                        re.search(r'(?<!\w)' + re.escape(anchor) + r'(?!\w)', span['text'], re.I))
-                        for anchor in source.get('source_anchors', [])):
-                    continue
+                has_work = any(isinstance(anchor, str) and anchor and (
+                    anchor in local_titles if len(anchor) < 4 else
+                    re.search(r'(?<!\w)' + re.escape(anchor) + r'(?!\w)', span['text'], re.I))
+                    for anchor in source.get('source_anchors', []))
+            if require_work and not has_work:
+                continue
             if (brief and _BRIEF_MUSICAL_ACTIVITY.search(span['text'])
-                    and not _BRIEF_MEMBER_TIMELINE.search(span['text'])):
-                # Rank canonical existing passages only. Full original sources
-                # and review rights remain; this is no claim about their truth.
-                brief_candidates.append((0, -order, -index, source, span))
+                    and (has_work or not _BRIEF_MEMBER_TIMELINE.search(span['text']))):
+                # A supplied work plus musical activity is a telling preference,
+                # even in a mixed paragraph. It proves no actor/credit/tense join.
+                # Full original context and independent review stay authoritative.
+                brief_candidates.append((int(has_work), -order, -index, source, span))
             score = max(2 if joint.search(span['text']) else 1 if invitation.search(span['text']) else 0,
                         _artist_episode_score(span['text']))
             if angle == 'live_history' and performance.search(span['text']):
