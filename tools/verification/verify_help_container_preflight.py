@@ -6,6 +6,7 @@ The consumed manual workflows remain consumed irrespective of its result.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -16,8 +17,17 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from tools.verification.run_help_catalogue_qualification_20261023 import (  # noqa: E402
-    IMAGE, container_absent, product_hashes, profile_source_hashes, write_json,
+    IMAGE, container_absent, product_hashes, profile_source_hashes as historical_profile_source_hashes, write_json,
 )
+
+
+def profile_source_hashes(source):
+    # Current cost-free probe must bind the new observer actually imported by
+    # the container. Keep consumed runner/profile maps byte-identical.
+    hashes = historical_profile_source_hashes(source)
+    helper = 'scripts/verification/artist_public_input_receipts.py'
+    hashes[helper] = hashlib.sha256((source / helper).read_bytes()).hexdigest()
+    return hashes
 
 
 PROBE = r'''

@@ -1,4 +1,6 @@
 """Ownership and closed setup evidence; no Docker, provider or model calls."""
+import ast
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -18,6 +20,19 @@ def valid(expected):
 
 
 class HelpContainerPreflightTest(unittest.TestCase):
+    def test_current_costfree_host_inventory_matches_actual_container_harness(self):
+        root = Path(__file__).resolve().parents[1]
+        harness = root / 'scripts/verification/verify_ask_dj_contextual_dialogue_http.py'
+        tree = ast.parse(harness.read_text())
+        actual_function = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+            and node.name == 'hashes')
+        namespace = {'ROOT': root, 'Path': Path, 'hashlib': hashlib, '__file__': str(harness)}
+        exec(compile(ast.Module(body=[actual_function], type_ignores=[]), str(harness), 'exec'), namespace)
+        actual = namespace['hashes']()
+        self.assertEqual(preflight.profile_source_hashes(root), actual)
+        helper = 'scripts/verification/artist_public_input_receipts.py'
+        self.assertEqual(actual[helper], hashlib.sha256((root / helper).read_bytes()).hexdigest())
+
     def test_costfree_command_has_matching_user_no_network_no_secrets_and_readonly_source(self):
         command = preflight.command(Path('/synthetic-source'), Path('/synthetic-lab'), 'own-container')
         self.assertEqual(command[command.index('--user') + 1], f'{os.getuid()}:{os.getgid()}')

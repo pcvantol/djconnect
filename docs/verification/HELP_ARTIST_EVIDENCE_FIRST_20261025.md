@@ -73,6 +73,17 @@ The existing16-member artifact allowlist remains; no private logs are exported.
 
 ## Verification and remaining delivery gates
 
+The initial PR1338 cost-free setup job40159803623 failed with phase complete,
+zero model calls, no credentials, unchanged264products and verified container
+absence. Its original artifact12586135963 ZIP SHA256
+`e32351a7c59d0b213b40807cbfcd040d7cd202cf2e850bc4626b6c0f3ff519bf`
+is preserved. The host expected241profile files while the actual container
+correctly included the new public-input observer as file242. The current
+cost-free host inventory now includes that exact helper too. A causal RED/GREEN
+inventory equality test covers the actual container harness; no old consumed
+runner/map, acceptance check or source hash is waived. New normal CI is required
+on the corrected commit; no rerun of a paid execution is involved.
+
 Current causal tests cover the new wire, source-derivative mismatch, literal
 hashes/codepoints, unknown/repeated IDs, identical literal sets, whole-batch
 failure, closed negatives and unchanged positive fact-ID denial. Actual paired
