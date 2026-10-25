@@ -1,3 +1,5 @@
+> 25 October: prospective Core-owned playback literal-gap wire and German synthetic-search fidelity repair are described in `HELP_CORE_OWNED_PLAYBACK_GAPS_20261025.md`. Original consumed telling12 remains12PASS6FAIL/44responses; catalogue70pending, no new model/publication/installed GO. All prior evidence below retains its own scope.
+
 ## Current actual-slot-example source increment — 25 October 2026
 
 Real18run40188270227 is10PASS/8FAIL/42completed, consumed without retry.
