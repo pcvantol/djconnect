@@ -1,3 +1,17 @@
+# Delivered Help evidence-first Source — 25 October 2026
+
+[PR1338](https://github.com/pcvantol/djconnect/pull/1338) protected`2eae7dbfb86d6dc4ec1f1d0b6567d1d2ff8956e2`,
+reviewed`fa3346e5ad417f46d7133941c1c0116bba33d24f`, is originally qualified by run40161197050; formalSHA256
+`fbe4b0fca4f677f53503cbb8a55eb7b02bd136af4d1403514ae2e5fda7b96521`, durableSHA256`c0b2e0c1996d4f3ba8c5972cc9c2a2760e952ad7be4ac2189c778f2bdbf1f6ed`/all12joinsPASS.
+[Source record](docs/verification/HELP_ARTIST_EVIDENCE_FIRST_20261025.md) and
+[separate Final record](docs/verification/HELP_ARTIST_EVIDENCE_FIRST_FINALIZATION_20261025.md).
+3590testsPASS/7oldSKIP;14actualHA264same/12RAWjoins and separate richSDK5x2
+synthetic input proof. InitialcostfreeCI241/242failure remains preserved,
+correctedactualsetup+normalCIrequired. This Final needs its own original
+qualification. Oldpaid100/175 stays96PASS/4FAIL, consumed; newsource100notstarted.
+Cataloguefalse70; all24/ninegates/Bulletin preserved. No installed/provider/native
+or actual content GO. Automation PAUSED.
+
 # Help evidence-first artist repair in validation — 25 October 2026
 
 The original paid run40156643319 completed100/175 with96PASS/fourartistFAIL.
