@@ -519,7 +519,7 @@ def draft_review_prompt(prompt, drafts, *, text_field):
         + instructions + '\nData:\n' + json.dumps(data, ensure_ascii=False, allow_nan=False))
 
 
-def bound_draft_reviews(response, drafts, *, public_story=False):
+def bound_draft_reviews(response, drafts, *, public_story=False, closed_negative=False):
     """Validate the complete envelope before exposing any independent verdict."""
     if not drafts.batch:
         return (response,)
@@ -549,6 +549,13 @@ def bound_draft_reviews(response, drafts, *, public_story=False):
                     or any(type(value) is not str for value in review['unsupported_claims'])
                     or type(review['claim_checks']) is not list or len(review['claim_checks']) > 24):
                 raise ValueError('invalid_draft_story_review')
+            if closed_negative and review['supported'] is False:
+                claims = review['unsupported_claims']
+                if (set(review) != required | {'temporal_claims'} or not 1 <= len(claims) <= 3
+                        or any(not claim or len(claim.encode()) > 1200 or claim not in original['text']
+                               for claim in claims)
+                        or review['claim_checks'] != [] or review['temporal_claims'] != []):
+                    raise ValueError('invalid_closed_negative_review')
             for claim in review['claim_checks']:
                 if (type(claim) is not dict or set(claim) != {'text', 'kind', 'evidence_ids'}
                         or type(claim['text']) is not str or not 1 <= len(claim['text']) <= 1200
@@ -573,3 +580,174 @@ def bound_draft_reviews(response, drafts, *, public_story=False):
             raise ValueError('invalid_draft_frame_review')
         result.append(json.dumps(row['review'], ensure_ascii=False, allow_nan=False))
     return tuple(result)
+
+
+_ARTIST_ANCHOR_DOMAIN = b'DJC_ARTIST_LITERAL_ANCHOR_V1\0'
+
+
+@dataclass(frozen=True)
+class ArtistLiteralAnchor:
+    """Literal editorial range, never a semantic fact or an authority grant."""
+    source_id: str
+    evidence_id: str
+    start: int
+    end: int
+    literal: str
+    literal_sha256: str
+    id: str
+
+    def commitment(self):
+        fields = {name: getattr(self, name) for name in (
+            'source_id', 'evidence_id', 'start', 'end', 'literal', 'literal_sha256')}
+        raw = json.dumps(fields, sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode()
+        return hashlib.sha256(_ARTIST_ANCHOR_DOMAIN + raw).hexdigest()
+
+
+@dataclass(frozen=True)
+class ArtistAnchorCorpus:
+    spans: tuple[tuple[str, str, str], ...]
+    records: tuple[ArtistLiteralAnchor, ...]
+
+    def validate(self):
+        if (type(self.spans) is not tuple or not 1 <= len(self.spans) <= 256
+                or type(self.records) is not tuple or not 1 <= len(self.records) <= 32):
+            raise ValueError('invalid_artist_anchor_corpus')
+        spans, identifiers, total = {}, {}, 0
+        for row in self.spans:
+            if (type(row) is not tuple or len(row) != 3
+                    or any(type(value) is not str for value in row)
+                    or not re.fullmatch('[a-f0-9]{64}', row[0]) or not 1 <= len(row[1]) <= 512
+                    or not row[2]):
+                raise ValueError('invalid_artist_original_span')
+            source, identifier, text = row
+            total += len(text.encode())
+            if total > 65536 or identifier in identifiers:
+                raise ValueError('ambiguous_artist_original_span')
+            identifiers[identifier] = source
+            spans[source, identifier] = text
+        seen, literal_bytes = set(), 0
+        for record in self.records:
+            if (type(record) is not ArtistLiteralAnchor or type(record.start) is not int
+                    or type(record.end) is not int or type(record.literal) is not str
+                    or any(type(getattr(record, key)) is not str for key in (
+                        'source_id', 'evidence_id', 'literal_sha256', 'id')) or record.id in seen):
+                raise ValueError('invalid_artist_anchor_record')
+            text = spans.get((record.source_id, record.evidence_id))
+            if (text is None or not 0 <= record.start < record.end <= len(text)
+                    or record.literal != text[record.start:record.end]
+                    or not 16 <= len(record.literal.encode()) <= 1280
+                    or any((ord(char) < 32 and char != '\n') or 0xD800 <= ord(char) <= 0xDFFF
+                           for char in record.literal)
+                    or record.literal_sha256 != hashlib.sha256(record.literal.encode()).hexdigest()
+                    or record.id != record.commitment()):
+                raise ValueError('unbound_artist_literal_range')
+            seen.add(record.id)
+            literal_bytes += len(record.literal.encode())
+        if literal_bytes > 8192:
+            raise ValueError('artist_anchor_budget_exceeded')
+
+    def projection(self):
+        self.validate()
+        return [{'id': record.id, 'literal': record.literal} for record in self.records]
+
+
+def artist_anchor_corpus(research):
+    """Freeze unchanged codepoint slices; original full review context stays admitted."""
+    from .ask_dj.public_research import evidence_spans
+    if (type(research) is not dict or type(research.get('schema_version')) is not int
+            or research['schema_version'] != 3):
+        raise ValueError('artist_original_corpus_required')
+    sources = research.get('sources')
+    if type(sources) is not list or not 1 <= len(sources) <= 8:
+        raise ValueError('invalid_artist_original_sources')
+    original, identities, original_bytes = [], {}, 0
+    for source in sources:
+        if type(source) is not dict:
+            raise ValueError('invalid_artist_original_source')
+        digest = source.get('content_hash')
+        excerpt = source.get('untrusted_excerpt')
+        if (type(digest) is not str or not re.fullmatch('[a-f0-9]{64}', digest)
+                or type(excerpt) is not str or hashlib.sha256(excerpt.encode()).hexdigest() != digest):
+            raise ValueError('invalid_artist_source_digest')
+        rows = evidence_spans(source)
+        # Derived wire fields cannot override the canonical unchanged excerpt.
+        # Generation recomputes these same spans from the original source too.
+        if 'evidence_spans' in source and source['evidence_spans'] != rows:
+            raise ValueError('artist_derived_span_mismatch')
+        if type(rows) is not list:
+            raise ValueError('invalid_artist_original_spans')
+        for span in rows:
+            if (type(span) is not dict or type(span.get('id')) is not str
+                    or type(span.get('text')) is not str):
+                raise ValueError('invalid_artist_original_span')
+            row = (digest, span['id'], span['text'])
+            previous = identities.get(span['id'])
+            if previous is not None:
+                if previous != row:
+                    raise ValueError('ambiguous_artist_original_span')
+                continue
+            identities[span['id']] = row
+            original.append(row)
+            original_bytes += len(span['text'].encode())
+            if len(original) > 256 or original_bytes > 65536:
+                raise ValueError('artist_original_corpus_budget_exceeded')
+    hint = research.get('editorial_focus') or {}
+    if type(hint) is not dict:
+        raise ValueError('invalid_artist_editorial_hint')
+    focus = hint.get('episode_span_ids', [])
+    if type(focus) is not list or any(type(value) is not str for value in focus):
+        raise ValueError('invalid_artist_editorial_hint')
+    ordered = sorted(enumerate(original), key=lambda pair: (pair[1][1] not in focus, pair[0]))
+    records, seen, literal_bytes = [], {}, 0
+    for _, (source_id, identifier, text) in ordered:
+        # These are literal sentence-like slices. Abbreviations may split them;
+        # they are not labelled facts or admitted semantic propositions.
+        for match in re.finditer(r'\S.*?(?:[.!?](?=\s|$)|$)', text, re.S):
+            value = match.group()
+            start = match.start() + len(value) - len(value.lstrip())
+            end = match.end() - len(value) + len(value.rstrip())
+            literal = text[start:end]
+            size = len(literal.encode())
+            if size < 16 or size > 1280 or literal_bytes + size > 8192 or len(records) >= 32:
+                continue
+            record = ArtistLiteralAnchor(source_id, identifier, start, end, literal,
+                hashlib.sha256(literal.encode()).hexdigest(), '')
+            record = ArtistLiteralAnchor(source_id, identifier, start, end, literal,
+                record.literal_sha256, record.commitment())
+            previous = seen.get(record.id)
+            if previous is not None:
+                if previous != record:
+                    raise ValueError('artist_anchor_commitment_collision')
+                continue
+            records.append(record)
+            seen[record.id] = record
+            literal_bytes += size
+    corpus = ArtistAnchorCorpus(tuple(original), tuple(records))
+    corpus.validate()
+    return corpus
+
+
+def artist_evidence_drafts(response, corpus, normalize):
+    """Validate ALL selected literals before freezing original whole draft texts."""
+    if type(corpus) is not ArtistAnchorCorpus or not isinstance(response, str) or len(response.encode()) > 8192:
+        raise ValueError('invalid_artist_evidence_drafts')
+    corpus.validate()
+    body = _draft_object(response)
+    if (type(body) is not dict or set(body) != {'schema', 'drafts'}
+            or body['schema'] != 'artist_evidence_drafts_v1' or type(body['drafts']) is not list
+            or not 1 <= len(body['drafts']) <= 2):
+        raise ValueError('invalid_artist_evidence_wire')
+    records = {record.id: record for record in corpus.records}
+    texts, sets = [], []
+    for draft in body['drafts']:
+        if (type(draft) is not dict or set(draft) != {'anchors', 'text'}
+                or type(draft['anchors']) is not list or not 1 <= len(draft['anchors']) <= 3
+                or any(type(identifier) is not str or identifier not in records for identifier in draft['anchors'])
+                or len(set(draft['anchors'])) != len(draft['anchors']) or type(draft['text']) is not str):
+            raise ValueError('unbound_artist_draft_anchor')
+        literal_set = frozenset(records[identifier].literal_sha256 for identifier in draft['anchors'])
+        if literal_set in sets:
+            raise ValueError('duplicate_artist_literal_set')
+        sets.append(literal_set)
+        texts.append(draft['text'])
+    return verified_drafts(json.dumps({'drafts': texts}, ensure_ascii=False, allow_nan=False), normalize)

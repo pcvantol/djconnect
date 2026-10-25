@@ -33,7 +33,7 @@ async def qualify(hass, manager, history, request, client):
         fetch.requests += 1
         if 'wikipedia.org/w/api.php' in url:
             return 200, json.dumps({'query': {'pages': [{'title': 'Volbeat',
-                'extract': '<p>' + original + '</p>', 'pageprops': {'wikibase-shortdesc': 'Danish band'},
+                'extract': '<p>' + original + ' Volbeat performed a concert.</p>', 'pageprops': {'wikibase-shortdesc': 'Danish band'},
                 'revisions': [{'revid': 123456}]}]}}), url
         return 404, '', url
 
@@ -54,11 +54,15 @@ async def qualify(hass, manager, history, request, client):
                 instructions = data['text'].split('\nData:\n', 1)[0]
                 assert instructions.startswith('DJConnect output contract: ')
                 assert 'JSON envelope' in instructions.split('\n', 1)[0]
-                assert projection['answer_form'] == ('Natural prose inside each drafts string; '
-                    'the outer response follows the Core-owned JSON output contract.')
+                assert projection['answer_form'] == ('Natural prose inside each draft text; '
+                    'the outer response follows the Core-owned artist_evidence_drafts_v1 JSON output contract.')
             answer = {'drafts': frames if route == 'frame' else
                       [original + '\x00', bad] if mode == 'control' else
                       [original, bad] if mode.startswith('first_') else [bad, original]}
+            if route == 'artist':
+                answer = {'schema': 'artist_evidence_drafts_v1', 'drafts': [
+                    {'anchors': [anchor['id']], 'text': text} for anchor, text in
+                    zip(projection['literal_anchors'][:2], answer['drafts'], strict=True)]}
         else:
             reviews = []
             for row in projection['drafts']:
@@ -68,6 +72,8 @@ async def qualify(hass, manager, history, request, client):
                     span = projection['evidence']['public_music_research']['sources'][0]['evidence_spans'][0]
                     review.update(review_schema='source_id_review_v1', unsupported_claims=[] if positive else [row['text']],
                         claim_checks=[{'text': row['text'], 'kind': 'fact', 'evidence_ids': [span['id']]}])
+                    if not positive:
+                        review.update(claim_checks=[], temporal_claims=[])
                 reviews.append({'index': row['index'], 'sha256': row['sha256'], 'review': review})
             if mode == 'swapped':
                 reviews.reverse()

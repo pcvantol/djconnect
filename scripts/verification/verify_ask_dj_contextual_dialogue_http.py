@@ -92,6 +92,7 @@ def hashes():
     files.append(ROOT / 'custom_components/djconnect/ask_dj/examples_v1.json')
     files.append(ROOT / 'scripts/verification/source_fixture_urls.py')
     files.append(ROOT / 'scripts/verification/catalogue_progress.py')
+    files.append(ROOT / 'scripts/verification/artist_public_input_receipts.py')
     return {
         str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)
     }
@@ -282,6 +283,8 @@ async def main():
         'es': 'Brian Eno es un artista plástico.',
     }
 
+    artist_public_inputs = []
+
     async def measured_create(**kwargs):
         if os.environ.get("DJC_SAFETY_PROBE") in {"current_artist", "choice_titles", "review_recovery"}:
             parts = []
@@ -399,9 +402,15 @@ async def main():
             if os.environ.get('DJC_SAFETY_PROBE') == 'catalogue_golden':
                 from scripts.verification.askdj_example_catalogue_golden import LANGUAGE_JUDGE, artist_generation_wire
                 judge = LANGUAGE_JUDGE.get()
-                if owner_turn is not None and owner_turn.interpreted_artist_research:
+                if owner_turn is not None and owner_turn.interpreted_artist_research and not judge:
                     if wire := artist_generation_wire(kwargs.get('input', [])):
                         receipt['artist_generation_wire'] = wire
+                    if variation_base is None:
+                        from scripts.verification.artist_public_input_receipts import append_artist_public_input
+                        # Capture actual original public SDK inputs even if the
+                        # later model reply, batch decoder or review fails.
+                        receipt['artist_public_input_sha256'] = append_artist_public_input(
+                            artist_public_inputs, kwargs.get('input', []), case_id=case_id)
                 if judge:
                     def contains_prompt(value):
                         if isinstance(value, str):
@@ -2024,6 +2033,7 @@ async def main():
                             progress=catalogue_progress)
                     report['public_review_rejections'] = public_rejections
                     report['public_grounding_observations'] = public_grounding_observations
+                    report['artist_public_inputs'] = artist_public_inputs
                     report.update(source_hashes=initial_source_hashes,
                         source_unchanged=hashes() == initial_source_hashes,
                         configured_maximum_tokens=max_tokens, configured_reasoning_effort='low',
