@@ -31,6 +31,9 @@ def _quoted_fixture_checks(checks, context):
 
 def _research_assessment_fixture(projection, *, retained=None):
     """External reviewer reply fixture; Core still validates IDs and full coverage."""
+    if 'drafts' in projection:
+        from tests.test_ask_dj_semantic_reads import id_review_fixture
+        return id_review_fixture(projection)
     from custom_components.djconnect.ask_dj.public_research import _sentences, evidence_spans
     evidence = projection['evidence']['public_music_research']
     ids = [span['id'] for source in evidence['sources'] for span in evidence_spans(source)]
@@ -40,8 +43,11 @@ def _research_assessment_fixture(projection, *, retained=None):
 
 
 def _research_generation_fixture(projection, answer):
-    # The provider proposes prose; only the independent second reply carries
-    # receipts, so the generator cannot preselect its own factual classification.
+    # The scoped artist wire proposes prose plus literal editorial references;
+    # only the independent assessment attests its factual classification.
+    if projection.get('artist_draft_schema') == 'artist_evidence_drafts_v1':
+        return json.dumps({'schema': 'artist_evidence_drafts_v1', 'drafts': [
+            {'anchors': [projection['literal_anchors'][0]['id']], 'text': answer}]})
     return answer
 
 

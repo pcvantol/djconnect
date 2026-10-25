@@ -940,7 +940,7 @@ def persona_answer_form(persona: str, *, include_identity=True) -> str:
     return (host_identity(persona) + " " if include_identity else "") + forms.get(persona, forms["home_dj"])
 
 
-def model_prompt(text: str, payload: dict, source: dict | None = None, *, verified_drafts=False) -> str:
+def model_prompt(text: str, payload: dict, source: dict | None = None, *, verified_drafts=False, artist_anchors=None) -> str:
     turn = current_turn.get()
     style = turn.style if turn else style_projection(payload)
     frame = turn.frame if turn else None
@@ -1140,29 +1140,33 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
                 and turn.public_research.get('schema_version') == 3 and researched
                 and operation == 'answer'):
             raise DialogueError('conversation_model_response_invalid', 502)
-        # The wire envelope is independent of the story's prose style. Put it
-        # before the narration recipe; an ordinary answer is not a JSON draft.
-        projection['answer_form'] = ('Natural prose inside each drafts string; '
-            'the outer response follows the Core-owned JSON output contract.')
-        instructions = (
-            'DJConnect output contract: return a JSON envelope, never a bare prose answer. '
-            'The complete response is exactly {"drafts":["complete answer","alternative complete answer"]}; '
-            'one or two strings, no other keys or text outside that object. '
-            'All natural-prose instructions below apply INSIDE each string.\n'
-            'For a brief artist introduction, let the first draft share one directly documented activity '
-            'and its supported people or work, then ask one grounded follow-up. '
-            'Do not retell the whole source passage or its membership timeline. '
-            'A second draft is an independently supported telling, not a continuation of the first. '
-            'For an explicit broader question, answer its requested aspects with supported details. '
-            + instructions)
+        if (type(artist_anchors) is not list or not 1 <= len(artist_anchors) <= 32
+                or any(type(row) is not dict or set(row) != {'id', 'literal'}
+                       or type(row['id']) is not str or not re.fullmatch('[a-f0-9]{64}', row['id'])
+                       or type(row['literal']) is not str for row in artist_anchors)):
+            raise DialogueError('conversation_model_response_invalid', 502)
+        projection['artist_draft_schema'] = 'artist_evidence_drafts_v1'
+        projection['literal_anchors'] = artist_anchors
+        projection['answer_form'] = ('Natural prose inside each draft text; the outer response '
+            'follows the Core-owned artist_evidence_drafts_v1 JSON output contract.')
         instructions = instructions.replace('Only natural prose, no JSON or markdown.',
-            'Each draft contains only natural prose, without markdown.')
-        instructions += (
-            ' Return ONLY {"drafts":["first complete answer","second complete answer"]}. '
-            'Provide at most two alternative whole answers; each must independently satisfy '
-            'all source, language, Persona/Mood and grounded follow-up requirements above. '
-            'A second draft is not permission to add uncertain facts or chronology. '
-        )
+            'Each draft text contains only natural prose, without markdown.')
+        instructions = (
+            'DJConnect output contract: return exactly this JSON envelope and no outside text: '
+            '{"schema":"artist_evidence_drafts_v1","drafts":[{"anchors":["copy an actual literal anchor id"],'
+            '"text":"one whole natural answer"}]}. Return one or two whole drafts. '
+            'FIRST select one to three literal_anchors IDs for each draft, THEN write its text. '
+            'Copy IDs exactly; never calculate a digest or invent evidence. '
+            'Choose a documented musical activity/work and tell only what its unchanged literal '
+            'and full original context support, with a grounded open follow-up. '
+            'A literal range is not a fact grant: preserve its people, roles, work, count and uncertainty; '
+            'do not add a new chronology, causality or role simply because its nouns appear nearby. '
+            'For a brief introduction do not retell a membership timeline. Explicit broader, membership '
+            'or date questions still need their requested supported aspects and original extra guards. '
+            'If returning two drafts, use different literal evidence sets, not two paraphrases of the '
+            'same source sentence. One safe draft is enough. Never manufacture a second. '
+            'Natural prose instructions apply INSIDE text only.\n'
+            + instructions)
     instructions += "\nData:\n"
     prompt = instructions + json.dumps(projection, ensure_ascii=False)
     if len(prompt.encode()) > MAX_PROMPT_BYTES:

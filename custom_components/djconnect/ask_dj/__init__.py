@@ -2850,7 +2850,7 @@ async def _informational_assist_response(
             "images": [],
         }
 
-    from .dialogue import current_turn, requests_lookup
+    from .dialogue import current_turn, requests_lookup, DialogueError
     from . import public_research
     turn = current_turn.get()
     fetched_sources = []
@@ -2921,6 +2921,7 @@ async def _informational_assist_response(
     # research (including interpreted album/producer context) keeps its ABI.
     draft_context = None
     draft_pool = None
+    artist_corpus = None
     if (turn and fetched_sources and turn.interpreted_artist_research
             and not turn.interpreted_context_research
             and turn.public_research.get('schema_version') == 3):
@@ -2932,6 +2933,11 @@ async def _informational_assist_response(
         # Plain literal evidence only; no copy/reconstruction of typed authority.
         # Freeze before the FIRST await, not separately for each alternative.
         draft_context = json.loads(json.dumps(draft_context, ensure_ascii=False, allow_nan=False))
+        from ..narration_brief import artist_anchor_corpus
+        try:
+            artist_corpus = artist_anchor_corpus(draft_context['public_music_research'])
+        except (ValueError, TypeError, KeyError, RecursionError, UnicodeError) as exc:
+            raise DialogueError('conversation_model_response_invalid', 502) from exc
     prompt = _informational_prompt(
         text,
         payload,
@@ -2939,7 +2945,8 @@ async def _informational_assist_response(
         playback_context,
         output_devices,
         getattr(runtime, "config", {}) or {},
-        **({'verified_drafts': True} if draft_context is not None else {}),
+        **({'verified_drafts': True, 'artist_anchors': artist_corpus.projection()}
+           if artist_corpus is not None else {}),
     )
     if semantic_scope is not None:
         prompt = semantic_reads.augment_answer_prompt(prompt, semantic_scope)
@@ -3011,14 +3018,14 @@ async def _informational_assist_response(
 
     try:
         if draft_context is not None:
-            from ..narration_brief import verified_drafts
+            from ..narration_brief import artist_evidence_drafts
             def normalize_draft(value):
                 answer, operation = parse_reply(value)
                 if operation or _looks_like_internal_prompt_leak(answer):
                     raise DialogueError('conversation_model_response_invalid', 502)
                 return answer
             try:
-                draft_pool = verified_drafts(message, normalize_draft)
+                draft_pool = artist_evidence_drafts(message, artist_corpus, normalize_draft)
             except (ValueError, TypeError, RecursionError, UnicodeError) as exc:
                 raise DialogueError('conversation_model_response_invalid', 502) from exc
             message, plan = draft_pool.texts[0], {}
@@ -3074,7 +3081,8 @@ async def _informational_assist_response(
             from ..public_artist_narration import complete_review_projection, resolve_review_quotes
             review_context = complete_review_projection(grounding_context) if id_review else grounding_context
             review_prompt = public_research.assessment_prompt(
-                message, review_context, language, text, allow_prefix=not id_review, quote_by_id=id_review)
+                message, review_context, language, text, allow_prefix=not id_review, quote_by_id=id_review,
+                closed_negative=artist_corpus is not None)
             if id_review:
                 from ..narration_style import instructions as story_style
                 review_prompt = review_prompt.replace('\nData:\n',
@@ -3102,7 +3110,8 @@ async def _informational_assist_response(
             if draft_pool is not None:
                 from ..narration_brief import bound_draft_reviews, _object
                 try:
-                    reviews = bound_draft_reviews(assessment, draft_pool, public_story=True)
+                    reviews = bound_draft_reviews(assessment, draft_pool, public_story=True,
+                        closed_negative=artist_corpus is not None)
                     # Complete envelope was checked before any positive verdict.
                     for draft, raw_review in zip(draft_pool.texts, reviews, strict=True):
                         review = _object(raw_review)
@@ -8997,10 +9006,11 @@ def _informational_prompt(
     playback_context: dict[str, Any],
     output_devices: list[dict[str, Any]],
     conf: dict[str, Any] | None = None,
-    *, verified_drafts=False,
+    *, verified_drafts=False, artist_anchors=None,
 ) -> str:
     from .dialogue import model_prompt
-    return model_prompt(text, payload, **({'verified_drafts': True} if verified_drafts else {}))
+    return model_prompt(text, payload, **({'verified_drafts': True, 'artist_anchors': artist_anchors}
+        if verified_drafts else {}))
 
 
 def _fallback_info_text(

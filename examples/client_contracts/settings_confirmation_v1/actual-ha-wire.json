@@ -19,10 +19,10 @@
       "case": "mood",
       "response": {
         "success": true,
-        "operation_id": "01a170d8-0ff2-75fc-b86e-c7e1600988c5",
+        "operation_id": "01a17123-868e-712d-ad54-74a1a14de456",
         "accepted": true,
         "replayed": false,
-        "expires_ms": 1792894870482,
+        "expires_ms": 1792899816046,
         "snapshot": {
           "contract_version": 3,
           "defaults": {
@@ -36,13 +36,13 @@
             "announcement_output": "client_device"
           },
           "defaults_revision": 2,
-          "updated_at": "2026-10-25T02:16:10.483000+00:00",
+          "updated_at": "2026-10-25T03:38:36.046000+00:00",
           "activated": true,
           "output_choice_confirmed": true,
           "accepted_contract_version": 3,
           "session": {
-            "session_id": "session-b6e3ce1db2234147bbf1f4526a0085b9",
-            "generation": "da861518757a4cc48985c2ebe3267263",
+            "session_id": "session-615bdb67469b4362b6e7613e10c7161f",
+            "generation": "bf6d3cd4d36c4e558a3bc4778e0d08b8",
             "settings": {
               "persona": "radio_dj",
               "voice": {
@@ -55,12 +55,12 @@
             },
             "revision": 1,
             "defaults_revision": 2,
-            "updated_at": "2026-10-25T02:16:10.483000+00:00"
+            "updated_at": "2026-10-25T03:38:36.046000+00:00"
           }
         },
         "settings_confirmation": {
           "schema_version": 1,
-          "confirmation_id": "settings-5026a78f712c08e9ad88679ff07431bb",
+          "confirmation_id": "settings-d32c28d2d2bd662969f66e72f2350522",
           "changed_fields": [
             "mood"
           ],
@@ -70,17 +70,17 @@
             "presence": "balanced"
           },
           "locale": "nl",
-          "accepted_at": "2026-10-25T02:16:10.483000+00:00",
-          "session_id": "session-b6e3ce1db2234147bbf1f4526a0085b9",
-          "settings_generation": "da861518757a4cc48985c2ebe3267263",
+          "accepted_at": "2026-10-25T03:38:36.046000+00:00",
+          "session_id": "session-615bdb67469b4362b6e7613e10c7161f",
+          "settings_generation": "bf6d3cd4d36c4e558a3bc4778e0d08b8",
           "settings_revision": 1,
           "defaults_revision": 2,
-          "moment_id": "moment-5026a78f712c08e9ad88679ff07431bb",
+          "moment_id": "moment-d32c28d2d2bd662969f66e72f2350522",
           "title": "Even afstemmen",
           "text": "We slaan een nieuwe toon aan: je mood is nu Party. Mijn manier van vertellen wordt energiek en speels."
         },
         "contract_version": 3,
-        "binding": "e1940d44711a3a28281c66b87b2af2bac79eb9b4960a477990b8926473d4b009",
+        "binding": "9825cf1ee5df8a3aa7d2320ad01d8fcf3c1349486e411fd5e28a7e8dcc6b9f7d",
         "settings_confirmation_contract": {
           "available": true,
           "version": 1,
@@ -180,13 +180,13 @@
           "available": false,
           "reason": "processor_not_qualified"
         },
-        "as_of": "2026-10-25T02:16:10.487183+00:00",
+        "as_of": "2026-10-25T03:38:36.048523+00:00",
         "cache_policy": "private,no-store"
       },
       "moment": {
-        "moment_id": "moment-5026a78f712c08e9ad88679ff07431bb",
-        "session_id": "session-b6e3ce1db2234147bbf1f4526a0085b9",
-        "created_at": "2026-10-25T02:16:10.483000+00:00",
+        "moment_id": "moment-d32c28d2d2bd662969f66e72f2350522",
+        "session_id": "session-615bdb67469b4362b6e7613e10c7161f",
+        "created_at": "2026-10-25T03:38:36.046000+00:00",
         "type": "session",
         "knowledge_intent": {
           "type": "session_direction",
@@ -226,45 +226,45 @@
         },
         "settings_confirmation": {
           "schema_version": 1,
-          "confirmation_id": "settings-5026a78f712c08e9ad88679ff07431bb",
+          "confirmation_id": "settings-d32c28d2d2bd662969f66e72f2350522",
           "changed_fields": [
             "mood"
           ],
-          "accepted_at": "2026-10-25T02:16:10.483000+00:00"
+          "accepted_at": "2026-10-25T03:38:36.046000+00:00"
         }
       },
       "native_delivery": {
         "schema_version": 1,
-        "session_id": "session-b6e3ce1db2234147bbf1f4526a0085b9",
-        "current_moment_id": "moment-5026a78f712c08e9ad88679ff07431bb",
+        "session_id": "session-615bdb67469b4362b6e7613e10c7161f",
+        "current_moment_id": "moment-d32c28d2d2bd662969f66e72f2350522",
         "current_silence_moment_id": null,
         "active_flow_moment_ids": [
-          "moment-5026a78f712c08e9ad88679ff07431bb"
+          "moment-d32c28d2d2bd662969f66e72f2350522"
         ],
         "admissions": [
           {
-            "moment_id": "moment-5026a78f712c08e9ad88679ff07431bb",
+            "moment_id": "moment-d32c28d2d2bd662969f66e72f2350522",
             "qualification": "qualified",
             "current_display_allowed": true,
             "active_flow_display_allowed": true,
             "source_expires_at": null,
-            "display_expires_at": "2026-10-25T02:16:25.483000+00:00",
+            "display_expires_at": "2026-10-25T03:38:51.046000+00:00",
             "executable_actions": [],
             "requires_spotify_attribution": false
           }
         ],
         "revocation_scope": "session",
-        "revision": "53231eaa0c61fd74c51f3e3d"
+        "revision": "7eb370f75fbcf4c0ee709652"
       }
     },
     {
       "case": "persona",
       "response": {
         "success": true,
-        "operation_id": "01a170d8-0ffe-7365-a871-c028b63b346f",
+        "operation_id": "01a17123-8692-7061-99a3-df2bc2eee605",
         "accepted": true,
         "replayed": false,
-        "expires_ms": 1792894870494,
+        "expires_ms": 1792899816050,
         "snapshot": {
           "contract_version": 3,
           "defaults": {
@@ -278,13 +278,13 @@
             "announcement_output": "client_device"
           },
           "defaults_revision": 3,
-          "updated_at": "2026-10-25T02:16:10.495000+00:00",
+          "updated_at": "2026-10-25T03:38:36.051000+00:00",
           "activated": true,
           "output_choice_confirmed": true,
           "accepted_contract_version": 3,
           "session": {
-            "session_id": "session-b6e3ce1db2234147bbf1f4526a0085b9",
-            "generation": "da861518757a4cc48985c2ebe3267263",
+            "session_id": "session-615bdb67469b4362b6e7613e10c7161f",
+            "generation": "bf6d3cd4d36c4e558a3bc4778e0d08b8",
             "settings": {
               "persona": "festival_dj",
               "voice": {
@@ -297,12 +297,12 @@
             },
             "revision": 2,
             "defaults_revision": 3,
-            "updated_at": "2026-10-25T02:16:10.495000+00:00"
+            "updated_at": "2026-10-25T03:38:36.051000+00:00"
           }
         },
         "settings_confirmation": {
           "schema_version": 1,
-          "confirmation_id": "settings-7eb595a9e4c0ec41c7a5240bd8fdc3a0",
+          "confirmation_id": "settings-0c16a804523210c3c99855ab77f13c1f",
           "changed_fields": [
             "persona"
           ],
@@ -312,17 +312,17 @@
             "presence": "balanced"
           },
           "locale": "nl",
-          "accepted_at": "2026-10-25T02:16:10.495000+00:00",
-          "session_id": "session-b6e3ce1db2234147bbf1f4526a0085b9",
-          "settings_generation": "da861518757a4cc48985c2ebe3267263",
+          "accepted_at": "2026-10-25T03:38:36.051000+00:00",
+          "session_id": "session-615bdb67469b4362b6e7613e10c7161f",
+          "settings_generation": "bf6d3cd4d36c4e558a3bc4778e0d08b8",
           "settings_revision": 2,
           "defaults_revision": 3,
-          "moment_id": "moment-7eb595a9e4c0ec41c7a5240bd8fdc3a0",
+          "moment_id": "moment-0c16a804523210c3c99855ab77f13c1f",
           "title": "Even afstemmen",
           "text": "Daar gaan we: ik vertel nu als je Festival DJ. Je speelse en gastvrije gastheer."
         },
         "contract_version": 3,
-        "binding": "e1940d44711a3a28281c66b87b2af2bac79eb9b4960a477990b8926473d4b009",
+        "binding": "9825cf1ee5df8a3aa7d2320ad01d8fcf3c1349486e411fd5e28a7e8dcc6b9f7d",
         "settings_confirmation_contract": {
           "available": true,
           "version": 1,
@@ -422,13 +422,13 @@
           "available": false,
           "reason": "processor_not_qualified"
         },
-        "as_of": "2026-10-25T02:16:10.500667+00:00",
+        "as_of": "2026-10-25T03:38:36.052638+00:00",
         "cache_policy": "private,no-store"
       },
       "moment": {
-        "moment_id": "moment-7eb595a9e4c0ec41c7a5240bd8fdc3a0",
-        "session_id": "session-b6e3ce1db2234147bbf1f4526a0085b9",
-        "created_at": "2026-10-25T02:16:10.495000+00:00",
+        "moment_id": "moment-0c16a804523210c3c99855ab77f13c1f",
+        "session_id": "session-615bdb67469b4362b6e7613e10c7161f",
+        "created_at": "2026-10-25T03:38:36.051000+00:00",
         "type": "session",
         "knowledge_intent": {
           "type": "session_direction",
@@ -468,56 +468,56 @@
         },
         "settings_confirmation": {
           "schema_version": 1,
-          "confirmation_id": "settings-7eb595a9e4c0ec41c7a5240bd8fdc3a0",
+          "confirmation_id": "settings-0c16a804523210c3c99855ab77f13c1f",
           "changed_fields": [
             "persona"
           ],
-          "accepted_at": "2026-10-25T02:16:10.495000+00:00"
+          "accepted_at": "2026-10-25T03:38:36.051000+00:00"
         }
       },
       "native_delivery": {
         "schema_version": 1,
-        "session_id": "session-b6e3ce1db2234147bbf1f4526a0085b9",
-        "current_moment_id": "moment-7eb595a9e4c0ec41c7a5240bd8fdc3a0",
+        "session_id": "session-615bdb67469b4362b6e7613e10c7161f",
+        "current_moment_id": "moment-0c16a804523210c3c99855ab77f13c1f",
         "current_silence_moment_id": null,
         "active_flow_moment_ids": [
-          "moment-5026a78f712c08e9ad88679ff07431bb",
-          "moment-7eb595a9e4c0ec41c7a5240bd8fdc3a0"
+          "moment-d32c28d2d2bd662969f66e72f2350522",
+          "moment-0c16a804523210c3c99855ab77f13c1f"
         ],
         "admissions": [
           {
-            "moment_id": "moment-5026a78f712c08e9ad88679ff07431bb",
+            "moment_id": "moment-d32c28d2d2bd662969f66e72f2350522",
             "qualification": "qualified",
             "current_display_allowed": false,
             "active_flow_display_allowed": true,
             "source_expires_at": null,
-            "display_expires_at": "2026-10-25T02:16:25.483000+00:00",
+            "display_expires_at": "2026-10-25T03:38:51.046000+00:00",
             "executable_actions": [],
             "requires_spotify_attribution": false
           },
           {
-            "moment_id": "moment-7eb595a9e4c0ec41c7a5240bd8fdc3a0",
+            "moment_id": "moment-0c16a804523210c3c99855ab77f13c1f",
             "qualification": "qualified",
             "current_display_allowed": true,
             "active_flow_display_allowed": true,
             "source_expires_at": null,
-            "display_expires_at": "2026-10-25T02:16:25.495000+00:00",
+            "display_expires_at": "2026-10-25T03:38:51.051000+00:00",
             "executable_actions": [],
             "requires_spotify_attribution": false
           }
         ],
         "revocation_scope": "session",
-        "revision": "14c02faa2d0b44bf8c152fc4"
+        "revision": "d0a1118a0d33a01af001471c"
       }
     },
     {
       "case": "presence",
       "response": {
         "success": true,
-        "operation_id": "01a170d8-1009-72fa-8ca5-8f079cf4ebc0",
+        "operation_id": "01a17123-8696-70a8-84df-4797f7e56764",
         "accepted": true,
         "replayed": false,
-        "expires_ms": 1792894870505,
+        "expires_ms": 1792899816054,
         "snapshot": {
           "contract_version": 3,
           "defaults": {
@@ -531,13 +531,13 @@
             "announcement_output": "client_device"
           },
           "defaults_revision": 4,
-          "updated_at": "2026-10-25T02:16:10.506000+00:00",
+          "updated_at": "2026-10-25T03:38:36.054000+00:00",
           "activated": true,
           "output_choice_confirmed": true,
           "accepted_contract_version": 3,
           "session": {
-            "session_id": "session-b6e3ce1db2234147bbf1f4526a0085b9",
-            "generation": "da861518757a4cc48985c2ebe3267263",
+            "session_id": "session-615bdb67469b4362b6e7613e10c7161f",
+            "generation": "bf6d3cd4d36c4e558a3bc4778e0d08b8",
             "settings": {
               "persona": "festival_dj",
               "voice": {
@@ -550,12 +550,12 @@
             },
             "revision": 3,
             "defaults_revision": 4,
-            "updated_at": "2026-10-25T02:16:10.506000+00:00"
+            "updated_at": "2026-10-25T03:38:36.054000+00:00"
           }
         },
         "settings_confirmation": {
           "schema_version": 1,
-          "confirmation_id": "settings-6c6fbc8004d7af74a5c7fea4e978466b",
+          "confirmation_id": "settings-88c7e3d86b708abb3f1f721b015aaad3",
           "changed_fields": [
             "presence"
           ],
@@ -565,17 +565,17 @@
             "presence": "music_only"
           },
           "locale": "nl",
-          "accepted_at": "2026-10-25T02:16:10.506000+00:00",
-          "session_id": "session-b6e3ce1db2234147bbf1f4526a0085b9",
-          "settings_generation": "da861518757a4cc48985c2ebe3267263",
+          "accepted_at": "2026-10-25T03:38:36.054000+00:00",
+          "session_id": "session-615bdb67469b4362b6e7613e10c7161f",
+          "settings_generation": "bf6d3cd4d36c4e558a3bc4778e0d08b8",
           "settings_revision": 3,
           "defaults_revision": 4,
-          "moment_id": "moment-6c6fbc8004d7af74a5c7fea4e978466b",
+          "moment_id": "moment-88c7e3d86b708abb3f1f721b015aaad3",
           "title": "Even afstemmen",
           "text": "Daar gaan we: je kiest Alleen muziek. Na deze bevestiging laat ik de muziek aan het woord; je vragen blijven welkom."
         },
         "contract_version": 3,
-        "binding": "e1940d44711a3a28281c66b87b2af2bac79eb9b4960a477990b8926473d4b009",
+        "binding": "9825cf1ee5df8a3aa7d2320ad01d8fcf3c1349486e411fd5e28a7e8dcc6b9f7d",
         "settings_confirmation_contract": {
           "available": true,
           "version": 1,
@@ -675,13 +675,13 @@
           "available": false,
           "reason": "processor_not_qualified"
         },
-        "as_of": "2026-10-25T02:16:10.511160+00:00",
+        "as_of": "2026-10-25T03:38:36.059356+00:00",
         "cache_policy": "private,no-store"
       },
       "moment": {
-        "moment_id": "moment-6c6fbc8004d7af74a5c7fea4e978466b",
-        "session_id": "session-b6e3ce1db2234147bbf1f4526a0085b9",
-        "created_at": "2026-10-25T02:16:10.506000+00:00",
+        "moment_id": "moment-88c7e3d86b708abb3f1f721b015aaad3",
+        "session_id": "session-615bdb67469b4362b6e7613e10c7161f",
+        "created_at": "2026-10-25T03:38:36.054000+00:00",
         "type": "session",
         "knowledge_intent": {
           "type": "session_direction",
@@ -721,68 +721,68 @@
         },
         "settings_confirmation": {
           "schema_version": 1,
-          "confirmation_id": "settings-6c6fbc8004d7af74a5c7fea4e978466b",
+          "confirmation_id": "settings-88c7e3d86b708abb3f1f721b015aaad3",
           "changed_fields": [
             "presence"
           ],
-          "accepted_at": "2026-10-25T02:16:10.506000+00:00"
+          "accepted_at": "2026-10-25T03:38:36.054000+00:00"
         }
       },
       "native_delivery": {
         "schema_version": 1,
-        "session_id": "session-b6e3ce1db2234147bbf1f4526a0085b9",
-        "current_moment_id": "moment-6c6fbc8004d7af74a5c7fea4e978466b",
+        "session_id": "session-615bdb67469b4362b6e7613e10c7161f",
+        "current_moment_id": "moment-88c7e3d86b708abb3f1f721b015aaad3",
         "current_silence_moment_id": null,
         "active_flow_moment_ids": [
-          "moment-5026a78f712c08e9ad88679ff07431bb",
-          "moment-7eb595a9e4c0ec41c7a5240bd8fdc3a0",
-          "moment-6c6fbc8004d7af74a5c7fea4e978466b"
+          "moment-d32c28d2d2bd662969f66e72f2350522",
+          "moment-0c16a804523210c3c99855ab77f13c1f",
+          "moment-88c7e3d86b708abb3f1f721b015aaad3"
         ],
         "admissions": [
           {
-            "moment_id": "moment-5026a78f712c08e9ad88679ff07431bb",
+            "moment_id": "moment-d32c28d2d2bd662969f66e72f2350522",
             "qualification": "qualified",
             "current_display_allowed": false,
             "active_flow_display_allowed": true,
             "source_expires_at": null,
-            "display_expires_at": "2026-10-25T02:16:25.483000+00:00",
+            "display_expires_at": "2026-10-25T03:38:51.046000+00:00",
             "executable_actions": [],
             "requires_spotify_attribution": false
           },
           {
-            "moment_id": "moment-7eb595a9e4c0ec41c7a5240bd8fdc3a0",
+            "moment_id": "moment-0c16a804523210c3c99855ab77f13c1f",
             "qualification": "qualified",
             "current_display_allowed": false,
             "active_flow_display_allowed": true,
             "source_expires_at": null,
-            "display_expires_at": "2026-10-25T02:16:25.495000+00:00",
+            "display_expires_at": "2026-10-25T03:38:51.051000+00:00",
             "executable_actions": [],
             "requires_spotify_attribution": false
           },
           {
-            "moment_id": "moment-6c6fbc8004d7af74a5c7fea4e978466b",
+            "moment_id": "moment-88c7e3d86b708abb3f1f721b015aaad3",
             "qualification": "qualified",
             "current_display_allowed": true,
             "active_flow_display_allowed": true,
             "source_expires_at": null,
-            "display_expires_at": "2026-10-25T02:16:25.506000+00:00",
+            "display_expires_at": "2026-10-25T03:38:51.054000+00:00",
             "executable_actions": [],
             "requires_spotify_attribution": false
           }
         ],
         "revocation_scope": "session",
-        "revision": "3b900ea7ad44532e29c22eff"
+        "revision": "3efcd48de7973bac6562e622"
       }
     }
   ],
   "model_provider_calls": 0,
   "playback_or_device_effects": 0,
   "native_audio_user_acceptance": "NOT_RUN",
-  "time": "2026-10-25T02:16:10.532724+00:00",
+  "time": "2026-10-25T03:38:36.077961+00:00",
   "harness_sha256": "b0443d10afa301a87e2154c75f6c7be232ff8a42978e75a2760df49bae33b6e6",
-  "fixture_sha256": "b58bf55cfd5f1ee637edcaaa962d554e81953dba288a31e53b7c31b962277700",
+  "fixture_sha256": "274f366c6b58f0d3c3b0bd207b93ae309a965695a47806bd6fc80b6301c254c3",
   "ha_sdk_version": "2026.10.0",
-  "actual_ha_receipt_sha256": "4cebb623afb43eec0c6c4d1beb5501ad32dc42d038b4c1959dda818a25b78fe9",
+  "actual_ha_receipt_sha256": "de34164b47908586b22ed14b29e33d042012285d6eea7a474fb17c3966f6a63f",
   "requests_observed": 50,
   "source_pins": {
     "custom_components/djconnect/__init__.py": "b4733d5bb6319a51eff2ba65c82c4c2d19cd10b2024d42e4cedcd0d3e94c765c",
@@ -792,14 +792,14 @@
     "custom_components/djconnect/announcements.py": "4e34b4b46395f8922482ea6d685867dfa69fb43560e4291c88721849acc192c9",
     "custom_components/djconnect/api_handlers.py": "f3727a48e2051add6558fd40e513ba5ba99dfc7eeaf3c48fe3d02d909176011a",
     "custom_components/djconnect/artist_photo.py": "49369dedce29fa90fcc545f918ea4ecc10909f58e0df5ebfe1acf35a7af5019c",
-    "custom_components/djconnect/ask_dj/__init__.py": "356ba9e0979e36b51d9315eda85e56784bc23f1d689e4810c0ad14398b79a014",
+    "custom_components/djconnect/ask_dj/__init__.py": "7acbbb03664425a1e6219b399664fe337ce67459b70b1d9292fa1bb71ef6de35",
     "custom_components/djconnect/ask_dj/actions.py": "8e42edc5bf0a3a3ef73c99273c5860d1f3ebad42dd8897cf8d2877239a25b053",
     "custom_components/djconnect/ask_dj/album_choices.py": "da7971c89f714a7cedee68a467ed80fcbc22f600af8f68196b359a71a0559d33",
     "custom_components/djconnect/ask_dj/album_tracks.py": "e354c334fb9f3c21510389fd6f5c4923271c2ddd8836e5028a8d9c9419f6bf3e",
     "custom_components/djconnect/ask_dj/artist_story.py": "c290be17d8ef89b574664d3c9b61b74a3b6f624518b95af62a99067bc52ac2f7",
     "custom_components/djconnect/ask_dj/artist_tracks.py": "45047d54f079952d6486fded5b1eae7dbce5cfc41a9cef4f0acf3bf39695cdf4",
     "custom_components/djconnect/ask_dj/biographical_dates.py": "cddbbed54dbfe68a41449f0ad87e7f9a173c2a69159fe5f0f428169fea9b940b",
-    "custom_components/djconnect/ask_dj/dialogue.py": "13868d03dd62b60b4f152f00f3a4091dc928018bb82d47b1f5614e3fb6eea039",
+    "custom_components/djconnect/ask_dj/dialogue.py": "8bbe9f7af37e3146ea6ad7929ca5099752cde7711dbaa4d65b7174b2fbc641dd",
     "custom_components/djconnect/ask_dj/example_catalogue.py": "6f19b63e39d64ae5e370c4c0cbd239acfdcf204928c9d384b016ab1740a0c187",
     "custom_components/djconnect/ask_dj/example_catalogue_data.py": "81a987d2d2aada9d79b2c3148982a6f5f13401852b667174647ed823414c6544",
     "custom_components/djconnect/ask_dj/examples_v1.json": "dfaa98a1659ef5673037da26f98136314b314beea8afe8e31af4ffd5bd6ac4e7",
@@ -807,7 +807,7 @@
     "custom_components/djconnect/ask_dj/intents.py": "545c7cf45bc5a66719d66bed5ef2633a4e01343645080af733a11869f1c01032",
     "custom_components/djconnect/ask_dj/observations.py": "ef788fa96d23f124fdb66f4af766831110b7224b3738d884ff8c47550aef54fd",
     "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
-    "custom_components/djconnect/ask_dj/public_research.py": "706bd4d44aed064e400524ca679d41285d6b733d11d759792ca2a6ce7bbf6dee",
+    "custom_components/djconnect/ask_dj/public_research.py": "5024d717da601995e0c2a22f6e0ccec2f60c3c8053caebfce4ee3d6c5acd7799",
     "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
     "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
     "custom_components/djconnect/ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
@@ -909,7 +909,7 @@
     "custom_components/djconnect/music_dna.py": "93820285c2ffda0794263f643fbf434ccb8c8162865e55d6997e22fa7b9d7915",
     "custom_components/djconnect/music_intent.py": "1c23fbc72358fefa64c409d5334bddb97230216fac1943233a10fec0c333e7f1",
     "custom_components/djconnect/musicbrainz_rate.py": "6e40f3c605fbd73dc246630cd4a1b60d7fb89b03344663d6102007d63846453a",
-    "custom_components/djconnect/narration_brief.py": "732c319e238173d394d56422f9fe8bc0f0c589cd9391d255cb7d07adefafb245",
+    "custom_components/djconnect/narration_brief.py": "39f2bf2a4e29c7965cb7b9b637b25a2e70faec64647ac52cd1abff95c6494e4d",
     "custom_components/djconnect/narration_style.py": "f188a98d0ec6af8f04440edc7d89ad176b44151eaab2a287343aaaca9b712a8e",
     "custom_components/djconnect/native_moment_delivery.py": "0b71a61e3abd0709bb4337c55b6a169139784d0e92e7c0ff4a995a6496366893",
     "custom_components/djconnect/number.py": "57dd84220fbb1903708c9c4a0f850d699919aabbe4300dcce252fb0f205e3e7b",
@@ -1034,10 +1034,10 @@
   "audible": "NOT_RUN",
   "profile_only_response": {
     "success": true,
-    "operation_id": "01a170d8-0fef-7160-9ec7-f7d7d453d301",
+    "operation_id": "01a17123-868b-77ac-8b0d-244341e98eec",
     "accepted": true,
     "replayed": false,
-    "expires_ms": 1792894870479,
+    "expires_ms": 1792899816043,
     "snapshot": {
       "contract_version": 3,
       "defaults": {
@@ -1051,7 +1051,7 @@
         "announcement_output": "client_device"
       },
       "defaults_revision": 1,
-      "updated_at": "2026-10-25T02:16:10.479000+00:00",
+      "updated_at": "2026-10-25T03:38:36.044000+00:00",
       "activated": true,
       "output_choice_confirmed": true,
       "accepted_contract_version": 3,
@@ -1059,7 +1059,7 @@
     },
     "settings_confirmation": {
       "schema_version": 1,
-      "confirmation_id": "settings-87adc0bb6bdcf04e5bea6cf826a06a00",
+      "confirmation_id": "settings-69d4f58af17052db449fe4921f1b2d2e",
       "changed_fields": [
         "mood",
         "persona"
@@ -1070,7 +1070,7 @@
         "presence": "balanced"
       },
       "locale": "nl",
-      "accepted_at": "2026-10-25T02:16:10.479000+00:00",
+      "accepted_at": "2026-10-25T03:38:36.044000+00:00",
       "session_id": "",
       "settings_generation": "",
       "settings_revision": null,
@@ -1080,7 +1080,7 @@
       "text": "We slaan een nieuwe toon aan: je mood is nu Energy; ik vertel nu als je Radio DJ. Mijn manier van vertellen wordt levendig en vlot."
     },
     "contract_version": 3,
-    "binding": "e1940d44711a3a28281c66b87b2af2bac79eb9b4960a477990b8926473d4b009",
+    "binding": "9825cf1ee5df8a3aa7d2320ad01d8fcf3c1349486e411fd5e28a7e8dcc6b9f7d",
     "settings_confirmation_contract": {
       "available": true,
       "version": 1,
@@ -1180,7 +1180,7 @@
       "available": false,
       "reason": "processor_not_qualified"
     },
-    "as_of": "2026-10-25T02:16:10.480399+00:00",
+    "as_of": "2026-10-25T03:38:36.044697+00:00",
     "cache_policy": "private,no-store"
   }
 }

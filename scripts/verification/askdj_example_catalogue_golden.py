@@ -51,7 +51,9 @@ def artist_generation_wire(input_messages):
             if language not in LANGUAGES:
                 continue
             return {'research_schema': 3, 'language': language,
-                'drafts_requested': 'Return ONLY {"drafts":' in instructions,
+                'drafts_requested': ('Return ONLY {"drafts":' in instructions or
+                    (projection.get('artist_draft_schema') == 'artist_evidence_drafts_v1'
+                     and 'artist_evidence_drafts_v1' in instructions.split('\n', 1)[0])),
                 'wire_contract_first': instructions.startswith('DJConnect output contract: '),
                 'trusted_instructions_sha256': hashlib.sha256(instructions.encode()).hexdigest()}
     return None

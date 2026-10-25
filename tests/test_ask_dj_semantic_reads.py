@@ -9,10 +9,13 @@ from tests import test_ask_dj_contextual_dialogue as shared
 
 def id_review_fixture(projection):
     """A reviewer selects the actual compact wire IDs; no copied quote in wire."""
+    if 'drafts' in projection and 'answer' not in projection:
+        return {'draft_reviews': [{'index': row['index'], 'sha256': row['sha256'],
+            'review': id_review_fixture({**projection, 'answer': row['text']})} for row in projection['drafts']]}
     from custom_components.djconnect.ask_dj.public_research import _sentences
     spans = [span for source in projection['evidence']['public_music_research']['sources']
              for span in source.get('evidence_spans', [])]
-    return {'supported':True,'language_ok':True,'style_ok':True,'review_schema':'source_id_review_v1','claim_checks':[
+    return {'supported':True,'language_ok':True,'style_ok':True,'unsupported_claims':[], 'review_schema':'source_id_review_v1','claim_checks':[
         {'text':sentence,'kind':'fact','evidence_ids':[spans[0]['id']]}
         for sentence in _sentences(projection['answer'])]}
 
@@ -193,11 +196,14 @@ class SemanticReadTests(unittest.IsolatedAsyncioTestCase):
                     reply=json.dumps({'read':'artist_story','reference':'current','exclude_current':False})
                 elif 'evidence' in projection:
                     review=id_review_fixture(projection)
-                    review.pop('style_ok')
-                    review.pop('language_ok')
-                    reply=json.dumps({**review,**quality})
+                    reviews = [row['review'] for row in review['draft_reviews']] if 'draft_reviews' in review else [review]
+                    for item in reviews:
+                        item.pop('style_ok')
+                        item.pop('language_ok')
+                        item.update(quality)
+                    reply=json.dumps(review)
                 else:
-                    reply='Volbeat is a Danish band.'
+                    reply=shared._research_generation_fixture(projection, 'Volbeat is a Danish band.')
                 return {'response': {'speech': {'plain': {'speech':reply}}}}
             async def status(hass,runtime,command,*args,**kwargs):
                 self.assertEqual(command,'status')
@@ -209,7 +215,7 @@ class SemanticReadTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(code,200,answer)
             self.assertFalse(answer.get('is_generated_text'))
             self.assertEqual(answer.get('knowledge_basis'),'public_research_unqualified')
-            self.assertEqual(answer['public_research_status']['answer_state'],'narration_quality_unverified')
+            self.assertEqual(answer['public_research_status']['answer_state'],'drafts_unqualified')
         self.assertEqual(f.effects,[])
 
     async def test_album_followups_keep_full_context_exact_title_receipt_and_duplicate(self):

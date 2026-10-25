@@ -1,3 +1,17 @@
+# Help evidence-first artist repair in validation — 25 October 2026
+
+The original paid run40156643319 completed100/175 with96PASS/fourartistFAIL.
+It is consumed FAILURE; no rerun, flag promotion or unused-budget reuse.
+[Current source record](docs/verification/HELP_ARTIST_EVIDENCE_FIRST_20261025.md) adds source-bound literal editorial anchors and
+an explicitly closed negative review inside the same existing model-call budget.
+Positive factual, role, chronology, language, style and original owner/clock gates
+remain unchanged. Cost-free current14HA groups pass with264equal product files;
+actual SDK synthetic-five-artist inputs have original5x2 public-only receipts.
+Whole/exact source review, protected Source, separate Final and original
+qualification still precede a distinct bounded one-time paid qualification.
+Catalogue remainsfalse/70pending; HA/provider/native/user acceptance unchanged.
+All24requests/ninegates and DJBulletin→VibeCast are preserved; automation PAUSED.
+
 # Delivered Help artist-envelope Source — 25 October 2026
 
 [PR1336](https://github.com/pcvantol/djconnect/pull/1336) protected`6efaf1da19346508ff6aea032788f3d207641d2a`,

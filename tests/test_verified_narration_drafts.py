@@ -190,11 +190,11 @@ class VerifiedArtistDraftTests(unittest.IsolatedAsyncioTestCase):
                     elif 'evidence' not in projection:
                         self.assertTrue(instructions.startswith('DJConnect output contract: '))
                         self.assertIn('JSON envelope', instructions.split('\n', 1)[0])
-                        self.assertEqual(projection['answer_form'], 'Natural prose inside each drafts string; the outer response follows the Core-owned JSON output contract.')
-                        self.assertIn('one directly documented activity', instructions)
+                        self.assertEqual(projection['answer_form'], 'Natural prose inside each draft text; the outer response follows the Core-owned artist_evidence_drafts_v1 JSON output contract.')
+                        self.assertIn('Choose a documented musical activity/work', instructions)
                         self.assertNotIn('Only natural prose, no JSON', instructions)
                         self.assertNotIn('No JSON', instructions)
-                        reply = 'Volbeat is a Danish band.'
+                        reply = json.loads(shared._research_generation_fixture(projection, 'Volbeat is a Danish band.'))
                     else:
                         reply = id_review_fixture(projection)
                     return {'response': {'speech': {'plain': {'speech': json.dumps(reply) if isinstance(reply, dict) else reply}}}}
@@ -224,14 +224,19 @@ class VerifiedArtistDraftTests(unittest.IsolatedAsyncioTestCase):
                     if set(projection) == {'question', 'language', 'available'}:
                         reply = {'read': 'artist_story', 'reference': 'current', 'exclude_current': False}
                     elif 'evidence' not in projection:
-                        reply = {'drafts': [good + '\x00', bad] if mode == 'control' else
-                                 [good, bad] if mode.startswith('first_') else [bad, good]}
+                        texts = ([good + '\x00', bad] if mode == 'control' else
+                                 [good, bad] if mode.startswith('first_') else [bad, good])
+                        reply = {'schema': 'artist_evidence_drafts_v1', 'drafts': [
+                            {'anchors': [anchor['id']], 'text': text} for anchor, text in
+                            zip(projection['literal_anchors'][:2], texts, strict=True)]}
                     else:
                         rows = []
                         for row in projection['drafts']:
                             review = id_review_fixture({**projection, 'answer': row['text']})
                             positive = row['index'] == (0 if mode.startswith('first_') else 1) and mode != 'all_false'
                             review.update(supported=positive, unsupported_claims=[] if positive else [row['text']])
+                            if not positive:
+                                review.update(claim_checks=[], temporal_claims=[])
                             rows.append({'index': row['index'], 'sha256': row['sha256'], 'review': review})
                         if mode == 'swapped':
                             rows.reverse()
@@ -247,7 +252,7 @@ class VerifiedArtistDraftTests(unittest.IsolatedAsyncioTestCase):
                     self.assertEqual(command, 'status')
                     return {'success': True, 'playback': {'uri': 'spotify:track:' + 'N' * 22,
                         'artist': 'Volbeat', 'title': 'Private current recording'}}
-                with f.research_http(title='Volbeat', text=good), patch.object(
+                with f.research_http(title='Volbeat', text=good + ' Volbeat performed a concert.'), patch.object(
                         f.pipeline, '_call_conversation_process_transport', agent), patch.object(
                         f.core, 'run_music_command', status):
                     answer, code = await f.request('tell me about this artist', identifier='draft-' + mode)
