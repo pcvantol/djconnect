@@ -1029,7 +1029,33 @@ def research_projection(subject, sources, state, *, question=""):
     return result
 
 
-def documented_episode_focus(research, *, angle="", require_work=False):
+_BRIEF_CONTEXTUAL_ARTIST_PATTERNS=(
+ r'(?:tell|say)(?: me)? (?:(?:something|a bit) )?about (?:this|the current|the selected) (?:artist|band|performer)',
+ r'vertel (?:(?:me|mij) )?(?:(?:iets|eens) )?over (?:deze|de huidige|de geselecteerde) (?:artiest|band|uitvoerder)',
+ r'erzähl(?:e)? (?:(?:mir )?(?:etwas )?)(?:über|von) (?:diesen|diesem|den aktuellen|den ausgewählten) (?:künstler|musiker|interpreten)',
+ r'parle(?:-moi)? (?:de|sur) (?:cet|cette) (?:artiste|groupe|interprète)',
+ r'cu[eé]ntame (?:algo )?(?:sobre|de) (?:este|esta|el actual|el elegido) (?:artista|grupo|intérprete)',
+)
+
+_BRIEF_MUSICAL_ACTIVITY=re.compile(r'\b(?:performed|toured|recorded|recording|played (?:at|with)|guest solos|'
+ r'speelde|opgetreden|gastsolo[’\x27]?s|nahm .{0,40} auf|spielte|aufgetreten|'
+ r'enregistr[ée]\w*|jou[ée]\w*|s[’\x27]est produit|actu[oó]\w*|grab[oó]\w*|toc[oó]\w*|interpret[oó]\w*)\b',re.I)
+
+_BRIEF_MEMBER_TIMELINE=re.compile(r'\b(?:member\w*|line[- ]up|found(?:ed|ing)?|formed|'
+ r'join\w* .{0,65}(?:the band|as (?:a |the )?(?:second )?guitarist|full.time)|'
+ r'bandlid\w*|leden|opgericht|toetrad|toegetreden|mitglied\w*|gegr[üu]ndet|'
+ r'membre\w*|rejoint (?:le|un) groupe|fond[ée]\w*|miembro\w*|fundad\w*|'
+ r'uni[oó]\w* .{0,65}(?:la banda|miembro|guitarrista))\b',re.I)
+
+def brief_contextual_artist_question(text):
+    """Conservative whole-question editorial scope; never factual authority."""
+    if type(text) is not str or not 1 <= len(text) <= 4000:
+        return False
+    value = text.strip().casefold().strip(' .?!¿¡')
+    return any(re.fullmatch(pattern, value) for pattern in _BRIEF_CONTEXTUAL_ARTIST_PATTERNS)
+
+
+def documented_episode_focus(research, *, angle="", require_work=False, brief=False):
     """Prefer a literal participant/action passage over a debut/chart list.
 
     This ranks a telling topic, not evidence. Original context, independent
@@ -1045,7 +1071,7 @@ def documented_episode_focus(research, *, angle="", require_work=False):
     performance = re.compile(r'\b(?:performed|performance|concert|live|on stage|'
         r'optred\w*|optrad\w*|speelde .{0,100} tijdens|auftritt\w*|auftrat\w*|'
         r'jou\w* .{0,80} (?:scène|concert)|actuaci[oó]n|actu\w* .{0,80} (?:concierto|escenario))\b',re.I)
-    candidates = []
+    candidates, brief_candidates = [], []
     for order, source in enumerate(research.get('sources',[])):
         if source.get('provider') != 'Wikipedia':
             continue
@@ -1058,12 +1084,19 @@ def documented_episode_focus(research, *, angle="", require_work=False):
                         re.search(r'(?<!\w)' + re.escape(anchor) + r'(?!\w)', span['text'], re.I))
                         for anchor in source.get('source_anchors', [])):
                     continue
+            if (brief and _BRIEF_MUSICAL_ACTIVITY.search(span['text'])
+                    and not _BRIEF_MEMBER_TIMELINE.search(span['text'])):
+                # Rank canonical existing passages only. Full original sources
+                # and review rights remain; this is no claim about their truth.
+                brief_candidates.append((0, -order, -index, source, span))
             score = max(2 if joint.search(span['text']) else 1 if invitation.search(span['text']) else 0,
                         _artist_episode_score(span['text']))
             if angle == 'live_history' and performance.search(span['text']):
                 score += 10
             if score:
                 candidates.append((score,-order,-index,source,span))
+    if brief_candidates:
+        candidates = brief_candidates
     if not candidates:
         return None
     _,_,_,source,span = max(candidates,key=lambda item:item[:3])

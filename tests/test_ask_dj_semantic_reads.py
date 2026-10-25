@@ -84,6 +84,67 @@ class SemanticReadTests(unittest.IsolatedAsyncioTestCase):
             self.assertNotIn('Private current recording', json.dumps(calls))
             self.assertFalse(answer.get('playback_actions'))
 
+    async def test_actual_artist_route_brief_focus_preserves_broader_scope_and_private_boundary(self):
+        # An intentional before-generation stop observes the actual route; it is
+        # not a model-quality pass or a fabricated accepted telling.
+        from custom_components.djconnect.ask_dj.dialogue import DialogueError
+        f = self.f
+        title = 'Arbor Circuit'
+        original_text = ('Arbor Circuit is a musical group.\n'
+            'A guest collaborated with the ensemble on a recording before being asked to join as a full-time member.\n'
+            'Arbor Circuit performed a concert with another ensemble.')
+        questions = (
+            ('en', 'Tell me about this artist', True),
+            ('nl', 'Vertel iets over deze artiest', True),
+            ('de', 'Erzähl etwas über diesen Künstler', True),
+            ('fr', 'Parle-moi de cet artiste', True),
+            ('es', 'Cuéntame sobre este artista', True),
+            ('en', 'Tell me about this artist and the production work', False),
+            ('nl', 'Vertel iets over deze artiest en wanneer hij bij de band kwam', False),
+            ('de', 'Erzähl etwas über diesen Künstler und seine Karriere', False),
+            ('fr', 'Parle-moi de cet artiste et des membres du groupe', False),
+            ('es', 'Cuéntame sobre este artista y su trabajo de producción', False),
+        )
+        captured, commands = [], []
+        async def agent(hass, data, **kwargs):
+            projection = json.loads(data['text'].split('\nData:\n', 1)[1])
+            if set(projection) == {'question', 'language', 'available'}:
+                reply = json.dumps({'read': 'artist_story', 'reference': 'current',
+                    'exclude_current': False})
+                return {'response': {'speech': {'plain': {'speech': reply}}}}
+            self.assertEqual(projection.get('artist_draft_schema'), 'artist_evidence_drafts_v1')
+            captured.append(projection)
+            raise DialogueError('costfree_probe_stopped_before_generation', 409)
+        async def status(hass, runtime, command, *args, **kwargs):
+            commands.append(command)
+            return {'success': True, 'playback': {'uri': 'spotify:track:' + 'N' * 22,
+                'artist': title, 'title': 'PRIVATE_RECORDING_CANARY'}}
+        with f.research_http(title=title, text=original_text), patch.object(
+                f.pipeline, '_call_conversation_process_transport', agent), patch.object(
+                f.core, 'run_music_command', status):
+            for index, (locale, question, expected_brief) in enumerate(questions):
+                await f.history.async_clear('profile:profile-a')
+                before = len(captured)
+                body, code = await f.request(question, identifier=f'activity-route-{index}',
+                    language=locale)
+                self.assertEqual(code, 409, body)
+                self.assertEqual(body.get('error'), 'costfree_probe_stopped_before_generation')
+                self.assertEqual(len(captured), before + 1)
+                projection = captured[-1]
+                self.assertEqual(projection['question'], question)
+                research = projection['public_music_research']
+                focus = research['editorial_focus']
+                selected = [span for source in research['sources']
+                    for span in source['evidence_spans'] if span['id'] in focus['episode_span_ids']]
+                self.assertEqual(len(selected), 1)
+                self.assertEqual('performed a concert' in selected[0]['text'], expected_brief)
+                full = [span['text'] for source in research['sources'] for span in source['evidence_spans']]
+                self.assertTrue(any('full-time member' in text for text in full))
+                self.assertTrue(any('performed a concert' in text for text in full))
+                self.assertNotIn('PRIVATE_RECORDING_CANARY', json.dumps(projection))
+        self.assertEqual(set(commands), {'status'})
+        self.assertEqual(f.effects, [])
+
     async def test_artist_story_does_not_publish_across_changed_playback(self):
         f = self.f
         changed = [False]

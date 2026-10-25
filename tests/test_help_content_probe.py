@@ -56,6 +56,75 @@ class ContentProbeTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 policy.mode_policy(mode)
 
+    def test_new_activity18_original_cases_complete_chains_and_tight_budget(self):
+        from scripts.verification.askdj_example_catalogue_golden import cases, chain_cases
+        original = cases() + chain_cases()
+        selected, attempts, seconds = policy.mode_policy('target18_activity_v2')
+        self.assertEqual(len(selected), 18)
+        self.assertEqual((attempts, seconds), (62, 900))
+        self.assertEqual(tuple(c['id'] for c in original if c['id'] in selected), selected)
+        duplicates = [c for c in original if c['id'] in selected and c.get('operation') == 'duplicate']
+        self.assertEqual(len(duplicates), 3)
+        self.assertEqual(attempts, 4 * (18 - len(duplicates)) + 2)
+        for case in original:
+            if case['id'] in selected and case.get('chain'):
+                self.assertTrue({c['id'] for c in original if c.get('chain') == case['chain']}.issubset(selected))
+        # The historical mode is retained rather than silently reinterpreted.
+        self.assertEqual(policy.mode_policy('target6'), (policy.TARGET, 22, 600))
+        self.assertEqual(policy.mode_policy('full100'), ((), 392, 1800))
+        self.assertEqual(len(policy.TARGET), 6)
+
+    def test_activity18_progress_is_explicit_separate_and_reserves_before_io(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'activity18.json'
+            progress = policy.DiagnosticProgress(path, content_digest='c' * 64,
+                mode='target18_activity_v2')
+            value = json.loads(path.read_text())
+            self.assertEqual(value['schema_version'], 2)
+            self.assertEqual(value['mode'], 'target18_activity_v2')
+            self.assertEqual(value['selected_case_ids'], list(policy.TARGET18_ACTIVITY_V2))
+            self.assertFalse(policy.validate_progress(value, content_digest='c' * 64))
+            self.assertTrue(policy.validate_progress(value, content_digest='c' * 64,
+                mode='target18_activity_v2'))
+            for i in range(62):
+                progress.before_model(policy.TARGET18_ACTIVITY_V2[0])
+                saved = json.loads(path.read_text())
+                self.assertEqual(saved['sdk_attempts_reserved'], i + 1)
+                self.assertEqual(saved['sdk_completed_responses'], i)
+                progress.completed_response()
+            with self.assertRaises(RuntimeError):
+                progress.before_model(policy.TARGET18_ACTIVITY_V2[0])
+            self.assertFalse(progress.healthy)
+            with self.assertRaises(FileExistsError):
+                policy.DiagnosticProgress(path, content_digest='c' * 64,
+                    mode='target18_activity_v2')
+
+    def test_activity18_does_not_relabel_old_progress_or_hide_chain_members(self):
+        with tempfile.TemporaryDirectory() as directory:
+            progress = policy.DiagnosticProgress(Path(directory) / 'case.json',
+                content_digest='d' * 64, mode='target18_activity_v2')
+            for case in policy.TARGET18_ACTIVITY_V2:
+                progress.completed_case(case, passed=True)
+            progress.terminal('COMPLETE_NOT_QUALIFIED')
+            good = deepcopy(progress.value)
+            self.assertTrue(policy.validate_progress(good, content_digest='d' * 64,
+                mode='target18_activity_v2'))
+            for field, replacement in (
+                ('mode', 'target6'), ('schema_version', 1), ('schema_version', True),
+                ('selected_case_ids', list(policy.TARGET)),
+                ('completed_cases', list(policy.TARGET18_ACTIVITY_V2[:-1])),
+                ('sdk_attempts_reserved', 63), ('qualification', 'QUALIFIED'),
+            ):
+                wrong = {**good, field: replacement}
+                with self.subTest(field=field, replacement=replacement):
+                    self.assertFalse(policy.validate_progress(wrong, content_digest='d' * 64,
+                        mode='target18_activity_v2'))
+            self.assertFalse(policy.selected_inputs_complete({}, mode='unknown'))
+            self.assertFalse(policy.validate_selected_report({}, good, pin={},
+                mode='target18_activity_v2'))
+        with self.assertRaises(ValueError):
+            policy.DiagnosticProgress(Path('/unused'), content_digest='a' * 64, mode='full100')
+
     def test_progress_reserves_before_io_never_resumes_or_exceeds22(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "progress.json"

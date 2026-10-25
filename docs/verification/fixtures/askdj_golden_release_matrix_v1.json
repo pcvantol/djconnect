@@ -4872,6 +4872,10 @@
         {
           "file": "tests/test_ask_dj_semantic_reads.py",
           "method": "test_unqualified_name_capture_keeps_selected_recording"
+        },
+        {
+          "file": "tests/test_ask_dj_semantic_reads.py",
+          "method": "test_actual_artist_route_brief_focus_preserves_broader_scope_and_private_boundary"
         }
       ],
       "fixture_boundary": "External model responses only for owner contracts; semantic_reads runs 45 held-out inputs through actual HA/qualified model and provider I/O fixtures."

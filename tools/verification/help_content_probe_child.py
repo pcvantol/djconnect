@@ -40,10 +40,11 @@ async def execute():
     spec.loader.exec_module(module)
     if selected:
         # The original main explicitly skips its full100 progress constructor
-        # for selected cases. Supply the same observer API, with a stricter22
+        # for selected cases. Supply the same observer API, with the closed selected-mode
         # pre-I/O budget. No case, response, model or source predicate is replaced.
         module.catalogue_progress = DiagnosticProgress(
-            Path("/lab/diagnostic-progress.json"), content_digest=os.environ["DJC_CONTENT_DIGEST"]
+            Path("/lab/diagnostic-progress.json"), content_digest=os.environ["DJC_CONTENT_DIGEST"],
+            mode=mode,
         )
     checkpoint("MAIN")
     task = asyncio.current_task()

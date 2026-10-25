@@ -2903,7 +2903,10 @@ async def _informational_assist_response(
                                      if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
             turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)
             if research_subject:
-                focus = public_research.documented_episode_focus(turn.public_research, angle=research_angle)
+                focus = public_research.documented_episode_focus(
+                    turn.public_research, angle=research_angle,
+                    brief=bool(turn.interpreted_artist_research
+                        and public_research.brief_contextual_artist_question(text)))
                 if focus:
                     turn.public_research['editorial_focus'] = focus
             if not fetched_sources:

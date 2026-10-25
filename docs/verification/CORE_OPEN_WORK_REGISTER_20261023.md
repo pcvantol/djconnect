@@ -1,3 +1,11 @@
+## Current Help brief-activity v2 source preparation — 25 October 2026
+
+The new source corrects conservative brief-artist focus and adds a closed18-case
+first gate covering prior full-run failures, before original100 and independent
+editorial acceptance. [Current scope](HELP_BRIEF_ACTIVITY_V2_20261025.md).
+Catalogue remains false70 with no installed/provider/native claim.
+All24requests and nine gates below retain their historical scopes.
+
 ## Current Help short-cycle development candidate — 25 October 2026
 
 Latest original manual40170118656:100complete/96PASS/4FAIL/174responses, consumed

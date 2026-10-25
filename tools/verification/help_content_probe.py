@@ -21,6 +21,18 @@ TARGET = (
     "catalogue-chain-speaker-en-accept",
     "catalogue-chain-speaker-en-duplicate",
 )
+# A new closed case version; the historical target6 stays unchanged.
+TARGET18_ACTIVITY_V2 = (
+    "catalogue-play.cooking-nl", "catalogue-play.cooking-de", "catalogue-play.cooking-es",
+    "catalogue-play.quiet-de", "catalogue-play.quiet-fr", "catalogue-play.quiet-es",
+    "catalogue-listen.artist-nl", "catalogue-listen.artist-fr", "catalogue-listen.artist-es",
+    "catalogue-chain-speaker-en-offer", "catalogue-chain-speaker-en-accept",
+    "catalogue-chain-speaker-en-duplicate",
+    "catalogue-chain-album-nl-offer", "catalogue-chain-album-nl-accept",
+    "catalogue-chain-album-nl-duplicate",
+    "catalogue-chain-album-es-offer", "catalogue-chain-album-es-accept",
+    "catalogue-chain-album-es-duplicate",
+)
 EDITABLE = {
     "custom_components/djconnect/playback_request.py": "PLAYBACK_TELLING_STYLE",
     "custom_components/djconnect/ask_dj/dialogue.py": "ARTIST_BRIEF_TELLING_STYLE",
@@ -46,6 +58,8 @@ def digest(raw):
 def mode_policy(mode):
     if mode == "target6":
         return TARGET, 22, 600
+    if mode == "target18_activity_v2":
+        return TARGET18_ACTIVITY_V2, 62, 900
     if mode == "full100":
         return (), 392, 1800
     raise ValueError("unknown_content_probe_mode")
@@ -187,16 +201,20 @@ def validate_candidate(controller, candidate):
 
 
 class DiagnosticProgress:
-    """Six-case reservations before SDK I/O; failed persistence closes the run."""
+    """Closed selected-case reservations before SDK I/O; persistence failure closes."""
 
-    def __init__(self, path, *, content_digest):
+    def __init__(self, path, *, content_digest, mode="target6"):
+        self.mode = mode
+        self.case_ids, self.maximum_attempts, _ = mode_policy(mode)
+        if not self.case_ids:
+            raise ValueError("selected_progress_mode_required")
         self.path, self.healthy = Path(path), True
         self.value = {
-            "schema_version": 1,
+            "schema_version": 1 if mode == "target6" else 2,
             "scope": "TARGETED_DEVELOPMENT_NOT_FULL100",
             "manifest_sha256": MANIFEST,
             "content_digest": content_digest,
-            "selected_case_ids": list(TARGET),
+            "selected_case_ids": list(self.case_ids),
             "phase": "setup",
             "outcome": "RUNNING",
             "current_case": None,
@@ -207,13 +225,15 @@ class DiagnosticProgress:
             "external_billing": "UNKNOWN_NOT_A_BILLING_RECEIPT",
             "qualification": "NOT_QUALIFIED",
         }
+        if mode != "target6":
+            self.value["mode"] = mode
         fd = os.open(self.path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         os.close(fd)
         self._save()
 
     def _save(self):
         if not self.healthy or not validate_progress(
-            self.value, content_digest=self.value["content_digest"]
+            self.value, content_digest=self.value["content_digest"], mode=self.mode
         ):
             self.healthy = False
             raise ValueError("diagnostic_progress_closed")
@@ -249,7 +269,7 @@ class DiagnosticProgress:
 
     def before_model(self, case):
         self._running()
-        if self.value["sdk_attempts_reserved"] >= 22:
+        if self.value["sdk_attempts_reserved"] >= self.maximum_attempts:
             self.healthy = False
             raise RuntimeError("diagnostic_model_budget_exhausted")
         self.value.update(phase="model", current_case=case)
@@ -281,14 +301,17 @@ class DiagnosticProgress:
             self.healthy = False
 
 
-def validate_progress(value, *, content_digest):
+def validate_progress(value, *, content_digest, mode="target6"):
     try:
-        return _validate_progress(value, content_digest=content_digest)
+        return _validate_progress(value, content_digest=content_digest, mode=mode)
     except (ValueError, KeyError, TypeError, UnicodeError):
         return False
 
 
-def _validate_progress(value, *, content_digest):
+def _validate_progress(value, *, content_digest, mode):
+    selected, maximum_attempts, _ = mode_policy(mode)
+    if not selected:
+        return False
     expected = {
         "schema_version",
         "scope",
@@ -305,51 +328,57 @@ def _validate_progress(value, *, content_digest):
         "external_billing",
         "qualification",
     }
+    if mode != "target6":
+        expected.add("mode")
     if (
         type(value) is not dict
         or set(value) != expected
         or type(value["schema_version"]) is not int
-        or value["schema_version"] != 1
+        or value["schema_version"] != (1 if mode == "target6" else 2)
+        or (mode != "target6" and value.get("mode") != mode)
         or value["scope"] != "TARGETED_DEVELOPMENT_NOT_FULL100"
         or value["manifest_sha256"] != MANIFEST
         or value["content_digest"] != content_digest
         or type(content_digest) is not str
         or re.fullmatch("[a-f0-9]{64}", content_digest) is None
-        or value["selected_case_ids"] != list(TARGET)
+        or value["selected_case_ids"] != list(selected)
         or value["qualification"] != "NOT_QUALIFIED"
         or value["external_billing"] != "UNKNOWN_NOT_A_BILLING_RECEIPT"
         or value["phase"] not in {"setup", "case", "model", "teardown", "report", "terminal"}
         or value["outcome"] not in {"RUNNING", "FAIL", "CANCELLED", "COMPLETE_NOT_QUALIFIED"}
         or ((value["phase"] == "terminal") != (value["outcome"] != "RUNNING"))
         or (value["phase"] == "terminal" and value["current_case"] is not None)
-        or value["current_case"] not in {None, "catalogue-start", *TARGET}
+        or value["current_case"] not in {None, "catalogue-start", *selected}
     ):
         return False
     completed, failed = value["completed_cases"], value["failed_cases"]
     attempts, responses = value["sdk_attempts_reserved"], value["sdk_completed_responses"]
     return (
         type(completed) is list
-        and completed == list(TARGET[: len(completed)])
+        and completed == list(selected[: len(completed)])
         and type(failed) is list
         and len(set(failed)) == len(failed)
         and set(failed) <= set(completed)
         and type(attempts) is int
         and type(responses) is int
-        and 0 <= responses <= attempts <= 22
-        and (value["outcome"] != "COMPLETE_NOT_QUALIFIED" or len(completed) == 6)
+        and 0 <= responses <= attempts <= maximum_attempts
+        and (value["outcome"] != "COMPLETE_NOT_QUALIFIED" or len(completed) == len(selected))
     )
 
 
-def selected_inputs_complete(report):
-    """Original three-by-two witnesses; never relabel a subset as five-by-two."""
+def selected_inputs_complete(report, *, mode="target6"):
+    """Exact selected artist witnesses; never relabel a subset as five-by-two."""
     from scripts.verification import artist_public_input_receipts as original
 
-    expected = {
-        case: case.rsplit("-", 1)[1]
-        for case in TARGET
-        if case.startswith("catalogue-listen.artist-")
-    }
     try:
+        selected, _, _ = mode_policy(mode)
+        if not selected:
+            return False
+        expected = {
+            case: case.rsplit("-", 1)[1]
+            for case in selected
+            if case.startswith("catalogue-listen.artist-")
+        }
         records, indexed = report["artist_public_inputs"], {}
         if type(records) is not list or len(records) != 2 * len(expected):
             return False
@@ -391,7 +420,7 @@ def selected_inputs_complete(report):
             for r in report["model_calls"]
             if "artist_public_input_sha256" in r
         ]
-        return len(attempts) == 6 and sorted(attempts) == sorted(
+        return len(attempts) == 2 * len(expected) and sorted(attempts) == sorted(
             (r["case_id"], r["sha256"]) for r in records
         )
     except (ValueError, KeyError, TypeError, UnicodeError, RecursionError):
@@ -436,7 +465,7 @@ def generation_wire_complete(report, *, cases):
         return False
 
 
-def validate_selected_report(report, progress, *, pin):
+def validate_selected_report(report, progress, *, pin, mode="target6"):
     from scripts.verification.askdj_example_catalogue_golden import (
         _validate_execution,
         cases,
@@ -446,14 +475,17 @@ def validate_selected_report(report, progress, *, pin):
 
     original = {c["id"]: c for c in cases() + chain_cases()}
     try:
+        selected, maximum_attempts, _ = mode_policy(mode)
+        if not selected:
+            return False
         rows = report["cases"]
         return (
             manifest_digest() == MANIFEST
             and report["manifest_sha256"] == MANIFEST
             and report["qualification"] == "REAL_PAIRED_HA_SELECTED_CATALOGUE_CASES_V1"
-            and report["selected_case_ids"] == list(TARGET)
+            and report["selected_case_ids"] == list(selected)
             and report["status"] == "PASS"
-            and [r["id"] for r in rows] == list(TARGET)
+            and [r["id"] for r in rows] == list(selected)
             and all(
                 r["status"] == "PASS"
                 and r["findings"] == []
@@ -463,30 +495,30 @@ def validate_selected_report(report, progress, *, pin):
             and report["source_hashes"] == pin["profile_hashes"]
             and report["source_unchanged"] is True
             and report["configured_maximum_tokens"] == 3000
-            and validate_progress(progress, content_digest=pin["content_digest"])
+            and validate_progress(progress, content_digest=pin["content_digest"], mode=mode)
             and progress["outcome"] == "COMPLETE_NOT_QUALIFIED"
             and progress["failed_cases"] == []
             and progress["sdk_attempts_reserved"]
             == progress["sdk_completed_responses"]
             == len(report["model_calls"])
             == report["paid_model_calls"]
-            <= 22
+            <= maximum_attempts
             and all(
                 r.get("attempted") is True
                 and r.get("completed") is True
                 and r.get("maximum_output_tokens") == 3000
                 for r in report["model_calls"]
             )
-            and selected_inputs_complete(report)
-            and generation_wire_complete(report, cases=[original[case] for case in TARGET])
+            and selected_inputs_complete(report, mode=mode)
+            and generation_wire_complete(report, cases=[original[case] for case in selected])
             # Reuse every original transport, effects, language, chain replay,
-            # per-request model and source predicate with exactly six expected
+            # per-request model and source predicate with exactly the closed selected
             # questions. Only the generic validator's empty-selection sentinel
             # is adapted; the original report and qualification stay selected.
             and _validate_execution(
                 {**report, "selected_case_ids": []},
                 source_hashes=pin["profile_hashes"],
-                expected=[original[case] for case in TARGET],
+                expected=[original[case] for case in selected],
                 qualification="REAL_PAIRED_HA_SELECTED_CATALOGUE_CASES_V1",
                 manifest=MANIFEST,
             )
