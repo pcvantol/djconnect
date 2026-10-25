@@ -397,8 +397,11 @@ async def main():
             # Reserve BEFORE I/O: even a timeout/cancellation may have spent credits.
             receipt.update(case_id=case_id, attempted=True, completed=False)
             if os.environ.get('DJC_SAFETY_PROBE') == 'catalogue_golden':
-                from scripts.verification.askdj_example_catalogue_golden import LANGUAGE_JUDGE
+                from scripts.verification.askdj_example_catalogue_golden import LANGUAGE_JUDGE, artist_generation_wire
                 judge = LANGUAGE_JUDGE.get()
+                if owner_turn is not None and owner_turn.interpreted_artist_research:
+                    if wire := artist_generation_wire(kwargs.get('input', [])):
+                        receipt['artist_generation_wire'] = wire
                 if judge:
                     def contains_prompt(value):
                         if isinstance(value, str):

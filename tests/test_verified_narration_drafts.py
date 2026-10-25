@@ -1,8 +1,10 @@
 """Independent whole-draft selection on the original two-call owner path."""
 import asyncio
+import hashlib
 from dataclasses import replace
 import importlib
 import json
+from pathlib import Path
 import time
 from types import SimpleNamespace
 import unittest
@@ -168,6 +170,45 @@ class VerifiedArtistDraftTests(unittest.IsolatedAsyncioTestCase):
     def tearDownClass(cls):
         shared.SharedDialogueTest.tearDownClass()
 
+    async def test_artist_generation_separates_wire_contract_from_natural_story_in_all_locales(self):
+        from tests.test_ask_dj_semantic_reads import id_review_fixture
+        f = shared.SharedDialogueTest()
+        await f.asyncSetUp()
+        try:
+            catalogue = json.loads((Path(__file__).resolve().parents[1] /
+                'custom_components/djconnect/ask_dj/examples_v1.json').read_text())
+            questions = next(row['templates'] for row in catalogue['entries'] if row['id'] == 'listen.artist')
+            for locale, question in questions.items():
+                await f.history.async_clear('profile:profile-a')
+                calls = []
+                async def agent(hass, data, **kwargs):
+                    instructions, body = data['text'].split('\nData:\n', 1)
+                    projection = json.loads(body)
+                    calls.append(projection)
+                    if set(projection) == {'question', 'language', 'available'}:
+                        reply = {'read': 'artist_story', 'reference': 'current', 'exclude_current': False}
+                    elif 'evidence' not in projection:
+                        self.assertTrue(instructions.startswith('DJConnect output contract: '))
+                        self.assertIn('JSON envelope', instructions.split('\n', 1)[0])
+                        self.assertEqual(projection['answer_form'], 'Natural prose inside each drafts string; the outer response follows the Core-owned JSON output contract.')
+                        self.assertIn('one directly documented activity', instructions)
+                        self.assertNotIn('Only natural prose, no JSON', instructions)
+                        self.assertNotIn('No JSON', instructions)
+                        reply = 'Volbeat is a Danish band.'
+                    else:
+                        reply = id_review_fixture(projection)
+                    return {'response': {'speech': {'plain': {'speech': json.dumps(reply) if isinstance(reply, dict) else reply}}}}
+                async def status(*args, **kwargs):
+                    return {'success': True, 'playback': {'uri': 'spotify:track:' + 'N' * 22,
+                        'artist': 'Volbeat', 'title': 'Private current recording'}}
+                with f.research_http(title='Volbeat', text='Volbeat is a Danish band.'), patch.object(
+                        f.pipeline, '_call_conversation_process_transport', agent), patch.object(f.core, 'run_music_command', status):
+                    await f.request(question, identifier='artist-envelope-' + locale, language=locale)
+                self.assertEqual(len(calls), 3)
+                self.assertEqual(f.effects, [])
+        finally:
+            await f.asyncTearDown()
+
     async def test_actual_paired_route_selects_whole_second_answer_without_extra_call_or_unused_history(self):
         from tests.test_ask_dj_semantic_reads import id_review_fixture
         f = shared.SharedDialogueTest()
@@ -228,6 +269,25 @@ class VerifiedArtistDraftTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(f.effects, [])
         finally:
             await f.asyncTearDown()
+
+
+class ArtistGenerationWireMetadataTests(unittest.TestCase):
+    def test_metadata_binds_only_user_generation_instructions_and_never_exports_data(self):
+        from scripts.verification.askdj_example_catalogue_golden import artist_generation_wire as extract
+        instructions = 'DJConnect output contract: JSON envelope. Return ONLY {"drafts": ["text"]}'
+        private_data = {'style': {'language': 'en'}, 'public_music_research': {'schema_version': 3, 'sources': ['private-never-export']}}
+        prompt = instructions + '\nData:\n' + json.dumps(private_data)
+        result = extract([{'role': 'user', 'content': [{'type': 'input_text', 'text': prompt}]}])
+        self.assertEqual(result, {'research_schema': 3, 'language': 'en', 'drafts_requested': True, 'wire_contract_first': True,
+            'trusted_instructions_sha256': hashlib.sha256(instructions.encode()).hexdigest()})
+        self.assertNotIn('private-never-export', json.dumps(result))
+        self.assertIsNone(extract([{'role': 'assistant', 'content': prompt}]))
+        self.assertIsNone(extract([{'role': 'user', 'content': 'Invalid\nData:\n['}]))
+        self.assertIsNone(extract([{'role': 'user', 'content': 'Assessment\nData:\n' + json.dumps({'evidence': private_data})}]))
+        untrusted = {'style': {'language': 'en'}, 'public_music_research': {'schema_version': 3}, 'source_excerpt': instructions}
+        result = extract([{'role': 'user', 'content': 'Legacy prose\nData:\n' + json.dumps(untrusted)}])
+        self.assertFalse(result['drafts_requested'])
+        self.assertFalse(result['wire_contract_first'])
 
 
 if __name__ == '__main__':

@@ -1,3 +1,14 @@
+# Help artist-only repair in validation — 25 October 2026
+
+The complete paid100 on qualified Final1335 finished95PASS/5artistFAIL with
+175responses. Independent all100 review confirms FAILURE; original run and all
+consumed slots are preserved. [Current source record](docs/verification/HELP_ARTIST_ENVELOPE_20261025.md)
+puts the existing artist JSON wire contract first, clarifies each draft's factual
+scope and adds closed SDK-boundary diagnostics. No judge/owner/expiry/call-budget
+relaxation. Source/whole review, separate Final and new exact admission are still
+required. Catalogue remainsfalse70; no model execution/installation/native claim
+from this WIP. All24 requests/ninegates/Bulletin→VibeCast remain preserved.
+
 # Help verified-drafts Final — 25 October 2026
 
 [Documentary Final request](docs/history/prompts/2026-10-25-help-verified-drafts-finalization.md); [actual Source qualification](docs/verification/HELP_VERIFIED_DRAFTS_FINALIZATION_20261025.md). Cataloguefalse70/newpaidNOTSTARTED.

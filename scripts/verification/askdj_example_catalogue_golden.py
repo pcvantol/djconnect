@@ -27,6 +27,36 @@ REASONING_EFFORT = 'low'
 LANGUAGE_JUDGE = ContextVar('catalogue_language_judge', default=None)
 
 
+def artist_generation_wire(input_messages):
+    """Public-contract metadata only; never retain prompts, context or authority."""
+    for message in input_messages:
+        if not isinstance(message, dict) or message.get('role') != 'user':
+            continue
+        content = message.get('content', '')
+        values = [content] if isinstance(content, str) else [
+            item.get('text', '') for item in content if isinstance(item, dict)] if isinstance(content, list) else []
+        for value in values:
+            if not isinstance(value, str) or '\nData:\n' not in value:
+                continue
+            instructions, data = value.split('\nData:\n', 1)
+            try:
+                projection = json.loads(data)
+            except (ValueError, TypeError):
+                continue
+            research = projection.get('public_music_research') if isinstance(projection, dict) else None
+            if not isinstance(research, dict) or research.get('schema_version') != 3:
+                continue
+            style = projection.get('style')
+            language = style.get('language') if isinstance(style, dict) else None
+            if language not in LANGUAGES:
+                continue
+            return {'research_schema': 3, 'language': language,
+                'drafts_requested': 'Return ONLY {"drafts":' in instructions,
+                'wire_contract_first': instructions.startswith('DJConnect output contract: '),
+                'trusted_instructions_sha256': hashlib.sha256(instructions.encode()).hexdigest()}
+    return None
+
+
 def answer_text(body):
     return str(body.get('text') or body.get('dj_text') or '')
 

@@ -50,6 +50,12 @@ async def qualify(hass, manager, history, request, client):
         if set(projection) == {'question', 'language', 'available'}:
             answer = {'read': 'artist_story', 'reference': 'current', 'exclude_current': False}
         elif 'drafts' not in projection:
+            if route == 'artist':
+                instructions = data['text'].split('\nData:\n', 1)[0]
+                assert instructions.startswith('DJConnect output contract: ')
+                assert 'JSON envelope' in instructions.split('\n', 1)[0]
+                assert projection['answer_form'] == ('Natural prose inside each drafts string; '
+                    'the outer response follows the Core-owned JSON output contract.')
             answer = {'drafts': frames if route == 'frame' else
                       [original + '\x00', bad] if mode == 'control' else
                       [original, bad] if mode.startswith('first_') else [bad, original]}
