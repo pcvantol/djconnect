@@ -33,6 +33,18 @@ TARGET18_ACTIVITY_V2 = (
     "catalogue-chain-album-es-offer", "catalogue-chain-album-es-accept",
     "catalogue-chain-album-es-duplicate",
 )
+# All seven original full100 failures plus the retained18, with whole chains.
+TARGET24_DELIVERY_V3 = (
+    "catalogue-play.artist-fr",
+    "catalogue-play.cooking-nl", "catalogue-play.cooking-de", "catalogue-play.cooking-es",
+    "catalogue-play.quiet-en", "catalogue-play.quiet-de", "catalogue-play.quiet-fr", "catalogue-play.quiet-es",
+    "catalogue-listen.artist-en", "catalogue-listen.artist-nl", "catalogue-listen.artist-fr", "catalogue-listen.artist-es",
+    "catalogue-chain-speaker-en-offer", "catalogue-chain-speaker-en-accept",
+    "catalogue-chain-speaker-en-duplicate",
+    "catalogue-chain-album-en-offer", "catalogue-chain-album-en-accept", "catalogue-chain-album-en-duplicate",
+    "catalogue-chain-album-nl-offer", "catalogue-chain-album-nl-accept", "catalogue-chain-album-nl-duplicate",
+    "catalogue-chain-album-es-offer", "catalogue-chain-album-es-accept", "catalogue-chain-album-es-duplicate",
+)
 EDITABLE = {
     "custom_components/djconnect/playback_request.py": "PLAYBACK_TELLING_STYLE",
     "custom_components/djconnect/ask_dj/dialogue.py": "ARTIST_BRIEF_TELLING_STYLE",
@@ -60,6 +72,8 @@ def mode_policy(mode):
         return TARGET, 22, 600
     if mode == "target18_activity_v2":
         return TARGET18_ACTIVITY_V2, 62, 900
+    if mode == "target24_delivery_v3":
+        return TARGET24_DELIVERY_V3, 82, 900
     if mode == "full100":
         return (), 392, 1800
     raise ValueError("unknown_content_probe_mode")
@@ -210,7 +224,7 @@ class DiagnosticProgress:
             raise ValueError("selected_progress_mode_required")
         self.path, self.healthy = Path(path), True
         self.value = {
-            "schema_version": 1 if mode == "target6" else 2,
+            "schema_version": 1 if mode == "target6" else (3 if mode == "target24_delivery_v3" else 2),
             "scope": "TARGETED_DEVELOPMENT_NOT_FULL100",
             "manifest_sha256": MANIFEST,
             "content_digest": content_digest,
@@ -334,7 +348,7 @@ def _validate_progress(value, *, content_digest, mode):
         type(value) is not dict
         or set(value) != expected
         or type(value["schema_version"]) is not int
-        or value["schema_version"] != (1 if mode == "target6" else 2)
+        or value["schema_version"] != (1 if mode == "target6" else (3 if mode == "target24_delivery_v3" else 2))
         or (mode != "target6" and value.get("mode") != mode)
         or value["scope"] != "TARGETED_DEVELOPMENT_NOT_FULL100"
         or value["manifest_sha256"] != MANIFEST

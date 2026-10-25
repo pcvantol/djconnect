@@ -1,3 +1,5 @@
+> Current preparation25October: original full10040200070048 remains93PASS7FAIL,173attempted171completed2incomplete, not qualification. New single-draft playback instructions preserve original1..2decoder/hash review/20s23s fences. Closed target24_delivery_v3 includes all seven failures and complete chains; four duplicate cases,82attempts/900s maximum, schema3 and4x2 public inputs. Historical6/18 modes and consumed failures retain their own scope. Full100 requires the SAME new content’s original24PASS and independent editorial review. See [current source scope](HELP_SINGLE_DRAFT_DELIVERY_20261025.md). Cataloguefalse70, all24requests/ninegates and installed/provider/native gates remain. Historical body below is retained unchanged.
+
 > 25 October: the prospectively bounded French reflexive-performance homonym correction and exact original negative/positive witnesses are documented in `HELP_FRENCH_REFLEXIVE_PERFORMANCE_20261025.md`. Original4765 remainsFAIL12/6/46; automated quietFR PASS is not editorial quality. Catalogue70pending/installedunchanged; older evidence below retains its scope.
 
 # Core-owned playback roles, model-owned natural words

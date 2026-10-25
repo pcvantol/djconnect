@@ -74,6 +74,60 @@ class ContentProbeTests(unittest.TestCase):
         self.assertEqual(policy.mode_policy('full100'), ((), 392, 1800))
         self.assertEqual(len(policy.TARGET), 6)
 
+    def test_delivery24_covers_all_original_failures_and_preserves_full_chains(self):
+        from scripts.verification.askdj_example_catalogue_golden import cases, chain_cases
+        original = cases() + chain_cases()
+        selected, attempts, seconds = policy.mode_policy('target24_delivery_v3')
+        self.assertEqual((len(selected), attempts, seconds), (24, 82, 900))
+        self.assertEqual(tuple(c['id'] for c in original if c['id'] in selected), selected)
+        failures = {'catalogue-play.artist-fr', 'catalogue-play.cooking-de',
+                    'catalogue-play.quiet-en', 'catalogue-play.quiet-de',
+                    'catalogue-listen.artist-en', 'catalogue-listen.artist-es',
+                    'catalogue-chain-album-en-accept'}
+        self.assertTrue(failures.issubset(selected))
+        self.assertTrue(set(policy.TARGET18_ACTIVITY_V2).issubset(selected))
+        duplicates = [c for c in original if c['id'] in selected and c.get('operation') == 'duplicate']
+        self.assertEqual(len(duplicates), 4)
+        self.assertEqual(attempts, 4 * (24 - len(duplicates)) + 2)
+        for case in original:
+            if case['id'] in selected and case.get('chain'):
+                self.assertTrue({c['id'] for c in original if c.get('chain') == case['chain']}.issubset(selected))
+
+    def test_delivery24_progress_cannot_relabel_old_modes_or_exceed_budget(self):
+        with tempfile.TemporaryDirectory() as directory:
+            progress = policy.DiagnosticProgress(Path(directory) / 'delivery24.json',
+                content_digest='e' * 64, mode='target24_delivery_v3')
+            self.assertEqual(progress.value['schema_version'], 3)
+            for i in range(82):
+                progress.before_model(policy.TARGET24_DELIVERY_V3[0])
+                saved = json.loads(progress.path.read_text())
+                self.assertEqual(saved['sdk_attempts_reserved'], i + 1)
+                self.assertEqual(saved['sdk_completed_responses'], i)
+                progress.completed_response()
+            for case in policy.TARGET24_DELIVERY_V3:
+                progress.completed_case(case, passed=True)
+            progress.terminal('COMPLETE_NOT_QUALIFIED')
+            good = deepcopy(progress.value)
+            self.assertTrue(policy.validate_progress(good, content_digest='e' * 64,
+                mode='target24_delivery_v3'))
+            for mode in ('target6', 'target18_activity_v2', 'full100'):
+                self.assertFalse(policy.validate_progress(good, content_digest='e' * 64, mode=mode))
+            for field, wrong in [('schema_version', 2), ('schema_version', True),
+                                 ('mode', 'target18_activity_v2'), ('sdk_attempts_reserved', 83),
+                                 ('selected_case_ids', list(policy.TARGET18_ACTIVITY_V2)),
+                                 ('completed_cases', list(policy.TARGET24_DELIVERY_V3[:-1])),
+                                 ('qualification', 'QUALIFIED')]:
+                self.assertFalse(policy.validate_progress({**good, field: wrong},
+                    content_digest='e' * 64, mode='target24_delivery_v3'))
+        with tempfile.TemporaryDirectory() as directory:
+            progress = policy.DiagnosticProgress(Path(directory) / 'budget.json',
+                content_digest='e' * 64, mode='target24_delivery_v3')
+            for _ in range(82):
+                progress.before_model(policy.TARGET24_DELIVERY_V3[0])
+            with self.assertRaises(RuntimeError):
+                progress.before_model(policy.TARGET24_DELIVERY_V3[0])
+            self.assertFalse(progress.healthy)
+
     def test_activity18_progress_is_explicit_separate_and_reserves_before_io(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'activity18.json'

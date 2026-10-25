@@ -78,7 +78,7 @@ class HelpNarrationRemediationTests(unittest.TestCase):
             self.assertFalse(assessed(json.dumps(review)), failed)
         self.assertTrue(assessed(json.dumps(dict(supported=True, language_ok=True, style_ok=True))))
 
-    def test_playback_alternatives_preserve_request_provenance_and_one_receipt(self):
+    def test_single_playback_draft_preserves_request_provenance_and_one_receipt(self):
         from custom_components.djconnect.playback_request import PlaybackAcceptance, PlaybackRequestBrief
         for locale in ('en', 'nl', 'de', 'fr', 'es'):
             for kind, request in (('playlist', 'music for cooking'),
@@ -96,7 +96,8 @@ class HelpNarrationRemediationTests(unittest.TestCase):
                         self.assertIn('resolved for the listener', text)
                         self.assertIn('does not prove', text)
                         self.assertNotIn('The listener selected this music', text)
-                    self.assertIn('two distinct complete replies', prompt)
+                    self.assertIn('exactly ONE complete reply', prompt)
+                    self.assertNotIn('two distinct complete replies', prompt)
                     self.assertIn('one already accepted playback request', prompt)
                     data = json.loads(prompt.split('\nData:\n', 1)[1])
                     self.assertEqual(data['playback_state'], state)
