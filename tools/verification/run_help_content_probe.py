@@ -377,7 +377,7 @@ def finish(controller, root, directory, work, coordinate, pin, key, code, absent
     try:
         progress = safe.report_safe(safe.read_work_file(work / progress_name, maximum=16384), key)
         if selected:
-            okay = validate_progress(progress, content_digest=pin["content_digest"])
+            okay = validate_progress(progress, content_digest=pin["content_digest"], mode=coordinate["mode"])
         else:
             from scripts.verification.catalogue_progress import (
                 validate_progress as validate_full_progress,
@@ -411,8 +411,8 @@ def finish(controller, root, directory, work, coordinate, pin, key, code, absent
         safe.write_bytes(directory / "catalogue-golden.json", raw)
         unchanged = safe.product_hashes(root) == pin["product_hashes"]
         if selected:
-            valid = progress is not None and validate_selected_report(report, progress, pin=pin)
-            inputs = selected_inputs_complete(report)
+            valid = progress is not None and validate_selected_report(report, progress, pin=pin, mode=coordinate["mode"])
+            inputs = selected_inputs_complete(report, mode=coordinate["mode"])
         else:
             from scripts.verification.artist_public_input_receipts import (
                 artist_public_inputs_complete,

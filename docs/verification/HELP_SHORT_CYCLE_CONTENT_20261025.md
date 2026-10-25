@@ -1,3 +1,9 @@
+## Current structural increment
+
+[Brief activity v2](HELP_BRIEF_ACTIVITY_V2_20261025.md) defines the new closed18
+first gate for this source. Old six-case evidence below retains its own scope.
+Catalogue publication, real-model acceptance and installation remain pending.
+
 # Short-cycle Help content qualification — 25 October 2026
 
 The original manual40170118656 finished100cases:96PASS/4FAIL,174reserved and
