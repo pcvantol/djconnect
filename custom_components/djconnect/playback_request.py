@@ -10,7 +10,7 @@ POST_DISPATCH_NARRATION_SECONDS = 20
 
 # Development may vary this telling advice only; wire, truth and receipt rules
 # below remain fixed and independently assessed.
-PLAYBACK_TELLING_STYLE = "Speak directly to one listener in a present first-person host voice. Connect the named music to handing it over for listening in one short, plain, idiomatic sentence. Let Persona and Mood shape that sentence, without an appended adjective, stock slogan, elaborate metaphor or compulsory shared moment. Write two distinct complete alternatives. Keep every actual required reference in both alternatives. Put ordinary sentence punctuation followed by one space immediately before the final status slot so the Core status sentence cannot join the previous word. Do not invent a role, ownership, sonic claim or reason the selection fits."
+PLAYBACK_TELLING_STYLE = 'Copy the illustrated gaps list as a fixed-length vector: keep EXACTLY its number of strings in EACH draft. Element i is only the words BEFORE core_slot_order[i]. Do not append a string after status. The last string must contain all closing quotes and sentence punctuation followed by one space BEFORE status. Never split closing punctuation into another element. Never write the media-kind noun, title, artist or album as literal words: Core inserts them, so repeating a kind creates duplicate words. Supply only natural articles, prepositions and handover words around those roles. Write two distinct complete personal first-person DJ handovers, in the requested language, Persona and Mood. Be plain and idiomatic. No ownership, invented suitability, sonic facts, memories or next-track promises. Finish every list with the status-preceding string, not an empty extra string.'
 
 
 @dataclass(frozen=True)

@@ -5,7 +5,7 @@
   "source_pins": {
     "custom_components/djconnect/__init__.py": "b4733d5bb6319a51eff2ba65c82c4c2d19cd10b2024d42e4cedcd0d3e94c765c",
     "custom_components/djconnect/api_handlers.py": "f3727a48e2051add6558fd40e513ba5ba99dfc7eeaf3c48fe3d02d909176011a",
-    "custom_components/djconnect/ask_dj/dialogue.py": "3a89e8d7800f5a3742de167105b64fb17ec2df925889373762bbe86200b1aba6",
+    "custom_components/djconnect/ask_dj/dialogue.py": "20faa0e96722bceba15544e22a13110d32e451cc6dd52600edd0001480ac4ad8",
     "custom_components/djconnect/ask_dj_history.py": "d421ab2d17f85746671a0e242e63a4d429c021b6346be05f11bd551c60c6a325",
     "custom_components/djconnect/capability_contract.py": "92f78ca22d1a0e2a09ba3d9f589a2544ad7814fc99258a53b7fcca8990c7062c",
     "custom_components/djconnect/dj_response.py": "464ccc3aea7c812bd389daf8b3682305cc0e7bbe5b65c47e5546ceec74859776",
@@ -23,7 +23,7 @@
   },
   "harness": "scripts/verification/verify_archive_deletion_http.py",
   "harness_sha256": "5d36f90bac1d6412a29aeea055d57053cddba991ba39e58b3753092ff99b75f7",
-  "actual_ha_receipt_sha256": "9f4d70d19d59a9483a46e183716160de3aa2906d2ec4ebee102498f5a8c2ad0c",
+  "actual_ha_receipt_sha256": "1ff6ed190a858311a604ce44bb4d4f782fe5b3a5e6c229e65a2a2493cfcb7f9a",
   "requests_observed": 37,
   "cases": [
     "actual_paired_foreign_target_hidden",
@@ -40,9 +40,9 @@
   },
   "examples": {
     "single_request": {
-      "session_id": "session-5136db9c27934789ab214a8ed8ec986d",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:0e03b3d398ae29e81022d04313e1cefc66f75568fbe7def0fe0992a7523a6e19",
-      "operation_id": "01a17309-ecc9-7000-8000-000000000001",
+      "session_id": "session-c0f645d3e63f485daddf7af265fb3369",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:06136b9a170d62d5e2bca99ea5b373f75f39b10430399fe59c52a925f8d1fe9f",
+      "operation_id": "01a17331-1eed-7000-8000-000000000001",
       "confirmed": true,
       "history_contract_version": 2
     },
@@ -53,96 +53,96 @@
     "single_status_query": {
       "contract_version": "1",
       "operation": "single",
-      "operation_id": "01a17309-ecc9-7000-8000-000000000001",
-      "session_id": "session-5136db9c27934789ab214a8ed8ec986d",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:0e03b3d398ae29e81022d04313e1cefc66f75568fbe7def0fe0992a7523a6e19"
+      "operation_id": "01a17331-1eed-7000-8000-000000000001",
+      "session_id": "session-c0f645d3e63f485daddf7af265fb3369",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:06136b9a170d62d5e2bca99ea5b373f75f39b10430399fe59c52a925f8d1fe9f"
     },
     "single_pending_status": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "operation_id": "01a17309-ecc9-7000-8000-000000000001",
+      "operation_id": "01a17331-1eed-7000-8000-000000000001",
       "operation": "single",
-      "request_digest": "e7f824df045f9e145a5cab2278eb7b46892ed2098819fe198b475d77703c4a7f",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:0e03b3d398ae29e81022d04313e1cefc66f75568fbe7def0fe0992a7523a6e19",
-      "session_id": "session-5136db9c27934789ab214a8ed8ec986d",
+      "request_digest": "b715a0718de6248ec4eab04a8da678869f72e168f2c62981a80aac0b24c5ba3b",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:06136b9a170d62d5e2bca99ea5b373f75f39b10430399fe59c52a925f8d1fe9f",
+      "session_id": "session-c0f645d3e63f485daddf7af265fb3369",
       "state": "pending",
       "definitive": false
     },
     "single_response": {
       "success": true,
       "schema_version": 1,
-      "operation_id": "01a17309-ecc9-7000-8000-000000000001",
+      "operation_id": "01a17331-1eed-7000-8000-000000000001",
       "owner_profile_id": "profile-a",
       "deleted": true,
-      "deleted_session_id": "session-5136db9c27934789ab214a8ed8ec986d"
+      "deleted_session_id": "session-c0f645d3e63f485daddf7af265fb3369"
     },
     "single_completed_status": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "operation_id": "01a17309-ecc9-7000-8000-000000000001",
+      "operation_id": "01a17331-1eed-7000-8000-000000000001",
       "operation": "single",
-      "request_digest": "e7f824df045f9e145a5cab2278eb7b46892ed2098819fe198b475d77703c4a7f",
-      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:0e03b3d398ae29e81022d04313e1cefc66f75568fbe7def0fe0992a7523a6e19",
-      "session_id": "session-5136db9c27934789ab214a8ed8ec986d",
+      "request_digest": "b715a0718de6248ec4eab04a8da678869f72e168f2c62981a80aac0b24c5ba3b",
+      "expected_revision": "3:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:06136b9a170d62d5e2bca99ea5b373f75f39b10430399fe59c52a925f8d1fe9f",
+      "session_id": "session-c0f645d3e63f485daddf7af265fb3369",
       "state": "completed",
       "definitive": true,
       "receipt": {
         "success": true,
         "schema_version": 1,
-        "operation_id": "01a17309-ecc9-7000-8000-000000000001",
+        "operation_id": "01a17331-1eed-7000-8000-000000000001",
         "owner_profile_id": "profile-a",
         "deleted": true,
-        "deleted_session_id": "session-5136db9c27934789ab214a8ed8ec986d"
+        "deleted_session_id": "session-c0f645d3e63f485daddf7af265fb3369"
       }
     },
     "snapshot_response": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "snapshot_id": "WMiuCLJnmANv1OK00K2oGE_k7rlRP0aP2BYCsCo0q-o",
+      "snapshot_id": "eJnf2y_C2--JDu0dWSjSbLwoJUYroMRfCQY6NIyz5ZY",
       "target_count": 3,
-      "created_at": "2026-10-25T12:29:54.000286+00:00",
-      "expires_at": "2026-10-25T12:34:54.000286+00:00"
+      "created_at": "2026-10-25T13:12:42.822802+00:00",
+      "expires_at": "2026-10-25T13:17:42.822802+00:00"
     },
     "bulk_request": {
-      "snapshot_id": "WMiuCLJnmANv1OK00K2oGE_k7rlRP0aP2BYCsCo0q-o",
-      "operation_id": "01a17309-f1f2-7000-8000-000000000002",
+      "snapshot_id": "eJnf2y_C2--JDu0dWSjSbLwoJUYroMRfCQY6NIyz5ZY",
+      "operation_id": "01a17331-2466-7000-8000-000000000002",
       "confirmed": true
     },
     "bulk_response": {
       "success": true,
       "schema_version": 1,
-      "operation_id": "01a17309-f1f2-7000-8000-000000000002",
+      "operation_id": "01a17331-2466-7000-8000-000000000002",
       "owner_profile_id": "profile-a",
       "deleted": true,
-      "snapshot_id": "WMiuCLJnmANv1OK00K2oGE_k7rlRP0aP2BYCsCo0q-o",
+      "snapshot_id": "eJnf2y_C2--JDu0dWSjSbLwoJUYroMRfCQY6NIyz5ZY",
       "deleted_session_count": 3
     },
     "bulk_status_query": {
       "contract_version": "1",
       "operation": "all",
-      "operation_id": "01a17309-f1f2-7000-8000-000000000002",
-      "snapshot_id": "WMiuCLJnmANv1OK00K2oGE_k7rlRP0aP2BYCsCo0q-o"
+      "operation_id": "01a17331-2466-7000-8000-000000000002",
+      "snapshot_id": "eJnf2y_C2--JDu0dWSjSbLwoJUYroMRfCQY6NIyz5ZY"
     },
     "bulk_completed_status": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "operation_id": "01a17309-f1f2-7000-8000-000000000002",
+      "operation_id": "01a17331-2466-7000-8000-000000000002",
       "operation": "all",
-      "request_digest": "d1882fdd72dda3b8720f245847d0648c8e8899618217dee6ab898505a31e2e71",
-      "snapshot_id": "WMiuCLJnmANv1OK00K2oGE_k7rlRP0aP2BYCsCo0q-o",
+      "request_digest": "cf761e73039e70ce079e919b7b8085d941dfe58bd11a0500ab7081f35407499c",
+      "snapshot_id": "eJnf2y_C2--JDu0dWSjSbLwoJUYroMRfCQY6NIyz5ZY",
       "state": "completed",
       "definitive": true,
       "receipt": {
         "success": true,
         "schema_version": 1,
-        "operation_id": "01a17309-f1f2-7000-8000-000000000002",
+        "operation_id": "01a17331-2466-7000-8000-000000000002",
         "owner_profile_id": "profile-a",
         "deleted": true,
-        "snapshot_id": "WMiuCLJnmANv1OK00K2oGE_k7rlRP0aP2BYCsCo0q-o",
+        "snapshot_id": "eJnf2y_C2--JDu0dWSjSbLwoJUYroMRfCQY6NIyz5ZY",
         "deleted_session_count": 3
       }
     }
