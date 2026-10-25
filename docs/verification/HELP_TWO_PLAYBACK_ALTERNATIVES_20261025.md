@@ -1,3 +1,10 @@
+## Current typed playback boundary V2 — 25 October 2026
+
+Original trial40227839784 returned20PASS/4FAIL; its failure and consumed claim remain.
+Public schema boundary rules plus unchanged-return validation are source work,
+not content qualification. Help stays draft/70pending; no installed claim.
+[Exact behavior and remaining gates](HELP_PUBLIC_PLAYBACK_BOUNDARY_V2_20261025.md).
+
 # Verified playback alternatives
 
 The latest original short trials completed all24 cases but failed content

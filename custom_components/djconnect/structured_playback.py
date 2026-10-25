@@ -18,6 +18,12 @@ import sys
 SUPPORTED_HA_VERSION = "2026.10.0"
 TASK_CONFIG = "assist_structured_task_id"
 
+# Trusted, bounded structural rules, not a grammar or prose generator. The
+# original compiler still rejects controls/braces and enforces whole-text bounds.
+FIRST_GAP_PATTERN = r"^[^{}\r\n]*[ '’]$"
+BETWEEN_GAP_PATTERN = r"^(?: |[ .!?;,:()—–-][^{}\r\n]*[ '’])$"
+STATUS_GAP_PATTERN = r"^(?:[.!?] |[ .!?;,:()—–-][^{}\r\n]*[.!?] )$"
+
 
 @dataclass(frozen=True)
 class GenerationWitness:
@@ -67,13 +73,52 @@ def role_schema(brief):
     """The exported AI Task API accepts this exact public probatio schema."""
     import probatio
     fields = role_structure(brief)["drafts"]["selector"]["object"]["fields"]
-    roles = fields["gaps"]["selector"]["object"]["fields"]
+    roles = tuple(fields["gaps"]["selector"]["object"]["fields"])
+    rules = {}
+    for index, role in enumerate(roles):
+        if role == "title" and index > 0 and roles[index - 1] == "media_kind":
+            rule = probatio.All(str, probatio.In([" "]))
+        else:
+            pattern = (STATUS_GAP_PATTERN if role == "status" else
+                       FIRST_GAP_PATTERN if index == 0 else BETWEEN_GAP_PATTERN)
+            rule = probatio.All(str, probatio.Length(max=700), probatio.Match(pattern))
+        rules[probatio.Required(role)] = rule
     return probatio.Schema({
-        probatio.Required("schema"): probatio.In(["playback_role_gaps_v3"]),
+        probatio.Required("schema"): probatio.All(str, probatio.In(["playback_role_gaps_v3"])),
         probatio.Required("drafts"): probatio.All([
-            {probatio.Required("gaps"): {probatio.Required(role): str for role in roles}}
+            {probatio.Required("gaps"): rules}
         ], probatio.Length(min=1, max=2)),
     })
+
+
+def _same_typed_value(original, validated):
+    if type(original) is not type(validated):
+        return False
+    if type(original) is dict:
+        return (original.keys() == validated.keys()
+                and all(_same_typed_value(value, validated[key])
+                        for key, value in original.items()))
+    if type(original) is list:
+        return (len(original) == len(validated)
+                and all(_same_typed_value(left, right)
+                        for left, right in zip(original, validated, strict=True)))
+    return original == validated
+
+
+def validate_typed_reply(value, structure):
+    """Validate a bounded copy; return only the unchanged pre-validation wire."""
+    wire = freeze_typed_reply(value)
+    # Never compare against an aliased validator input: even an in-place
+    # mutation must differ from this private, pre-validation snapshot.
+    snapshot = json.loads(wire)
+    try:
+        validated = structure(json.loads(wire))
+        if not _same_typed_value(snapshot, validated):
+            raise ValueError("structured_playback_result")
+    except Exception:
+        # No provider body, role values or library error details are logged.
+        raise ValueError("structured_playback_result") from None
+    return wire
 
 
 @dataclass(frozen=True)
@@ -157,8 +202,9 @@ async def generate(hass, *, agent_id, task_id, prompt, brief, admission):
     # method, private provider client or preferred-entity lookup.
     if not hass.services.has_service("ai_task", "generate_data"):
         raise DialogueError("structured_playback_task_unqualified", 503)
+    structure = role_schema(brief)
     args = {"task_name": "DJConnect playback handover", "entity_id": task_id,
-            "instructions": prompt, "structure": role_schema(brief)}
+            "instructions": prompt, "structure": structure}
     session_var = getattr(chat_session, "current_session", None)
     if session_var is None:
         raise DialogueError("structured_playback_task_unqualified", 503)
@@ -169,12 +215,21 @@ async def generate(hass, *, agent_id, task_id, prompt, brief, admission):
     token = session_var.set(prior)
     generation_token = current_generation.set(generation)
     result = None
+    wire = None
     owned_session = None
     try:
         # Do not use wait_for/create_task: their separate ContextVar context
         # would hide the public task's session when its await is cancelled.
         async with asyncio.timeout(30):
             result = await ai_task.async_generate_data(hass, **args, llm_api=None, attachments=None)
+            if (task := asyncio.current_task()) is not None and task.cancelling():
+                raise asyncio.CancelledError
+            if type(result) is not ai_task.GenDataTaskResult:
+                raise DialogueError("structured_playback_result_invalid", 502)
+            try:
+                wire = validate_typed_reply(result.data, structure)
+            except ValueError:
+                raise DialogueError("structured_playback_result_invalid", 502) from None
     finally:
         primary = sys.exception()
         try:
@@ -221,4 +276,4 @@ async def generate(hass, *, agent_id, task_id, prompt, brief, admission):
             or owned_session is None or owned_session.conversation_id != result.conversation_id
             or hass.data.get(chat_session.DATA_CHAT_SESSION, {}).get(result.conversation_id) is not owned_session):
         raise DialogueError("structured_playback_result_invalid", 502)
-    return freeze_typed_reply(result.data)
+    return wire

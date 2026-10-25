@@ -46,7 +46,7 @@ logging.basicConfig(level=logging.CRITICAL)
 
 
 async def main():
-    h = HomeAssistant("/lab")
+    h = HomeAssistant(os.environ.get("DJC_LAB_ROOT", "/lab"))
     h.state = CoreState.running
     h.config.language = "en"
     device_registry.async_setup(h)
@@ -163,6 +163,11 @@ async def main():
         "invalid_result_integer",
         "invalid_result_empty",
         "invalid_result_foreign",
+        "boundary_missing_space",
+        "boundary_wrong_title",
+        "boundary_status_leading",
+        "boundary_bad_second",
+        "boundary_validation_cleanup_error",
     }
     from tools.verification.run_catalogue_exact100_20261023 import product_hashes
 
@@ -175,6 +180,20 @@ async def main():
             ],
         }
     )
+    if scenario.startswith("boundary_"):
+        data = json.loads(text)
+        gaps = data["drafts"][0]["gaps"]
+        if scenario in {"boundary_missing_space", "boundary_validation_cleanup_error"}:
+            gaps["media_kind"] = gaps["media_kind"].rstrip()
+        elif scenario == "boundary_wrong_title":
+            gaps["title"] = " for you now "
+        elif scenario == "boundary_status_leading":
+            gaps["status"] = "und weiter. "
+        else:
+            second = json.loads(text)["drafts"][0]
+            second["gaps"]["status"] = "und weiter. "
+            data["drafts"].append(second)
+        text = json.dumps(data)
 
     async def intercepted(**kwargs):
         nonlocal attempts
@@ -192,7 +211,8 @@ async def main():
         active = chat_session.current_session.get()
         assert active is not None
         active.async_on_cleanup(lambda: cleanup.append("own_cleaned"))
-        if scenario in {"provider_error_cleanup_error", "cancel_cleanup_error"}:
+        if scenario in {"provider_error_cleanup_error", "cancel_cleanup_error",
+                        "boundary_validation_cleanup_error"}:
 
             def cleanup_error():
                 raise RuntimeError("synthetic_cleanup_failure")
@@ -555,6 +575,12 @@ async def main():
             assert (
                 failure["type"] == "TimeoutError" and cleanup == ["own_cleaned"] and attempts == 1
             )
+        elif scenario.startswith("boundary_"):
+            assert (failure["code"] == "structured_playback_result_invalid"
+                    and attempts == 1 and len(receipts) == 1
+                    and cleanup == ["own_cleaned"])
+            if scenario == "boundary_validation_cleanup_error":
+                assert "structured_playback_cleanup_failed" in failure["notes"]
         elif scenario == "unexpected_tool":
             assert (
                 failure["type"] == "HomeAssistantError"

@@ -1,3 +1,10 @@
+## Current typed playback boundary V2 — 25 October 2026
+
+Original trial40227839784 returned20PASS/4FAIL; its failure and consumed claim remain.
+Public schema boundary rules plus unchanged-return validation are source work,
+not content qualification. Help stays draft/70pending; no installed claim.
+[Exact behavior and remaining gates](HELP_PUBLIC_PLAYBACK_BOUNDARY_V2_20261025.md).
+
 # 2026-10-25 verified playback alternatives — source scope
 
 The verified playback prompt now asks for two grammatically distinct complete handovers using the existing closed 1..2-draft ABI and whole-batch compiler. Both describe the same already accepted selection/state; the existing independent full-text reviews select only a whole draft with all support/language/style checks true. No extra generation/review, playback effect, prose repair, missing-key default, deadline extension or guard relaxation. Legacy single replies and artist research remain unchanged.

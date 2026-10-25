@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class StructuredTransportWitnessTests(unittest.TestCase):
     def setUp(self):
-        fixture = json.loads((ROOT / 'tests/fixtures/help_public_task/selected24-actual-sdk-transport.json').read_text())
+        fixture = json.loads((ROOT / 'tests/fixtures/help_public_task/selected24-actual-sdk-boundary-v2.json').read_text())
         self.assertEqual(fixture['scope'], 'EXTRACTED_COSTFREE_ACTUAL_SDK_TRANSPORT_ONLY_NOT_MODEL_QUALITY')
         self.report = fixture['report']
         self.original = cases() + chain_cases()
@@ -90,6 +90,36 @@ class StructuredTransportWitnessTests(unittest.TestCase):
             changed = deepcopy(self.report)
             self.typed(changed)[0][marker]['role_order'].append('unowned_role')
             mutations.append(changed)
+        for changed in mutations:
+            self.assertFalse(self.good(changed))
+
+    def test_old_v1_and_weakened_boundary_rules_cannot_inherit_v2(self):
+        old = json.loads((ROOT / 'tests/fixtures/help_public_task/selected24-actual-sdk-transport.json').read_text())
+        self.assertFalse(self.good(old['report']))
+
+        def kind_row(report):
+            return next(row for row in self.typed(report)
+                        if row['structured_playback_input']['role_order'][:2]
+                        == ['media_kind', 'title'])
+
+        def gap_fields(report):
+            return kind_row(report)['structured_output_format']['schema']['properties']['drafts']['items']['properties']['gaps']['properties']
+
+        # Pick an actual kind/title case, not the first generation (artist).
+        original_fields = gap_fields(self.report)
+        self.assertEqual(original_fields['title'], {'type': 'string', 'enum': [' ']})
+        mutations = []
+        for role, key in (('media_kind', 'pattern'), ('media_kind', 'maxLength'),
+                          ('title', 'enum'), ('status', 'pattern')):
+            changed = deepcopy(self.report)
+            gap_fields(changed)[role].pop(key)
+            mutations.append(changed)
+        changed = deepcopy(self.report)
+        gap_fields(changed)['title']['enum'] = [' ', ' for you now ']
+        mutations.append(changed)
+        changed = deepcopy(self.report)
+        kind_row(changed)['structured_playback_generation']['schema_version'] = True
+        mutations.append(changed)
         for changed in mutations:
             self.assertFalse(self.good(changed))
 
