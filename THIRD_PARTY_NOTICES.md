@@ -1,3 +1,7 @@
+## Home Assistant public AI Task schema type (25 October 2026)
+
+The optional structured playback path uses [Probatio](https://github.com/frenck/probatio), supplied by the qualified Home Assistant2026.10.0 image as0.13.0, under the [MIT license](https://probatio.frenck.dev/project/license/). It is the public schema type accepted by HA’s AI Task API. No Probatio source is vendored or modified, and no additional package is installed by this feature. Home Assistant retains ownership of this framework dependency; other HA versions fail closed for the optional path until qualified. Previous notices remain below unchanged.
+
 ## Developer decoder compatibility qualification (24 October 2026)
 
 The developer test environment pins [Pillow13.0.0](https://pypi.org/project/pillow/13.0.0/) under its existing MIT-CMU/HPND license. Pillow requires Python3.11 or newer, including the existing3.11 and3.14 checks. No upstream Pillow source is vendored or modified. A separate exact12.3.0 CI environment and the actual Home Assistant2026.10.0 image preserve the existing HA decoder baseline. The offline brand generator retains its separate13.0.0 pin. New fixtures contain only generated synthetic images and no owner media. This current developer scope supersedes the prior developer12.3 deferral; the historical notices below retain their runtime and delivery scope.

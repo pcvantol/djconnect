@@ -195,14 +195,16 @@
           "local_url": "Adresse du client",
           "firmware_channel": "Canal du firmware",
           "dj_announcement_speaker_entity_id": "Enceinte Home Assistant pour les annonces DJ",
-          "options_action": "Action"
+          "options_action": "Action",
+          "assist_structured_task_id": "Tâche IA pour les réponses de lecture (facultatif)"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist utilisé par les appareils DJConnect pour la reconnaissance vocale et l’audio des annonces DJ.",
           "client_type": "Type de client DJConnect : app, appareil local ou agent Assist.",
           "dj_announcement_speaker_entity_id": "Entité media_player optionnelle pour les annonces DJ parlées. Spotify Direct continue la lecture ; DJConnect lit la voix séparément via cette enceinte.",
           "firmware_channel": "Choisis stable pour les mises à jour OTA normales ou beta pour tester un firmware de préversion.",
-          "options_action": "Choisis l’action à exécuter."
+          "options_action": "Choisis l’action à exécuter.",
+          "assist_structured_task_id": "Choisissez une tâche IA existante avec le même fournisseur et le même modèle qu’Assist. Laissez vide pour continuer à utiliser Assist."
         }
       },
       "spotify_reauth": {
@@ -347,7 +349,8 @@
           "options_action": "Action",
           "music_backend": "Backend musical",
           "music_assistant_player": "Lecteur Music Assistant",
-          "dj_announcement_speaker_entity_id": "Enceinte Home Assistant pour les annonces DJ"
+          "dj_announcement_speaker_entity_id": "Enceinte Home Assistant pour les annonces DJ",
+          "assist_structured_task_id": "Tâche IA pour les réponses de lecture (facultatif)"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist utilisé par les appareils DJConnect pour la reconnaissance vocale et l’audio des annonces DJ.",
@@ -357,7 +360,8 @@
           "firmware_channel": "Choisis stable pour les mises à jour OTA normales ou beta pour tester un firmware de préversion.",
           "options_action": "Choisis l’action à exécuter.",
           "music_backend": "Backend de lecture sélectionné.",
-          "music_assistant_player": "Lecteur cible Music Assistant configuré."
+          "music_assistant_player": "Lecteur cible Music Assistant configuré.",
+          "assist_structured_task_id": "Choisissez une tâche IA existante avec le même fournisseur et le même modèle qu’Assist. Laissez vide pour continuer à utiliser Assist."
         }
       },
       "conversation_agent_init": {
@@ -366,12 +370,14 @@
         "data": {
           "assist_pipeline_id": "Pipeline Assist",
           "options_action": "Action",
-          "music_backend": "Backend musical"
+          "music_backend": "Backend musical",
+          "assist_structured_task_id": "Tâche IA pour les réponses de lecture (facultatif)"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist utilisée par DJConnect pour la reconnaissance vocale et les annonces DJ.",
           "options_action": "Choisis l’action à exécuter.",
-          "music_backend": "Backend de lecture sélectionné."
+          "music_backend": "Backend de lecture sélectionné.",
+          "assist_structured_task_id": "Choisissez une tâche IA existante avec le même fournisseur et le même modèle qu’Assist. Laissez vide pour continuer à utiliser Assist."
         }
       },
       "music_backend": {

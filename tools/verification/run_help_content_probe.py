@@ -25,6 +25,7 @@ from tools.verification.help_content_probe import (
     validate_progress,
     selected_inputs_complete,
     generation_wire_complete,
+    structured_playback_inputs_complete,
 )
 
 IMAGE = "ghcr.io/home-assistant/home-assistant@sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4"
@@ -421,9 +422,10 @@ def finish(controller, root, directory, work, coordinate, pin, key, code, absent
             profile = safe.load_profile(controller)
             valid = profile.validate_report(report, source_hashes=pin["profile_hashes"])
             inputs = artist_public_inputs_complete(report)
-            from scripts.verification.askdj_example_catalogue_golden import cases
+            from scripts.verification.askdj_example_catalogue_golden import cases, chain_cases
 
             inputs = inputs and generation_wire_complete(report, cases=cases())
+            inputs = inputs and structured_playback_inputs_complete(report, cases=cases() + chain_cases())
             valid = (
                 valid
                 and inputs

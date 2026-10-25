@@ -234,7 +234,7 @@ class OriginalClockActualHAProofTests(unittest.TestCase):
         proof = json.loads((root / 'examples/client_contracts/surface_push_v3/actual-ha-original-clock-context.json').read_text())
         self.assertEqual(proof['contract_version'], 3)
         self.assertEqual(proof['ha_sdk_version'], '2026.10.0')
-        self.assertEqual(len(proof['source_pins']), 264)
+        self.assertEqual(len(proof['source_pins']), 265)
         for relative, digest in proof['source_pins'].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), digest, relative)
         self.assertEqual(hashlib.sha256((root / proof['harness']).read_bytes()).hexdigest(), proof['harness_sha256'])

@@ -33,6 +33,7 @@ from homeassistant.config_entries import (
     ConfigEntries,
     ConfigEntryStore,
     ConfigEntryState,
+    ConfigSubentry,
 )
 from homeassistant.core import HomeAssistant, CoreState
 from homeassistant.components import conversation
@@ -367,6 +368,30 @@ async def main():
         receipt = {"input_bytes": len(inputs.encode()), "model": model, "streaming": True,
                    "maximum_output_tokens":kwargs.get("max_output_tokens"),
                    "reasoning_effort":(kwargs.get('reasoning') or {}).get('effort')}
+        from custom_components.djconnect.structured_playback import current_generation
+        generation = current_generation.get()
+        structured = (kwargs.get('text') or {}).get('format')
+        if structured or generation is not None:
+            # Public AI Task generation has a distinct typed result ABI. Keep
+            # the actual provider schema witness; never infer it from a prompt.
+            assert generation is not None and isinstance(structured, dict)
+            assert structured.get('type') == 'json_schema' and structured.get('strict') is True
+            assert not kwargs.get('tools') and kwargs.get('store') is False
+            users = [row.get('content') for row in kwargs.get('input', [])
+                     if isinstance(row, dict) and row.get('role') == 'user']
+            assert len(users) == 1 and isinstance(users[0], str)
+            input_sha = hashlib.sha256(users[0].encode()).hexdigest()
+            input_data = json.loads(users[0].split('\nData:\n', 1)[1])
+            assert input_sha == generation.prompt_sha256
+            assert input_data['core_slot_order'] == list(generation.role_order)
+            receipt['structured_output_format'] = json.loads(json.dumps(structured))
+            receipt['structured_playback_generation'] = {
+                'schema_version': 1, 'prompt_sha256': generation.prompt_sha256,
+                'role_order': list(generation.role_order)}
+            receipt['structured_playback_input'] = {
+                'prompt_sha256': input_sha, 'role_order': input_data['core_slot_order']}
+            receipt['provider_tools_absent'] = not kwargs.get('tools')
+            receipt['provider_store_false'] = kwargs.get('store') is False
         if golden:
             from scripts.verification.askdj_contextual_golden import ACTIVE_CASE, MAX_MODEL_CALLS
             from custom_components.djconnect.ask_dj.dialogue import current_turn
@@ -598,6 +623,30 @@ async def main():
             STORAGE_VERSION,
             STORAGE_VERSION_MINOR,
         )
+
+        if os.environ.get("DJC_SAFETY_PROBE") == "catalogue_golden":
+            from homeassistant.components import ai_task
+            assert await ai_task.async_setup(h, {})
+            h.config.components.add("ai_task")
+            # Explicitly create the real official task in this disposable lab.
+            # No preferred task, key lookup or installed HA config is used.
+            original_options = dict(selected_agent.subentry.data)
+            task_options = {key: original_options[key] for key in (
+                "chat_model", "max_tokens", "reasoning_effort", "store_responses",
+                "web_search", "code_interpreter")}
+            task_options['service_tier'] = 'auto'
+            task_subentry = ConfigSubentry(
+                subentry_id="own-structured-playback-task", subentry_type="ai_task_data",
+                title="Owned structured playback task", data=MappingProxyType(task_options),
+                unique_id=None)
+            h.config_entries.async_add_subentry(agent_entry, task_subentry)
+            assert await ai_task.async_setup_entry(h, agent_entry)
+            task_entity_id = next(e.entity_id for e in registry.entities.values()
+                if e.config_entry_id == agent_entry.entry_id
+                and e.config_subentry_id == task_subentry.subentry_id and e.domain == 'ai_task')
+            from custom_components.djconnect.structured_playback import TASK_CONFIG, capture_task
+            assert capture_task(h, model_entity_id, task_entity_id).entry is agent_entry
+            h.config_entries.async_update_entry(owner, data={**dict(owner.data), TASK_CONFIG: task_entity_id})
 
         tts_entity_id = None
         if os.environ.get("DJC_SAFETY_PROBE") == "literal_tts":
@@ -2034,6 +2083,7 @@ async def main():
                     report['public_review_rejections'] = public_rejections
                     report['public_grounding_observations'] = public_grounding_observations
                     report['artist_public_inputs'] = artist_public_inputs
+                    report['playback_generation_transport'] = 'PUBLIC_HA_AI_TASK_TYPED_PLAYBACK_V1'
                     report.update(source_hashes=initial_source_hashes,
                         source_unchanged=hashes() == initial_source_hashes,
                         configured_maximum_tokens=max_tokens, configured_reasoning_effort='low',

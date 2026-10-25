@@ -115,6 +115,9 @@ def _assist_context(hass: HomeAssistant, conf: dict[str, Any]) -> dict[str, Any]
         context["agent_id"] = conversation_engine
     if language:
         context["language"] = language
+    from .structured_playback import TASK_CONFIG
+    if conf.get(TASK_CONFIG):
+        context[TASK_CONFIG] = conf[TASK_CONFIG]
     context["pipeline_id"] = pipeline_id or getattr(pipeline, "id", None)
     return context
 
@@ -260,12 +263,10 @@ async def _conversation_process(
     return result
 
 
-async def call_conversation_process_with_agent_retry(hass, data, *, debug=None, model_guard=None):
-    """Existing transport with bounded, rights-qualified Ask DJ execution context."""
+async def _reserve_qualified_model_call(hass, data, model_guard):
+    """One shared call allowance for both explicit qualified transports."""
     from .ask_dj.dialogue import current_turn, DialogueError, MAX_PROMPT_BYTES
     turn = current_turn.get()
-    if turn is None and model_guard is None:
-        return await _call_conversation_process_transport(hass, data, debug=debug)
     if turn is not None:
         await turn.guard()
     if model_guard is not None:
@@ -285,6 +286,15 @@ async def call_conversation_process_with_agent_retry(hass, data, *, debug=None, 
     agent = qualify_agent(hass, data.get("agent_id"))
     if turn is not None:
         turn.agent_calls += 1
+    return turn, agent
+
+
+async def call_conversation_process_with_agent_retry(hass, data, *, debug=None, model_guard=None):
+    """Existing transport with bounded, rights-qualified Ask DJ execution context."""
+    from .ask_dj.dialogue import current_turn, DialogueError, qualify_agent
+    if current_turn.get() is None and model_guard is None:
+        return await _call_conversation_process_transport(hass, data, debug=debug)
+    turn, agent = await _reserve_qualified_model_call(hass, data, model_guard)
     import asyncio
     if not hasattr(hass, "bus"):
         result = await asyncio.wait_for(_call_conversation_process_transport(hass, data, debug=debug, allow_agent_fallback=False), 30)
@@ -303,6 +313,18 @@ async def call_conversation_process_with_agent_retry(hass, data, *, debug=None, 
     if model_guard is not None:
         model_guard()
     return result
+
+
+async def _call_structured_playback(hass, data, *, task_id, brief, model_guard):
+    """The explicit task consumes the same allowance as conversation generation."""
+    from .structured_playback import generate
+    turn, _ = await _reserve_qualified_model_call(hass, data, model_guard)
+    wire = await generate(hass, agent_id=data.get("agent_id"), task_id=task_id,
+        prompt=data["text"], brief=brief, admission=model_guard)
+    if turn is not None:
+        await turn.guard()
+    model_guard()
+    return wire
 
 
 async def _call_conversation_process_transport(
@@ -433,10 +455,16 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
         # A qualified request must never silently choose a different agent.
         if not context.get("agent_id"):
             return fallback_text
-        async def ask(prompt):
+        async def ask(prompt, *, structured=False):
             guard()
             if debug is not None:
                 debug["model_attempts"] += 1
+            from .structured_playback import TASK_CONFIG
+            if structured and context.get(TASK_CONFIG):
+                return await _call_structured_playback(hass,
+                    {"text": prompt, "language": narration.locale,
+                     "agent_id": context["agent_id"]}, task_id=context[TASK_CONFIG],
+                    brief=narration, model_guard=guard)
             result = await call_conversation_process_with_agent_retry(
                 hass, {"text": prompt, "language": narration.locale,
                        "agent_id": context["agent_id"]}, model_guard=guard)
@@ -465,7 +493,7 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
             if type(narration) is PlaybackRequestBrief:
                 import json
                 from .narration_brief import draft_review_prompt, bound_draft_reviews
-                drafts = narration.decode_drafts(await ask(narration.prompt(verified_drafts=True)),
+                drafts = narration.decode_drafts(await ask(narration.prompt(verified_drafts=True), structured=True),
                     lambda value: candidate(narration, json.dumps({'text': value})))
                 prompt = draft_review_prompt(narration.assessment_prompt(drafts.texts[0]),
                     drafts, text_field='candidate')

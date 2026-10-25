@@ -62,7 +62,7 @@ class HelpContainerPreflightTest(unittest.TestCase):
     def test_unknown_cleanup_cannot_produce_a_passing_setup_receipt(self):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            products = {f'synthetic-{i}': 'a' * 64 for i in range(264)}
+            products = {f'synthetic-{i}': 'a' * 64 for i in range(265)}
             result = SimpleNamespace(returncode=0, stdout=json.dumps(valid({})).encode())
             with patch.object(preflight, 'product_hashes', return_value=products), \
                  patch.object(preflight, 'profile_source_hashes', return_value={}), \
