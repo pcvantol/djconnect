@@ -195,14 +195,16 @@
           "local_url": "Dirección del cliente",
           "firmware_channel": "Canal de firmware",
           "dj_announcement_speaker_entity_id": "Altavoz de Home Assistant para anuncios DJ",
-          "options_action": "Acción"
+          "options_action": "Acción",
+          "assist_structured_task_id": "Tarea de IA para respuestas de reproducción (opcional)"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist usado por los dispositivos DJConnect para reconocimiento de voz y audio de anuncios DJ.",
           "client_type": "Tipo de cliente DJConnect: app, dispositivo local o agente Assist.",
           "dj_announcement_speaker_entity_id": "Entidad media_player opcional para anuncios DJ hablados. Spotify Direct sigue reproduciendo; DJConnect reproduce la voz por separado en este altavoz.",
           "firmware_channel": "Elige stable para actualizaciones OTA normales o beta para probar firmware preliminar.",
-          "options_action": "Elige qué acción ejecutar."
+          "options_action": "Elige qué acción ejecutar.",
+          "assist_structured_task_id": "Selecciona una tarea de IA existente con el mismo proveedor y modelo que Assist. Déjalo vacío para seguir usando Assist."
         }
       },
       "spotify_reauth": {
@@ -347,7 +349,8 @@
           "options_action": "Acción",
           "music_backend": "Backend de música",
           "music_assistant_player": "Reproductor de Music Assistant",
-          "dj_announcement_speaker_entity_id": "Altavoz de Home Assistant para anuncios DJ"
+          "dj_announcement_speaker_entity_id": "Altavoz de Home Assistant para anuncios DJ",
+          "assist_structured_task_id": "Tarea de IA para respuestas de reproducción (opcional)"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist usado por los dispositivos DJConnect para reconocimiento de voz y audio de anuncios DJ.",
@@ -357,7 +360,8 @@
           "firmware_channel": "Elige stable para actualizaciones OTA normales o beta para probar firmware preliminar.",
           "options_action": "Elige qué acción ejecutar.",
           "music_backend": "Backend de reproducción seleccionado.",
-          "music_assistant_player": "Reproductor de destino de Music Assistant configurado."
+          "music_assistant_player": "Reproductor de destino de Music Assistant configurado.",
+          "assist_structured_task_id": "Selecciona una tarea de IA existente con el mismo proveedor y modelo que Assist. Déjalo vacío para seguir usando Assist."
         }
       },
       "conversation_agent_init": {
@@ -366,12 +370,14 @@
         "data": {
           "assist_pipeline_id": "Pipeline de Assist",
           "options_action": "Acción",
-          "music_backend": "Backend de música"
+          "music_backend": "Backend de música",
+          "assist_structured_task_id": "Tarea de IA para respuestas de reproducción (opcional)"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist usado por DJConnect para reconocimiento de voz y anuncios DJ.",
           "options_action": "Elige qué acción ejecutar.",
-          "music_backend": "Backend de reproducción seleccionado."
+          "music_backend": "Backend de reproducción seleccionado.",
+          "assist_structured_task_id": "Selecciona una tarea de IA existente con el mismo proveedor y modelo que Assist. Déjalo vacío para seguir usando Assist."
         }
       },
       "music_backend": {

@@ -479,6 +479,58 @@ def generation_wire_complete(report, *, cases):
         return False
 
 
+def structured_playback_inputs_complete(report, *, cases):
+    """Current typed transport proof, separate from unchanged content judges."""
+    try:
+        if report.get("playback_generation_transport") != "PUBLIC_HA_AI_TASK_TYPED_PLAYBACK_V1":
+            return False
+        expected = {row["id"] for row in cases
+                    if row["expected"]["effect"] in {"artist_play", "playlist_play", "album_play"}}
+        witnessed = []
+        fields = {"structured_output_format", "structured_playback_generation",
+                  "structured_playback_input", "provider_tools_absent", "provider_store_false"}
+        for call in report["model_calls"]:
+            if not fields.intersection(call):
+                continue
+            if not fields.issubset(call) or call.get("case_id") not in expected:
+                return False
+            if call.get("purpose") is not None or call["provider_tools_absent"] is not True or call["provider_store_false"] is not True:
+                return False
+            marker = call["structured_playback_generation"]
+            if (type(marker) is not dict or set(marker) != {"schema_version", "prompt_sha256", "role_order"}
+                    or type(marker["schema_version"]) is not int or marker["schema_version"] != 1
+                    or type(marker["prompt_sha256"]) is not str
+                    or re.fullmatch("[a-f0-9]{64}", marker["prompt_sha256"]) is None):
+                return False
+            roles = marker["role_order"]
+            if (type(roles) is not list or not roles or any(type(role) is not str for role in roles)
+                    or len(set(roles)) != len(roles) or roles[-1] != "status"
+                    or not set(roles) <= {"media_kind", "title", "artist", "album", "status"}):
+                return False
+            actual_input = call["structured_playback_input"]
+            if (type(actual_input) is not dict or set(actual_input) != {"prompt_sha256", "role_order"}
+                    or type(actual_input["role_order"]) is not list
+                    or actual_input != {"prompt_sha256": marker["prompt_sha256"], "role_order": roles}):
+                return False
+            gaps = {"type": "object", "properties": {role: {"type": "string"} for role in roles},
+                    "required": roles, "additionalProperties": False}
+            schema = {"type": "object", "properties": {
+                "schema": {"type": "string", "enum": ["playback_role_gaps_v3"]},
+                "drafts": {"type": "array", "items": {"type": "object", "properties": {"gaps": gaps},
+                    "required": ["gaps"], "additionalProperties": False}, "minItems": 1, "maxItems": 2}},
+                "required": ["schema", "drafts"], "additionalProperties": False}
+            expected_format = {"type": "json_schema", "name": "djconnect_playback_handover",
+                               "schema": schema, "strict": True}
+            # JSON bytes distinguish boolean/integer/float domains; Python's
+            # plain equality would otherwise admit True==1 and False==0.
+            if json.dumps(call["structured_output_format"], sort_keys=True, allow_nan=False) != json.dumps(expected_format, sort_keys=True):
+                return False
+            witnessed.append(call["case_id"])
+        return len(witnessed) == len(set(witnessed)) and set(witnessed) == expected
+    except (ValueError, KeyError, TypeError, UnicodeError, RecursionError):
+        return False
+
+
 def validate_selected_report(report, progress, *, pin, mode="target6"):
     from scripts.verification.askdj_example_catalogue_golden import (
         _validate_execution,
@@ -525,6 +577,7 @@ def validate_selected_report(report, progress, *, pin, mode="target6"):
             )
             and selected_inputs_complete(report, mode=mode)
             and generation_wire_complete(report, cases=[original[case] for case in selected])
+            and structured_playback_inputs_complete(report, cases=[original[case] for case in selected])
             # Reuse every original transport, effects, language, chain replay,
             # per-request model and source predicate with exactly the closed selected
             # questions. Only the generic validator's empty-selection sentinel

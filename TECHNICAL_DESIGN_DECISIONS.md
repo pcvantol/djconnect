@@ -1,3 +1,17 @@
+## Optional official HA AI Task for structured playback generation (25 October 2026)
+
+The explicit playback-task option uses the public `ai_task.async_generate_data` API and a Core-owned schema. A separately qualified official task in the same selected OpenAI config entry/model/reasoning/token scope is required; missing, unsafe, changed or incompatible selection fails closed. The feature is qualified specifically on Home Assistant2026.10.0. Its upstream public chat-session helper/context lifetime is an explicit version-bound dependency, with owned-only cleanup and prior-context restoration; legacy conversation and freeform Ask DJ behavior remain.
+
+The official task returns parsed data, so this is a new typed-result ABI, not proof of original raw JSON duplicate-key uniqueness. Legacy raw guards remain. The role compiler, whole-answer grounding/language/style review, original20s/23s clock and shared call budget remain authoritative. Actual SDK schema/input witnesses are required by current selected/full100 admission; cost-free synthetic tests never establish model quality or installed configuration. See [implementation and qualification scope](docs/verification/HELP_PUBLIC_STRUCTURED_PLAYBACK_TASK_20261025.md).
+
+| Framework dependency | Actual qualified runtime | License and upstream | Delivery scope |
+| --- | --- | --- | --- |
+| Probatio | Home Assistant2026.10.0 supplies0.13.0 | [MIT](https://probatio.frenck.dev/project/license/), [source](https://github.com/frenck/probatio) | Public HA schema type; no vendoring, new package install, dependency upgrade or manifest requirement. Other HA versions deny this optional feature pending qualification. |
+
+The installed distribution metadata in the pinned HA image establishes0.13.0/MIT. Home Assistant documents Probatio as its schema-validation engine. Existing dependency records below retain their scopes. No catalogue or installed/native acceptance is implied.
+
+---
+
 ## Developer Pillow13 with a separate HA decoder baseline (24 October 2026)
 
 PR #1306 qualifies Pillow13.0.0 for the developer test environment. The actual Home Assistant2026.10.0 image retains Pillow12.3.0. This current decision supersedes the developer-pin deferral recorded below; its historical evidence and runtime scope remain unchanged. It does not upgrade or qualify a different HA runtime.

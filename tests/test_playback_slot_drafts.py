@@ -41,6 +41,48 @@ class PlaybackSlotDraftTests(unittest.TestCase):
         return brief.decode_drafts(json.dumps(value, ensure_ascii=False),
             lambda text: self.n.candidate(brief, json.dumps({'text': text})))
 
+    def test_public_task_schema_contains_exact_original_roles_without_catalogue_values(self):
+        module = importlib.import_module('custom_components.djconnect.structured_playback')
+        for locale in ('en', 'nl', 'de', 'fr', 'es'):
+            for kind in ('track', 'artist_tracks', 'album', 'playlist'):
+                brief = self.collection_brief(kind, locale, rich=True)
+                structure = module.role_structure(brief)
+                self.assertNotIn('PRIVATE_', json.dumps(structure))
+                fields = structure['drafts']['selector']['object']['fields']
+                roles = fields['gaps']['selector']['object']['fields']
+                self.assertEqual(set(roles), set(brief.literal_gap_slots()))
+                self.assertTrue(all(row == {'required': True, 'selector': {'text': {}}}
+                                    for row in roles.values()))
+        with self.assertRaises(ValueError):
+            module.role_structure(object())
+        with self.assertRaises(ValueError):
+            module.role_structure(replace(self.brief(), anchors=('{title}', '{title}', '{status}')))
+
+    def test_typed_task_result_uses_unchanged_whole_map_and_character_guards(self):
+        module = importlib.import_module('custom_components.djconnect.structured_playback')
+        wire = {'schema': 'playback_role_gaps_v3', 'drafts': [{'gaps': {
+            'title': 'I am handing you ', 'artist': ' by ', 'status': '. '}}]}
+        normalized = []
+        self.brief().decode_drafts(module.freeze_typed_reply(wire),
+            lambda text: normalized.append(text) or text)
+        self.assertEqual(normalized, ['I am handing you {title} by {artist}. {status}'])
+        for changed in (
+            {'title': 'I am handing you ', 'artist': ' by ', '. ': ''},
+            {'title': 'I am handing you ', 'artist': ' by ', 'status': ''},
+            {'title': '{title}', 'artist': ' by ', 'status': '. '},
+            {'title': 'x\x00', 'artist': ' by ', 'status': '. '},
+        ):
+            invalid = deepcopy(wire)
+            invalid['drafts'].append({'gaps': changed})
+            normalized.clear()
+            with self.assertRaises(ValueError):
+                self.brief().decode_drafts(module.freeze_typed_reply(invalid),
+                    lambda text: normalized.append(text) or text)
+            self.assertEqual(normalized, [])
+        for invalid in (None, [], {'x': float('nan')}, {'x': 'x' * 8192}):
+            with self.assertRaises(ValueError):
+                module.freeze_typed_reply(invalid)
+
     def example(self, brief):
         instructions = brief.prompt(verified_drafts=True).split('\nData:\n', 1)[0]
         match = re.search(r'\{"schema"\s*:\s*"playback_role_gaps_v3"', instructions)

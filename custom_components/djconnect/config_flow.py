@@ -18,6 +18,7 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers import selector
 
 from custom_components.djconnect import register_http_views
+from .structured_playback import TASK_CONFIG
 
 from .const import (
     CONF_ALLOW_OTA_ON_BATTERY,
@@ -208,6 +209,7 @@ CLIENT_TYPE_NAME_SUFFIXES = {
 
 VOICE_FORM_FIELDS = {
     CONF_ASSIST_PIPELINE_ID,
+    TASK_CONFIG,
     CONF_DJ_ANNOUNCEMENT_SPEAKER,
     CONF_FIRMWARE_CHANNEL,
 }
@@ -1097,6 +1099,23 @@ async def _assist_pipeline_options(hass: Any, current: Any = "") -> dict[str, st
     return _options_with_current(options, current)
 
 
+def _structured_task_options(hass: Any, current: Any = "") -> dict[str, str]:
+    """Show existing official tasks only; choosing one does not qualify it."""
+    options = {"": flow_label(hass, "none")}
+    try:
+        from homeassistant.helpers import entity_registry
+        registry = entity_registry.async_get(hass)
+        for entity in registry.entities.values():
+            if (entity.domain == "ai_task" and entity.platform == "openai_conversation"
+                    and entity.disabled_by is None):
+                options[entity.entity_id] = entity.name or entity.original_name or entity.entity_id
+    except (AttributeError, KeyError, TypeError):
+        pass
+    # Keep a retired explicit choice visible for removal. Runtime denies it;
+    # the form must never silently replace it with a preferred/default task.
+    return _options_with_current(options, current)
+
+
 def _has_valid_assist_pipeline(hass: Any, pipeline_id: Any = "") -> bool:
     """Validate the selected/preferred conversation route, never require audio.
 
@@ -1153,6 +1172,8 @@ def _base_voice_schema(
             CONF_ASSIST_PIPELINE_ID,
             default=defaults.get(CONF_ASSIST_PIPELINE_ID, ""),
         ): vol.In(assist_options),
+        vol.Optional(TASK_CONFIG, default=defaults.get(TASK_CONFIG, "")):
+            vol.In(_structured_task_options(hass, defaults.get(TASK_CONFIG, ""))),
     })
     if defaults.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE) == CLIENT_TYPE_ESP32:
         schema[
@@ -1188,6 +1209,8 @@ async def _conversation_agent_options_schema(
     """Build the compact options schema used from Assist conversation agent settings."""
     actions = _conversation_agent_options_actions(hass, defaults)
     schema: dict[Any, Any] = {
+        vol.Optional(TASK_CONFIG, default=defaults.get(TASK_CONFIG, "")):
+            vol.In(_structured_task_options(hass, defaults.get(TASK_CONFIG, ""))),
         vol.Optional(
             CONF_ASSIST_PIPELINE_ID,
             default=defaults.get(CONF_ASSIST_PIPELINE_ID, ""),
@@ -1292,6 +1315,7 @@ def _voice_defaults(
     """Return voice/options config with safe defaults."""
     source = data or {}
     return {
+        TASK_CONFIG: str(source.get(TASK_CONFIG) or "").strip(),
         CONF_ASSIST_PIPELINE_ID: _defaultable_value(
             source,
             CONF_ASSIST_PIPELINE_ID,

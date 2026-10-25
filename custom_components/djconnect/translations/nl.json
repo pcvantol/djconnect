@@ -195,14 +195,16 @@
           "local_url": "Client adres",
           "firmware_channel": "Firmwarekanaal",
           "dj_announcement_speaker_entity_id": "Home Assistant speaker voor DJ-aankondigingen",
-          "options_action": "Actie"
+          "options_action": "Actie",
+          "assist_structured_task_id": "AI-taak voor afspeelantwoorden (optioneel)"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
           "client_type": "Type DJConnect client: app, lokaal apparaat of Assist-agent.",
           "dj_announcement_speaker_entity_id": "Optionele media_player voor gesproken DJ-aankondigingen. Spotify Direct blijft gewoon doorspelen; DJConnect speelt de stem apart via deze speaker.",
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
-          "options_action": "Kies welke actie je wilt uitvoeren."
+          "options_action": "Kies welke actie je wilt uitvoeren.",
+          "assist_structured_task_id": "Kies een bestaande AI-taak met dezelfde aanbieder en hetzelfde model als Assist. Laat leeg om Assist te blijven gebruiken."
         }
       },
       "spotify_reauth": {
@@ -347,7 +349,8 @@
           "dj_announcement_speaker_entity_id": "Home Assistant speaker voor DJ-aankondigingen",
           "options_action": "Actie",
           "music_backend": "Muziekbackend",
-          "music_assistant_player": "Music Assistant player"
+          "music_assistant_player": "Music Assistant player",
+          "assist_structured_task_id": "AI-taak voor afspeelantwoorden (optioneel)"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect apparaten gebruiken voor spraakherkenning en DJ aankondiging audio.",
@@ -357,7 +360,8 @@
           "firmware_channel": "Kies stable voor normale OTA updates of beta om prerelease firmware te testen.",
           "options_action": "Kies welke actie je wilt uitvoeren.",
           "music_backend": "Gekozen playback-backend.",
-          "music_assistant_player": "Geconfigureerde Music Assistant doelplayer."
+          "music_assistant_player": "Geconfigureerde Music Assistant doelplayer.",
+          "assist_structured_task_id": "Kies een bestaande AI-taak met dezelfde aanbieder en hetzelfde model als Assist. Laat leeg om Assist te blijven gebruiken."
         }
       },
       "conversation_agent_init": {
@@ -366,12 +370,14 @@
         "data": {
           "assist_pipeline_id": "Assist pipeline",
           "options_action": "Actie",
-          "music_backend": "Muziekbackend"
+          "music_backend": "Muziekbackend",
+          "assist_structured_task_id": "AI-taak voor afspeelantwoorden (optioneel)"
         },
         "data_description": {
           "assist_pipeline_id": "Assist pipeline die DJConnect gebruikt voor spraakherkenning en DJ aankondigingen.",
           "options_action": "Kies welke actie je wilt uitvoeren.",
-          "music_backend": "Gekozen playback-backend."
+          "music_backend": "Gekozen playback-backend.",
+          "assist_structured_task_id": "Kies een bestaande AI-taak met dezelfde aanbieder en hetzelfde model als Assist. Laat leeg om Assist te blijven gebruiken."
         }
       },
       "music_backend": {
