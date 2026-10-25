@@ -1140,6 +1140,21 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
                 and turn.public_research.get('schema_version') == 3 and researched
                 and operation == 'answer'):
             raise DialogueError('conversation_model_response_invalid', 502)
+        # The wire envelope is independent of the story's prose style. Put it
+        # before the narration recipe; an ordinary answer is not a JSON draft.
+        projection['answer_form'] = ('Natural prose inside each drafts string; '
+            'the outer response follows the Core-owned JSON output contract.')
+        instructions = (
+            'DJConnect output contract: return a JSON envelope, never a bare prose answer. '
+            'The complete response is exactly {"drafts":["complete answer","alternative complete answer"]}; '
+            'one or two strings, no other keys or text outside that object. '
+            'All natural-prose instructions below apply INSIDE each string.\n'
+            'For a brief artist introduction, let the first draft share one directly documented activity '
+            'and its supported people or work, then ask one grounded follow-up. '
+            'Do not retell the whole source passage or its membership timeline. '
+            'A second draft is an independently supported telling, not a continuation of the first. '
+            'For an explicit broader question, answer its requested aspects with supported details. '
+            + instructions)
         instructions = instructions.replace('Only natural prose, no JSON or markdown.',
             'Each draft contains only natural prose, without markdown.')
         instructions += (

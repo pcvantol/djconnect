@@ -1,3 +1,14 @@
+# Help artist-only repair in validation — 25 October 2026
+
+The complete paid100 on qualified Final1335 finished95PASS/5artistFAIL with
+175responses. Independent all100 review confirms FAILURE; original run and all
+consumed slots are preserved. [Current source record](docs/verification/HELP_ARTIST_ENVELOPE_20261025.md)
+puts the existing artist JSON wire contract first, clarifies each draft's factual
+scope and adds closed SDK-boundary diagnostics. No judge/owner/expiry/call-budget
+relaxation. Source/whole review, separate Final and new exact admission are still
+required. Catalogue remainsfalse70; no model execution/installation/native claim
+from this WIP. All24 requests/ninegates/Bulletin→VibeCast remain preserved.
+
 # Delivered Help verified-drafts Source — 25 October 2026
 
 [PR1334](https://github.com/pcvantol/djconnect/pull/1334) protected`24dbec27c14cc7d9f96088f88541c17b688f6465`,
