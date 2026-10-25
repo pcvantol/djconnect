@@ -1,3 +1,9 @@
+# 2026-10-25 verified playback alternatives — source scope
+
+The verified playback prompt now asks for two grammatically distinct complete handovers using the existing closed 1..2-draft ABI and whole-batch compiler. Both describe the same already accepted selection/state; the existing independent full-text reviews select only a whole draft with all support/language/style checks true. No extra generation/review, playback effect, prose repair, missing-key default, deadline extension or guard relaxation. Legacy single replies and artist research remain unchanged.
+
+See `docs/verification/HELP_TWO_PLAYBACK_ALTERNATIVES_20261025.md`. This is source preparation, not actual model quality, catalogue publication, configuration, installation or native acceptance. The last two genuine short trials remain failures (22/24 and19/24); all claims remain consumed. Catalogue DFAA stays draft/70 pending. Future publication also requires the separately reviewed current-configuration/consumer readiness bridge; local source qualification is not current task/provider authority. All24 requests/nine gates and prior receipts remain in the byte-preserved body below with their own historical scopes.
+
 ## Optional official HA AI Task for structured playback generation (25 October 2026)
 
 The explicit playback-task option uses the public `ai_task.async_generate_data` API and a Core-owned schema. A separately qualified official task in the same selected OpenAI config entry/model/reasoning/token scope is required; missing, unsafe, changed or incompatible selection fails closed. The feature is qualified specifically on Home Assistant2026.10.0. Its upstream public chat-session helper/context lifetime is an explicit version-bound dependency, with owned-only cleanup and prior-context restoration; legacy conversation and freeform Ask DJ behavior remain.

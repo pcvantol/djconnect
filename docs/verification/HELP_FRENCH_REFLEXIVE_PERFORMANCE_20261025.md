@@ -1,3 +1,9 @@
+# 2026-10-25 verified playback alternatives — source scope
+
+The verified playback prompt now asks for two grammatically distinct complete handovers using the existing closed 1..2-draft ABI and whole-batch compiler. Both describe the same already accepted selection/state; the existing independent full-text reviews select only a whole draft with all support/language/style checks true. No extra generation/review, playback effect, prose repair, missing-key default, deadline extension or guard relaxation. Legacy single replies and artist research remain unchanged.
+
+See `docs/verification/HELP_TWO_PLAYBACK_ALTERNATIVES_20261025.md`. This is source preparation, not actual model quality, catalogue publication, configuration, installation or native acceptance. The last two genuine short trials remain failures (22/24 and19/24); all claims remain consumed. Catalogue DFAA stays draft/70 pending. Future publication also requires the separately reviewed current-configuration/consumer readiness bridge; local source qualification is not current task/provider authority. All24 requests/nine gates and prior receipts remain in the byte-preserved body below with their own historical scopes.
+
 ## Optional public HA playback-task source (25 October 2026)
 
 The new optional `assist_structured_task_id` path uses a separately qualified official HA AI Task only for playback-draft generation; empty selection keeps the conversation path. Its typed-result ABI, exact schema, original Core-role witness, owner/config/cancellation fences and unchanged whole-answer judges are described in [the current source note](HELP_PUBLIC_STRUCTURED_PLAYBACK_TASK_20261025.md). This is source preparation, not catalogue, installed or provider/native acceptance. The original99a2 run40210947501 remainsFAILURE19PASS5FAIL/63responses; no consumed run is retried. CatalogueDFAA staysdraft/70pending; all24requests/ninegates remain. Prior sections below retain their original source/evidence scopes.
