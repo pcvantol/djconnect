@@ -78,6 +78,32 @@ class HelpNarrationRemediationTests(unittest.TestCase):
             self.assertFalse(assessed(json.dumps(review)), failed)
         self.assertTrue(assessed(json.dumps(dict(supported=True, language_ok=True, style_ok=True))))
 
+    def test_playback_alternatives_preserve_request_provenance_and_one_receipt(self):
+        from custom_components.djconnect.playback_request import PlaybackAcceptance, PlaybackRequestBrief
+        for locale in ('en', 'nl', 'de', 'fr', 'es'):
+            for kind, request in (('playlist', 'music for cooking'),
+                                  ('playlist', 'quiet music'),
+                                  ('artist_tracks', 'play this artist')):
+                for state in ('dispatched', 'observed'):
+                    brief = PlaybackRequestBrief(PlaybackAcceptance('private-id', 123), locale,
+                        'home_dj', 'neutral', '', ('{title}', '{status}'), request,
+                        'Core resolved this selection for the request.',
+                        (('{title}', 'PRIVATE_TITLE'), ('{status}', 'PRIVATE_STATUS')),
+                        selection_kind=kind, playback_state=state)
+                    prompt = brief.prompt(verified_drafts=True)
+                    review = brief.assessment_prompt('{title}. {status}')
+                    for text in (prompt, review):
+                        self.assertIn('resolved for the listener', text)
+                        self.assertIn('does not prove', text)
+                        self.assertNotIn('The listener selected this music', text)
+                    self.assertIn('two distinct complete replies', prompt)
+                    self.assertIn('one already accepted playback request', prompt)
+                    data = json.loads(prompt.split('\nData:\n', 1)[1])
+                    self.assertEqual(data['playback_state'], state)
+                    self.assertEqual(data['required_placeholders'], ['{title}', '{status}'])
+                    self.assertNotIn('PRIVATE_TITLE', prompt)
+                    self.assertNotIn('PRIVATE_STATUS', prompt)
+
     def test_public_evidence_is_an_original_snapshot_for_both_acceptance_outcomes(self):
         from scripts.verification.askdj_example_catalogue_golden import append_public_support_observation
         for accepted in (True, False):
