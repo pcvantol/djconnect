@@ -1,3 +1,7 @@
+# Help verified-drafts Final — 25 October 2026
+
+[Documentary Final request](docs/history/prompts/2026-10-25-help-verified-drafts-finalization.md); [actual Source qualification](docs/verification/HELP_VERIFIED_DRAFTS_FINALIZATION_20261025.md). Cataloguefalse70/newpaidNOTSTARTED.
+
 # Help verified drafts — 25 October 2026
 
 [Current request and boundaries](docs/history/prompts/2026-10-25-help-verified-drafts.md); [source validation](docs/verification/HELP_VERIFIED_DRAFTS_20261025.md). Catalogue remainsfalse/70pending; prior failure slots are consumed.
