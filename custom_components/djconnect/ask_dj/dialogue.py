@@ -940,7 +940,7 @@ def persona_answer_form(persona: str, *, include_identity=True) -> str:
     return (host_identity(persona) + " " if include_identity else "") + forms.get(persona, forms["home_dj"])
 
 
-def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
+def model_prompt(text: str, payload: dict, source: dict | None = None, *, verified_drafts=False) -> str:
     turn = current_turn.get()
     style = turn.style if turn else style_projection(payload)
     frame = turn.frame if turn else None
@@ -1133,6 +1133,20 @@ def model_prompt(text: str, payload: dict, source: dict | None = None) -> str:
             "The final follow-up invites this listener to deepen the same supported musical subject; "
             "it is not a generic offer to help, a promise of playback, or a new factual assertion. "
             "No obligatory joke or slogan. Keep the chosen Persona and independent Mood in its rhythm. "
+        )
+    if verified_drafts:
+        if not (turn and turn.interpreted_artist_research
+                and not turn.interpreted_context_research
+                and turn.public_research.get('schema_version') == 3 and researched
+                and operation == 'answer'):
+            raise DialogueError('conversation_model_response_invalid', 502)
+        instructions = instructions.replace('Only natural prose, no JSON or markdown.',
+            'Each draft contains only natural prose, without markdown.')
+        instructions += (
+            ' Return ONLY {"drafts":["first complete answer","second complete answer"]}. '
+            'Provide at most two alternative whole answers; each must independently satisfy '
+            'all source, language, Persona/Mood and grounded follow-up requirements above. '
+            'A second draft is not permission to add uncertain facts or chronology. '
         )
     instructions += "\nData:\n"
     prompt = instructions + json.dumps(projection, ensure_ascii=False)

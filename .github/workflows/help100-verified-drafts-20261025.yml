@@ -1,0 +1,87 @@
+name: Verified-drafts-source Help100 qualification 25 October 2026
+
+on:
+  workflow_dispatch:
+    inputs:
+      grant:
+        description: Exact once-only verified-drafts-source grant
+        required: true
+        type: string
+      expected_main_sha:
+        description: Restriction only; must equal original trusted Actions SHA
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-help100-verified-drafts-20261025
+  cancel-in-progress: false
+
+jobs:
+  exact100:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      DJC_HELP100_GRANT: ${{ inputs.grant }}
+      DJC_EXPECTED_MAIN_SHA: ${{ inputs.expected_main_sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          ref: ${{ github.sha }}
+          path: qualification-runner
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          ref: ${{ github.sha }}
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Admit exact original run before access to the test credential
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 qualification-runner/tools/verification/run_help100_verified_drafts_20261025.py \
+            --source-root "$GITHUB_WORKSPACE/candidate" \
+            --report-dir "$RUNNER_TEMP/help100-verified-drafts" --admit-only
+      - name: Pull exact existing test image before paid execution
+        run: docker pull ghcr.io/home-assistant/home-assistant@sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4
+      - name: Exercise actual HA setup to a blocked first model request without any test secret
+        run: |
+          python3 qualification-runner/tools/verification/run_help100_verified_drafts_20261025.py \
+            --source-root "$GITHUB_WORKSPACE/candidate" \
+            --report-dir "$RUNNER_TEMP/help100-verified-drafts" --setup-only
+      - name: Execute one approved full100 test with no automatic repetition
+        env:
+          DJCONNECT_GOLDEN_OPENAI_API_KEY: ${{ secrets.DJCONNECT_GOLDEN_OPENAI_API_KEY }}
+        run: |
+          python3 qualification-runner/tools/verification/run_help100_verified_drafts_20261025.py \
+            --source-root "$GITHUB_WORKSPACE/candidate" \
+            --report-dir "$RUNNER_TEMP/help100-verified-drafts"
+      - name: Preserve only validated synthetic receipts and closed diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: help100-verified-drafts-20261025
+          path: |
+            ${{ runner.temp }}/help100-verified-drafts/preflight.json
+            ${{ runner.temp }}/help100-verified-drafts/admission.json
+            ${{ runner.temp }}/help100-verified-drafts/setup-preflight.json
+            ${{ runner.temp }}/help100-verified-drafts/setup-cleanup.json
+            ${{ runner.temp }}/help100-verified-drafts/once-reservation.json
+            ${{ runner.temp }}/help100-verified-drafts/reserved.json
+            ${{ runner.temp }}/help100-verified-drafts/container-created.json
+            ${{ runner.temp }}/help100-verified-drafts/container-state.json
+            ${{ runner.temp }}/help100-verified-drafts/child-IMPORT.json
+            ${{ runner.temp }}/help100-verified-drafts/child-MAIN.json
+            ${{ runner.temp }}/help100-verified-drafts/child-TERMINAL.json
+            ${{ runner.temp }}/help100-verified-drafts/cleanup.json
+            ${{ runner.temp }}/help100-verified-drafts/terminal.json
+            ${{ runner.temp }}/help100-verified-drafts/summary.json
+            ${{ runner.temp }}/help100-verified-drafts/catalogue-progress.json
+            ${{ runner.temp }}/help100-verified-drafts/catalogue-golden.json
+          if-no-files-found: error
+          retention-days: 7
