@@ -386,7 +386,7 @@ async def main():
             assert input_data['core_slot_order'] == list(generation.role_order)
             receipt['structured_output_format'] = json.loads(json.dumps(structured))
             receipt['structured_playback_generation'] = {
-                'schema_version': 1, 'prompt_sha256': generation.prompt_sha256,
+                'schema_version': 2, 'prompt_sha256': generation.prompt_sha256,
                 'role_order': list(generation.role_order)}
             receipt['structured_playback_input'] = {
                 'prompt_sha256': input_sha, 'role_order': input_data['core_slot_order']}
@@ -2083,7 +2083,7 @@ async def main():
                     report['public_review_rejections'] = public_rejections
                     report['public_grounding_observations'] = public_grounding_observations
                     report['artist_public_inputs'] = artist_public_inputs
-                    report['playback_generation_transport'] = 'PUBLIC_HA_AI_TASK_TYPED_PLAYBACK_V1'
+                    report['playback_generation_transport'] = 'PUBLIC_HA_AI_TASK_TYPED_PLAYBACK_V2'
                     report.update(source_hashes=initial_source_hashes,
                         source_unchanged=hashes() == initial_source_hashes,
                         configured_maximum_tokens=max_tokens, configured_reasoning_effort='low',

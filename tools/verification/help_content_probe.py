@@ -482,7 +482,7 @@ def generation_wire_complete(report, *, cases):
 def structured_playback_inputs_complete(report, *, cases):
     """Current typed transport proof, separate from unchanged content judges."""
     try:
-        if report.get("playback_generation_transport") != "PUBLIC_HA_AI_TASK_TYPED_PLAYBACK_V1":
+        if report.get("playback_generation_transport") != "PUBLIC_HA_AI_TASK_TYPED_PLAYBACK_V2":
             return False
         expected = {row["id"] for row in cases
                     if row["expected"]["effect"] in {"artist_play", "playlist_play", "album_play"}}
@@ -498,7 +498,7 @@ def structured_playback_inputs_complete(report, *, cases):
                 return False
             marker = call["structured_playback_generation"]
             if (type(marker) is not dict or set(marker) != {"schema_version", "prompt_sha256", "role_order"}
-                    or type(marker["schema_version"]) is not int or marker["schema_version"] != 1
+                    or type(marker["schema_version"]) is not int or marker["schema_version"] != 2
                     or type(marker["prompt_sha256"]) is not str
                     or re.fullmatch("[a-f0-9]{64}", marker["prompt_sha256"]) is None):
                 return False
@@ -512,7 +512,17 @@ def structured_playback_inputs_complete(report, *, cases):
                     or type(actual_input["role_order"]) is not list
                     or actual_input != {"prompt_sha256": marker["prompt_sha256"], "role_order": roles}):
                 return False
-            gaps = {"type": "object", "properties": {role: {"type": "string"} for role in roles},
+            gap_fields = {}
+            for index, role in enumerate(roles):
+                if role == "title" and index > 0 and roles[index - 1] == "media_kind":
+                    gap_fields[role] = {"type": "string", "enum": [" "]}
+                else:
+                    pattern = (r"^(?:[.!?] |[ .!?;,:()—–-][^{}\r\n]*[.!?] )$"
+                               if role == "status" else
+                               r"^[^{}\r\n]*[ '’]$" if index == 0 else
+                               r"^(?: |[ .!?;,:()—–-][^{}\r\n]*[ '’])$")
+                    gap_fields[role] = {"type": "string", "pattern": pattern, "maxLength": 700}
+            gaps = {"type": "object", "properties": gap_fields,
                     "required": roles, "additionalProperties": False}
             schema = {"type": "object", "properties": {
                 "schema": {"type": "string", "enum": ["playback_role_gaps_v3"]},
