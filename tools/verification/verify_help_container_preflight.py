@@ -105,7 +105,7 @@ def run(source: Path, directory: Path):
     lab = directory / 'private-synthetic-lab'
     lab.mkdir(mode=0o700)
     before = product_hashes(source)
-    if len(before) != 264 or lab.stat().st_uid != os.getuid():
+    if len(before) != 265 or lab.stat().st_uid != os.getuid():
         raise ValueError('preflight_source_or_owner_invalid')
     expected = profile_source_hashes(source)
     name = 'djc-help-preflight-' + secrets.token_hex(8)
@@ -136,7 +136,7 @@ def run(source: Path, directory: Path):
             'ownership', 'source_import', 'checkpoint', 'complete'} else 'UNKNOWN',
         'network': 'none', 'credentials': 'NONE', 'model_calls': 0,
         'own_container': 'VERIFIED_ABSENT' if absent else 'UNKNOWN',
-        'product264_before': before, 'product264_after': after,
+        'product_hashes_before': before, 'product_hashes_after': after,
         'expected_source_hashes': expected,
         'scope': 'IMPORT_OWNERSHIP_AND_ZERO_CALL_CHECKPOINT_ONLY_NOT_PAID_ANSWERS_OR_EXECUTION_AUTHORITY'}
     write_json(directory / 'preflight.json', receipt)
