@@ -64,8 +64,7 @@ class PlaybackRequestBrief(NarrationBrief):
                 {'gaps': {name: '. ' if name == 'status' else
                           introduction if index == 0 else ' '
                           for index, name in enumerate(names)}}
-                for introduction in ('your natural handover words ',
-                                     'your alternative handover words ')
+                for introduction in ('your natural handover words ',)
             ]
             wire_example = json.dumps({'schema': 'playback_role_gaps_v3',
                                        'drafts': alternatives})
@@ -101,11 +100,10 @@ class PlaybackRequestBrief(NarrationBrief):
             'item taken from that collection or a collection being converted into another kind. '
             + ('Return only the closed JSON envelope, illustrated with exactly one named gap before each Core role: '
                + wire_example + '. Rewrite ONLY the illustrative gap strings naturally in the requested language. '
-               'Write TWO complete alternative replies satisfying every requirement. '
-               'Use a different natural grammatical construction for each alternative, '
-               'not different music, playback states or actions. Each is one handover '
-               'of the same already accepted selection. Both are assessed independently '
-               'as complete texts; do not split one sentence between the alternatives. '
+               'Write exactly ONE complete reply satisfying every requirement. '
+               'This is one handover of the same already accepted selection. '
+               'The complete text is assessed independently; do not generate alternatives '
+               'or split a sentence between drafts. '
                'The gaps object has EXACTLY the illustrated role keys, with one string value per key. '
                'Every key is required, even when its value is empty. Core orders these values by '
                'core_slot_order and inserts the corresponding opaque role; JSON key order has no authority. '

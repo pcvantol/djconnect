@@ -1,9 +1,9 @@
 {
   "scope": "EXTRACTED_COSTFREE_ACTUAL_SDK_MEDIUM_PROFILE_ONLY_NOT_MODEL_QUALITY",
-  "original_report_sha256": "fe814daefb43a58679e9b7d69fbfd62d4a32e3adcd764ac5dc004c69897212f6",
+  "original_report_sha256": "0261cd9ffcb0839f0205d5c302690d02f04a8ecd34e68d55a330aba7755a007d",
   "original_mode": "target24_delivery_v3",
   "original_actual_REST_preflight_sha256": "e0def37f245ab90689ee34336f820ed6f89b83340d6b42b52f930a493649d6e6",
-  "original_admission_sha256": "6beaae890f2e667d220b7dde2b5063fcee0e46e96bcc70732c91b7346f8990ec",
+  "original_admission_sha256": "11538d31e0eb01929e4931276f6c898bb5bc5cd9228da9dbc6a027d6bf7abb59",
   "original_synthetic_content_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   "report": {
     "qualification_profile": "help_medium_v1",
@@ -84,7 +84,7 @@
         },
         "structured_playback_generation": {
           "schema_version": 2,
-          "prompt_sha256": "ee8b6425d8013bab56c0b823d5261acf03102f0228e833e1e6a9045e09b8e766",
+          "prompt_sha256": "bf22715741a5f4ea4d22d1bd71955b7588fed770e9a11c07d490db041068b85a",
           "role_order": [
             "title",
             "artist",
@@ -92,7 +92,7 @@
           ]
         },
         "structured_playback_input": {
-          "prompt_sha256": "ee8b6425d8013bab56c0b823d5261acf03102f0228e833e1e6a9045e09b8e766",
+          "prompt_sha256": "bf22715741a5f4ea4d22d1bd71955b7588fed770e9a11c07d490db041068b85a",
           "role_order": [
             "title",
             "artist",
@@ -189,7 +189,7 @@
         },
         "structured_playback_generation": {
           "schema_version": 2,
-          "prompt_sha256": "2299d2edec1c308358844883e606869e334e11823c6b46bf0ec6a4b28964557b",
+          "prompt_sha256": "80577e9c2c10466023200d434d0e5642513b1e46691b0ab791aa02dd06d38d3b",
           "role_order": [
             "media_kind",
             "title",
@@ -197,7 +197,7 @@
           ]
         },
         "structured_playback_input": {
-          "prompt_sha256": "2299d2edec1c308358844883e606869e334e11823c6b46bf0ec6a4b28964557b",
+          "prompt_sha256": "80577e9c2c10466023200d434d0e5642513b1e46691b0ab791aa02dd06d38d3b",
           "role_order": [
             "media_kind",
             "title",
@@ -294,7 +294,7 @@
         },
         "structured_playback_generation": {
           "schema_version": 2,
-          "prompt_sha256": "dc9fbc28146e1f68eeba7c9daf84ab522d0cb58904f7950a7c100f87ad980953",
+          "prompt_sha256": "ebd7c966ca82231ca01899fb50d424cc2a37039223bfbfddcadcdc2dc0c6578f",
           "role_order": [
             "media_kind",
             "title",
@@ -302,7 +302,7 @@
           ]
         },
         "structured_playback_input": {
-          "prompt_sha256": "dc9fbc28146e1f68eeba7c9daf84ab522d0cb58904f7950a7c100f87ad980953",
+          "prompt_sha256": "ebd7c966ca82231ca01899fb50d424cc2a37039223bfbfddcadcdc2dc0c6578f",
           "role_order": [
             "media_kind",
             "title",
@@ -399,7 +399,7 @@
         },
         "structured_playback_generation": {
           "schema_version": 2,
-          "prompt_sha256": "adddb5092da1c351bda48adb67f09f644b8a519f2f8dabcaf8f0fb851e46a9ba",
+          "prompt_sha256": "6800b7fbd916c367761b3a007f2ff7d415a2f5a56210909c3fe18a35614a860f",
           "role_order": [
             "media_kind",
             "title",
@@ -407,7 +407,7 @@
           ]
         },
         "structured_playback_input": {
-          "prompt_sha256": "adddb5092da1c351bda48adb67f09f644b8a519f2f8dabcaf8f0fb851e46a9ba",
+          "prompt_sha256": "6800b7fbd916c367761b3a007f2ff7d415a2f5a56210909c3fe18a35614a860f",
           "role_order": [
             "media_kind",
             "title",
@@ -504,7 +504,7 @@
         },
         "structured_playback_generation": {
           "schema_version": 2,
-          "prompt_sha256": "a7d917439fe5512fa3a98732aedd579f7485043097b511d3f047350311940f48",
+          "prompt_sha256": "e40604559b4885e78dfd334fa9548d9ba4aecaaf4191d33263bd75ea1d375faa",
           "role_order": [
             "media_kind",
             "title",
@@ -512,7 +512,7 @@
           ]
         },
         "structured_playback_input": {
-          "prompt_sha256": "a7d917439fe5512fa3a98732aedd579f7485043097b511d3f047350311940f48",
+          "prompt_sha256": "e40604559b4885e78dfd334fa9548d9ba4aecaaf4191d33263bd75ea1d375faa",
           "role_order": [
             "media_kind",
             "title",
@@ -609,7 +609,7 @@
         },
         "structured_playback_generation": {
           "schema_version": 2,
-          "prompt_sha256": "dc9fbc28146e1f68eeba7c9daf84ab522d0cb58904f7950a7c100f87ad980953",
+          "prompt_sha256": "ebd7c966ca82231ca01899fb50d424cc2a37039223bfbfddcadcdc2dc0c6578f",
           "role_order": [
             "media_kind",
             "title",
@@ -617,7 +617,7 @@
           ]
         },
         "structured_playback_input": {
-          "prompt_sha256": "dc9fbc28146e1f68eeba7c9daf84ab522d0cb58904f7950a7c100f87ad980953",
+          "prompt_sha256": "ebd7c966ca82231ca01899fb50d424cc2a37039223bfbfddcadcdc2dc0c6578f",
           "role_order": [
             "media_kind",
             "title",
@@ -714,7 +714,7 @@
         },
         "structured_playback_generation": {
           "schema_version": 2,
-          "prompt_sha256": "ee23ac493fd15a33c3967edda9314d7d9ebd3ae963cf0b45cc48080eb827335a",
+          "prompt_sha256": "fb38e4efca513cd103a0ab8a3c572d44d7fda5581dbea8694ed2de4b801b4eb7",
           "role_order": [
             "media_kind",
             "title",
@@ -722,7 +722,7 @@
           ]
         },
         "structured_playback_input": {
-          "prompt_sha256": "ee23ac493fd15a33c3967edda9314d7d9ebd3ae963cf0b45cc48080eb827335a",
+          "prompt_sha256": "fb38e4efca513cd103a0ab8a3c572d44d7fda5581dbea8694ed2de4b801b4eb7",
           "role_order": [
             "media_kind",
             "title",
@@ -819,7 +819,7 @@
         },
         "structured_playback_generation": {
           "schema_version": 2,
-          "prompt_sha256": "adddb5092da1c351bda48adb67f09f644b8a519f2f8dabcaf8f0fb851e46a9ba",
+          "prompt_sha256": "6800b7fbd916c367761b3a007f2ff7d415a2f5a56210909c3fe18a35614a860f",
           "role_order": [
             "media_kind",
             "title",
@@ -827,7 +827,7 @@
           ]
         },
         "structured_playback_input": {
-          "prompt_sha256": "adddb5092da1c351bda48adb67f09f644b8a519f2f8dabcaf8f0fb851e46a9ba",
+          "prompt_sha256": "6800b7fbd916c367761b3a007f2ff7d415a2f5a56210909c3fe18a35614a860f",
           "role_order": [
             "media_kind",
             "title",
@@ -1025,7 +1025,7 @@
         },
         "structured_playback_generation": {
           "schema_version": 2,
-          "prompt_sha256": "3d02fccdb2d96920903bf5f40cffef29d0848c00852bffe1b5c9a88cd81591fb",
+          "prompt_sha256": "e19ca8c7c041b4c866dd19d6ca1db9de9be1f1b6acfed3b2dd851fca1f58e703",
           "role_order": [
             "title",
             "artist",
@@ -1033,7 +1033,7 @@
           ]
         },
         "structured_playback_input": {
-          "prompt_sha256": "3d02fccdb2d96920903bf5f40cffef29d0848c00852bffe1b5c9a88cd81591fb",
+          "prompt_sha256": "e19ca8c7c041b4c866dd19d6ca1db9de9be1f1b6acfed3b2dd851fca1f58e703",
           "role_order": [
             "title",
             "artist",
@@ -1130,7 +1130,7 @@
         },
         "structured_playback_generation": {
           "schema_version": 2,
-          "prompt_sha256": "a5a3d587eeb171ec3a5fdd0afc634be3564064f51a00de372657c619824a4840",
+          "prompt_sha256": "219ac4dafbfdc7625dda7cf867408ba414fad86cb5c2ef119f9be63ac84d3a76",
           "role_order": [
             "media_kind",
             "title",
@@ -1138,7 +1138,7 @@
           ]
         },
         "structured_playback_input": {
-          "prompt_sha256": "a5a3d587eeb171ec3a5fdd0afc634be3564064f51a00de372657c619824a4840",
+          "prompt_sha256": "219ac4dafbfdc7625dda7cf867408ba414fad86cb5c2ef119f9be63ac84d3a76",
           "role_order": [
             "media_kind",
             "title",
@@ -1235,7 +1235,7 @@
         },
         "structured_playback_generation": {
           "schema_version": 2,
-          "prompt_sha256": "eae07e02313065c1fd93fdc1455be8e1ba76e4253ead2a5a986f2fb77504ed6e",
+          "prompt_sha256": "f68ca8c963bb124163666faf2d8dfcee577ebb00e4e2d03bcadd8635ec333e1e",
           "role_order": [
             "media_kind",
             "title",
@@ -1243,7 +1243,7 @@
           ]
         },
         "structured_playback_input": {
-          "prompt_sha256": "eae07e02313065c1fd93fdc1455be8e1ba76e4253ead2a5a986f2fb77504ed6e",
+          "prompt_sha256": "f68ca8c963bb124163666faf2d8dfcee577ebb00e4e2d03bcadd8635ec333e1e",
           "role_order": [
             "media_kind",
             "title",
@@ -1340,7 +1340,7 @@
         },
         "structured_playback_generation": {
           "schema_version": 2,
-          "prompt_sha256": "f9ce2a853871952f45555f111bd40a68983e937e1258331ffafff69140dd48cb",
+          "prompt_sha256": "7cd1dfdd112e87749b7bc87eea7bf38058a8c3430cf8c5cd326a6846716bfd2c",
           "role_order": [
             "media_kind",
             "title",
@@ -1348,7 +1348,7 @@
           ]
         },
         "structured_playback_input": {
-          "prompt_sha256": "f9ce2a853871952f45555f111bd40a68983e937e1258331ffafff69140dd48cb",
+          "prompt_sha256": "7cd1dfdd112e87749b7bc87eea7bf38058a8c3430cf8c5cd326a6846716bfd2c",
           "role_order": [
             "media_kind",
             "title",
