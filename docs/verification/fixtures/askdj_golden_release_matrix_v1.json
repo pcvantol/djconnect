@@ -4520,6 +4520,14 @@
             {
               "file": "tests/test_personal_dj_runtime_expression.py",
               "method": "test_actual_pending_genre_transition_keeps_one_published_expression_frame"
+            },
+            {
+              "file": "tests/test_personal_dj_runtime_expression.py",
+              "method": "test_simulated_business_clock_keeps_a_real_timeout_and_restores_both_clocks"
+            },
+            {
+              "file": "tests/test_personal_dj_runtime_expression.py",
+              "method": "test_model_entry_wait_surfaces_early_producer_failure_or_empty_result"
             }
           ],
           "acceptance_status": "owner_contract",
