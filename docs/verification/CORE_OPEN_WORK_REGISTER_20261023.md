@@ -1,3 +1,16 @@
+# Help clock remediation Source1366 — 26 October 2026
+
+Protected `9c415b258fc9350888c0831638b64da4e8ed3a62`, reviewed `f57c4134159f3ae9cc14c641a5c73a67331e7bf1`, originally qualified by run40391625680.
+Formal SHA256 `a667c6a2ce79800bbb1ff8e22ae80d4dd99479a628b216348c526fe27a88dd04`, durable SHA256 `a73ec910eaf0db808bfec32c79ce2535ff109d7a251681d2e26751fba92fb6f3`;
+all12/exact-source coverage joins PASS. [Separate Final](HELP_EXACT_CLOCK_FINALIZATION_20261026.md).
+All271 products and catalogue rev2/hash5c8c unchanged:28 EN/NL qualified leaves,
+42 DE/FR/ES pending; original paid40/70 and editorial acceptance retained.
+3741 total/3734 PASS/seven existing skips. Original Final1364 run40339311425
+remains CANCELLED/unqualified; the original absent-entry trigger is not proven.
+This Final awaits its own protected/original qualification. Fresh HAdev installed
+readback, Apple R5 adoption, genuine push/B/Activity and HAproduction gates remain.
+All24/nine/Bulletin/VibeCast and historical evidence preserved; automationPAUSED.
+
 # Delivered EN/NL Help Source — 26 October 2026
 
 [PR1363](https://github.com/pcvantol/djconnect/pull/1363) protected `0af0130ad156a71fccb3ddda2ebf9c3f05c1a314`,
