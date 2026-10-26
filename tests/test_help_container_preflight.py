@@ -62,7 +62,7 @@ class HelpContainerPreflightTest(unittest.TestCase):
     def test_unknown_cleanup_cannot_produce_a_passing_setup_receipt(self):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            products = {f'synthetic-{i}': 'a' * 64 for i in range(265)}
+            products = {f'synthetic-{i}': 'a' * 64 for i in range(266)}
             result = SimpleNamespace(returncode=0, stdout=json.dumps(valid({})).encode())
             with patch.object(preflight, 'product_hashes', return_value=products), \
                  patch.object(preflight, 'profile_source_hashes', return_value={}), \
@@ -73,6 +73,26 @@ class HelpContainerPreflightTest(unittest.TestCase):
             self.assertEqual(receipt['status'], 'FAIL_SETUP_ONLY')
             self.assertEqual(receipt['own_container'], 'UNKNOWN')
             self.assertEqual(receipt['qualification'], 'NOT_QUALIFIED')
+
+    def test_exact_current_inventory_admits_only_current_files_before_container_IO(self):
+        source = Path(__file__).resolve().parents[1]
+        products = preflight.product_hashes(source)
+        expected = preflight.profile_source_hashes(source)
+        self.assertEqual(len(products), 266)
+        self.assertIn('custom_components/djconnect/artist_review_words.py', products)
+        output = SimpleNamespace(returncode=0, stdout=json.dumps(valid(expected)).encode())
+        with TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            with patch.object(preflight.subprocess, 'run', return_value=output) as execute, \
+                 patch.object(preflight, 'container_absent', return_value=True):
+                self.assertEqual(preflight.run(source, directory / 'current'), 0)
+                self.assertEqual(execute.call_count, 2)  # One probe plus owned cleanup.
+            for size in (265, 267):
+                with patch.object(preflight, 'product_hashes', return_value={str(i): 'a' * 64 for i in range(size)}), \
+                     patch.object(preflight.subprocess, 'run') as execute:
+                    with self.assertRaisesRegex(ValueError, 'preflight_source_or_owner_invalid'):
+                        preflight.run(source, directory / str(size))
+                    execute.assert_not_called()
 
     def test_paid_command_uses_private_lab_creator_without_relaxing_caps_or_secret_scope(self):
         marker = 'synthetic-credential-never-a-real-key'
