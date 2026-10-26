@@ -1,12 +1,40 @@
 """Real ordinary producers through the common two-call expression owner."""
 import asyncio
+from contextlib import contextmanager
 from dataclasses import replace
 import json
+import threading
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
 from tests import test_session_conversation_history as fixtures
+
+
+@contextmanager
+def _business_clock(clock):
+    """Simulate application time without freezing asyncio's timeout clock."""
+    real_monotonic = time.monotonic  # Capture the callable, not loop.time's wrapper.
+    loop = asyncio.get_running_loop()
+    with patch.object(loop, 'time', real_monotonic), patch('time.monotonic', lambda: clock[0]):
+        yield
+
+
+async def _wait_for_model_entry(producer, entered):
+    """A failed/finished producer must not leave an entered-only wait hanging."""
+    waiter = asyncio.create_task(entered.wait())
+    try:
+        done, _ = await asyncio.wait({producer, waiter}, timeout=2,
+            return_when=asyncio.FIRST_COMPLETED)
+        if producer in done:
+            producer.result()  # Preserve the original exception, if any.
+            raise AssertionError('Genre producer finished before the held model entry')
+        if waiter not in done or not entered.is_set():
+            raise AssertionError('Genre producer did not reach the model within two real seconds')
+    finally:
+        waiter.cancel()
+        await asyncio.gather(waiter, return_exceptions=True)
 
 
 class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
@@ -131,12 +159,11 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(row['summary']['moments_published']['value'], 0)
 
     async def test_actual_pending_genre_transition_keeps_one_published_expression_frame(self):
-        import time
         from custom_components.djconnect.narration_brief import NarratedText, admitted_runtime_text, recent_frames
         binding, archive = await self.history_authority()
         clock = [time.monotonic()]
         self.manager._monotonic_source = lambda: clock[0]
-        with patch('time.monotonic', lambda: clock[0]):
+        with _business_clock(clock):
             active = await self.manager.async_start(owner_profile_id='profile-a', selected_mood='groove', locale='nl',
                 session_start_strategy=self.r.SessionStartStrategy.DISCOVER, elapsed_time_source=lambda: clock[0], history_source_context=binding)
             active = await self.manager.async_update_presence(owner_profile_id='profile-a',
@@ -178,30 +205,70 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
                 state='playing', media_identity=media, title='Current title', artist='Local artist', duration_ms=600000, position_ms=45000)
             task = asyncio.create_task(self.manager.async_maybe_publish_intra_track_moment(owner_profile_id='profile-a',
                 session_id=active.session_id, media_identity=media))
-            await asyncio.wait_for(entered.wait(), 2)
-            self.assertIsNone(await self.manager.async_maybe_publish_intra_track_moment(owner_profile_id='profile-a',
-                session_id=active.session_id, media_identity=media))
-            self.assertEqual(active.moment_engine._expression_moment_ids, before)
-            release.set()
-            moment = await task
-            self.assertIsNotNone(moment)
-            self.assertEqual(moment.moment_type.value, 'transition')
-            self.assertTrue(admitted_runtime_text(moment))
-            current = await self.manager.async_get_active('profile-a')
-            self.assertEqual(current.moment_engine._expression_moment_ids, (*before, moment.moment_id)[-6:])
-            self.assertEqual(recent_frames(current.moment_engine._expression_forms)[-1], frame)
-            self.assertEqual(sum(m.moment_id == moment.moment_id for m in current.broadcast.state.dj_moments), 1)
-            self.assertIsNone(await self.manager.async_maybe_publish_intra_track_moment(owner_profile_id='profile-a',
-                session_id=active.session_id, media_identity=media))
-            self.assertEqual(current.moment_engine._expression_moment_ids.count(moment.moment_id), 1)
+            try:
+                await _wait_for_model_entry(task, entered)
+                self.assertIsNone(await self.manager.async_maybe_publish_intra_track_moment(owner_profile_id='profile-a',
+                    session_id=active.session_id, media_identity=media))
+                self.assertEqual(active.moment_engine._expression_moment_ids, before)
+                release.set()
+                moment = await task
+                self.assertIsNotNone(moment)
+                self.assertEqual(moment.moment_type.value, 'transition')
+                self.assertTrue(admitted_runtime_text(moment))
+                current = await self.manager.async_get_active('profile-a')
+                self.assertEqual(current.moment_engine._expression_moment_ids, (*before, moment.moment_id)[-6:])
+                self.assertEqual(recent_frames(current.moment_engine._expression_forms)[-1], frame)
+                self.assertEqual(sum(m.moment_id == moment.moment_id for m in current.broadcast.state.dj_moments), 1)
+                self.assertIsNone(await self.manager.async_maybe_publish_intra_track_moment(owner_profile_id='profile-a',
+                    session_id=active.session_id, media_identity=media))
+                self.assertEqual(current.moment_engine._expression_moment_ids.count(moment.moment_id), 1)
+                await self.manager.async_end(owner_profile_id='profile-a',session_id=active.session_id)
+                await self.fixture.service.async_close()
+                await self.fixture.service.async_initialize()
+                page=await self.fixture.queries.async_timeline_page('profile-a',active.session_id)
+                entry=next(e for e in page['entries'] if e.get('moment_id')==moment.moment_id)
+                self.assertEqual(entry['text'],moment.content)
+                self.assertTrue(entry['session_speech']['manual_allowed'])
+            finally:
+                release.set()
+                if not task.done():
+                    task.cancel()
+                await asyncio.gather(task, return_exceptions=True)
 
-            await self.manager.async_end(owner_profile_id='profile-a',session_id=active.session_id)
-            await self.fixture.service.async_close()
-            await self.fixture.service.async_initialize()
-            page=await self.fixture.queries.async_timeline_page('profile-a',active.session_id)
-            entry=next(e for e in page['entries'] if e.get('moment_id')==moment.moment_id)
-            self.assertEqual(entry['text'],moment.content)
-            self.assertTrue(entry['session_speech']['manual_allowed'])
+    async def test_simulated_business_clock_keeps_a_real_timeout_and_restores_both_clocks(self):
+        real_clock = time.monotonic
+        loop = asyncio.get_running_loop()
+        original_loop_time = loop.time
+        clock = [real_clock() + 225]
+        with _business_clock(clock):
+            self.assertEqual(time.monotonic(), clock[0])
+            waiter = asyncio.create_task(asyncio.wait_for(asyncio.Event().wait(), .02))
+            guard = threading.Timer(2, lambda: loop.call_soon_threadsafe(waiter.cancel))
+            guard.daemon = True
+            guard.start()
+            try:
+                with self.assertRaises(asyncio.TimeoutError):
+                    await waiter
+                self.assertEqual(time.monotonic(), clock[0])
+            finally:
+                guard.cancel()
+                guard.join(2)
+        self.assertIs(time.monotonic, real_clock)
+        self.assertEqual(loop.time, original_loop_time)
+
+    async def test_model_entry_wait_surfaces_early_producer_failure_or_empty_result(self):
+        async def failed():
+            raise RuntimeError('synthetic producer failure')
+        async def empty():
+            return None
+        with _business_clock([time.monotonic()]):
+            for operation, exception in ((failed, RuntimeError), (empty, AssertionError)):
+                task = asyncio.create_task(operation())
+                with self.subTest(operation=operation.__name__):
+                    with self.assertRaises(exception):
+                        await _wait_for_model_entry(task, asyncio.Event())
+                await asyncio.gather(task, return_exceptions=True)
+
 
 
     async def test_sql_rollback_keeps_every_track_started_commit_route_retryable(self):
