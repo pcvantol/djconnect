@@ -1,3 +1,14 @@
+## Current single verified playback handover Source — 26 October2026
+
+Source preparation over qualified1355/c3fd requests ONE complete playback
+reply instead of TWO; existing1..2 ABI/judges/medium profile and20s23s limits
+remain. Original24/40248955128 staysFAIL22/2,64reserved62complete/two incomplete
+near20s, consumed without retry; raw diagnostic counts do not replace original
+strict NULL counters. CurrentFR process contribution is not old23 whole-album
+overclaim. DFAA draft/70pending, all24requests/ninegates/Bulletin/PAUSED retained;
+new Source/content/configuration/Apple/Final/installed gates remain distinct.
+[Exact source and evidence](docs/verification/HELP_SINGLE_MEDIUM_HANDOVER_20261026.md).
+
 ## Current conditional gaps and fixed medium Help profile — 26 October 2026
 
 Source preparation over original-qualified1354/948: actual role-dependent

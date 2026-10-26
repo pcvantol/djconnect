@@ -150,6 +150,13 @@ class ConditionalPlaybackPromptTests(unittest.TestCase):
                         instructions, body = prompt.split('\nData:\n', 1)
                         data = json.loads(body)
                         roles = brief.literal_gap_slots()
+                        example_text = prompt.split('named gap before each Core role: ', 1)[1]
+                        example, _ = json.JSONDecoder().raw_decode(example_text)
+                        self.assertEqual(example['schema'], 'playback_role_gaps_v3')
+                        self.assertEqual(len(example['drafts']), 1)
+                        self.assertEqual(list(example['drafts'][0]['gaps']), roles)
+                        self.assertIn('Write exactly ONE complete reply', instructions)
+                        self.assertNotIn('TWO complete alternative replies', instructions)
                         self.assertEqual(data['gap_compilation_order'],
                             [part for name in roles for part in
                              ({'gap_before': name}, {'opaque_core_role': name})])

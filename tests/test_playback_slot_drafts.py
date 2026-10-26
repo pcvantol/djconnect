@@ -116,8 +116,7 @@ class PlaybackSlotDraftTests(unittest.TestCase):
                             self.assertNotIn('PRIVATE_', prompt)
                             self.assertEqual(set(data['required_slots']),
                                              {anchor[1:-1] for anchor in brief.anchors})
-                            self.assertEqual(len(example['drafts']), 2)
-                            self.assertNotEqual(example['drafts'][0], example['drafts'][1])
+                            self.assertEqual(len(example['drafts']), 1)
                             for draft in example['drafts']:
                                 self.assertIs(type(draft['gaps']), dict)
                                 self.assertEqual(set(draft['gaps']), set(data['core_slot_order']))
@@ -125,7 +124,14 @@ class PlaybackSlotDraftTests(unittest.TestCase):
                                 self.assertEqual(data['core_slot_order'][-1], 'status')
                                 self.assertRegex(draft['gaps']['status'], r'[.!?] $')
                             compiled = self.decode(example, brief)
-                            self.assertEqual(len(compiled.texts), 2)
+                            self.assertEqual(len(compiled.texts), 1)
+                            # Asking for one does not narrow the historical 1..2 ABI.
+                            compatible = deepcopy(example)
+                            alternative = deepcopy(example['drafts'][0])
+                            first_role = data['core_slot_order'][0]
+                            alternative['gaps'][first_role] = 'another ' + alternative['gaps'][first_role]
+                            compatible['drafts'].append(alternative)
+                            self.assertEqual(len(self.decode(compatible, brief).texts), 2)
                             for text in compiled.texts:
                                 self.assertTrue(text.endswith('. {status}'))
                                 self.assertTrue(all(text.count(anchor) == 1 for anchor in brief.anchors))
