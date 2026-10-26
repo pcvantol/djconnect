@@ -45,6 +45,17 @@ TARGET24_DELIVERY_V3 = (
     "catalogue-chain-album-nl-offer", "catalogue-chain-album-nl-accept", "catalogue-chain-album-nl-duplicate",
     "catalogue-chain-album-es-offer", "catalogue-chain-album-es-accept", "catalogue-chain-album-es-duplicate",
 )
+CONTENT_PROFILE_ID = 'help_medium_v1'
+CONTENT_REASONING_EFFORT = 'medium'
+CONTENT_MODEL = 'gpt-6-luna'
+
+
+def execution_profile():
+    """A fresh fixed descriptor; callers cannot select another current profile."""
+    return {'id': CONTENT_PROFILE_ID, 'model': CONTENT_MODEL,
+            'reasoning_effort': CONTENT_REASONING_EFFORT, 'maximum_output_tokens': 3000}
+
+
 EDITABLE = {
     "custom_components/djconnect/playback_request.py": "PLAYBACK_TELLING_STYLE",
     "custom_components/djconnect/ask_dj/dialogue.py": "ARTIST_BRIEF_TELLING_STYLE",
@@ -54,6 +65,7 @@ CONTROL_FILES = (
     "tools/verification/help_content_probe.py",
     "tools/verification/help_content_probe_child.py",
     "tools/verification/run_help_content_probe.py",
+    "tools/verification/help_content_medium_preflight.py",
 )
 
 
@@ -194,6 +206,7 @@ def validate_candidate(controller, candidate):
     content = digest(
         canonical(
             {
+                "execution_profile": execution_profile(),
                 "telling": values,
                 "fixed_instruction_code": fixed,
                 "fixed_inputs": fixed_inputs,
@@ -209,6 +222,7 @@ def validate_candidate(controller, candidate):
         "product_hashes": products,
         "profile_hashes": profile,
         "control_hashes": controls,
+        "execution_profile": execution_profile(),
         "telling_values_sha256": digest(canonical(values)),
         "candidate_inventory_entries": len(current),
     }
@@ -541,7 +555,7 @@ def structured_playback_inputs_complete(report, *, cases):
         return False
 
 
-def validate_selected_report(report, progress, *, pin, mode="target6"):
+def validate_selected_report(report, progress, *, pin, mode="target6", expected_profile="legacy_low"):
     from scripts.verification.askdj_example_catalogue_golden import (
         _validate_execution,
         cases,
@@ -598,7 +612,15 @@ def validate_selected_report(report, progress, *, pin, mode="target6"):
                 expected=[original[case] for case in selected],
                 qualification="REAL_PAIRED_HA_SELECTED_CATALOGUE_CASES_V1",
                 manifest=MANIFEST,
+                expected_profile=expected_profile,
             )
         )
     except (ValueError, KeyError, TypeError, UnicodeError, RecursionError):
         return False
+
+
+def validate_medium_selected_report(report, progress, *, pin, mode="target6"):
+    """Current content controller owns the expectation; a report cannot choose it."""
+    return (pin.get('execution_profile') == execution_profile()
+        and validate_selected_report(report, progress, pin=pin, mode=mode,
+                                     expected_profile=CONTENT_PROFILE_ID))

@@ -17,11 +17,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from tools.verification import run_help_catalogue_qualification_20261023 as safe
 from tools.verification.help_content_probe import (
     MANIFEST,
+    CONTENT_PROFILE_ID,
+    CONTENT_REASONING_EFFORT,
+    CONTENT_MODEL,
+    execution_profile,
     digest,
     git,
     mode_policy,
     validate_candidate,
-    validate_selected_report,
+    validate_medium_selected_report,
     validate_progress,
     selected_inputs_complete,
     generation_wire_complete,
@@ -102,7 +106,8 @@ def setup_only(root, directory):
             "-v",
             str(work) + ":/lab",
             IMAGE,
-            "/candidate/tools/verification/help100_preflight.py",
+            "/candidate/tools/verification/help_content_medium_preflight.py",
+            "--qualification-profile", CONTENT_PROFILE_ID,
         )
         require(
             created.returncode == 0 and re.fullmatch("[a-f0-9]{64}", created.stdout.strip()),
@@ -134,7 +139,13 @@ def setup_only(root, directory):
                 "test_credential",
                 "openai_version",
                 "httpx_version",
+                "qualification_profile",
+                "first_request_reasoning_effort",
+                "first_request_model",
             }
+            and value["qualification_profile"] == CONTENT_PROFILE_ID
+            and value["first_request_reasoning_effort"] == CONTENT_REASONING_EFFORT
+            and value["first_request_model"] == CONTENT_MODEL
             and value["schema"] == 1
             and value["status"] == "PASS_SETUP_ONLY_NOT_QUALIFIED"
             and value["actual_HA_setup"] == "FIRST_MODEL_REQUEST_FENCED"
@@ -412,7 +423,7 @@ def finish(controller, root, directory, work, coordinate, pin, key, code, absent
         safe.write_bytes(directory / "catalogue-golden.json", raw)
         unchanged = safe.product_hashes(root) == pin["product_hashes"]
         if selected:
-            valid = progress is not None and validate_selected_report(report, progress, pin=pin, mode=coordinate["mode"])
+            valid = progress is not None and validate_medium_selected_report(report, progress, pin=pin, mode=coordinate["mode"])
             inputs = selected_inputs_complete(report, mode=coordinate["mode"])
         else:
             from scripts.verification.artist_public_input_receipts import (
@@ -420,7 +431,8 @@ def finish(controller, root, directory, work, coordinate, pin, key, code, absent
             )
 
             profile = safe.load_profile(controller)
-            valid = profile.validate_report(report, source_hashes=pin["profile_hashes"])
+            valid = profile.validate_report(report, source_hashes=pin["profile_hashes"],
+                expected_profile=CONTENT_PROFILE_ID)
             inputs = artist_public_inputs_complete(report)
             from scripts.verification.askdj_example_catalogue_golden import cases, chain_cases
 
@@ -500,13 +512,17 @@ def execute(controller, root, directory, coordinate, pin, env):
     try:
         admitted = json.loads((directory / "admission.json").read_text())
         require(
-            admitted["coordinates"] == coordinate and admitted["content"] == pin,
+            admitted["coordinates"] == coordinate and admitted["content"] == pin
+            and pin.get("execution_profile") == execution_profile(),
             "ADMISSION_CHANGED",
         )
         readiness = json.loads((directory / "setup-preflight.json").read_text())
         require(
             readiness.get("status") == "PASS_SETUP_ONLY_NOT_QUALIFIED"
-            and readiness.get("own_container") == "VERIFIED_ABSENT",
+            and readiness.get("own_container") == "VERIFIED_ABSENT"
+            and readiness.get("qualification_profile") == CONTENT_PROFILE_ID
+            and readiness.get("first_request_reasoning_effort") == CONTENT_REASONING_EFFORT
+            and readiness.get("first_request_model") == CONTENT_MODEL,
             "SETUP_NOT_READY",
         )
         require(context(env) == coordinate, "CONTEXT_CHANGED")
@@ -592,7 +608,7 @@ def execute(controller, root, directory, coordinate, pin, env):
                 stdout=log,
                 stderr=subprocess.STDOUT,
             )
-            payload = json.dumps({"api_key": key, "model": "gpt-6-luna", "max_tokens": 3000})
+            payload = json.dumps({"api_key": key, "model": CONTENT_MODEL, "max_tokens": 3000})
             try:
                 while True:
                     try:

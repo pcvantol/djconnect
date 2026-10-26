@@ -49,7 +49,15 @@ class PlaybackRequestBrief(NarrationBrief):
         import json
         wire_example = ''
         names = self.literal_gap_slots()
+        kind_rule = ''
         if verified_drafts:
+            kind_rule = (
+                'This shape has a media_kind Core role: its localized noun is inserted by Core. '
+                'Do not repeat that noun or a synonym in the media_kind gap; stop after its article or preposition. '
+                if 'media_kind' in names else
+                'This shape has NO separate media_kind Core role. If natural grammar needs an ordinary kind noun, '
+                'use it once in the first gap; do not invent another Core role. '
+            )
             # Core owns every role. The model writes only the natural words
             # before each role; it cannot omit or duplicate a slot token.
             alternatives = [
@@ -102,9 +110,12 @@ class PlaybackRequestBrief(NarrationBrief):
                'Every key is required, even when its value is empty. Core orders these values by '
                'core_slot_order and inserts the corresponding opaque role; JSON key order has no authority. '
                'Never output an array or slot tokens. '
-               'Do not write a media kind as literal prose: its Core role supplies the localized noun. '
-               'Write its article or preposition in the preceding gap. Other gaps supply natural '
-               'grammar between the ordered roles. The final gap must end with sentence punctuation '
+               + kind_rule
+               + 'Each gap comes BEFORE its named opaque Core value, as gap_compilation_order shows. '
+               'The artist gap connects the title to the artist, and the album gap introduces the album. '
+               'Do not close the handover or invite listening in a gap before a music name that has not appeared yet. '
+               'All closing words or verb particles after the LAST music name belong in the status gap. '
+               'The final gap must end with sentence punctuation '
                'and one space immediately before the unchanged status sentence. '
                'No gap may contain braces or copied placeholders. Empty gaps are allowed when no '
                'words are needed. Each complete reply is maximum700characters. '
@@ -119,7 +130,10 @@ class PlaybackRequestBrief(NarrationBrief):
                         'core_owned_labels':self.core_owned_slots(),
                         'required_placeholders': self.anchors,
                         'required_slots': [slot[1:-1] for slot in self.anchors],
-                        'core_slot_order': names}, ensure_ascii=False)
+                        'core_slot_order': names,
+                        **({'gap_compilation_order': [part for name in names for part in
+                            ({'gap_before': name}, {'opaque_core_role': name})]}
+                           if verified_drafts else {})}, ensure_ascii=False)
 
     def literal_gap_slots(self):
         """The same complete role inventory, with the authoritative status last."""
