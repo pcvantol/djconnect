@@ -1,20 +1,3 @@
-## Current scoped textual Help work — 26 October2026
-
-Dutch and English are the explicitly selected textual Help release scope:
-40 original cases, tested in closed2→13→40 rounds. Free Ask DJ input remains
-independent of the example catalogue. Existing DE/FR/ES translations and prior
-results are retained outside this release. Canonical revision1/DFAA remains
-qualifiedfalse/70pending until real content and editorial acceptance plus
-protected publication and actual configuration/client/runtime gates. The new
-EN/NL artist path requires the explicitly configured public HA typed task;
-missing/unsafe/changed task closes the path. No task or provider is created.
-See [source and remaining work](docs/verification/HELP_EN_NL_TYPED_ARTIST_20261026.md).
-This source does not activate the pending larger Help catalogue/click behavior
-or the pure current-context endpoint. Apple must use a future actual exact
-producer descriptor and live eligibility, not a retained draft/template.
-
---- Previous complete body preserved below ---
-
 ## Current source preparation: named low Help experiment (2026-10-26)
 
 The separately admitted `help_low_v1` test profile keeps the same model and

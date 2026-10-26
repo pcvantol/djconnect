@@ -160,3 +160,16 @@ HAdev and production, API/provider and native/device acceptance remain separate.
 No installation, provider redeploy, key/provisioning action, Activity permission,
 Pi repair, APNs/iPhone receipt or user-acceptance claim follows from this source.
 The existing automation stays paused; no new timer, thread or writer is created.
+
+## Ordinary CI documentation correction
+
+The first PR1360 GitHub unit job121471887223/run40292888477 failed the existing
+compact README requirement: Root's appended technical status made it127 lines.
+That original failure remains retained. Root restored README byte-for-byte to
+protected4207 (the compact user entrypoint) and retains the complete new Help
+scope and evidence here and in the technical/rolling records. The failed job is
+not retried blindly and no test limit is relaxed. The new exact commit requires
+fresh normal CI and its own exact review/Owner Authorization. The prior local
+whole-suite result was collected before that late README addition; it does not
+prove the later127-line README was valid. A fresh immutable local rerun binds
+the corrected complete source snapshot before ordinary protected delivery.
