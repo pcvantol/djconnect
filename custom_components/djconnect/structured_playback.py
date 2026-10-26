@@ -230,7 +230,12 @@ async def generate(hass, *, agent_id, task_id, prompt, brief=None, admission, ar
     try:
         # Do not use wait_for/create_task: their separate ContextVar context
         # would hide the public task's session when its await is cancelled.
-        async with asyncio.timeout(30):
+        # Original-word assessment may need longer than generation. This one
+        # bounded call buys no retry; original turn/source/configuration fences
+        # and same-coroutine cancellation/session cleanup still apply.
+        seconds = (60 if artist is not None
+                   and artist.operation == "artist_word_review_v1" else 30)
+        async with asyncio.timeout(seconds):
             result = await ai_task.async_generate_data(hass, **args, llm_api=None, attachments=None)
             if (task := asyncio.current_task()) is not None and task.cancelling():
                 raise asyncio.CancelledError
