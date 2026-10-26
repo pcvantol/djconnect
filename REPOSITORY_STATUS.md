@@ -1,3 +1,14 @@
+## Current conditional gaps and fixed medium Help profile — 26 October 2026
+
+Source preparation over original-qualified1354/948: actual role-dependent
+kind instructions and explicit before-role interleaving; a separate fixed
+medium test profile preserves immutable consumed low preparation. Actual paid23
+remains22PASS/2FAIL/65complete plus independent French factual rejection; no
+retry or100 advance. Catalogue DFAA draft/70pending; configuration/Apple bridge,
+winning Source+separate Final and installed acceptance remain open. All24requests,
+ninegates/Bulletin and original histories retained; automation PAUSED.
+[Exact scope and evidence](docs/verification/HELP_CONDITIONAL_GAPS_MEDIUM_PROFILE_20261026.md).
+
 ## Current brief musical-work Source candidate — 25 October 2026
 
 Source-only ranking remediation over original-qualified PR1353/d4bdf108:

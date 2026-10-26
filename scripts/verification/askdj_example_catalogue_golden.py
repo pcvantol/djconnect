@@ -24,6 +24,21 @@ MAX_MODEL_CALLS = 392  # Core max300 + setup2; one separate judge per90 non-dupl
 MAX_REQUEST_MODEL_CALLS = 4  # Existing Core max3, plus one language-only judge.
 MAX_OUTPUT_TOKENS = 3000  # Existing configured HA conversation budget, including reasoning.
 REASONING_EFFORT = 'low'
+LEGACY_REASONING_PROFILE = 'legacy_low'
+MEDIUM_REASONING_PROFILE = 'help_medium_v1'
+
+
+def reasoning_effort_for_profile(profile):
+    """Closed caller-selected lab profile, never inferred from report metadata."""
+    if type(profile) is not str:
+        raise ValueError('unknown_qualification_profile')
+    if profile == LEGACY_REASONING_PROFILE:
+        return REASONING_EFFORT
+    if profile == MEDIUM_REASONING_PROFILE:
+        return 'medium'
+    raise ValueError('unknown_qualification_profile')
+
+
 LANGUAGE_JUDGE = ContextVar('catalogue_language_judge', default=None)
 
 
@@ -529,10 +544,11 @@ async def run(*, hass, call, start, end, state, provider_calls, model_receipts, 
         'speech':'NOT_RUN_audio_response_never', 'model_quality':'not_editorial_acceptance'}
 
 
-def validate_report(raw, *, source_hashes):
+def validate_report(raw, *, source_hashes, expected_profile=LEGACY_REASONING_PROFILE):
     """A skipped/duplicated/missing question or model/transport/effect receipt fails."""
     return _validate_execution(raw, source_hashes=source_hashes, expected=cases()+chain_cases(),
-        qualification='REAL_PAIRED_HA_EXACT_CATALOGUE_QUESTIONS_V1', manifest=manifest_digest())
+        qualification='REAL_PAIRED_HA_EXACT_CATALOGUE_QUESTIONS_V1', manifest=manifest_digest(),
+        expected_profile=expected_profile)
 
 
 def variation_manifest(corpus):
@@ -551,11 +567,18 @@ def validate_variation_report(raw, *, corpus, source_hashes):
         qualification='REAL_PAIRED_HA_CATALOGUE_VARIATIONS_V1',manifest=manifest)
 
 
-def _validate_execution(raw, *, source_hashes, expected, qualification, manifest):
+def _validate_execution(raw, *, source_hashes, expected, qualification, manifest,
+                        expected_profile=LEGACY_REASONING_PROFILE):
+    try:
+        effort = reasoning_effort_for_profile(expected_profile)
+    except ValueError:
+        return False
+    marker = expected_profile if expected_profile != LEGACY_REASONING_PROFILE else None
     if (not isinstance(raw, dict) or raw.get('qualification') != qualification
             or raw.get('status') != 'PASS' or raw.get('source_hashes') != source_hashes
             or raw.get('configured_maximum_tokens') != MAX_OUTPUT_TOKENS
-            or raw.get('configured_reasoning_effort') != REASONING_EFFORT
+            or raw.get('configured_reasoning_effort') != effort
+            or raw.get('qualification_profile') != marker
             or raw.get('selected_case_ids', []) != []
             or raw.get('source_unchanged') is not True
             or raw.get('pairing') != 'ordinary_device_token_minted_persisted'
@@ -565,7 +588,7 @@ def _validate_execution(raw, *, source_hashes, expected, qualification, manifest
     if not all(isinstance(x,list) for x in (rows,calls,transports)) or len(rows) != len(expected):
         return False
     if any(c.get('maximum_output_tokens') != MAX_OUTPUT_TOKENS
-           or c.get('reasoning_effort') != REASONING_EFFORT for c in calls):
+           or c.get('reasoning_effort') != effort for c in calls):
         return False
     if len({r.get('id') for r in rows if isinstance(r,dict)}) != len(expected):
         return False

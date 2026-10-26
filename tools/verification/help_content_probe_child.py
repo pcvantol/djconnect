@@ -11,7 +11,7 @@ import sys
 import time
 
 from tools.verification.help100_child import checkpoint, classify
-from tools.verification.help_content_probe import DiagnosticProgress, mode_policy
+from tools.verification.help_content_probe import CONTENT_PROFILE_ID, DiagnosticProgress, mode_policy
 
 
 def remaining(wall, mono):
@@ -74,7 +74,7 @@ async def execute():
     watcher = asyncio.create_task(watch())
     try:
         async with asyncio.timeout(seconds):
-            await module.main()
+            await module.main(qualification_profile=CONTENT_PROFILE_ID)
     except BaseException as exc:
         progress = getattr(module, "catalogue_progress", None)
         if progress is not None:
