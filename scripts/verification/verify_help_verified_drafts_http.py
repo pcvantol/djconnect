@@ -57,6 +57,7 @@ async def qualify(hass, manager, history, request, client):
                 assert projection['answer_form'] == ('Natural prose inside each draft text; '
                     'the outer response follows the Core-owned artist_evidence_drafts_v1 JSON output contract.')
             answer = {'drafts': frames if route == 'frame' else
+                      [original + ' ' + 'word ' * 512, bad] if mode == 'word_overflow' else
                       [original + '\x00', bad] if mode == 'control' else
                       [original, bad] if mode.startswith('first_') else [bad, original]}
             if route == 'artist':
@@ -95,8 +96,9 @@ async def qualify(hass, manager, history, request, client):
                 review = {'supported': positive, 'language_ok': True, 'style_ok': True}
                 if route == 'artist':
                     span = projection['evidence']['public_music_research']['sources'][0]['evidence_spans'][0]
-                    review.update(review_schema='source_id_review_v1', unsupported_claims=[] if positive else [row['text']],
-                        claim_checks=[{'text': row['text'], 'kind': 'fact', 'evidence_ids': [span['id']]}])
+                    review.update(review_schema='source_answer_ids_review_v1', unsupported_claims=[] if positive else [row['text']],
+                        claim_checks=[{'answer_from': row['answer_words'][0][0],
+                            'answer_to': row['answer_words'][-1][0], 'kind': 'fact', 'evidence_ids': [span['id']]}])
                     if not positive:
                         review.update(claim_checks=[], temporal_claims=[])
                 reviews.append({'index': row['index'], 'sha256': row['sha256'], 'review': review})
@@ -117,7 +119,7 @@ async def qualify(hass, manager, history, request, client):
         for route in ('frame', 'artist'):
             for mode in (('second', 'all_false', 'swapped', 'malformed', 'slots_second', 'slots_bad_second',
                           'roles_second', 'roles_reordered', 'roles_bad_second') if route == 'frame' else
-                         ('second', 'all_false', 'swapped', 'malformed', 'first_bad_claim', 'first_bad_temporal', 'control')):
+                         ('second', 'all_false', 'swapped', 'malformed', 'first_bad_claim', 'first_bad_temporal', 'control', 'word_overflow')):
                 if route == 'artist':
                     # Each case asks about CURRENT playback, not the previous
                     # accepted public story implicitly selected from history.
@@ -141,7 +143,7 @@ async def qualify(hass, manager, history, request, client):
                     answer, code = await request('POST', '/api/djconnect/v1/ask_dj/message', {
                         'client_message_id': 'verified-drafts-' + mode,
                         'text': 'Tell me about this artist', 'language': 'en', 'audio_response': 'never'})
-                    if mode == 'control':
+                    if mode in ('control', 'word_overflow'):
                         assert code == 502 and len(calls) == 2, (code, answer)
                         rows.append({'route': route, 'mode': mode, 'calls': len(calls), 'passed': True})
                         continue

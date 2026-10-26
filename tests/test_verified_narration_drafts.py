@@ -285,7 +285,7 @@ class VerifiedArtistDraftTests(unittest.IsolatedAsyncioTestCase):
         await f.asyncSetUp()
         try:
             bad, good = 'Volbeat invented every instrument.', 'Volbeat is a Danish band.'
-            for mode in ('second', 'all_false', 'swapped', 'malformed_last', 'first_bad_claim', 'first_bad_temporal', 'control'):
+            for mode in ('second', 'all_false', 'swapped', 'malformed_last', 'first_bad_claim', 'first_bad_temporal', 'control', 'word_overflow'):
                 await f.history.async_clear('profile:profile-a')
                 calls = []
                 async def agent(hass, data, **kwargs):
@@ -294,7 +294,8 @@ class VerifiedArtistDraftTests(unittest.IsolatedAsyncioTestCase):
                     if set(projection) == {'question', 'language', 'available'}:
                         reply = {'read': 'artist_story', 'reference': 'current', 'exclude_current': False}
                     elif 'evidence' not in projection:
-                        texts = ([good + '\x00', bad] if mode == 'control' else
+                        texts = ([good + ' ' + 'word ' * 512, bad] if mode == 'word_overflow' else
+                                 [good + '\x00', bad] if mode == 'control' else
                                  [good, bad] if mode.startswith('first_') else [bad, good])
                         reply = {'schema': 'artist_evidence_drafts_v1', 'drafts': [
                             {'anchors': [anchor['id']], 'text': text} for anchor, text in
@@ -302,7 +303,7 @@ class VerifiedArtistDraftTests(unittest.IsolatedAsyncioTestCase):
                     else:
                         rows = []
                         for row in projection['drafts']:
-                            review = id_review_fixture({**projection, 'answer': row['text']})
+                            review = id_review_fixture({**projection, 'drafts': [row]})['draft_reviews'][0]['review']
                             positive = row['index'] == (0 if mode.startswith('first_') else 1) and mode != 'all_false'
                             review.update(supported=positive, unsupported_claims=[] if positive else [row['text']])
                             if not positive:
@@ -326,7 +327,7 @@ class VerifiedArtistDraftTests(unittest.IsolatedAsyncioTestCase):
                         f.pipeline, '_call_conversation_process_transport', agent), patch.object(
                         f.core, 'run_music_command', status):
                     answer, code = await f.request('tell me about this artist', identifier='draft-' + mode)
-                if mode == 'control':
+                if mode in ('control', 'word_overflow'):
                     self.assertEqual(code, 502, answer)
                     self.assertEqual(len(calls), 2)
                     continue

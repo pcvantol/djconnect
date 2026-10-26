@@ -1,3 +1,11 @@
+## Current Help answer-reference review — 2026-10-26
+
+The artist review now has an explicit original-word address wire under validation;
+all source/semantic/date/role/style and budget fences remain. It is not a catalogue
+release: revision1/DFAA/70pending and historical paid failures are retained.
+See [the bounded contract](docs/verification/HELP_ARTIST_ANSWER_WORD_REVIEW_20261026.md).
+Current exact Source, CI, editorial and installed gates remain separate.
+
 > Help artist short cycle — 26 October 2026. The manual development policy adds
 > `target5_artist_v4`: the five original artist questions in en/nl/de/fr/es,
 > capped at 25 attempts, 3,000 output tokens and 600 seconds. Existing selected

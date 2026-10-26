@@ -93,7 +93,8 @@ def hashes():
     files.append(ROOT / 'custom_components/djconnect/ask_dj/examples_v1.json')
     files.append(ROOT / 'scripts/verification/source_fixture_urls.py')
     files.append(ROOT / 'scripts/verification/catalogue_progress.py')
-    files.append(ROOT / 'scripts/verification/artist_public_input_receipts.py')
+    files.extend(ROOT / name for name in ('scripts/verification/artist_public_input_receipts.py',
+        'scripts/verification/artist_answer_review_receipts.py'))
     return {
         str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)
     }
@@ -447,6 +448,9 @@ async def main(*, qualification_profile='legacy_low'):
                         # later model reply, batch decoder or review fails.
                         receipt['artist_public_input_sha256'] = append_artist_public_input(
                             artist_public_inputs, kwargs.get('input', []), case_id=case_id)
+                        from scripts.verification.artist_answer_review_receipts import capture_answer_review
+                        if answer_review := capture_answer_review(kwargs.get('input', [])):
+                            receipt['artist_answer_review'] = answer_review
                 if judge:
                     def contains_prompt(value):
                         if isinstance(value, str):

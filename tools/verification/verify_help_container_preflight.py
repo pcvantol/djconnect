@@ -25,8 +25,9 @@ def profile_source_hashes(source):
     # Current cost-free probe must bind the new observer actually imported by
     # the container. Keep consumed runner/profile maps byte-identical.
     hashes = historical_profile_source_hashes(source)
-    helper = 'scripts/verification/artist_public_input_receipts.py'
-    hashes[helper] = hashlib.sha256((source / helper).read_bytes()).hexdigest()
+    for helper in ('scripts/verification/artist_public_input_receipts.py',
+                   'scripts/verification/artist_answer_review_receipts.py'):
+        hashes[helper] = hashlib.sha256((source / helper).read_bytes()).hexdigest()
     return hashes
 
 

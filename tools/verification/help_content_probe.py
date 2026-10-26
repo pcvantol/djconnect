@@ -211,8 +211,9 @@ def validate_candidate(controller, candidate):
 
     products = safe.product_hashes(candidate)
     profile = safe.profile_source_hashes(candidate)
-    observer = "scripts/verification/artist_public_input_receipts.py"
-    profile[observer] = digest((candidate / observer).read_bytes())
+    for observer in ("scripts/verification/artist_public_input_receipts.py",
+                     "scripts/verification/artist_answer_review_receipts.py"):
+        profile[observer] = digest((candidate / observer).read_bytes())
     fixed_inputs = {
         name: value for name, value in {**products, **profile}.items() if name not in EDITABLE
     }
@@ -634,6 +635,10 @@ def validate_selected_report(report, progress, *, pin, mode="target6", expected_
 
 def validate_medium_selected_report(report, progress, *, pin, mode="target6"):
     """Current content controller owns the expectation; a report cannot choose it."""
+    from scripts.verification.artist_answer_review_receipts import answer_word_reviews_complete
+    selected, _, _ = mode_policy(mode)
+    artist_cases = [case for case in selected if case.startswith('catalogue-listen.artist-')]
     return (pin.get('execution_profile') == execution_profile()
+        and answer_word_reviews_complete(report, expected_cases=artist_cases)
         and validate_selected_report(report, progress, pin=pin, mode=mode,
                                      expected_profile=CONTENT_PROFILE_ID))

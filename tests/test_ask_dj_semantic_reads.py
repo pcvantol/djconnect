@@ -10,8 +10,25 @@ from tests import test_ask_dj_contextual_dialogue as shared
 def id_review_fixture(projection):
     """A reviewer selects the actual compact wire IDs; no copied quote in wire."""
     if 'drafts' in projection and 'answer' not in projection:
-        return {'draft_reviews': [{'index': row['index'], 'sha256': row['sha256'],
-            'review': id_review_fixture({**projection, 'answer': row['text']})} for row in projection['drafts']]}
+        rows = []
+        for row in projection['drafts']:
+            review = id_review_fixture({**projection, 'answer': row['text']})
+            if 'answer_words' in row:
+                # Synthetic reviewer selects explicit ranges, never runtime repair.
+                import re
+                words = list(re.finditer(r'\S+', row['text']))
+                cursor = 0
+                for claim in review['claim_checks']:
+                    segment = claim.pop('text')
+                    start = row['text'].index(segment, cursor)
+                    end = start + len(segment)
+                    first = next(i for i, word in enumerate(words) if word.start() == start)
+                    last = next((i for i, word in enumerate(words) if word.end() >= end), len(words) - 1)
+                    claim.update(answer_from=row['answer_words'][first][0], answer_to=row['answer_words'][last][0])
+                    cursor = words[last].end()
+                review['review_schema'] = 'source_answer_ids_review_v1'
+            rows.append({'index': row['index'], 'sha256': row['sha256'], 'review': review})
+        return {'draft_reviews': rows}
     from custom_components.djconnect.ask_dj.public_research import _sentences
     spans = [span for source in projection['evidence']['public_music_research']['sources']
              for span in source.get('evidence_spans', [])]
