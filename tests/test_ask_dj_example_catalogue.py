@@ -13,7 +13,7 @@ class ExampleCatalogueDraftTests(unittest.TestCase):
         cls.core = importlib.import_module('custom_components.djconnect.ask_dj')
         cls.catalogue = importlib.import_module('custom_components.djconnect.ask_dj.example_catalogue')
 
-    def test_native_play_requests_route_normally_but_remain_unqualified_without_actual_execution(self):
+    def test_native_play_requests_route_normally_with_only_en_nl_content_qualification(self):
         rows = {e['id']: e for e in self.catalogue.catalogue()['entries']}
         for language in ('en', 'nl', 'de', 'fr', 'es'):
             for id in ('play.artist', 'play.cooking', 'play.quiet'):
@@ -22,7 +22,8 @@ class ExampleCatalogueDraftTests(unittest.TestCase):
                 self.assertEqual(intent.intent, 'play_music', (language, question))
                 self.assertEqual(intent.category, 'hybrid')
                 self.assertTrue(self.core._execution_request(question))
-                self.assertNotEqual(rows[id]['qualification'][language]['state'], 'qualified_owner_route')
+                self.assertEqual(rows[id]['qualification'][language]['state'] == 'qualified_owner_route',
+                                 language in {'en', 'nl'})
 
     def test_native_subject_parser_is_not_a_catalogue_artist_alias(self):
         from custom_components.djconnect.music_intent import parse_spoken_music_request
@@ -122,12 +123,16 @@ class ExampleCatalogueDraftTests(unittest.TestCase):
             'supports_queue': True, 'supports_outputs': True, 'supports_recently_played': True,
             'agent_available': True, 'spotify': True, 'current_track': True,
             'current_album': True, 'active_session': True, 'forecast_ready': True,
-            'contracts': {'session_forecast': 1}, 'slots': {'artist': 'Volbeat'}}
-        for language in ('en', 'nl', 'de', 'fr', 'es'):
-            self.assertEqual(self.catalogue.eligible(context, 'ask_dj', language), [])
-            self.assertEqual(self.catalogue.help_sections(language, context), [])
-            self.assertEqual(self.catalogue.select(context, 'active_session', language,
-                epoch='one-opening')['suggestions'], [])
+            'contracts': {'session_forecast': 1}, 'slots': {'artist': 'Volbeat'},
+            'entry_configuration': dict.fromkeys((e['id'] for e in self.catalogue.catalogue()['entries']), True)}
+        draft = self.catalogue.catalogue()
+        draft['status'] = 'draft_not_consumer_qualified'
+        with patch.object(self.catalogue, '_CATALOGUE', draft):
+            for language in ('en', 'nl', 'de', 'fr', 'es'):
+                self.assertEqual(self.catalogue.eligible(context, 'ask_dj', language), [])
+                self.assertEqual(self.catalogue.help_sections(language, context), [])
+                self.assertEqual(self.catalogue.select(context, 'active_session', language,
+                    epoch='one-opening')['suggestions'], [])
 
     def test_eligibility_is_per_locale_and_uses_same_gate_for_help_and_chips(self):
         draft = self.catalogue.catalogue()
@@ -138,6 +143,7 @@ class ExampleCatalogueDraftTests(unittest.TestCase):
         context = {'catalogue': self.catalogue.capability(), 'paired': True, 'online': True,
             'backend_available': True, 'supports_search': True, 'slots': {'artist': 'Volbeat'}}
         context['catalogue']['qualified']=True
+        context['entry_configuration'] = dict.fromkeys((e['id'] for e in draft['entries']), True)
         with patch.object(self.catalogue, '_CATALOGUE', draft):
             self.assertEqual(len(self.catalogue.eligible(context, 'ask_dj', 'nl')), 1)
             self.assertEqual(len(self.catalogue.help_sections('nl', context)), 1)
@@ -156,6 +162,7 @@ class ExampleCatalogueDraftTests(unittest.TestCase):
         context = {'catalogue':self.catalogue.capability(), 'paired':True, 'online':True,
             'backend_available':True, 'supports_search':True}
         context['catalogue']['qualified']=True
+        context['entry_configuration'] = dict.fromkeys((e['id'] for e in draft['entries']), True)
         with patch.object(self.catalogue, '_CATALOGUE', draft):
             self.assertEqual(self.catalogue.eligible(context, 'ask_dj', 'nl'), [])
             context['slots'] = {'artist':'{private value}'}
@@ -175,6 +182,7 @@ class ExampleCatalogueDraftTests(unittest.TestCase):
         context={'catalogue':self.catalogue.capability(),'paired':True,'online':True,
                  'backend_available':True,'supports_search':True,'slots':{'artist':'Volbeat'}}
         context['catalogue']['qualified']=True
+        context['entry_configuration'] = dict.fromkeys((e['id'] for e in draft['entries']), True)
         with patch.object(self.catalogue,'_CATALOGUE',draft):
             self.assertTrue(self.catalogue.eligible(context,'ask_dj','nl-BE'))
             for language in ('it','ja',None,''):
@@ -188,7 +196,9 @@ class ExampleCatalogueDraftTests(unittest.TestCase):
                 changed={**context,'catalogue':{**context['catalogue'],key:value}}
                 self.assertEqual(self.catalogue.eligible(changed,'ask_dj','nl'),[])
         # A consumer cannot turn a draft producer into a qualified source.
-        self.assertEqual(self.catalogue.eligible(context,'ask_dj','nl'),[])
+        draft['status'] = 'draft_not_consumer_qualified'
+        with patch.object(self.catalogue, '_CATALOGUE', draft):
+            self.assertEqual(self.catalogue.eligible(context,'ask_dj','nl'),[])
 
     def test_runtime_projection_exactly_matches_single_canonical_json_without_runtime_file_read(self):
         from pathlib import Path
@@ -213,6 +223,7 @@ class ExampleCatalogueDraftTests(unittest.TestCase):
             'slots':{'artist':'Volbeat'}}
         context.update({key:True for row in draft['entries'] for key in row['requires']})
         context['catalogue']['qualified']=True
+        context['entry_configuration'] = dict.fromkeys((e['id'] for e in draft['entries']), True)
         with patch.object(self.catalogue,'_CATALOGUE',draft):
             for locale in draft['language_families']:
                 for surface in ('ask_dj','active_session'):

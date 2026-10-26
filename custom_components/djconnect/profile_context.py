@@ -341,7 +341,8 @@ def _profile_storage(hass: Any) -> ProfilePlatformStorage:
     manager = domain_data.get(PROFILE_PLATFORM_STORE_KEY)
     if not isinstance(manager, ProfilePlatformStorage):
         manager = ProfilePlatformStorage(hass)
-        domain_data[PROFILE_PLATFORM_STORE_KEY] = manager
+        from .profile_observation import publish_manager
+        publish_manager(hass, domain_data, manager)
     return manager
 
 

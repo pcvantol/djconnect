@@ -1,3 +1,7 @@
+## Live Help context and EN/NL catalogue revision2
+
+GET `/api/djconnect/v1/ask_dj/help-context` is a paired pure observation, not execution. Exact raw query/ten-key response/five-key descriptor and original15s client rules are canonical in [ASK_DJ_HELP_CONTEXT_V1](docs/product/ASK_DJ_HELP_CONTEXT_V1.md). Only28 EN/NL leaves qualify;42 DE/FR/ES leaves remain pending. Unknown current owner/source/configuration closes examples; free Ask DJ stays independent. [Original content and source bridge](docs/verification/HELP_EN_NL_LIVE_PUBLICATION_20261026.md). Protected delivery, Apple adoption and installed acceptance remain separate.
+
 ## Current EN/NL textual Help qualification source — 26 October2026
 
 Peter limited textual Help to Dutch and English:40 original cases,20 per

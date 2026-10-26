@@ -6,7 +6,7 @@ The machine-readable route inventory is
 ## HA API
 
 `CONFIRMED_CODE` HA route constants live in `custom_components/djconnect/const.py`.
-View classes live in `custom_components/djconnect/http.py`.
+View classes live in `custom_components/djconnect/http.py` and dedicated transport modules such as `help_http.py`.
 
 `CONFIRMED_CODE` Route registration is idempotent and is performed during both
 integration setup and config-entry setup. The config-entry registration keeps
@@ -23,6 +23,18 @@ it neither grants owner access nor changes transport behaviour.
 `CONFIRMED_CODE` Most DJConnect HA views set `requires_auth = False` and perform
 DJConnect bearer/device validation inside the handler. Voice debug is the
 exception observed with `requires_auth = True`.
+
+## Pure live Help observation
+
+`CONFIRMED_CODE` `GET /api/djconnect/v1/ask_dj/help-context` returns only exact
+current paired owner/configuration eligibility. No GET body, storage warming,
+identity learning, provider/model calls or execution. The raw query grammar,
+closed ten-key positive/negative shape, five-key exact descriptor, original15s
+client lease and EN/NL-only catalogue qualification are defined in
+[Ask DJ live Help context](../product/ASK_DJ_HELP_CONTEXT_V1.md). Typed Help uses
+the same base predicate. Ordinary free Send remains independent of catalogue
+entry IDs and observation IDs. Protected Source/Final, Apple adoption and actual
+installed/native acceptance are separate proof scopes.
 
 ## Shared Ask DJ owner requests
 

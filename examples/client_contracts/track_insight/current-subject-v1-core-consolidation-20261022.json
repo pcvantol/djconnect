@@ -25,7 +25,7 @@
   "responses": {
     "current": {
       "id": "track_insight_46f2f86799b7612de36684bd",
-      "created_at": "2026-10-26T11:26:13.715409+00:00",
+      "created_at": "2026-10-26T13:07:52.046552+00:00",
       "source": "current_detail",
       "language": "nl",
       "mood_context": null,
@@ -92,7 +92,7 @@
         "schema_version": 1,
         "media_identity": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
         "observation_id": "<opaque-observation-redacted>",
-        "expires_at": 1793014003.714741,
+        "expires_at": 1793020102.0458012,
         "expires_in": 29
       }
     },
@@ -117,14 +117,14 @@
   "installed": "NOT_RUN",
   "native": "NOT_RUN",
   "source_pins": {
-    "custom_components/djconnect/__init__.py": "b4733d5bb6319a51eff2ba65c82c4c2d19cd10b2024d42e4cedcd0d3e94c765c",
+    "custom_components/djconnect/__init__.py": "c62ef314aa65a5dd6179b0939bdbc6e1bd1f760df6042fcaf907dd9bc1fa885f",
     "custom_components/djconnect/current_track_insight.py": "dcc34c7798e1debfbbe0b90db9b89d32fee81334e55835f03dee9fc8aac76164",
     "custom_components/djconnect/track_insight.py": "c582c0fae1e5bd50096684d5801dd253cc150205e94aecb5bf77306e670404e8",
     "custom_components/djconnect/track_insight_target.py": "4b15a6a428b02f3872dad1b1b0b07c7d02a3ccd9155227e71e5b05ff637b10b0",
     "custom_components/djconnect/capability_contract.py": "92f78ca22d1a0e2a09ba3d9f589a2544ad7814fc99258a53b7fcca8990c7062c",
     "custom_components/djconnect/playback_observation.py": "90bfe43beb0c84964c20b0825fbfa2fad2dc4bea47e54717f0e9a4f49b103d6b",
     "custom_components/djconnect/spotify_backend.py": "3cd4337aa6664d1dd293f40afbecef7063baba94cbe9cf17276e8bb1e1eefb45",
-    "custom_components/djconnect/profile_context.py": "b65b5bc6159b10b4f8c864c5af4a2bdaeda34449eb8e839e0f253db302a58320",
+    "custom_components/djconnect/profile_context.py": "20cd040046af8276b3314596ff653148c856d3f3a9ed70fe3ad0c73490b6d851",
     "custom_components/djconnect/api_handlers.py": "f3727a48e2051add6558fd40e513ba5ba99dfc7eeaf3c48fe3d02d909176011a",
     "custom_components/djconnect/transport_delivery.py": "70b45afe6e25f960973affd39ae6d77e8a695db41df8919e749ca6885aedd8af",
     "custom_components/djconnect/session_runtime.py": "885d86ee3debd2ddd51294bbc8e1e60a4260bd93db22928508a73c8a1397d4f1",
@@ -134,7 +134,7 @@
   },
   "harness": "scripts/verification/verify_current_track_insight_http.py",
   "harness_sha256": "0e9ade12c2727538a2abb03391d5ec8e394948737ed542ff7892a06ed5226f26",
-  "actual_ha_receipt_sha256": "a9ee13ce7d28632896c73d685774669c5c1ee5e8105e8fd0a86dc42daa413c54",
+  "actual_ha_receipt_sha256": "8e1f78ffc7db49d0ebea780a6b4c4a6165392e8f9c9543e750fbb275eb596f0d",
   "source_unchanged": true,
   "playback_mutations": 0
 }

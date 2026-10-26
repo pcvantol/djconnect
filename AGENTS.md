@@ -1,3 +1,7 @@
+## Current Help publication boundary
+
+The EN/NL-only textual qualification release is explicit human scope:28 entry-locale leaves,42 unchanged pending DE/FR/ES leaves. Preserve all five-language UI/localization data. The pure paired Help GET and shared typed Help base use only committed, already loaded owner/source/configuration evidence; no warming, auth learning, provider/model calls or catalogue-ID execution. Free Send stays independent. See `docs/product/ASK_DJ_HELP_CONTEXT_V1.md`; normal protected Source/separate Final and installed/native gates remain mandatory.
+
 # DJConnect context
 
 Project: DJConnect

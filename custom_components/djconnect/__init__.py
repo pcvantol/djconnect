@@ -1849,6 +1849,7 @@ def register_http_views(hass: HomeAssistant) -> None:
     hass.data.setdefault(DOMAIN, {})
     if not hass.data[DOMAIN].get("http_registered"):
         from .paired_live import DJConnectPairedLiveView
+        from .help_http import HelpContextView
         from .surface_push_http import surface_views
         from .hybrid_transport import HybridActionsView, HybridContextView, HybridOperationView, HybridOperationStatusView, HybridRecoveryView
         from .display_transport import transition_views
@@ -1857,6 +1858,7 @@ def register_http_views(hass: HomeAssistant) -> None:
         from .visual_director_http import VibeScapeContextView, VibeScapeInterpretView, VibeScapeRevokeView
 
         for view in [
+            HelpContextView(hass),
             *surface_views(hass),
             *transition_views(hass), DisplayLiveView(hass), DisplayShellView(hass),
             HybridActionsView(hass), HybridContextView(hass), HybridOperationView(hass),
@@ -1967,6 +1969,8 @@ def register_http_views(hass: HomeAssistant) -> None:
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    from .profile_observation import bootstrap_from_integration_setup
+    bootstrap_from_integration_setup(hass)
     register_http_views(hass)
     return True
 
@@ -3269,6 +3273,8 @@ async def _music_dna_enabled_for_daily_push(
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    from .profile_observation import invalidate
+    invalidate(hass)
     hass.data.setdefault(DOMAIN, {})
     try:
         await async_initialize_persistence(hass)
@@ -3416,6 +3422,8 @@ async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Conservative immediate revocation, before platform unload can yield.
+    from .profile_observation import invalidate
+    invalidate(hass)
     from .visual_director_runtime import withdraw_all
     withdraw_all(hass)
     surface_service = hass.data.get(DOMAIN,{}).get("surface_push_service")

@@ -130,13 +130,22 @@ class TaskBinding:
     fingerprint: str
 
 
-def capture_task(hass, agent_id, task_id):
+def capture_task(hass, agent_id, task_id, *, loaded_only=False):
     """Missing, unsafe or changed explicit configuration never selects a default."""
     from homeassistant.const import __version__
     from homeassistant.components import ai_task
     from homeassistant.components.ai_task.const import DATA_COMPONENT
     from homeassistant.helpers import entity_registry
     from .ask_dj.dialogue import DialogueError, qualify_agent
+    if loaded_only:
+        from homeassistant.components.conversation import DATA_COMPONENT as CONVERSATION_COMPONENT
+        # Both public singleton getters below otherwise create persistent state.
+        # Presentation may inspect only already-loaded owners and exact entities.
+        if (entity_registry.DATA_REGISTRY not in hass.data
+                or "conversation_agent" not in hass.data
+                or CONVERSATION_COMPONENT not in hass.data
+                or type(agent_id) is not str or not agent_id.startswith("conversation.")):
+            raise DialogueError("structured_playback_task_unqualified", 503)
     if (__version__ != SUPPORTED_HA_VERSION or type(task_id) is not str
             or not task_id.startswith("ai_task.") or len(task_id) > 255):
         raise DialogueError("structured_playback_task_unqualified", 503)

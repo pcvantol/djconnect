@@ -182,10 +182,10 @@
   },
   "ask_dj_examples": {
     "schema_version": 1,
-    "qualified": false,
+    "qualified": true,
     "catalogue_id": "ask_dj_examples_v1",
-    "revision": 1,
-    "sha256": "dfaa98a1659ef5673037da26f98136314b314beea8afe8e31af4ffd5bd6ac4e7",
+    "revision": 2,
+    "sha256": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
     "projection": "pinned_local_mirror",
     "network_per_render": false,
     "model_calls_per_render": false,

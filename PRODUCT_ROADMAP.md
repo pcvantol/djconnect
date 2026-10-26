@@ -1,3 +1,27 @@
+## Current EN/NL Help content acceptance and live publication — 26 October2026
+
+Original source608/PR1362 is protected and ORIGINAL_QUALIFIED. Its full EN/NL40
+content run40320113775 passed40/40 with70/70 SDK responses and both Root and
+independent ALL40 editorial acceptance. No paid repetition is needed. Revision2
+source candidate qualifies28 EN/NL leaves;42 DE/FR/ES leaves and all stored
+translations remain unchanged/pending. Free Ask DJ is not a catalogue whitelist.
+
+This increment adds pure paired live Help context, committed Profile writer/
+lifetime/uncertainty fences, exact selected public Task configuration per route
+and shared typed Help/chip eligibility. Same271 products passed14 ordinary HA
+groups and18 new R5 wire/negative checks, with zero model/external calls and all
+owned containers removed. Independent source-semantic/history and final-fence
+reviews are bounded preparation evidence, not whole Source or installed GO.
+[Scope, originals and limits](docs/verification/HELP_EN_NL_LIVE_PUBLICATION_20261026.md).
+
+Normal protected Source plus separate Final/original qualification, owning Apple
+exact pin/Reader adoption and actual HA-dev readback remain delivery gates;
+HA production configuration, physical/native/provider/audio acceptance stay
+separate. All24requests/ninegates/Bulletin/VibeCast are retained. Automation is
+PAUSED. Earlier nested statuses below retain their own historical scope.
+
+--- Earlier complete body preserved below ---
+
 ## Current bounded artist review correction — 26 October2026
 
 Original EN/NL short probe37 completed English PASS; the Dutch original-word

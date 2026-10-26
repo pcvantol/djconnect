@@ -5,6 +5,7 @@
   "sources": [
     "custom_components/djconnect/const.py",
     "custom_components/djconnect/http.py",
+    "custom_components/djconnect/help_http.py",
     "/Users/pcvantol/Documents/GitHub/djconnect-esp32/src/DJConnectApiServer.cpp",
     "/Users/pcvantol/Documents/GitHub/djconnect-pi/src/djconnect_pi/client_api.py",
     "/Users/pcvantol/Documents/GitHub/djconnect-api/src/index.ts"
@@ -19,6 +20,7 @@
     {"method": "GET", "path": "/api/djconnect/v1/session/active", "purpose": "Restore an existing active DJ Session Runtime for a resolved Profile", "auth": "DJConnect bearer", "owner": "djconnect", "consumers": ["Apple"], "deprecated": false},
     {"method": "POST", "path": "/api/djconnect/v1/event", "purpose": "Device/client events", "auth": "DJConnect bearer", "owner": "djconnect", "consumers": ["ESP32", "Pi"], "deprecated": false},
     {"method": "POST", "path": "/api/djconnect/v1/ask_dj", "purpose": "Raw/developer Ask DJ call", "auth": "DJConnect bearer", "owner": "djconnect", "consumers": ["developer", "legacy clients"], "deprecated": false},
+    {"method": "GET", "path": "/api/djconnect/v1/ask_dj/help-context", "purpose": "Pure current committed Help eligibility; exact adopted catalogue only; no execution or provider/model work", "auth": "exact paired DJConnect bearer + X-DJConnect-Device-ID", "owner": "djconnect", "consumers": ["Apple", "Pi"], "deprecated": false},
     {"method": "POST", "path": "/api/djconnect/v1/ask_dj/message", "purpose": "Ask DJ chat message with history sync", "auth": "DJConnect bearer", "owner": "djconnect", "consumers": ["Apple", "Windows", "Pi"], "deprecated": false},
     {"method": "POST", "path": "/api/djconnect/v1/ask_dj/clear", "purpose": "Legacy Ask DJ clear", "auth": "DJConnect bearer", "owner": "djconnect", "consumers": ["legacy clients"], "deprecated": false},
     {"method": "GET", "path": "/api/djconnect/v1/ask_dj/history", "purpose": "Ask DJ history sync", "auth": "DJConnect bearer", "owner": "djconnect", "consumers": ["Apple", "Windows", "Pi"], "deprecated": false},

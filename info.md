@@ -7,6 +7,8 @@
 Your personal music DJ in Home Assistant: ask for music, enjoy DJ contributions
 and choose your session mood through an available client or Assist.
 
+Help examples in English and Dutch appear when DJConnect can confirm they are available. You can always ask in your own words. [About Help](https://github.com/pcvantol/djconnect/blob/main/docs/product/ASK_DJ_EXAMPLE_CATALOGUE_V1.md).
+
 **[Install with HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration)**, restart Home Assistant, then open
 **Settings → Devices & services → Add integration → DJConnect**.
 

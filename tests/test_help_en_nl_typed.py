@@ -11,7 +11,10 @@ from tools.verification import help_content_probe as policy
 from scripts.verification.askdj_example_catalogue_golden import cases, chain_cases, manifest_digest
 
 
+from tests.help_catalogue_history import original_catalogue_v1_case
+
 class EnNlScopeTests(unittest.TestCase):
+    @original_catalogue_v1_case
     def test_closed_original_scope_keeps_questions_effects_order_and_historical_manifest(self):
         original = cases() + chain_cases()
         full = tuple(c['id'] for c in original if c['language'] in ('en', 'nl'))
