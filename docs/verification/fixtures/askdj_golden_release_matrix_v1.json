@@ -5965,6 +5965,22 @@
         {
           "file": "tests/test_pipeline.py",
           "method": "test_accepted_reply_finishes_review_after_slow_generation_but_keeps_source_expiry"
+        },
+        {
+          "file": "tests/test_ask_dj_artist_review_window.py",
+          "method": "test_review_can_finish_after_generation_limit_without_retry"
+        },
+        {
+          "file": "tests/test_ask_dj_artist_review_window.py",
+          "method": "test_generation_and_playback_keep_original_short_limit"
+        },
+        {
+          "file": "tests/test_ask_dj_artist_review_window.py",
+          "method": "test_external_cancellation_cleans_owned_session_and_never_retries"
+        },
+        {
+          "file": "tests/test_ask_dj_artist_review_window.py",
+          "method": "test_task_revision_change_closes_completed_review"
         }
       ],
       "steps": [
