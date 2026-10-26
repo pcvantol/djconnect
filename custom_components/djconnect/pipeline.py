@@ -315,6 +315,22 @@ async def call_conversation_process_with_agent_retry(hass, data, *, debug=None, 
     return result
 
 
+async def call_structured_artist(hass, data, *, task_id, operation):
+    """Explicit public task; same original turn/agent budget, no fallback/retry."""
+    from .structured_playback import generate
+    from .ask_dj.dialogue import qualify_agent, DialogueError
+    turn, agent = await _reserve_qualified_model_call(hass, data, None)
+    def admission():
+        if qualify_agent(hass, data.get("agent_id")) is not agent:
+            raise DialogueError("conversation_agent_changed", 503)
+    wire = await generate(hass, agent_id=data.get("agent_id"), task_id=task_id,
+        prompt=data["text"], artist=operation, admission=admission)
+    if turn is not None:
+        await turn.guard()
+    admission()
+    return wire
+
+
 async def _call_structured_playback(hass, data, *, task_id, brief, model_guard):
     """The explicit task consumes the same allowance as conversation generation."""
     from .structured_playback import generate

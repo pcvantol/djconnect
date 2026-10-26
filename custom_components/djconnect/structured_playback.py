@@ -191,7 +191,7 @@ def capture_task(hass, agent_id, task_id):
     return TaskBinding(agent, entity, entry, subentry, fingerprint)
 
 
-async def generate(hass, *, agent_id, task_id, prompt, brief, admission):
+async def generate(hass, *, agent_id, task_id, prompt, brief=None, admission, artist=None):
     """One public task in this coroutine, with same-task cancellation cleanup."""
     from homeassistant.components import ai_task
     from homeassistant.helpers import chat_session
@@ -202,18 +202,28 @@ async def generate(hass, *, agent_id, task_id, prompt, brief, admission):
     # method, private provider client or preferred-entity lookup.
     if not hass.services.has_service("ai_task", "generate_data"):
         raise DialogueError("structured_playback_task_unqualified", 503)
-    structure = role_schema(brief)
-    args = {"task_name": "DJConnect playback handover", "entity_id": task_id,
+    from .structured_artist import ArtistTask, current_operation, schema as artist_schema
+    if artist is not None:
+        if (type(artist) is not ArtistTask or brief is not None
+                or artist.prompt_sha256 != hashlib.sha256(prompt.encode()).hexdigest()):
+            raise DialogueError("structured_artist_scope", 503)
+        structure = artist_schema(artist)
+        task_name = "DJConnect " + artist.operation
+    else:
+        structure = role_schema(brief)
+        task_name = "DJConnect playback handover"
+    args = {"task_name": task_name, "entity_id": task_id,
             "instructions": prompt, "structure": structure}
     session_var = getattr(chat_session, "current_session", None)
     if session_var is None:
         raise DialogueError("structured_playback_task_unqualified", 503)
-    generation = GenerationWitness(hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
-                                   tuple(brief.literal_gap_slots()))
+    generation = (GenerationWitness(hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
+                                   tuple(brief.literal_gap_slots())) if artist is None else None)
     prior = session_var.get()
     prior_ids = frozenset(hass.data.get(chat_session.DATA_CHAT_SESSION, {}))
     token = session_var.set(prior)
     generation_token = current_generation.set(generation)
+    operation_token = current_operation.set(artist)
     result = None
     wire = None
     owned_session = None
@@ -260,7 +270,10 @@ async def generate(hass, *, agent_id, task_id, prompt, brief, admission):
             try:
                 session_var.reset(token)
             finally:
-                current_generation.reset(generation_token)
+                try:
+                    current_generation.reset(generation_token)
+                finally:
+                    current_operation.reset(operation_token)
     if (task := asyncio.current_task()) is not None and task.cancelling():
         raise asyncio.CancelledError
     current = capture_task(hass, agent_id, task_id)

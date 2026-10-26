@@ -2964,11 +2964,20 @@ async def _informational_assist_response(
         turn = current_turn.get()
         if turn:
             await turn.guard()
-        result = await _call_dialogue_agent(hass, data)
+        typed_artist = artist_corpus is not None and str(language).split("-")[0].lower() in {"en", "nl"}
+        if typed_artist:
+            from ..structured_artist import generation
+            from ..structured_playback import TASK_CONFIG
+            from ..pipeline import call_structured_artist
+            wire = await call_structured_artist(hass, data,
+                task_id=assist_context.get(TASK_CONFIG), operation=generation(prompt, artist_corpus))
+            message = wire
+        else:
+            result = await _call_dialogue_agent(hass, data)
+            agent_response = (result or {}).get("response") or {}
+            message = "" if agent_response.get("error") else _speech_from_response(agent_response)
         if turn:
             await turn.guard()
-        agent_response = (result or {}).get("response") or {}
-        message = "" if agent_response.get("error") else _speech_from_response(agent_response)
     except Exception as exc:  # noqa: BLE001
         from .dialogue import DialogueError
         from ..session_conversation import SessionConversationError
@@ -3110,10 +3119,20 @@ async def _informational_assist_response(
                 from ..narration_brief import draft_review_prompt
                 review_prompt = (word_review.prompt(review_prompt, draft_pool) if word_review is not None
                     else draft_review_prompt(review_prompt, draft_pool, text_field='answer'))
-            checked = await _call_dialogue_agent(hass, {**data, "text": review_prompt})
+            if typed_artist:
+                from ..structured_artist import review as artist_review
+                # Required arrays close both positive and negative typed variants.
+                review_prompt = review_prompt.replace("\nData:\n",
+                    " Always include temporal_claims: an empty array when no temporal claim is made.\nData:\n", 1)
+                wire = await call_structured_artist(hass, {**data, "text": review_prompt},
+                    task_id=assist_context.get(TASK_CONFIG),
+                    operation=artist_review(review_prompt, word_review, draft_pool))
+                assessment, check_response = wire, {}
+            else:
+                checked = await _call_dialogue_agent(hass, {**data, "text": review_prompt})
+                check_response = (checked or {}).get("response") or {}
+                assessment = _speech_from_response(check_response)
             await turn.guard()
-            check_response = (checked or {}).get("response") or {}
-            assessment = _speech_from_response(check_response)
             quality_ok = True
             if draft_pool is not None:
                 from ..narration_brief import bound_draft_reviews, _object

@@ -1,3 +1,19 @@
+## Explicit typed artist task during EN/NL Help qualification — 26 October2026
+
+The existing fetched schema3 artist route uses the explicitly selected public
+HA AI Task for EN/NL generation and original-word review, with immutable
+operation/prompt/source/draft witnesses and the existing shared call allowance,
+configuration identity, original turn and own-session cancellation/cleanup
+checks. Required typed structure does not force semantic booleans positive or
+replace existing original-word, factual, relationship, date and quality guards.
+This makes the new artist configuration class task-dependent; missing task
+fails closed without provider/task creation or fallback. Other artist locales
+retain their legacy transport. Playback review remains raw. No dependency or
+version changes. The complete scoped release and original-evidence boundaries
+are in [the source record](docs/verification/HELP_EN_NL_TYPED_ARTIST_20261026.md).
+
+--- Earlier complete decisions preserved below ---
+
 ## Current source preparation: named low Help experiment (2026-10-26)
 
 The separately admitted `help_low_v1` test profile keeps the same model and

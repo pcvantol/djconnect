@@ -1,3 +1,17 @@
+## Scoped textual Help qualification — 26 October2026
+
+Peter explicitly limited the current textual Help qualification/release to
+English and Dutch. This bounded exception concerns the Help catalogue and its
+40 original content cases (20 per language), not the platform-wide language
+families or existing client translations. German, French and Spanish templates
+and historical results remain retained and unreleased in this scope. Until real
+content/editorial acceptance and protected publication, the existing catalogue
+remains revision1/qualifiedfalse/70pending. No language is advertised as qualified
+merely by retaining its template. See
+[the current source boundary](docs/verification/HELP_EN_NL_TYPED_ARTIST_20261026.md).
+
+--- Earlier full policy retained below ---
+
 # DJConnect Localization Standard
 
 Status: Accepted

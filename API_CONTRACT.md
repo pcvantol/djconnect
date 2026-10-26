@@ -1,3 +1,20 @@
+## Current EN/NL textual Help qualification source — 26 October2026
+
+Peter limited textual Help to Dutch and English:40 original cases,20 per
+language, with closed2→13→40 rounds. Existing DE/FR/ES translations and all
+historical results remain preserved outside this release. Artist generation
+and original-word review now use the explicitly selected public HA typed task,
+with one coherent whole-answer contract and unchanged source/semantic/word/date,
+turn/budget/configuration/cancellation guards. Playback review remains raw.
+Catalogue DFAA revision1 stays false/70pending; no content, publication, installed
+or native GO. Failed32/2PASS3FAIL/20complete and failed initial QA/source-join
+remain retained. Normal Source delivery/original qualification, real all40 plus
+both editorial reviews, winning Source+Final, configuration/R5/Apple and installed
+readback still precede release. All24requests/ninegates/Bulletin preserved;
+automation PAUSED. [Scope and evidence](docs/verification/HELP_EN_NL_TYPED_ARTIST_20261026.md).
+
+--- Earlier complete body preserved below ---
+
 # Current original-clock v3 producer candidate — 24 October 2026
 
 The bounded Core implementation now captures original pre-await weak Runtime/purpose roots including absence, exact original G0/L0/P0/K0 and downward final server deadlines. Context/register use closed strict outer v3; v1/v2 receive typed409. Inner issuer/registry/relay and old registered read/status/revoke remain v1 with original expiry. See docs/verification/ORIGINAL_CLOCK_V3_PRODUCER_SOURCE_20261024.md and the unchanged full normative docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md. No new purpose, owner, Activity profile or client clock witness is fabricated.

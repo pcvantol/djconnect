@@ -281,50 +281,52 @@ class ArtistEvidencePairedTests(unittest.IsolatedAsyncioTestCase):
     def tearDownClass(cls):
         shared.SharedDialogueTest.tearDownClass()
 
-    async def test_actual_paired_route_requires_literal_wire_and_closed_negative_before_second_acceptance(self):
+    async def test_paired_en_nl_single_wire_preserves_negative_and_source_guards(self):
         from tests.test_ask_dj_semantic_reads import id_review_fixture
         f = shared.SharedDialogueTest()
         await f.asyncSetUp()
         try:
-            for mode in ('second', 'bad_anchor', 'bad_negative', 'positive_empty'):
+            for mode in ('good', 'bad_anchor', 'negative', 'bad_negative', 'positive_empty'):
                 await f.history.async_clear('profile:profile-a')
                 calls = []
-                bad, good = 'Volbeat invented every instrument.', 'Volbeat performed a concert.'
+                good = 'Volbeat performed a concert.'
                 async def agent(hass, data, **kwargs):
                     projection = json.loads(data['text'].split('\nData:\n', 1)[1])
                     calls.append(projection)
                     if set(projection) == {'question', 'language', 'available'}:
                         reply = {'read': 'artist_story', 'reference': 'current', 'exclude_current': False}
                     elif 'evidence' not in projection:
-                        self.assertEqual(projection['artist_draft_schema'], 'artist_evidence_drafts_v1')
-                        self.assertIn('resolved_public_subject naturally inside EACH whole draft', data['text'])
-                        self.assertIn('one coherent musical episode', data['text'])
-                        self.assertIn('Prefer two genuinely distinct', data['text'])
-                        self.assertIn('Never manufacture a second', data['text'])
+                        self.assertIn('Return exactly ONE whole draft', data['text'])
+                        self.assertNotIn('Prefer two genuinely distinct', data['text'])
                         anchors = projection['literal_anchors']
-                        self.assertGreaterEqual(len(anchors), 2)
                         reply = {'schema': 'artist_evidence_drafts_v1', 'drafts': [
-                            {'anchors': [anchors[0]['id']], 'text': bad},
-                            {'anchors': ['0' * 64 if mode == 'bad_anchor' else anchors[1]['id']], 'text': good}]}
+                            {'anchors': ['0' * 64 if mode == 'bad_anchor' else anchors[0]['id']],
+                             'text': good}]}
                     else:
-                        first = {'review_schema': 'source_answer_ids_review_v1', 'supported': False,
-                            'language_ok': True, 'style_ok': True, 'unsupported_claims': [bad],
-                            'claim_checks': [], 'temporal_claims': []}
-                        second = id_review_fixture({**projection, 'drafts': [projection['drafts'][1]]})['draft_reviews'][0]['review']
-                        second['unsupported_claims'] = []
+                        review = id_review_fixture(projection)['draft_reviews'][0]['review']
+                        review['unsupported_claims'] = []
+                        review['temporal_claims'] = []
+                        if mode in ('negative', 'bad_negative'):
+                            review.update(supported=False, unsupported_claims=[good], claim_checks=[])
                         if mode == 'bad_negative':
-                            first.pop('temporal_claims')
+                            review.pop('temporal_claims')
                         if mode == 'positive_empty':
-                            second['claim_checks'] = [{'text': 'Bei', 'kind': 'fact', 'evidence_ids': []}]
-                        reply = {'draft_reviews': [{**{k: row[k] for k in ('index', 'sha256')}, 'review': review}
-                            for row, review in zip(projection['drafts'], [first, second], strict=True)]}
+                            review['claim_checks'][0]['evidence_ids'] = []
+                        reply = {'draft_reviews': [{**{k: projection['drafts'][0][k]
+                            for k in ('index', 'sha256')}, 'review': review}]}
                     await asyncio.sleep(0)
                     return {'response': {'speech': {'plain': {'speech': json.dumps(reply)}}}}
+                async def typed(hass, data, *, task_id, operation):
+                    from custom_components.djconnect.structured_artist import ArtistTask
+                    self.assertIs(type(operation), ArtistTask)
+                    self.assertEqual(operation.prompt_sha256, hashlib.sha256(data['text'].encode()).hexdigest())
+                    return (await agent(hass, data))['response']['speech']['plain']['speech']
                 async def status(*args, **kwargs):
                     return {'success': True, 'playback': {'uri': 'spotify:track:' + 'N' * 22,
                         'artist': 'Volbeat', 'title': 'Private current recording'}}
                 with f.research_http(title='Volbeat', text='Volbeat is a Danish band. ' + good), patch.object(
-                        f.pipeline, '_call_conversation_process_transport', agent), patch.object(f.core, 'run_music_command', status):
+                        f.pipeline, '_call_conversation_process_transport', agent), patch.object(
+                        f.pipeline, 'call_structured_artist', typed), patch.object(f.core, 'run_music_command', status):
                     answer, code = await f.request('tell me about this artist', identifier='literal-' + mode)
                 if mode == 'bad_anchor':
                     self.assertEqual(code, 502, answer)
@@ -332,12 +334,11 @@ class ArtistEvidencePairedTests(unittest.IsolatedAsyncioTestCase):
                 else:
                     self.assertEqual(code, 200, answer)
                     self.assertEqual(len(calls), 3)
-                    self.assertEqual(answer['is_generated_text'], mode == 'second', answer)
-                    if mode == 'second':
+                    self.assertEqual(answer['is_generated_text'], mode == 'good', answer)
+                    if mode == 'good':
                         self.assertEqual(answer['text'], good)
                         self.assertEqual(answer['knowledge_basis'], 'fetched_public_music_research_v1')
                 self.assertEqual(f.effects, [])
-                self.assertNotIn(bad, json.dumps((await f.history.async_history('profile:profile-a'))['messages']))
         finally:
             await f.asyncTearDown()
 

@@ -94,7 +94,8 @@ def hashes():
     files.append(ROOT / 'scripts/verification/source_fixture_urls.py')
     files.append(ROOT / 'scripts/verification/catalogue_progress.py')
     files.extend(ROOT / name for name in ('scripts/verification/artist_public_input_receipts.py',
-        'scripts/verification/artist_answer_review_receipts.py'))
+        'scripts/verification/artist_answer_review_receipts.py',
+        'scripts/verification/artist_typed_receipts.py'))
     return {
         str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)
     }
@@ -382,8 +383,33 @@ async def main(*, qualification_profile='legacy_low'):
                    "reasoning_effort":(kwargs.get('reasoning') or {}).get('effort')}
         from custom_components.djconnect.structured_playback import current_generation
         generation = current_generation.get()
+        from custom_components.djconnect.structured_artist import current_operation
+        artist_operation = current_operation.get()
         structured = (kwargs.get('text') or {}).get('format')
-        if structured or generation is not None:
+        if artist_operation is not None:
+            assert generation is None and isinstance(structured, dict)
+            assert structured.get('type') == 'json_schema' and structured.get('strict') is True
+            users = [row.get('content') for row in kwargs.get('input', [])
+                     if isinstance(row, dict) and row.get('role') == 'user']
+            assert len(users) == 1 and isinstance(users[0], str)
+            input_sha = hashlib.sha256(users[0].encode()).hexdigest()
+            assert input_sha == artist_operation.prompt_sha256
+            input_data = json.loads(users[0].split('\nData:\n', 1)[1])
+            marker = artist_operation.witness()
+            if artist_operation.operation == 'artist_generation_v1':
+                assert marker['anchors'] == [row['id'] for row in input_data['literal_anchors']]
+                original_input = {'literal_anchors': input_data['literal_anchors']}
+            else:
+                assert artist_operation.operation == 'artist_word_review_v1'
+                assert marker['drafts'] == [[row['index'], row['sha256'], [w[0] for w in row['answer_words']]]
+                                           for row in input_data['drafts']]
+                original_input = {'drafts': input_data['drafts']}
+            receipt['structured_output_format'] = json.loads(json.dumps(structured))
+            receipt['structured_artist_operation'] = marker
+            receipt['structured_artist_input'] = {'prompt_sha256': input_sha, **original_input}
+            receipt['provider_tools_absent'] = not kwargs.get('tools')
+            receipt['provider_store_false'] = kwargs.get('store') is False
+        elif structured or generation is not None:
             # Public AI Task generation has a distinct typed result ABI. Keep
             # the actual provider schema witness; never infer it from a prompt.
             assert generation is not None and isinstance(structured, dict)
@@ -2099,6 +2125,7 @@ async def main(*, qualification_profile='legacy_low'):
                     report['public_grounding_observations'] = public_grounding_observations
                     report['artist_public_inputs'] = artist_public_inputs
                     report['playback_generation_transport'] = 'PUBLIC_HA_AI_TASK_TYPED_PLAYBACK_V2'
+                    report['artist_typed_transport'] = 'PUBLIC_HA_AI_TASK_EN_NL_ARTIST_V1'
                     report.update(source_hashes=initial_source_hashes,
                         source_unchanged=hashes() == initial_source_hashes,
                         configured_maximum_tokens=max_tokens, configured_reasoning_effort=qualification_effort,
