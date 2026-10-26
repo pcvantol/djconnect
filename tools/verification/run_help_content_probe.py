@@ -18,14 +18,14 @@ from tools.verification import run_help_catalogue_qualification_20261023 as safe
 from tools.verification.help_content_probe import (
     MANIFEST,
     CONTENT_PROFILE_ID,
-    CONTENT_REASONING_EFFORT,
     CONTENT_MODEL,
     execution_profile,
+    control_files,
     digest,
     git,
     mode_policy,
     validate_candidate,
-    validate_medium_selected_report,
+    validate_profile_selected_report,
     validate_progress,
     selected_inputs_complete,
     generation_wire_complete,
@@ -58,8 +58,9 @@ def image_identity():
     return identity
 
 
-def setup_only(root, directory):
+def setup_only(root, directory, *, profile=CONTENT_PROFILE_ID):
     """Same Actions host/image/UID/0700, no secret env/input and network-none."""
+    descriptor = execution_profile(profile)
     image_id, identity = image_identity(), None
     work = directory / "private-setup"
     work.mkdir(mode=0o700)
@@ -106,8 +107,8 @@ def setup_only(root, directory):
             "-v",
             str(work) + ":/lab",
             IMAGE,
-            "/candidate/tools/verification/help_content_medium_preflight.py",
-            "--qualification-profile", CONTENT_PROFILE_ID,
+            "/candidate/" + control_files(profile)[-1],
+            "--qualification-profile", profile,
         )
         require(
             created.returncode == 0 and re.fullmatch("[a-f0-9]{64}", created.stdout.strip()),
@@ -143,9 +144,9 @@ def setup_only(root, directory):
                 "first_request_reasoning_effort",
                 "first_request_model",
             }
-            and value["qualification_profile"] == CONTENT_PROFILE_ID
-            and value["first_request_reasoning_effort"] == CONTENT_REASONING_EFFORT
-            and value["first_request_model"] == CONTENT_MODEL
+            and value["qualification_profile"] == profile
+            and value["first_request_reasoning_effort"] == descriptor["reasoning_effort"]
+            and value["first_request_model"] == descriptor["model"]
             and value["schema"] == 1
             and value["status"] == "PASS_SETUP_ONLY_NOT_QUALIFIED"
             and value["actual_HA_setup"] == "FIRST_MODEL_REQUEST_FENCED"
@@ -253,6 +254,13 @@ def cleanup(identity, image_id, label):
     return before, after, safe.container_absent(identity)
 
 
+def coordinate_profile(coordinate):
+    """Only the pre-secret closed request profile, never a report-selected value."""
+    profile = coordinate.get("qualification_profile", CONTENT_PROFILE_ID)
+    execution_profile(profile)
+    return profile
+
+
 def context(env):
     fixed = {
         "GITHUB_REPOSITORY": "pcvantol/djconnect",
@@ -273,7 +281,10 @@ def context(env):
         re.fullmatch("[1-9][0-9]{0,19}", env.get("GITHUB_RUN_ID", "")) is not None, "RUN_INVALID"
     )
     mode_policy(env.get("DJC_CONTENT_MODE"))
+    profile = env.get("DJC_CONTENT_PROFILE", CONTENT_PROFILE_ID)
+    execution_profile(profile)
     return {
+        **({"qualification_profile": profile} if profile != CONTENT_PROFILE_ID else {}),
         "controller_sha": env["GITHUB_SHA"],
         "candidate_sha": env["DJC_CANDIDATE_SHA"],
         "content_digest": env["DJC_CONTENT_DIGEST"],
@@ -295,7 +306,7 @@ def admission(controller, candidate, coordinate):
         git(candidate, "rev-parse", "HEAD").decode().strip() == coordinate["candidate_sha"],
         "CANDIDATE_CHANGED",
     )
-    pin = validate_candidate(controller, candidate)
+    pin = validate_candidate(controller, candidate, profile=coordinate_profile(coordinate))
     require(pin["content_digest"] == coordinate["content_digest"], "CONTENT_DIGEST_CHANGED")
     profile = safe.load_profile(controller)
     selected, _, _ = mode_policy(coordinate["mode"])
@@ -424,7 +435,8 @@ def finish(controller, root, directory, work, coordinate, pin, key, code, absent
         safe.write_bytes(directory / "catalogue-golden.json", raw)
         unchanged = safe.product_hashes(root) == pin["product_hashes"]
         if selected:
-            valid = progress is not None and validate_medium_selected_report(report, progress, pin=pin, mode=coordinate["mode"])
+            valid = progress is not None and validate_profile_selected_report(report, progress, pin=pin, mode=coordinate["mode"],
+                profile=coordinate_profile(coordinate))
             inputs = selected_inputs_complete(report, mode=coordinate["mode"])
         else:
             from scripts.verification.artist_public_input_receipts import (
@@ -433,7 +445,7 @@ def finish(controller, root, directory, work, coordinate, pin, key, code, absent
 
             profile = safe.load_profile(controller)
             valid = profile.validate_report(report, source_hashes=pin["profile_hashes"],
-                expected_profile=CONTENT_PROFILE_ID)
+                expected_profile=coordinate_profile(coordinate))
             inputs = artist_public_inputs_complete(report)
             from scripts.verification.askdj_example_catalogue_golden import cases, chain_cases
 
@@ -502,6 +514,8 @@ def finish(controller, root, directory, work, coordinate, pin, key, code, absent
 
 
 def execute(controller, root, directory, coordinate, pin, env):
+    profile = coordinate_profile(coordinate)
+    descriptor = execution_profile(profile)
     _, _, seconds = mode_policy(coordinate["mode"])
     wall_end, mono_end = time.time() + seconds, time.monotonic() + seconds
     identity = image_id = name = None
@@ -521,24 +535,27 @@ def execute(controller, root, directory, coordinate, pin, env):
         admitted = json.loads((directory / "admission.json").read_text())
         require(
             admitted["coordinates"] == coordinate and admitted["content"] == pin
-            and pin.get("execution_profile") == execution_profile(),
+            and pin.get("execution_profile") == descriptor,
             "ADMISSION_CHANGED",
         )
         readiness = json.loads((directory / "setup-preflight.json").read_text())
         require(
             readiness.get("status") == "PASS_SETUP_ONLY_NOT_QUALIFIED"
             and readiness.get("own_container") == "VERIFIED_ABSENT"
-            and readiness.get("qualification_profile") == CONTENT_PROFILE_ID
-            and readiness.get("first_request_reasoning_effort") == CONTENT_REASONING_EFFORT
-            and readiness.get("first_request_model") == CONTENT_MODEL,
+            and readiness.get("qualification_profile") == profile
+            and readiness.get("first_request_reasoning_effort") == descriptor["reasoning_effort"]
+            and readiness.get("first_request_model") == descriptor["model"],
             "SETUP_NOT_READY",
         )
         require(context(env) == coordinate, "CONTEXT_CHANGED")
         image_id = image_identity()
         reserve(directory / "once-reservation.json", coordinate)
+        work.mkdir(mode=0o700)
+        # Capture only the public fixed descriptor before any credential read.
+        # The child rejects a missing/changed selector against this exact file.
+        safe.write_json(work / "execution-profile.json", descriptor)
         key = env.get("DJCONNECT_GOLDEN_OPENAI_API_KEY", "")
         require(type(key) is str and 20 <= len(key) <= 8192, "CREDENTIAL_UNAVAILABLE")
-        work.mkdir(mode=0o700)
         name = "djc-help-content-" + secrets.token_hex(10)
         selected = ",".join(mode_policy(coordinate["mode"])[0])
         absent = False
@@ -580,6 +597,8 @@ def execute(controller, root, directory, coordinate, pin, env):
             "DJC_SAFETY_PROBE=catalogue_golden",
             "-e",
             "DJC_CONTENT_MODE=" + coordinate["mode"],
+            "-e",
+            "DJC_CONTENT_PROFILE=" + profile,
             "-e",
             "DJC_CONTENT_DIGEST=" + coordinate["content_digest"],
             "-e",
@@ -709,10 +728,11 @@ def main():
     admitted = json.loads((directory / "admission.json").read_text())
     require(admitted["coordinates"] == coordinate, "ADMISSION_CHANGED")
     pin = admitted["content"]
-    require(validate_candidate(controller, candidate) == pin, "CANDIDATE_CHANGED")
+    require(validate_candidate(controller, candidate,
+        profile=coordinate_profile(coordinate)) == pin, "CANDIDATE_CHANGED")
     if a.phase == "setup":
         root = snapshot(candidate, directory, pin)
-        setup_only(root, directory)
+        setup_only(root, directory, profile=coordinate_profile(coordinate))
         return 0
     root = directory / "source-snapshot"
     verify_snapshot(root, pin)

@@ -26,6 +26,7 @@ MAX_OUTPUT_TOKENS = 3000  # Existing configured HA conversation budget, includin
 REASONING_EFFORT = 'low'
 LEGACY_REASONING_PROFILE = 'legacy_low'
 MEDIUM_REASONING_PROFILE = 'help_medium_v1'
+LOW_REASONING_PROFILE = 'help_low_v1'
 
 
 def reasoning_effort_for_profile(profile):
@@ -36,6 +37,8 @@ def reasoning_effort_for_profile(profile):
         return REASONING_EFFORT
     if profile == MEDIUM_REASONING_PROFILE:
         return 'medium'
+    if profile == LOW_REASONING_PROFILE:
+        return 'low'
     raise ValueError('unknown_qualification_profile')
 
 

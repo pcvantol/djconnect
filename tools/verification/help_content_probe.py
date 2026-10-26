@@ -59,12 +59,16 @@ SELECTED_PROGRESS_SCHEMAS = {
 CONTENT_PROFILE_ID = 'help_medium_v1'
 CONTENT_REASONING_EFFORT = 'medium'
 CONTENT_MODEL = 'gpt-6-luna'
+LOW_CONTENT_PROFILE_ID = 'help_low_v1'
 
 
-def execution_profile():
-    """A fresh fixed descriptor; callers cannot select another current profile."""
-    return {'id': CONTENT_PROFILE_ID, 'model': CONTENT_MODEL,
-            'reasoning_effort': CONTENT_REASONING_EFFORT, 'maximum_output_tokens': 3000}
+def execution_profile(profile=CONTENT_PROFILE_ID):
+    """A trusted closed descriptor; legacy callers keep the fixed medium default."""
+    if type(profile) is not str or profile not in {CONTENT_PROFILE_ID, LOW_CONTENT_PROFILE_ID}:
+        raise ValueError('unknown_content_execution_profile')
+    return {'id': profile, 'model': CONTENT_MODEL,
+            'reasoning_effort': 'low' if profile == LOW_CONTENT_PROFILE_ID else CONTENT_REASONING_EFFORT,
+            'maximum_output_tokens': 3000}
 
 
 EDITABLE = {
@@ -78,6 +82,14 @@ CONTROL_FILES = (
     "tools/verification/run_help_content_probe.py",
     "tools/verification/help_content_medium_preflight.py",
 )
+
+
+def control_files(profile=CONTENT_PROFILE_ID):
+    """Bind the exact executed setup program, including its own named-profile fence."""
+    execution_profile(profile)
+    if profile == LOW_CONTENT_PROFILE_ID:
+        return CONTROL_FILES[:-1] + ('tools/verification/help_content_low_preflight.py',)
+    return CONTROL_FILES
 
 
 def canonical(value):
@@ -178,7 +190,7 @@ def entries(root):
     return result
 
 
-def validate_candidate(controller, candidate):
+def validate_candidate(controller, candidate, *, profile=CONTENT_PROFILE_ID):
     """An unmerged candidate changes two telling values, never executed code."""
     for root in (controller, candidate):
         if (
@@ -206,7 +218,8 @@ def validate_candidate(controller, candidate):
             raise ValueError("candidate_outside_instruction_allowlist")
     # Commit names, documentation and source spelling cannot create a fresh
     # content identity. Only actual telling values and fixed execution inputs do.
-    controls = {name: digest((controller / name).read_bytes()) for name in CONTROL_FILES}
+    descriptor = execution_profile(profile)
+    controls = {name: digest((controller / name).read_bytes()) for name in control_files(profile)}
     from tools.verification import run_help_catalogue_qualification_20261023 as safe
 
     products = safe.product_hashes(candidate)
@@ -220,7 +233,7 @@ def validate_candidate(controller, candidate):
     content = digest(
         canonical(
             {
-                "execution_profile": execution_profile(),
+                "execution_profile": descriptor,
                 "telling": values,
                 "fixed_instruction_code": fixed,
                 "fixed_inputs": fixed_inputs,
@@ -236,7 +249,7 @@ def validate_candidate(controller, candidate):
         "product_hashes": products,
         "profile_hashes": profile,
         "control_hashes": controls,
-        "execution_profile": execution_profile(),
+        "execution_profile": descriptor,
         "telling_values_sha256": digest(canonical(values)),
         "candidate_inventory_entries": len(current),
     }
@@ -635,10 +648,20 @@ def validate_selected_report(report, progress, *, pin, mode="target6", expected_
 
 def validate_medium_selected_report(report, progress, *, pin, mode="target6"):
     """Current content controller owns the expectation; a report cannot choose it."""
+    return validate_profile_selected_report(report, progress, pin=pin, mode=mode,
+                                            profile=CONTENT_PROFILE_ID)
+
+
+def validate_profile_selected_report(report, progress, *, pin, mode="target6", profile=CONTENT_PROFILE_ID):
+    """The independently admitted profile owns every original SDK expectation."""
     from scripts.verification.artist_answer_review_receipts import answer_word_reviews_complete
+    try:
+        descriptor = execution_profile(profile)
+    except ValueError:
+        return False
     selected, _, _ = mode_policy(mode)
     artist_cases = [case for case in selected if case.startswith('catalogue-listen.artist-')]
-    return (pin.get('execution_profile') == execution_profile()
+    return (pin.get('execution_profile') == descriptor
         and answer_word_reviews_complete(report, expected_cases=artist_cases)
         and validate_selected_report(report, progress, pin=pin, mode=mode,
-                                     expected_profile=CONTENT_PROFILE_ID))
+                                     expected_profile=profile))
