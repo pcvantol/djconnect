@@ -1,36 +1,3 @@
-## Current source preparation: named low Help experiment (2026-10-26)
-
-The separately admitted `help_low_v1` test profile keeps the same model and
-limits; medium remains the default. This controller-only increment preserves
-all 266 Core product bytes at protected base `fab08e5f`, the unqualified DFAA
-catalogue and every original failure/claim. It is not a model, catalogue,
-configuration, client, deployment or installed approval. New low execution
-requires normal protected Source and original qualification first; same-profile
-5/24/100 results and editorial gates remain required. All 24 requests and nine
-gates remain retained. See [the verification record](docs/verification/HELP_NAMED_LOW_EXECUTION_PROFILE_20261026.md).
-
----
-
-## Current Help answer-reference review — 2026-10-26
-
-The artist review now has an explicit original-word address wire under validation;
-all source/semantic/date/role/style and budget fences remain. It is not a catalogue
-release: revision1/DFAA/70pending and historical paid failures are retained.
-See [the bounded contract](docs/verification/HELP_ARTIST_ANSWER_WORD_REVIEW_20261026.md).
-Current exact Source, CI, editorial and installed gates remain separate.
-
-> Help artist short cycle — 26 October 2026. The manual development policy adds
-> `target5_artist_v4`: the five original artist questions in en/nl/de/fr/es,
-> capped at 25 attempts, 3,000 output tokens and 600 seconds. Existing selected
-> modes and full100 remain unchanged. The previous original full100 completed
-> 98 PASS/2 FAIL (German/Spanish artist style), with 175 complete responses.
-> This controller change supplies earlier feedback; it does not fix or waive
-> style acceptance. All runtime product bytes, catalogue questions and draft
-> publication state remain unchanged. See
-> `docs/verification/HELP_ARTIST_FIVE_LANGUAGE_SHORT_CYCLE_20261026.md`.
-> Full content acceptance, winning Source/Final, configuration, Apple adoption
-> and installed acceptance remain separate.
-
 # DJConnect
 
 <img src="https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png" alt="DJConnect" width="64" height="64">
@@ -48,6 +15,8 @@ from an available DJConnect app, supported device or Home Assistant Assist.
 > This branch describes **4.0.0-rc.1**, a candidate, not an installed-release claim.
 > Installed **3.3.1**? Follow the [stable setup guide](docs/user/stable-3.3.1.md).
 > Check your installed version in HACS before following the wizard steps.
+
+Help examples in English and Dutch use your connected server’s current availability. You can always ask in your own words. See [Help scope and release evidence](docs/verification/HELP_EN_NL_LIVE_PUBLICATION_20261026.md).
 
 ## Make it your session
 

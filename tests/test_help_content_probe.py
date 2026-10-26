@@ -11,6 +11,8 @@ from tools.verification import help_content_probe as policy
 from tools.verification import run_help_content_probe as runner
 
 
+from tests.help_catalogue_history import original_catalogue_v1_case
+
 class ContentProbeTests(unittest.TestCase):
     def test_only_literal_value_can_change_not_code_or_other_bytes(self):
         original = (
@@ -38,6 +40,7 @@ class ContentProbeTests(unittest.TestCase):
             with self.subTest(bad=bad), self.assertRaises((ValueError, SyntaxError)):
                 policy.instruction_only(original, bad, "STYLE")
 
+    @original_catalogue_v1_case
     def test_actual_case_chain_and_two_distinct_budgets(self):
         from scripts.verification.askdj_example_catalogue_golden import (
             cases,

@@ -7,11 +7,14 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
+from tests.help_catalogue_history import original_catalogue_v1_case
+
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / 'tools/verification/run_help100_verified_drafts_20261025.py'
 SPEC = importlib.util.spec_from_file_location('verified_drafts_help100_runner', RUNNER)
 r = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(r)
+
 
 
 class VerifiedDraftsOnceAdmissionTests(unittest.TestCase):
@@ -54,6 +57,7 @@ class VerifiedDraftsOnceAdmissionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'PRODUCT_CHANGED'):
                 r.maps(ROOT)
 
+    @original_catalogue_v1_case
     def test_previous_consumed_runner_workflow_and_map_remain_exact(self):
         expected = {
             '.github/workflows/help100-remediation-20261025.yml': '70fb67fa660b4a74c3f55e4943d505c7ad62c77e5b687f370e2f872c4e5404c8',

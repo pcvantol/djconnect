@@ -1,5 +1,6 @@
 """Request-owned Help metadata must not invent agent readiness or call it."""
 import importlib
+import asyncio
 import sys
 from types import ModuleType, SimpleNamespace
 import unittest
@@ -21,33 +22,41 @@ class HelpAgentAvailabilityTest(unittest.TestCase):
             'custom_components.djconnect.domain.storage').STORE_KEY
 
     def context(self, agent, *, loaded=True, matching_owner=True):
-        owner = 'synthetic-help-owner'
-        storage = SimpleNamespace(_loaded=loaded, household=SimpleNamespace(
-            profiles={owner: SimpleNamespace(state='active')}))
-        hass = SimpleNamespace(data={'djconnect': {self.store_key: storage}})
-        runtime = SimpleNamespace(config={}, profile_context_profile_id=(
-            owner if matching_owner else 'different-synthetic-owner'))
+        # Real committed storage/owner fixture; pipeline/Task metadata is an
+        # explicit unit boundary, not actual HA/provider qualification.
+        from tests.test_ask_dj_help_live_observation import HelpObservationTests
+        from custom_components.djconnect.ask_dj.help_configuration import QUALIFIED_AGENT_PROMPT
+        from custom_components.djconnect import structured_playback
+        case = HelpObservationTests('test_global_read_is_detached_and_does_not_borrow_an_active_session')
+        hass, storage, runtime, _ = asyncio.run(case.fixture())
+        storage._loaded = loaded
+        runtime.entry.data = {**runtime.entry.data, 'assist_pipeline_id': 'synthetic-pipeline',
+                              'assist_structured_task_id': 'ai_task.synthetic'}
         pipeline = ModuleType('homeassistant.components.assist_pipeline.pipeline')
-        conversation = ModuleType('homeassistant.components.conversation')
+        pipeline.KEY_ASSIST_PIPELINE = 'synthetic-loaded-pipeline'
+        hass.data[pipeline.KEY_ASSIST_PIPELINE] = object()
+        hass.services = SimpleNamespace(has_service=lambda *_: True)
         resolutions = []
-
-        def get_pipeline(*_args):
+        # Preserve pipeline identity across final metadata rechecks.
+        selected = SimpleNamespace(id='synthetic-pipeline', conversation_engine='conversation.synthetic')
+        def get_pipelines(_hass):
             resolutions.append('pipeline')
-            return SimpleNamespace(conversation_engine='synthetic-agent')
-
-        def get_agent(*_args):
+            return {'synthetic-pipeline': selected}
+        pipeline.async_get_pipelines = get_pipelines
+        options = dict(chat_model='gpt-6-luna', max_tokens=3000, reasoning_effort='medium',
+            store_responses=False, web_search=False, code_interpreter=False, service_tier='auto')
+        if agent is not None:
+            agent.subentry = SimpleNamespace(data={**options, 'llm_hass_api': [], 'prompt': QUALIFIED_AGENT_PROMPT})
+        binding = SimpleNamespace(agent=agent, entity=object(), entry=object(),
+            subentry=SimpleNamespace(data=options), fingerprint='synthetic-original-public-revision')
+        def get_task(*_args, **_kwargs):
             resolutions.append('agent')
-            return agent
-
-        pipeline.async_get_pipeline = get_pipeline
-        conversation.async_get_agent = get_agent
-        modules = {pipeline.__name__: pipeline, conversation.__name__: conversation}
-        metadata = {'music_backend_available': True, 'music_backend': 'spotify_direct',
-                    'music_backend_capabilities': {'supports_search': True}}
-        token = self.turn.set(SimpleNamespace(scope='profile:' + owner))
+            return binding
+        token = self.turn.set(SimpleNamespace(scope='profile:' + ('owner' if matching_owner else 'foreign'), session_id=''))
         try:
-            with patch.dict(sys.modules, modules), patch.object(
-                    self.use_cases, 'music_backend_metadata', return_value=metadata):
+            with patch.dict(sys.modules, {pipeline.__name__: pipeline}), patch.object(
+                    structured_playback, 'capture_task', get_task), patch.object(
+                    self.use_cases, 'music_backend_metadata', side_effect=AssertionError('no creating metadata accessor')):
                 result = self.catalogue.help_context(hass, runtime)
         finally:
             self.turn.reset(token)
@@ -70,7 +79,8 @@ class HelpAgentAvailabilityTest(unittest.TestCase):
             self.assertIs(context.get('agent_available'), False)
             self.assertNotIn('play.cooking', [e['id'] for e in
                 self.catalogue.eligible(context, 'ask_dj', 'nl')])
-            self.assertEqual(self.catalogue.help_sections('nl', context), [])
+            self.assertNotIn('play.cooking', [e['id'] for e in
+                self.catalogue.eligible(context, 'ask_dj', 'nl', for_help=True)])
 
     def test_only_explicit_boolean_readiness_with_callable_process_is_known(self):
         for value in (True, False, None, 1, 0, 'true'):

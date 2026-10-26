@@ -6,6 +6,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
+from tests.help_catalogue_history import original_catalogue_v1_case
+
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('exact100_ci', ROOT / 'tools/verification/run_catalogue_exact100_20261023.py')
 RUNNER = importlib.util.module_from_spec(SPEC)
@@ -18,6 +20,7 @@ def context():
             'GITHUB_TRIGGERING_ACTOR': 'pcvantol', 'GITHUB_EVENT_NAME': 'workflow_dispatch',
             'GITHUB_RUN_NUMBER': '1', 'GITHUB_RUN_ATTEMPT': '1', 'DJC_EXACT100_GRANT': RUNNER.GRANT,
             'GITHUB_RUN_ID': '123456', 'GITHUB_SHA': 'a' * 40}
+
 
 
 class ExactCatalogueTest(unittest.TestCase):
@@ -75,6 +78,7 @@ class ExactCatalogueTest(unittest.TestCase):
             RUNNER.report_safe(b'x' * (8 * 1024 * 1024 + 1), marker)
         self.assertEqual(RUNNER.report_safe(b'{"synthetic_only":true}', marker), {'synthetic_only': True})
 
+    @original_catalogue_v1_case
     def test_exact_current_manifest_contains_all70_questions_and30_followups(self):
         from scripts.verification.askdj_example_catalogue_golden import cases, chain_cases, manifest_digest
         self.assertEqual((len(cases()), len(chain_cases())), (70, 30))

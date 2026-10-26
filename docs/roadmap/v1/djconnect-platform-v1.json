@@ -41816,7 +41816,7 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "8cf230caa6a4653109ef0170863ff686f9e6b8879c2f4dcd5bb966bb3b3fe46d"
+        "sha256": "2bd479c7de47ecbc0e98824446c2a260d5de55a70d63c8666ff3bec02fcc6e63"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
@@ -41856,7 +41856,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "135f77819b793906a81eb5fd52ed31cb9ba707bb51ec1a5f10f60efa302e1495"
+        "sha256": "01044020559354b866f700af1594c8053c1295e6b4cf407d85a1277da571c5e4"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -41972,7 +41972,7 @@
       },
       {
         "path": "docs/technical/HTTP_API.md",
-        "sha256": "3cfa19c673c42065c5a3a0ff78e9657271c66563ef9097f555962106acfa3489"
+        "sha256": "080f816226ab2a73acceafa674ed194636c8619f237c7c9056cc7ff7a108b154"
       },
       {
         "path": "docs/technical/VOICE_TRANSPORT.md",

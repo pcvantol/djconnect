@@ -9,6 +9,7 @@ import re
 from typing import Any
 import uuid
 
+from ..profile_observation import manager_changed, register_manager, tracked_transition
 from ..dj_brain_capabilities import CapabilityPolicy, CapabilityPolicyMode
 from .backend import BackendProvider, MusicBackendCapabilities, MusicBackendRegistration
 from .device import Device, DeviceCapabilities, DevicePairingState, DeviceRuntimeMetadata
@@ -62,12 +63,32 @@ class ProfilePlatformStorage:
         self._committed_household = self._household
         self._write_intent_revision = 0
         self.authority_revision = 0
+        self._observation_owner = register_manager(self) if hass is not None else None
+
+    @property
+    def _store(self):
+        return self._store_value
+
+    @_store.setter
+    def _store(self, store) -> None:
+        manager_changed(self, uncertain=True)
+        self._store_value = store
+
+    @property
+    def _household(self) -> Household:
+        return self._household_value
+
+    @_household.setter
+    def _household(self, household: Household) -> None:
+        manager_changed(self)
+        self._household_value = household
 
     @property
     def household(self) -> Household:
         """Return the loaded Household state."""
         return self._household
 
+    @tracked_transition
     async def async_load(self) -> Household:
         """Load Household state from Home Assistant Store."""
         if self._loaded:
@@ -86,6 +107,7 @@ class ProfilePlatformStorage:
             self._loaded = True
             return self._household
 
+    @tracked_transition
     async def async_save(self, household: Household | None = None, *, rotate_bindings=False, replacing_profiles=()) -> Household:
         """Validate and persist Household state."""
         staged = household if household is not None else self._household
@@ -159,6 +181,7 @@ class ProfilePlatformStorage:
             async with admitted():
                 yield
 
+    @tracked_transition
     async def async_commit_onboarding(self, before: Household, updated: Household) -> None:
         """Commit a staged onboarding update without exposing uncommitted state."""
         intent_revision = self._write_intent_revision

@@ -149,6 +149,16 @@
     {
       "key": "surface_apns_environment",
       "value": ""
+    },
+    {
+      "key": "help_catalogue_revision",
+      "value": "2",
+      "type": "string"
+    },
+    {
+      "key": "help_catalogue_sha256",
+      "value": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
+      "type": "string"
     }
   ],
   "auth": {
@@ -1102,6 +1112,75 @@
               ]
             },
             "description": "Returns a Home Assistant-built DJConnect Music DNA export envelope for client download. Export uses HTTP only and shares the profile/settings/clear authentication and identity contract."
+          }
+        },
+        {
+          "name": "Ask DJ - live Help context",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              },
+              {
+                "key": "Cache-Control",
+                "value": "no-store"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/ask_dj/help-context?schema_version=1&request_id={{$guid}}&surface=ask_dj&language=nl&catalogue_id=ask_dj_examples_v1&catalogue_revision={{help_catalogue_revision}}&catalogue_sha256={{help_catalogue_sha256}}",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "ask_dj",
+                "help-context"
+              ],
+              "query": [
+                {
+                  "key": "schema_version",
+                  "value": "1"
+                },
+                {
+                  "key": "request_id",
+                  "value": "{{$guid}}"
+                },
+                {
+                  "key": "surface",
+                  "value": "ask_dj"
+                },
+                {
+                  "key": "language",
+                  "value": "nl"
+                },
+                {
+                  "key": "catalogue_id",
+                  "value": "ask_dj_examples_v1"
+                },
+                {
+                  "key": "catalogue_revision",
+                  "value": "{{help_catalogue_revision}}"
+                },
+                {
+                  "key": "catalogue_sha256",
+                  "value": "{{help_catalogue_sha256}}"
+                },
+                {
+                  "key": "session_id",
+                  "value": "{{session_id}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Pure paired Help observation. Use the exact adopted qualified catalogue revision/hash. Optional session_id must name the current owned session; omission never borrows one. No body, Profile parameter, provider/model call or execution. Only EN/NL leaves are textually qualified. A mismatch returns unavailable and no adoption offer. Client lifetime is 15 original local logical seconds from before dispatch; no arrival renewal or automatic send."
           }
         }
       ]

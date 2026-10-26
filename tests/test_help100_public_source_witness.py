@@ -7,11 +7,14 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 
+from tests.help_catalogue_history import original_catalogue_v1_case
+
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / 'tools/verification/run_help100_public_source_witness_20261025.py'
 SPEC = importlib.util.spec_from_file_location('public_source_witness_help100_runner', RUNNER)
 r = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(r)
+
 
 
 class PublicSourceWitnessOnceAdmissionTests(unittest.TestCase):
@@ -55,6 +58,7 @@ class PublicSourceWitnessOnceAdmissionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'PRODUCT_CHANGED'):
                 r.maps(ROOT)
 
+    @original_catalogue_v1_case
     def test_artist_wire_requires_one_original_case_and_locale_not_any_five_records(self):
         from copy import deepcopy
         cases = [c for c in r.profile(ROOT).cases() if c['entry_id'] == 'listen.artist']
@@ -80,6 +84,7 @@ class PublicSourceWitnessOnceAdmissionTests(unittest.TestCase):
                 self.assertFalse(r.artist_wire_complete({'model_calls': entries}, cases))
         self.assertFalse(r.artist_wire_complete({'model_calls': rows}, cases[:-1]))
 
+    @original_catalogue_v1_case
     def test_previous_consumed_runner_workflow_and_map_remain_exact(self):
         expected = {'.github/workflows/help100-verified-drafts-20261025.yml': 'aa190966baeeb3ab1ed2295af15a5d8c1501c5c5d89330200b14ad66fd4c38db', 'tools/verification/run_help100_verified_drafts_20261025.py': 'f0467ae78fd6f1eddc6e42f34a8ff27740dce3de8a2be51b8f19468c416312f5', 'tools/verification/help100_verified_drafts_content_20261025.json': '2dadc11ec13fdaaff935c959a514ceaa7ca8dbbeb8abf81371034fec6cb3de14'}
         expected.update({'.github/workflows/help100-artist-envelope-20261025.yml': 'ee92043ac8a25d7df4458d017bb1c9d139d253f8e10733f7ec693ff58a3957aa', 'tools/verification/run_help100_artist_envelope_20261025.py': '6dca712899d882f01108a88dc91489078591919b4e39f0b36e4b1511e5d52f4f', 'tools/verification/help100_artist_envelope_content_20261025.json': 'a17e5500f8e13d8aa9bb1042ca33d702277024c544ce05b82330781e3801094f'})

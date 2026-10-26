@@ -5620,7 +5620,7 @@
         },
         {
           "file": "tests/test_ask_dj_example_catalogue.py",
-          "method": "test_native_play_requests_route_normally_but_remain_unqualified_without_actual_execution"
+          "method": "test_native_play_requests_route_normally_with_only_en_nl_content_qualification"
         },
         {
           "file": "tests/test_ask_dj_example_catalogue.py",
@@ -5981,6 +5981,146 @@
         {
           "file": "tests/test_ask_dj_artist_review_window.py",
           "method": "test_task_revision_change_closes_completed_review"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_cold_reader_does_not_create_or_load"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_existing_untracked_manager_is_not_bootstrap_evidence"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_queued_load_closes_even_when_committed_state_is_unchanged"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_queued_writer_before_lock_is_visible"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_household_staging_and_A_A_and_A_B_A_retire_original"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_cancelled_queued_writer_latches_uncertainty"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_failed_store_and_successful_later_load_do_not_clear_uncertainty"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_manager_replacement_carries_old_pending_and_uncertainty"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_store_A_B_A_is_not_new_safe_lifetime"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_split_anchor_and_hot_reload_cannot_be_repaired_by_reader_or_setup"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_staged_hassless_onboarding_is_never_observable"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_registry_has_no_strong_path_back_to_hass"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_configuration.py",
+          "method": "test_all14_dependencies_are_explicit_without_language_judge_dependency"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_configuration.py",
+          "method": "test_exact_winning_options_unknown_bool_low_legacy_and_partial_are_closed"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_configuration.py",
+          "method": "test_missing_loaded_pipeline_never_calls_a_creating_accessor"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_configuration.py",
+          "method": "test_loaded_pipeline_requires_selected_matching_task_and_static_original_prompt"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_configuration.py",
+          "method": "test_same_per_entry_mask_applies_to_help_and_chips_and_unknown_is_false"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_configuration.py",
+          "method": "test_original_model_binding_revision_survives_no_aba_restore"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_exact_query_single_decode_and_rejection_before_dictionary"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_global_read_is_detached_and_does_not_borrow_an_active_session"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_current_request_pin_mismatch_returns_null_never_an_adoption_offer"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_unknown_auth_duplicate_identity_or_headers_no_learning_or_private_echo"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_unknown_foreign_null_string_session_is_closed_not_omitted"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_pending_and_missing_storage_remain_closed_without_read_repair"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_supported_provider_transfer_and_stale_reference_are_not_help_readiness"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_final_original_media_and_forecast_expiry_after_projection_is_closed"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_prepared_wire_and_typed_help_revoke_at_final_projection_fence"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_final_profile_stamp_rejects_a_to_b_to_a_during_metadata_projection"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_typed_help_uses_equal_committed_base_and_preserves_free_send_independence"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_double_cancel_cannot_advertise_idle_while_compensation_is_still_writing"
+        },
+        {
+          "file": "tests/test_ask_dj_profile_committed_observation.py",
+          "method": "test_original_save_swallowed_cancel_behavior_is_preserved_but_read_remains_uncertain"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_configuration.py",
+          "method": "test_new_publication_preserves_original_case_words_and_cannot_reopen_consumed_runner"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_public_postman_example_uses_exact_r5_get_without_execution_or_profile_body"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_configuration.py",
+          "method": "test_published_en_nl_leaves_join_original_content_questions_and_preserve_other_locales"
+        },
+        {
+          "file": "tests/test_ask_dj_help_live_observation.py",
+          "method": "test_original_actual_ha_wire_binds_all_current_products_without_native_claim"
         }
       ],
       "steps": [
@@ -10138,7 +10278,7 @@
     "profile": "catalogue_golden",
     "questions": 70,
     "conversation_steps": 30,
-    "manifest_sha256": "f6fcebd0349768b83a6824d6dcfeb15e3b229e0c1a168dec4c5a044e1ac43b48",
+    "manifest_sha256": "2e975b90ebae98ed20a2050e24627d22780d8ffbaa75d851627b84246afc3986",
     "pending_rows_are_tested": true,
     "hidden_or_unqualified_example_is_not_a_skip": true
   }

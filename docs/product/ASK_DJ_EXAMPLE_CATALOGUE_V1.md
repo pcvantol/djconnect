@@ -1,3 +1,28 @@
+# Current EN/NL publication and live Help context — 2026-10-26
+
+The textual release is limited by Peter's direct instruction to English and
+Dutch. Original content run40320113775 passed40/40 selected cases (20 per
+language),70 SDK reservations and70 completed responses, with strict typed,
+word/source/counter/effect checks and independent ALL40 editorial acceptance.
+Revision2 qualifies28 entry-locale leaves; the42 DE/FR/ES leaves stay pending.
+All five language families, templates, routes, requires, groups, ordering and
+entry IDs are preserved. Free Ask DJ remains open to ordinary user wording.
+
+Current source uses [live Help context](ASK_DJ_HELP_CONTEXT_V1.md), an explicit
+per-entry selected configuration mask and one committed base predicate for typed
+Help and client Help/chips. Positive catalogue metadata is not sufficient by
+itself. Exact producer/consumer pins, current paired owner/source/Session state,
+actual selected execution class and original expiry remain mandatory. Unknown
+state closes the examples without disabling free Send. The additive catalogue
+qualification_evidence metadata does not change the five-field R5 descriptor.
+
+Protected Source, its separate Final, exact installed readback and owning Apple
+adoption must each retain their own evidence; the content result alone grants
+none of those. Historical draft and failure records below retain their original
+scope and do not describe the revision2 candidate as a draft forever.
+
+---
+
 # Ask DJ catalogue and compact Help — selected Core #1210 WIP
 
 Base main `ff1758344a863d2ec897b993c76b9c73a93c1631`, same sole Core
