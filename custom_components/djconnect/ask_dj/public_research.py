@@ -1149,11 +1149,14 @@ def generation_projection(research, question, *, preserve_nonparagraph_sources=F
     return result
 
 
-def assessment_prompt(answer, context, language, question="", *, allow_prefix=True,quote_by_id=False,closed_negative=False):
+def assessment_prompt(answer, context, language, question="", *, allow_prefix=True,quote_by_id=False,closed_negative=False,answer_word_ids=False):
     from .biographical_dates import candidates
+    if answer_word_ids and (not quote_by_id or not closed_negative or allow_prefix):
+        raise ValueError('invalid_answer_word_review_mode')
+    schema = 'source_answer_ids_review_v1' if answer_word_ids else 'source_id_review_v1'
     response_contract = (
-        "Return exactly one JSON object using source_id_review_v1. Required top-level keys: "
-        "review_schema (the literal string source_id_review_v1), supported (boolean), "
+        f"Return exactly one JSON object using {schema}. Required top-level keys: "
+        f"review_schema (the literal string {schema}), supported (boolean), "
         "unsupported_claims (an array of at most three short verbatim unsupported claims, empty when supported), "
         "and claim_checks (the complete ordered checks described below). Also include every additional "
         "quality/focus boolean explicitly requested. Never omit review_schema: a missing wire marker is invalid. "
@@ -1168,8 +1171,17 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         if allow_prefix else
         "Assess the complete answer. Do not offer or return prefix recovery fields. No rewriting or partial acceptance. "
     )
+    answer_contract = (
+        "Each claim_check has exactly answer_from, answer_to, kind, evidence_ids. "
+        "answer_from and answer_to are the inclusive first and last IDs copied from THIS draft's answer_words pairs. "
+        "Select complete meaningful atomic clauses. Core resolves only the exact original characters between those words; never return text, offsets, a replacement word catalog or a quote. "
+        "Cover every original word exactly once in order, without gaps/overlap or another draft's IDs. "
+        "Punctuation remains attached to its original word. No inserted commas, rewritten words or inferred boundaries. "
+        if answer_word_ids else
+        "Each claim_check has exactly text, kind, evidence_ids; do not echo quote. "
+    )
     quote_contract = (
-        "Return review_schema:'source_id_review_v1'. Each claim_check has exactly text, kind, evidence_ids; do not echo quote. "
+        f"Return review_schema:'{schema}'. " + answer_contract +
         "Selecting one evidence ID explicitly attests that its exact unchanged passage supports the whole atomic claim. Core will resolve that literal quote. "
         "Copy an evidence_spans[].id literally from allowed_evidence_ids. Never construct an ID from content_hash plus an index: source hashes and span IDs are different identifiers. "
         "kind is fact, relationship, or dj_appreciation. Fact/relationship needs exactly ONE actual evidence_spans ID; dj_appreciation has an empty evidence_ids list. "
@@ -1227,7 +1239,9 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         "Omit temporal_claims or use[]when the retained answer has no years. "
         "For research schema_version2 or3 also return claim_checks, at most24objects. "
         + quote_contract +
-        "text is one unchanged nonempty atomic answer segment. Cover ALL retained text in order, including every modifier/connector and punctuation; only whitespace between segments may be omitted. "
+        ("Each resolved claim is one unchanged nonempty atomic answer segment. Cover ALL retained text in order, including every modifier/connector and punctuation; only whitespace between segments may be omitted. "
+         if answer_word_ids else
+         "text is one unchanged nonempty atomic answer segment. Cover ALL retained text in order, including every modifier/connector and punctuation; only whitespace between segments may be omitted. ") +
         "A factual name or work title still needs source evidence inside an expression of DJ appreciation. "
         "Split the present appreciation words from the unchanged source-bound name/title/role, and cite the latter as a fact with its literal evidence ID. "
         "Do not put a named work into an evidence-free appreciation segment merely because the surrounding sentence says I like it. "

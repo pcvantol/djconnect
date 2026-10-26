@@ -2994,6 +2994,7 @@ async def _informational_assist_response(
                     "text_source": "core", "is_generated_text": False}
     from .dialogue import parse_model_reply, requests_lookup, answer_language_format_issue
     format_issue = None
+    word_review = None
 
     def parse_reply(reply):
         nonlocal format_issue
@@ -3029,6 +3030,8 @@ async def _informational_assist_response(
                 return answer
             try:
                 draft_pool = artist_evidence_drafts(message, artist_corpus, normalize_draft)
+                from ..artist_review_words import AnswerWordReview
+                word_review = AnswerWordReview.capture(draft_pool)
             except (ValueError, TypeError, RecursionError, UnicodeError) as exc:
                 raise DialogueError('conversation_model_response_invalid', 502) from exc
             message, plan = draft_pool.texts[0], {}
@@ -3086,7 +3089,7 @@ async def _informational_assist_response(
                 preserve_nonparagraph_sources=artist_corpus is not None) if id_review else grounding_context
             review_prompt = public_research.assessment_prompt(
                 message, review_context, language, text, allow_prefix=not id_review, quote_by_id=id_review,
-                closed_negative=artist_corpus is not None)
+                closed_negative=artist_corpus is not None, answer_word_ids=word_review is not None)
             if id_review:
                 from ..narration_style import instructions as story_style
                 review_prompt = review_prompt.replace('\nData:\n',
@@ -3105,7 +3108,8 @@ async def _informational_assist_response(
                     + '\nData:\n', 1)
             if draft_pool is not None:
                 from ..narration_brief import draft_review_prompt
-                review_prompt = draft_review_prompt(review_prompt, draft_pool, text_field='answer')
+                review_prompt = (word_review.prompt(review_prompt, draft_pool) if word_review is not None
+                    else draft_review_prompt(review_prompt, draft_pool, text_field='answer'))
             checked = await _call_dialogue_agent(hass, {**data, "text": review_prompt})
             await turn.guard()
             check_response = (checked or {}).get("response") or {}
@@ -3114,8 +3118,9 @@ async def _informational_assist_response(
             if draft_pool is not None:
                 from ..narration_brief import bound_draft_reviews, _object
                 try:
-                    reviews = bound_draft_reviews(assessment, draft_pool, public_story=True,
-                        closed_negative=artist_corpus is not None)
+                    reviews = (word_review.decode(assessment, draft_pool) if word_review is not None
+                        else bound_draft_reviews(assessment, draft_pool, public_story=True,
+                            closed_negative=artist_corpus is not None))
                     # Complete envelope was checked before any positive verdict.
                     for draft, raw_review in zip(draft_pool.texts, reviews, strict=True):
                         review = _object(raw_review)

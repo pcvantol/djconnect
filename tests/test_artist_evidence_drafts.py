@@ -307,16 +307,16 @@ class ArtistEvidencePairedTests(unittest.IsolatedAsyncioTestCase):
                             {'anchors': [anchors[0]['id']], 'text': bad},
                             {'anchors': ['0' * 64 if mode == 'bad_anchor' else anchors[1]['id']], 'text': good}]}
                     else:
-                        first = {'review_schema': 'source_id_review_v1', 'supported': False,
+                        first = {'review_schema': 'source_answer_ids_review_v1', 'supported': False,
                             'language_ok': True, 'style_ok': True, 'unsupported_claims': [bad],
                             'claim_checks': [], 'temporal_claims': []}
-                        second = id_review_fixture({**projection, 'answer': good})
+                        second = id_review_fixture({**projection, 'drafts': [projection['drafts'][1]]})['draft_reviews'][0]['review']
                         second['unsupported_claims'] = []
                         if mode == 'bad_negative':
                             first.pop('temporal_claims')
                         if mode == 'positive_empty':
                             second['claim_checks'] = [{'text': 'Bei', 'kind': 'fact', 'evidence_ids': []}]
-                        reply = {'draft_reviews': [{**{k: v for k, v in row.items() if k != 'text'}, 'review': review}
+                        reply = {'draft_reviews': [{**{k: row[k] for k in ('index', 'sha256')}, 'review': review}
                             for row, review in zip(projection['drafts'], [first, second], strict=True)]}
                     await asyncio.sleep(0)
                     return {'response': {'speech': {'plain': {'speech': json.dumps(reply)}}}}

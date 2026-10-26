@@ -344,8 +344,9 @@ def snapshot(candidate, directory, pin):
 def verify_snapshot(root, pin):
     require(safe.product_hashes(root) == pin["product_hashes"], "SNAPSHOT_PRODUCT_CHANGED")
     profile = safe.profile_source_hashes(root)
-    observer = "scripts/verification/artist_public_input_receipts.py"
-    profile[observer] = digest((root / observer).read_bytes())
+    for observer in ("scripts/verification/artist_public_input_receipts.py",
+                     "scripts/verification/artist_answer_review_receipts.py"):
+        profile[observer] = digest((root / observer).read_bytes())
     require(profile == pin["profile_hashes"], "SNAPSHOT_PROFILE_CHANGED")
     require(
         {name: digest((root / name).read_bytes()) for name in pin["control_hashes"]}
@@ -453,6 +454,13 @@ def finish(controller, root, directory, work, coordinate, pin, key, code, absent
                 == len(report["model_calls"])
                 == report["paid_model_calls"]
             )
+        from scripts.verification.artist_answer_review_receipts import answer_word_reviews_complete
+        expected_artist_cases = [row['id'] for row in report['cases']
+            if row['id'].startswith('catalogue-listen.artist-')]
+        word_inputs = answer_word_reviews_complete(report, expected_cases=expected_artist_cases)
+        inputs = inputs and word_inputs
+        valid = valid and word_inputs
+        summary['original_answer_word_reviews_complete'] = word_inputs
         summary.update(
             report_sha256=digest(raw),
             source_before_after_equal=unchanged,
