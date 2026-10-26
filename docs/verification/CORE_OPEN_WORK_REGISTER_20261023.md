@@ -1,3 +1,18 @@
+# Delivered EN/NL Help Source — 26 October 2026
+
+[PR1363](https://github.com/pcvantol/djconnect/pull/1363) protected `0af0130ad156a71fccb3ddda2ebf9c3f05c1a314`,
+reviewed `9959bef01eaf5fc453189de8b9ce81cf1ad74cc4`, is originally qualified by run40336985033. Formal SHA256
+`5e0f6ad563d30d4f710ef69d3dfc542824c215db5b812267ac2a83a7d073cad8` and durable SHA256 `11b4066b07c548bd68ddb84720e2979d3529e7e02ec277d1f551967ebee064e5` join all12 checks.
+[Source verification](HELP_EN_NL_LIVE_PUBLICATION_20261026.md)
+and [separate Final](HELP_EN_NL_LIVE_PUBLICATION_FINALIZATION_20261026.md).
+Catalogue revision2/hash5c8c52c0 has28ENNL qualified/42DEFR_ES pending, supported
+by original608 paid40/70completed and full independent editorial acceptance,
+separate semantic bridge plus actual15HA groups/same271 products. Ordinary free
+Ask DJ stays unrestricted. 3731testsPASS/7oldSKIP;Ruff31zero;0MED/HIGH0newLOW.
+This Final still requires its own protected/original qualification; exact Apple
+adoption and HAdev installed readback remain. No installed/provider/native claim.
+All24/nine/Bulletin/VibeCast/oldRAW/consumed claims preserved; automationPAUSED.
+
 ## Current single verified playback handover Source — 26 October2026
 
 Source preparation over qualified1355/c3fd requests ONE complete playback
