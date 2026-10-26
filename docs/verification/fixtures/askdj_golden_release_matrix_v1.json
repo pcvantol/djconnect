@@ -5961,6 +5961,10 @@
         {
           "file": "tests/test_ask_dj_catalogue_variations.py",
           "method": "test_release_requires_frozen_variations_after_the_exact_base_profile"
+        },
+        {
+          "file": "tests/test_pipeline.py",
+          "method": "test_accepted_reply_finishes_review_after_slow_generation_but_keeps_source_expiry"
         }
       ],
       "steps": [

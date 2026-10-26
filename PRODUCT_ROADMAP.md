@@ -1,3 +1,22 @@
+## Current Help playback reply-window correction — 26 October2026
+
+Same-source medium artist2 passed2/2 with both editorial reviews. Delivery13
+then completed12PASS/1FAIL; the cooking review was incomplete after a17.173s
+generation and2.823s remaining in the old20s combined window. All original
+failure bytes and consumed claims remain. A cost-free actual-coroutine replay
+reproduces that cancellation. New source allows one60s combined reply only
+after an accepted playback effect and captures its63s delivery fence once;
+pre-effect12s, earlier owner/source expiry, two model calls and all semantic,
+effect, cancellation and replay guards remain. This is a new bounded60/63s
+contract, not a claim that old20/23s proof covered it. No paid successor or
+content/publication/installed GO yet; DFAA remains false/70pending. EN/NL40,
+normal protected Source/original qualification, actual content and editorial
+acceptance, separate Final, R5/configuration/Apple/installed gates remain.
+All24requests/ninegates preserved; automation PAUSED.
+[Evidence and bounds](docs/verification/HELP_PLAYBACK_REPLY_WINDOW_20261026.md).
+
+--- Earlier complete body preserved below ---
+
 # Current original-clock v3 producer candidate — 24 October 2026
 
 The bounded Core implementation now captures original pre-await weak Runtime/purpose roots including absence, exact original G0/L0/P0/K0 and downward final server deadlines. Context/register use closed strict outer v3; v1/v2 receive typed409. Inner issuer/registry/relay and old registered read/status/revoke remain v1 with original expiry. See docs/verification/ORIGINAL_CLOCK_V3_PRODUCER_SOURCE_20261024.md and the unchanged full normative docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md. No new purpose, owner, Activity profile or client clock witness is fabricated.

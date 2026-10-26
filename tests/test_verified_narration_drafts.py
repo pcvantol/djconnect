@@ -176,10 +176,21 @@ class VerifiedNarrationDraftTests(unittest.TestCase):
                         current_turn.reset(token)
                     brief = seen[0]
                     if state in {'observed', 'dispatched'}:
-                        self.assertEqual(turn.playback_reply_deadline, 123.0)
+                        self.assertEqual(turn.playback_reply_deadline, 163.0)
                         self.assertEqual(len(turn.delivery_validators), 1)
                         turn.delivery_validators[0]()
-                        replay_clock[0] = 123.0
+                        # Re-entering the same accepted receipt later cannot
+                        # capture a fresh63s deadline or another delivery grant.
+                        replay_clock[0] = 130.0
+                        token = current_turn.set(turn)
+                        try:
+                            with patch.object(self.pipeline, 'realize_session_narration', realize):
+                                await self.p.response(SimpleNamespace(data={}), SimpleNamespace(config={}), receipt)
+                        finally:
+                            current_turn.reset(token)
+                        self.assertEqual(turn.playback_reply_deadline, 163.0)
+                        self.assertEqual(len(turn.delivery_validators), 1)
+                        replay_clock[0] = 163.0
                         # Mutating the field cannot renew the original captured
                         # first-caller callback after owner/source awaits.
                         turn.playback_reply_deadline = 999.0
