@@ -1,3 +1,20 @@
+## Current EN/NL textual Help qualification source — 26 October2026
+
+Peter limited textual Help to Dutch and English:40 original cases,20 per
+language, with closed2→13→40 rounds. Existing DE/FR/ES translations and all
+historical results remain preserved outside this release. Artist generation
+and original-word review now use the explicitly selected public HA typed task,
+with one coherent whole-answer contract and unchanged source/semantic/word/date,
+turn/budget/configuration/cancellation guards. Playback review remains raw.
+Catalogue DFAA revision1 stays false/70pending; no content, publication, installed
+or native GO. Failed32/2PASS3FAIL/20complete and failed initial QA/source-join
+remain retained. Normal Source delivery/original qualification, real all40 plus
+both editorial reviews, winning Source+Final, configuration/R5/Apple and installed
+readback still precede release. All24requests/ninegates/Bulletin preserved;
+automation PAUSED. [Scope and evidence](docs/verification/HELP_EN_NL_TYPED_ARTIST_20261026.md).
+
+--- Earlier complete body preserved below ---
+
 ## Current single verified playback handover Source — 26 October2026
 
 Source preparation over qualified1355/c3fd requests ONE complete playback

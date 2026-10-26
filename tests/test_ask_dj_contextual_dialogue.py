@@ -1967,7 +1967,22 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.original_transport = self.pipeline._call_conversation_process_transport
         self.agent_patch.start()
 
+        # This light fixture has no installed HA AI Task provider. Keep its
+        # original route/source/turn/review tests on their explicit synthetic
+        # transport, with the SAME budget and guards. Actual typed schema,
+        # configuration, cancellation and SDK proof live in the pinned-HA tests.
+        async def typed_artist_fixture(hass, data, *, task_id, operation):
+            import hashlib
+            from custom_components.djconnect.structured_artist import ArtistTask
+            if type(operation) is not ArtistTask or operation.prompt_sha256 != hashlib.sha256(data['text'].encode()).hexdigest():
+                raise AssertionError('unbound synthetic artist operation')
+            result = await self.pipeline.call_conversation_process_with_agent_retry(hass, data)
+            return result['response']['speech']['plain']['speech']
+        self.typed_artist_patch = patch.object(self.pipeline, 'call_structured_artist', typed_artist_fixture)
+        self.typed_artist_patch.start()
+
     async def asyncTearDown(self):
+        self.typed_artist_patch.stop()
         self.agent_patch.stop()
         self.web_patch.stop()
         await self.fixture.asyncTearDown()

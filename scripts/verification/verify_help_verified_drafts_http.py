@@ -142,7 +142,7 @@ async def qualify(hass, manager, history, request, client):
                 else:
                     answer, code = await request('POST', '/api/djconnect/v1/ask_dj/message', {
                         'client_message_id': 'verified-drafts-' + mode,
-                        'text': 'Tell me about this artist', 'language': 'en', 'audio_response': 'never'})
+                        'text': 'Tell me about this artist', 'language': 'fr', 'audio_response': 'never'})
                     if mode in ('control', 'word_overflow'):
                         assert code == 502 and len(calls) == 2, (code, answer)
                         rows.append({'route': route, 'mode': mode, 'calls': len(calls), 'passed': True})
@@ -162,6 +162,7 @@ async def qualify(hass, manager, history, request, client):
                 rows.append({'route': route, 'mode': mode, 'calls': len(calls), 'passed': True})
     return {'scenario': 'verified_whole_drafts_actual_ha', 'cases': rows,
         'paired_artist_route': True, 'actual_ha_agent_frame_route': True,
+        'artist_scope': 'LEGACY_RAW_FR_TWO_DRAFT_COMPATIBILITY_NOT_EN_NL_TYPED_QUALIFICATION',
         'model_provider_calls': 0, 'provider_playback_effects': 0,
         'harness_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         'content_quality': 'NOT_RUN', 'installed': 'NOT_RUN', 'native': 'NOT_RUN'}

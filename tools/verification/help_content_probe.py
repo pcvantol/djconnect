@@ -52,9 +52,16 @@ TARGET5_ARTIST_V4 = (
     "catalogue-listen.artist-de", "catalogue-listen.artist-fr",
     "catalogue-listen.artist-es",
 )
+
+# Direct human textual scope: original EN/NL questions, never forty-as-100.
+EN_NL_ARTIST2 = ('catalogue-listen.artist-en', 'catalogue-listen.artist-nl')
+EN_NL_DELIVERY13 = ('catalogue-play.cooking-nl', 'catalogue-play.quiet-en', 'catalogue-listen.artist-en', 'catalogue-listen.artist-nl', 'catalogue-chain-speaker-en-offer', 'catalogue-chain-speaker-en-accept', 'catalogue-chain-speaker-en-duplicate', 'catalogue-chain-album-en-offer', 'catalogue-chain-album-en-accept', 'catalogue-chain-album-en-duplicate', 'catalogue-chain-album-nl-offer', 'catalogue-chain-album-nl-accept', 'catalogue-chain-album-nl-duplicate')
+EN_NL_FULL40 = ('catalogue-play.artist-en', 'catalogue-play.artist-nl', 'catalogue-play.cooking-en', 'catalogue-play.cooking-nl', 'catalogue-play.quiet-en', 'catalogue-play.quiet-nl', 'catalogue-discover.artist_albums-en', 'catalogue-discover.artist_albums-nl', 'catalogue-discover.artist_tracks-en', 'catalogue-discover.artist_tracks-nl', 'catalogue-discover.playlists-en', 'catalogue-discover.playlists-nl', 'catalogue-discover.recent-en', 'catalogue-discover.recent-nl', 'catalogue-listen.current-en', 'catalogue-listen.current-nl', 'catalogue-listen.release-en', 'catalogue-listen.release-nl', 'catalogue-listen.artist-en', 'catalogue-listen.artist-nl', 'catalogue-listen.album_tracks-en', 'catalogue-listen.album_tracks-nl', 'catalogue-listen.outputs-en', 'catalogue-listen.outputs-nl', 'catalogue-listen.queue-en', 'catalogue-listen.queue-nl', 'catalogue-listen.forecast-en', 'catalogue-listen.forecast-nl', 'catalogue-chain-speaker-en-offer', 'catalogue-chain-speaker-en-accept', 'catalogue-chain-speaker-en-duplicate', 'catalogue-chain-album-en-offer', 'catalogue-chain-album-en-accept', 'catalogue-chain-album-en-duplicate', 'catalogue-chain-speaker-nl-offer', 'catalogue-chain-speaker-nl-accept', 'catalogue-chain-speaker-nl-duplicate', 'catalogue-chain-album-nl-offer', 'catalogue-chain-album-nl-accept', 'catalogue-chain-album-nl-duplicate')
+
 SELECTED_PROGRESS_SCHEMAS = {
     "target6": 1, "target18_activity_v2": 2,
     "target24_delivery_v3": 3, "target5_artist_v4": 4,
+    "en_nl_artist2_v1": 5, "en_nl_delivery13_v1": 6, "en_nl_full40_v1": 7,
 }
 CONTENT_PROFILE_ID = 'help_medium_v1'
 CONTENT_REASONING_EFFORT = 'medium'
@@ -111,6 +118,12 @@ def mode_policy(mode):
         return TARGET24_DELIVERY_V3, 82, 900
     if mode == "target5_artist_v4":
         return TARGET5_ARTIST_V4, 25, 600
+    if mode == "en_nl_artist2_v1":
+        return EN_NL_ARTIST2, 10, 300
+    if mode == "en_nl_delivery13_v1":
+        return EN_NL_DELIVERY13, 52, 600
+    if mode == "en_nl_full40_v1":
+        return EN_NL_FULL40, 160, 900
     if mode == "full100":
         return (), 392, 1800
     raise ValueError("unknown_content_probe_mode")
@@ -225,7 +238,8 @@ def validate_candidate(controller, candidate, *, profile=CONTENT_PROFILE_ID):
     products = safe.product_hashes(candidate)
     profile = safe.profile_source_hashes(candidate)
     for observer in ("scripts/verification/artist_public_input_receipts.py",
-                     "scripts/verification/artist_answer_review_receipts.py"):
+                     "scripts/verification/artist_answer_review_receipts.py",
+                     "scripts/verification/artist_typed_receipts.py"):
         profile[observer] = digest((candidate / observer).read_bytes())
     fixed_inputs = {
         name: value for name, value in {**products, **profile}.items() if name not in EDITABLE
@@ -520,7 +534,7 @@ def generation_wire_complete(report, *, cases):
         return False
 
 
-def structured_playback_inputs_complete(report, *, cases):
+def structured_playback_inputs_complete(report, *, cases, allow_artist=False):
     """Current typed transport proof, separate from unchanged content judges."""
     try:
         if report.get("playback_generation_transport") != "PUBLIC_HA_AI_TASK_TYPED_PLAYBACK_V2":
@@ -531,6 +545,10 @@ def structured_playback_inputs_complete(report, *, cases):
         fields = {"structured_output_format", "structured_playback_generation",
                   "structured_playback_input", "provider_tools_absent", "provider_store_false"}
         for call in report["model_calls"]:
+            if allow_artist and 'structured_artist_operation' in call:
+                if {'structured_playback_generation', 'structured_playback_input'}.intersection(call):
+                    return False
+                continue
             if not fields.intersection(call):
                 continue
             if not fields.issubset(call) or call.get("case_id") not in expected:
@@ -628,7 +646,8 @@ def validate_selected_report(report, progress, *, pin, mode="target6", expected_
             )
             and selected_inputs_complete(report, mode=mode)
             and generation_wire_complete(report, cases=[original[case] for case in selected])
-            and structured_playback_inputs_complete(report, cases=[original[case] for case in selected])
+            and structured_playback_inputs_complete(report, cases=[original[case] for case in selected],
+                allow_artist=mode in {"en_nl_artist2_v1", "en_nl_delivery13_v1", "en_nl_full40_v1"})
             # Reuse every original transport, effects, language, chain replay,
             # per-request model and source predicate with exactly the closed selected
             # questions. Only the generic validator's empty-selection sentinel
@@ -661,6 +680,10 @@ def validate_profile_selected_report(report, progress, *, pin, mode="target6", p
         return False
     selected, _, _ = mode_policy(mode)
     artist_cases = [case for case in selected if case.startswith('catalogue-listen.artist-')]
+    if mode in {"en_nl_artist2_v1", "en_nl_delivery13_v1", "en_nl_full40_v1"}:
+        from scripts.verification.artist_typed_receipts import complete
+        if not complete(report, expected_cases=artist_cases):
+            return False
     return (pin.get('execution_profile') == descriptor
         and answer_word_reviews_complete(report, expected_cases=artist_cases)
         and validate_selected_report(report, progress, pin=pin, mode=mode,

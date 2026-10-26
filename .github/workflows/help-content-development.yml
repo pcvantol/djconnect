@@ -23,7 +23,7 @@ on:
       mode:
         required: true
         type: choice
-        options: [target6, target18_activity_v2, target24_delivery_v3, target5_artist_v4, full100]
+        options: [target6, target18_activity_v2, target24_delivery_v3, target5_artist_v4, en_nl_artist2_v1, en_nl_delivery13_v1, en_nl_full40_v1, full100]
       qualification_profile:
         description: Closed independently reviewed execution profile, never a free model setting
         required: false

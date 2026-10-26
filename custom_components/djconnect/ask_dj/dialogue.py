@@ -1171,7 +1171,7 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
         instructions = (
             'DJConnect output contract: return exactly this JSON envelope and no outside text: '
             '{"schema":"artist_evidence_drafts_v1","drafts":[{"anchors":["copy an actual literal anchor id"],'
-            '"text":"one whole natural answer"}]}. Return one or two whole drafts. '
+            '"text":"one whole natural answer"}]}. Return exactly ONE whole draft. '
             'FIRST select one to three literal_anchors IDs for each draft, THEN write its text. '
             'Copy IDs exactly; never calculate a digest or invent evidence. '
             + ARTIST_BRIEF_TELLING_STYLE + ' '
@@ -1188,9 +1188,7 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
             'For that brief introduction, leave out joining/founding dates and membership transitions; '
             'describe the documented musical activity or contribution itself instead. A date near a name '
             'does not supply a validated biographical event receipt. '
-            'Prefer two genuinely distinct complete drafts when the literal evidence supports them. '
-            'Use different literal evidence sets, not two paraphrases of the same source sentence. '
-            'If the evidence supports only one safe draft, return one. Never manufacture a second. '
+            'The single whole draft must address the requested supported aspects; no second draft. '
             'Natural prose instructions apply INSIDE text only.\n'
             + instructions)
     instructions += "\nData:\n"

@@ -279,7 +279,7 @@ class VerifiedArtistDraftTests(unittest.IsolatedAsyncioTestCase):
         finally:
             await f.asyncTearDown()
 
-    async def test_actual_paired_route_selects_whole_second_answer_without_extra_call_or_unused_history(self):
+    async def test_legacy_decoder_compatibility_selects_whole_second_answer_without_unused_history(self):
         from tests.test_ask_dj_semantic_reads import id_review_fixture
         f = shared.SharedDialogueTest()
         await f.asyncSetUp()

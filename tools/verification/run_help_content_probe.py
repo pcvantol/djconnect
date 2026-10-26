@@ -356,7 +356,8 @@ def verify_snapshot(root, pin):
     require(safe.product_hashes(root) == pin["product_hashes"], "SNAPSHOT_PRODUCT_CHANGED")
     profile = safe.profile_source_hashes(root)
     for observer in ("scripts/verification/artist_public_input_receipts.py",
-                     "scripts/verification/artist_answer_review_receipts.py"):
+                     "scripts/verification/artist_answer_review_receipts.py",
+                     "scripts/verification/artist_typed_receipts.py"):
         profile[observer] = digest((root / observer).read_bytes())
     require(profile == pin["profile_hashes"], "SNAPSHOT_PROFILE_CHANGED")
     require(
