@@ -1,3 +1,16 @@
+## Current source preparation: named low Help experiment (2026-10-26)
+
+The separately admitted `help_low_v1` test profile keeps the same model and
+limits; medium remains the default. This controller-only increment preserves
+all 266 Core product bytes at protected base `fab08e5f`, the unqualified DFAA
+catalogue and every original failure/claim. It is not a model, catalogue,
+configuration, client, deployment or installed approval. New low execution
+requires normal protected Source and original qualification first; same-profile
+5/24/100 results and editorial gates remain required. All 24 requests and nine
+gates remain retained. See [the verification record](docs/verification/HELP_NAMED_LOW_EXECUTION_PROFILE_20261026.md).
+
+---
+
 ## Current Help answer-reference review — 2026-10-26
 
 The artist review now has an explicit original-word address wire under validation;

@@ -24,6 +24,12 @@ on:
         required: true
         type: choice
         options: [target6, target18_activity_v2, target24_delivery_v3, target5_artist_v4, full100]
+      qualification_profile:
+        description: Closed independently reviewed execution profile, never a free model setting
+        required: false
+        default: help_medium_v1
+        type: choice
+        options: [help_medium_v1, help_low_v1]
 
 permissions:
   contents: read
@@ -43,6 +49,7 @@ jobs:
       DJC_CONTENT_DIGEST: ${{ inputs.content_digest }}
       DJC_PLAN_DIGEST: ${{ inputs.plan_digest }}
       DJC_CONTENT_MODE: ${{ inputs.mode }}
+      DJC_CONTENT_PROFILE: ${{ inputs.qualification_profile }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
         with:

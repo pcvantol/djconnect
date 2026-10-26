@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib.util
+import json
 import os
 from pathlib import Path
 import signal
@@ -11,7 +12,31 @@ import sys
 import time
 
 from tools.verification.help100_child import checkpoint, classify
-from tools.verification.help_content_probe import CONTENT_PROFILE_ID, DiagnosticProgress, mode_policy
+from tools.verification.help_content_probe import CONTENT_PROFILE_ID, DiagnosticProgress, execution_profile, mode_policy
+
+
+def captured_profile(env, directory=Path('/lab')):
+    """A lost low selector cannot silently execute the historical medium default."""
+    from tools.verification.run_help_catalogue_qualification_20261023 import read_work_file
+    profile = env.get('DJC_CONTENT_PROFILE', CONTENT_PROFILE_ID)
+    descriptor = execution_profile(profile)
+    marker = directory / 'execution-profile.json'
+    if marker.exists() or marker.is_symlink():
+        def unique_fields(pairs):
+            value = {}
+            for key, item in pairs:
+                if key in value:
+                    raise ValueError('execution_profile_duplicate_key')
+                value[key] = item
+            return value
+        value = json.loads(read_work_file(marker, maximum=1024), object_pairs_hook=unique_fields)
+        if (type(value) is not dict or set(value) != set(descriptor)
+                or any(type(value[key]) is not type(expected) or value[key] != expected
+                       for key, expected in descriptor.items())):
+            raise ValueError('execution_profile_capture_changed')
+    elif profile != CONTENT_PROFILE_ID:
+        raise ValueError('execution_profile_capture_missing')
+    return profile
 
 
 def remaining(wall, mono):
@@ -22,6 +47,7 @@ def remaining(wall, mono):
 
 
 async def execute():
+    profile = captured_profile(os.environ)
     mode = os.environ["DJC_CONTENT_MODE"]
     selected, _, _ = mode_policy(mode)
     wall, mono = (
@@ -74,7 +100,7 @@ async def execute():
     watcher = asyncio.create_task(watch())
     try:
         async with asyncio.timeout(seconds):
-            await module.main(qualification_profile=CONTENT_PROFILE_ID)
+            await module.main(qualification_profile=profile)
     except BaseException as exc:
         progress = getattr(module, "catalogue_progress", None)
         if progress is not None:
