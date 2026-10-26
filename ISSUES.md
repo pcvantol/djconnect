@@ -1,3 +1,15 @@
+> Help artist short cycle — 26 October 2026. The manual development policy adds
+> `target5_artist_v4`: the five original artist questions in en/nl/de/fr/es,
+> capped at 25 attempts, 3,000 output tokens and 600 seconds. Existing selected
+> modes and full100 remain unchanged. The previous original full100 completed
+> 98 PASS/2 FAIL (German/Spanish artist style), with 175 complete responses.
+> This controller change supplies earlier feedback; it does not fix or waive
+> style acceptance. All runtime product bytes, catalogue questions and draft
+> publication state remain unchanged. See
+> `docs/verification/HELP_ARTIST_FIVE_LANGUAGE_SHORT_CYCLE_20261026.md`.
+> Full content acceptance, winning Source/Final, configuration, Apple adoption
+> and installed acceptance remain separate.
+
 # DJConnect Issues Backlog
 
 ## Open / Needs Field Validation
