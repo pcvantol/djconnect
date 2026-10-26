@@ -57,7 +57,42 @@ matrix method names. Their bindings were added to the existing transition step;
 all questions, expected answers, model policies and other matrix content remain
 unchanged. The failed check is retained independently of its successor.
 
-## Delivery boundary
+## Successor: exact fixture ticks after an original observe failure
+
+Source1365 was protected as `18b9d96d2feb9ef4239aa17aa188f16c1ff55f58`
+(reviewed `2f5689aaccb7c442cade9802306d37df27603577`). Its normal main
+run40386787989 passed tests and exact-source coverage. Original formal run
+40387614437 and durable qualification joined all12 required checks; formal
+SHA256 `24d71ef15806a172e3d0f9eec5c6542f577b5e94e4d971cdd93630c10efdea84`,
+durable SHA256 `1e0adfef9ddc44a135ffe622b8b69ad5622837cd0a87787a4336fb0dcbe1c85e`.
+The automatic paid job was actually cancelled, not a model PASS.
+
+The separate non-blocking TDE observe run40386787940 failed the held genre
+producer test:3740 total, one failure,53 skips,383.325 seconds. The new bounded
+entry wait exposed an early producer completion instead of hanging. Original
+failed-log SHA256 `f0a6388906b454afb02070a8bfb48b59d28ec7e70b7f54f1035e7798d6f183dd`.
+Formal qualification does not relabel that failure. Final and installation
+were held while investigating it.
+
+A predeclared three-input private probe changed only the target test's clock
+initializer. Base824.0 and100.0 passed the complete original test. Base
+`math.nextafter(824.0, math.inf)` failed with the same early-return symptom:
+the original ledger last-at was1004.0000000000001 and next time1049.0, so
+their actual difference was44.999999999999886. The original presenter policy
+correctly returned `presence_readable_interval`. The original CI clock value
+was not recorded, so this is a confirmed causal fixture defect, not proof
+of the exclusive cause or exact clock value of that historical run.
+
+The successor uses100.0 as its deterministic binary-exact business-clock
+anchor, preserving the same90+90+45 advances, all publication/history/reopen
+assertions, real event-loop clock, bounded entry wait and cleanup. A causal
+regression exercises the actual PresenceLedger with both the rounded-short
+and exact45-second ticks: short remains denied, exact remains admitted.
+There is no production epsilon, shortened interval, guard change, new skip
+or paid call. Its owning-test binding alone is added to the existing matrix
+step; catalogue/questions/answers/model policy and all271 products stay equal.
+
+## Current delivery boundary
 
 This is source preparation until independent whole/exact review, ordinary CI,
 protected delivery and the necessary separate Final/original qualification

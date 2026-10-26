@@ -3,6 +3,7 @@ import asyncio
 from contextlib import contextmanager
 from dataclasses import replace
 import json
+import math
 import threading
 import time
 from types import SimpleNamespace
@@ -161,7 +162,9 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
     async def test_actual_pending_genre_transition_keeps_one_published_expression_frame(self):
         from custom_components.djconnect.narration_brief import NarratedText, admitted_runtime_text, recent_frames
         binding, archive = await self.history_authority()
-        clock = [time.monotonic()]
+        # Exact binary fixture ticks: a real uptime near an exponent boundary
+        # can round (start+225)-(start+180) to just below the real 45s policy.
+        clock = [100.0]
         self.manager._monotonic_source = lambda: clock[0]
         with _business_clock(clock):
             active = await self.manager.async_start(owner_profile_id='profile-a', selected_mood='groove', locale='nl',
@@ -234,6 +237,25 @@ class RuntimeExpressionTest(unittest.IsolatedAsyncioTestCase):
                 if not task.done():
                     task.cancel()
                 await asyncio.gather(task, return_exceptions=True)
+
+    async def test_presence_clock_keeps_the_exact_policy_boundary_without_an_epsilon(self):
+        from custom_components.djconnect.presence_policy import PresenceLedger
+        for base, expected in ((math.nextafter(824.0, math.inf), False), (100.0, True)):
+            with self.subTest(base=base.hex()):
+                clock = [base]
+                clock[0] += 90
+                clock[0] += 90
+                ledger = PresenceLedger(clock=lambda: clock[0])
+                ledger.commit('previous-observed-item', 15)
+                clock[0] += 45
+                interval = clock[0] - ledger.last_at
+                self.assertEqual(ledger.admits('presenter', 'current-observed-item'), expected)
+                if expected:
+                    self.assertEqual(interval, 45.0)
+                    self.assertEqual(ledger.suppression_reason, '')
+                else:
+                    self.assertLess(interval, 45.0)
+                    self.assertEqual(ledger.suppression_reason, 'presence_readable_interval')
 
     async def test_simulated_business_clock_keeps_a_real_timeout_and_restores_both_clocks(self):
         real_clock = time.monotonic

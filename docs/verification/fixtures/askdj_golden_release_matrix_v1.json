@@ -4528,6 +4528,10 @@
             {
               "file": "tests/test_personal_dj_runtime_expression.py",
               "method": "test_model_entry_wait_surfaces_early_producer_failure_or_empty_result"
+            },
+            {
+              "file": "tests/test_personal_dj_runtime_expression.py",
+              "method": "test_presence_clock_keeps_the_exact_policy_boundary_without_an_epsilon"
             }
           ],
           "acceptance_status": "owner_contract",
