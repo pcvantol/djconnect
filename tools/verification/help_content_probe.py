@@ -45,6 +45,17 @@ TARGET24_DELIVERY_V3 = (
     "catalogue-chain-album-nl-offer", "catalogue-chain-album-nl-accept", "catalogue-chain-album-nl-duplicate",
     "catalogue-chain-album-es-offer", "catalogue-chain-album-es-accept", "catalogue-chain-album-es-duplicate",
 )
+# Separate read-only original cases: the retained modes intentionally omit DE.
+# This is an additional development gate, never a shortened full qualification.
+TARGET5_ARTIST_V4 = (
+    "catalogue-listen.artist-en", "catalogue-listen.artist-nl",
+    "catalogue-listen.artist-de", "catalogue-listen.artist-fr",
+    "catalogue-listen.artist-es",
+)
+SELECTED_PROGRESS_SCHEMAS = {
+    "target6": 1, "target18_activity_v2": 2,
+    "target24_delivery_v3": 3, "target5_artist_v4": 4,
+}
 CONTENT_PROFILE_ID = 'help_medium_v1'
 CONTENT_REASONING_EFFORT = 'medium'
 CONTENT_MODEL = 'gpt-6-luna'
@@ -86,6 +97,8 @@ def mode_policy(mode):
         return TARGET18_ACTIVITY_V2, 62, 900
     if mode == "target24_delivery_v3":
         return TARGET24_DELIVERY_V3, 82, 900
+    if mode == "target5_artist_v4":
+        return TARGET5_ARTIST_V4, 25, 600
     if mode == "full100":
         return (), 392, 1800
     raise ValueError("unknown_content_probe_mode")
@@ -238,7 +251,7 @@ class DiagnosticProgress:
             raise ValueError("selected_progress_mode_required")
         self.path, self.healthy = Path(path), True
         self.value = {
-            "schema_version": 1 if mode == "target6" else (3 if mode == "target24_delivery_v3" else 2),
+            "schema_version": SELECTED_PROGRESS_SCHEMAS[mode],
             "scope": "TARGETED_DEVELOPMENT_NOT_FULL100",
             "manifest_sha256": MANIFEST,
             "content_digest": content_digest,
@@ -362,7 +375,7 @@ def _validate_progress(value, *, content_digest, mode):
         type(value) is not dict
         or set(value) != expected
         or type(value["schema_version"]) is not int
-        or value["schema_version"] != (1 if mode == "target6" else (3 if mode == "target24_delivery_v3" else 2))
+        or value["schema_version"] != SELECTED_PROGRESS_SCHEMAS[mode]
         or (mode != "target6" and value.get("mode") != mode)
         or value["scope"] != "TARGETED_DEVELOPMENT_NOT_FULL100"
         or value["manifest_sha256"] != MANIFEST

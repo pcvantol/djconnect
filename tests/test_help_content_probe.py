@@ -128,6 +128,71 @@ class ContentProbeTests(unittest.TestCase):
                 progress.before_model(policy.TARGET24_DELIVERY_V3[0])
             self.assertFalse(progress.healthy)
 
+    def test_artist5_uses_all_original_languages_including_new_failed_german(self):
+        from scripts.verification.askdj_example_catalogue_golden import cases, chain_cases
+        original = cases() + chain_cases()
+        selected, attempts, seconds = policy.mode_policy('target5_artist_v4')
+        self.assertEqual((attempts, seconds), (25, 600))
+        actual = [case for case in original if case['id'] in selected]
+        self.assertEqual(tuple(case['id'] for case in actual), selected)
+        self.assertEqual([case['language'] for case in actual], ['en', 'nl', 'de', 'fr', 'es'])
+        self.assertTrue(all(case['entry_id'] == 'listen.artist' for case in actual))
+        self.assertTrue(all(not case.get('chain') for case in actual))
+        self.assertNotIn('catalogue-listen.artist-de', policy.TARGET24_DELIVERY_V3)
+        self.assertEqual(policy.mode_policy('target24_delivery_v3'),
+                         (policy.TARGET24_DELIVERY_V3, 82, 900))
+        self.assertEqual(policy.mode_policy('full100'), ((), 392, 1800))
+
+    def test_artist5_progress_is_schema4_and_closes_before_attempt26(self):
+        with tempfile.TemporaryDirectory() as directory:
+            progress = policy.DiagnosticProgress(Path(directory) / 'artist5.json',
+                content_digest='f' * 64, mode='target5_artist_v4')
+            self.assertEqual(progress.value['schema_version'], 4)
+            for case in policy.TARGET5_ARTIST_V4:
+                for _ in range(4):
+                    progress.before_model(case)
+                    saved = json.loads(progress.path.read_text())
+                    self.assertEqual(saved['sdk_attempts_reserved'],
+                                     saved['sdk_completed_responses'] + 1)
+                    progress.completed_response()
+                progress.completed_case(case, passed=True)
+            progress.terminal('COMPLETE_NOT_QUALIFIED')
+            good = deepcopy(progress.value)
+            self.assertTrue(policy.validate_progress(good, content_digest='f' * 64,
+                mode='target5_artist_v4'))
+            for field, wrong in [('schema_version', 3), ('schema_version', True),
+                    ('mode', 'target24_delivery_v3'), ('sdk_attempts_reserved', 26),
+                    ('selected_case_ids', list(reversed(policy.TARGET5_ARTIST_V4))),
+                    ('completed_cases', list(policy.TARGET5_ARTIST_V4[:-1])),
+                    ('qualification', 'QUALIFIED')]:
+                with self.subTest(field=field):
+                    self.assertFalse(policy.validate_progress({**good, field: wrong},
+                        content_digest='f' * 64, mode='target5_artist_v4'))
+            self.assertFalse(policy.validate_progress(good, content_digest='f' * 64,
+                mode='target24_delivery_v3'))
+        with tempfile.TemporaryDirectory() as directory:
+            progress = policy.DiagnosticProgress(Path(directory) / 'cap.json',
+                content_digest='f' * 64, mode='target5_artist_v4')
+            for _ in range(25):
+                progress.before_model(policy.TARGET5_ARTIST_V4[0])
+            with self.assertRaises(RuntimeError):
+                progress.before_model(policy.TARGET5_ARTIST_V4[0])
+            self.assertFalse(progress.healthy)
+
+    def test_artist_only_transport_requires_zero_playback_witnesses(self):
+        from scripts.verification.askdj_example_catalogue_golden import cases
+        selected = [case for case in cases() if case['id'] in policy.TARGET5_ARTIST_V4]
+        report = {'playback_generation_transport': 'PUBLIC_HA_AI_TASK_TYPED_PLAYBACK_V2',
+                  'model_calls': []}
+        self.assertTrue(policy.structured_playback_inputs_complete(report, cases=selected))
+        for marker in [None, 'legacy', True]:
+            self.assertFalse(policy.structured_playback_inputs_complete(
+                {**report, 'playback_generation_transport': marker}, cases=selected))
+        # An artist-only selection must reject rather than fabricate a typed play.
+        injected = {'case_id': policy.TARGET5_ARTIST_V4[0], 'structured_output_format': {}}
+        self.assertFalse(policy.structured_playback_inputs_complete(
+            {**report, 'model_calls': [injected]}, cases=selected))
+
     def test_activity18_progress_is_explicit_separate_and_reserves_before_io(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / 'activity18.json'
