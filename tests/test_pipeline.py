@@ -239,11 +239,56 @@ class AssistPipelineTest(unittest.TestCase):
                         admission=lambda:None,fallback_text='Fallback',conf={})
                 self.assertIn('Actual title',answer)
                 self.assertEqual(len(calls),2)
-                self.assertEqual(seconds,[20 if effect and accepted else 12])
+                self.assertEqual(seconds,[60 if effect and accepted else 12])
             finally:
                 current_turn.reset(token)
         for effect,accepted in ((True,True),(True,False),(False,True),(False,False)):
             asyncio.run(scenario(effect,accepted))
+
+    def test_accepted_reply_finishes_review_after_slow_generation_but_keeps_source_expiry(self):
+        import time
+        from unittest.mock import patch
+        from custom_components.djconnect.playback_request import PlaybackRequestBrief, PlaybackAcceptance
+        from custom_components.djconnect.ask_dj.dialogue import current_turn
+        original_timeout = asyncio.timeout
+
+        async def scenario(*, accepted, source_seconds):
+            brief = PlaybackRequestBrief(PlaybackAcceptance('synthetic', time.monotonic()+source_seconds),
+                'en', 'radio_dj', 'groove', 'seed', ('{media_kind}', '{title}', '{status}'),
+                'accepted request', 'accepted receipt',
+                (('{media_kind}', 'playlist'), ('{title}', 'Actual title'), ('{status}', 'Confirmed.')),
+                selection_kind='playlist')
+            calls, cancelled = [], []
+            async def model(*args, **kwargs):
+                calls.append(True)
+                try:
+                    await asyncio.sleep(.17 if len(calls) == 1 else .05)
+                except asyncio.CancelledError:
+                    cancelled.append(len(calls))
+                    raise
+                text = ('{"text":"{media_kind}: {title}. {status}"}' if len(calls) == 1 else
+                        '{"supported":true,"language_ok":true,"style_ok":true}')
+                return {'response': {'speech': {'plain': {'speech': text}}}}
+            token = current_turn.set(types.SimpleNamespace(effect_started=accepted,
+                accepted_playback_narration=accepted))
+            try:
+                # Exercise actual cancellation/continuation with a 100x faster
+                # outer timer; no provider, budgets, source clock or model retry.
+                with patch.object(asyncio, 'timeout', lambda value: original_timeout(value/100)), \
+                     patch.object(self.pipeline, '_assist_context', return_value={'agent_id':'fixture'}), \
+                     patch.object(self.pipeline, 'call_conversation_process_with_agent_retry', model):
+                    answer = await self.pipeline.realize_session_narration(object(), narration=brief,
+                        admission=lambda: None, fallback_text='Fallback', conf={})
+                return answer, len(calls), cancelled
+            finally:
+                current_turn.reset(token)
+        answer, calls, cancelled = asyncio.run(scenario(accepted=True, source_seconds=60))
+        self.assertIn('Actual title', answer)
+        self.assertEqual((calls, cancelled), (2, []))
+        answer, calls, cancelled = asyncio.run(scenario(accepted=False, source_seconds=60))
+        self.assertEqual((answer, calls, cancelled), ('Fallback', 1, [1]))
+        answer, calls, cancelled = asyncio.run(scenario(accepted=True, source_seconds=.05))
+        self.assertEqual((answer, calls, cancelled), ('Fallback', 1, []))
 
     def test_correct_stt_text_with_assist_ignores_prompt_leak(self) -> None:
         class Services:

@@ -6,7 +6,11 @@ import time
 
 from .narration_brief import NarrationBrief, NarratedText
 
-POST_DISPATCH_NARRATION_SECONDS = 20
+# Two existing bounded model calls share this one post-acceptance reply window.
+# The former20s combined window could cancel review after a valid17s generation.
+# Capture the delivery deadline once at the accepted effect below; this changes
+# no provider/action authority, call count, per-call timeout or retry policy.
+POST_DISPATCH_NARRATION_SECONDS = 60
 
 # Development may vary this telling advice only; wire, truth and receipt rules
 # below remain fixed and independently assessed.
