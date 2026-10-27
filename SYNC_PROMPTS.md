@@ -1,3 +1,19 @@
+# Automatic paired surface registration v1 passive contract — 27 October 2026
+
+Follow [the exact passive Core/API/Apple contract](docs/product/AUTOMATIC_PAIRED_SURFACE_REGISTRATION_V1.md)
+and its [fixed DTOs](docs/product/AUTOMATIC_PAIRED_SURFACE_REGISTRATION_V1.json).
+Two explicit role GETs preserve separate widget/Activity A parents under the same
+real pairing epoch; B is a later genuine narrower Session child. No extra owner
+approval UI. Exact child/state/index/original B lookup, 16KiB normal/receipt and
+64KiB bounded-index-only caps, pure ConfigEntry snapshots and original status
+phase/playback projection are selected for passive source adoption.
+
+This publishes a contract, not implemented routes or a committed epoch producer.
+AUTHORITY_CURRENT is data, never SDK/legacy nativePushOwner capability. Actual
+clock/durability/principal/custody/provider/new-native protocol facts remain
+unavailable; no native push, installation or deployment claim follows. Earlier
+complete bodies retain their own scope below.
+
 # Automatic paired push direction Source1370 — 27 October 2026
 
 Protected `e12101028435c9914a0fc1af214300de2711a36c` equals reviewed `5492f14d27603c4ea7e9594e141be62641c3e3d9`
