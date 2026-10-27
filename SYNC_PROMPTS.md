@@ -1,3 +1,17 @@
+# Automatic pairing push direction — 27 October 2026
+
+Follow [the owning lifecycle requirements](docs/product/AUTOMATIC_PAIRED_SURFACE_REGISTRATION.md):
+automatic device-only enrollment after committed HA pairing, then a narrower
+binding to a genuine Session/Profile/source. No extra owner/role approval UI.
+Do not treat provisional pairing success as a committed epoch, insert a fake
+Session into existing codecs, or reuse the pairing bearer as issuer authority.
+Core owns committed epoch/trigger; API owns distinct admission; Apple owns actual
+target readiness. Exact wire, three time bounds, known-expiry continuation,
+legacy migration and durable commit protocol still need owning selection before
+codec/runtime GO. This is documentary direction only; no new availability,
+installation, native/provider or production claim. Preserve all24 requests/nine
+gates and earlier bodies below with their own historical scope.
+
 # Status bootstrap once journal Source1368 — 27 October 2026
 
 Protected `9129e8dab865f11b049599e544edfe96185a29d7` equals reviewed `5a05c545164aa4f865a25af2f2d3646a91fd3ece` in tree

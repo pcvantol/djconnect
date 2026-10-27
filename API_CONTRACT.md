@@ -1,3 +1,12 @@
+## Automatic paired-device push direction — 27 October 2026
+
+Normal committed HA pairing must initiate push enrollment automatically without
+an extra owner/role approval screen. The selected [A/B lifecycle direction](docs/product/AUTOMATIC_PAIRED_SURFACE_REGISTRATION.md)
+separates device-only enrollment from later actual Session/Profile/source
+binding. It defines requirements and explicit pending wire/time/commit decisions,
+not an available endpoint. Current Session-scoped codecs, R9/API v2 and actual
+purpose limits remain unchanged; no null Session or credential substitution.
+
 ## Live Help context and EN/NL catalogue revision2
 
 GET `/api/djconnect/v1/ask_dj/help-context` is a paired pure observation, not execution. Exact raw query/ten-key response/five-key descriptor and original15s client rules are canonical in [ASK_DJ_HELP_CONTEXT_V1](docs/product/ASK_DJ_HELP_CONTEXT_V1.md). Only28 EN/NL leaves qualify;42 DE/FR/ES leaves remain pending. Unknown current owner/source/configuration closes examples; free Ask DJ stays independent. [Original content and source bridge](docs/verification/HELP_EN_NL_LIVE_PUBLICATION_20261026.md). Protected delivery, Apple adoption and installed acceptance remain separate.
