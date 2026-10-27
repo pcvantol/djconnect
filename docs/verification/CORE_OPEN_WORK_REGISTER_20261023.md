@@ -1,3 +1,30 @@
+# Passive paired registration contract Source1372 — 27 October 2026
+
+Protected `e84ffd25a37f97bf79d0806a30ff0fe9d14d6695` equals reviewed `6a32a1dc1da929bfc41c6881370ed00db859b990`
+in tree `da23c4da0f24a0686853a42395da1dfd6b9024d4`. Original source run40489192644
+is QUALIFIED; formal SHA256 `884c0a3b4fc1c388d81d1fe1322e81b93142d625c958c68e8a35d65a71b42f82`, durable SHA256
+`0333c704c0c0c71d6fcb1ac67f117b11b666dbf551c8f3fa1c65b30a2a7bd06e` join all12/exact-source coverage PASS.
+[Separate documentary Final](AUTOMATIC_PAIRED_REGISTRATION_V1_FINALIZATION_20261027.md) still requires its own qualification.
+
+[Exact passive contract](../product/AUTOMATIC_PAIRED_SURFACE_REGISTRATION_V1.md):
+two role GETs, original A/B/child DTOs, pure original ConfigEntry reads, bounded
+responses and exact status-only native projection. No extra owner approval UI,
+no Profile/Session prerequisite for A. Routes and committed epoch producer are
+NOT_IMPLEMENTED; descriptor DATA never arms native SDK or legacy task owners.
+All272 products/release inputs are unchanged; old API/SYNC bodies byte-preserved.
+Twelve existing doc/roadmap tests PASS21.001s; normal source CI/coverage PASS.
+Automatic model/package jobs were cancelled once, not PASS or zero-spend proof.
+
+Next: coherent Core storeACK/epoch/capture/retirement hooks and pure HTTP producer;
+API/Apple source adoption follows exact contract pins with normal own gates.
+Actual custody, clock, durable/nonrollback, new native protocol/reservation/role,
+shipping status renderer and APNs/iPhone reception remain unavailable.
+HAdev previous271 unchanged; no documentary install/restart. HAproduction config
+answer still pending; API production remains accepted94a2, no redeploy.
+Help28ENNL/42pending, free AskDJ/allfiveUIlangs, all24requests/ninegates and
+Bulletin/VibeCast/Pi NOT_RECOVERED retained. Automation PAUSED. Earlier complete
+bodies below keep their original scope.
+
 # Automatic paired push direction Source1370 — 27 October 2026
 
 Protected `e12101028435c9914a0fc1af214300de2711a36c` equals reviewed `5492f14d27603c4ea7e9594e141be62641c3e3d9`
