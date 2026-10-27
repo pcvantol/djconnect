@@ -1,3 +1,35 @@
+# Automatic paired push direction Source1370 — 27 October 2026
+
+Protected `e12101028435c9914a0fc1af214300de2711a36c` equals reviewed `5492f14d27603c4ea7e9594e141be62641c3e3d9`
+in tree `cdea04269ef777636fe38dc43eaf403914ad598b`. Original source run40473342142
+is QUALIFIED; formal SHA256 `2a55ee8bdb296f0520c953fe026f0e7464a245f2ca121fabc563ce067527d839`, durable SHA256
+`7f31c957ae6fcecd4482e8eb0565832c5bddd8e980685e020cefe327c50c150d` join all12/exact-source coverage PASS.
+[Separate documentary Final](docs/verification/AUTOMATIC_PAIRED_PUSH_DIRECTION_FINALIZATION_20261027.md) still requires its own qualification.
+
+[Human-selected automatic flow](docs/product/AUTOMATIC_PAIRED_SURFACE_REGISTRATION.md):
+committed HA pairing initiates device-only enrollment without extra owner/role
+approval UI; a genuine Session/Profile/source is bound later with narrower rights.
+This is documentary direction, not an endpoint, codec, numeric TTL, installed
+registration or native/provider acceptance. Actual pairing epoch/commit,
+management/custody, three time bounds/renewal, durable store and native target
+readiness remain OPEN. Status/last-observed only; no title/artwork/live claim.
+
+Original candidate1510 CI failures remain FAIL: the current API document hash
+reference was stale. Successor5492 corrects that one current reference and its
+rendered SOURCES row without changing history, validators or tests. Existing
+sixteen targeted checks passed15.571s (including173 roadmap tests).
+All272 products/release inputs remain unchanged. Automatic model/package jobs
+were cancelled once, not PASS; no new paid content test or zero-spend claim.
+
+HAdev retains its previously installed271 products; no new install/restart.
+Last accepted API production receipt remains94a2dc6, not this uncomposed source;
+API159/Final160 are independently joined DATA-only delivery. Apple Help/Tools
+source reviews are not installed client or push receipt acceptance. HAproduction
+configuration and physical Pi recovery remain separate/open. Help rev2 retains
+28 EN/NL qualified and42 pending DE/FR/ES leaves, all five UI languages and
+unrestricted free Ask DJ. All24 requests/nine gates and Bulletin/VibeCast remain.
+Automation is PAUSED. Earlier bodies below retain their original scope.
+
 # Status bootstrap once journal Source1368 — 27 October 2026
 
 Protected `9129e8dab865f11b049599e544edfe96185a29d7` equals reviewed `5a05c545164aa4f865a25af2f2d3646a91fd3ece` in tree
