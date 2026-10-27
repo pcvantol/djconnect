@@ -1,0 +1,519 @@
+{
+  "contract_id": "DJC-AUTOMATIC-PAIRED-SURFACE-REGISTRATION-V1",
+  "schema_version": 1,
+  "scope": "Normative passive device-authenticated discovery, identity/digest DTOs and original status projection for source preparation. This artifact does not install routes, supply actual purpose authority or qualify positive signing/native/provider execution.",
+  "source_review_basis": {
+    "joint_r3_sha256": "5dfb903ae56ec283de24d28e062bf3b2aed38bdc1de9fcda6c6824c9d52bf878",
+    "Root_whole_review_sha256": "a507925320a15b21e582a93537e8f16e546c84ce8860f8c959511cc596bbc793",
+    "Apple_whole_review_sha256": "aa89d1bb5f3fa8240983b966cac1b6060cb38e76605f45b9062b1f55f701b119",
+    "Core_private_successor_review_sha256": "fa1c47bcfcf424c14df0682eb48b14018922674bbb6176470e4aaa778524e4f3",
+    "http_clarification_sha256": "1cc6029457277961fefa3545ff610b9c83d32050da3fc65c28f359e3ef22d288"
+  },
+  "delivery_state": {
+    "Core_HTTP_routes": "NOT_IMPLEMENTED",
+    "Core_committed_purpose_epoch_producer": "NOT_IMPLEMENTED",
+    "positive_native_protocol": "UNAVAILABLE",
+    "operational_default": "UNAVAILABLE",
+    "HAdev": "PREVIOUS_INSTALLED_271_UNCHANGED",
+    "HAproduction": "UNCHANGED"
+  },
+  "human_product_flow": {
+    "extra_owner_approval_UI": false,
+    "pairing": "Automatic server reconciliation after genuine ordinary paired commit and separate definitive Core purpose ACK; no fake Profile or Session for A.",
+    "A": "Device-only role transport record; does not grant content/read/display/Activity start rights.",
+    "B": "Later exact real authoritative Profile/source/active Session/settings child under the same immutable role A parent.",
+    "presentation": "Playback status and original last-observed timestamp; no title/artwork/progress/currentness guarantee. OS may retain old view."
+  },
+  "wire_candidate": {
+    "new_family": "DJC-AUTOMATIC-PUSH-REGISTRATION-V1; never reinterpret R9/APIv2/Source153.",
+    "A": {
+      "purpose": "paired-device-transport",
+      "domain": "DJC-PUSH-PAIRED-DEVICE-TRANSPORT-RECEIPT-V1\\n",
+      "fields_in_fixed_order": {
+        "version": "literal 1",
+        "purpose": "closed literal per receipt type",
+        "audience": "literal djc-api-push-coordinator/1",
+        "core_instance_id": "opaque server identifier",
+        "principal_id": "registered management principal identifier",
+        "principal_epoch": "positive safe integer",
+        "installation_id": "exact already-loaded Core ha_install_id, never Apple private installUUID",
+        "entry_id": "opaque entry identifier",
+        "device_id": "canonical paired device identifier",
+        "client_id": "exact device_id alias; equality required in this new family",
+        "client_type": "closed ios|macos|watchos, exactly actual committed ordinary pair; ipados physical platform maps explicitly to ios client_type",
+        "auth_generation": "Core server-owned current credential generation identifier",
+        "pairing_digest_sha256": "digest of actual current server-authenticated ordinary pair; no bearer bytes",
+        "push_authority_id": "Core-owned acknowledged push-purpose record identifier",
+        "push_authority_revision": "positive safe integer",
+        "pairing_epoch": "Core-owned immutable epoch identifier",
+        "operation_id": "original UUIDv4",
+        "nonce_sha256": "original nonce digest",
+        "policy_id": "qualified purpose policy identifier",
+        "policy_revision": "positive safe integer",
+        "policy_sha256": "exact accepted policy digest",
+        "clock_witness_sha256": "qualified original Core clock evidence digest",
+        "issued_at_unix_ms": "positive safe integer",
+        "operation_deadline_unix_ms": "immutable short operation cutoff",
+        "device_enrollment_expires_at_unix_ms": "immutable finite parent cutoff",
+        "enrollment_id": "original API/Core agreed parent identifier",
+        "enrollment_generation": "positive safe integer",
+        "device_platform": "closed ios|ipados|macos|watchos, preserve actual ipados; enum membership never qualifies a native role",
+        "application_id": "exact application identity",
+        "transport_role": "closed widget_transport|status_activity_transport; no Activity start entitlement"
+      },
+      "rights": "Device transport enrollment eligibility only; no Profile/Session/read/event/content/display/start/update rights. Receipt is not native enrollment completion."
+    },
+    "B": {
+      "purpose": "paired-session-status-child",
+      "domain": "DJC-PUSH-SESSION-STATUS-CHILD-RECEIPT-V1\\n",
+      "fields_in_fixed_order": {
+        "version": "literal 1",
+        "purpose": "closed literal per receipt type",
+        "audience": "literal djc-api-push-coordinator/1",
+        "core_instance_id": "opaque server identifier",
+        "principal_id": "registered management principal identifier",
+        "principal_epoch": "positive safe integer",
+        "installation_id": "exact already-loaded Core ha_install_id, never Apple private installUUID",
+        "entry_id": "opaque entry identifier",
+        "device_id": "canonical paired device identifier",
+        "client_id": "exact device_id alias; equality required in this new family",
+        "client_type": "closed ios|macos|watchos, exactly actual committed ordinary pair; ipados physical platform maps explicitly to ios client_type",
+        "auth_generation": "Core server-owned current credential generation identifier",
+        "pairing_digest_sha256": "digest of actual current server-authenticated ordinary pair; no bearer bytes",
+        "push_authority_id": "Core-owned acknowledged push-purpose record identifier",
+        "push_authority_revision": "positive safe integer",
+        "pairing_epoch": "Core-owned immutable epoch identifier",
+        "operation_id": "original UUIDv4",
+        "nonce_sha256": "original nonce digest",
+        "policy_id": "qualified purpose policy identifier",
+        "policy_revision": "positive safe integer",
+        "policy_sha256": "exact accepted policy digest",
+        "clock_witness_sha256": "qualified original Core clock evidence digest",
+        "issued_at_unix_ms": "positive safe integer",
+        "operation_deadline_unix_ms": "immutable short operation cutoff",
+        "device_enrollment_expires_at_unix_ms": "immutable finite parent cutoff",
+        "parent_enrollment_id": "exact previously enrolled A identifier",
+        "parent_enrollment_generation": "exact A generation",
+        "parent_receipt_sha256": "exact accepted A signed body digest",
+        "child_id": "original distinct child identifier",
+        "child_revision": "positive safe integer",
+        "profile_scope_sha256": "digest of actual authoritative Profile identity and revision",
+        "source_scope_sha256": "digest of actual authoritative source identity and revision",
+        "session_scope_sha256": "digest of actual active Session identity and revision",
+        "settings_scope_sha256": "digest of actual enabled settings and revision",
+        "status_profile_sha256": "090b8c9cd0d0b74622cd8ce00accaaecd816feb9d762f0554a9709bbf6342517",
+        "child_expires_at_unix_ms": "immutable finite child cutoff"
+      },
+      "rights": "Exact narrower child under accepted A with actual Profile/source/active Session/settings; status and observed timestamp only. Not permission to start Activity."
+    },
+    "encoding": "Candidate domains above denote exactly one final LF byte (0A), not backslash+n bytes. Body is strict UTF-8 JSON object, precisely listed field order, no whitespace, duplicate/extra/missing keys, nulls, floats or exponent numbers. Identifiers restricted to ASCII [A-Za-z0-9._:-], 1..128 bytes; UUIDv4 and lowerhex64 have their exact narrower grammars. JSON strings use ordinary double quotes with no escapes because allowed characters exclude quotes/backslashes/control bytes. Integers decimal digits without leading zero, 1..9007199254740991. No raw Profile/Session/URL/bearer/key/token bytes. Candidate body bound 8192 bytes, envelope bound 12288 bytes; parser rejects before journal mutation. Bounds are proposed parser caps, not selected lifetime policy. Literal purpose/audience values follow their exact literals, not the opaque-identifier grammar. client_type requires an exact Core/Apple accepted allowlist before implementation; unrecognised values close. No permission is inferred from a client_type string.",
+    "signature": "Candidate registered P-256 public JWK exact canonical pin, ECDSA/SHA256 fixed64-byte P1363 signature over domain LF plus canonical body bytes, without application prehash. Envelope exactly {body_b64url,signature_b64url}; unpadded canonical base64url. No key generation or real signer selected.",
+    "route_state": "A/B receipt DTOs are specified for passive source preparation only. Management/native effect routes are not part of this normative passive increment and remain unavailable."
+  },
+  "identity_producer": {
+    "existing_truth": "Core currently stores entry/device/client_type/token. Root readback supplies existing Apple DJConnectAPIIdentity.clientID == identity.deviceID, and Core central_api.py ha_install_id. This r2 explicitly selects those semantics rather than inventing independent full installation/client IDs.",
+    "installation_id": "Exactly the already loaded Core ha_install_id for this real HA installation. Never private Apple installUUID; never create via ensure_ha_install_id during discovery, never treat updater return as durable ACK. Missing/unqualified existing HA-install ID => WAITING_AUTHORITY.",
+    "client_id": "Exactly canonical device_id under this NEW family; equality mandatory in A/B and pair preimage. This is explicitly a device alias, not independently committed full installation identity and not an inferred old-family change. No suffix expansion or alternative alias.",
+    "client_descriptor_revision": "No independent full client-install descriptor is introduced; client_id is explicitly device_id. Application/platform/role still require their own qualified actual binding.",
+    "auth_generation": "NEW Core server-owned opaque generation changed on actual ordinary auth replacement, bound to separate definitively acknowledged push-purpose record. Existing token compared only Core-private; no token/fingerprint export or standalone fingerprint authority.",
+    "legacy_missing": "No historic epoch minted from ordinary .paired. Require genuine authenticated validation of current actual pair plus already-loaded ha_install_id and new definitive Core push-purpose ACK. Freshness/restore/currentness qualification missing => closed.",
+    "commit_scope": "Core captures actual ordinary pair + separate purpose record before first await; after definitive purpose ACK rechecks same current tuple. Includes all nine direct assignment sites, status/voice duplicate persistence and _learn_device_id per Root hook map. Never HA configdisk ACK.",
+    "core_instance_id": "NEW Core-owned acknowledged purpose-store identity, distinct from ha_install_id and client device alias; no live value/pin selected."
+  },
+  "digest_preimages": {
+    "canonicalization": "Use the same fixed-order closed canonical JSON primitive rules as receipt bodies. Digest formula is lowercase hex SHA256(UTF8(exact domain followed by one LF) || canonical_json_bytes). No automatic normalization, trimming or locale conversion. Private identifier values stay Core-local; hashes are signed bindings, not proof of independent API discovery of private state.",
+    "pair": {
+      "domain": "DJC-PUSH-CURRENT-PAIR-DIGEST-V1",
+      "fields_in_order": [
+        "version",
+        "core_instance_id",
+        "installation_id",
+        "entry_id",
+        "device_id",
+        "client_type",
+        "client_id",
+        "auth_generation",
+        "pairing_epoch",
+        "push_authority_id",
+        "push_authority_revision",
+        "credential_fingerprint_sha256"
+      ],
+      "types": "version=1; push_authority_revision positive safe integer; identifiers as receipt grammar; credential_fingerprint_sha256 Core-private lowercase SHA256 of exact current ordinary credential UTF8 bytes, used only internal tuple comparison. Never exported or independently sufficient authority.",
+      "export": "Only final pair digest exported. Full pair preimage remains Core-private because it includes credential fingerprint; API does NOT recompute against public fields or claim independent HA authentication. It verifies registered Core receipt signature and exact original digest joins; Root owns real tuple comparison and currentness."
+    },
+    "profile": {
+      "domain": "DJC-PUSH-PROFILE-SCOPE-DIGEST-V1",
+      "fields_in_order": [
+        "version",
+        "installation_id",
+        "entry_id",
+        "device_id",
+        "pairing_epoch",
+        "profile_id",
+        "profile_revision"
+      ],
+      "owner": "Core actual explicitly device-bound Profile store; no fallback Profile."
+    },
+    "source": {
+      "domain": "DJC-PUSH-SOURCE-SCOPE-DIGEST-V1",
+      "fields_in_order": [
+        "version",
+        "profile_scope_sha256",
+        "source_id",
+        "source_revision"
+      ],
+      "owner": "Core actual authoritative selected source under exact Profile."
+    },
+    "session": {
+      "domain": "DJC-PUSH-SESSION-SCOPE-DIGEST-V1",
+      "fields_in_order": [
+        "version",
+        "profile_scope_sha256",
+        "source_scope_sha256",
+        "session_id",
+        "session_revision"
+      ],
+      "owner": "Core actual active Session; never latest arbitrary Session."
+    },
+    "settings": {
+      "domain": "DJC-PUSH-SETTINGS-SCOPE-DIGEST-V1",
+      "fields_in_order": [
+        "version",
+        "profile_scope_sha256",
+        "source_scope_sha256",
+        "session_scope_sha256",
+        "settings_revision",
+        "enabled",
+        "status_profile_sha256"
+      ],
+      "owner": "Core actual device/scope-bound settings; enabled literal true for positive B; no other arbitrary settings exported."
+    },
+    "scope_field_types": "version=1; revisions positive safe integers; enabled boolean literal true; hashes lowerhex64. Core-private Profile/source/Session IDs are their exact nonempty persisted string bytes without normalization; JSON canonical string escaping must therefore be agreed before source implementation if outside opaque ASCII grammar. Until then nonconforming IDs close; no alias fabrication or independent hash algorithm. Shared public vectors use clearly synthetic conforming IDs.",
+    "private_scope_handling": "Pair fingerprint and raw private Profile/source/Session preimages stay Core-local. Core signs exact digests and revision joins; API/Apple verify those signed bindings and exact immutable references, never infer independently read private Core state.",
+    "parent_receipt_sha256": "lowercase SHA256 of exact original canonical A BODY bytes only, without domain or signature envelope. API captures immutable accepted body at A admission; Core and Apple retain that exact original body/digest. Signature validated separately under A domain. Never reconstruct from mutable current A fields or hash envelope/signature."
+  },
+  "core_apple_discovery_candidate": {
+    "owner_input_sha256": "a67663675146dfe240a2f3ef6973fae1a9ffa17c8616ea21fdeba289ec6582dd",
+    "headers_in_order_for_documentation": [
+      "Authorization: Bearer <ordinary current paired device token>",
+      "X-DJConnect-Device-ID: <exact current paired device>",
+      "X-DJConnect-Client-Type: <exact current paired type>"
+    ],
+    "request": "No query/body; duplicate critical headers rejected; current Core client-type grammar ios|macos|watchos. ipados is physical device_platform in A, while existing iPad ordinary client-type header remains ios by explicit mapping. Never silently rewrite platform. Watch native roles still unavailable.",
+    "authentication": "Pure comparison against exactly one already-loaded actual ConfigEntry and same runtime.entry. Read ConfigEntry.data/options snapshots and direct runtime authfields ONLY. NEVER runtime.config: that property can call profile_backend_runtime/source.config. No authorize_device_request/_learn_device_id, profile/config warming, ensure_ha_install_id, new state load or writes. Constant-time compare current token; exact entry/device/client_type/token/ha_install_id/purpose record snapshot checked immediately before serialize. Generic HA admin/user/management/read credential rejected.",
+    "response_headers": "Cache-Control: no-store; Content-Type: application/json; no Location or native instruction.",
+    "fixed_order_variants": {
+      "WAITING_AUTHORITY": [
+        "version",
+        "state"
+      ],
+      "UNAVAILABLE": [
+        "version",
+        "state"
+      ],
+      "AUTHORITY_CURRENT": [
+        "version",
+        "state",
+        "core_instance_id",
+        "installation_id",
+        "entry_id",
+        "device_id",
+        "client_id",
+        "client_type",
+        "auth_generation",
+        "pairing_digest_sha256",
+        "pairing_epoch",
+        "push_authority_id",
+        "push_authority_revision",
+        "original_operation_id",
+        "parent_enrollment_id",
+        "parent_enrollment_generation",
+        "A_body_sha256",
+        "device_platform",
+        "application_id",
+        "transport_role",
+        "policy_id",
+        "policy_revision",
+        "policy_sha256",
+        "clock_witness_sha256",
+        "issued_at_unix_ms",
+        "operation_deadline_unix_ms",
+        "device_enrollment_expires_at_unix_ms"
+      ],
+      "RETIRED": [
+        "version",
+        "state",
+        "pairing_epoch",
+        "push_authority_id",
+        "push_authority_revision",
+        "original_operation_id",
+        "parent_enrollment_id",
+        "parent_enrollment_generation",
+        "A_body_sha256"
+      ],
+      "UNKNOWN": [
+        "version",
+        "state",
+        "pairing_epoch",
+        "push_authority_id",
+        "push_authority_revision",
+        "original_operation_id",
+        "parent_enrollment_id",
+        "parent_enrollment_generation",
+        "A_body_sha256"
+      ]
+    },
+    "field_types": "version literal1; state literal variant; IDs/UUIDs/hashes/revisions as exact A receipt primitives. original_operation_id exact original A operation. A_body_sha256 SHA256 exact original canonical A BODY only. All fields required; no nulls. AUTHORITY_CURRENT exposes only stored nonsecret descriptor, not A signature/envelope or native proof. Descriptor device_platform preserves ipados; client_type reflects existing Core grammar. Response <=16384 bytes.",
+    "http": "WAITING_AUTHORITY/AUTHORITY_CURRENT/RETIRED/UNKNOWN HTTP200; UNAVAILABLE HTTP503. Malformed headers400; authentication failure401; mismatched authenticated scope403. Error HTTP body exactly {version:1,state:UNAVAILABLE}, no secrets. HTTP200 conveys no native success.",
+    "unknown_coordinate": "UNKNOWN/RETIRED variants emitted only when all exact stored coordinates exist and authenticated requester owns them. If missing coordinate, return UNAVAILABLE rather than fabricate UUID/epoch/parent. Unknown never becomes fresh operation.",
+    "creation": "No discovery POST introduced by API. Actual normal pair/config-entry completion schedules one Core-owned purpose reconciliation with definitive store ACK. Duplicate pair/status/voice/GET never creates epoch or extends deadline. Legacy genuine fresh validation must use Core-owned actual pairing lifecycle reconciliation, no new approval UI or GET write.",
+    "operation_child_readback": "The exact child_readback section defines thirteen-field owned-child state, role-owned indexes and original CURRENT B-receipt lookup.",
+    "offline_restart": "App holds original uncertainty latch/IDs only under qualified storage. Foreground/reconnect may read no-store state; no native action from GET/.paired/restart. Lost ACK and unknown remain original; definitive expiry is distinct and known-expiry renewal policy stays disabled. OS may retain older snapshot.",
+    "endpoints_in_exact_allowlist": [
+      "GET /api/djconnect/v1/surface_registration/widget_transport/state",
+      "GET /api/djconnect/v1/surface_registration/status_activity_transport/state"
+    ],
+    "superseded_unimplemented_route": "GET /api/djconnect/v1/surface_registration/state was an unimplemented candidate; replaced by two exact role routes, never arbitrary role path.",
+    "cardinality": "Same actual pair/push-purpose epoch across exact role parents. Each route returns its one original stored A parent for that role and actual application identity. transport_role MUST match literal route. Missing parent=>WAITING_AUTHORITY; unsupported/unqualified/ambiguous multiple application parents=>UNAVAILABLE, never first/latest/fallback or slot replacement. A future multi-application selection needs separate exact wire. GET never creates Activity, widget token, parent, generation or lease. Same native key global counter spans roles without reset; role target retirement does not retire unrelated sibling parent."
+  },
+  "child_readback": {
+    "endpoint": "GET /api/djconnect/v1/surface_registration/children/{child_id}/state",
+    "auth": "Same pure actual ordinary-pair snapshot and no-store rules as role discovery; exact child_id UUIDv4 canonical lowercase path, no query/body. Lookup only by actual authenticated entry/device/pair epoch and child ID, then exact owning role-parent/application. Never latest Session or sibling parent substitution. Stored ownership must match at final serialization.",
+    "fields_in_fixed_order": [
+      "version",
+      "state",
+      "pairing_epoch",
+      "push_authority_id",
+      "push_authority_revision",
+      "original_operation_id",
+      "parent_enrollment_id",
+      "parent_enrollment_generation",
+      "A_body_sha256",
+      "child_id",
+      "child_revision",
+      "B_body_sha256",
+      "outcome"
+    ],
+    "exact_types": {
+      "version": "literal integer1",
+      "state": "literal CHILD_STATE",
+      "pairing_epoch": "exact original Core-owned nonempty epoch identifier",
+      "push_authority_id": "exact original Core-owned purpose identifier",
+      "push_authority_revision": "positive safe integer, original child-bound revision",
+      "original_operation_id": "UUIDv4 of original A operation, explicitly NOT B operation",
+      "parent_enrollment_id": "UUIDv4 of exact original A parent",
+      "parent_enrollment_generation": "positive safe integer",
+      "A_body_sha256": "lowerhex SHA256 original canonical A BODY only",
+      "child_id": "UUIDv4 original B child identifier",
+      "child_revision": "positive safe integer",
+      "B_body_sha256": "lowerhex SHA256 original canonical B BODY only",
+      "outcome": "closed CURRENT|RETIRED|EXPIRED|UNKNOWN|COMMITTED_BUT_SUPPRESSED"
+    },
+    "negative": "Malformed path/header=>400, authentication failed401, authenticated foreign child403, missing/ambiguous/unqualified coordinate=>503. Negative body exactly version1,state UNAVAILABLE. No null coordinate, no fake child. HTTP200 child states do not imply native/provider completion or retry.",
+    "legacy_and_terminal": "Expired/retired/suppressed/unknown returns exact stored original coordinates when ownership fully known; never new operation. Missing legacy metadata returns UNAVAILABLE. CURRENT requires genuine accepted current child/prerequisites, not a guessed timestamp.",
+    "origin_of_child_id": "New candidate pure role-owned index routes listed below reveal only already-stored child descriptors; no creation on GET. Core actual authoritative device-bound Session reconciliation creates B and exact child identity separately after ACK, never app request guessing latest Session.",
+    "index_endpoints_in_exact_allowlist": [
+      "GET /api/djconnect/v1/surface_registration/widget_transport/children",
+      "GET /api/djconnect/v1/surface_registration/status_activity_transport/children"
+    ],
+    "index_response_fields_in_order": [
+      "version",
+      "state",
+      "pairing_epoch",
+      "parent_enrollment_id",
+      "parent_enrollment_generation",
+      "A_body_sha256",
+      "children"
+    ],
+    "index_types": "version1; state literal CHILD_INDEX; exact current original role-parent fields as above; children array of complete thirteen-field CHILD_STATE objects sorted ascending canonical child_id then child_revision. No duplicates. Required injected max_children and response<=65536 bytes; overflow/absent cap=>UNAVAILABLE rather than truncation/partial authority. Empty list valid only known current parent/no acknowledged children. No raw Session/Profile fields.",
+    "original_B_body_endpoint": "Candidate GET /api/djconnect/v1/surface_registration/children/{child_id}/receipt with same authenticated ownership; exact response version,state,B_body_b64url,B_signature_b64url, where version1,state CHILD_RECEIPT and canonical body hash must equal original B_body_sha256 from state/index. Return only original acknowledged CURRENT child receipt, never reconstruct from current fields; terminal/unknown/missing receipt=>UNAVAILABLE. Registered Core signature verifies separately; body has only scope hashes, not private Profile/Session bytes. No positive SDK capability from receipt.",
+    "new_route_join": "Selected for bounded passive Core/API/Apple source preparation by the exact reviews recorded in source_review_basis. No route is yet implemented; missing actual records/authorities close."
+  },
+  "target_descriptor": {
+    "hash": "lowerhex SHA256(domain oneLF + fixed-order canonical descriptor JSON), exact bytes retained; no bearer/native token bytes in descriptor or logs.",
+    "widget": {
+      "domain": "DJC-PUSH-WIDGET-TARGET-DESCRIPTOR-V1",
+      "fields_in_order": [
+        "version",
+        "parent_enrollment_id",
+        "parent_enrollment_generation",
+        "pairing_epoch",
+        "target_id",
+        "target_generation",
+        "device_platform",
+        "application_id",
+        "extension_id",
+        "widget_kind",
+        "environment",
+        "token_scope",
+        "native_token_sha256"
+      ],
+      "types": "version=1; environment sandbox|production; token_scope literal app_widget_installation; widget_kind exact installed projection identity; all IDs exact admitted nonempty strings. Actual token API scope must be qualified; if not app-installation scope, this variant unavailable and revised contract required. Separate widget projections cannot fabricate distinct tokens when native token is shared."
+    },
+    "activity": {
+      "domain": "DJC-PUSH-STATUS-ACTIVITY-TARGET-DESCRIPTOR-V1",
+      "fields_in_order": [
+        "version",
+        "parent_enrollment_id",
+        "parent_enrollment_generation",
+        "pairing_epoch",
+        "target_id",
+        "target_generation",
+        "device_platform",
+        "application_id",
+        "environment",
+        "attributes_type",
+        "status_profile_sha256",
+        "presentation_id",
+        "activity_id",
+        "native_token_sha256"
+      ],
+      "types": "attributes_type literal DJConnectRemotePlaybackStatusActivityAttributesV1; status_profile exact 090b8c9cd0d0b74622cd8ce00accaaecd816feb9d762f0554a9709bbf6342517; exact real status-only presentation and Activity identity, no legacy alias or push-to-start."
+    },
+    "common_types": "Original parent/epoch fixed; generations positive safe integer; descriptor version1; native_token_sha256 lowerhex SHA256 exact raw native token bytes (not hex text). Token transported only over exact protected native-proof path once that path is joined; no actual token collected in preparation. Canonical opaque strings use agreed restricted grammar; nonconforming native identity requires explicit encoding join, never truncation or alias.",
+    "rotation_binding": "rotate_target request additionally binds target_descriptor_sha256, existing native_proof_body_sha256 and exact expected/next generation. Proof must include that exact descriptor digest; generic hash presence is no proof.",
+    "first_token": "First positively qualified generation1 requires original native reservation/proof/actual token; nil is absence, not empty-token descriptor or withdrawal success.",
+    "unchanged_token": "Exact same descriptor/native token and current generation => readback same original state, no generation/budget/lease increase.",
+    "nil_and_retirement": "Nil/permission loss locally retires matching generation before await. Remote withdrawal unavailable until separate authority joined; nil does not prove remote erase.",
+    "ABA_late_callback": "Each scheduled callback captures original parent/epoch/target expected generation and one-use reservation. Changed generation or retired parent rejects callback even if token bytes later repeat; no revival.",
+    "outcomes": "Definitive new target commit versus COMMITTED_BUT_SUPPRESSED versus UNKNOWN recorded separately. Unknown never advances next generation automatically."
+  },
+  "platform_role_matrix": {
+    "ios/widget_transport": "Source candidate only; actual signed app/extension/OS widget-push role proof required.",
+    "ipados/widget_transport": "Distinct platform literal; no silent ios remap. Same independent role qualification required.",
+    "macos/widget_transport": "Source candidate only; actual signed app/extension/OS role proof required.",
+    "ios/status_activity_transport": "Existing status-only profile is Tools-only; exact new shipping attributes/profile/token composition required before native use.",
+    "ipados/status_activity_transport": "Unavailable until actual platform/OS/Activity capability explicitly qualified.",
+    "macos/status_activity_transport": "Unavailable in this candidate.",
+    "watchos/*": "Unavailable; enum presence conveys no WidgetKit/Activity support.",
+    "positive_roles_now": []
+  },
+  "status_projection": {
+    "profile_sha256": "090b8c9cd0d0b74622cd8ce00accaaecd816feb9d762f0554a9709bbf6342517",
+    "decision": "Keep existing Tools-only profile exact bytes/semantics. Remove incompatible six-field status summary entirely; no new profile hash or active=playing alias. Transport metadata is separate and never inserted into Activity content-state.",
+    "authority": "Core original observation supplies phase and independent playback_state from actual scoped Session/playback. Presentation_id/generation/sequence come only from actual owning status-only presentation journal; widget grant_epoch/target_generation/source_generation from actual independent widget authority witnesses. Missing any required real witness=>unavailable. No app/local sequence, reused Session UUID, fabricated conversion, or arrival-time observation.",
+    "Activity_content_fields_in_order": [
+      "contract_version",
+      "presentation_id",
+      "presentation_generation",
+      "sequence",
+      "observed_at_unix_ms",
+      "display_mode",
+      "phase",
+      "playback_state"
+    ],
+    "Activity_types": {
+      "contract_version": "literal integer1",
+      "presentation_id": "lowercase UUIDv4 actual status-only presentation",
+      "presentation_generation": "lowercase UUIDv4 actual original presentation generation, NOT integer target generation",
+      "sequence": "actual original safe integer1..9007199254740991",
+      "observed_at_unix_ms": "original observation safe integer1..9007199254740991",
+      "display_mode": "literal last_observed",
+      "phase": "closed active|ended",
+      "playback_state": "active requires playing|paused|stopped|unknown; ended requires explicit JSON null"
+    },
+    "Activity_projection": "Copy exact original authoritative eight values; no extra child/profile/enrollment keys in native content-state. Attributes exact DJConnectRemotePlaybackStatusActivityAttributesV1 and actual matching presentation UUID/generation. Never legacy SessionLiveActivity attributes, app APNs/widget/push-to-start token. No Activity creation from discovery.",
+    "Widget_response_fields_in_order": [
+      "contract_version",
+      "request_id",
+      "available",
+      "observation",
+      "cache_policy"
+    ],
+    "Widget_types": "contract_version1; request_id original lowercase UUIDv4 request; available boolean; cache_policy literal private,no-store. observation null iff unavailable, otherwise exact six-field object below. No Activity presentation/sequence inferred from widget.",
+    "Widget_observation_fields_in_order": [
+      "grant_epoch",
+      "target_generation",
+      "source_generation",
+      "observed_at_unix_ms",
+      "phase",
+      "playback_state"
+    ],
+    "Widget_observation_types": "grant_epoch,target_generation,source_generation each actual original lowercase UUIDv4 from established widget authority, not conversion from new-family integer generations; observed_at original safe integer; phase active|ended; active playback playing|paused|stopped|unknown, ended explicit null. Existing fields unavailable until owning actual UUID-generation mapping is supplied.",
+    "transport_envelope_fields_in_order": [
+      "version",
+      "child_id",
+      "child_revision",
+      "B_body_sha256",
+      "target_descriptor_sha256",
+      "status_profile_sha256",
+      "native_payload_b64url",
+      "native_payload_sha256"
+    ],
+    "envelope_types": "version1; child UUIDv4 and positive revision; hashes lowerhex64 original exact bindings; native_payload_b64url canonical base64url of exact role-specific existing content bytes (Activity eight-field content-state or Widget five-field response), native_payload_sha256 SHA256 raw payload bytes. Envelope not APNs content-state. Decoder role selected by exact target, never payload guessing. Profile identity does not grant display/read rights.",
+    "null_exception": "Explicit null is allowed ONLY existing native display payload ended playback/unavailable widget observation; NOT A/B/authority/management DTOs. No missing-key alias accepted.",
+    "shipping_state": "Existing codec currently Tools-only. Source compilation/profile match does not prove shipping installation/native provider/delivery/rendering. Exact renderer/installation/OS role/native token and source-generation mapping still required."
+  },
+  "policy_required": {
+    "operation_max_duration_ms": null,
+    "device_enrollment_max_validity_ms": null,
+    "child_max_validity_ms": null,
+    "qualification": "All three finite positive purpose-policy inputs with exact provenance/revision are mandatory; no numeric default or inheritance from old 30s/5m/15m/8h contracts. Operation deadline captured at original operation; parent expiry captured at original A; B expiry <= original parent and actual Session/source/purpose cutoff. API uses qualified local UTC upper bound and original local continuous guard, never subtracts unrelated monotonic domains or starts a new arrival lease.",
+    "known_expiry_automatic_new_operation": "Candidate: permit only under explicitly accepted policy after definitive terminal expiry, current genuine pair + fresh acknowledged purpose record and fresh original operation. Never extend existing A/B or reset global key counter. Policy enablement currently null.",
+    "known_expiry_policy_enabled": null,
+    "usage_limits": "Required finite per-principal/device concurrent jobs, challenge rate, reservation count and target/child caps with provenance; actual values null. Missing caps closes before any reservation. These rate/count caps are separate from three lifetime bounds."
+  },
+  "lifecycle": {
+    "pending_pair": "setup_pending or success without actual acknowledged purpose state => WAITING_AUTHORITY, zero SDK/provider/job/nonce effects.",
+    "duplicate_pair": "Identical current pair with lost reply retains same original pairing epoch/authority record/op; authenticated discovery only. No new lease.",
+    "auth_replacement": "Any actual device-auth replacement/unpair/remove fences old epoch and children before first await, including A-B-A. Root owns mutation hooks.",
+    "native_token_rotation": "New exact target-generation operation bound to same parent and original expiry; no parent renewal. Unknown prior native outcome blocks automatic fresh operation.",
+    "B_retirement": "Session/Profile/source/settings loss or revision change immediately fences that child; cancel pending output; A may remain until its own cutoff. Separately authorized exact-target withdrawal does not imply OS erasure.",
+    "restart": "Load real ordinary HA tuple and separate purpose record independently. Require exact current match + accepted restore/clock/store/principal evidence. Mismatch/unknown closes; never repair one from the other.",
+    "legacy": "Existing pairs have no invented historical epoch: require genuine fresh current pairing validation and new push-purpose ACK. Legacy rows retain only old scope/expiry; no automatic migration or fake Session.",
+    "unknown": "Lost native/key/provider/commit reply remains UNKNOWN; original operation spent, no new UUID/retry/lease. Poll returns state only. Recovery policy must be reviewed separately.",
+    "response_candidate": "Nonsecret closed states WAITING_AUTHORITY, UNAVAILABLE, RESERVED, VERIFIED_DEVICE_TRANSPORT, BOUND_STATUS_CHILD, EXPIRED, RETIRED, REJECTED, UNKNOWN. VERIFIED/BOUND require actual full prerequisites and definitive relevant commit; no response can equate provider acceptance with delivery/render/currentness."
+  },
+  "sqlite_contract": {
+    "profile": [
+      "WAL",
+      "synchronous=FULL",
+      "foreign_keys=ON",
+      "read back effective settings and SQLite build"
+    ],
+    "authority": "One transaction domain for principal replay, operations, nonce spends, jobs, A/B/target generations, global actual-key counters and attempt outcomes; no authoritative dual write in D1 or HA.",
+    "atomicity": "Explicit BEGIN IMMEDIATE; validate original expected revisions and all scope joins; immutable operation/nonce global uniqueness; apply joint CAS and counter transition; invariant failure rolls back transaction. Report committed only after COMMIT returns definitive success under actual provider contract.",
+    "counter": "Key reference globally unique across jobs/principal/pairing epochs; immutable key scope and strictly monotonic accepted counter with uint32 exhaustion closing. Restart, renewal or token rotation never resets.",
+    "capability": "Consume private in-process reservation once before validation/await. No serialized/reconstituted positive capability or reply cache.",
+    "outcomes": [
+      "DEFINITIVELY_NOT_COMMITTED only where actual adapter proves transaction did not commit",
+      "COMMITTED only after definitive provider settlement",
+      "UNKNOWN on lost/ambiguous commit acknowledgement; never assume rollback or reissue",
+      "COMMITTED_BUT_SUPPRESSED when cancel/expiry/retirement observed after actual commit; preserve SQL truth"
+    ],
+    "cancellation": "A cancelled await does not stop a worker thread or prove rollback. Connection work settles under adapter ownership; before settlement return no positive result. Preserve spent operation and uncertainty fence.",
+    "restore": "Record actual store/boot/restore generation. Unknown restore or rollback fences positive use; equal HA and push records alone do not prove nonrollback. Host/VFS/powerloss/restore qualification remains required."
+  },
+  "http_limits": {
+    "complete_response_utf8_bytes": 16384,
+    "original_child_receipt_complete_response_utf8_bytes": 16384,
+    "role_child_index_complete_response_utf8_bytes": 65536,
+    "role_child_index_only_override": true,
+    "index_required_max_children": "Finite positive injected policy; missing/overflow =>UNAVAILABLE, no truncation",
+    "nested_A_B_body_bytes": 8192,
+    "nested_signature_envelope_bytes": 12288,
+    "before_materialization": "Bound original complete UTF8 response before JSON/base64 materialization; nested caps remain mandatory.",
+    "AUTHORITY_CURRENT": "Nonsecret comparison data only. Never arms legacy nativePushOwner, starts SDK, creates nonce/challenge/job/lease or falls back to an older wire family."
+  },
+  "core_capture_rules": {
+    "read_only": "Only already-loaded original ConfigEntry.data/options snapshots and direct runtime auth fields, never runtime.config/profile_backend_runtime/source.config, authorize_device_request/_learn_device_id, ensure helpers or bootstrap warming.",
+    "before_await": "Capture exact current pair, acknowledged purpose record and absence before first await; compare same tuple after every await; final no-await validation before publication/effect.",
+    "original_snapshot": "Exact entry/runtime object identity and current device/client_type/token/ha_install_id/purpose revision must all agree. No HA-user/admin/read/management credential substitution.",
+    "mutations": "Synchronous retirement before genuine device/token/auth replacement, learned-device identity mutation, entry removal/unload; includes all current assignment routes. Same status/voice pair persistence is duplicate, not new epoch.",
+    "privacy": "Credential fingerprint/pair preimage and raw Profile/source/Session scope preimages stay Core-private. A uses pair-only preimage; four private scope hashes belong only to B.",
+    "commit": "Core-owned purpose record definitive adapter ACK is not HA ConfigEntry disk ACK or two-store atomicity. Unknown/cancelled commit never issues a positive handle; actual commit stays consumed.",
+    "restart": "No historic epoch from paired token, no repair-one-store-from-other, rollback witness unavailable=>closed."
+  },
+  "native_and_management_candidate_boundary": {
+    "not_normative_for_positive_execution": [
+      "Native challenge/prepared-proof transcript and key-mode/role verifier",
+      "Native durable reservation provider/clock and nonconforming native identifier encoding",
+      "Management signer/principal custody and actual TLS/provider configuration",
+      "Actual SQLite VFS/powerloss/restore witness and UTC/continuous-clock qualification",
+      "Shipping status-only renderer/attributes/native target/API receipt and actual iPhone delivery"
+    ],
+    "candidate_request_schemas": "Joint r3 includes management/challenge/native proof proposals. They remain private preparation until separate exact owning protocol/authority qualification; passive DTO acceptance is not their Source or operational GO.",
+    "old_families": "Existing R9/APIv2/Source153/context-v1/v2/v3 contracts retain their exact scope. No fake Session, generic owner factory or alias upgrade."
+  },
+  "source_reading_rules": "Sections named candidate retain preparation/operational-unavailable scope. Fixed passive response schemas, selected role routes, exact A/B data grammar and original status projection are the shared source interface; no positive execution contract is inferred."
+}
