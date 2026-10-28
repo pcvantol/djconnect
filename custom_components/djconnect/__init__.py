@@ -161,6 +161,7 @@ from .assist_stt import detect_stt_support
 from .dj_response import async_send_dj_response, async_send_dj_response_best_effort
 from .ha_urls import async_ha_url_payload
 from .ask_dj_history import AskDJHistoryManager
+from .surface_registration import PairingRetirement, fence_pairing_change, retire_runtime
 from .music_dna import MusicDNAManager
 from .push import (
     EVENT_ASK_DJ_CONFIRM as EVENT_ASK_DJ_CONFIRM,
@@ -366,6 +367,8 @@ def _stable_entity_payload(value: Any) -> Any:
 @dataclass
 class DJConnectRuntime:
     entry: ConfigEntry
+    surface_registration_retirement: PairingRetirement = field(
+        default_factory=PairingRetirement, init=False, repr=False, compare=False)
     last_text: str | None = None
     last_intent: dict[str, Any] | None = None
     last_dj_text: str | None = None
@@ -416,6 +419,13 @@ class DJConnectRuntime:
         return data
 
     def update(self, **kwargs: Any) -> None:
+        # Negative-only fence precedes every setter and listener scheduling.
+        if "device_token" in kwargs:
+            fence_pairing_change(self, token=kwargs["device_token"])
+        if "pairing_device_id" in kwargs:
+            fence_pairing_change(self, device_id=kwargs["pairing_device_id"])
+        if "entry" in kwargs and kwargs["entry"] is not self.entry:
+            retire_runtime(self)
         should_notify = not kwargs
         for key, value in kwargs.items():
             if getattr(self, key, None) != value:
@@ -435,6 +445,7 @@ class DJConnectRuntime:
 
     def ensure_device_token(self) -> str:
         if not self.device_token:
+            retire_runtime(self)
             self.device_token = secrets.token_urlsafe(32)
         return self.device_token
 
@@ -581,6 +592,7 @@ class DJConnectRuntime:
             or _is_real_djconnect_device_id(str(known_device))
         ):
             return
+        fence_pairing_change(self, device_id=device_id)
         self.pairing_device_id = device_id
         self.device_status["device_id"] = device_id
         _LOGGER.debug(
@@ -1851,6 +1863,7 @@ def register_http_views(hass: HomeAssistant) -> None:
         from .paired_live import DJConnectPairedLiveView
         from .help_http import HelpContextView
         from .surface_push_http import surface_views
+        from .surface_registration_http import registration_views
         from .hybrid_transport import HybridActionsView, HybridContextView, HybridOperationView, HybridOperationStatusView, HybridRecoveryView
         from .display_transport import transition_views
         from .display_live import DisplayLiveView
@@ -1860,6 +1873,7 @@ def register_http_views(hass: HomeAssistant) -> None:
         for view in [
             HelpContextView(hass),
             *surface_views(hass),
+            *registration_views(hass),
             *transition_views(hass), DisplayLiveView(hass), DisplayShellView(hass),
             HybridActionsView(hass), HybridContextView(hass), HybridOperationView(hass),
             HybridOperationStatusView(hass), HybridRecoveryView(hass),
@@ -2015,12 +2029,14 @@ def _restore_runtime(hass: HomeAssistant, entry: ConfigEntry) -> DJConnectRuntim
     if entry.data.get(CONF_SPOTIFY_REFRESH_TOKEN):
         runtime.latest_spotify_refresh_token = entry.data[CONF_SPOTIFY_REFRESH_TOKEN]
     if entry.data.get(CONF_DEVICE_TOKEN):
+        fence_pairing_change(runtime, token=entry.data[CONF_DEVICE_TOKEN])
         runtime.device_token = entry.data[CONF_DEVICE_TOKEN]
         _LOGGER.debug(
             "DJConnect restored existing device token for entry %s",
             entry.entry_id,
         )
     if entry.data.get(CONF_DEVICE_ID):
+        fence_pairing_change(runtime, device_id=str(entry.data[CONF_DEVICE_ID]))
         runtime.pairing_device_id = str(entry.data[CONF_DEVICE_ID])
         runtime.device_status["device_id"] = str(entry.data[CONF_DEVICE_ID])
     if entry.data.get(CONF_PAIR_CODE):
@@ -3422,6 +3438,7 @@ async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Conservative immediate revocation, before platform unload can yield.
+    retire_runtime(hass.data.get(DOMAIN, {}).get(entry.entry_id))
     from .profile_observation import invalidate
     invalidate(hass)
     from .visual_director_runtime import withdraw_all
@@ -3550,6 +3567,13 @@ async def _async_clear_all_server_state(hass: HomeAssistant) -> None:
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
     domain_data = hass.data.setdefault(DOMAIN, {})
+    runtime = domain_data.get(entry.entry_id)
+    if runtime is not None:
+        direct = {**entry.data, **entry.options}
+        fence_pairing_change(runtime, token=direct.get(CONF_DEVICE_TOKEN),
+                             device_id=direct.get(CONF_DEVICE_ID))
+        if runtime.entry is not entry:
+            retire_runtime(runtime)
     from .retired_provider import TRANSFER_FENCE
 
     if entry.entry_id in domain_data.get(TRANSFER_FENCE, set()):

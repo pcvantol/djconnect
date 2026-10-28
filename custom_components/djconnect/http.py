@@ -1121,6 +1121,13 @@ def _persist_paired_device(
     updater = getattr(config_entries, "async_update_entry", None)
     if entry is None or not callable(updater):
         return
+    from .surface_registration import fence_pairing_change, retire_runtime
+    fence_pairing_change(runtime, token=device_token, device_id=device_id)
+    previous = {**entry.data, **getattr(entry, "options", {})}
+    if (previous.get(CONF_DEVICE_ID) != device_id
+            or previous.get(CONF_DEVICE_TOKEN) != device_token
+            or previous.get(CONF_CLIENT_TYPE) != str(client_type or _runtime_client_type(runtime))):
+        retire_runtime(runtime)
     new_data = dict(getattr(entry, "data", {}) or {})
     new_data[CONF_DEVICE_ID] = device_id
     new_data[CONF_DEVICE_TOKEN] = device_token
@@ -2710,6 +2717,8 @@ class DJConnectPairView(HomeAssistantView):
         # Pairing accepts the first device/code and returns a per-device token.
         token = runtime.ensure_device_token()
         runtime.pairing_code = pair_code
+        from .surface_registration import fence_pairing_change
+        fence_pairing_change(runtime, device_id=device_id)
         runtime.pairing_device_id = device_id
         runtime.device_status.update(
             {

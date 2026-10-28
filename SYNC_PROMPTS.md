@@ -1,3 +1,7 @@
+# Core passive runtime integration — 28 October 2026
+
+The first runtime increment registers the two af201 role-state GETs and local pre-mutation retirement. Valid ordinary pairing receives exact no-store UNAVAILABLE503; no affirmative epoch/purpose ACK, child route, keypin or native instruction is supplied. [Runtime scope](docs/product/PASSIVE_SURFACE_REGISTRATION_RUNTIME_V1.md). Apple Source224 supplies passive comparison DATA; API Source161/separateFinal162 supplies source-only coordinator qualification, not a deployed native service. Core Source1372/separateFinal1373 remain independently closed in their documentary scope. Complete previous bodies are preserved below.
+
 # Passive paired registration contract Source1372 — 27 October 2026
 
 Protected `e84ffd25a37f97bf79d0806a30ff0fe9d14d6695` equals reviewed `6a32a1dc1da929bfc41c6881370ed00db859b990`

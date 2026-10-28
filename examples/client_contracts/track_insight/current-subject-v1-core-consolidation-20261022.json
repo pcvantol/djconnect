@@ -25,7 +25,7 @@
   "responses": {
     "current": {
       "id": "track_insight_46f2f86799b7612de36684bd",
-      "created_at": "2026-10-26T13:07:52.046552+00:00",
+      "created_at": "2026-10-27T11:34:05.520696+00:00",
       "source": "current_detail",
       "language": "nl",
       "mood_context": null,
@@ -92,7 +92,7 @@
         "schema_version": 1,
         "media_identity": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
         "observation_id": "<opaque-observation-redacted>",
-        "expires_at": 1793020102.0458012,
+        "expires_at": 1793100875.520164,
         "expires_in": 29
       }
     },
@@ -117,7 +117,7 @@
   "installed": "NOT_RUN",
   "native": "NOT_RUN",
   "source_pins": {
-    "custom_components/djconnect/__init__.py": "c62ef314aa65a5dd6179b0939bdbc6e1bd1f760df6042fcaf907dd9bc1fa885f",
+    "custom_components/djconnect/__init__.py": "66da9275387661a0a20017fc0e522cde4474d78c0a560707a8bcfb04ece981cf",
     "custom_components/djconnect/current_track_insight.py": "dcc34c7798e1debfbbe0b90db9b89d32fee81334e55835f03dee9fc8aac76164",
     "custom_components/djconnect/track_insight.py": "c582c0fae1e5bd50096684d5801dd253cc150205e94aecb5bf77306e670404e8",
     "custom_components/djconnect/track_insight_target.py": "4b15a6a428b02f3872dad1b1b0b07c7d02a3ccd9155227e71e5b05ff637b10b0",
@@ -134,7 +134,7 @@
   },
   "harness": "scripts/verification/verify_current_track_insight_http.py",
   "harness_sha256": "0e9ade12c2727538a2abb03391d5ec8e394948737ed542ff7892a06ed5226f26",
-  "actual_ha_receipt_sha256": "8e1f78ffc7db49d0ebea780a6b4c4a6165392e8f9c9543e750fbb275eb596f0d",
+  "actual_ha_receipt_sha256": "73f3cc019d6ee097e200f7ad88abe5d0cac39446d890264f9e8ef807a81590d8",
   "source_unchanged": true,
   "playback_mutations": 0
 }

@@ -1437,6 +1437,8 @@ async def _async_pair_before_create(hass: Any, data: dict[str, Any]) -> None:
         options={},
     )
     runtime = DJConnectRuntime(entry=entry)
+    from .surface_registration import fence_pairing_change
+    fence_pairing_change(runtime, token=data.get(CONF_DEVICE_TOKEN), device_id=data.get(CONF_DEVICE_ID))
     runtime.device_token = data.get(CONF_DEVICE_TOKEN)
     runtime.pairing_code = data.get(CONF_PAIR_CODE)
     runtime.pairing_device_id = data.get(CONF_DEVICE_ID)
@@ -3242,6 +3244,10 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                         entry_id=self._config_entry.entry_id,
                     )
                     original_entry = runtime.entry
+                    from .surface_registration import retire_runtime
+                    # Restoring the same entry after this await must not revive
+                    # a capture from before the temporary install authority.
+                    retire_runtime(runtime)
                     runtime.entry = temp_entry
                     try:
                         result = await async_rotate_install_token(self.hass, runtime)
@@ -3405,6 +3411,9 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                 errors["base"] = "repair_pairing_failed"
             else:
                 token = secrets.token_urlsafe(32)
+                from .surface_registration import retire_runtime
+                # Explicit re-pair is a terminal local fence even if it fails.
+                retire_runtime(runtime)
                 data = dict(self._config_entry.data)
                 if pair_code is not None:
                     device_id = f"djconnect-{pair_code}"
