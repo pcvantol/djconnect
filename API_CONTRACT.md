@@ -1,3 +1,7 @@
+# Passive role discovery: first Core runtime increment — 28 October 2026
+
+Both exact role-state GETs are registered with pure current ordinary-device authentication. No query/body or duplicate critical headers; no-store fixed negative response. This increment returns503 `{"version":1,"state":"UNAVAILABLE"}` after valid authentication because genuine purpose-store acknowledgement and positive A/B production are still absent. Local pairing/entry/unload retirement does not imply remote withdrawal. [Exact runtime scope](docs/product/PASSIVE_SURFACE_REGISTRATION_RUNTIME_V1.md). The pinned passive JSON and complete older bodies retain their publication scope below. No installed/native/provider acceptance.
+
 # Automatic paired surface registration v1 passive contract — 27 October 2026
 
 Follow [the exact passive Core/API/Apple contract](docs/product/AUTOMATIC_PAIRED_SURFACE_REGISTRATION_V1.md)

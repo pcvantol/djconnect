@@ -1,9 +1,12 @@
 {
   "qualification": "ACTUAL_HA_PAIRED_HTTP_REAL_SQLITE_STORE_RAM_IMAGE_OWNER_SYNTHETIC_PLAYBACK_CDN_REPLY_BOUNDARIES",
   "cases": {
-    "old_recording_exact_manual_tap_duplicate_and_no_session_revival": "PASS",
-    "existing_output_chooser_new_id_cannot_repeat": "PASS",
+    "legacy_and_v2_browsing_original_row_without_play_offers": "PASS",
+    "historical_tap_and_duplicate_before_grants_inventory_transfer_play": "PASS",
+    "no_output_never_offers_chooser_or_mutates_A_B_A_occurrences": "PASS",
     "closed_reference_rejects_caller_uri": "PASS",
+    "real_Store_legacy_output_after_RAM_loss_denied_without_effects": "PASS",
+    "ordinary_and_implicit_current_Store_duplicates_preserved": "PASS",
     "captured_reply_original_subject_edition_no_current_or_flow_grant": "PASS",
     "private_reply_reference_omitted_from_export": "PASS",
     "authenticated_png_delivery_and_clear_revokes_original_resource": "PASS",
@@ -13,13 +16,13 @@
     "general_current_cover_original_source_withdrawal_revokes_GET": "PASS"
   },
   "examples": {
-    "history_entry": {
-      "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f",
-      "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
+    "history_entry_v1": {
+      "entry_id": "entry-1904f628bf975f63879ea6feb2eec37d",
+      "session_id": "session-ade467c9bd63486b9fa27602e8b09c71",
       "order": 1,
       "kind": "playback_observed",
-      "occurred_at": "2026-10-24T12:23:48.807093+00:00",
-      "retained_until": "2027-01-22T12:23:48.812793+00:00",
+      "occurred_at": "2026-10-27T11:34:36.430446+00:00",
+      "retained_until": "2027-01-25T11:34:36.431905+00:00",
       "historical_view_only": true,
       "current_display_allowed": false,
       "playback": {
@@ -34,23 +37,10 @@
       },
       "text": "Synthetic original recording · Synthetic artist · Synthetic original edition",
       "requires_spotify_attribution": true,
-      "playback_actions": [
-        {
-          "kind": "historical_track",
-          "command": "play_history_item",
-          "label": "Play this recording",
-          "required_capability": "historical_exact_track_playback",
-          "value": {
-            "schema_version": 1,
-            "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-            "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-          }
-        }
-      ],
       "session_media": {
         "schema_version": 1,
-        "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-        "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f",
+        "session_id": "session-ade467c9bd63486b9fa27602e8b09c71",
+        "entry_id": "entry-1904f628bf975f63879ea6feb2eec37d",
         "revision": "not_prepared",
         "artwork": {
           "state": "unavailable",
@@ -61,599 +51,56 @@
         }
       }
     },
-    "output_offer": {
-      "success": true,
-      "message": "Ik weet nog niet op welke speaker ik Synthetic original recording moet afspelen. Kies een speaker, dan start ik hem meteen.",
-      "text": "Ik weet nog niet op welke speaker ik Synthetic original recording moet afspelen. Kies een speaker, dan start ik hem meteen.",
-      "dj_text": "Ik weet nog niet op welke speaker ik Synthetic original recording moet afspelen. Kies een speaker, dan start ik hem meteen.",
-      "action": "select_output",
-      "intent": {
-        "category": "playback",
-        "intent": "select_output_for_recommendation"
-      },
-      "playback_actions": [
-        {
-          "id": "play_on_output:synthetic-speaker",
-          "title": "Synthetic speaker",
-          "subtitle": "Spotify Connect",
-          "label": "Speel hier",
-          "button_label": "Speel hier",
-          "kind": "output",
-          "command": "ask_dj_play_recommendation_on_output",
-          "value": {
-            "output_id": "synthetic-speaker",
-            "device_id": "synthetic-speaker",
-            "device_name": "Synthetic speaker",
-            "recommendation": {
-              "title": "Synthetic original recording",
-              "subtitle": "",
-              "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
-              "context_uri": "",
-              "offset_uri": "",
-              "uris": [],
-              "kind": "track",
-              "music_dna_key": "",
-              "reason": "",
-              "backend": "",
-              "provider": "",
-              "music_backend_revision": null,
-              "item_id": "",
-              "media_type": "track",
-              "target_player_id": ""
-            }
-          },
-          "device_id": "synthetic-speaker",
-          "device_name": "Synthetic speaker",
-          "reason": "Kies deze Spotify Connect speaker en start daarna de aanbeveling.",
-          "result_set_id": "choices-9b4163f87e4d496b966f8905706d41b4",
-          "action_id": "d3f09d5a0cf4643b292e676e2625100d"
-        }
-      ],
-      "recommendation": {
-        "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
-        "kind": "track",
+    "history_entry_v2": {
+      "entry_id": "entry-1904f628bf975f63879ea6feb2eec37d",
+      "session_id": "session-ade467c9bd63486b9fa27602e8b09c71",
+      "order": 1,
+      "kind": "playback_observed",
+      "occurred_at": "2026-10-27T11:34:36.430446+00:00",
+      "retained_until": "2027-01-25T11:34:36.431905+00:00",
+      "historical_view_only": true,
+      "current_display_allowed": false,
+      "playback": {
+        "album": "Synthetic original edition",
+        "album_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB",
+        "artist": "Synthetic artist",
+        "coverage": "observed_playing_not_full_listen",
+        "item_id": "02e3d582594577327c335fc0",
+        "provider": "Spotify",
+        "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
         "title": "Synthetic original recording"
       },
-      "historical_playback_reference": {
+      "text": "Synthetic original recording · Synthetic artist · Synthetic original edition",
+      "requires_spotify_attribution": true,
+      "session_media": {
         "schema_version": 1,
-        "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-        "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-      },
-      "result_set": {
-        "schema_version": 1,
-        "result_set_id": "choices-9b4163f87e4d496b966f8905706d41b4",
-        "expires_in": 600.0,
-        "items": [
-          {
-            "id": "play_on_output:synthetic-speaker",
-            "title": "Synthetic speaker",
-            "subtitle": "Spotify Connect",
-            "label": "Speel hier",
-            "button_label": "Speel hier",
-            "kind": "output",
-            "command": "ask_dj_play_recommendation_on_output",
-            "value": {
-              "output_id": "synthetic-speaker",
-              "device_id": "synthetic-speaker",
-              "device_name": "Synthetic speaker",
-              "recommendation": {
-                "title": "Synthetic original recording",
-                "subtitle": "",
-                "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
-                "context_uri": "",
-                "offset_uri": "",
-                "uris": [],
-                "kind": "track",
-                "music_dna_key": "",
-                "reason": "",
-                "backend": "",
-                "provider": "",
-                "music_backend_revision": null,
-                "item_id": "",
-                "media_type": "track",
-                "target_player_id": ""
-              }
-            },
-            "device_id": "synthetic-speaker",
-            "device_name": "Synthetic speaker",
-            "reason": "Kies deze Spotify Connect speaker en start daarna de aanbeveling.",
-            "result_set_id": "choices-9b4163f87e4d496b966f8905706d41b4",
-            "action_id": "d3f09d5a0cf4643b292e676e2625100d"
-          }
-        ]
-      },
-      "user_id": null,
-      "user_message": {
-        "id": "server-7d8a616b-2461-49e9-af9b-64a45223e662",
-        "client_message_id": "synthetic-offer",
-        "role": "user",
-        "text": "Play the selected historical recording.",
-        "created_at": "2026-10-24T12:23:48.992232Z",
-        "client_id": "djconnect-ios-ABCDEF123456",
-        "client_type": "ios",
-        "status": "delivered",
-        "images": [],
-        "links": [],
-        "sources": [],
-        "audio_url": null,
-        "playback_actions": [],
-        "session_turn": {
-          "turn_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-          "request_digest": "a5d535d3f1c2743deb81895744e39f6343909bf8901fbecd0b6613425d5b5461",
-          "profile_id": "profile-a",
-          "context": {
-            "selected_entry": {
-              "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-              "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-            }
-          },
-          "effective_style": {
-            "persona": "home_dj",
-            "mood": "",
-            "mood_basis": "confirmed_session",
-            "language": "en",
-            "response_style": "balanced",
-            "persona_revision": 0
-          },
-          "captured_playback_item_id": "",
-          "input_type": "text",
-          "explicit_playback_request": true,
-          "implicit_playback_entry": null,
-          "dependency_entries": [
-            {
-              "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-              "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-            }
-          ],
-          "dependency_request_hashes": [
-            "fd30df597589acbfe89065303187bfb932c7b146f1fce263f972e236781c4fa4"
-          ],
-          "dependency_moments": []
-        },
-        "historical_entry_references": [
-          {
-            "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-            "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-          },
-          {
-            "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-            "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-          }
-        ],
-        "exchange_id": "synthetic-offer",
-        "exchange_order": 0
-      },
-      "assistant_message": {
-        "id": "server-5ecbd4aa-b5e6-45d7-9fc2-1a1ca75f3da6",
-        "client_message_id": "synthetic-offer",
-        "role": "assistant",
-        "message_kind": "assistant",
-        "text": "Ik weet nog niet op welke speaker ik Synthetic original recording moet afspelen. Kies een speaker, dan start ik hem meteen.",
-        "speech_processing_basis": "accepted_local_reply",
-        "created_at": "2026-10-24T12:23:48.992268Z",
-        "client_id": "djconnect-ios-ABCDEF123456",
-        "client_type": "ios",
-        "status": "delivered",
-        "images": [],
-        "links": [],
-        "sources": [],
-        "audio_url": null,
-        "playback_actions": [
-          {
-            "id": "play_on_output:synthetic-speaker",
-            "title": "Synthetic speaker",
-            "subtitle": "Spotify Connect",
-            "label": "Speel hier",
-            "button_label": "Speel hier",
-            "kind": "output",
-            "command": "ask_dj_play_recommendation_on_output",
-            "value": {
-              "output_id": "synthetic-speaker",
-              "device_id": "synthetic-speaker",
-              "device_name": "Synthetic speaker",
-              "recommendation": {
-                "title": "Synthetic original recording",
-                "subtitle": "",
-                "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
-                "context_uri": "",
-                "offset_uri": "",
-                "uris": [],
-                "kind": "track",
-                "music_dna_key": "",
-                "reason": "",
-                "backend": "",
-                "provider": "",
-                "music_backend_revision": null,
-                "item_id": "",
-                "media_type": "track",
-                "target_player_id": ""
-              }
-            },
-            "device_id": "synthetic-speaker",
-            "device_name": "Synthetic speaker",
-            "reason": "Kies deze Spotify Connect speaker en start daarna de aanbeveling.",
-            "result_set_id": "choices-9b4163f87e4d496b966f8905706d41b4",
-            "action_id": "d3f09d5a0cf4643b292e676e2625100d"
-          }
-        ],
-        "intent": {
-          "category": "playback",
-          "intent": "select_output_for_recommendation"
-        },
-        "action": "select_output",
-        "session_turn": {
-          "turn_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-          "request_digest": "a5d535d3f1c2743deb81895744e39f6343909bf8901fbecd0b6613425d5b5461",
-          "profile_id": "profile-a",
-          "context": {
-            "selected_entry": {
-              "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-              "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-            }
-          },
-          "effective_style": {
-            "persona": "home_dj",
-            "mood": "",
-            "mood_basis": "confirmed_session",
-            "language": "en",
-            "response_style": "balanced",
-            "persona_revision": 0
-          },
-          "captured_playback_item_id": "",
-          "input_type": "text",
-          "explicit_playback_request": true,
-          "implicit_playback_entry": null,
-          "dependency_entries": [
-            {
-              "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-              "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-            }
-          ],
-          "dependency_request_hashes": [
-            "fd30df597589acbfe89065303187bfb932c7b146f1fce263f972e236781c4fa4"
-          ],
-          "dependency_moments": []
-        },
-        "historical_entry_references": [
-          {
-            "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-            "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-          },
-          {
-            "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-            "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-          }
-        ],
-        "exchange_id": "synthetic-offer",
-        "exchange_order": 1,
-        "session_speech": {
-          "schema_version": 1,
-          "reference": {
-            "turn_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2"
-          },
-          "source_kind": "accepted_ask_dj",
-          "source_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-          "session_id": "session-aba03ae6f5164d1ca796f7ec77a14999",
-          "text_revision": "00758f16850f92f6fd95572a",
-          "presentation_revision": "00758f16850f92f6fd95572a",
-          "persona": "home_dj",
-          "persona_revision": 0,
-          "locale": "en",
-          "segments": [
-            {
-              "ordinal": 1,
-              "speaker_role": "dj",
-              "text": "Ik weet nog niet op welke speaker ik Synthetic original recording moet afspelen. Kies een speaker, dan start ik hem meteen."
-            }
-          ],
-          "state": "available",
-          "reason": null,
-          "manual_allowed": true,
-          "autoplay_eligible": false,
-          "processors": [
-            "local_on_device",
-            "ha_configured"
-          ],
-          "processor_qualification_required": true,
-          "expires_at": "2026-10-24T12:28:49.004732+00:00",
-          "cache_policy": "private,no-store",
-          "attribution": []
-        },
-        "audio_delivery": {
-          "mode": "accepted_reference",
-          "state": "not_requested",
-          "reason": null,
-          "required_speech_contract_version": 1
+        "session_id": "session-ade467c9bd63486b9fa27602e8b09c71",
+        "entry_id": "entry-1904f628bf975f63879ea6feb2eec37d",
+        "revision": "not_prepared",
+        "artwork": {
+          "state": "unavailable",
+          "reason": "not_prepared",
+          "current_display_allowed": false,
+          "active_flow_display_allowed": false,
+          "historical_display_allowed": false
         }
-      },
-      "messages": [
-        {
-          "id": "server-7d8a616b-2461-49e9-af9b-64a45223e662",
-          "client_message_id": "synthetic-offer",
-          "role": "user",
-          "text": "Play the selected historical recording.",
-          "created_at": "2026-10-24T12:23:48.992232Z",
-          "client_id": "djconnect-ios-ABCDEF123456",
-          "client_type": "ios",
-          "status": "delivered",
-          "images": [],
-          "links": [],
-          "sources": [],
-          "audio_url": null,
-          "playback_actions": [],
-          "session_turn": {
-            "turn_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-            "request_digest": "a5d535d3f1c2743deb81895744e39f6343909bf8901fbecd0b6613425d5b5461",
-            "profile_id": "profile-a",
-            "context": {
-              "selected_entry": {
-                "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-                "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-              }
-            },
-            "effective_style": {
-              "persona": "home_dj",
-              "mood": "",
-              "mood_basis": "confirmed_session",
-              "language": "en",
-              "response_style": "balanced",
-              "persona_revision": 0
-            },
-            "captured_playback_item_id": "",
-            "input_type": "text",
-            "explicit_playback_request": true,
-            "implicit_playback_entry": null,
-            "dependency_entries": [
-              {
-                "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-                "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-              }
-            ],
-            "dependency_request_hashes": [
-              "fd30df597589acbfe89065303187bfb932c7b146f1fce263f972e236781c4fa4"
-            ],
-            "dependency_moments": []
-          },
-          "historical_entry_references": [
-            {
-              "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-              "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-            },
-            {
-              "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-              "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-            }
-          ],
-          "exchange_id": "synthetic-offer",
-          "exchange_order": 0
-        },
-        {
-          "id": "server-5ecbd4aa-b5e6-45d7-9fc2-1a1ca75f3da6",
-          "client_message_id": "synthetic-offer",
-          "role": "assistant",
-          "message_kind": "assistant",
-          "text": "Ik weet nog niet op welke speaker ik Synthetic original recording moet afspelen. Kies een speaker, dan start ik hem meteen.",
-          "speech_processing_basis": "accepted_local_reply",
-          "created_at": "2026-10-24T12:23:48.992268Z",
-          "client_id": "djconnect-ios-ABCDEF123456",
-          "client_type": "ios",
-          "status": "delivered",
-          "images": [],
-          "links": [],
-          "sources": [],
-          "audio_url": null,
-          "playback_actions": [
-            {
-              "id": "play_on_output:synthetic-speaker",
-              "title": "Synthetic speaker",
-              "subtitle": "Spotify Connect",
-              "label": "Speel hier",
-              "button_label": "Speel hier",
-              "kind": "output",
-              "command": "ask_dj_play_recommendation_on_output",
-              "value": {
-                "output_id": "synthetic-speaker",
-                "device_id": "synthetic-speaker",
-                "device_name": "Synthetic speaker",
-                "recommendation": {
-                  "title": "Synthetic original recording",
-                  "subtitle": "",
-                  "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
-                  "context_uri": "",
-                  "offset_uri": "",
-                  "uris": [],
-                  "kind": "track",
-                  "music_dna_key": "",
-                  "reason": "",
-                  "backend": "",
-                  "provider": "",
-                  "music_backend_revision": null,
-                  "item_id": "",
-                  "media_type": "track",
-                  "target_player_id": ""
-                }
-              },
-              "device_id": "synthetic-speaker",
-              "device_name": "Synthetic speaker",
-              "reason": "Kies deze Spotify Connect speaker en start daarna de aanbeveling.",
-              "result_set_id": "choices-9b4163f87e4d496b966f8905706d41b4",
-              "action_id": "d3f09d5a0cf4643b292e676e2625100d"
-            }
-          ],
-          "intent": {
-            "category": "playback",
-            "intent": "select_output_for_recommendation"
-          },
-          "action": "select_output",
-          "session_turn": {
-            "turn_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-            "request_digest": "a5d535d3f1c2743deb81895744e39f6343909bf8901fbecd0b6613425d5b5461",
-            "profile_id": "profile-a",
-            "context": {
-              "selected_entry": {
-                "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-                "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-              }
-            },
-            "effective_style": {
-              "persona": "home_dj",
-              "mood": "",
-              "mood_basis": "confirmed_session",
-              "language": "en",
-              "response_style": "balanced",
-              "persona_revision": 0
-            },
-            "captured_playback_item_id": "",
-            "input_type": "text",
-            "explicit_playback_request": true,
-            "implicit_playback_entry": null,
-            "dependency_entries": [
-              {
-                "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-                "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-              }
-            ],
-            "dependency_request_hashes": [
-              "fd30df597589acbfe89065303187bfb932c7b146f1fce263f972e236781c4fa4"
-            ],
-            "dependency_moments": []
-          },
-          "historical_entry_references": [
-            {
-              "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-              "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-            },
-            {
-              "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-              "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-            }
-          ],
-          "exchange_id": "synthetic-offer",
-          "exchange_order": 1,
-          "session_speech": {
-            "schema_version": 1,
-            "reference": {
-              "turn_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2"
-            },
-            "source_kind": "accepted_ask_dj",
-            "source_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-            "session_id": "session-aba03ae6f5164d1ca796f7ec77a14999",
-            "text_revision": "00758f16850f92f6fd95572a",
-            "presentation_revision": "00758f16850f92f6fd95572a",
-            "persona": "home_dj",
-            "persona_revision": 0,
-            "locale": "en",
-            "segments": [
-              {
-                "ordinal": 1,
-                "speaker_role": "dj",
-                "text": "Ik weet nog niet op welke speaker ik Synthetic original recording moet afspelen. Kies een speaker, dan start ik hem meteen."
-              }
-            ],
-            "state": "available",
-            "reason": null,
-            "manual_allowed": true,
-            "autoplay_eligible": false,
-            "processors": [
-              "local_on_device",
-              "ha_configured"
-            ],
-            "processor_qualification_required": true,
-            "expires_at": "2026-10-24T12:28:49.004732+00:00",
-            "cache_policy": "private,no-store",
-            "attribution": []
-          },
-          "audio_delivery": {
-            "mode": "accepted_reference",
-            "state": "not_requested",
-            "reason": null,
-            "required_speech_contract_version": 1
-          }
-        }
-      ],
-      "history_revision": 6,
-      "clear_revision": 1,
-      "history_limit": 1000,
-      "history_trimmed_before": null,
-      "history_trimmed_count": 0,
-      "server_time": "2026-10-24T12:23:48.998326Z",
-      "media_delivery_basis": "current_response_only",
-      "owner_profile_id": "profile-a",
-      "client_message_id": "synthetic-offer",
-      "conversation": {
-        "schema_version": 1,
-        "turn_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-        "thread_id": "default",
-        "context": {
-          "selected_entry": {
-            "session_id": "session-d7541aea8d8a4b3e8a874b565c487f58",
-            "entry_id": "entry-d7dfcc056e075efdb2c61f0b75bcaa7f"
-          }
-        },
-        "entry_ids": [],
-        "history_scope": "profile",
-        "input_type": "text",
-        "style": {
-          "persona": "home_dj",
-          "mood": "",
-          "mood_basis": "confirmed_session",
-          "language": "en",
-          "response_style": "balanced",
-          "persona_revision": 0
-        },
-        "style_basis": "accepted_turn",
-        "model_source_basis": null,
-        "metrics": {
-          "agent_calls": 0,
-          "lookup_calls": 0,
-          "prompt_bytes": 0
-        }
-      },
-      "audio_delivery": {
-        "mode": "accepted_reference",
-        "state": "not_requested",
-        "reason": null,
-        "required_speech_contract_version": 1
-      },
-      "session_speech": {
-        "schema_version": 1,
-        "reference": {
-          "turn_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2"
-        },
-        "source_kind": "accepted_ask_dj",
-        "source_id": "turn-4c2dbe41b38c5ed98407a52dbe45d9a2",
-        "session_id": "session-aba03ae6f5164d1ca796f7ec77a14999",
-        "text_revision": "00758f16850f92f6fd95572a",
-        "presentation_revision": "00758f16850f92f6fd95572a",
-        "persona": "home_dj",
-        "persona_revision": 0,
-        "locale": "en",
-        "segments": [
-          {
-            "ordinal": 1,
-            "speaker_role": "dj",
-            "text": "Ik weet nog niet op welke speaker ik Synthetic original recording moet afspelen. Kies een speaker, dan start ik hem meteen."
-          }
-        ],
-        "state": "available",
-        "reason": null,
-        "manual_allowed": true,
-        "autoplay_eligible": false,
-        "processors": [
-          "local_on_device",
-          "ha_configured"
-        ],
-        "processor_qualification_required": true,
-        "expires_at": "2026-10-24T12:28:49.004732+00:00",
-        "cache_policy": "private,no-store",
-        "attribution": []
       }
+    },
+    "queue_preservation_unavailable": {
+      "success": false,
+      "error": "historical_queue_preservation_unavailable",
+      "message": "Playing from history is unavailable because keeping your queue unchanged cannot be guaranteed."
+    },
+    "legacy_saved_output_denial": {
+      "success": false,
+      "error": "historical_queue_preservation_unavailable",
+      "message": "Playing from history is unavailable because keeping your queue unchanged cannot be guaranteed."
     },
     "reply_media": {
       "schema_version": 1,
-      "session_id": "session-aba03ae6f5164d1ca796f7ec77a14999",
-      "entry_id": "entry-05b6883c9c895fd6b1a01a9b03d1a2e0",
-      "revision": "4e4ba23471ed3541ddb0e8ab",
+      "session_id": "session-ab15b7a321d4407390990e77a3b0321a",
+      "entry_id": "entry-7f180814d732526ab2d545a3ff6cf239",
+      "revision": "1ae81bb5c512c7a14b2ebd3d",
       "artwork": {
         "state": "ready",
         "subject": {
@@ -672,8 +119,8 @@
           "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
         },
         "usage_basis": "spotify_temporary_owner_display",
-        "captured_at": "2026-10-24T12:23:49.126323+00:00",
-        "expires_at": "2026-10-24T12:28:49.126323+00:00",
+        "captured_at": "2026-10-27T11:34:36.576315+00:00",
+        "expires_at": "2026-10-27T11:39:36.576315+00:00",
         "current_display_allowed": false,
         "active_flow_display_allowed": false,
         "historical_display_allowed": false,
@@ -689,9 +136,9 @@
           "fr": "Pochette de Synthetic recording",
           "es": "Portada de Synthetic recording"
         },
-        "url": "/api/djconnect/v1/session/media/image/session-aba03ae6f5164d1ca796f7ec77a14999/Ee6PapbbQcNK61ODoQaj_NI3cAYpYePE",
+        "url": "/api/djconnect/v1/session/media/image/session-ab15b7a321d4407390990e77a3b0321a/bwdCFLu_mBsyt4dkjGnvRLrifs_b_pPG",
         "reply_display_allowed": true,
-        "media_revision": "4e4ba23471ed3541ddb0e8ab"
+        "media_revision": "1ae81bb5c512c7a14b2ebd3d"
       }
     },
     "current_identification_reply": {
@@ -705,14 +152,14 @@
       },
       "images": [
         {
-          "url": "/api/djconnect/v1/session/media/image/session-aba03ae6f5164d1ca796f7ec77a14999/7Lkgx-Zn-tIPTmCRD5s6mQp3V0r4y_EX",
-          "thumbnail_url": "/api/djconnect/v1/session/media/image/session-aba03ae6f5164d1ca796f7ec77a14999/7Lkgx-Zn-tIPTmCRD5s6mQp3V0r4y_EX",
+          "url": "/api/djconnect/v1/session/media/image/session-ab15b7a321d4407390990e77a3b0321a/Jr_Drh2b3uAmlJ3nm0eSf1hdmL3gASXf",
+          "thumbnail_url": "/api/djconnect/v1/session/media/image/session-ab15b7a321d4407390990e77a3b0321a/Jr_Drh2b3uAmlJ3nm0eSf1hdmL3gASXf",
           "title": "Synthetic original recording",
           "subtitle": "Synthetic artist",
           "kind": "album_art",
           "source": "spotify",
           "requires_device_auth": true,
-          "expires_at": "2026-10-24T12:24:49.233997+00:00",
+          "expires_at": "2026-10-27T11:35:36.613958+00:00",
           "cache_policy": "no-store"
         }
       ],
@@ -743,7 +190,7 @@
         "turn_id": "turn-e0c809db34525f24ad17a09492c0d6e6",
         "thread_id": "default",
         "context": {
-          "session_id": "session-aba03ae6f5164d1ca796f7ec77a14999"
+          "session_id": "session-ab15b7a321d4407390990e77a3b0321a"
         },
         "entry_ids": [],
         "history_scope": "private_ephemeral",
@@ -777,7 +224,7 @@
         },
         "source_kind": "accepted_ask_dj",
         "source_id": "turn-e0c809db34525f24ad17a09492c0d6e6",
-        "session_id": "session-aba03ae6f5164d1ca796f7ec77a14999",
+        "session_id": "session-ab15b7a321d4407390990e77a3b0321a",
         "text_revision": "46f13cf0f4bea2d3e4762cef",
         "presentation_revision": "46f13cf0f4bea2d3e4762cef",
         "persona": "home_dj",
@@ -799,7 +246,7 @@
           "ha_configured"
         ],
         "processor_qualification_required": true,
-        "expires_at": "2026-10-24T12:24:49.234208+00:00",
+        "expires_at": "2026-10-27T11:35:36.614006+00:00",
         "cache_policy": "private,no-store",
         "attribution": [
           {
@@ -822,14 +269,14 @@
       },
       "images": [
         {
-          "url": "/api/djconnect/v1/ask_dj/reply/image/oOFrN0bOXGzY4ZtNTFiHi7lLubfjbkWp",
-          "thumbnail_url": "/api/djconnect/v1/ask_dj/reply/image/oOFrN0bOXGzY4ZtNTFiHi7lLubfjbkWp",
+          "url": "/api/djconnect/v1/ask_dj/reply/image/ODrJOqho3YmmH7JTLr_TdhaPT-cax8LU",
+          "thumbnail_url": "/api/djconnect/v1/ask_dj/reply/image/ODrJOqho3YmmH7JTLr_TdhaPT-cax8LU",
           "title": "Synthetic original recording",
           "subtitle": "Synthetic artist",
           "kind": "album_art",
           "source": "spotify",
           "requires_device_auth": true,
-          "expires_at": "2026-10-24T12:24:49.332376+00:00",
+          "expires_at": "2026-10-27T11:35:36.632888+00:00",
           "cache_policy": "no-store"
         }
       ],
@@ -914,7 +361,7 @@
           "ha_configured"
         ],
         "processor_qualification_required": true,
-        "expires_at": "2026-10-24T12:24:49.332512+00:00",
+        "expires_at": "2026-10-27T11:35:36.632928+00:00",
         "cache_policy": "private,no-store",
         "attribution": [
           {
@@ -927,26 +374,26 @@
       }
     }
   },
-  "effect_count": 3,
+  "effect_count": 0,
   "model_provider_calls": 0,
-  "harness_sha256": "9180daa751a9b8b1cadc53f47585394f805519a697b45b57d11a679fc43fc653",
+  "harness_sha256": "ac733af630dbcfabeb527c00fbb1ee968e05aba32a75ee0609a8b07c7b0d5c64",
   "installed": "NOT_RUN",
   "native": "NOT_RUN",
   "audible": "NOT_RUN",
   "ha_sdk_version": "2026.10.0",
-  "actual_ha_receipt_sha256": "81c3898d7a465b35fd1fe990d91dbb1f04c273899c22596f31e77487cb003040",
-  "requests_observed": 39,
+  "actual_ha_receipt_sha256": "754a70ceb04c78e6a45dfd525657be57346ecff7b12accf399bbbf12b808fb5d",
+  "requests_observed": 45,
   "source_unchanged": true,
   "source_pins": {
-    "historical_playback.py": "cc0139f12fa158210583c81632cc8afc6368498d0590ad709d904e8ebbcb3ba8",
+    "historical_playback.py": "2bda01faaabb4a87e3714049cd99dfb7514e36bfd351cd1c9a93f90a0e8122fa",
     "reply_artwork.py": "4d8723f6c14360a59d596a477ec167348103ab4d6ef0b6e59b4f0df4b61c41b4",
-    "api_handlers.py": "cdc2a5246da7eb8f0a1c1ba265b8c8b0aca66074be63033d26e3ad10f8ebc23d",
-    "ask_dj/__init__.py": "5b185847c14909e38da944ebf44a5e517951d6ef76458c11a4b389d7b89df052",
-    "ask_dj/dialogue.py": "87d0c360e2a775fcdb0bcfec3c53b61fd420b698052f9aab1c44845efc38bdbd",
-    "ask_dj/service.py": "d076a5ff14274b2dd7dc460ccf361ecf25f9d0c9299f0fa53e4c9f4d4b99837d",
+    "api_handlers.py": "f3727a48e2051add6558fd40e513ba5ba99dfc7eeaf3c48fe3d02d909176011a",
+    "ask_dj/__init__.py": "fa5c6dd7a14b498fbebf8022a7ed28abc4b3e9bce018b7cfdcf21bc4dc814dde",
+    "ask_dj/dialogue.py": "9631be50c44703624ef7690006c712939131d49685865f141f53c6579bee3279",
+    "ask_dj/service.py": "732e8790dc3ff4527448c149e3eb4a0f763e4d509e7d938b88945266e6a06e4a",
     "session_artwork.py": "d870878c8e816e5ec404510af363c3746f0a199091b6cf1ec222e18c7c480f63",
-    "capability_contract.py": "e6475b84ce72d16fa71678be4bb5edbbfe72969d4e436fa52f339e28435c238d",
-    "http.py": "5538c6a1d08adedaca2c76c39a097175358ad63cd86157b84bfbcb961b364200",
+    "capability_contract.py": "92f78ca22d1a0e2a09ba3d9f589a2544ad7814fc99258a53b7fcca8990c7062c",
+    "http.py": "c3b51dae1006a0390910e0f2e1e466cb54ed4b5d101b2fd5d41cfee7144c007c",
     "ask_dj/observations.py": "ef788fa96d23f124fdb66f4af766831110b7224b3738d884ff8c47550aef54fd"
   },
   "harness": "scripts/verification/verify_history_playback_reply_artwork_http.py"

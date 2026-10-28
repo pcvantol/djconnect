@@ -2078,6 +2078,89 @@
           }
         }
       ]
+    },
+    {
+      "name": "Passive surface registration (closed by default)",
+      "item": [
+        {
+          "name": "widget_transport - passive state",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              },
+              {
+                "key": "X-DJConnect-Client-Type",
+                "value": "{{client_type}}"
+              },
+              {
+                "key": "Cache-Control",
+                "value": "no-store"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/surface_registration/widget_transport/state",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "surface_registration",
+                "widget_transport",
+                "state"
+              ]
+            },
+            "description": "Pure current ordinary-device authentication only. No query or body. Valid pairing returns HTTP503 with exactly version1/stateUNAVAILABLE until a genuine push-purpose acknowledgement and positive producer are qualified. No enrollment, native instruction, fallback or replay."
+          }
+        },
+        {
+          "name": "status_activity_transport - passive state",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              },
+              {
+                "key": "X-DJConnect-Client-Type",
+                "value": "{{client_type}}"
+              },
+              {
+                "key": "Cache-Control",
+                "value": "no-store"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/surface_registration/status_activity_transport/state",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "surface_registration",
+                "status_activity_transport",
+                "state"
+              ]
+            },
+            "description": "Pure current ordinary-device authentication only. No query or body. Valid pairing returns HTTP503 with exactly version1/stateUNAVAILABLE until a genuine push-purpose acknowledgement and positive producer are qualified. No enrollment, native instruction, fallback or replay."
+          }
+        }
+      ]
     }
   ]
 }
