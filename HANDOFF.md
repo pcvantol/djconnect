@@ -1,3 +1,46 @@
+# Passive registration runtime Source1374 — 28 October 2026
+
+Source1374 protected `4a4e28faf0ec3b8b467a833409f564ce76e65e7b` equals reviewed
+`124e1ed5175970b304c644551465b991b99eaeba`, tree `e81fa0c25ed53ca567a2fdde4809645de0b7ba21`.
+Original main40719642679 and reconciliation40720843813 qualify this source:
+formal SHA256 `d54df84958ac9070ad55584f35960c146b3056083e2b3e789255f927c54807cb`,
+durable SHA256 `808cfe3d9438d5d6b2f4cdae944f665d19debf6eb85f04dfa1283b4960849533`;
+all12/exact-source coverage PASS. The release parent was cancelled after one
+actual running automatic paid-model cancellation; model/package are not PASS
+and no zero-spend claim follows. The independent original-source closure is
+`aa788e7feb255aa5ac27a8533173db72f0c7b1e0e1e5c34767e19beb09784eb3`.
+
+Both role-state GETs now authenticate the current ordinary device and return
+exact no-store UNAVAILABLE503. Local negative pairing/entry/unload fences are
+implemented. Positive purpose-store ACK, epoch/A/B/child production, trusted
+principal/signing and native/provider delivery are still unavailable. This is
+not functioning widget or Live Activity push. The pinned af201 contract is
+unchanged; its original implementation-status text retains its publication scope.
+
+[Prepared separate documentary Final](docs/verification/PASSIVE_SURFACE_REGISTRATION_RUNTIME_FINALIZATION_20261028.md) preserves all274 product bytes and
+all release inputs; it requires its own exact review, normal protected delivery
+and original qualification. Source validation: 3,764 total =3,757 passed+7 existing
+skips in109.264s;24 focused PASS; Ruff clean; Bandit zeroMED/HIGH and17 exact existing
+LOW findings. Actual isolated HA:12 new HTTP cases,13 existing regression groups
+and18 Help cases on identical274 product hashes; all three owned containers absent.
+Earlier test/bootstrap failures and the initial two P2 findings remain preserved;
+the exact successor closed them and was independently reviewed.
+
+All24 requests and nine gates remain in the preserved register. Help revision2
+qualifies28 EN/NL leaves with42 DE/FR/ES leaves pending by human scope; unrestricted
+free Ask DJ and all five UI languages remain. Historical queue preservation stays
+unavailable before grant/output/transfer/play, with no fake atomic provider.
+Apple224/separateFinal225 are independently closed passive DATA; Apple226 has a
+bounded whole-source review only at this freeze. API161/separateFinal162 are closed
+source-only; the proposed service inside the existing Cloudflare API still needs
+actual clock/storage/authority/trust qualifications. No key or provider activation.
+Pi rc.7 same-two-target contract preparation is explicitly authorised and queued,
+without old rc.6 effect grants or Root device actions. Latest owning Pi app visibility
+and separate inconclusive smoke are not complete physical acceptance.
+HAdev remains the prior271-file installed qualification; no deployment/restart
+for this documentary increment. HAproduction config-check acceptance remains open.
+Complete earlier bodies below are historical snapshots in their original scope.
+
 # Passive paired registration contract Source1372 — 27 October 2026
 
 Protected `e84ffd25a37f97bf79d0806a30ff0fe9d14d6695` equals reviewed `6a32a1dc1da929bfc41c6881370ed00db859b990`
