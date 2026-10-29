@@ -1,3 +1,14 @@
+## Closed custody orchestration source preparation — 29 October 2026
+
+[The unused custody coordinator](docs/product/INSTALLATION_CUSTODY_ONCE_ORCHESTRATION_V1.md)
+composes original SQL19 reservation ACKs with two required synchronous ports and
+independent owner validation. It adds no concrete custodian, key/signing operation,
+startup/route/factory or operational push permission. Existing279 product bytes,
+public records, release inputs and installed HA-dev277/schema18 remain unchanged.
+Normal whole/exact review, protected Source and separate Final are still required.
+All24 requests/nine gates, Help EN/NL/free Ask DJ and VibeCast remain preserved.
+Complete earlier bodies below retain their historical scope.
+
 ## Original native surface lifecycle design — 29 October 2026
 
 [The bounded native lifecycle design](docs/product/ORIGINAL_NATIVE_SURFACE_LIFECYCLE_DESIGN_V1.md) separates original automatic
