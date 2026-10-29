@@ -1,3 +1,15 @@
+## Current initial QR pairing source delivery
+
+Source #1378 is protected `ccf74939e93c51c1ec0eba73733f350424c83444` and independently ORIGINAL_QUALIFIED.
+The original native QR-flow intent now reaches the private local pairing journal
+after successful loaded setup, with duplicate/abort/conflict/ABA fences. All 16 HA
+groups and 3,795 tests (3,788 passed/seven existing skips) qualify source behavior.
+See [the separate Final record](docs/verification/PENDING_PAIR_ORIGIN_FINALIZATION_20261029.md).
+All 275product bytes and release inputs are unchanged by this documentary increment.
+HAdev/prod/provider/native acceptance retain their own previous scopes; genuine
+status/presentation/widget UUID production and trusted positive push remain open.
+All 24requests+ninegates remain preserved. This Final needs its own qualification.
+
 ## Current durable pairing registration source Finalization
 
 Source1376 reviewed434eba64 is protecteda5156216 and ORIGINAL_QUALIFIED;
