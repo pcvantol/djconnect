@@ -295,8 +295,10 @@ async def async_handle_session_start_payload(
     if not context.backend_id:
         return _error_payload("profile_backend_missing"), 409
     strategy = _session_start_strategy(data.get("session_start_strategy"))
-    discover_context = await _discover_context_for_session(runtime, context, strategy)
+    from .surface_source_origin import capture_session_source
+    source_adoption = capture_session_source(hass, runtime, context)
     try:
+        discover_context = await _discover_context_for_session(runtime, context, strategy)
         session = await session_runtime_manager(hass).async_start(
             owner_profile_id=context.profile_id,
             room=str(data.get("room") or context.room_id or "").strip(),
@@ -307,16 +309,20 @@ async def async_handle_session_start_payload(
             session_start_strategy=strategy,
             discover_context=discover_context,
             history_enabled=context.privacy_policy.allow_history_persistence and resolve_profile_privacy_policy(context.profile,{}).allow_history_persistence,
-            history_source_context={
+            history_source_context=dict(source_adoption.source) if source_adoption is not None else {
                 "backend_id": context.backend_id,
                 "music_account_id": context.music_account_id,
                 "provider_account_id": str(getattr(profile_storage(hass).household.music_accounts.get(context.music_account_id), "provider_account_id", "")),
                 "provider_entry_id": str(getattr(runtime, "config", {}).get("profile_backend_entry_id") or getattr(getattr(runtime, "entry", None), "entry_id", "")),
             },
+            **({"source_adoption": source_adoption} if source_adoption is not None else {}),
         )
     except ActiveSessionExistsError:
         active = await session_runtime_manager(hass).async_get_active(context.profile_id)
         return {"success": False, "error": "active_session_exists", "active_session": active.as_dict() if active else None}, 409
+    finally:
+        if source_adoption is not None:
+            source_adoption.finish_start()
     from .speaker_delivery import connect_automatic
     connect_automatic(hass, runtime, session, identity_payload(data), headers or {})
     _connect_session_narration(hass, runtime, context, session, identity_payload(data), headers or {})
@@ -327,7 +333,8 @@ async def async_handle_session_start_payload(
         session=session,
     )
     active = await session_runtime_manager(hass).async_get_active(context.profile_id)
-    if active is not None:
+    if (active is not None and active.session_id == session.session_id
+            and active.broadcast is session.broadcast):
         await playback_observation_manager(hass).async_start_spotify(
             integration_runtime=runtime,
             session=active,

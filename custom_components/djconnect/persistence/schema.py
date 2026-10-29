@@ -35,9 +35,12 @@ MIGRATIONS = (
     Migration(15, "0015_surface_issuer_stages", "59d7ac42"),
     Migration(16, "0016_surface_pair_registration", "8417b6e2"),
     Migration(17, "0017_original_status_samples", "ad63c8f1"),
+    Migration(18, "0018_original_source_adoption", "756dcc98"),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_source_origins": {"origin_id", "operation_id", "acceptance_id", "terminal_id",
+        "nonce_hash", "terminal_nonce_hash", "scope_hash", "session_id", "created_ms", "phase", "revision"},
     "djconnect_status_samples": {"scope_hash", "sample_id", "ordinal", "observed_ms", "playback_state", "ended"},
     "djconnect_surface_pair_store": {"singleton", "instance_id"},
     "djconnect_surface_pairs": {"binding", "entry_id", "auth_generation", "state"},
@@ -378,6 +381,19 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
             "playback_state TEXT,ended INTEGER NOT NULL CHECK(ended IN (0,1)),"
             "CHECK((ended=1 AND playback_state IS NULL) OR "
             "(ended=0 AND playback_state IS NOT NULL AND playback_state IN ('playing','paused','stopped','unknown'))))"
+        )
+    elif version == 18:
+        transaction.execute(
+            "CREATE TABLE djconnect_source_origins ("
+            "origin_id TEXT PRIMARY KEY,operation_id TEXT NOT NULL UNIQUE,"
+            "acceptance_id TEXT NOT NULL UNIQUE,terminal_id TEXT NOT NULL UNIQUE,"
+            "nonce_hash TEXT NOT NULL CHECK(length(nonce_hash)=64),"
+            "terminal_nonce_hash TEXT NOT NULL CHECK(length(terminal_nonce_hash)=64),"
+            "scope_hash TEXT NOT NULL CHECK(length(scope_hash)=64),"
+            "session_id TEXT NOT NULL UNIQUE,created_ms INTEGER NOT NULL CHECK(created_ms BETWEEN 1 AND 9007199254740991),"
+            "phase TEXT NOT NULL,revision INTEGER NOT NULL,"
+            "CHECK((phase='prepared' AND revision=0) OR (phase='accepted' AND revision=1) "
+            "OR (phase='retired' AND revision IN (1,2))))"
         )
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(

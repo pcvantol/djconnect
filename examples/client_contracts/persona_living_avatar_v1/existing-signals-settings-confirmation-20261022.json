@@ -2,7 +2,7 @@
   "qualification": "ACTUAL_EXISTING_CORE_SEMANTIC_DERIVATIVE_SYNTHETIC_INPUTS",
   "representation": "selected semantic fields; not an HTTP payload, client reducer or installed proof",
   "producer_source_pins": {
-    "custom_components/djconnect/session_runtime.py": "55e51740da9927d0778d6aeadc357082bfd5b944cea529539bdfcdb312ac5af3",
+    "custom_components/djconnect/session_runtime.py": "ebc1f447519a25865d41a22507687de2f1583b2fcf8f773501c3663ade842926",
     "custom_components/djconnect/native_moment_delivery.py": "0b71a61e3abd0709bb4337c55b6a169139784d0e92e7c0ff4a995a6496366893",
     "custom_components/djconnect/presence_policy.py": "d89ba4afe96b279b8f530121b4978fe37051c744d5dc6a6bc6fa7c6179fb892c",
     "custom_components/djconnect/session_speech.py": "71270fc4048f1d3cb601aeefe2f4022651c6ddcfd5c3183b974c8265a016f71d"

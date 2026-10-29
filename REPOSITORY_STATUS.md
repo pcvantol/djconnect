@@ -1,3 +1,17 @@
+## Current original Session/source adoption DATA
+
+Core captures the actual committed source before discovery and journals its
+original prepare/accept/terminal operations in SQL18. Exact original Session,
+Broadcast, runtime, owner, settings and observer fences close late continuations;
+source retirement precedes locks and storage waits. No source UUID or private
+phase revision grants push/native authority. See
+[the private source design](docs/product/CORE_ORIGINAL_SOURCE_ADOPTION_V1.md).
+Nineteen causal HA cases and all17 preceding HA groups use the same277 product
+hashes; original parent99c3 fails the same final harness at its missing root.
+Whole/exact review, protected Source and separate original Final qualification
+remain required. No new installed/provider/native claim follows. All24 requests
+and nine gates, Help EN/NL/free Ask DJ, VibeCast and HA/Pi scopes are preserved.
+
 ## Current original status-source delivery
 
 Source1380 is protected `7e6b57d555c547425336b9f7f1f31cae658e8735` and independently ORIGINAL_QUALIFIED.

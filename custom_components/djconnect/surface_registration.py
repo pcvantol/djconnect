@@ -29,6 +29,8 @@ class PairingRetirement:
 
 
 def retire_runtime(runtime):
+    from .surface_source_origin import retire_runtime_sources
+    retire_runtime_sources(runtime)
     from .surface_status_samples import retire_runtime_status
     retire_runtime_status(runtime)
     from .surface_pair_journal import PairRegistration
