@@ -1,3 +1,17 @@
+## Current durable pairing registration source Finalization
+
+Source1376 reviewed434eba64 is protecteda5156216 and ORIGINAL_QUALIFIED;
+reviewed/protected tree2686bf78 matches. Ownmain40809258295 and original reconcile
+40810049608 succeeded; all12 formal/durable checks pass. Automatic paid release
+model/package jobs were cancelled once, not PASS. See [exact receipts and scope](docs/verification/DURABLE_PAIR_REGISTRATION_FINALIZATION_20261029.md).
+
+The source adds automatic loaded-entry PairView local journaling and synchronous
+retirement, with verified WAL/FULL storage settlement. All275 product bytes remain
+unchanged by this separate documentary Final. Public push permission/initial-flow
+handoff/status and UUID producer/registrar/key/PoP/clock/native gates remain open.
+All24 requests+nine gates, Help EN/NL scope/free Ask DJ/VibeCast and prior install
+acceptances retain their separate scope. No new installation or device claim.
+
 # Passive registration runtime Source1374 — 28 October 2026
 
 Source1374 protected `4a4e28faf0ec3b8b467a833409f564ce76e65e7b` equals reviewed
