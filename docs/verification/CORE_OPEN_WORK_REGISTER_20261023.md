@@ -1,3 +1,16 @@
+## Current installation-principal DATA codec source preparation
+
+The standalone Core decoder now implements frozen R2 closed DATA records and
+complete original bootstrap/withdrawal/principal/device/tombstone field joins.
+It bounds JSON before decoding and returns immutable DATA only; it supplies no
+custody, registered principal, signer, actual CAS, native target or push right.
+See [the codec and qualification boundary](../product/INSTALLATION_PRINCIPAL_DATA_CODEC_V1.md).
+The new278-file candidate needs whole/exact independent review, normal protected
+Source and separate original Final. Existing HA-dev277/schema18 INSTALLED_GO
+retains Source1382/Final1383 scope; both public push roles remain503UNAVAILABLE.
+All24 requests+nine gates, Help EN/NL/free Ask DJ, VibeCast and production/Pi scopes
+are preserved. No key/provider/model/native action follows from this source.
+
 ## Current HA-dev277 installation — 29 October 2026
 
 Source1382 `01a79e9e40556dedcc8cd8e5480cb6cf4dd692e0` and separate Final1383
