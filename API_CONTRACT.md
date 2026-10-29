@@ -1,3 +1,15 @@
+## Current automatic pairing registration source
+
+Core now schedules a private SQLite registration record from actual loaded-entry
+pairing, retaining the original generation on duplicates and fencing retirement
+before token/device/entry changes or unload. See
+[the local pairing journal](docs/product/CORE_LOCAL_PAIR_REGISTRATION_JOURNAL_V1.md).
+Migration 16 and opt-in verified WAL/FULL settlement are local source work; public
+role GETs remain unavailable pending actual registrar/purpose/clock/trust gates.
+No new HA installation, provider deployment or iPhone push acceptance is claimed.
+Help EN/NL qualification, free Ask DJ, all five UI locales, the other selected open
+requests and their separate device/provider gates retain their existing scope.
+
 # Passive role discovery: first Core runtime increment — 28 October 2026
 
 Both exact role-state GETs are registered with pure current ordinary-device authentication. No query/body or duplicate critical headers; no-store fixed negative response. This increment returns503 `{"version":1,"state":"UNAVAILABLE"}` after valid authentication because genuine purpose-store acknowledgement and positive A/B production are still absent. Local pairing/entry/unload retirement does not imply remote withdrawal. [Exact runtime scope](docs/product/PASSIVE_SURFACE_REGISTRATION_RUNTIME_V1.md). The pinned passive JSON and complete older bodies retain their publication scope below. No installed/native/provider acceptance.

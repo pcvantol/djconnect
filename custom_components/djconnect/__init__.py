@@ -367,6 +367,7 @@ def _stable_entity_payload(value: Any) -> Any:
 @dataclass
 class DJConnectRuntime:
     entry: ConfigEntry
+    surface_pair_registration: Any = field(default=None, init=False, repr=False, compare=False)
     surface_registration_retirement: PairingRetirement = field(
         default_factory=PairingRetirement, init=False, repr=False, compare=False)
     last_text: str | None = None

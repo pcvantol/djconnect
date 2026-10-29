@@ -2739,6 +2739,8 @@ class DJConnectPairView(HomeAssistantView):
             token,
             runtime.device_status.get(CONF_CLIENT_TYPE),
         )
+        from .surface_pair_journal import schedule_pair_registration
+        schedule_pair_registration(hass, runtime)
         from .device_speech import capture as capture_speech_authority
         speech_authority = capture_speech_authority(hass, runtime, device_id)
         _LOGGER.info("DJConnect paired device %s", device_id)

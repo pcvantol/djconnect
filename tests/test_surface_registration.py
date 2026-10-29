@@ -31,7 +31,7 @@ class PassiveRegistrationTests(unittest.IsolatedAsyncioTestCase):
         root = Path(__file__).resolve().parents[1]
         proof = json.loads((root / 'examples/client_contracts/passive_surface_registration_v1/actual-ha-wire.json').read_text())
         self.assertEqual(proof['status'], 'PASS')
-        self.assertEqual(len(proof['source_hashes']), 274)
+        self.assertEqual(len(proof['source_hashes']), 275)
         for name, digest in proof['source_hashes'].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root / proof['harness']).read_bytes()).hexdigest(), proof['harness_sha256'])
@@ -41,6 +41,15 @@ class PassiveRegistrationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(proof['external_provider_calls'], 0)
         for key in ('installed', 'native', 'provider_activation'):
             self.assertEqual(proof[key], 'NOT_RUN')
+
+    def test_current_actual_HA_proof_includes_real_pair_journal_but_no_authority(self):
+        root = Path(__file__).resolve().parents[1]
+        proof = json.loads((root / 'examples/client_contracts/passive_surface_registration_v1/actual-ha-wire.json').read_text())
+        for key in ('real_PairView_automatic_local_record', 'duplicate_pair_same_generation',
+                    'real_runtime_token_setter_retires_before_assignment',
+                    'real_SQLite_FULL_commit_and_retirement'):
+            self.assertTrue(proof[key])
+        self.assertEqual(proof['public_authority'], 'UNAVAILABLE')
 
     def setUp(self):
         self.entry = SimpleNamespace(entry_id="synthetic-entry", domain="djconnect", disabled_by=None,

@@ -1,3 +1,15 @@
+## Current automatic pairing registration source
+
+Core now schedules a private SQLite registration record from actual loaded-entry
+pairing, retaining the original generation on duplicates and fencing retirement
+before token/device/entry changes or unload. See
+[the local pairing journal](docs/product/CORE_LOCAL_PAIR_REGISTRATION_JOURNAL_V1.md).
+Migration 16 and opt-in verified WAL/FULL settlement are local source work; public
+role GETs remain unavailable pending actual registrar/purpose/clock/trust gates.
+No new HA installation, provider deployment or iPhone push acceptance is claimed.
+Help EN/NL qualification, free Ask DJ, all five UI locales, the other selected open
+requests and their separate device/provider gates retain their existing scope.
+
 ## Current EN/NL Help content acceptance and live publication — 26 October2026
 
 Original source608/PR1362 is protected and ORIGINAL_QUALIFIED. Its full EN/NL40

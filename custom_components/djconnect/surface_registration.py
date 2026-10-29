@@ -29,6 +29,10 @@ class PairingRetirement:
 
 
 def retire_runtime(runtime):
+    from .surface_pair_journal import PairRegistration
+    registration = getattr(runtime, "surface_pair_registration", None)
+    if type(registration) is PairRegistration:
+        registration.retire()
     fence = getattr(runtime, "surface_registration_retirement", None)
     if type(fence) is PairingRetirement:
         fence.retire()
