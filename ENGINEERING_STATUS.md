@@ -1,3 +1,17 @@
+## Current original status-source samples
+
+Core now captures original backend playback observations as private source DATA.
+The guarded Spotify readback keeps its actual GET-return time across enrichment,
+guards and storage waits. Plain dictionaries cannot mint an original sample.
+Migration 17 stores a bounded latest row per exact source/settings scope; source
+retirement, cancellation and Session end close late publication. No source
+sample UUID or ordinal is a native presentation, target or widget-grant identity.
+See [the source journal](docs/product/CORE_ORIGINAL_STATUS_SAMPLES_V1.md).
+The source remains subject to whole/exact review, normal protected Source and
+separate Final qualification. No new installed/provider/native acceptance follows.
+All 24 requests + nine gates, Help EN/NL qualification, free Ask DJ, VibeCast,
+HAdev/prod and the earlier delivery receipts retain their separate scopes.
+
 ## Current initial QR pairing source delivery
 
 Source #1378 is protected `ccf74939e93c51c1ec0eba73733f350424c83444` and independently ORIGINAL_QUALIFIED.

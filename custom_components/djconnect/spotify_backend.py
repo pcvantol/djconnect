@@ -550,8 +550,14 @@ class SpotifyBackend:
         return value
 
     async def playback_state(self) -> dict[str, Any]:
+        from .surface_status_samples import capture_command_source, seal, ObservedPlayback
+        original_source = capture_command_source(self.hass, self.runtime)
         data = await self._request("GET", "/me/player")
         playback = _normalize_playback(data)
+        original_status = seal(original_source, "playing" if playback.get("is_playing")
+            else "paused" if playback.get("uri") else "idle")
+        if original_status is not None:
+            playback = ObservedPlayback(playback, original_status)
         await self._enrich_current_track_favorite_status(playback)
         await self._enrich_playback_artist_genres(playback)
         _merge_playback_status(
@@ -566,8 +572,10 @@ class SpotifyBackend:
                 "repeat_state": playback.get("repeat_state"),
             },
         )
-        self.runtime.update(last_playback=playback, last_error=None)
-        await self._record_playback_in_music_dna(playback)
+        # The runtime cache keeps the existing JSON data only, never the
+        # original command's private source/credential witness.
+        self.runtime.update(last_playback=dict(playback), last_error=None)
+        await self._record_playback_in_music_dna(dict(playback))
         return playback
 
     async def async_observe_current_playback(self) -> SpotifyPlaybackObservation:

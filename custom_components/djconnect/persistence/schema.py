@@ -34,9 +34,11 @@ MIGRATIONS = (
     Migration(14, "0014_surface_effect_journal", "36bf941a"),
     Migration(15, "0015_surface_issuer_stages", "59d7ac42"),
     Migration(16, "0016_surface_pair_registration", "8417b6e2"),
+    Migration(17, "0017_original_status_samples", "ad63c8f1"),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_status_samples": {"scope_hash", "sample_id", "ordinal", "observed_ms", "playback_state", "ended"},
     "djconnect_surface_pair_store": {"singleton", "instance_id"},
     "djconnect_surface_pairs": {"binding", "entry_id", "auth_generation", "state"},
     "djconnect_surface_issuer_journal": {"singleton", "revision", "high_water_ms", "body"},
@@ -366,6 +368,16 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
         )
         transaction.execute(
             "CREATE INDEX idx_surface_pairs_entry ON djconnect_surface_pairs(entry_id)"
+        )
+    elif version == 17:
+        transaction.execute(
+            "CREATE TABLE djconnect_status_samples ("
+            "scope_hash TEXT PRIMARY KEY CHECK(length(scope_hash)=64),"
+            "sample_id TEXT NOT NULL,ordinal INTEGER NOT NULL CHECK(ordinal BETWEEN 1 AND 9007199254740991),"
+            "observed_ms INTEGER NOT NULL CHECK(observed_ms BETWEEN 1 AND 9007199254740991),"
+            "playback_state TEXT,ended INTEGER NOT NULL CHECK(ended IN (0,1)),"
+            "CHECK((ended=1 AND playback_state IS NULL) OR "
+            "(ended=0 AND playback_state IS NOT NULL AND playback_state IN ('playing','paused','stopped','unknown'))))"
         )
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(

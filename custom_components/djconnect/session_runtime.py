@@ -3599,6 +3599,10 @@ class DJSessionBroadcastEngine:
     owner_moment_speech_delivery: Any = field(default=None, repr=False)
     passive_grants: dict = field(default_factory=dict, repr=False)
     passive_observation: Any = field(default=None, repr=False)
+    # Private original source DATA; never included in the renderer wire.
+    original_status_sample: Any = field(default=None, repr=False)
+    _original_status_capture: Any = field(default=None, repr=False)
+    _status_end_pending: Any = field(default=None, repr=False)
     # Content-free freshness token for actual accepted Stage1 samples only.
     passive_observation_serial: int = field(default=0, init=False, repr=False)
     passive_state_observed: tuple = field(default_factory=lambda: (time.monotonic(), time.time()), repr=False)
@@ -4470,7 +4474,7 @@ class DJSessionRuntime:
 class SessionRuntimeManager:
     """Own active DJ Session Runtimes for this Home Assistant instance."""
 
-    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None, monotonic_source: Callable[[], float] | None = None, *, settings_repository=None) -> None:
+    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None, monotonic_source: Callable[[], float] | None = None, *, settings_repository=None, status_samples=None) -> None:
         self._active_by_profile: dict[str, DJSessionRuntime] = {}
         self._visual_withdrawals: dict[tuple[str, str], tuple[object, Callable]] = {}
         self._visual_ending: set[tuple[str, str]] = set()
@@ -4486,6 +4490,7 @@ class SessionRuntimeManager:
         self._persistent_sessions = persistent_sessions
         self._historical_projections = historical_projections
         self._settings_repository = settings_repository
+        self._status_samples = status_samples
         self._settings_defaults_revisions: dict[str, int] = {}
         self._pending_settings_confirmations: dict[str, DJMoment] = {}
         self._narration_providers: dict[str, tuple[str, Callable, Callable, Callable | None]] = {}
@@ -4984,6 +4989,7 @@ class SessionRuntimeManager:
         position_ms: int | None = None,
         up_next: dict[str, Any] | None = None,
         forecast_authority: Callable[[], bool] | None = None,
+        original_status=None,
     ) -> bool:
         """Apply one normalized observation to its active Runtime only."""
         projection = RendererSafePlaybackProjection.from_observation(
@@ -5067,6 +5073,8 @@ class SessionRuntimeManager:
             self._replace_playback_progress_clock(owner_profile_id, projection, session_id)
             if changed:
                 _LOGGER.debug("DJConnect renderer-safe playback projection changed")
+            from .surface_status_samples import publish
+            await publish(self, active, original_status)
             return changed
 
     async def async_update_next_item_projection(self, *, owner_profile_id: str, session_id: str,
@@ -7166,12 +7174,15 @@ class SessionRuntimeManager:
         session_id: str = "",
     ) -> DJSessionRuntime | None:
         """End and dispose of the active Runtime for a Profile."""
+        from .surface_status_samples import capture_end, retire_for_end, release_end, publish
+        original_end = capture_end(self, owner_profile_id, session_id)
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None:
                 return None
             if session_id and active.session_id != session_id:
                 return None
+            original_end = retire_for_end(active, original_end)
             surface_service = getattr(self,"_surface_push_service",None)
             if surface_service is not None:
                 surface_service.invalidate_session(owner_profile_id,active.session_id)
@@ -7186,11 +7197,16 @@ class SessionRuntimeManager:
                 except Exception:
                     pass  # No body/exception logging or baseline-end failure.
             if self._persistent_sessions is not None:
-                await self._persistent_sessions.async_transition(
-                    owner_profile_id,active.session_id,PERSISTENT_SESSION_ENDED,
-                    historical_projections=self._historical_projections,
-                )
+                try:
+                    await self._persistent_sessions.async_transition(
+                        owner_profile_id,active.session_id,PERSISTENT_SESSION_ENDED,
+                        historical_projections=self._historical_projections,
+                    )
+                except (Exception, asyncio.CancelledError):
+                    release_end(active, original_end)
+                    raise
             self._display_admission.revoke_session(active.session_id)
+            await publish(self, active, original_end)
             self._opening_tasks.pop(active.session_id, None)
             self._opening_prepared.pop(active.session_id, None)
             self._playback_progress_clocks.pop(owner_profile_id, None)
@@ -7234,6 +7250,7 @@ def session_runtime_manager(hass: Any) -> SessionRuntimeManager:
     domain_data = hass.data.setdefault(DOMAIN, {})
     manager = domain_data.get("session_runtime_manager")
     if manager is None:
+        from .surface_status_samples import StatusJournal
         try:
             sessions = PersistentSessionRepository(persistence_service(hass))
         except RuntimeError:
@@ -7242,6 +7259,7 @@ def session_runtime_manager(hass: Any) -> SessionRuntimeManager:
             sessions,
             HistoricalProjectionRepository(persistence_service(hass)) if sessions is not None else None,
             settings_repository=ProfileDJSettingsRepository(persistence_service(hass)) if sessions is not None else None,
+            status_samples=StatusJournal(persistence_service(hass)) if sessions is not None else None,
         )
         domain_data["session_runtime_manager"] = manager
     return manager
