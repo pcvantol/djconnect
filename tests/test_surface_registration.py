@@ -31,7 +31,7 @@ class PassiveRegistrationTests(unittest.IsolatedAsyncioTestCase):
         root = Path(__file__).resolve().parents[1]
         proof = json.loads((root / 'examples/client_contracts/passive_surface_registration_v1/actual-ha-wire.json').read_text())
         self.assertEqual(proof['status'], 'PASS')
-        self.assertEqual(len(proof['source_hashes']), 277)
+        self.assertEqual(len(proof['source_hashes']), 279)
         for name, digest in proof['source_hashes'].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root / proof['harness']).read_bytes()).hexdigest(), proof['harness_sha256'])

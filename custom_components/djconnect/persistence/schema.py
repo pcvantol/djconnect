@@ -36,9 +36,13 @@ MIGRATIONS = (
     Migration(16, "0016_surface_pair_registration", "8417b6e2"),
     Migration(17, "0017_original_status_samples", "ad63c8f1"),
     Migration(18, "0018_original_source_adoption", "756dcc98"),
+    Migration(19, "0019_installation_once_metadata", "e973862a"),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_installation_once_state": {"singleton", "revision"},
+    "djconnect_installation_once": {"operation_id", "kind", "preparation_hash", "context_hash",
+        "policy_hash", "deadline_ms", "phase", "revision", "result_hash", "terminal_reserved", "ledger_revision"},
     "djconnect_source_origins": {"origin_id", "operation_id", "acceptance_id", "terminal_id",
         "nonce_hash", "terminal_nonce_hash", "scope_hash", "session_id", "created_ms", "phase", "revision"},
     "djconnect_status_samples": {"scope_hash", "sample_id", "ordinal", "observed_ms", "playback_state", "ended"},
@@ -394,6 +398,27 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
             "phase TEXT NOT NULL,revision INTEGER NOT NULL,"
             "CHECK((phase='prepared' AND revision=0) OR (phase='accepted' AND revision=1) "
             "OR (phase='retired' AND revision IN (1,2))))"
+        )
+    elif version == 19:
+        transaction.execute(
+            "CREATE TABLE djconnect_installation_once_state ("
+            "singleton INTEGER PRIMARY KEY CHECK(singleton=1),"
+            "revision INTEGER NOT NULL CHECK(revision BETWEEN 0 AND 9007199254740990))"
+        )
+        transaction.execute("INSERT INTO djconnect_installation_once_state VALUES (1,0)")
+        transaction.execute(
+            "CREATE TABLE djconnect_installation_once ("
+            "operation_id TEXT PRIMARY KEY,kind TEXT NOT NULL CHECK(kind IN ('custody_generation','bootstrap_signing')),"
+            "preparation_hash TEXT NOT NULL CHECK(length(preparation_hash)=64),"
+            "context_hash TEXT NOT NULL CHECK(length(context_hash)=64),"
+            "policy_hash TEXT NOT NULL CHECK(length(policy_hash)=64),"
+            "deadline_ms INTEGER NOT NULL CHECK(deadline_ms BETWEEN 1 AND 9007199254740991),"
+            "phase INTEGER NOT NULL,revision INTEGER NOT NULL,"
+            "result_hash TEXT NOT NULL CHECK(length(result_hash)=64),"
+            "terminal_reserved INTEGER NOT NULL CHECK(terminal_reserved=1),"
+            "ledger_revision INTEGER NOT NULL CHECK(ledger_revision BETWEEN 1 AND 9007199254740990),"
+            "CHECK((phase=0 AND revision=0) OR (phase=1 AND revision=1) OR "
+            "(phase=2 AND revision IN (1,2))))"
         )
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(
