@@ -1,3 +1,19 @@
+## Current original native lifecycle DESIGN delivery
+
+Source1389 is protected `a3c30619baae0e5ec3c0edfa950e8275d7c076fc` and independently
+ORIGINAL_QUALIFIED. It supplies the reviewed original start/initial status display,
+native once/UNKNOWN, actual identity/proof and subsequent A/B DESIGN boundaries.
+See [the separate documentary Final record](docs/verification/ORIGINAL_NATIVE_SURFACE_LIFECYCLE_DESIGN_FINALIZATION_20261029.md).
+
+All279 product bytes, the af201 contract and exact design blob96c7f37f remain
+unchanged by this Final. The20 causal vectors are declarative, not executed
+native tests. Actual signed grammar, purpose/trust/clock/storage/restore/terminal
+providers and a live factory remain required; HA-dev277/schema18, provider and
+iPhone acceptance retain their separate scopes. All24 requests/nine gates,
+Help EN/NL/free Ask DJ, VibeCast and production/Pi work remain preserved.
+This Final needs its own normal protected delivery and original qualification.
+Complete earlier bodies below retain their historical scope.
+
 ## Original native surface lifecycle design — 29 October 2026
 
 [The bounded native lifecycle design](docs/product/ORIGINAL_NATIVE_SURFACE_LIFECYCLE_DESIGN_V1.md) separates original automatic
