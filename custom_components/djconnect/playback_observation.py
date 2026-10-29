@@ -106,6 +106,8 @@ class PlaybackObservationManager:
             insight_provider=insight_provider,
         )
         self._spotify_sessions[session.owner_profile_id] = observed
+        from .surface_source_origin import attach_observer
+        attach_observer(session_runtime_manager(self._hass), observed)
 
         async def poll(_now: Any = None) -> None:
             await self._async_poll_spotify(observed)
@@ -136,6 +138,8 @@ class PlaybackObservationManager:
         if observed is None or (session_id and observed.session_id != session_id):
             return
         self._spotify_sessions.pop(owner_profile_id, None)
+        from .surface_source_origin import retire_sources
+        retire_sources(session_runtime_manager(self._hass), owner_profile_id, observed.session_id)
         from .surface_status_samples import retire_observer_status
         retire_observer_status(self._hass, observed)
         from .visual_director_runtime import withdraw_source

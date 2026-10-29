@@ -22,6 +22,14 @@ if "_owners" not in globals():
 _epoch = object()
 
 
+def _retire_source_origins(owner):
+    owner.source_revision += 1
+    manager = owner.domain.get("session_runtime_manager")
+    if manager is not None:
+        from .surface_source_origin import retire_sources
+        retire_sources(manager)
+
+
 class _Owner:
     def __init__(self, domain):
         self.epoch = _epoch
@@ -29,6 +37,7 @@ class _Owner:
         self.manager = None
         self.store = None
         self.revision = 0
+        self.source_revision = 0
         self.pending = 0
         self.uncertain = False
 
@@ -91,6 +100,7 @@ def manager_changed(manager, *, uncertain=False):
     owner = reference() if reference is not None else None
     if owner is not None:
         owner.revision += 1
+        _retire_source_origins(owner)
         if uncertain:
             owner.uncertain = True
 
@@ -100,6 +110,7 @@ def publish_manager(hass, domain, manager):
     owner = _owner(hass)
     if owner is not None:
         owner.revision += 1
+        _retire_source_origins(owner)
         if (owner.domain is not domain or owner.manager is None
                 or owner.manager() is not manager):
             owner.uncertain = True
@@ -111,6 +122,7 @@ def invalidate(hass):
     owner = _owner(hass)
     if owner is not None:
         owner.revision += 1
+        _retire_source_origins(owner)
 
 
 def tracked_transition(method):
@@ -126,6 +138,12 @@ def tracked_transition(method):
         if owner is not None:
             owner.pending += 1
             owner.revision += 1
+            # The actual async_load implementation returns an already loaded
+            # immutable Household without suspension or Store access. Preserve
+            # existing reader revision semantics, but do not reinterpret that
+            # pure cached read as a new source adoption/retirement event.
+            if method.__name__ != "async_load" or manager._loaded is not True:
+                _retire_source_origins(owner)
         try:
             return await method(manager, *args, **kwargs)
         except BaseException:
@@ -155,9 +173,12 @@ class CommittedProfileObservation:
     write_intent_revision: int
 
     def current(self):
+        return self.owner.revision == self.revision and self._same_committed()
+
+    def _same_committed(self):
         owner, manager = self.owner, self.manager
         return (_owner(self.hass) is owner and not owner.uncertain
-                and owner.pending == 0 and owner.revision == self.revision
+                and owner.pending == 0
                 and owner.manager is not None and owner.manager() is manager
                 and owner.domain.get(STORE_KEY) is manager
                 and manager._store is self.store and owner.store is self.store
@@ -166,6 +187,31 @@ class CommittedProfileObservation:
                 and manager._committed_household is self.household
                 and manager.authority_revision == self.authority_revision
                 and manager._write_intent_revision == self.write_intent_revision)
+
+
+@dataclass(frozen=True, repr=False)
+class CommittedSourceObservation:
+    """Original DATA continuity across proven cached reads, not writes/repair."""
+
+    original: CommittedProfileObservation
+    source_revision: int
+
+    @property
+    def household(self):
+        return self.original.household
+
+    def current(self):
+        return (self.original.owner.source_revision == self.source_revision
+                and self.original._same_committed())
+
+
+def capture_source_committed(hass):
+    """Capture the same qualified owner; only cached-read continuity differs."""
+    original = capture_committed(hass)
+    if original is None:
+        return None
+    result = CommittedSourceObservation(original, original.owner.source_revision)
+    return result if result.current() else None
 
 
 def capture_committed(hass):

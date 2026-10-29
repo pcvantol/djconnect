@@ -10,6 +10,7 @@ import logging
 import re
 import secrets
 import time
+import weakref
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from enum import StrEnum
@@ -4491,6 +4492,8 @@ class SessionRuntimeManager:
         self._historical_projections = historical_projections
         self._settings_repository = settings_repository
         self._status_samples = status_samples
+        self._source_origins = {}
+        self._source_origin_intents = weakref.WeakValueDictionary()
         self._settings_defaults_revisions: dict[str, int] = {}
         self._pending_settings_confirmations: dict[str, DJMoment] = {}
         self._narration_providers: dict[str, tuple[str, Callable, Callable, Callable | None]] = {}
@@ -4642,6 +4645,9 @@ class SessionRuntimeManager:
         """
         if self._settings_repository is None:
             raise SettingsCommitError('settings_unavailable')
+        from .surface_source_origin import retire_settings_sources
+        retire_settings_sources(self, owner_profile_id,
+            expected_session.get('session_id') if type(expected_session) is dict else None, authorize)
         async with self._lock:
             if not authorize():
                 raise PermissionError('unauthorized')
@@ -4777,6 +4783,7 @@ class SessionRuntimeManager:
         history_enabled: bool = True,
         history_source_context: dict[str, str] | None = None,
         inherit_settings: bool = False,
+        source_adoption=None,
     ) -> DJSessionRuntime:
         """Create the one active Runtime allowed for a Profile."""
         async with self._lock:
@@ -4794,6 +4801,11 @@ class SessionRuntimeManager:
                     dj_persona = DJPersona(inherited.persona)
             now = _timestamp()
             session_id = f"session-{uuid4().hex}"
+            if source_adoption is not None:
+                from .surface_source_origin import SourceAdoption
+                if (type(source_adoption) is not SourceAdoption or source_adoption.manager is not self
+                    or source_adoption.owner != owner_profile_id or not source_adoption.bind(session_id)):
+                    source_adoption = None
             start_configuration = _session_start_configuration(session_start_strategy)
             initial_session_mood = selected_mood.strip()
             resolved_discover_context = (
@@ -4874,6 +4886,8 @@ class SessionRuntimeManager:
                 }
             )
             if self._persistent_sessions is not None:
+                if source_adoption is not None:
+                    await source_adoption.prepare(active)
                 try:
                     await self._persistent_sessions.async_transition(
                         owner_profile_id, session_id, PERSISTENT_SESSION_ACTIVE
@@ -4897,6 +4911,8 @@ class SessionRuntimeManager:
                 key: str((history_source_context or {}).get(key) or "")
                 for key in ("backend_id", "music_account_id", "provider_entry_id", "provider_account_id")
             }
+            if source_adoption is not None:
+                await source_adoption.accept(active)
             return active
 
     async def async_open_session(self, *, owner_profile_id: str, session_id: str):
@@ -6483,6 +6499,8 @@ class SessionRuntimeManager:
             selected_presence = canonical_presence(selected_presence)
         except ValueError:
             raise ValueError("invalid_selected_presence") from None
+        from .surface_source_origin import retire_settings_sources
+        retire_settings_sources(self, owner_profile_id, session_id, authorize)
         async with self._lock:
             if authorize is not None and not authorize():
                 raise PermissionError("unauthorized")
@@ -6521,6 +6539,8 @@ class SessionRuntimeManager:
         legacy_user_choice: bool = False,
     ) -> DJSessionRuntime | None:
         """Update dynamic Runtime Mood; prior Moment snapshots remain frozen."""
+        from .surface_source_origin import retire_settings_sources
+        retire_settings_sources(self, owner_profile_id, session_id, authorize)
         async with self._lock:
             if authorize is not None and not authorize():
                 raise PermissionError("unauthorized")
@@ -6569,6 +6589,8 @@ class SessionRuntimeManager:
     ) -> DJSessionRuntime | None:
         """Change only future Moment behaviour for this active Runtime."""
         dj_persona = DJPersona(dj_persona)
+        from .surface_source_origin import retire_settings_sources
+        retire_settings_sources(self, owner_profile_id, session_id, authorize)
         async with self._lock:
             if authorize is not None and not authorize():
                 raise PermissionError("unauthorized")
@@ -7174,6 +7196,8 @@ class SessionRuntimeManager:
         session_id: str = "",
     ) -> DJSessionRuntime | None:
         """End and dispose of the active Runtime for a Profile."""
+        from .surface_source_origin import retire_sources
+        retire_sources(self, owner_profile_id, session_id)
         from .surface_status_samples import capture_end, retire_for_end, release_end, publish
         original_end = capture_end(self, owner_profile_id, session_id)
         async with self._lock:
