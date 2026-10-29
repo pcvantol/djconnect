@@ -1,3 +1,14 @@
+## Current original installation once metadata source
+
+Source1387 is protected `e56d2e350aabb54859023246f8636eeb749de9fe` and independently ORIGINAL_QUALIFIED.
+Its local metadata journal and schema19 passed3884 full tests (3877PASS/seven
+existing skips), actual isolated Linux26cases and all20 HA groups on identical279
+product hashes. See [the separate Final record](docs/verification/INSTALLATION_ONCE_METADATA_FINALIZATION_20261029.md).
+This documentary increment preserves all279 product bytes and requires its own
+qualification. Actual HA-dev remains277/schema18; no real custody, registry,
+provider, iPhone push or installed279 acceptance is supplied. All24 requests and
+nine gates, Help/free Ask DJ/VibeCast and production/Pi scopes remain retained.
+
 ## Installation once metadata source, 29 October 2026
 
 Schema19 adds a local metadata-only consumed/unknown/terminal journal with required independent owner ports. No key generator, signer, registry caller or production factory is enabled. See `docs/product/INSTALLATION_ONCE_METADATA_JOURNAL_V1.md`. Delivery qualification is in progress; HA-dev remains the separately accepted277/schema18 runtime, and operational widget/Live Activity push remains unavailable. API dependent draft169 codec review is source-only; all24 requests and nine gates remain retained.
