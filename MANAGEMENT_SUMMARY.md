@@ -1,3 +1,16 @@
+## Current HA-dev277 installation — 29 October 2026
+
+Source1382 `01a79e9e40556dedcc8cd8e5480cb6cf4dd692e0` and separate Final1383
+`1338bf8ecbf729c1d40618c04ba79228d5fcc95e` are originally qualified and now
+independently INSTALLED_GO on HA-dev:277 exact product files,SQL18/integrityOK,
+9/9 enabled entries,8 existing paired global Help GETs successful. See
+[the actual installation record](docs/verification/HADEV277_POSTINSTALL_FINALIZATION_20261029.md).
+Earlier installed271-only text below retains its historical scope. Both surface
+roles still return503UNAVAILABLE; this is no iPhone widget/Live Activity/APNs,
+provider, Apple UI or HA-production acceptance. All24 requests+nine gates remain.
+Documents preserve product bytes and require their own protected qualification;
+no additional runtime restart is needed.
+
 ## Current original Session/source adoption delivery
 
 Source1382 is protected `01a79e9e40556dedcc8cd8e5480cb6cf4dd692e0` and independently ORIGINAL_QUALIFIED.
