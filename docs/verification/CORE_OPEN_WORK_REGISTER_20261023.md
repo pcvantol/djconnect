@@ -1,3 +1,15 @@
+## Current installation-principal DATA source delivery
+
+Source1385 is protected `e44ee58bb5df0c6f61d4144fe792d9442b31e22a` and independently ORIGINAL_QUALIFIED.
+The closed codec and original primitive joins passed3858 full tests (3851PASS/
+seven old skips), actual isolated HA6new+19precedingcases on identical278 hashes,
+and independent public-DATA reference comparison. See
+[the separate Final record](INSTALLATION_PRINCIPAL_DATA_FINALIZATION_20261029.md).
+This documentary increment preserves all278 product bytes and needs its own
+qualification. Actual HA-dev stays277/schema18 on Source1382/Final1383; neither
+positive push role, real custody/registry authority nor native receipt is supplied.
+All24 requests+nine gates, Help/free Ask DJ/VibeCast and production/Pi scopes remain.
+
 ## Current installation-principal DATA codec source preparation
 
 The standalone Core decoder now implements frozen R2 closed DATA records and
