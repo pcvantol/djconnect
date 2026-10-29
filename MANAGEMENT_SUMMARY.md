@@ -1,3 +1,15 @@
+## Current original status-source delivery
+
+Source1380 is protected `7e6b57d555c547425336b9f7f1f31cae658e8735` and independently ORIGINAL_QUALIFIED.
+Original backend clocks, private typed readback, bounded schema17 DATA settlement
+and retirement/cancellation are qualified by3,808 tests (3,801PASS/seven old skips)
+and17 actual HA groups on the same276 product hashes. See
+[the separate Final record](docs/verification/ORIGINAL_STATUS_SOURCE_FINALIZATION_20261029.md).
+This documentary increment preserves all276 product bytes, fixtures and release
+inputs. It requires its own qualification. Native presentation/widget UUID origins,
+actual registrar/purpose/start rights and provider/native reception remain open.
+All24 requests+nine gates and HAdev/prod/Help/VibeCast/Pi scopes remain distinct.
+
 ## Current original status-source samples
 
 Core now captures original backend playback observations as private source DATA.
