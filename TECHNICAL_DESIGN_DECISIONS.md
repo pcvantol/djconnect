@@ -1,3 +1,16 @@
+## Current closed custody source delivery
+
+Source1393 is protected `6cae8540a83a880c4bcb37dd302320336f7e15cb` and independently
+ORIGINAL_QUALIFIED. [The separate documentary Final record](docs/verification/INSTALLATION_CUSTODY_ONCE_FINALIZATION_20261029.md)
+records its original main/coverage/formal/durable evidence and preserved limits.
+The coordinator remains unused, with required independent owners and two fixed
+synchronous ports; no actual custodian, key/signing operation, route or factory.
+All280 product bytes and release inputs remain unchanged by this Final; HA-dev
+retains actual277/schema18. All24 requests/nine gates, Help EN/NL/free Ask DJ,
+VibeCast and separate provider/native/production/Pi work remain preserved.
+This Final requires its own protected delivery and original qualification.
+Complete earlier bodies below retain their historical scope.
+
 ## Closed custody orchestration source preparation — 29 October 2026
 
 [The unused custody coordinator](docs/product/INSTALLATION_CUSTODY_ONCE_ORCHESTRATION_V1.md)
