@@ -12,6 +12,7 @@ import hashlib
 import json
 import re
 import uuid
+import weakref
 
 from .persistence import PersistenceError, persistence_service
 
@@ -221,3 +222,164 @@ def schedule_pair_registration(hass, runtime):
         record.retire()
         return
     record.schedule(record.reconcile())
+
+
+# These are private in-process witnesses, never serialized FlowResult fields.
+_FLOW_OWNER = "_surface_pair_flow_owner"
+_PENDING_ORIGIN = "_surface_pair_original_validation"
+_PENDING_CONTEXTS = "config_flow_app_pairing_pending"
+
+
+def _pair_tuple(data):
+    return (data.get("device_id"), data.get("client_type"), data.get("device_token"))
+
+
+def _flow_owner(context):
+    reference = context.get(_FLOW_OWNER)
+    return reference() if isinstance(reference, weakref.ReferenceType) else None
+
+
+@dataclass(repr=False)
+class PendingPairOrigin:
+    """Original successful pending POST, transferred by its actual native flow."""
+
+    context: dict
+    received: dict
+    owner: object
+    flow_id: str
+    pair_code: str
+    coordinates: tuple
+    prior_entries: tuple
+    phase: str = "pending"
+    pairing: object = None
+
+    def retire(self):
+        if self.phase != "consumed":
+            self.phase = "retired"
+
+    def pending_current(self, flow):
+        pending = flow.hass.data.get("djconnect", {}).get(_PENDING_CONTEXTS, {})
+        return (self.phase == "pending" and self.owner() is flow
+                and flow.flow_id == self.flow_id
+                and pending.get(self.pair_code) is self.context
+                and _flow_owner(self.context) is flow
+                and self.context.get("flow_id") == self.flow_id
+                and self.context.get(_PENDING_ORIGIN) is self
+                and self.context.get("pairing_received") is self.received
+                and _pair_tuple(self.received) == self.coordinates)
+
+    def handoff(self, flow):
+        if not self.pending_current(flow) or _pair_tuple(flow._pairing) != self.coordinates:
+            self.retire()
+            return False
+        self.pairing = flow._pairing
+        self.phase = "handoff"
+        return True
+
+    def consume_created(self, flow, entry):
+        # Consume before any subsequent scheduling/await, including on failure.
+        valid = (self.phase == "handoff" and self.owner() is flow
+                 and flow.flow_id == self.flow_id and flow._pairing is self.pairing
+                 and _pair_tuple(flow._pairing) == self.coordinates)
+        self.phase = "consumed"
+        task = asyncio.current_task()
+        if (not valid or entry is None or (task is not None and task.cancelling())
+                or flow.hass.is_stopping or entry.disabled_by is not None
+                or entry.state.value != "loaded"
+                or any(entry is old for old in self.prior_entries)):
+            return None
+        if _pair_tuple({**entry.data, **entry.options}) != self.coordinates:
+            return None
+        runtime = flow.hass.data.get("djconnect", {}).get(entry.entry_id)
+        if runtime is None or runtime.entry is not entry:
+            return None
+        # The existing scheduler independently requires the exact loaded entry,
+        # runtime/auth/data/fence, then checks them across FULL SQL settlement.
+        return runtime
+
+
+def pending_context_for_flow(flow, pending, pair_code):
+    """Do not carry a previous flow's token/receipt across pair-code reuse."""
+    context = pending.get(pair_code)
+    owner = _flow_owner(context) if type(context) is dict else None
+    if (type(context) is not dict or context.get("flow_id") != flow.flow_id
+            or (owner is not None and owner is not flow)):
+        if type(context) is dict:
+            old = context.get(_PENDING_ORIGIN)
+            if type(old) is PendingPairOrigin:
+                old.retire()
+        context = {}
+        pending[pair_code] = context
+    transferred = getattr(flow, "_surface_pending_origin", None)
+    if (type(transferred) is PendingPairOrigin and transferred.phase == "handoff"
+            and context is not transferred.context):
+        transferred.retire()
+        flow._surface_pending_origin = None
+    # Untagged legacy RAM input may still finish ordinary pairing, but never
+    # acquires an origin by being read. Only a new validated POST creates one.
+    context[_FLOW_OWNER] = weakref.ref(flow)
+    return context
+
+
+def note_pending_pair(hass, context, received):
+    """Call only after actual pending PairView code/type/device validation."""
+    flow = _flow_owner(context)
+    if flow is None or flow.hass is not hass or flow.flow_id != context.get("flow_id"):
+        return received
+    previous = context.get(_PENDING_ORIGIN)
+    if type(previous) is PendingPairOrigin:
+        if (previous.pending_current(flow)
+                and previous.coordinates == _pair_tuple(received)):
+            # Keep the same original object on a duplicate; optional ordinary
+            # metadata may change without renewing the original validation.
+            previous.received.update(received)
+            return previous.received
+        previous.retire()
+        return received  # No replacement marker after conflict/unknown outcome.
+    entries = getattr(getattr(hass, "config_entries", None), "async_entries", None)
+    if not callable(entries):
+        return received
+    context["pairing_received"] = received
+    context[_PENDING_ORIGIN] = PendingPairOrigin(context, received, weakref.ref(flow),
+        flow.flow_id, context["pair_code"], _pair_tuple(received), tuple(entries("djconnect")))
+    return received
+
+
+def capture_pending_origin(flow, pair_code):
+    """Capture the original object before async_set_unique_id, never its copy."""
+    context = flow.hass.data.get("djconnect", {}).get(_PENDING_CONTEXTS, {}).get(pair_code)
+    origin = context.get(_PENDING_ORIGIN) if type(context) is dict else None
+    previous = getattr(flow, "_surface_pending_origin", None)
+    if type(previous) is PendingPairOrigin and previous is not origin:
+        previous.retire()
+    if type(origin) is not PendingPairOrigin or not origin.pending_current(flow):
+        return None
+    return origin
+
+
+def clear_pending_context(flow, pair_code):
+    pending = flow.hass.data.get("djconnect", {}).get(_PENDING_CONTEXTS, {})
+    context = pending.get(pair_code)
+    owner = _flow_owner(context) if type(context) is dict else None
+    if (type(context) is not dict or context.get("flow_id") != flow.flow_id
+            or (owner is not None and owner is not flow)):
+        return
+    origin = context.get(_PENDING_ORIGIN)
+    if type(origin) is PendingPairOrigin and origin.phase != "handoff":
+        origin.retire()
+    pending.pop(pair_code, None)
+
+
+def abandon_pending_flow(flow):
+    """Native flow removal retires untransferred work synchronously."""
+    origin = getattr(flow, "_surface_pending_origin", None)
+    if type(origin) is PendingPairOrigin:
+        origin.retire()
+    flow._surface_pending_origin = None
+    pending = flow.hass.data.get("djconnect", {}).get(_PENDING_CONTEXTS, {})
+    for code, context in tuple(pending.items()):
+        if type(context) is dict and _flow_owner(context) is flow:
+            original = context.get(_PENDING_ORIGIN)
+            if type(original) is PendingPairOrigin:
+                original.retire()
+            pending.pop(code, None)

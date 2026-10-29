@@ -1,8 +1,10 @@
 # Automatic local pairing registration journal
 
 Successful ordinary pairing against a loaded Core entry now schedules the private
-registration journal automatically. Status, voice, passive GETs, pending config
-flows and startup do not create records. No additional user approval screen is
+registration journal automatically. Initial QR pairing also transfers its original
+validated pending intent only after actual native entry creation and successful
+loaded setup. Status, voice, passive GETs, an uncompleted pending config flow and
+startup do not create records. No additional user approval screen is
 introduced. The ordinary pair HTTP response is unchanged.
 
 The platform-owned database adds forward migration 16 with a separate store
@@ -50,3 +52,32 @@ bytes. These tests perform no model/provider/device actions and do not constitut
 HA installation or iPhone push acceptance. Original failed and superseded receipts
 are retained separately; the broad suite and independent whole-source review must
 pass before protected delivery.
+
+## Initial QR-flow origin and native completion
+
+The pending PairView records the original validation on the actual owning flow,
+before its first await. A private weak reference binds the context to that exact
+flow object and ID; an equal ID or reused pair code cannot adopt an old context.
+A duplicate POST with the same auth tuple retains the original validation object.
+Conflicting auth retires that origin permanently, including an ABA back to the
+first tuple. These private witnesses never enter the ordinary HTTP response.
+
+The flow captures this original context before its existing unique-ID await and
+revalidates it afterwards. It transfers the same pairing object on ordinary flow
+completion. HA's actual async_on_create_entry hook consumes the intent before
+scheduling and requires a newly created, currently loaded entry and its exact
+runtime/data/options/auth tuple. A matching historical entry is insufficient.
+Native async_remove retires abandoned, aborted or conflicting flow intent; a
+successfully consumed runtime registration keeps its separate lifecycle owner.
+Setup failure, cancellation and abort during setup produce no late local ACK.
+The hook does not assert HA config-file disk persistence or two-store atomicity.
+
+Sixteen focused real-SQLite/source-flow cases exercise these originality fences.
+The actual pinned HA flow manager, pending PairView, native finish/add/setup/hook
+order and removal callbacks pass five isolated cases. Profile selection and entry
+setup are explicitly synthetic boundaries; the actual shipping restore-runtime
+path and SQLite provider execute. The same native positive case fails on parent
+16ed862b9a35eb8d25ac7e95adf36b1995a81696 at the absent registration assertion;
+current source passes. The fixtures preserve actual receipts and all 275 product
+hashes. This closes local initial-flow recording only, not public role authority,
+registrar/install trust, purpose admission, status/UUID production or native push.

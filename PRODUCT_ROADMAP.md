@@ -1,3 +1,14 @@
+## Current initial QR-flow local registration source
+
+The original pending QR validation now follows the actual native HA creation hook
+into the local pairing journal after successful loaded setup. Duplicate requests
+retain their origin; conflict, code reuse, abort and late setup cannot revive it.
+Five actual HA lifecycle cases pass and the same positive case fails on the old
+source at the missing record. See [the local journal](docs/product/CORE_LOCAL_PAIR_REGISTRATION_JOURNAL_V1.md).
+This is local DATA source work; public role authority, genuine status/UUID producer,
+registrar/custody/purpose/provider/native gates remain open. All selected requests,
+Help qualification and VibeCast work retain their separate scope.
+
 ## Current automatic pairing registration source
 
 Core now schedules a private SQLite registration record from actual loaded-entry

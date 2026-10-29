@@ -2537,7 +2537,7 @@ async def _handle_pending_config_flow_app_pairing(
     token = str(context.get(CONF_DEVICE_TOKEN) or "").strip()
     if not token:
         token = context[CONF_DEVICE_TOKEN] = secrets.token_urlsafe(32)
-    context["pairing_received"] = {
+    received = {
         CONF_DEVICE_ID: device_id,
         CONF_DEVICE_NAME: data.get("device_name") or "DJConnect",
         CONF_CLIENT_TYPE: client_type,
@@ -2545,6 +2545,8 @@ async def _handle_pending_config_flow_app_pairing(
         "local_url": data.get("local_url"),
         "firmware": data.get("firmware"),
     }
+    from .surface_pair_journal import note_pending_pair
+    context["pairing_received"] = note_pending_pair(hass, context, received)
     conf = {
         CONF_PAIR_CODE: pair_code,
         CONF_DEVICE_TOKEN: token,

@@ -25,7 +25,7 @@
   "responses": {
     "current": {
       "id": "track_insight_46f2f86799b7612de36684bd",
-      "created_at": "2026-10-29T02:33:07.580766+00:00",
+      "created_at": "2026-10-29T07:02:23.515823+00:00",
       "source": "current_detail",
       "language": "nl",
       "mood_context": null,
@@ -92,7 +92,7 @@
         "schema_version": 1,
         "media_identity": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
         "observation_id": "<opaque-observation-redacted>",
-        "expires_at": 1793241217.5802455,
+        "expires_at": 1793257373.5150652,
         "expires_in": 29
       }
     },
@@ -134,7 +134,7 @@
   },
   "harness": "scripts/verification/verify_current_track_insight_http.py",
   "harness_sha256": "0e9ade12c2727538a2abb03391d5ec8e394948737ed542ff7892a06ed5226f26",
-  "actual_ha_receipt_sha256": "3641f4cd0bcb83efe7e8e421cef8e0c54489be13657a8db57f0fc690706c14c9",
+  "actual_ha_receipt_sha256": "187c492f1e817ac571f4a2456c45f2f14559a55bb363010448b4bbcdabec11e1",
   "source_unchanged": true,
   "playback_mutations": 0
 }
