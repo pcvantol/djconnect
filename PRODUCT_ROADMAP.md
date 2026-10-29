@@ -1,3 +1,19 @@
+## Original native surface lifecycle design — 29 October 2026
+
+[The bounded native lifecycle design](docs/product/ORIGINAL_NATIVE_SURFACE_LIFECYCLE_DESIGN_V1.md) separates original automatic
+pair/source evaluation, independently authorized initial status display, native
+pre-SDK once/UNKNOWN handling, actual Activity identity/proof and later A/B
+transport/content admission. Widget transport remains installation-scoped;
+background status reads require their own narrower authority. No extra user UI.
+
+This is DESIGN source preparation, with20 declarative vectors and no new runtime
+producer, public signed wire or live factory. Actual trust/clock/storage/restore/
+terminal owners remain required. The af201 contract and all279 product bytes are
+unchanged; HA-dev remains277/schema18 and actual provider/native/iPhone
+acceptance stays separate. All24 requests/nine gates, Help EN/NL/free Ask DJ,
+VibeCast and production/Pi scopes remain. Normal exact Source/Final qualification
+is still required. Complete earlier bodies below retain their historical scope.
+
 ## Current initial QR-flow local registration source
 
 The original pending QR validation now follows the actual native HA creation hook
