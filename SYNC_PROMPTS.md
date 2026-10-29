@@ -1,3 +1,7 @@
+## Installation once metadata source, 29 October 2026
+
+Schema19 adds a local metadata-only consumed/unknown/terminal journal with required independent owner ports. No key generator, signer, registry caller or production factory is enabled. See `docs/product/INSTALLATION_ONCE_METADATA_JOURNAL_V1.md`. Delivery qualification is in progress; HA-dev remains the separately accepted277/schema18 runtime, and operational widget/Live Activity push remains unavailable. API dependent draft169 codec review is source-only; all24 requests and nine gates remain retained.
+
 ## Current installation-principal DATA source delivery
 
 Source1385 is protected `e44ee58bb5df0c6f61d4144fe792d9442b31e22a` and independently ORIGINAL_QUALIFIED.

@@ -132,6 +132,8 @@
     "custom_components/djconnect/icon.png": "4e91b019e423f8dd03b87aefc2e2fef04ecc6645f48f5bb8c431f94d2018da3e",
     "custom_components/djconnect/icon@2x.png": "b142f522acc67f3787078451cb4bff9e21de62b976350f3904a6e12503dbb114",
     "custom_components/djconnect/image_proxy.py": "ab064eaf1b5db9d7848461c57e75e10fac07650dd90eb744165113d6c471a792",
+    "custom_components/djconnect/installation_once_journal.py": "7003bc2ac84968018d8c5d7e030f3019fb989d0dfac40083fe62bb8e1915c063",
+    "custom_components/djconnect/installation_principal_data.py": "de7570635107f4879c86ed3dfc8f9d017dd82d091303d2d0372313a4d3a6e76b",
     "custom_components/djconnect/logo.png": "bf80e7900bcfc5ce267e51f2862f4bc49cac6fad4cb79ef5c6547d06d8b08938",
     "custom_components/djconnect/logo@2x.png": "361e4faf8c1227dc4422722c37029428bdfd2a7c491f89a9759a3982ad4e3839",
     "custom_components/djconnect/manifest.json": "8de76c43a7e04cd29ab64470b1f774958d18e86c53921a6fc083d8bbf6c7a5d4",
@@ -163,7 +165,7 @@
     "custom_components/djconnect/persistence/ownership.py": "167eaa9ffb4ac5705987ac77e1e261d4741123787fd193192a4a65429bedc8e0",
     "custom_components/djconnect/persistence/provider.py": "d6116c1661f0c3188126585a2b71bb396e3bb049b5ab9bcd9808a3313537e93a",
     "custom_components/djconnect/persistence/reconciliation.py": "75d9dd20de1652f0a731870cb8d7885687c1dd04861b1250a3364e7715462c3e",
-    "custom_components/djconnect/persistence/schema.py": "82a7791b47f89d5bd2f6238fcead079a03a19ac7148b0f1450f50343d2d00dff",
+    "custom_components/djconnect/persistence/schema.py": "d1440a4535217a7b2f4c16677be4544ecd1748368ae7f1889bb04dee75f3b81f",
     "custom_components/djconnect/persistence/service.py": "492d84400a0d948c0bc46cab4420a602c3ef37a158e750ff9e1244ac3c10a33c",
     "custom_components/djconnect/persistence/sessions.py": "19e5f68577911da193e8d1a2508930621cf68db229668d24c5a7d15919a21df5",
     "custom_components/djconnect/persistence/sqlite.py": "bbdafa6fbe5304e8e0ba7fef2a9a3a25e30da9bfd6f732459068855606fb7a1b",
@@ -304,7 +306,7 @@
     "failure": "native created entry has no registration record",
     "original_log_sha256": "f1c15562ca587667dff12b8d7a111e6c9b2de0f57a80870e7274e8ef2c8a9a4a"
   },
-  "original_raw_sha256": "0d2aab15febcf0f7cd957bdb095cc1267bae45d7b42185e2c8e4cd19cadfc256",
-  "original_admission_sha256": "4d6c0e96dda7c1ea91696f5da535353d5f02a025915e845ea22089491dc780ca",
-  "original_raw_location": "/Volumes/Shared Data/tmp/pcvantol/core-window-20261021-12h/source-origin-creator-closed-ha-lab-20261029/pending-run2/http-producer-receipt.json"
+  "original_raw_sha256": "dad0243bd687828ed46655d229a9d015d543ee8335a4d7c623dd18c986993969",
+  "original_admission_sha256": "fbd05b2f0f2a094a321300d5c4fe39f4990a47822a3f9dd305d5eda86c2dffa4",
+  "original_raw_location": "/Volumes/Shared Data/tmp/pcvantol/core-window-20261021-12h/installation-once-distinct-final-regression-ha-lab-20261029/pending-run2/http-producer-receipt.json"
 }
