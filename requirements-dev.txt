@@ -1,6 +1,6 @@
 # Reproducible local and CI tooling for verification and release evidence.
 PyYAML==6.0.3
-coverage==7.16.2
+coverage==7.17.0
 pytest==9.1.1
 # Developer tests use Pillow13; the separate HA2026.10.0 decoder baseline stays12.3.
 # CI qualifies the same original synthetic image bytes under both exact versions.
