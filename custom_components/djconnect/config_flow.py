@@ -1471,6 +1471,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     def __init__(self) -> None:
+        self._surface_pending_origin = None
         self._pairing: dict[str, Any] = {}
         self._backend: dict[str, Any] = {CONF_MUSIC_BACKEND: DEFAULT_MUSIC_BACKEND}
         self._spotify: dict[str, Any] = {}
@@ -1484,6 +1485,23 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._profile_platform: dict[str, Any] = {}
         self._profile_input: dict[str, Any] = {}
         self._profile_snapshot: Any = None
+
+    async def async_on_create_entry(self, result):
+        """Transfer genuine pending validation after native entry creation/setup."""
+        original = self._surface_pending_origin
+        self._surface_pending_origin = None  # Consume before scheduling/any await.
+        if original is not None:
+            runtime = original.consume_created(self, result.get("result"))
+            if runtime is not None:
+                from .surface_pair_journal import schedule_pair_registration
+                schedule_pair_registration(self.hass, runtime)
+        return result
+
+    def async_remove(self):
+        """Native finish/abort notification; consumed intent stays transferred."""
+        from .surface_pair_journal import abandon_pending_flow
+        abandon_pending_flow(self)
+        super().async_remove()
 
     async def async_step_user(
         self,
@@ -1706,7 +1724,13 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 if not device_id_matches_client_type(device_id, client_type):
                     return self.async_abort(reason="client_retired" if client_type == CLIENT_TYPE_WINDOWS or device_id.startswith("djconnect-windows-") else "invalid_client_type")
+                from .surface_pair_journal import capture_pending_origin
+                original = capture_pending_origin(self, pair_code) if is_app_pairing else None
+                self._surface_pending_origin = original
                 await self.async_set_unique_id(device_id)
+                if original is not None and not original.pending_current(self):
+                    original.retire()
+                    self._surface_pending_origin = None
                 self._abort_if_unique_id_configured()
                 self._pairing = {
                     CONF_PAIR_CODE: pair_code,
@@ -1738,6 +1762,9 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         getattr(self, "hass", None)
                     )
                 if is_app_pairing:
+                    original = self._surface_pending_origin
+                    if original is not None and not original.handoff(self):
+                        self._surface_pending_origin = None
                     self._clear_pending_app_pairing(pair_code)
                 return await self.async_step_profile_choice()
 
@@ -2050,7 +2077,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return
         domain_data = hass_data.setdefault(DOMAIN, {})
         pending = domain_data.setdefault(APP_PAIRING_PENDING_KEY, {})
-        context = pending.setdefault(pair_code, {})
+        from .surface_pair_journal import pending_context_for_flow
+        context = pending_context_for_flow(self, pending, pair_code)
         client_type = _clean(
             defaults.get(CONF_CLIENT_TYPE),
             self._default_pair_client_type(),
@@ -2102,9 +2130,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         hass_data = getattr(getattr(self, "hass", None), "data", None)
         if not isinstance(hass_data, dict):
             return
-        pending = hass_data.setdefault(DOMAIN, {}).setdefault(APP_PAIRING_PENDING_KEY, {})
-        if isinstance(pending, dict):
-            pending.pop(str(pair_code or "").strip(), None)
+        from .surface_pair_journal import clear_pending_context
+        clear_pending_context(self, str(pair_code or "").strip())
 
     def _pair_description_placeholders(self) -> dict[str, str]:
         """Return app pairing values shown in the HA config-flow description."""
