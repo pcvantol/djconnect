@@ -344,7 +344,8 @@ class SummaryTest(unittest.IsolatedAsyncioTestCase):
                       'djconnect_content_tombstones', 'djconnect_content_request_fences',
                       'djconnect_bulletin_attempts', 'djconnect_bulletin_clock',
                       'djconnect_surface_journal', 'djconnect_surface_issuer_journal',
-                      'djconnect_surface_pairs', 'djconnect_surface_pair_store'):
+                      'djconnect_surface_pairs', 'djconnect_surface_pair_store',
+                      'djconnect_status_samples'):
             connection.execute(f'DROP TABLE {table}')
         connection.execute("DELETE FROM djconnect_schema_migrations WHERE schema_version>=6")
         connection.execute("UPDATE djconnect_schema_metadata SET schema_version=5")

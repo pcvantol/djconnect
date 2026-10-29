@@ -136,6 +136,8 @@ class PlaybackObservationManager:
         if observed is None or (session_id and observed.session_id != session_id):
             return
         self._spotify_sessions.pop(owner_profile_id, None)
+        from .surface_status_samples import retire_observer_status
+        retire_observer_status(self._hass, observed)
         from .visual_director_runtime import withdraw_source
         withdraw_source(self._hass, observed)
         await session_runtime_manager(self._hass).async_invalidate_intra_track_opportunity(
@@ -272,6 +274,13 @@ class PlaybackObservationManager:
         turn = current_turn.get()
         if turn is None or not turn.effect_started or not isinstance(playback, dict):
             return None
+        from .surface_status_samples import ObservedPlayback, OriginalSample, advance_own_command
+        original_observer = self._spotify_sessions.get(turn.scope.removeprefix("profile:"))
+        original_status = playback.original_status if type(playback) is ObservedPlayback else None
+        if (type(original_status) is not OriginalSample
+            or original_status.witness.observed is not original_observer
+            or original_observer.integration_runtime is not integration_runtime):
+            original_status = None
         await turn.guard()
         owner = turn.scope.removeprefix("profile:")
         observed = self._spotify_sessions.get(owner)
@@ -289,7 +298,11 @@ class PlaybackObservationManager:
         item = str(playback.get("uri") or "")
         if item and not item.startswith("spotify:track:"):
             return None
-        observed.command_revision += 1
+        if original_status is not None and original_status.current() and observed is original_observer:
+            original_status = advance_own_command(original_status)
+        else:
+            observed.command_revision += 1
+            original_status = None
         device = playback.get("device") or {}
         changed = await manager.async_update_playback_projection(owner_profile_id=owner, session_id=observed.session_id,
             state="playing" if playback.get("is_playing") else "paused" if item else "idle",
@@ -297,7 +310,8 @@ class PlaybackObservationManager:
             artist=str(playback.get("artist_name") or playback.get("artist") or ""), album=str(playback.get("album_name") or ""),
             artwork_url=register_image_proxy_url(self._hass, playback.get("album_image_url", "")),
             target_name=str(device.get("name") or ""), duration_ms=playback.get("duration_ms"),
-            position_ms=playback.get("progress_ms"), forecast_authority=authority)
+            position_ms=playback.get("progress_ms"), forecast_authority=authority,
+            original_status=original_status)
         await turn.guard()
         current = manager.current_active(owner)
         if (self._spotify_sessions.get(owner) is not observed or current is None
@@ -329,6 +343,8 @@ class PlaybackObservationManager:
             visual_admission = capture_observer(self._hass, observed)
             from .queue_forecast import capture_source
             queue_authority, queue_epoch = capture_source(self._hass, observed)
+            from .surface_status_samples import capture_source as status_source, seal
+            original_status_source = status_source(self._hass, observed)
             try:
                 result = await SpotifyBackend(
                     self._hass, observed.integration_runtime
@@ -351,6 +367,7 @@ class PlaybackObservationManager:
                 observed.unavailable = True
                 invalidate_observer_metadata(self._hass, observed)
                 return
+            original_status = seal(original_status_source, getattr(result, "state", ""))
             observed.unavailable = False
             if (self._spotify_sessions.get(observed.owner_profile_id) is not observed
                 or observed.command_revision != captured_command_revision):
@@ -397,6 +414,7 @@ class PlaybackObservationManager:
                 duration_ms=getattr(result, "duration_ms", None),
                 position_ms=getattr(result, "position_ms", None),
                 forecast_authority=forecast_authority,
+                original_status=original_status,
             )
             accept_observation(self._hass, observed, result, visual_admission)
             catalog = getattr(result, "catalog", {})

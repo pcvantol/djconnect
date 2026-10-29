@@ -17,9 +17,9 @@
   ],
   "sample": {
     "moment": {
-      "moment_id": "moment-67934badde72d422d6d69525e1578d98",
-      "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
-      "created_at": "2026-10-29T07:03:09.094486+00:00",
+      "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
+      "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
+      "created_at": "2026-10-29T09:14:17.191375+00:00",
       "type": "dj_bulletin",
       "knowledge_intent": {
         "type": "dj_bulletin",
@@ -60,7 +60,7 @@
       "generation_metadata": {
         "context_source": "fixed_rss_metadata_v1",
         "bulletin_schema": "1",
-        "candidate_id": "67934badde72d422d6d69525e1578d98bdf2226996a6872a7732fef5cc8b2d8f"
+        "candidate_id": "171fd0e1a576514206e7fa5ceea6931c4696032456267efd8b6985a8e0599d77"
       },
       "sources": [
         {
@@ -68,28 +68,28 @@
           "url": "https://www.cbs.nl/news/isolated-0",
           "license": "CC-BY-4.0",
           "title": "Household income statistics released by institute",
-          "published_at": "2026-10-29T07:02:49+00:00"
+          "published_at": "2026-10-29T09:13:57+00:00"
         },
         {
           "provider": "KNMI",
           "url": "https://www.knmi.nl/news/isolated-1",
           "license": "CC0-1.0",
           "title": "Coastal weather research station opens for scientists",
-          "published_at": "2026-10-29T07:02:49+00:00"
+          "published_at": "2026-10-29T09:13:57+00:00"
         }
       ]
     },
     "speech_off": {
       "schema_version": 1,
       "reference": {
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
-        "moment_id": "moment-67934badde72d422d6d69525e1578d98"
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
+        "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c"
       },
       "source_kind": "published_dj_moment",
-      "source_id": "moment-67934badde72d422d6d69525e1578d98",
-      "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+      "source_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
+      "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
       "text_revision": "66e6a5c3d46f870fdc0e2493",
-      "presentation_revision": "ec1a6e45e57e208535f98d5c",
+      "presentation_revision": "9bdac8b60c7d178007058cb3",
       "persona": "home_dj",
       "persona_revision": 0,
       "mood": "groove",
@@ -111,22 +111,22 @@
         "ha_configured"
       ],
       "processor_qualification_required": true,
-      "expires_at": "2026-10-29T07:32:49+00:00",
-      "source_expires_at": "2026-10-29T07:32:49+00:00",
+      "expires_at": "2026-10-29T09:43:57+00:00",
+      "source_expires_at": "2026-10-29T09:43:57+00:00",
       "attribution": [
         {
           "provider": "CBS",
           "url": "https://www.cbs.nl/news/isolated-0",
           "license": "CC-BY-4.0",
           "title": "Household income statistics released by institute",
-          "published_at": "2026-10-29T07:02:49+00:00"
+          "published_at": "2026-10-29T09:13:57+00:00"
         },
         {
           "provider": "KNMI",
           "url": "https://www.knmi.nl/news/isolated-1",
           "license": "CC0-1.0",
           "title": "Coastal weather research station opens for scientists",
-          "published_at": "2026-10-29T07:02:49+00:00"
+          "published_at": "2026-10-29T09:13:57+00:00"
         }
       ],
       "cache_policy": "private,no-store"
@@ -134,14 +134,14 @@
     "speech_on": {
       "schema_version": 1,
       "reference": {
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
-        "moment_id": "moment-67934badde72d422d6d69525e1578d98"
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
+        "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c"
       },
       "source_kind": "published_dj_moment",
-      "source_id": "moment-67934badde72d422d6d69525e1578d98",
-      "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+      "source_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
+      "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
       "text_revision": "66e6a5c3d46f870fdc0e2493",
-      "presentation_revision": "ec1a6e45e57e208535f98d5c",
+      "presentation_revision": "9bdac8b60c7d178007058cb3",
       "persona": "home_dj",
       "persona_revision": 0,
       "mood": "groove",
@@ -163,52 +163,52 @@
         "ha_configured"
       ],
       "processor_qualification_required": true,
-      "expires_at": "2026-10-29T07:32:49+00:00",
-      "source_expires_at": "2026-10-29T07:32:49+00:00",
+      "expires_at": "2026-10-29T09:43:57+00:00",
+      "source_expires_at": "2026-10-29T09:43:57+00:00",
       "attribution": [
         {
           "provider": "CBS",
           "url": "https://www.cbs.nl/news/isolated-0",
           "license": "CC-BY-4.0",
           "title": "Household income statistics released by institute",
-          "published_at": "2026-10-29T07:02:49+00:00"
+          "published_at": "2026-10-29T09:13:57+00:00"
         },
         {
           "provider": "KNMI",
           "url": "https://www.knmi.nl/news/isolated-1",
           "license": "CC0-1.0",
           "title": "Coastal weather research station opens for scientists",
-          "published_at": "2026-10-29T07:02:49+00:00"
+          "published_at": "2026-10-29T09:13:57+00:00"
         }
       ],
       "cache_policy": "private,no-store"
     },
     "native_delivery": {
       "schema_version": 1,
-      "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
-      "current_moment_id": "moment-67934badde72d422d6d69525e1578d98",
+      "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
+      "current_moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
       "current_silence_moment_id": null,
       "active_flow_moment_ids": [
-        "moment-67934badde72d422d6d69525e1578d98"
+        "moment-171fd0e1a576514206e7fa5ceea6931c"
       ],
       "admissions": [
         {
-          "moment_id": "moment-67934badde72d422d6d69525e1578d98",
+          "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
           "qualification": "qualified",
           "current_display_allowed": true,
           "active_flow_display_allowed": true,
-          "source_expires_at": "2026-10-29T07:32:49+00:00",
-          "display_expires_at": "2026-10-29T07:04:08.094486+00:00",
+          "source_expires_at": "2026-10-29T09:43:57+00:00",
+          "display_expires_at": "2026-10-29T09:15:16.191375+00:00",
           "executable_actions": [],
           "requires_spotify_attribution": false
         }
       ],
       "revocation_scope": "session",
-      "revision": "463f2071b933eb5b8222284b"
+      "revision": "e1911516ec26744d68822a6f"
     },
     "owner_snapshot": {
       "session": {
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
         "runtime_state": "active",
         "selected_mood": "groove",
         "mood_revision": 0,
@@ -224,7 +224,7 @@
         "title": "Synthetic music",
         "artist": "Synthetic artist",
         "target_name": "Synthetic output",
-        "updated_at": "2026-10-29T07:03:09.083043+00:00",
+        "updated_at": "2026-10-29T09:14:17.175448+00:00",
         "duration_ms": 300000,
         "position_ms": 10000
       },
@@ -234,16 +234,16 @@
         "current_direction": "maintaining_energy",
         "session_direction": {
           "direction": "maintaining_energy",
-          "initialized_at": "2026-10-29T07:03:09.080217+00:00",
-          "updated_at": "2026-10-29T07:03:09.080217+00:00",
+          "initialized_at": "2026-10-29T09:14:17.171948+00:00",
+          "updated_at": "2026-10-29T09:14:17.171948+00:00",
           "start_strategy": "manual"
         }
       },
       "session_flow": {
-        "flow_id": "flow-session-13b4ceb4bf694fbfbf858a67aede5bcc",
+        "flow_id": "flow-session-ee1daacda41140b0a485a6ea150c3425",
         "flow_revision": 1,
         "planning_horizon_minutes": 15,
-        "created_at": "2026-10-29T07:03:09.096144+00:00",
+        "created_at": "2026-10-29T09:14:17.194224+00:00",
         "items": [
           {
             "item_id": "now-current-track",
@@ -276,11 +276,11 @@
             "label": "Future Placeholder"
           },
           {
-            "item_id": "moment-moment-67934badde72d422d6d69525e1578d98",
+            "item_id": "moment-moment-171fd0e1a576514206e7fa5ceea6931c",
             "item_type": "dj_moment",
             "position": "next",
             "label": "DJ Bulletin",
-            "moment_id": "moment-67934badde72d422d6d69525e1578d98",
+            "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
             "moment_type": "dj_bulletin"
           }
         ]
@@ -291,9 +291,9 @@
       },
       "dj_moments": [
         {
-          "moment_id": "moment-67934badde72d422d6d69525e1578d98",
-          "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
-          "created_at": "2026-10-29T07:03:09.094486+00:00",
+          "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
+          "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
+          "created_at": "2026-10-29T09:14:17.191375+00:00",
           "type": "dj_bulletin",
           "knowledge_intent": {
             "type": "dj_bulletin",
@@ -334,7 +334,7 @@
           "generation_metadata": {
             "context_source": "fixed_rss_metadata_v1",
             "bulletin_schema": "1",
-            "candidate_id": "67934badde72d422d6d69525e1578d98bdf2226996a6872a7732fef5cc8b2d8f"
+            "candidate_id": "171fd0e1a576514206e7fa5ceea6931c4696032456267efd8b6985a8e0599d77"
           },
           "sources": [
             {
@@ -342,14 +342,14 @@
               "url": "https://www.cbs.nl/news/isolated-0",
               "license": "CC-BY-4.0",
               "title": "Household income statistics released by institute",
-              "published_at": "2026-10-29T07:02:49+00:00"
+              "published_at": "2026-10-29T09:13:57+00:00"
             },
             {
               "provider": "KNMI",
               "url": "https://www.knmi.nl/news/isolated-1",
               "license": "CC0-1.0",
               "title": "Coastal weather research station opens for scientists",
-              "published_at": "2026-10-29T07:02:49+00:00"
+              "published_at": "2026-10-29T09:13:57+00:00"
             }
           ],
           "playback_item_id": "d40f9565bec11aa9e29df5f3"
@@ -357,8 +357,8 @@
       ],
       "presentations": [
         {
-          "presentation_id": "presentation-moment-67934badde72d422d6d69525e1578d98",
-          "source_moment_id": "moment-67934badde72d422d6d69525e1578d98",
+          "presentation_id": "presentation-moment-171fd0e1a576514206e7fa5ceea6931c",
+          "source_moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
           "source_moment_type": "dj_bulletin",
           "visibility": "session_shared",
           "speech": {
@@ -374,35 +374,35 @@
         }
       ],
       "broadcast": {
-        "started_at": "2026-10-29T07:03:09.080217+00:00",
+        "started_at": "2026-10-29T09:14:17.171948+00:00",
         "snapshot_watermark": 8
       },
       "native_delivery": {
         "schema_version": 1,
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
-        "current_moment_id": "moment-67934badde72d422d6d69525e1578d98",
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
+        "current_moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
         "current_silence_moment_id": null,
         "active_flow_moment_ids": [
-          "moment-67934badde72d422d6d69525e1578d98"
+          "moment-171fd0e1a576514206e7fa5ceea6931c"
         ],
         "admissions": [
           {
-            "moment_id": "moment-67934badde72d422d6d69525e1578d98",
+            "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
             "qualification": "qualified",
             "current_display_allowed": true,
             "active_flow_display_allowed": true,
-            "source_expires_at": "2026-10-29T07:32:49+00:00",
-            "display_expires_at": "2026-10-29T07:04:08.094486+00:00",
+            "source_expires_at": "2026-10-29T09:43:57+00:00",
+            "display_expires_at": "2026-10-29T09:15:16.191375+00:00",
             "executable_actions": [],
             "requires_spotify_attribution": false
           }
         ],
         "revocation_scope": "session",
-        "revision": "463f2071b933eb5b8222284b"
+        "revision": "e1911516ec26744d68822a6f"
       },
       "passive_surface": {
         "version": 1,
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
         "delivery_sequence": 8,
         "invalidation_only": true
       },
@@ -412,14 +412,14 @@
           {
             "schema_version": 1,
             "reference": {
-              "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
-              "moment_id": "moment-67934badde72d422d6d69525e1578d98"
+              "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
+              "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c"
             },
             "source_kind": "published_dj_moment",
-            "source_id": "moment-67934badde72d422d6d69525e1578d98",
-            "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+            "source_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
+            "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
             "text_revision": "66e6a5c3d46f870fdc0e2493",
-            "presentation_revision": "ec1a6e45e57e208535f98d5c",
+            "presentation_revision": "9bdac8b60c7d178007058cb3",
             "persona": "home_dj",
             "persona_revision": 0,
             "mood": "groove",
@@ -441,22 +441,22 @@
               "ha_configured"
             ],
             "processor_qualification_required": true,
-            "expires_at": "2026-10-29T07:32:49+00:00",
-            "source_expires_at": "2026-10-29T07:32:49+00:00",
+            "expires_at": "2026-10-29T09:43:57+00:00",
+            "source_expires_at": "2026-10-29T09:43:57+00:00",
             "attribution": [
               {
                 "provider": "CBS",
                 "url": "https://www.cbs.nl/news/isolated-0",
                 "license": "CC-BY-4.0",
                 "title": "Household income statistics released by institute",
-                "published_at": "2026-10-29T07:02:49+00:00"
+                "published_at": "2026-10-29T09:13:57+00:00"
               },
               {
                 "provider": "KNMI",
                 "url": "https://www.knmi.nl/news/isolated-1",
                 "license": "CC0-1.0",
                 "title": "Coastal weather research station opens for scientists",
-                "published_at": "2026-10-29T07:02:49+00:00"
+                "published_at": "2026-10-29T09:13:57+00:00"
               }
             ],
             "cache_policy": "private,no-store"
@@ -465,11 +465,11 @@
       },
       "session_forecast": {
         "contract_version": 1,
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
         "revision": 1,
         "state": "ready",
-        "issued_at": "2026-10-29T07:03:09.084194+00:00",
-        "valid_until": "2026-10-29T07:05:09.084165+00:00",
+        "issued_at": "2026-10-29T09:14:17.176404+00:00",
+        "valid_until": "2026-10-29T09:16:17.176363+00:00",
         "nominal_window_seconds": 900,
         "supported_window_seconds": 900,
         "current_anchor": {
@@ -503,7 +503,7 @@
     },
     "initial_shared_snapshot": {
       "session": {
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
         "runtime_state": "active",
         "selected_mood": "groove",
         "mood_revision": 0,
@@ -519,7 +519,7 @@
         "title": "Synthetic music",
         "artist": "Synthetic artist",
         "target_name": "Synthetic output",
-        "updated_at": "2026-10-29T07:03:09.083043+00:00",
+        "updated_at": "2026-10-29T09:14:17.175448+00:00",
         "duration_ms": 300000,
         "position_ms": 10000
       },
@@ -529,16 +529,16 @@
         "current_direction": "maintaining_energy",
         "session_direction": {
           "direction": "maintaining_energy",
-          "initialized_at": "2026-10-29T07:03:09.080217+00:00",
-          "updated_at": "2026-10-29T07:03:09.080217+00:00",
+          "initialized_at": "2026-10-29T09:14:17.171948+00:00",
+          "updated_at": "2026-10-29T09:14:17.171948+00:00",
           "start_strategy": "manual"
         }
       },
       "session_flow": {
-        "flow_id": "flow-session-13b4ceb4bf694fbfbf858a67aede5bcc",
+        "flow_id": "flow-session-ee1daacda41140b0a485a6ea150c3425",
         "flow_revision": 0,
         "planning_horizon_minutes": 15,
-        "created_at": "2026-10-29T07:03:09.080217+00:00",
+        "created_at": "2026-10-29T09:14:17.171948+00:00",
         "items": [
           {
             "item_id": "now-current-track",
@@ -579,26 +579,26 @@
       "dj_moments": [],
       "presentations": [],
       "broadcast": {
-        "started_at": "2026-10-29T07:03:09.080217+00:00",
+        "started_at": "2026-10-29T09:14:17.171948+00:00",
         "snapshot_watermark": 4
       },
       "native_delivery": {
         "schema_version": 1,
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
         "current_moment_id": null,
         "current_silence_moment_id": null,
         "active_flow_moment_ids": [],
         "admissions": [],
         "revocation_scope": "session",
-        "revision": "1a0748ac51afe2ecca68c3a7"
+        "revision": "0e18f19b9ac467f357c00dc0"
       },
       "session_forecast": {
         "contract_version": 1,
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
         "revision": 1,
         "state": "ready",
-        "issued_at": "2026-10-29T07:03:09.084194+00:00",
-        "valid_until": "2026-10-29T07:05:09.084165+00:00",
+        "issued_at": "2026-10-29T09:14:17.176404+00:00",
+        "valid_until": "2026-10-29T09:16:17.176363+00:00",
         "nominal_window_seconds": 900,
         "supported_window_seconds": 900,
         "current_anchor": {
@@ -632,7 +632,7 @@
     },
     "shared_snapshot": {
       "session": {
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
         "runtime_state": "active",
         "selected_mood": "groove",
         "mood_revision": 0,
@@ -648,7 +648,7 @@
         "title": "Synthetic music",
         "artist": "Synthetic artist",
         "target_name": "Synthetic output",
-        "updated_at": "2026-10-29T07:03:09.083043+00:00",
+        "updated_at": "2026-10-29T09:14:17.175448+00:00",
         "duration_ms": 300000,
         "position_ms": 10000
       },
@@ -658,16 +658,16 @@
         "current_direction": "maintaining_energy",
         "session_direction": {
           "direction": "maintaining_energy",
-          "initialized_at": "2026-10-29T07:03:09.080217+00:00",
-          "updated_at": "2026-10-29T07:03:09.080217+00:00",
+          "initialized_at": "2026-10-29T09:14:17.171948+00:00",
+          "updated_at": "2026-10-29T09:14:17.171948+00:00",
           "start_strategy": "manual"
         }
       },
       "session_flow": {
-        "flow_id": "flow-session-13b4ceb4bf694fbfbf858a67aede5bcc",
+        "flow_id": "flow-session-ee1daacda41140b0a485a6ea150c3425",
         "flow_revision": 1,
         "planning_horizon_minutes": 15,
-        "created_at": "2026-10-29T07:03:09.096144+00:00",
+        "created_at": "2026-10-29T09:14:17.194224+00:00",
         "items": [
           {
             "item_id": "now-current-track",
@@ -700,11 +700,11 @@
             "label": "Future Placeholder"
           },
           {
-            "item_id": "moment-moment-67934badde72d422d6d69525e1578d98",
+            "item_id": "moment-moment-171fd0e1a576514206e7fa5ceea6931c",
             "item_type": "dj_moment",
             "position": "next",
             "label": "DJ Bulletin",
-            "moment_id": "moment-67934badde72d422d6d69525e1578d98",
+            "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
             "moment_type": "dj_bulletin"
           }
         ]
@@ -715,9 +715,9 @@
       },
       "dj_moments": [
         {
-          "moment_id": "moment-67934badde72d422d6d69525e1578d98",
-          "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
-          "created_at": "2026-10-29T07:03:09.094486+00:00",
+          "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
+          "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
+          "created_at": "2026-10-29T09:14:17.191375+00:00",
           "type": "dj_bulletin",
           "knowledge_intent": {
             "type": "dj_bulletin",
@@ -758,7 +758,7 @@
           "generation_metadata": {
             "context_source": "fixed_rss_metadata_v1",
             "bulletin_schema": "1",
-            "candidate_id": "67934badde72d422d6d69525e1578d98bdf2226996a6872a7732fef5cc8b2d8f"
+            "candidate_id": "171fd0e1a576514206e7fa5ceea6931c4696032456267efd8b6985a8e0599d77"
           },
           "sources": [
             {
@@ -766,14 +766,14 @@
               "url": "https://www.cbs.nl/news/isolated-0",
               "license": "CC-BY-4.0",
               "title": "Household income statistics released by institute",
-              "published_at": "2026-10-29T07:02:49+00:00"
+              "published_at": "2026-10-29T09:13:57+00:00"
             },
             {
               "provider": "KNMI",
               "url": "https://www.knmi.nl/news/isolated-1",
               "license": "CC0-1.0",
               "title": "Coastal weather research station opens for scientists",
-              "published_at": "2026-10-29T07:02:49+00:00"
+              "published_at": "2026-10-29T09:13:57+00:00"
             }
           ],
           "playback_item_id": "d40f9565bec11aa9e29df5f3"
@@ -781,8 +781,8 @@
       ],
       "presentations": [
         {
-          "presentation_id": "presentation-moment-67934badde72d422d6d69525e1578d98",
-          "source_moment_id": "moment-67934badde72d422d6d69525e1578d98",
+          "presentation_id": "presentation-moment-171fd0e1a576514206e7fa5ceea6931c",
+          "source_moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
           "source_moment_type": "dj_bulletin",
           "visibility": "session_shared",
           "speech": {
@@ -798,39 +798,39 @@
         }
       ],
       "broadcast": {
-        "started_at": "2026-10-29T07:03:09.080217+00:00",
+        "started_at": "2026-10-29T09:14:17.171948+00:00",
         "snapshot_watermark": 8
       },
       "native_delivery": {
         "schema_version": 1,
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
-        "current_moment_id": "moment-67934badde72d422d6d69525e1578d98",
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
+        "current_moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
         "current_silence_moment_id": null,
         "active_flow_moment_ids": [
-          "moment-67934badde72d422d6d69525e1578d98"
+          "moment-171fd0e1a576514206e7fa5ceea6931c"
         ],
         "admissions": [
           {
-            "moment_id": "moment-67934badde72d422d6d69525e1578d98",
+            "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
             "qualification": "qualified",
             "current_display_allowed": true,
             "active_flow_display_allowed": true,
-            "source_expires_at": "2026-10-29T07:32:49+00:00",
-            "display_expires_at": "2026-10-29T07:04:08.094486+00:00",
+            "source_expires_at": "2026-10-29T09:43:57+00:00",
+            "display_expires_at": "2026-10-29T09:15:16.191375+00:00",
             "executable_actions": [],
             "requires_spotify_attribution": false
           }
         ],
         "revocation_scope": "session",
-        "revision": "463f2071b933eb5b8222284b"
+        "revision": "e1911516ec26744d68822a6f"
       },
       "session_forecast": {
         "contract_version": 1,
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
         "revision": 1,
         "state": "ready",
-        "issued_at": "2026-10-29T07:03:09.084194+00:00",
-        "valid_until": "2026-10-29T07:05:09.084165+00:00",
+        "issued_at": "2026-10-29T09:14:17.176404+00:00",
+        "valid_until": "2026-10-29T09:16:17.176363+00:00",
         "nominal_window_seconds": 900,
         "supported_window_seconds": 900,
         "current_anchor": {
@@ -867,13 +867,13 @@
       "event_type": "djconnect/session/broadcast",
       "data": {
         "event_type": "dj_moment_published",
-        "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+        "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
         "delivery_sequence": 7,
         "payload": {
           "dj_moment": {
-            "moment_id": "moment-67934badde72d422d6d69525e1578d98",
-            "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
-            "created_at": "2026-10-29T07:03:09.094486+00:00",
+            "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
+            "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
+            "created_at": "2026-10-29T09:14:17.191375+00:00",
             "type": "dj_bulletin",
             "knowledge_intent": {
               "type": "dj_bulletin",
@@ -914,7 +914,7 @@
             "generation_metadata": {
               "context_source": "fixed_rss_metadata_v1",
               "bulletin_schema": "1",
-              "candidate_id": "67934badde72d422d6d69525e1578d98bdf2226996a6872a7732fef5cc8b2d8f"
+              "candidate_id": "171fd0e1a576514206e7fa5ceea6931c4696032456267efd8b6985a8e0599d77"
             },
             "sources": [
               {
@@ -922,48 +922,48 @@
                 "url": "https://www.cbs.nl/news/isolated-0",
                 "license": "CC-BY-4.0",
                 "title": "Household income statistics released by institute",
-                "published_at": "2026-10-29T07:02:49+00:00"
+                "published_at": "2026-10-29T09:13:57+00:00"
               },
               {
                 "provider": "KNMI",
                 "url": "https://www.knmi.nl/news/isolated-1",
                 "license": "CC0-1.0",
                 "title": "Coastal weather research station opens for scientists",
-                "published_at": "2026-10-29T07:02:49+00:00"
+                "published_at": "2026-10-29T09:13:57+00:00"
               }
             ],
             "playback_item_id": "d40f9565bec11aa9e29df5f3"
           },
           "native_delivery": {
             "schema_version": 1,
-            "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
-            "current_moment_id": "moment-67934badde72d422d6d69525e1578d98",
+            "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
+            "current_moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
             "current_silence_moment_id": null,
             "active_flow_moment_ids": [
-              "moment-67934badde72d422d6d69525e1578d98"
+              "moment-171fd0e1a576514206e7fa5ceea6931c"
             ],
             "admissions": [
               {
-                "moment_id": "moment-67934badde72d422d6d69525e1578d98",
+                "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
                 "qualification": "qualified",
                 "current_display_allowed": true,
                 "active_flow_display_allowed": true,
-                "source_expires_at": "2026-10-29T07:32:49+00:00",
-                "display_expires_at": "2026-10-29T07:04:08.094486+00:00",
+                "source_expires_at": "2026-10-29T09:43:57+00:00",
+                "display_expires_at": "2026-10-29T09:15:16.191375+00:00",
                 "executable_actions": [],
                 "requires_spotify_attribution": false
               }
             ],
             "revocation_scope": "session",
-            "revision": "463f2071b933eb5b8222284b"
+            "revision": "e1911516ec26744d68822a6f"
           },
           "session_forecast": {
             "contract_version": 1,
-            "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+            "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
             "revision": 1,
             "state": "ready",
-            "issued_at": "2026-10-29T07:03:09.084194+00:00",
-            "valid_until": "2026-10-29T07:05:09.084165+00:00",
+            "issued_at": "2026-10-29T09:14:17.176404+00:00",
+            "valid_until": "2026-10-29T09:16:17.176363+00:00",
             "nominal_window_seconds": 900,
             "supported_window_seconds": 900,
             "current_anchor": {
@@ -1000,13 +1000,13 @@
   },
   "revoked_native_delivery": {
     "schema_version": 1,
-    "session_id": "session-13b4ceb4bf694fbfbf858a67aede5bcc",
+    "session_id": "session-ee1daacda41140b0a485a6ea150c3425",
     "current_moment_id": null,
     "current_silence_moment_id": null,
     "active_flow_moment_ids": [],
     "admissions": [
       {
-        "moment_id": "moment-67934badde72d422d6d69525e1578d98",
+        "moment_id": "moment-171fd0e1a576514206e7fa5ceea6931c",
         "qualification": "unqualified",
         "current_display_allowed": false,
         "active_flow_display_allowed": false,
@@ -1017,7 +1017,7 @@
       }
     ],
     "revocation_scope": "session",
-    "revision": "eb6208f9d1126f874ce5beb5"
+    "revision": "80174237d99f84d48678c80d"
   },
   "model_provider_calls": 0,
   "external_RSS_calls": 0,
@@ -1037,7 +1037,7 @@
   ],
   "installed_or_native_acceptance": "NOT_RUN",
   "ha_sdk_version": "2026.10.0",
-  "actual_ha_receipt_sha256": "65fd84c9504ac75eb61cdfe62b04ee0a39b9d91c224e2fd4a1dd7b01a3f23193",
+  "actual_ha_receipt_sha256": "3ef019d34782b909e3c909b9ebe1029c7ac3c38589d97c5dece8bb87603cb839",
   "requests_observed": 28,
   "source_pins": {
     "custom_components/djconnect/__init__.py": "368e8a2ea71854b482613a9d5f033ef4d68deae3af643b80df4e8fde3821dd21",
@@ -1187,7 +1187,7 @@
     "custom_components/djconnect/persistence/ownership.py": "167eaa9ffb4ac5705987ac77e1e261d4741123787fd193192a4a65429bedc8e0",
     "custom_components/djconnect/persistence/provider.py": "d6116c1661f0c3188126585a2b71bb396e3bb049b5ab9bcd9808a3313537e93a",
     "custom_components/djconnect/persistence/reconciliation.py": "75d9dd20de1652f0a731870cb8d7885687c1dd04861b1250a3364e7715462c3e",
-    "custom_components/djconnect/persistence/schema.py": "8a87f034e9782ff2dad2041cede61decde671123a77c8e24ae122e31615e8c90",
+    "custom_components/djconnect/persistence/schema.py": "4751df2fbb7668f2be1b27239a9081ec9c6c8a1d27420a3ebed800a9307463ed",
     "custom_components/djconnect/persistence/service.py": "492d84400a0d948c0bc46cab4420a602c3ef37a158e750ff9e1244ac3c10a33c",
     "custom_components/djconnect/persistence/sessions.py": "19e5f68577911da193e8d1a2508930621cf68db229668d24c5a7d15919a21df5",
     "custom_components/djconnect/persistence/sqlite.py": "bbdafa6fbe5304e8e0ba7fef2a9a3a25e30da9bfd6f732459068855606fb7a1b",
@@ -1195,7 +1195,7 @@
     "custom_components/djconnect/persona_reaction_text.py": "b4b2220b2c3189399ffd186293a471cec6ba5fcccb8b6ff173669af88e6f6c80",
     "custom_components/djconnect/persona_reactions.py": "4a4a98a3caf9d208e69d69a716e6478baecebd3fbc1a68b7ac0dc81f7878cc22",
     "custom_components/djconnect/pipeline.py": "760afefb909f8b91ca44f1c2f4d4f653d5e1c0b6dd70b9004c321009ea9c5de9",
-    "custom_components/djconnect/playback_observation.py": "90bfe43beb0c84964c20b0825fbfa2fad2dc4bea47e54717f0e9a4f49b103d6b",
+    "custom_components/djconnect/playback_observation.py": "4d3b82faa5fbcc8307bd297e972a1d4aeaa2b0cf746b3eb461faf6745e6e9a4d",
     "custom_components/djconnect/playback_request.py": "8130fa1d3c6c84843d6c9162e02a3fad8bfaa9307cf1279db65bb9fc7bae86f3",
     "custom_components/djconnect/presence_policy.py": "d89ba4afe96b279b8f530121b4978fe37051c744d5dc6a6bc6fa7c6179fb892c",
     "custom_components/djconnect/presentation_composer.py": "bc16ebcf1c9e2fd2d53d8c7ba488b2e174771501d08030589af972baff5355a5",
@@ -1226,7 +1226,7 @@
     "custom_components/djconnect/session_opening.py": "32a0f6942ec00ff25e452bfd16c6262f437ad19dc9197652bd38880c49a96808",
     "custom_components/djconnect/session_persona.py": "de54ff90a225ca7707699a27270f165b3cd29ffdb52c0e10e9aaf217d8d204cf",
     "custom_components/djconnect/session_presence.py": "990d522822c4ce2db627edf9fbf23ecdfad0b30727b65dfbce38e2dd8dc00f64",
-    "custom_components/djconnect/session_runtime.py": "885d86ee3debd2ddd51294bbc8e1e60a4260bd93db22928508a73c8a1397d4f1",
+    "custom_components/djconnect/session_runtime.py": "55e51740da9927d0778d6aeadc357082bfd5b944cea529539bdfcdb312ac5af3",
     "custom_components/djconnect/session_speech.py": "71270fc4048f1d3cb601aeefe2f4022651c6ddcfd5c3183b974c8265a016f71d",
     "custom_components/djconnect/session_story_variety.py": "d821b325968781b14e67e5be89cf9365002660e8d2b7e57c5fcede2155ec149e",
     "custom_components/djconnect/settings_confirmation.py": "6d79b02aa1af2dce3c6c9f4d51aa829b5a0a5c9e8e803537e1550feca174e27c",
@@ -1235,7 +1235,7 @@
     "custom_components/djconnect/speech_feedback.py": "d5ced0209a34324cc98adab1bfee5663cfce9e45c720b673ef06ef41b95df671",
     "custom_components/djconnect/speech_processor.py": "0c347f8049b1586a15d0386d08ab4719cbdfd19c33ec4aa1f81d61369da1790c",
     "custom_components/djconnect/spotify.py": "9b3678ed3cba8d29bdfc11f7f06cf42b7ba7cc7aa46e8d0032305c46cba4129d",
-    "custom_components/djconnect/spotify_backend.py": "3cd4337aa6664d1dd293f40afbecef7063baba94cbe9cf17276e8bb1e1eefb45",
+    "custom_components/djconnect/spotify_backend.py": "138876253909f2c0c04092c4179122ef690fd45dfe0f93f8445fb31e6a05f14a",
     "custom_components/djconnect/spotify_oauth.py": "e072ea0673dfd589abd09622813db5c2a29321f9906a49285695a1d792dc7d70",
     "custom_components/djconnect/strings.json": "74d9935b4c2a554500090d8e1424aacfa0abbe96c8742578b2ce7130c8f921ff",
     "custom_components/djconnect/structural_invariant_validator.py": "f993a1acd9b13818c9a3d1da64b2e3ef41f9935f538ca4f970a7a9042875fba2",
@@ -1259,8 +1259,9 @@
     "custom_components/djconnect/surface_push_relay.py": "1c5306528fbe066af3241bf705def82d7f6996d8ce34c59143b81d5d92985cd7",
     "custom_components/djconnect/surface_push_service.py": "07ca7272defdb51e30947ca3dea5f787932be965e95a9445e0a468479807af21",
     "custom_components/djconnect/surface_push_wire.py": "b46bcaa8999856df077ea612e4c80e5d400cfca551d73359352d3fa0a4a9e17c",
-    "custom_components/djconnect/surface_registration.py": "20f29e2766f723ec34948d6a6e1842bed18029e1fb03a1f9977eb8e265eda6dd",
+    "custom_components/djconnect/surface_registration.py": "17d2121ee151e2b585a4d7d84d95f3a314b53fffa7ab88ba37fc37e29dd21417",
     "custom_components/djconnect/surface_registration_http.py": "e5ea76c839b8598a788e680f44633b5caaca8e205eecffe5472ccf3aad254e2e",
+    "custom_components/djconnect/surface_status_samples.py": "5a73abb6d3f6c79de81bebdd937a39fa59d4ad020849bde9f5390092fc6cabc1",
     "custom_components/djconnect/surface_widget_adoption.py": "f57c7667ccc114e39b607121c626b33e02395e3bc22010e4c54b9fd3992019aa",
     "custom_components/djconnect/switch.py": "4dbc76dcf13427c4b945e86cf20ac499e6be11f226232d1bde78eba0f7d6fc9d",
     "custom_components/djconnect/tool_handlers.py": "6d4a452ed7fc446aa27660a1348c35e74dd6159e1d309cb1c722bb16c28e046c",
