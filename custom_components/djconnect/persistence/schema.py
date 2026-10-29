@@ -33,9 +33,12 @@ MIGRATIONS = (
     Migration(13, "0013_bulletin_attempt_reservations", "d728b7e1"),
     Migration(14, "0014_surface_effect_journal", "36bf941a"),
     Migration(15, "0015_surface_issuer_stages", "59d7ac42"),
+    Migration(16, "0016_surface_pair_registration", "8417b6e2"),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_surface_pair_store": {"singleton", "instance_id"},
+    "djconnect_surface_pairs": {"binding", "entry_id", "auth_generation", "state"},
     "djconnect_surface_issuer_journal": {"singleton", "revision", "high_water_ms", "body"},
     "djconnect_surface_journal": {"singleton", "revision", "high_water_ms", "body"},
     "djconnect_bulletin_attempts": {"story_hash", "expires_at"},
@@ -351,6 +354,19 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
         )
         transaction.execute("INSERT INTO djconnect_surface_issuer_journal VALUES (1,0,0,?)",
             ('{"high_water_ms":0,"records":{},"version":1}',))
+    elif version == 16:
+        transaction.execute(
+            "CREATE TABLE djconnect_surface_pair_store ("
+            "singleton INTEGER PRIMARY KEY CHECK(singleton=1),instance_id TEXT NOT NULL)"
+        )
+        transaction.execute(
+            "CREATE TABLE djconnect_surface_pairs (binding TEXT PRIMARY KEY,"
+            "entry_id TEXT NOT NULL,auth_generation TEXT NOT NULL,"
+            "state TEXT NOT NULL CHECK(state IN ('recorded','retired')))"
+        )
+        transaction.execute(
+            "CREATE INDEX idx_surface_pairs_entry ON djconnect_surface_pairs(entry_id)"
+        )
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(
         "INSERT OR REPLACE INTO djconnect_schema_metadata "

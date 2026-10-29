@@ -146,6 +146,7 @@ class PersistenceService:
         *,
         authorize: Callable[[], bool] | None = None,
         finalize_authorize: Callable[[], bool] | None = None,
+        require_full_sync: bool = False,
     ) -> ResultT:
         """Provide the sole transaction entry point for future repositories."""
         if not self._readiness.ready:
@@ -154,6 +155,10 @@ class PersistenceService:
         def run(transaction: ProviderTransaction) -> ResultT:
             return operation(PersistenceTransaction(transaction))
 
+        if require_full_sync:
+            return await self._provider.async_run_transaction(
+                run, authorize=authorize, finalize_authorize=finalize_authorize,
+                require_full_sync=True)
         if finalize_authorize is not None:
             return await self._provider.async_run_transaction(
                 run, authorize=authorize, finalize_authorize=finalize_authorize)

@@ -53,5 +53,6 @@ class PersistenceProvider(Protocol):
         *,
         authorize: Callable[[], bool] | None = None,
         finalize_authorize: Callable[[], bool] | None = None,
+        require_full_sync: bool = False,
     ) -> ResultT:
         """Run one short platform-owned transaction."""

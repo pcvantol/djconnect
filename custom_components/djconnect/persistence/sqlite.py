@@ -41,6 +41,7 @@ class SQLitePersistenceProvider:
         self._connection: sqlite3.Connection | None = None
         self._database_path = ""
         self._write_lock = asyncio.Lock()
+        self._write_poisoned = False
 
     async def async_open(self, database_path: str) -> None:
         """Open a private DJConnect database with the required connection policy."""
@@ -50,6 +51,7 @@ class SQLitePersistenceProvider:
             try:
                 self._connection = await asyncio.to_thread(self._open, database_path)
                 self._database_path = database_path
+                self._write_poisoned = False
             except sqlite3.Error as exc:
                 raise PersistenceError("Unable to open DJConnect persistence") from exc
 
@@ -174,13 +176,19 @@ class SQLitePersistenceProvider:
         *,
         authorize: Callable[[], bool] | None = None,
         finalize_authorize: Callable[[], bool] | None = None,
+        require_full_sync: bool = False,
     ) -> ResultT:
         """Run one short, serialized provider transaction."""
         async with self._write_lock:
+            if self._write_poisoned:
+                raise PersistenceError("SQLite commit policy requires a fresh provider")
             if authorize is not None and not authorize():
                 raise PermissionError("unauthorized")
             try:
-                if finalize_authorize is not None:
+                if require_full_sync:
+                    task = asyncio.create_task(self._async_full_sync_transaction(
+                        operation, finalize_authorize))
+                elif finalize_authorize is not None:
                     # SQL stages off-loop; HA/provider authority is inspected only
                     # on its owning loop. The provider lock spans both phases.
                     task = asyncio.create_task(self._async_guarded_transaction(
@@ -198,6 +206,44 @@ class SQLitePersistenceProvider:
                         continue
             except sqlite3.Error as exc:
                 raise PersistenceError("DJConnect persistence transaction failed") from exc
+
+    async def _async_full_sync_transaction(self, operation, finalize_authorize):
+        """Request SQLite FULL for this settled commit under the same write lock.
+
+        This is SQLite acknowledgement, not proof of the host VFS, power-loss
+        behaviour, backup freshness or atomicity with HA ConfigEntry storage.
+        The outer shield keeps the lock until policy restoration also settles.
+        """
+        connection = self._require_connection()
+        journal = await asyncio.to_thread(
+            lambda: connection.execute("PRAGMA journal_mode").fetchone()[0])
+        if journal != "wal":
+            raise PersistenceError("Required SQLite WAL policy unavailable")
+        previous = await asyncio.to_thread(
+            lambda: connection.execute("PRAGMA synchronous").fetchone()[0])
+        try:
+            await asyncio.to_thread(connection.execute, "PRAGMA synchronous=FULL")
+            actual = await asyncio.to_thread(
+                lambda: connection.execute("PRAGMA synchronous").fetchone()[0])
+            if actual != 2:
+                raise PersistenceError("Required SQLite commit policy unavailable")
+            if finalize_authorize is not None:
+                return await self._async_guarded_transaction(operation, finalize_authorize)
+            return await asyncio.to_thread(self._run_transaction, operation)
+        finally:
+            # Values are exclusively SQLite's own closed policy integers.
+            if previous not in (0, 1, 2, 3):
+                self._write_poisoned = True
+                raise PersistenceError("Invalid SQLite commit policy")
+            try:
+                await asyncio.to_thread(connection.execute, f"PRAGMA synchronous={previous}")
+                restored = await asyncio.to_thread(
+                    lambda: connection.execute("PRAGMA synchronous").fetchone()[0])
+                if restored != previous:
+                    raise PersistenceError("SQLite commit policy restoration unconfirmed")
+            except BaseException:
+                self._write_poisoned = True
+                raise
 
     async def _async_guarded_transaction(self, operation, finalize_authorize):
         """Reserve acceptance on-loop after staging, then settle durably.
