@@ -85,9 +85,8 @@ def same_operation_bootstrap_inputs(f):
 
 class InstallationOnceTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
-        # External scratch follows the developer's Shared Data storage policy.
-        self.directory = tempfile.TemporaryDirectory(prefix="installation-once-",
-            dir="/Volumes/Shared Data/tmp/pcvantol")
+        # Host TMPDIR routes scratch to Shared Data; CI keeps its own runner temp.
+        self.directory = tempfile.TemporaryDirectory(prefix="installation-once-")
         self.provider = SQLitePersistenceProvider()
         self.service = PersistenceService(Path(self.directory.name) / "journal.db", self.provider)
         await self.service.async_initialize()
