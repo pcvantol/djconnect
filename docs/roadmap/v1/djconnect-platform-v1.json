@@ -41816,7 +41816,7 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "b885386825eeed68d2b4f505879ffe6c558b3f016b0b3d9ca6aaa1f19cb333b5"
+        "sha256": "d397b7d660ac3bf4fd5efb2e50522f9aeee0aa8efa165f459eb2923bda1becd3"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
@@ -41856,7 +41856,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "d3ada5f4b42b955f6446136e67e012b1e09736215529a115cbac432a333311b5"
+        "sha256": "fe00ca350c7bf7dfecd171e5cdfd902b55ba5ee1e689cb8fdfb59b175c2d2885"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
