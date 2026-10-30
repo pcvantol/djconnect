@@ -1,3 +1,10 @@
+## Rich Session surface contract — 30 October 2026
+
+[Source #1395](https://github.com/pcvantol/djconnect/pull/1395) is originally qualified; [delivery evidence](docs/verification/RICH_SESSION_SURFACE_CONTRACT_FINALIZATION_20261030.md).
+One rich widget and Live Activity remains the product goal; native push is not yet accepted.
+The contract and all280 product files are unchanged by this documentary Final.
+This Final needs its own release qualification; no installation is needed.
+
 ## Current closed custody source delivery
 
 Source1393 is protected `6cae8540a83a880c4bcb37dd302320336f7e15cb` and independently
