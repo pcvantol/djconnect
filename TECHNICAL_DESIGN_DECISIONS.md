@@ -1,3 +1,21 @@
+## Rich Session surface contract: originally qualified source, 30 October 2026
+
+Core [Source1395](https://github.com/pcvantol/djconnect/pull/1395) is protected
+`7f8966cbd797d38618fca02764fa6689191761e5` and independently ORIGINAL_QUALIFIED.
+It preserves one rich Session widget and one rich Live Activity with push as
+the product goal. See [the separate Final record](docs/verification/RICH_SESSION_SURFACE_CONTRACT_FINALIZATION_20261030.md)
+for original source/coverage/durable evidence and the precise closed gates.
+
+The normative contract and36 declarative requirements remain byte-frozen; all280
+product files are unchanged. Apple has independently executed28 existing-type
+encoder cases, including deliberately inadmissible counterexamples; these do
+not prove new carrier, 4096-byte producer, original owner/clock or native push
+acceptance. This documentary increment needs its OWN normal review, protected
+merge and original qualification. HA-dev retains its prior277/schema18 scope;
+no restart/provider/device effect follows. All24 requests/nine gates, Help EN/NL,
+free Ask DJ, VibeCast and HA production/Pi scopes remain retained. Actual rich
+permission/read/artwork/clock adapters and native/provider receipt remain open.
+
 ## Current closed custody source delivery
 
 Source1393 is protected `6cae8540a83a880c4bcb37dd302320336f7e15cb` and independently
