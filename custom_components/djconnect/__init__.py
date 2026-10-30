@@ -1865,6 +1865,7 @@ def register_http_views(hass: HomeAssistant) -> None:
         from .help_http import HelpContextView
         from .surface_push_http import surface_views
         from .surface_registration_http import registration_views
+        from .installation_management import InstallationManagementPrepareView
         from .hybrid_transport import HybridActionsView, HybridContextView, HybridOperationView, HybridOperationStatusView, HybridRecoveryView
         from .display_transport import transition_views
         from .display_live import DisplayLiveView
@@ -1873,6 +1874,7 @@ def register_http_views(hass: HomeAssistant) -> None:
 
         for view in [
             HelpContextView(hass),
+            InstallationManagementPrepareView(hass),
             *surface_views(hass),
             *registration_views(hass),
             *transition_views(hass), DisplayLiveView(hass), DisplayShellView(hass),
