@@ -1,3 +1,24 @@
+## Rich Session widget and Live Activity push: successor contract, 30 October 2026
+
+The selected product is **one rich Session widget and one rich Live Activity
+with push**, retaining playback, qualified artwork and static VibeScape. The
+[successor contract](docs/product/RICH_SESSION_SURFACE_PUSH_CONTRACT_V1.md)
+preserves the existing Apple rich types, original clock/field rights and three
+independent byte budgets. Content-free invalidation, an admitted background
+read/local update and separately permitted direct rich Activity transport are
+distinct operations of that same presentation. WidgetKit reload is not app wake.
+
+This is contract/source preparation, with a new closed DATA carrier and
+[declarative conformance requirements](docs/verification/fixtures/rich_session_surface_contract_v1.json),
+not a positive runtime, signed permission wire, enabled profile or installed
+push capability. Current status8/af201/v3 and all280 product bytes stay unchanged;
+external_relay:false is not broadened. Source1393 and separateFinal1394 retain
+their own qualified scope. Apple236/237 and separateFinal238 are each originally
+qualified preparation, not rich push acceptance. HA-dev retains prior277/schema18;
+HA production/native config and Pi recovery remain separate open gates. Preserve
+all24 requests/nine gates, Help EN/NL/free Ask DJ and VibeCast. This increment
+requires its own normal independent source and separate Final qualification.
+
 ## Original native surface lifecycle design — 29 October 2026
 
 [The bounded native lifecycle design](docs/product/ORIGINAL_NATIVE_SURFACE_LIFECYCLE_DESIGN_V1.md) separates original automatic
