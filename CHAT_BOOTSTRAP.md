@@ -1,3 +1,7 @@
+## HA-admin preparation source increment — 2026-10-30
+
+The real HA-admin management preparation route and its closed request/reply are specified in [INSTALLATION_MANAGEMENT_PREPARATION_V1](docs/product/INSTALLATION_MANAGEMENT_PREPARATION_V1.md). This bounded source increment prepares only the selected loaded entry; no key, custody, enrollment, authenticated successor wire, installed runtime or operational push is granted. Existing 24 requests and nine acceptance gates retain their own scopes.
+
 ## Current EN/NL Help content acceptance and live publication — 26 October2026
 
 Original source608/PR1362 is protected and ORIGINAL_QUALIFIED. Its full EN/NL40

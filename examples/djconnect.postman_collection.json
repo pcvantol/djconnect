@@ -159,6 +159,18 @@
       "key": "help_catalogue_sha256",
       "value": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
       "type": "string"
+    },
+    {
+      "key": "ha_normal_access_token",
+      "value": "replace-with-current-normal-ha-admin-access-token"
+    },
+    {
+      "key": "management_entry_id",
+      "value": "replace-with-selected-loaded-djconnect-entry-id"
+    },
+    {
+      "key": "management_operation_id",
+      "value": ""
     }
   ],
   "auth": {
@@ -713,7 +725,7 @@
           }
         },
         {
-          "name": "Track Insight — current recording",
+          "name": "Track Insight \u2014 current recording",
           "request": {
             "method": "POST",
             "header": [
@@ -2158,6 +2170,56 @@
               ]
             },
             "description": "Pure current ordinary-device authentication only. No query or body. Valid pairing returns HTTP503 with exactly version1/stateUNAVAILABLE until a genuine push-purpose acknowledgement and positive producer are qualified. No enrollment, native instruction, fallback or replay."
+          }
+        }
+      ]
+    },
+    {
+      "name": "HA admin installation management (preparation only)",
+      "item": [
+        {
+          "name": "Original HA-admin management preparation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{ha_normal_access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cache-Control",
+                "value": "no-store"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/installation/{{management_entry_id}}/management/prepare",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "installation",
+                "{{management_entry_id}}",
+                "management",
+                "prepare"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contract_version\": 1,\n  \"operation_id\": \"{{management_operation_id}}\",\n  \"action\": \"prepare_custody\",\n  \"policy_id\": \"software_p256_ha_file_v1\",\n  \"acknowledgement\": \"preparation_only_no_key_effect\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Use a current normal HA administrator session, never a long-lived or DJConnect device token. Set one new canonical UUIDv4 operation ID for this original attempt; no automatic POST replay. This only returns a bounded RAM PREPARATION_ONLY receipt (execution_available=false), not key/custody/enrollment/native permission. No query, inherited identity headers, scripts, private path or key fields."
           }
         }
       ]

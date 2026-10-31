@@ -199,6 +199,21 @@ class PostmanCollectionTest(unittest.TestCase):
                 f"{name} must declare JSON content type",
             )
 
+    def test_management_preparation_uses_normal_HA_admin_not_device_or_LLAT(self):
+        found = [request for _, request in _requests(_collection()["item"])
+                 if _path(_raw_url(request)) == "/api/djconnect/v1/installation/{{management_entry_id}}/management/prepare"]
+        self.assertEqual(len(found), 1)
+        request = found[0]
+        self.assertEqual(_headers(request)["authorization"], "Bearer {{ha_normal_access_token}}")
+        self.assertNotIn("x-djconnect-device-id", _headers(request))
+        self.assertNotIn("query", request["url"])
+        self.assertEqual(_raw_json_body(request), {
+            "contract_version": 1, "operation_id": "{{management_operation_id}}",
+            "action": "prepare_custody", "policy_id": "software_p256_ha_file_v1",
+            "acknowledgement": "preparation_only_no_key_effect"})
+        self.assertIn("no automatic POST replay", request["description"])
+        self.assertIn("execution_available=false", request["description"])
+
     def test_individual_delete_examples_require_explicit_scope_and_preserve_original_ids(self):
         requests = {_path(_raw_url(request)): request for _, request in _requests(_collection()['item'])
                     if '/session/content/delete' in _path(_raw_url(request))}

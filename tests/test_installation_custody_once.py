@@ -28,7 +28,7 @@ class CustodyOriginalHaProofTests(unittest.TestCase):
         self.assertEqual(raw["state"], "PASS")
         self.assertEqual(len(raw["cases"]), 4)
         self.assertEqual(len(raw["preceding_installation_once_cases"]), 8)
-        self.assertEqual(len(raw["source_sha256"]), 280)
+        self.assertEqual(len(raw["source_sha256"]), 281)
         for name, digest in raw["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root / proof["harness"]).read_bytes()).hexdigest(),
