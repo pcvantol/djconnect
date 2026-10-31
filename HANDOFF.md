@@ -1,3 +1,12 @@
+## Parallel offline CI: protected source and separate Final, 31 October 2026
+
+Core [Source1399](https://github.com/pcvantol/djconnect/pull/1399) is originally
+qualified for four-process complete offline tests and coverage. See the
+[Final report](docs/verification/PARALLEL_CI_FINALIZATION_20261031.md).
+All existing checks and release/effect ordering remain; API/Apple own their
+parallel-flow increments. All 24 requests/nine gates remain, including actual
+rich receiving/provider/native acceptance. No new HA installation is implied.
+
 ## HA-admin preparation: protected source and separate Final, 31 October 2026
 
 Core [Source1397](https://github.com/pcvantol/djconnect/pull/1397) is originally
