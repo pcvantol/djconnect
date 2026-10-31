@@ -40,6 +40,14 @@ class _Owner:
         self.source_revision = 0
         self.pending = 0
         self.uncertain = False
+        self.lifetimes = weakref.WeakSet()
+
+
+def _retire_lifetimes(owner):
+    from .direct_rich_context import retire_profile_owner
+    retire_profile_owner(owner)
+    for lifetime in tuple(owner.lifetimes):
+        lifetime.retire()
 
 
 def _owner(hass):
@@ -89,6 +97,7 @@ def register_manager(manager):
     if owner.manager is not None:
         # Replacement is not a new safe storage lifetime, even after a reload.
         owner.uncertain = True
+        _retire_lifetimes(owner)
     owner.manager = weakref.ref(manager)
     owner.store = manager._store
     return weakref.ref(owner)
@@ -103,6 +112,7 @@ def manager_changed(manager, *, uncertain=False):
         _retire_source_origins(owner)
         if uncertain:
             owner.uncertain = True
+            _retire_lifetimes(owner)
 
 
 def publish_manager(hass, domain, manager):
@@ -114,6 +124,7 @@ def publish_manager(hass, domain, manager):
         if (owner.domain is not domain or owner.manager is None
                 or owner.manager() is not manager):
             owner.uncertain = True
+            _retire_lifetimes(owner)
     domain[STORE_KEY] = manager
 
 
@@ -121,6 +132,7 @@ def invalidate(hass):
     """Normal entry lifecycle invalidates prior snapshots before any await."""
     owner = _owner(hass)
     if owner is not None:
+        _retire_lifetimes(owner)
         owner.revision += 1
         _retire_source_origins(owner)
 
@@ -149,6 +161,7 @@ def tracked_transition(method):
         except BaseException:
             if owner is not None:
                 owner.uncertain = True
+                _retire_lifetimes(owner)
             raise
         finally:
             if owner is not None:
@@ -156,6 +169,7 @@ def tracked_transition(method):
                 task = asyncio.current_task()
                 if task is not None and task.cancelling():
                     owner.uncertain = True
+                    _retire_lifetimes(owner)
                 owner.pending -= 1
                 owner.revision += 1
     return observed
@@ -226,3 +240,64 @@ def capture_committed(hass):
         hass, owner, manager, manager._store, manager._committed_household,
         owner.revision, manager.authority_revision, manager._write_intent_revision)
     return snapshot if snapshot.current() else None
+
+
+class ProfileObservationUnavailable(ValueError):
+    def __init__(self):
+        super().__init__("committed_profile_unavailable")
+
+
+@dataclass(eq=False, repr=False)
+class CommittedProfileLifetime:
+    """Actual storage lifetime only, never a retained Household or policy grant.
+
+    An ordinary committed cosmetic change permits a NEW exact read snapshot.
+    The original owner/manager/store cannot be replaced or recovered. Actual
+    device/Profile/source/privacy policy remains the consuming service's duty.
+    """
+
+    hass: object
+    owner: object
+    manager: object
+    store: object
+    retired: bool = False
+
+    def retire(self):
+        self.retired = True
+        if self.owner is not None:
+            self.owner.lifetimes.discard(self)
+        self.hass = self.owner = self.manager = self.store = None
+
+    def attempt(self):
+        """Fresh immutable committed snapshot, transient None, or terminal loss.
+
+        Pending/queued writes suspend this attempt, including before the writer
+        acquires its lock. No uncertain or replaced lifetime is transient.
+        """
+        if self.retired:
+            raise ProfileObservationUnavailable
+        owner, manager = self.owner, self.manager
+        if (_owner(self.hass) is not owner or owner.uncertain
+                or owner.manager is None or owner.manager() is not manager
+                or owner.domain.get(STORE_KEY) is not manager
+                or manager._store is not self.store or owner.store is not self.store
+                or manager._loaded is not True):
+            self.retire()
+            raise ProfileObservationUnavailable
+        if owner.pending or manager._write_lock.locked():
+            return None
+        snapshot = capture_committed(self.hass)
+        if snapshot is None:
+            self.retire()
+            raise ProfileObservationUnavailable
+        return snapshot
+
+
+def capture_committed_lifetime(hass):
+    """Lookup-only capture; no defaults, loading, repair, policy or new epoch."""
+    snapshot = capture_committed(hass)
+    if snapshot is None:
+        return None
+    lifetime = CommittedProfileLifetime(hass, snapshot.owner, snapshot.manager, snapshot.store)
+    snapshot.owner.lifetimes.add(lifetime)
+    return lifetime

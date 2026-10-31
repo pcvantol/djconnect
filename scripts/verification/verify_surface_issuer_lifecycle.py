@@ -160,7 +160,7 @@ async def main():
         directory.mkdir()
         persistence = PersistenceService(directory/'synthetic.sqlite', SQLitePersistenceProvider())
         await persistence.async_initialize()
-        assert persistence.readiness.schema_version == 19
+        assert persistence.readiness.schema_version == 20
         owner, clock = SyntheticPreEnrolledOwner(), [START, 100.0]
         rpc = SyntheticIssuerRPC(persistence)
         lifecycle = IssuerLifecycle(owner, IssuerStageJournal(IssuerStageStore(persistence)), rpc,

@@ -27,12 +27,17 @@ class OriginalActualOnceProofTests(unittest.TestCase):
         self.assertEqual(len(raw["cases"]), 8)
         self.assertEqual(len(raw["preceding_installation_codec_cases"]), 6)
         self.assertEqual(len(raw["preceding_source_origin_cases"]), 19)
-        self.assertEqual(len(raw["source_sha256"]), 281)
+        self.assertEqual(len(raw["source_sha256"]), 289)
         for name, digest in raw["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         digest = hashlib.sha256((root / proof["harness"]).read_bytes()).hexdigest()
         self.assertEqual(digest, proof["harness_sha256"])
-        self.assertEqual(digest, proof["parent_causal_RED"]["same_final_harness_sha256"])
+        # The old parent counterproof retains its exact schema19 harness. The
+        # current schema20 assertion has its own new actual HA receipt; do not
+        # relabel the old RED as an execution of changed source.
+        historical = root / "tests/fixtures/installation_principal/once-ha-schema19-original.py.txt"
+        self.assertEqual(hashlib.sha256(historical.read_bytes()).hexdigest(),
+            proof["parent_causal_RED"]["same_final_harness_sha256"])
         self.assertEqual(proof["parent_causal_RED"]["actual_products"], 278)
         self.assertEqual(proof["installed"], "NOT_RUN")
         self.assertEqual(raw["actual_key_or_sign_effect"], "NOT_RUN")
@@ -294,7 +299,7 @@ class InstallationOnceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(observed, [("wal", 2)])
         self.assertEqual(await self.service.async_in_transaction(lambda tx:
             tx.fetchone("PRAGMA synchronous")[0]), 1)
-        self.assertEqual(self.service.readiness.schema_version, 19)
+        self.assertEqual(self.service.readiness.schema_version, 20)
 
     async def test_withdrawal_after_SQL_stage_before_final_fence_rolls_back(self):
         staged, release = asyncio.Event(), threading.Event()

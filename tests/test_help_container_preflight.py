@@ -62,7 +62,7 @@ class HelpContainerPreflightTest(unittest.TestCase):
     def test_unknown_cleanup_cannot_produce_a_passing_setup_receipt(self):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            products = {f'synthetic-{i}': 'a' * 64 for i in range(281)}
+            products = {f'synthetic-{i}': 'a' * 64 for i in range(289)}
             result = SimpleNamespace(returncode=0, stdout=json.dumps(valid({})).encode())
             with patch.object(preflight, 'product_hashes', return_value=products), \
                  patch.object(preflight, 'profile_source_hashes', return_value={}), \
@@ -78,7 +78,7 @@ class HelpContainerPreflightTest(unittest.TestCase):
         source = Path(__file__).resolve().parents[1]
         products = preflight.product_hashes(source)
         expected = preflight.profile_source_hashes(source)
-        self.assertEqual(len(products), 281)
+        self.assertEqual(len(products), 289)
         self.assertIn('custom_components/djconnect/artist_review_words.py', products)
         self.assertIn('custom_components/djconnect/surface_bootstrap_once.py', products)
         self.assertIn('custom_components/djconnect/surface_source_origin.py', products)
@@ -86,6 +86,10 @@ class HelpContainerPreflightTest(unittest.TestCase):
         self.assertIn('custom_components/djconnect/installation_once_journal.py', products)
         self.assertIn('custom_components/djconnect/installation_custody_once.py', products)
         self.assertIn('custom_components/djconnect/installation_management.py', products)
+        self.assertIn('custom_components/djconnect/direct_rich_wire.py', products)
+        self.assertIn('custom_components/djconnect/direct_rich_store.py', products)
+        self.assertIn('custom_components/djconnect/direct_rich_pair.py', products)
+        self.assertIn('custom_components/djconnect/direct_rich_context.py', products)
         output = SimpleNamespace(returncode=0, stdout=json.dumps(valid(expected)).encode())
         with TemporaryDirectory() as tmp:
             directory = Path(tmp)
@@ -93,7 +97,7 @@ class HelpContainerPreflightTest(unittest.TestCase):
                  patch.object(preflight, 'container_absent', return_value=True):
                 self.assertEqual(preflight.run(source, directory / 'current'), 0)
                 self.assertEqual(execute.call_count, 2)  # One probe plus owned cleanup.
-            for size in (280, 282):
+            for size in (288, 290):
                 with patch.object(preflight, 'product_hashes', return_value={str(i): 'a' * 64 for i in range(size)}), \
                      patch.object(preflight.subprocess, 'run') as execute:
                     with self.assertRaisesRegex(ValueError, 'preflight_source_or_owner_invalid'):

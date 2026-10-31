@@ -4,7 +4,7 @@
   "ha_sdk_version": "2026.10.0",
   "source_pins": {
     "custom_components/djconnect/AGENTS.md": "8fb8891e3a2cca055067fbbacafe6c189f38bc00c514a6bf6984639a182a70cf",
-    "custom_components/djconnect/__init__.py": "fbadd563be8324e615f45a9ec749355207c5794123eeb49a59190787a570861a",
+    "custom_components/djconnect/__init__.py": "4545f6d81a06e9241795f7712a7b0a789e9a502009a92e41db0daabef3a9f58a",
     "custom_components/djconnect/ai_tools.py": "175ac20dc1ebdb535aaec839b6fc8e8fe012ac3c81e0f0f07e1856b692c9f0c8",
     "custom_components/djconnect/album_narration.py": "0efcf09a26db6dfac6c7a0e90a09a82efc444f69fad4142ce4e39002e1a81c64",
     "custom_components/djconnect/announcement_policy.py": "046b5362490e6d581177fe9456473613e164e10fc9baf4739a5b516b8c95bea7",
@@ -75,6 +75,14 @@
     "custom_components/djconnect/device_info.py": "e57853ec0dadda4c3fde90c1cd7ed1c4a20e7962611cd1a3d2bd4b3c0273ce50",
     "custom_components/djconnect/device_speech.py": "d7509fd39bad70cb660daa0f97246b65892f1f9479642e3696f0616f0dfa964c",
     "custom_components/djconnect/diagnostics.py": "8320ce2da0693e250763d99ace802ce8042988cdd26e5fa38eef606f7c45ddb0",
+    "custom_components/djconnect/direct_rich_context.py": "9dc29c37d51f620904f172d044ce2bb63e4a5146c10a3f396104a08ada7d239a",
+    "custom_components/djconnect/direct_rich_frame.py": "d06a60f3dc9f52de5fc2ceae3bf37efe7bb2883eb62b5c4a096924264bce5b32",
+    "custom_components/djconnect/direct_rich_http.py": "d20c0b0cdba0d6da84a002b169ab9f0dc5d8e5ecb21a135eef2836bca67ceb40",
+    "custom_components/djconnect/direct_rich_output.py": "ec1c894ca93646091cd933e2d052019010923c21927c4919a0f76dc3b5ec29c7",
+    "custom_components/djconnect/direct_rich_pair.py": "ba5dc28d24e9c4ea0d52f016687728d452127ce76f44d7c8124337ee5268c5b8",
+    "custom_components/djconnect/direct_rich_runtime.py": "1755a65ce9fb8010b4004d2a7230f4ed9748be52a92ca3a76c0c18207dfb7744",
+    "custom_components/djconnect/direct_rich_store.py": "d41e7e0ead13d21ee2dc58fec9f6fbb30579399f06a2374542548f9be329118f",
+    "custom_components/djconnect/direct_rich_wire.py": "02325a5a27ee3821223b11225ae45875fea9e08b5978e5e856d88f0a41e89db7",
     "custom_components/djconnect/discovery.py": "62017c3e427f152d63add1e43bac38a0c89a076046baee3471d39ee35cb7f082",
     "custom_components/djconnect/discovery_artwork.py": "61dad3ef457e66a502c354ed23a5168a1cee548c4ebe93370ba0f317c7f92e33",
     "custom_components/djconnect/discovery_selection.py": "09df528e850f3459c5f7b332c3d49efc22aef39a1a6835ac7ebbc10054e4645a",
@@ -109,7 +117,7 @@
     "custom_components/djconnect/domain/profile/models.py": "dbb245e46aaa06ed81ac2b7749b6f6b70ec764e970d5b365e2741bae8c359423",
     "custom_components/djconnect/domain/resolver/__init__.py": "f2a44fb57c5aba95ae343c1f60e4468bb33b1bdb4eea134fe5fc9f0e6d184268",
     "custom_components/djconnect/domain/resolver/profile_resolver.py": "a13f58d7d965157ac0db2c31767a7460d60d6d8df9b34fb3b2f29357b8aa8167",
-    "custom_components/djconnect/domain/storage.py": "eb5290236cd9d1cee53320e6f4c971742914e911999c3677ba837fb0c8a0c762",
+    "custom_components/djconnect/domain/storage.py": "2828f851bde4ec78c2e1c23cd963f441927a824e8507cba105d7e591781f9571",
     "custom_components/djconnect/entity_ids.py": "2de2482c841bb4a1cd86af04730963ef7d9915a3ff26df86d8101731df6ff0f2",
     "custom_components/djconnect/flow_labels.py": "687a3cace4d413737346ed0738aeb3c1dd076552145e1417957f30ba01c3f3d7",
     "custom_components/djconnect/forecast_expression.py": "1e7395b9dd2dc3406952048600571c7f37beefa4c71f1ca93231ec9fb5649ad7",
@@ -169,7 +177,7 @@
     "custom_components/djconnect/persistence/ownership.py": "167eaa9ffb4ac5705987ac77e1e261d4741123787fd193192a4a65429bedc8e0",
     "custom_components/djconnect/persistence/provider.py": "d6116c1661f0c3188126585a2b71bb396e3bb049b5ab9bcd9808a3313537e93a",
     "custom_components/djconnect/persistence/reconciliation.py": "75d9dd20de1652f0a731870cb8d7885687c1dd04861b1250a3364e7715462c3e",
-    "custom_components/djconnect/persistence/schema.py": "d1440a4535217a7b2f4c16677be4544ecd1748368ae7f1889bb04dee75f3b81f",
+    "custom_components/djconnect/persistence/schema.py": "9b5fb0682ed2fc61622a5de5520ebfbeb9791c0ace41f93deaf1ed828be3c075",
     "custom_components/djconnect/persistence/service.py": "492d84400a0d948c0bc46cab4420a602c3ef37a158e750ff9e1244ac3c10a33c",
     "custom_components/djconnect/persistence/sessions.py": "19e5f68577911da193e8d1a2508930621cf68db229668d24c5a7d15919a21df5",
     "custom_components/djconnect/persistence/sqlite.py": "bbdafa6fbe5304e8e0ba7fef2a9a3a25e30da9bfd6f732459068855606fb7a1b",
@@ -185,7 +193,7 @@
     "custom_components/djconnect/profile_backend.py": "4b19f7b37dac97573fd4dbccd3fe2973aeac236e5783a2d08ccdb360d38f3ad4",
     "custom_components/djconnect/profile_context.py": "20cd040046af8276b3314596ff653148c856d3f3a9ed70fe3ad0c73490b6d851",
     "custom_components/djconnect/profile_export.py": "69146e56bfef2bc0983a9499acaa0ff54fa9c9664010d1e75e1c2acae10a316d",
-    "custom_components/djconnect/profile_observation.py": "d1a5b38e7aab2aec9f233339f3ef61c0ed9573db1b03b5b85ccbdacd07ea6054",
+    "custom_components/djconnect/profile_observation.py": "6f2b7897f68172fb6600f3e0be2197404da880aaac8ab23dcc2abf7826269b1c",
     "custom_components/djconnect/profile_privacy.py": "80a539a327c8d6c4650e0936ea0440800d0b0d8c71aff6c073520f343db77d88",
     "custom_components/djconnect/profile_settings.py": "c15a620a46abffab5b56207c1b7536025a94f37e0f65ad093adae8da6601b3e5",
     "custom_components/djconnect/prompts/dj_persona.md": "dc9047cbadf58a7d5a89e5555ea93f5ef427c5b0ad79f3018ca57e02c9f61b1a",
@@ -199,7 +207,7 @@
     "custom_components/djconnect/select.py": "a65541b0aeaf29f37127fea0756a8ac8bef99f5307fcc36b21b61c237f0ce46a",
     "custom_components/djconnect/sensor.py": "c4367a31d848f4a901bda036451082c931e296353a5db2521a2ed7a91da34fc8",
     "custom_components/djconnect/services.yaml": "987b04e83a2ea983cf29863c56679b63415e8f088625133e6821ef0119f41924",
-    "custom_components/djconnect/session_artwork.py": "d870878c8e816e5ec404510af363c3746f0a199091b6cf1ec222e18c7c480f63",
+    "custom_components/djconnect/session_artwork.py": "bfd343048d76e5558c09b78f05a6dff09ce05b72542513fb9381e33f76faa9dd",
     "custom_components/djconnect/session_conversation.py": "166df3182f09fc43320adeaeb544accbc552672fa7d80a47582718ba9e48b9d7",
     "custom_components/djconnect/session_facts.py": "0cb8d6a0984baccdccc4ce3df5430c3b4dddf70c963537d45d2f7ce78acd79d7",
     "custom_components/djconnect/session_forecast.py": "39bcd66d2c1a8b950d7a60e2cf9d3b95d66f2d15c24222a3a8a7973e6a38048a",
@@ -210,7 +218,7 @@
     "custom_components/djconnect/session_opening.py": "32a0f6942ec00ff25e452bfd16c6262f437ad19dc9197652bd38880c49a96808",
     "custom_components/djconnect/session_persona.py": "de54ff90a225ca7707699a27270f165b3cd29ffdb52c0e10e9aaf217d8d204cf",
     "custom_components/djconnect/session_presence.py": "990d522822c4ce2db627edf9fbf23ecdfad0b30727b65dfbce38e2dd8dc00f64",
-    "custom_components/djconnect/session_runtime.py": "ebc1f447519a25865d41a22507687de2f1583b2fcf8f773501c3663ade842926",
+    "custom_components/djconnect/session_runtime.py": "630c6c38751a70377a5d0f4d95c2767fb4bed375afaeba363f04578ac6cd1e51",
     "custom_components/djconnect/session_speech.py": "71270fc4048f1d3cb601aeefe2f4022651c6ddcfd5c3183b974c8265a016f71d",
     "custom_components/djconnect/session_story_variety.py": "d821b325968781b14e67e5be89cf9365002660e8d2b7e57c5fcede2155ec149e",
     "custom_components/djconnect/settings_confirmation.py": "6d79b02aa1af2dce3c6c9f4d51aa829b5a0a5c9e8e803537e1550feca174e27c",
@@ -232,7 +240,7 @@
     "custom_components/djconnect/surface_issuer_responses.py": "441e32d5c48d67889e7a89c1507e000329c20f6327bc5760c7864679363c6834",
     "custom_components/djconnect/surface_issuer_transport.py": "e32faa7fd02fe55a2088ecee2e46ca7f49ec96292f2698790341c2f7025fd9b8",
     "custom_components/djconnect/surface_issuer_wire.py": "6faf2eb2e293637e955459bcb25af30fd04aed449ea206356f221270dd9a2bb3",
-    "custom_components/djconnect/surface_pair_journal.py": "91b7ff7e8ff507e7dae5de73563240ceddd8e883f70a436ab3b74ea64b9b2c34",
+    "custom_components/djconnect/surface_pair_journal.py": "1285aaef166ed3a7c0610050110922a8f886478cb642b643da7ecb99c3c4a70f",
     "custom_components/djconnect/surface_push_context.py": "b65af6f4b4cc0023853e4b179ca59001a6b418377f92a10124097983dac1de42",
     "custom_components/djconnect/surface_push_contract.py": "e9870c485f9c0c5a708829ff157a04fe1f197834f5172de8545a6b539ad48b11",
     "custom_components/djconnect/surface_push_events.py": "a47d8771a3941a56f6d1c841261d4125126c6ce69181414d8b9feb155fcdbcc3",
@@ -243,7 +251,7 @@
     "custom_components/djconnect/surface_push_relay.py": "1c5306528fbe066af3241bf705def82d7f6996d8ce34c59143b81d5d92985cd7",
     "custom_components/djconnect/surface_push_service.py": "07ca7272defdb51e30947ca3dea5f787932be965e95a9445e0a468479807af21",
     "custom_components/djconnect/surface_push_wire.py": "b46bcaa8999856df077ea612e4c80e5d400cfca551d73359352d3fa0a4a9e17c",
-    "custom_components/djconnect/surface_registration.py": "09e2c97388a548f14ff164b6bfb6ef3126dbcad48473acbf2feb413dc06de725",
+    "custom_components/djconnect/surface_registration.py": "a698f02742252022e30e180d28949ecc7d175e8b20c7d0b45dca987f6600d3f9",
     "custom_components/djconnect/surface_registration_http.py": "e5ea76c839b8598a788e680f44633b5caaca8e205eecffe5472ccf3aad254e2e",
     "custom_components/djconnect/surface_source_origin.py": "f887ba89068e88224e47dbf5875b644625623fa67e477ccd0f6b1217b863f20a",
     "custom_components/djconnect/surface_status_samples.py": "5a73abb6d3f6c79de81bebdd937a39fa59d4ad020849bde9f5390092fc6cabc1",
@@ -287,7 +295,7 @@
   },
   "harness": "scripts/verification/verify_content_deletion_http.py",
   "harness_sha256": "f9aa3c3b4e85fded40e1f63f6b0b02d413764e63ce9eb654025f2b266b9ae16b",
-  "actual_ha_receipt_sha256": "80dce10a34f9b4d83606f97d20d4200edc2fdae29e30d745f766d87c848bfafe",
+  "actual_ha_receipt_sha256": "c9f0ef43479b4477c857a942e72df503e4fdfbea657e2bab0c8c3f4ce4e59fe1",
   "requests_observed": 46,
   "cases": [
     "actual_other_owner_wrong_session_extra_profile_and_stale_scope_refused_without_erase",
@@ -309,60 +317,60 @@
       "contract_version": 1,
       "target": {
         "kind": "message",
-        "session_id": "session-900d950912aa43be88b02c36c0be8c08",
-        "target_id": "server-e2371c96-b3a3-4d57-a8e9-b63ff43f41ad"
+        "session_id": "session-191888115df343ad97cb904030e699a8",
+        "target_id": "server-7a45d345-1324-4639-b278-9a8e4c472e47"
       }
     },
     "prepare_response": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "confirmation_id": "iYUU_B4y_mh2Pde3e_ovyl30Hwy4hDe6ufJR74skPWw",
+      "confirmation_id": "2rT8pDqKUj4Ys801y0485hHO_pcnv7QBGMklqb45WVc",
       "target": {
         "kind": "message",
-        "session_id": "session-900d950912aa43be88b02c36c0be8c08",
-        "target_id": "server-e2371c96-b3a3-4d57-a8e9-b63ff43f41ad"
+        "session_id": "session-191888115df343ad97cb904030e699a8",
+        "target_id": "server-7a45d345-1324-4639-b278-9a8e4c472e47"
       },
       "unit": {
         "kind": "exchange",
-        "session_id": "session-900d950912aa43be88b02c36c0be8c08",
+        "session_id": "session-191888115df343ad97cb904030e699a8",
         "target_id": "individual-selected"
       },
       "affected_entries": [
         {
-          "session_id": "session-900d950912aa43be88b02c36c0be8c08",
-          "entry_id": "entry-59ff18a4735f5ee1823619711e89001b",
-          "disposition": "unavailable"
-        },
-        {
-          "session_id": "session-900d950912aa43be88b02c36c0be8c08",
-          "entry_id": "entry-92e9e809c52b536196bc6a16a7131c34",
+          "session_id": "session-191888115df343ad97cb904030e699a8",
+          "entry_id": "entry-765d8f398c55560eba0cc9dc304400a5",
           "disposition": "remove"
         },
         {
-          "session_id": "session-900d950912aa43be88b02c36c0be8c08",
-          "entry_id": "entry-b39986a4ca8953ac8b78a897be16710c",
-          "disposition": "remove"
+          "session_id": "session-191888115df343ad97cb904030e699a8",
+          "entry_id": "entry-b7a23bef345c53b588dec942b272244e",
+          "disposition": "unavailable"
         },
         {
-          "session_id": "session-900d950912aa43be88b02c36c0be8c08",
-          "entry_id": "entry-d021077ac7d75414b0f03adc9741ae5f",
+          "session_id": "session-191888115df343ad97cb904030e699a8",
+          "entry_id": "entry-be5f630e635b5153bf5bdec13467414a",
           "disposition": "unavailable"
+        },
+        {
+          "session_id": "session-191888115df343ad97cb904030e699a8",
+          "entry_id": "entry-c763166c157b554ab299d5d156698d4f",
+          "disposition": "remove"
         }
       ],
       "removed_message_ids": [
-        "server-01d781c8-78cf-4f94-83c3-a498e302d60f",
-        "server-e2371c96-b3a3-4d57-a8e9-b63ff43f41ad"
+        "server-4bf52739-7cdf-40a4-847c-0f6b1a3c302d",
+        "server-7a45d345-1324-4639-b278-9a8e4c472e47"
       ],
       "unavailable_message_ids": [
-        "server-b455a91b-aec9-4c64-8bf2-3bdb42c498c2",
-        "server-f104ef73-e147-46da-ad8c-dd99b4f04c5c"
+        "server-43c9b1b3-f5ce-403b-9de9-3b909a34d1a2",
+        "server-bdd8bcc0-c638-469c-9dd3-9ccec13d7596"
       ],
       "affected_moments": [],
       "fenced_request_count": 2,
       "music_playback_undone": false,
-      "created_at": "2026-10-30T12:27:50.553061+00:00",
-      "expires_at": "2026-10-30T12:32:50.553061+00:00"
+      "created_at": "2026-10-31T19:48:04.720074+00:00",
+      "expires_at": "2026-10-31T19:53:04.720074+00:00"
     },
     "foreign_response": {
       "success": false,
@@ -378,120 +386,120 @@
     },
     "delete_request": {
       "contract_version": 1,
-      "confirmation_id": "iYUU_B4y_mh2Pde3e_ovyl30Hwy4hDe6ufJR74skPWw",
-      "operation_id": "01a18cc7-db99-7000-8000-000000000001",
+      "confirmation_id": "2rT8pDqKUj4Ys801y0485hHO_pcnv7QBGMklqb45WVc",
+      "operation_id": "01a19381-43f0-7000-8000-000000000001",
       "confirmed": true
     },
     "delete_response": {
       "success": true,
       "schema_version": 1,
-      "operation_id": "01a18cc7-db99-7000-8000-000000000001",
+      "operation_id": "01a19381-43f0-7000-8000-000000000001",
       "owner_profile_id": "profile-a",
       "state": "completed",
       "deleted": true,
-      "request_digest": "1c854e4a3d137b9ef0eacd1b165f884ebca53cc85a296791880a6b3daad9d0ba",
+      "request_digest": "7d6f104fff6dff90a663aaa016341991a11fa03d86146b473ca38b681c405a7b",
       "unit": {
         "kind": "exchange",
-        "session_id": "session-900d950912aa43be88b02c36c0be8c08",
+        "session_id": "session-191888115df343ad97cb904030e699a8",
         "target_id": "individual-selected"
       },
       "affected_entries": [
         {
-          "session_id": "session-900d950912aa43be88b02c36c0be8c08",
-          "entry_id": "entry-59ff18a4735f5ee1823619711e89001b",
-          "disposition": "unavailable"
-        },
-        {
-          "session_id": "session-900d950912aa43be88b02c36c0be8c08",
-          "entry_id": "entry-92e9e809c52b536196bc6a16a7131c34",
+          "session_id": "session-191888115df343ad97cb904030e699a8",
+          "entry_id": "entry-765d8f398c55560eba0cc9dc304400a5",
           "disposition": "remove"
         },
         {
-          "session_id": "session-900d950912aa43be88b02c36c0be8c08",
-          "entry_id": "entry-b39986a4ca8953ac8b78a897be16710c",
-          "disposition": "remove"
+          "session_id": "session-191888115df343ad97cb904030e699a8",
+          "entry_id": "entry-b7a23bef345c53b588dec942b272244e",
+          "disposition": "unavailable"
         },
         {
-          "session_id": "session-900d950912aa43be88b02c36c0be8c08",
-          "entry_id": "entry-d021077ac7d75414b0f03adc9741ae5f",
+          "session_id": "session-191888115df343ad97cb904030e699a8",
+          "entry_id": "entry-be5f630e635b5153bf5bdec13467414a",
           "disposition": "unavailable"
+        },
+        {
+          "session_id": "session-191888115df343ad97cb904030e699a8",
+          "entry_id": "entry-c763166c157b554ab299d5d156698d4f",
+          "disposition": "remove"
         }
       ],
       "removed_message_ids": [
-        "server-01d781c8-78cf-4f94-83c3-a498e302d60f",
-        "server-e2371c96-b3a3-4d57-a8e9-b63ff43f41ad"
+        "server-4bf52739-7cdf-40a4-847c-0f6b1a3c302d",
+        "server-7a45d345-1324-4639-b278-9a8e4c472e47"
       ],
       "unavailable_message_ids": [
-        "server-b455a91b-aec9-4c64-8bf2-3bdb42c498c2",
-        "server-f104ef73-e147-46da-ad8c-dd99b4f04c5c"
+        "server-43c9b1b3-f5ce-403b-9de9-3b909a34d1a2",
+        "server-bdd8bcc0-c638-469c-9dd3-9ccec13d7596"
       ],
       "music_playback_undone": false,
-      "confirmation_id": "iYUU_B4y_mh2Pde3e_ovyl30Hwy4hDe6ufJR74skPWw"
+      "confirmation_id": "2rT8pDqKUj4Ys801y0485hHO_pcnv7QBGMklqb45WVc"
     },
     "completed_status_response": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "operation_id": "01a18cc7-db99-7000-8000-000000000001",
-      "confirmation_id": "iYUU_B4y_mh2Pde3e_ovyl30Hwy4hDe6ufJR74skPWw",
-      "request_digest": "1c854e4a3d137b9ef0eacd1b165f884ebca53cc85a296791880a6b3daad9d0ba",
+      "operation_id": "01a19381-43f0-7000-8000-000000000001",
+      "confirmation_id": "2rT8pDqKUj4Ys801y0485hHO_pcnv7QBGMklqb45WVc",
+      "request_digest": "7d6f104fff6dff90a663aaa016341991a11fa03d86146b473ca38b681c405a7b",
       "state": "completed",
       "definitive": true,
       "receipt": {
         "affected_entries": [
           {
-            "disposition": "unavailable",
-            "entry_id": "entry-59ff18a4735f5ee1823619711e89001b",
-            "session_id": "session-900d950912aa43be88b02c36c0be8c08"
-          },
-          {
             "disposition": "remove",
-            "entry_id": "entry-92e9e809c52b536196bc6a16a7131c34",
-            "session_id": "session-900d950912aa43be88b02c36c0be8c08"
-          },
-          {
-            "disposition": "remove",
-            "entry_id": "entry-b39986a4ca8953ac8b78a897be16710c",
-            "session_id": "session-900d950912aa43be88b02c36c0be8c08"
+            "entry_id": "entry-765d8f398c55560eba0cc9dc304400a5",
+            "session_id": "session-191888115df343ad97cb904030e699a8"
           },
           {
             "disposition": "unavailable",
-            "entry_id": "entry-d021077ac7d75414b0f03adc9741ae5f",
-            "session_id": "session-900d950912aa43be88b02c36c0be8c08"
+            "entry_id": "entry-b7a23bef345c53b588dec942b272244e",
+            "session_id": "session-191888115df343ad97cb904030e699a8"
+          },
+          {
+            "disposition": "unavailable",
+            "entry_id": "entry-be5f630e635b5153bf5bdec13467414a",
+            "session_id": "session-191888115df343ad97cb904030e699a8"
+          },
+          {
+            "disposition": "remove",
+            "entry_id": "entry-c763166c157b554ab299d5d156698d4f",
+            "session_id": "session-191888115df343ad97cb904030e699a8"
           }
         ],
         "deleted": true,
         "music_playback_undone": false,
-        "operation_id": "01a18cc7-db99-7000-8000-000000000001",
+        "operation_id": "01a19381-43f0-7000-8000-000000000001",
         "owner_profile_id": "profile-a",
         "removed_message_ids": [
-          "server-01d781c8-78cf-4f94-83c3-a498e302d60f",
-          "server-e2371c96-b3a3-4d57-a8e9-b63ff43f41ad"
+          "server-4bf52739-7cdf-40a4-847c-0f6b1a3c302d",
+          "server-7a45d345-1324-4639-b278-9a8e4c472e47"
         ],
-        "request_digest": "1c854e4a3d137b9ef0eacd1b165f884ebca53cc85a296791880a6b3daad9d0ba",
+        "request_digest": "7d6f104fff6dff90a663aaa016341991a11fa03d86146b473ca38b681c405a7b",
         "schema_version": 1,
         "state": "completed",
         "success": true,
         "unavailable_message_ids": [
-          "server-b455a91b-aec9-4c64-8bf2-3bdb42c498c2",
-          "server-f104ef73-e147-46da-ad8c-dd99b4f04c5c"
+          "server-43c9b1b3-f5ce-403b-9de9-3b909a34d1a2",
+          "server-bdd8bcc0-c638-469c-9dd3-9ccec13d7596"
         ],
         "unit": {
           "kind": "exchange",
-          "session_id": "session-900d950912aa43be88b02c36c0be8c08",
+          "session_id": "session-191888115df343ad97cb904030e699a8",
           "target_id": "individual-selected"
         },
-        "confirmation_id": "iYUU_B4y_mh2Pde3e_ovyl30Hwy4hDe6ufJR74skPWw"
+        "confirmation_id": "2rT8pDqKUj4Ys801y0485hHO_pcnv7QBGMklqb45WVc"
       }
     },
     "standalone_response": {
       "success": true,
       "schema_version": 1,
-      "operation_id": "01a18cc7-dbef-7000-8000-000000000002",
+      "operation_id": "01a19381-4418-7000-8000-000000000002",
       "owner_profile_id": "profile-a",
       "state": "completed",
       "deleted": true,
-      "request_digest": "5f8f0a86ad37f72539e5cf7966ecb129c1f33781568b856a9e6a609223f86d27",
+      "request_digest": "89d3fd0499472f9dc07478679d03c2749b016614f07f2510566543516573f0f0",
       "unit": {
         "kind": "exchange",
         "session_id": "",
@@ -499,18 +507,18 @@
       },
       "affected_entries": [],
       "removed_message_ids": [
-        "server-5d37d632-cf70-4ad6-8a91-c2fea58348a4",
-        "server-c46cc4b5-8246-4bca-a42b-d235b2f27a78"
+        "server-291713a8-4cdc-4e18-9fa0-d43ba6204ea0",
+        "server-d48b05a3-3747-4965-8ad9-bd2c4496231c"
       ],
       "unavailable_message_ids": [],
       "music_playback_undone": false,
-      "confirmation_id": "22e6SerEU2SvyVyZ2PUemXAyysFFbeEuCb1S01xgh7A"
+      "confirmation_id": "EQFCcaI-K5z2mrLuLH2YZ_2At_RGMnEvSjAOiMzB_Ho"
     },
     "attempt_prepare_response": {
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "confirmation_id": "5nYZ-JDHdXUc-frtptJiypiZrwAthcofO5hGcspK9e4",
+      "confirmation_id": "4fHMrgFvATrWp7UuSU9ZAo5z4m9TO8JbATYcSuLUxmg",
       "target": {
         "kind": "request",
         "session_id": "",
@@ -527,17 +535,17 @@
       "affected_moments": [],
       "fenced_request_count": 1,
       "music_playback_undone": false,
-      "created_at": "2026-10-30T12:27:50.648101+00:00",
-      "expires_at": "2026-10-30T12:32:50.648101+00:00"
+      "created_at": "2026-10-31T19:48:04.762958+00:00",
+      "expires_at": "2026-10-31T19:53:04.762958+00:00"
     },
     "attempt_response": {
       "success": true,
       "schema_version": 1,
-      "operation_id": "01a18cc7-dbf8-7000-8000-000000000003",
+      "operation_id": "01a19381-441b-7000-8000-000000000003",
       "owner_profile_id": "profile-a",
       "state": "completed",
       "deleted": true,
-      "request_digest": "95fd0762fbcd314042d4717e8cb3801575ec74a53a274dea468d7c75bb246dcf",
+      "request_digest": "9c2ec3b8e5edb348b71f6edb85b98aca01cf738ebf785ba1acebf8bec7c30898",
       "unit": {
         "kind": "attempt",
         "session_id": "",
@@ -547,7 +555,7 @@
       "removed_message_ids": [],
       "unavailable_message_ids": [],
       "music_playback_undone": false,
-      "confirmation_id": "5nYZ-JDHdXUc-frtptJiypiZrwAthcofO5hGcspK9e4"
+      "confirmation_id": "4fHMrgFvATrWp7UuSU9ZAo5z4m9TO8JbATYcSuLUxmg"
     },
     "late_attempt_response": {
       "success": false,
@@ -558,26 +566,26 @@
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "confirmation_id": "jFQqB-GPe7Pz5GXNb2H59rMCB628b7uNVYaIajT17i0",
+      "confirmation_id": "Jvw4QEa12t2KsOiUiPjEH9tjro9plxHzT_cl9EwgXZY",
       "target": {
         "kind": "moment",
-        "session_id": "session-beb4d6141dda47cba0a17ed93e11aa17",
-        "target_id": "moment-b1da7f45d9b247079426efc52d49ef71"
+        "session_id": "session-f3a37b2a53ef4905894353222d983615",
+        "target_id": "moment-afcb3df5a2cb4307b0d45b6f3ffd9266"
       },
       "unit": {
         "kind": "moment",
-        "session_id": "session-beb4d6141dda47cba0a17ed93e11aa17",
-        "target_id": "moment-b1da7f45d9b247079426efc52d49ef71"
+        "session_id": "session-f3a37b2a53ef4905894353222d983615",
+        "target_id": "moment-afcb3df5a2cb4307b0d45b6f3ffd9266"
       },
       "affected_entries": [
         {
-          "session_id": "session-beb4d6141dda47cba0a17ed93e11aa17",
-          "entry_id": "entry-2a9a4a5719c555a29e290f8403858421",
+          "session_id": "session-f3a37b2a53ef4905894353222d983615",
+          "entry_id": "entry-bde97dbe6e7f5dd5bb5854c1cf193313",
           "disposition": "unavailable"
         },
         {
-          "session_id": "session-beb4d6141dda47cba0a17ed93e11aa17",
-          "entry_id": "entry-f0732fee1174597ca273c4643ba9a62d",
+          "session_id": "session-f3a37b2a53ef4905894353222d983615",
+          "entry_id": "entry-f9978fc6e39955a2aa3fd59432ad1dc2",
           "disposition": "remove"
         }
       ],
@@ -585,53 +593,53 @@
       "unavailable_message_ids": [],
       "affected_moments": [
         {
-          "session_id": "session-beb4d6141dda47cba0a17ed93e11aa17",
-          "moment_id": "moment-2bc8fdc2e51746ac8fca5442d7d95e1c"
+          "session_id": "session-f3a37b2a53ef4905894353222d983615",
+          "moment_id": "moment-640d0c117d2f4145a93aff318c479b85"
         },
         {
-          "session_id": "session-beb4d6141dda47cba0a17ed93e11aa17",
-          "moment_id": "moment-b1da7f45d9b247079426efc52d49ef71"
+          "session_id": "session-f3a37b2a53ef4905894353222d983615",
+          "moment_id": "moment-afcb3df5a2cb4307b0d45b6f3ffd9266"
         }
       ],
       "fenced_request_count": 0,
       "music_playback_undone": false,
-      "created_at": "2026-10-30T12:27:50.673709+00:00",
-      "expires_at": "2026-10-30T12:32:50.673709+00:00"
+      "created_at": "2026-10-31T19:48:04.769918+00:00",
+      "expires_at": "2026-10-31T19:53:04.769918+00:00"
     },
     "moment_response": {
       "success": true,
       "schema_version": 1,
-      "operation_id": "01a18cc7-dc12-7000-8000-000000000004",
+      "operation_id": "01a19381-4422-7000-8000-000000000004",
       "owner_profile_id": "profile-a",
       "state": "completed",
       "deleted": true,
-      "request_digest": "0745d34f497e7db3b26a435bcd4b1e2be50d0aedf95f29609c25d5368214818b",
+      "request_digest": "75719cfdf71da9ed5c2e3e687fad249d5a678a7ff8d37eb205814e15fb6b3379",
       "unit": {
         "kind": "moment",
-        "session_id": "session-beb4d6141dda47cba0a17ed93e11aa17",
-        "target_id": "moment-b1da7f45d9b247079426efc52d49ef71"
+        "session_id": "session-f3a37b2a53ef4905894353222d983615",
+        "target_id": "moment-afcb3df5a2cb4307b0d45b6f3ffd9266"
       },
       "affected_entries": [
         {
-          "session_id": "session-beb4d6141dda47cba0a17ed93e11aa17",
-          "entry_id": "entry-2a9a4a5719c555a29e290f8403858421",
+          "session_id": "session-f3a37b2a53ef4905894353222d983615",
+          "entry_id": "entry-bde97dbe6e7f5dd5bb5854c1cf193313",
           "disposition": "unavailable"
         },
         {
-          "session_id": "session-beb4d6141dda47cba0a17ed93e11aa17",
-          "entry_id": "entry-f0732fee1174597ca273c4643ba9a62d",
+          "session_id": "session-f3a37b2a53ef4905894353222d983615",
+          "entry_id": "entry-f9978fc6e39955a2aa3fd59432ad1dc2",
           "disposition": "remove"
         }
       ],
       "removed_message_ids": [],
       "unavailable_message_ids": [],
       "music_playback_undone": false,
-      "confirmation_id": "jFQqB-GPe7Pz5GXNb2H59rMCB628b7uNVYaIajT17i0"
+      "confirmation_id": "Jvw4QEa12t2KsOiUiPjEH9tjro9plxHzT_cl9EwgXZY"
     },
     "pending_request": {
       "contract_version": 1,
-      "confirmation_id": "FqWy2hs5GcK7VH7TIA5kPF9NBm_cd7me0lqXs0I8vMU",
-      "operation_id": "01a18cc7-dc1e-7000-8000-000000000005",
+      "confirmation_id": "jorFqCdH50ZNhgrXiW6gcxzgy4-rQvuqgBimgzuxdGc",
+      "operation_id": "01a19381-4426-7000-8000-000000000005",
       "confirmed": true
     },
     "pending_response": {
@@ -642,9 +650,9 @@
       "success": true,
       "schema_version": 1,
       "owner_profile_id": "profile-a",
-      "operation_id": "01a18cc7-dc1e-7000-8000-000000000005",
-      "confirmation_id": "FqWy2hs5GcK7VH7TIA5kPF9NBm_cd7me0lqXs0I8vMU",
-      "request_digest": "5ae8b721f29f330b9d72fc037f1351cedbcf4b8787418a6aba615a9ed15a6793",
+      "operation_id": "01a19381-4426-7000-8000-000000000005",
+      "confirmation_id": "jorFqCdH50ZNhgrXiW6gcxzgy4-rQvuqgBimgzuxdGc",
+      "request_digest": "dbbd15eb9225bb98a9fb4f9f0a07cd1a9f6228459c361dc88dacf6f3ff425338",
       "state": "pending",
       "definitive": false,
       "unit": {
@@ -657,13 +665,13 @@
       "affected_entries": [],
       "deleted": true,
       "music_playback_undone": false,
-      "operation_id": "01a18cc7-dc1e-7000-8000-000000000005",
+      "operation_id": "01a19381-4426-7000-8000-000000000005",
       "owner_profile_id": "profile-a",
       "removed_message_ids": [
-        "server-40d0b8eb-cd88-4c0a-b878-c8938e3a51fd",
-        "server-6c253986-6473-4434-9e49-33741bef73c0"
+        "server-34737b13-cb3a-43de-ab86-95a64d0469ed",
+        "server-cffc91c7-0f80-4929-ab88-b2fbd4256e12"
       ],
-      "request_digest": "5ae8b721f29f330b9d72fc037f1351cedbcf4b8787418a6aba615a9ed15a6793",
+      "request_digest": "dbbd15eb9225bb98a9fb4f9f0a07cd1a9f6228459c361dc88dacf6f3ff425338",
       "schema_version": 1,
       "state": "completed",
       "success": true,
@@ -673,7 +681,7 @@
         "session_id": "",
         "target_id": "individual-recover"
       },
-      "confirmation_id": "FqWy2hs5GcK7VH7TIA5kPF9NBm_cd7me0lqXs0I8vMU"
+      "confirmation_id": "jorFqCdH50ZNhgrXiW6gcxzgy4-rQvuqgBimgzuxdGc"
     }
   },
   "model_provider_calls": 0,
@@ -685,5 +693,15 @@
     "sha256": "7c062c4a5b944f3abfb5a8d419a1c5403eeaa842636f83c78821c1b979b3159c",
     "disposition": "immutable prior producer evidence; current source requalified separately"
   },
-  "requalification_context": "Same draft PR1290 accepted settings confirmation increment; actual isolated HA source snapshot. No installed or native claim."
+  "requalification_context": "Same draft PR1290 accepted settings confirmation increment; actual isolated HA source snapshot. No installed or native claim.",
+  "current_source_requalification": {
+    "classification": "ACTUAL_ISOLATED_HA_SOURCE_ONLY_NOT_INSTALLED_OR_NATIVE",
+    "at": "20261031T202311065170Z",
+    "product_files": 289,
+    "original_raw_sha256": "c9f0ef43479b4477c857a942e72df503e4fdfbea657e2bab0c8c3f4ce4e59fe1",
+    "original_admission_sha256": "60f96e0119e4c03f1fa138db72a7fcaa744571043bfcb04284ca26d43fc93889",
+    "original_result_sha256": "1259aa341cac44999afc999e7c02c53a29c45ab908a7e43b53a36c6001e0e86f",
+    "all289_before_inside_after_equal": true,
+    "own_container_verified_absent": true
+  }
 }

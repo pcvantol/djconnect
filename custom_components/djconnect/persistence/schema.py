@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
+import hashlib
 
 from .provider import ProviderTransaction
 
@@ -16,6 +17,23 @@ class Migration:
     migration_id: str
     checksum: str
 
+
+RICH_PURPOSE_DDL = (
+    "CREATE TABLE djconnect_rich_purposes ("
+    "scope_hash TEXT PRIMARY KEY CHECK(length(scope_hash)=64),"
+    "operation_id TEXT NOT NULL UNIQUE,purpose_id TEXT NOT NULL UNIQUE,"
+    "owner_hash TEXT NOT NULL CHECK(length(owner_hash)=64),"
+    "device_hash TEXT NOT NULL CHECK(length(device_hash)=64),"
+    "entry_hash TEXT NOT NULL CHECK(length(entry_hash)=64),"
+    "pair_hash TEXT NOT NULL CHECK(length(pair_hash)=64),"
+    "session_hash TEXT NOT NULL CHECK(length(session_hash)=64),"
+    "surface TEXT NOT NULL CHECK(surface IN ('widget','live_activity')),"
+    "request_hash TEXT NOT NULL CHECK(length(request_hash)=64),"
+    "issued_ms INTEGER NOT NULL CHECK(issued_ms BETWEEN 1 AND 9007199254740991),"
+    "expires_ms INTEGER NOT NULL CHECK(expires_ms BETWEEN 1 AND 9007199254740991),"
+    "phase TEXT NOT NULL CHECK(phase IN ('reserved','issued','withdrawn')),"
+    "CHECK(expires_ms>issued_ms AND expires_ms<=issued_ms+28800000))"
+)
 
 MIGRATIONS = (
     Migration(1, "0001_persistence_metadata", "8c52f0c7"),
@@ -37,9 +55,14 @@ MIGRATIONS = (
     Migration(17, "0017_original_status_samples", "ad63c8f1"),
     Migration(18, "0018_original_source_adoption", "756dcc98"),
     Migration(19, "0019_installation_once_metadata", "e973862a"),
+    Migration(20, "0020_direct_rich_purposes",
+        hashlib.sha256(RICH_PURPOSE_DDL.encode()).hexdigest()[:8]),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_rich_purposes": {"scope_hash", "operation_id", "purpose_id", "owner_hash",
+        "device_hash", "entry_hash", "pair_hash", "session_hash", "surface",
+        "request_hash", "issued_ms", "expires_ms", "phase"},
     "djconnect_installation_once_state": {"singleton", "revision"},
     "djconnect_installation_once": {"operation_id", "kind", "preparation_hash", "context_hash",
         "policy_hash", "deadline_ms", "phase", "revision", "result_hash", "terminal_reserved", "ledger_revision"},
@@ -420,6 +443,8 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
             "CHECK((phase=0 AND revision=0) OR (phase=1 AND revision=1) OR "
             "(phase=2 AND revision IN (1,2))))"
         )
+    elif version == 20:
+        transaction.execute(RICH_PURPOSE_DDL)
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(
         "INSERT OR REPLACE INTO djconnect_schema_metadata "

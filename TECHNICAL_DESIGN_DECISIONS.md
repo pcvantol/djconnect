@@ -1,3 +1,32 @@
+## Direct rich Session runtime — implementation in progress, 31 October 2026
+
+Use a distinct direct-rich namespace/profile and original durable purpose scope;
+do not widen legacy surface grants. The selected design separates original
+purpose lifetime/security from per-attempt committed readiness and per-field
+source deadlines. The closed request decoder rejects duplicate/unknown keys,
+nonfinite/unsafe numeric domains, unpaired Unicode and wrong token families.
+Its canonical UTF8 equality contains no delivery-time field. This is WIP, not
+a native authority port or whole-source qualification result. See
+[the implementation contract](docs/product/DIRECT_RICH_SESSION_RUNTIME_V1.md).
+SQL20 reserves only original scope metadata. The new pure paired capture uses
+the genuine existing PairJournal ACK and its original storage lifetime; runtime
+retirement closes and scrubs held captures before token mutation. The committed
+Profile lifetime helper retains owner/manager/Store identity, not a Household
+snapshot for eight hours. Each attempt still needs a fresh committed snapshot;
+known pending writes suspend while uncertainty/replacement retires permanently.
+The candidate now composes the actual original RAM-purpose owner and five
+closed HTTP routes. Typed original prepared-byte evidence is created by the
+existing bounded image executor, never decoded during reads. Static compiled
+schema predicates plus explicit UTF8 byte caps precede emission; original
+field/frame/purpose/source guards run after the single JSON serialization.
+The actual original paired negative intent closes known RAM credentials before
+committed Profile lookup or SQL, including a queued cosmetic write. Source-only
+actual HA proof now covers289 product hashes/schema20, twelve pure reads,
+original PNG bytes and Session-end/withdrawal history. Full regression, whole
+source/exact review and protected delivery remain separate pending gates.
+Existing normal protected Source/separate Final and actual HA/native/provider
+acceptance remain required. No dependency, library or action pin changes.
+
 ## Workflow action source: qualified successor and separate Final, 31 October 2026
 
 Core [Source1401](https://github.com/pcvantol/djconnect/pull/1401) is originally
@@ -1443,3 +1472,15 @@ Bulk snapshots bind a complete bounded terminal set, its original authority and
 deadlines. Later completion is outside consent. Dependent answers keep stable
 unavailable IDs, without copied context or replay. Individual-content deletion
 remains a separate capability, not a fallback to whole-Session removal.
+
+## Original direct-rich host wake Core proxy
+
+Select the exact sevenroute paired Core proxy in
+`docs/product/DIRECT_RICH_HOST_WAKE_PROXY_V1.md` with closed schema/synthetic
+vectors. Original RAM parent and actual API enrollment/signed environment
+receiving state supply immutable witnesses and proof-kind; DTOs cannot supply
+authority. Bind request digest to POST+exactroute+canonicalbody. Preserve
+prebody whole-attempt budgets, original purpose/challenge deadlines and
+once/UNKNOWN history; synchronous child-only negative withdrawal precedes
+awaits. No original transcript mutation, new clock profile, provider activation
+or native acceptance follows from this documentary selection.
