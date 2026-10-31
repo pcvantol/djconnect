@@ -1,3 +1,42 @@
+## CI action pin maintenance (31 October 2026)
+
+Update the five action entries in Core PR #1392 as a coherent workflow and
+dependency-documentation increment on the current qualified Core base. The
+23 `uses` changes in 11 workflows are limited to these upstream commits:
+
+| Action | Previous pin | Current source pin | License |
+| --- | --- | --- | --- |
+| `actions/setup-python` (19 references) | v7.0.0, `5fda3b95a4ea91299a34e894583c3862153e4b97` | v7.1.0, `6d4fd22b20465ccc0f7354476588e8df7c9ca0e0` | MIT |
+| `github/codeql-action/init` and `analyze` (one each) | v4.39.0, `6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee` | v4.39.1, `9b3254085494b55a0f7c4c2b3d2d52cc712ce370` | MIT action repository |
+| `home-assistant/actions/hassfest` (one reference) | `cd6f3635a740c84d8a14f6121a90068b8ece6bf6` | `86d4564712fa02543c808e3a693dd04f9d3f8361` | Apache-2.0 |
+| `docker/login-action` (one reference) | v4.6.0, `dbcb813823bdd20940b903addbd779551569679f` | v4.7.0, `81c6f93d4bc991e510b342a00b419b3bb4efc5c6` | Apache-2.0 |
+
+Exact upstream source and license URLs are recorded in `THIRD_PARTY_NOTICES.md`.
+Version tags are checked against their actual commit targets, including peeled
+annotated CodeQL tags. Hassfest retains the existing governed immutable-master
+exception: its upstream comparison changes an unrelated version-push helper,
+not the hassfest subtree; no semantic release tag is invented. The optional
+setup-python mirror inputs are not enabled. Python, CodeQL and Docker action
+metadata retain their Node24 execution family and existing input interface.
+
+Keep all existing triggers, conditions, permissions, interpreter/dependency
+selections, test and coverage commands, isolated output roots, concurrency
+limits and protected Source/Final ordering. The four-process complete offline
+runner and all 281 integration product files remain unchanged. This maintenance
+does not install a new host toolchain or application, request a provider deploy,
+or broaden any credential authority. Existing automated publication predicates
+and credential references remain unchanged; any actual subsequent release work
+requires its own original receipts. No workflow or provider is manually
+dispatched by this source preparation.
+
+The bare bot head predates the separate parallel-CI Final documents. Preserve
+those current documents when preparing the reviewed successor, and require
+fresh exact-head review, normal CI and Owner Authorization where required before
+protected delivery and its separate Final. PR #1391's Python dependency update
+remains separate pending a coherent versioned onboarding bundle and safe host
+transition. Other existing product, installation, provider and native gates keep
+their own scopes. Historical design entries below remain unchanged.
+
 ## Parallel offline CI: protected source and separate Final, 31 October 2026
 
 Core [Source1399](https://github.com/pcvantol/djconnect/pull/1399) is originally

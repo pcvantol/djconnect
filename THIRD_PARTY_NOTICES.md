@@ -1,3 +1,25 @@
+## CI action pins (31 October 2026)
+
+The build and verification workflows use the following unmodified upstream
+actions. The five action entries, from four repositories, change 23 pinned
+`uses` lines across 11 workflows. No action source is vendored into the Home
+Assistant integration. Copyrights and any bundled dependency notices remain
+with their upstream authors; an action repository's license does not relicense
+the scanners, services or artifacts it invokes.
+
+| Action | Repository-declared version and exact commit | Upstream license and source |
+| --- | --- | --- |
+| `actions/setup-python` | v7.1.0, `6d4fd22b20465ccc0f7354476588e8df7c9ca0e0` | [MIT](https://github.com/actions/setup-python/blob/6d4fd22b20465ccc0f7354476588e8df7c9ca0e0/LICENSE); [action source](https://github.com/actions/setup-python/blob/6d4fd22b20465ccc0f7354476588e8df7c9ca0e0/action.yml) |
+| `github/codeql-action/init` and `analyze` | v4.39.1, `9b3254085494b55a0f7c4c2b3d2d52cc712ce370` | [MIT action repository](https://github.com/github/codeql-action/blob/9b3254085494b55a0f7c4c2b3d2d52cc712ce370/LICENSE); [init](https://github.com/github/codeql-action/blob/9b3254085494b55a0f7c4c2b3d2d52cc712ce370/init/action.yml) and [analyze](https://github.com/github/codeql-action/blob/9b3254085494b55a0f7c4c2b3d2d52cc712ce370/analyze/action.yml) |
+| `home-assistant/actions/hassfest` | `86d4564712fa02543c808e3a693dd04f9d3f8361`; existing governed immutable master exception, no semantic release tag asserted | [Apache-2.0](https://github.com/home-assistant/actions/blob/86d4564712fa02543c808e3a693dd04f9d3f8361/LICENSE); [exact upstream comparison](https://github.com/home-assistant/actions/compare/cd6f3635a740c84d8a14f6121a90068b8ece6bf6...86d4564712fa02543c808e3a693dd04f9d3f8361) |
+| `docker/login-action` | v4.7.0, `81c6f93d4bc991e510b342a00b419b3bb4efc5c6` | [Apache-2.0](https://github.com/docker/login-action/blob/81c6f93d4bc991e510b342a00b419b3bb4efc5c6/LICENSE); [action source](https://github.com/docker/login-action/blob/81c6f93d4bc991e510b342a00b419b3bb4efc5c6/action.yml) |
+
+These are CI tools, not new runtime dependencies. The integration manifest,
+Python and interpreter selections, onboarding desired state and installed
+runtime retain their separate existing versions. The maintenance record in
+`TECHNICAL_DESIGN_DECISIONS.md` describes the preserved workflow boundaries.
+Earlier notices below keep their original scopes.
+
 ## Home Assistant public AI Task schema type (25 October 2026)
 
 The optional structured playback path uses [Probatio](https://github.com/frenck/probatio), supplied by the qualified Home Assistant2026.10.0 image as0.13.0, under the [MIT license](https://probatio.frenck.dev/project/license/). It is the public schema type accepted by HA’s AI Task API. No Probatio source is vendored or modified, and no additional package is installed by this feature. Home Assistant retains ownership of this framework dependency; other HA versions fail closed for the optional path until qualified. Previous notices remain below unchanged.
