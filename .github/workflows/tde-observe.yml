@@ -33,9 +33,18 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements-dev.txt
-          coverage run -m unittest discover -s tests
+          python tools/run_parallel_unittest.py --jobs 4 --coverage --report-dir "$RUNNER_TEMP/ha-tde-parallel-coverage"
           mkdir -p artifacts
-          coverage xml -o artifacts/coverage.xml
+          cp "$RUNNER_TEMP/ha-tde-parallel-coverage/coverage.xml" artifacts/coverage.xml
+
+      - name: Publish isolated coverage worker evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ha-tde-parallel-coverage-workers
+          path: ${{ runner.temp }}/ha-tde-parallel-coverage
+          include-hidden-files: true
+          if-no-files-found: error
 
       - name: Install published TDE runtime
         run: |
