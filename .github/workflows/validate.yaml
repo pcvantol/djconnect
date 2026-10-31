@@ -21,7 +21,8 @@ jobs:
   validate:
     uses: ./.github/workflows/djconnect-ha-integration-ci.yml
     with:
-      test-command: python -m unittest discover -s tests
+      test-command: python tools/run_parallel_unittest.py --jobs 4 --report-dir "$RUNNER_TEMP/ha-parallel-unittest"
+      parallel-test-evidence: true
 
   verification-framework-tests:
     name: Verification framework unit tests
@@ -52,9 +53,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements-dev.txt
-          coverage run -m unittest discover -s tests
-          coverage xml -o coverage.xml
+          python tools/run_parallel_unittest.py --jobs 4 --coverage --report-dir "$RUNNER_TEMP/ha-parallel-coverage"
+          cp "$RUNNER_TEMP/ha-parallel-coverage/coverage.xml" coverage.xml
           printf '%s\n' "$GITHUB_SHA" > coverage-main-sha.txt
+      - name: Upload isolated coverage worker evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ha-parallel-coverage-workers
+          path: ${{ runner.temp }}/ha-parallel-coverage
+          include-hidden-files: true
+          if-no-files-found: error
       - name: Upload post-merge coverage evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

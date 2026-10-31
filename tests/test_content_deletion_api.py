@@ -454,13 +454,19 @@ class PairedContentDeleteTests(unittest.IsolatedAsyncioTestCase):
     async def test_ordinary_transition_provenance_persisted_and_live_withdrawn(self):
         import json
         from dataclasses import replace
-        from custom_components.djconnect import session_runtime as core
         from custom_components.djconnect.persistence.history import HistoricalProjectionRepository
+        # Use the module that owns this fixture's engine; other suites may
+        # deliberately retire/reload the public module during their teardown.
+        core = self.f.fixture.runtime
         _, root, _ = await self.f.selected_credit()
         active = self.f.fixture.manager.current_active('profile-a')
         source = replace(root, moment_type=core.DJMomentType.ARTIST)
         target = replace(root, moment_id='independent-target', moment_type=core.DJMomentType.RECOMMENDATION)
-        active.moment_engine.moments = (*active.moment_engine.moments, target)
+        # Install the intended source in the engine, rather than relying on
+        # whichever type selected_credit supplied under another module's setup.
+        active.moment_engine.moments = (
+            *(source if item.moment_id == source.moment_id else item
+              for item in active.moment_engine.moments), target)
         decision = core.PlannerDecision(core.PlannerDecisionType.CREATE_TRANSITION, 'synthetic',
             core.KnowledgeIntent(core.KnowledgeIntentType.TRANSITION, 'Synthetic relation'),
             transition_moment_ids=(source.moment_id, target.moment_id), transition_placement='next')

@@ -13,6 +13,11 @@ on:
         required: false
         type: string
         default: "python -m unittest discover -s tests"
+      parallel-test-evidence:
+        description: "Upload the opt-in isolated Core unittest worker reports"
+        required: false
+        type: boolean
+        default: false
       run-tests:
         description: Run Python tests.
         required: false
@@ -114,6 +119,13 @@ jobs:
             python -m pip install -r requirements-dev.txt
           fi
           ${{ inputs.test-command }}
+      - name: Upload isolated unittest worker evidence
+        if: ${{ always() && inputs.parallel-test-evidence }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ha-parallel-unittest-workers
+          path: ${{ runner.temp }}/ha-parallel-unittest
+          if-no-files-found: error
 
   ruff:
     if: inputs.run-ruff
