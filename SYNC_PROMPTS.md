@@ -7488,3 +7488,13 @@ Session/generation/environment/topic/expiry tuple and explicit relay content
 permission. No client credentials or rich content in hints; no lease from push.
 Background capability remains false until connected Core/API/Apple delivery and
 source-purpose gates pass. Existing writers only; no consumer/relay code adopted.
+
+## Direct rich host-wake proxy selected source contract
+
+Core, API and Apple select `docs/product/DIRECT_RICH_HOST_WAKE_PROXY_V1.md`
+and its closed perroute schema/vectors for the original paired RAM-purpose
+adapter. Required proof-kind comes from actual API enrollment/job outside the
+frozen transcript; method+exactroute+body correlation, perHTTP original budget,
+once/UNKNOWN and local negative fences are mandatory. These are source
+contracts, not deployed handlers or native/clock/enrollment permission. Existing
+shipping Direct rich/read and legacy surface permissions remain separate.

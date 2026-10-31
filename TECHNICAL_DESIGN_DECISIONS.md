@@ -1472,3 +1472,15 @@ Bulk snapshots bind a complete bounded terminal set, its original authority and
 deadlines. Later completion is outside consent. Dependent answers keep stable
 unavailable IDs, without copied context or replay. Individual-content deletion
 remains a separate capability, not a fallback to whole-Session removal.
+
+## Original direct-rich host wake Core proxy
+
+Select the exact sevenroute paired Core proxy in
+`docs/product/DIRECT_RICH_HOST_WAKE_PROXY_V1.md` with closed schema/synthetic
+vectors. Original RAM parent and actual API enrollment/signed environment
+receiving state supply immutable witnesses and proof-kind; DTOs cannot supply
+authority. Bind request digest to POST+exactroute+canonicalbody. Preserve
+prebody whole-attempt budgets, original purpose/challenge deadlines and
+once/UNKNOWN history; synchronous child-only negative withdrawal precedes
+awaits. No original transcript mutation, new clock profile, provider activation
+or native acceptance follows from this documentary selection.
