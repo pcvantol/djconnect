@@ -98,3 +98,30 @@ sleep semantics alone are insufficient. No rho=1, bool/JSON qualification,
 receive-time reanchor or cold-process restoration is introduced by this contract.
 Actual receiving composition, native enrollment/signed deployment policy and
 physical provider/iPhone acceptance remain separate gates.
+
+## Genuine native proof ACK and registration are distinct
+
+Native complete/status states are pending, native_verified, withdrawn, expired,
+unknown. Only the actual durable original proof verification, enrolled key and
+counter, same tuple and signed policy can emit native_verified. An internal
+verifying once claim remains publicly pending; terminal unknown is never
+reopened by a later generic success. No positive verifier/enrollment factory is
+created by this schema.
+
+Register/status states are pending, registered, withdrawn, expired, unknown.
+Registered is exclusively the original Source181 durable target registration
+ACK, never a synonym for native enrollment. Withdraw returns only pending
+bookkeeping, withdrawn, expired or unknown; its local synchronous closure cannot
+be undone by a registered/native_verified response. No management response alone
+restores positive client RAM/native custody.
+
+First register may consume an original, still-unconsumed proof that was genuinely
+verified and durably recorded BEFORE its ORIGINAL challenge expiry, even if that
+challenge window has since closed, within the unchanged original wake/display
+maximum and actual warm Core parent/currentness. Recheck native key/counter,
+signed policy, target and original installation record at register and dispatch.
+Native_verified/status supplies no fresh deadline. A late verification, unknown
+proof, consumed claim or changed tuple closes; no automatic replay or nonce
+replacement. An already registered original target can remain usable after the
+nonce window only while the same original purpose and actual policy guards hold.
+This is neither nonce reuse nor proof/cold-process permission restoration.

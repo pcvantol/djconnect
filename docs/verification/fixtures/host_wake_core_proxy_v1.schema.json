@@ -928,7 +928,7 @@
           "state": {
             "enum": [
               "pending",
-              "registered",
+              "native_verified",
               "withdrawn",
               "expired",
               "unknown"
@@ -1009,7 +1009,7 @@
           "state": {
             "enum": [
               "pending",
-              "registered",
+              "native_verified",
               "withdrawn",
               "expired",
               "unknown"
@@ -1252,7 +1252,6 @@
           "state": {
             "enum": [
               "pending",
-              "registered",
               "withdrawn",
               "expired",
               "unknown"
