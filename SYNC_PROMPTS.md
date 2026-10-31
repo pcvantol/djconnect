@@ -1,3 +1,29 @@
+## Direct rich Session runtime — implementation in progress, 31 October 2026
+
+The sole Core writer is implementing the separate
+[Direct rich contract](docs/product/DIRECT_RICH_SESSION_RUNTIME_V1.md), with its
+[closed schema](docs/verification/fixtures/direct_rich_session_runtime_v1.schema.json).
+This is UNCOMMITTED WIP: the actual original RAM-purpose/SQL20 owner and five
+HTTP routes are now connected in source, but not protected or installed. An
+isolated actual HA proof exercises ordinary pairing, twelve pure reads, original
+prepared PNG/asset bytes and negative history after Session end over289 identical
+product hashes. The request decoder is not a permission factory. Existing widget-v2/v3/status8 and rich
+format v1 stay unchanged. The selected original direct purpose has its own
+eight-hour maximum; each actual field/asset retains at most120s original bounds.
+Ordinary style/playback updates preserve the original purpose, while actual
+owner/privacy/source/consent withdrawal remains irreversible. Direct reads use
+the genuine paired HTTPS channel and separate RAM credentials, not an API rich
+proxy. API owns a separately admitted content-free host-app-wake role; Apple
+owns original native capture, clock/once/SDK and original-byte staging. No
+installed, provider or iPhone-working claim follows from this WIP.
+
+The separate [DIRECT-local native-v2 mapping](docs/product/DIRECT_RICH_NATIVE_LOCAL_V2.md)
+selects a compiled local profile, directLocalVersion=2 and typed research
+attribution INSIDE the same rich Activity content, within unchanged2800/4096
+caps. Frozen DATA-v1/preflight/relay remain unchanged and reject these new keys.
+This is non-operative source preparation; real native clock qualification is
+still absent and no positive SDK/provider admission follows from the mapping.
+
 ## Workflow action source: qualified successor and separate Final, 31 October 2026
 
 Core [Source1401](https://github.com/pcvantol/djconnect/pull/1401) is originally

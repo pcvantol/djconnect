@@ -20,8 +20,11 @@ def _load_runtime_module():
     package.__path__ = [str(ROOT / "custom_components" / "djconnect")]
     sys.modules.setdefault(PACKAGE, package)
     const = types.ModuleType(f"{PACKAGE}.const")
-    const.DOMAIN = "djconnect"
-    const.API_IMAGE_PROXY_BASE = "/api/djconnect/v1/image_proxy"
+    # Module shards share a worker. A two-name stub can leak through another
+    # fixture's legitimate module cache and break unrelated later imports.
+    # Constants are pure source: load their complete real namespace instead.
+    const_path = ROOT / "custom_components" / "djconnect" / "const.py"
+    exec(compile(const_path.read_bytes(), str(const_path), "exec"), const.__dict__)
     previous_const = sys.modules.get(f"{PACKAGE}.const")
     sys.modules[f"{PACKAGE}.const"] = const
     spec = importlib.util.spec_from_file_location(

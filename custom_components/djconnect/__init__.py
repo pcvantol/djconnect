@@ -1865,6 +1865,7 @@ def register_http_views(hass: HomeAssistant) -> None:
         from .help_http import HelpContextView
         from .surface_push_http import surface_views
         from .surface_registration_http import registration_views
+        from .direct_rich_http import rich_views
         from .installation_management import InstallationManagementPrepareView
         from .hybrid_transport import HybridActionsView, HybridContextView, HybridOperationView, HybridOperationStatusView, HybridRecoveryView
         from .display_transport import transition_views
@@ -1877,6 +1878,7 @@ def register_http_views(hass: HomeAssistant) -> None:
             InstallationManagementPrepareView(hass),
             *surface_views(hass),
             *registration_views(hass),
+            *rich_views(hass),
             *transition_views(hass), DisplayLiveView(hass), DisplayShellView(hass),
             HybridActionsView(hass), HybridContextView(hass), HybridOperationView(hass),
             HybridOperationStatusView(hass), HybridRecoveryView(hass),
@@ -3297,6 +3299,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     try:
         await async_initialize_persistence(hass)
+        from .direct_rich_runtime import setup_service
+        setup_service(hass)
     except Exception as exc:  # noqa: BLE001
         _LOGGER.error("DJConnect persistence bootstrap failed: %s", exc.__class__.__name__)
         return False

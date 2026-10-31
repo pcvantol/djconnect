@@ -106,10 +106,17 @@ class PairRegistration:
     tasks: set = field(default_factory=set, repr=False)
     data: object = field(init=False, repr=False)
     options: object = field(init=False, repr=False)
+    storage_provider: object = field(init=False, repr=False)
+    storage_readiness: object = field(init=False, repr=False)
+    storage_path: str = field(init=False, repr=False)
 
     def __post_init__(self):
         self.data = self.entry.data
         self.options = self.entry.options
+        persistence = self.journal.persistence
+        self.storage_provider = persistence._provider
+        self.storage_readiness = persistence.readiness
+        self.storage_path = persistence._database_path
 
     def current(self):
         from .client_retirement import is_retired_entry
@@ -117,6 +124,10 @@ class PairRegistration:
         from .surface_registration import _coordinates
         domain = self.hass.data.get("djconnect", {})
         return (not self.retired and not self.hass.is_stopping
+                and self.journal.persistence._provider is self.storage_provider
+                and self.journal.persistence.readiness is self.storage_readiness
+                and self.storage_readiness.ready
+                and self.journal.persistence._database_path == self.storage_path
                 and domain.get(self.entry.entry_id) is self.runtime
                 and self.runtime.entry is self.entry
                 and self.entry.data is self.data and self.entry.options is self.options

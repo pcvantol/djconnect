@@ -8,6 +8,7 @@ import json
 import re
 import secrets
 import time
+from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from .discovery_artwork import provider_asset_id
@@ -99,6 +100,34 @@ def _decoded_size(body):
     return width, height
 
 
+@dataclass(frozen=True, repr=False)
+class _PreparedBytes:
+    body: bytes
+    mime: str
+    width: int
+    height: int
+    sha256: str
+
+
+@dataclass(frozen=True, repr=False)
+class _FetchedImage:
+    values: tuple
+    validated_bytes: object
+
+    def __iter__(self):
+        return iter(self.values)
+
+
+def _decode_prepared(body):
+    """The existing bounded executor admission, not an on-read decoder."""
+    from .direct_rich_frame import complete_image
+    width, height = _decoded_size(body)
+    mime = "image/png" if body.startswith(b"\x89PNG\r\n\x1a\n") else "image/jpeg"
+    witness = (_PreparedBytes(body, mime, width, height, hashlib.sha256(body).hexdigest())
+        if len(body) <= 256000 and complete_image(body, mime) else None)
+    return (width, height), witness
+
+
 async def _fetch(hass, backend, uri, *, guard, expected_album_uri=""):
     """Exact existing provider/CDN adapters; no search, redirects or cookies."""
     match = URI.fullmatch(uri)
@@ -145,12 +174,13 @@ async def _fetch(hass, backend, uri, *, guard, expected_album_uri=""):
     body = bytes(body)
     if not image_format(body, mime):
         raise ValueError('unsafe_image')
-    width, height = await session_images(hass).decode(_decoded_size, body)
+    dimensions, witness = await session_images(hass).decode(_decode_prepared, body)
+    width, height = dimensions
     await guard()
     name = item.get('name')
     if not isinstance(name, str) or not 0 < len(name) <= 320 or any(ord(c) < 32 for c in name):
         raise ValueError('missing_subject_label')
-    return body, mime, source, album_uri, width, height, name
+    return _FetchedImage((body, mime, source, album_uri, width, height, name), witness)
 
 
 async def prepare(hass, runtime, context, *, session_id, target, contract_version=1):
@@ -233,9 +263,13 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
                 if not authority() or not await allowed():
                     return unavailable(session_id, target, 'source_withdrawn',contract_version=contract_version)
                 attribution=None
+                validated_bytes = None
                 try:
-                    body, mime, source, album, width, height, name = await _fetch(
+                    fetched = await _fetch(
                         hass, SpotifyBackend(hass, runtime), uri, guard=guard, expected_album_uri=expected_album)
+                    body, mime, source, album, width, height, name = fetched
+                    if type(fetched) is _FetchedImage:
+                        validated_bytes = fetched.validated_bytes
                 except ValueError as exc:
                     if contract_version!=2 or str(exc)!='missing_image' or identity is None:
                         raise
@@ -278,6 +312,7 @@ async def _prepare(hass, runtime, context, *, session_id, target, complete_deadl
                 projection = {'schema_version': contract_version, 'session_id': session_id, **target,
                               'revision': revision, 'artwork': artwork}
                 asset = {'body': body, 'mime': mime, 'deadline': mono + TTL,
+                         '_direct_rich_bytes': validated_bytes,
                          'captured_monotonic': mono, 'authority': authority,
                          'allowed': allowed, 'asset_id': asset_id, 'subject': uri, 'projection': projection,
                          'historical': historical, 'expected_source': dict(expected_source), 'delivery_scope': delivery_scope}
