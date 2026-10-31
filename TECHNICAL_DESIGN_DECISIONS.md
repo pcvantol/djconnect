@@ -1,3 +1,12 @@
+## Original Session rich HTTP source and separate Final,31 October2026
+
+Core [Source1403](https://github.com/pcvantol/djconnect/pull/1403) is originally
+qualified at7d004f30,289 products/schema20. See the
+[Final report](docs/verification/DIRECT_RICH_HTTP_SOURCE_FINALIZATION_20261031.md).
+All24 requests/nine gates remain; real clock/enrollment/native/provider and HA
+installation are separate open work. API/Apple owning adapters continue against
+the selected closed operation contract; no fake supplier closes those gates.
+
 ## Direct rich Session runtime — implementation in progress, 31 October 2026
 
 Use a distinct direct-rich namespace/profile and original durable purpose scope;
