@@ -1,3 +1,12 @@
+## Workflow action source: qualified successor and separate Final, 31 October 2026
+
+Core [Source1401](https://github.com/pcvantol/djconnect/pull/1401) is originally
+qualified from the current coherent base; the earlier Source1392 original
+provenance failure remains NOT_QUALIFIED. See the
+[Final report](docs/verification/WORKFLOW_ACTION_UPDATES_FINALIZATION_20261031.md).
+Parallel CI and all281 product files remain unchanged. All24 requests/nine gates
+retain their scopes; no new HA installation or provider/native acceptance follows.
+
 ## Parallel offline CI: protected source and separate Final, 31 October 2026
 
 Core [Source1399](https://github.com/pcvantol/djconnect/pull/1399) is originally
