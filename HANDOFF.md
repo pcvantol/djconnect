@@ -1,3 +1,12 @@
+## HA-admin preparation: protected source and separate Final, 31 October 2026
+
+Core [Source1397](https://github.com/pcvantol/djconnect/pull/1397) is originally
+qualified for actual normal-session HA-admin preparation only. See the
+[Final report](docs/verification/HA_ADMIN_MANAGEMENT_FINALIZATION_20261031.md).
+No key/custody execution, rich receiving wire or new installed runtime is granted;
+all24 requests/nine gates retain their scope. The next selected step is the
+joint Core/API/Apple original permission/read/artwork receiving contract.
+
 ## HA-admin preparation source increment — 2026-10-30
 
 The real HA-admin management preparation route and its closed request/reply are specified in [INSTALLATION_MANAGEMENT_PREPARATION_V1](docs/product/INSTALLATION_MANAGEMENT_PREPARATION_V1.md). This bounded source increment prepares only the selected loaded entry; no key, custody, enrollment, authenticated successor wire, installed runtime or operational push is granted. Existing 24 requests and nine acceptance gates retain their own scopes.
