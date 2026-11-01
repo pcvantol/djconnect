@@ -473,6 +473,38 @@ def _mentions_lookup_topic(text, lookup_topic):
     return bool(re.search(r'(?<!\w)' + re.escape(lookup_topic) + r'(?!\w)', text, re.I))
 
 
+def public_recording_names(sources, artist, work):
+    """Only independently fetched public literals can enter factual model input."""
+    if not safe_subject(artist, qualified=True) or not safe_lookup_topic(work):
+        return None
+    for source in sources:
+        if type(source) is not PublicSource:
+            continue
+        try:
+            until = datetime.fromisoformat(source.expires_at)
+            if until.tzinfo is None or until <= datetime.now(UTC):
+                continue
+        except (TypeError, ValueError):
+            continue
+        anchors = source_work_anchors(source.text, source.source_anchors)
+        public_work = next((v for v in anchors if v.casefold() == work.casefold()), None)
+        if not public_work:
+            continue
+        a, w = r'(?P<public_artist>' + re.escape(artist) + r')', re.escape(public_work)
+        # Mere co-occurrence on an artist page can refer to another artist's
+        # recording. Require an explicit same-sentence artist/work relation.
+        patterns = (
+            r'^\s*' + a + r'\s+(?:recorded|released|wrote|produced)\s+(?:the\s+)?(?:(?:song|track|single|recording)\s+)?["“]?' + w + r'(?!\w)',
+            r'(?:song|track|single|recording|nummer|opname)\s+["“]?' + w + r'["”]?\s+(?:by|van|von|de|par)\s+' + a + r'(?=\s*(?:$|[.,;:!?])|\s+(?:was|is|werd|est|es|wurde)\b)',
+            r'(?<!\w)' + w + r'["”]?\s+(?:werd|was)\s+(?:door|by)\s+' + a + r'(?=\s+(?:in|tijdens|during|at|opgenomen|geproduceerd|uitgebracht|recorded|produced|released)\b)[^.!?]{0,120}\b(?:opgenomen|geproduceerd|uitgebracht|recorded|produced|released)\b',
+        )
+        for sentence in _sentences(source.text):
+            for pattern in patterns:
+                if match := re.search(pattern, sentence, re.I):
+                    return match['public_artist'], public_work
+    return None
+
+
 def excerpt(text, question, maximum, *, lookup_topic=""):
     """Select complete literal sentences; never glue two cut source fragments."""
     if len(text) <= maximum:
@@ -927,6 +959,7 @@ async def web_references(fetch, subject, question, locale, *, album=None, angle=
                 excerpt(text, question, 600, lookup_topic=lookup_topic),
                 page.language,
                 current=bool(re.search(r"concert|tour|live|optreden|tournée|gira", question, re.I)),
+                source_anchors=source_work_anchors(text, page.source_anchors) if lookup_topic else (),
             )
         if result:
             sources.append(result)

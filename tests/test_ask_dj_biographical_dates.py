@@ -167,7 +167,8 @@ class BiographicalDateTests(unittest.TestCase):
             frame=None, reset_topic=True, source_context={},
             public_research=context['public_music_research'], prompt_bytes=0,
             selected_read_context=None, interpreted_artist_research=False,
-            interpreted_context_research=False)
+            interpreted_context_research=False, recording_research=False,
+            unused_production_request_hash=None)
         token = dialogue.current_turn.set(turn)
         try:
             prompt = dialogue.model_prompt('Wanneer is deze band opgericht?', {'language': 'nl'})

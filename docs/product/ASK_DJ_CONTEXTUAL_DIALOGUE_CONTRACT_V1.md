@@ -1,5 +1,10 @@
 # Shared Ask DJ contextual dialogue contract v1
 
+The prepared [recording-production reference](ASK_DJ_RECORDING_PRODUCTION_V1.md)
+keeps an unresolved production purpose across an explicit current/selected-track
+answer, with original deadlines, slot revisions and history/source withdrawal.
+It is under review and grants no playback or installed-runtime acceptance.
+
 ## Age disambiguation — 1 November 2026
 
 The closed semantic research plan additionally accepts `angle:age`. It keeps

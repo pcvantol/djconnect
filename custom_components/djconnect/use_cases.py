@@ -39,6 +39,7 @@ class MusicCommand(StrEnum):
     SEARCH_TRACKS = "search_tracks"
     SEARCH_ALBUMS = "search_albums"
     ALBUM_TRACKS = "album_tracks"
+    TRACK_METADATA = "track_metadata"
     SEARCH_MEDIA = "search_media"
     STATUS = "status"
     PLAY = "play"
@@ -585,6 +586,7 @@ _CAPABILITY_BY_COMMAND = {
     MusicCommand.SEARCH_TRACKS.value: "supports_search",
     MusicCommand.SEARCH_ALBUMS.value: "supports_search",
     MusicCommand.ALBUM_TRACKS.value: "supports_search",
+    MusicCommand.TRACK_METADATA.value: "supports_search",
     MusicCommand.SEARCH_MEDIA.value: "supports_search",
     MusicCommand.SET_VOLUME.value: "supports_volume",
     MusicCommand.SAVE_CURRENT_TRACK.value: "supports_favorites",

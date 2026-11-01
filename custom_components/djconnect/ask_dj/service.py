@@ -290,6 +290,15 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             _request_hash(scope, message['_client_id'])
             for message in (*frame.messages, *frame.local_turns) if message.get('_client_id')
         ) if not reset_topic and not fast else set()
+        unused_production_hash = None
+        if isinstance(frame.pending, dict) and frame.pending.get('type') == 'recording_production':
+            from .artist_story import recording_reference
+            original_hash = frame.pending.get('request_hash')
+            if recording_reference(text) is None and isinstance(original_hash, str):
+                # Availability alone carries no old exchange or dependency.
+                # Actual semantic consumption binds its origin before lookup.
+                unused_production_hash = original_hash
+                source_request_hashes.discard(original_hash)
 
         def requests_withdrawn():
             from ..persistence.content_deletion import request_deleted_now
@@ -362,6 +371,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                             dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
         turn.source_request_hashes = source_request_hashes
+        turn.unused_production_request_hash = unused_production_hash
         from ..reply_artwork import source_admission
         turn.reply_source_context, turn.reply_source_authority = source_admission(hass, runtime, profile_id)
         # The exact same synchronous source deadline also guards retained speech,

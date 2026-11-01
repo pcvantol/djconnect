@@ -950,7 +950,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         # the original excerpt once and no generator bookkeeping contract.
         from types import SimpleNamespace
         turn = SimpleNamespace(style={'persona':'home_dj', 'mood':'chill', 'language':'en'},
-            frame=None, public_research=context['public_music_research'], source_context={}, prompt_bytes=0)
+            frame=None, public_research=context['public_music_research'], source_context={}, prompt_bytes=0,
+            recording_research=False, unused_production_request_hash=None)
         token = self.dialogue.current_turn.set(turn)
         try:
             generation = self.dialogue.model_prompt('Who is Brian Eno?', {})
