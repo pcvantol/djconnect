@@ -1,3 +1,15 @@
+## API host-wake server binding source #1415: separate Final
+
+Source1415 is protected `4f569b407217666908b0cbadf01e7873e3170bf8` and independently
+ORIGINAL_SOURCE_QUALIFIED. Its [separate Final record](docs/verification/API_PRIVATE_HOST_WAKE_DEPLOYMENT_FINALIZATION_20261101.md)
+joins the original source receipts and preserves all302 product files, all
+onboarding distributions, tests, workflows and release inputs. This Final needs
+its own normal protected delivery and original qualification before owning API
+may execute the exact757 server binding with fresh schema/bookmark admission.
+Actual operator/native policy, clocks, registration, APNs/widget/LiveActivity
+receipt and device acceptance remain separate. All24 requests/nine gates and
+the complete previous rolling bodies below retain their own scopes.
+
 ## API private host-wake rollout binding — 1 November 2026
 
 The [exact central server binding](docs/verification/API_PRIVATE_HOST_WAKE_DEPLOYMENT_BINDING_20261101.md)
