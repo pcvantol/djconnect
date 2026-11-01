@@ -1,3 +1,16 @@
+## Ask DJ reported conversations: protected sources and documentary Final,1 November2026
+
+Core Source1409/a4f29073 and Source1410/ecce3a19 are independently originally
+qualified. The latter preserves recording-production purpose across explicit or
+semantically interpreted current/selected clarification, with original
+clock/CAS/history/source fences and independent public work evidence. See the
+[separate Final report](docs/verification/ASK_DJ_REPORTED_CONVERSATIONS_SOURCE_FINALIZATION_20261101.md).
+All302 product files/schema21 stay unchanged in this documentary increment.
+HA-dev remains277/schema18 after the fully rolled-back301 attempt; no install
+or old once/window reuse. Apple response-image transport, clock/native receipt,
+discovery This Is/album context-start/queue audit and all24 requests/nine gates
+retain their separate open scopes. Original bodies and failed proofs remain.
+
 ## Prepared Ask DJ recording-production continuation,1 November2026
 
 Apple response-image adoption uses the existing protected producer's
