@@ -139,7 +139,10 @@ class ArtworkLifecycleTest(unittest.IsolatedAsyncioTestCase):
         self.runtime.device_token = "ordinary-device-token"
         self.payload = {"music_dna_key": "profile:one"}
         await self.manager.async_set_enabled(self.runtime, True, self.payload)
-        self.hass = types.SimpleNamespace(data={"djconnect": {}})
+        # Backend construction may use the shared HA helper stub installed by
+        # another module in this process shard. These cache-only tests own an
+        # inert session; no ambient stub ordering may select a network client.
+        self.hass = types.SimpleNamespace(data={"djconnect": {}}, session=object())
 
     async def test_store_reload_partial_recent_and_historical_snapshots(self):
         guard = await art.capture_refresh_guard(self.runtime, self.payload)

@@ -7950,6 +7950,18 @@
           "method": "test_literal_candidates_are_value_only_and_leave_sources_unchanged"
         },
         {
+          "file": "tests/test_ask_dj_biographical_dates.py",
+          "method": "test_dutch_completed_founding_can_use_is_without_losing_exact_event_proof"
+        },
+        {
+          "file": "tests/test_ask_dj_biographical_dates.py",
+          "method": "test_researched_date_instruction_keeps_extra_facts_out_of_date_sentence"
+        },
+        {
+          "file": "tests/test_ask_dj_biographical_dates.py",
+          "method": "test_assessment_distinguishes_biographical_receipts_from_legacy_work_dates"
+        },
+        {
           "file": "tests/test_ask_dj_exploration.py",
           "method": "test_named_and_selected_research_cannot_publish_an_unreviewed_style_or_partial_story"
         },
