@@ -1,3 +1,9 @@
+## Current speaker question source #1413 Finalization (1 November 2026)
+
+Protected source `1a6ec54e0fd9ce6f80d8d7fdaf70e7ac8554a1bf`, reviewed `bec2e5e7f3af2c23eea6283bf1ed8c309fbe158c`, routes current-speaker questions with `nu`/`momenteel` to a fresh successful backend status read. Failed reads cannot present a cached speaker as current. Independent whole/exact source reviews and original main/reconcile/coverage/durable evidence are retained in [the source Final report](docs/verification/ASK_DJ_CURRENT_OUTPUT_SOURCE_FINALIZATION_20261101.md).
+
+The actual four-worker suite accounts for 4,411 tests: 4,404 pass and seven existing skips. All 24 isolated HA groups pass with 302 identical product hashes before/inside/after; no installation or native/provider acceptance follows from those tests. This documentary increment preserves all product/release inputs and the complete previous bodies below. HA-dev remains 277/schema18. The album-question live incident, fresh HA deployment admission, API operational manifest, widget/Live Activity device gates and all prior 24 requests/nine gates retain their own open scopes.
+
 ## Developer tooling source #1391 Finalization (1 November 2026)
 
 Protected source `c79a6faad0843e5e5271849b02ff3ab4084ca071` from reviewed `af1a83067639c9ad9cf61fd765db58c1850d0a93` is independently original-qualified. It delivers coverage.py 7.17.0, isolated Pico Ruff 0.17.2, immutable onboarding 4.5.6 and matching bootstrap 2.0.24/desired-state 3.3.3 guards. All 48 earlier distributions and all 302 HA product files remain unchanged. The actual four-worker coverage run accounts for 4,408 tests with seven existing Windows skips; native read-only verification matches 4.5.6.
