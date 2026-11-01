@@ -27,7 +27,7 @@ class OriginalActualOnceProofTests(unittest.TestCase):
         self.assertEqual(len(raw["cases"]), 8)
         self.assertEqual(len(raw["preceding_installation_codec_cases"]), 6)
         self.assertEqual(len(raw["preceding_source_origin_cases"]), 19)
-        self.assertEqual(len(raw["source_sha256"]), 298)
+        self.assertEqual(len(raw["source_sha256"]), 301)
         for name, digest in raw["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         digest = hashlib.sha256((root / proof["harness"]).read_bytes()).hexdigest()

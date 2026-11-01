@@ -1,7 +1,7 @@
 # Original direct-rich host wake Core proxy v1
 
-Selected Core/API/Apple source contract. This document specifies the next adapter
-work; it does not register runtime routes or provide operational admission. The
+Selected Core/API/Apple source contract. Normal Core service setup registers the
+seven warm-owner proxy routes; this provides no operational native admission. The
 current Direct rich frame/read/asset protocol and original native transcript are
 unchanged. Host wake is content-free and does not grant Activity update/start
 rights or replace original local display/clock custody.
@@ -18,6 +18,65 @@ escape slash-routes with ~1. The exact perroute request/success/error shapes are
 examples are `host_wake_core_proxy_v1_vectors.json`. No synthetic proof, hash,
 boolean, matching DTO or metadata row supplies authority.
 
+## Original registered Broadcast wake
+
+Only an original child with validated native-verification and registration API
+ACKs, completed SQL stages and its SAME retained parent may subscribe. The
+subscription has no snapshot replay. Actual Broadcast callbacks capture their
+sequence, independent original wall/monotonic resource starts and one operation
+UUID before scheduling; they retain no event payload. The bounded worker waits
+for the actual Session manager lock and any original foreground request within
+that same 30-second callback window. It checks current pair/Profile/Session,
+source, owner and child clocks before projecting accepted semantic state.
+
+Pure observation/progress and unchanged semantic projections do not send.
+Playback, contribution, artwork identity/availability/attribution and rights
+changes may produce one content-free private `direct_rich_refresh` wake. At most
+eight workers run, with one later coalesced original callback each. An unsent
+capacity loss, original resource timeout or uncertain projection drops only that
+signal; it neither cancels a foreground request nor renews or revokes the parent.
+
+The actual resolved role's send budget counts every durable `target_wake`
+reservation, including uncertain attempts, before external HTTP. SQL once/CAS
+and original-operation correlation precede the sole request. Unknown, rejected
+or cancelled results after reservation close local positive custody and use only
+the prebound once-only negative port; there is no retry or replacement operation.
+Worker cleanup never retires the borrowed original pair. Child retirement
+synchronously unsubscribes and scrubs retained owners before remote work.
+
+This source connection does not establish operator enrollment, production API
+mounting, Apple SDK verification, APNs delivery or native Widget/Activity rights.
+
+## Original registered background read
+
+The actual Source181 provider body remains exactly
+`{"aps":{"content-available":1}}`. It contains no event type, purpose, Session,
+generation, read credential or content. `direct_rich_refresh` is the private
+Core-to-API wake operation, not an extra field in the APNs body. Original API
+scope and correlation remain in that private HTTP request and response headers.
+
+Before ordinary foreground suspension, the Apple owner may attenuate its
+already acknowledged `registered` child and the SAME retained direct parent
+into a read-only background continuation. This retains only the existing
+parent read capability, original purpose/generation/Session/source ownership,
+original local ContinuousClock/resource root and field rights. It creates no
+new server grant or native SDK permit. The foreground SDK/effect task can close
+without manufacturing a replacement parent or moving any original bound.
+Without that completed foreground transfer, suspension still leaves only
+negative/history custody. Cold process restart never reconstructs this port
+from local key-reference files, defaults, OS payload DATA or status history.
+
+The genuine OS callback is only a dirtiness signal to those already retained
+registered continuations. Select no owner from payload fields. Coalesce work
+within the bounded original callback execution budget and recheck the original
+registration, pair/Profile/Session/source and read capability before dispatch,
+after every await and before local Widget/Activity publication. Use the existing
+direct `read`/`asset` routes and exact original frame/asset correlation; never
+call authorize, prepare, challenge, register or key recovery in background.
+The callback does not renew the original purpose, local resource root, field
+expiry or external rights. Native publication and actual OS reception remain
+separate qualification; delivery timing is not promised by provider acceptance.
+
 Every request has exactly contract_version=1, device_id, client_type=ios,
 session_id, surface=widget/live_activity, original Direct purpose_id and the
 original native REGISTER operation_id. The native operation is a canonical UUIDv4
@@ -32,6 +91,12 @@ not authority inferred from an ios device name or App Attest environment.
 Actual existing Core installation credentials must already be loaded; no install
 bootstrap/auth learning on this path. Missing genuine origin/identity/deployment/
 enrollment/clock policy closes the operation.
+
+The initial SDK key is created under the distinct installation-bound local
+effect owner in [First key and deadline ownership](HOST_WAKE_FIRST_KEY_V1.md),
+before prepare. Its reference supplies no enrolled-key, native or clock grant.
+Prepare cannot demand an already-created Session/push permission for that
+separate bootstrap effect, and key creation cannot substitute for prepare.
 
 The actual original RAM parent supplies owner/device/source/paired-subject
 bindings, generation and original clocks. BEFORE body-read awaits capture the
@@ -102,8 +167,10 @@ Entry unload fences this port before any unload await; service shutdown and
 installation/configuration replacement also close it without recapturing secrets.
 Unsent cancellation and completed/failed attempts release retained references.
 An `unknown` reply remains inconclusive and never restores permission or quota.
-These source components do not supply the still-missing positive prepare/HTTP,
-clock, enrollment or native admission.
+Positive prepare requires the real original local owner, authenticated resolver
+and issuer ACK, prepared SQL ACK and retained RAM capability. Native verification
+and registration require their distinct exact API ACKs. This composition supplies
+no operator enrollment, SDK proof, provider activation or device acceptance.
 
 Local management captures the same pre-body paired request and the actual
 committed linked-profile snapshot. It joins the retained child's immutable
@@ -113,12 +180,15 @@ positive parent does not prevent this negative/history check; a status-request
 failure or cleanup cannot retire the child. SQL metadata is not a remote
 withdrawal acknowledgement, a native challenge result or restored permission.
 
-The Core/API/Apple directional clock-rate/suspend/domain/VM-lifetime supplier is
-still absent. Linux monotonic resolution/nonadjustability and Darwin continuous
-sleep semantics alone are insufficient. No rho=1, bool/JSON qualification,
-receive-time reanchor or cold-process restoration is introduced by this contract.
-Actual receiving composition, native enrollment/signed deployment policy and
-physical provider/iPhone acceptance remain separate gates.
+The [owning-clock contract](HOST_WAKE_FIRST_KEY_V1.md#clock-ownership-and-exact-guarantee)
+uses API's original UTC/SQL execution bounds, Core's original local ceilings and
+Apple's actual pre-authorize ContinuousClock root. No remote Instant is
+converted into a fresh local deadline and no directional-rate qualification,
+rho=1 or JSON clock permit is inferred. Local SDK once/currentness and server
+admission are distinct: a late SDK result supplies no enrollment or registration.
+A no-SDK-effect-after-remote-expiry guarantee is not claimed without an actual
+additional clock/roundtrip bound. Receiving/native/signed-policy qualification
+and physical provider/device acceptance remain separate.
 
 ## Genuine native proof ACK and registration are distinct
 

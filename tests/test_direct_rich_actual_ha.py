@@ -6,6 +6,28 @@ import unittest
 
 
 class DirectRichOriginalActualHATests(unittest.TestCase):
+    def test_actual_host_wake_HTTP_Broadcast_SQL_originals_bind_current_source(self):
+        root = Path(__file__).resolve().parents[1]
+        value = json.loads((root / 'examples/client_contracts/direct_rich_v1/actual-ha-host-wake-runtime.json').read_bytes())
+        receipt = value['original_receipt']
+        self.assertEqual(receipt['status'], 'PASS')
+        self.assertEqual(receipt['schema_version'], 21)
+        self.assertEqual(len(receipt['source_sha256']), 301)
+        for name, expected in receipt['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
+        self.assertEqual(hashlib.sha256((root / value['harness']).read_bytes()).hexdigest(), value['harness_sha256'])
+        self.assertEqual(hashlib.sha256((json.dumps(receipt, indent=2) + '\n').encode()).hexdigest(),
+            value['original_receipt_sha256'])
+        actual = receipt['host_wake_runtime']
+        self.assertEqual(actual['actual_http_operations'], 7)
+        self.assertEqual(actual['wakes'], actual['durable_wakes'])
+        self.assertEqual(actual['durable_wakes'], 1)
+        self.assertEqual(actual['external_API_native_provider'], 'MODELED_ONLY')
+        self.assertTrue(value['all301_before_inside_after_equal'])
+        self.assertEqual(value['own_container'], 'VERIFIED_ABSENT')
+        self.assertEqual(value['installed'], 'NOT_RUN')
+        self.assertFalse(value['actual_native_operator_or_APNs_qualification'])
+
     def test_original_actual_HTTP_SQL_and_asset_proof_matches_entire_current_product(self):
         root = Path(__file__).resolve().parents[1]
         value = json.loads((root / 'examples/client_contracts/direct_rich_v1/actual-ha-original-purpose-and-assets.json').read_bytes())
@@ -19,13 +41,13 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
         self.assertEqual(receipt['model_calls'], 0)
         self.assertTrue(receipt['ordinary_pairing'])
         self.assertEqual(receipt['ha_credentials_issued'], 0)
-        self.assertEqual(len(receipt['source_sha256']), 298)
+        self.assertEqual(len(receipt['source_sha256']), 301)
         for name, expected in receipt['source_sha256'].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         self.assertEqual(hashlib.sha256((root / value['harness']).read_bytes()).hexdigest(), value['harness_sha256'])
         self.assertEqual(hashlib.sha256((json.dumps(receipt, indent=2) + '\n').encode()).hexdigest(),
             value['original_receipt_sha256'])
-        self.assertTrue(value['all298_before_inside_after_equal'])
+        self.assertTrue(value['all301_before_inside_after_equal'])
         self.assertEqual(value['own_container'], 'VERIFIED_ABSENT')
         self.assertEqual(value['installed'], 'NOT_RUN')
         self.assertFalse(value['actual_native_clock_or_provider_or_iPhone_qualification'])

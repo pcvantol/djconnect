@@ -21,6 +21,24 @@ VECTORS = json.loads((ROOT / "docs/verification/fixtures/host_wake_core_proxy_v1
 
 
 class HostWakeProxyWireTests(unittest.TestCase):
+    def test_actual_local_errors_fit_frozen_Apple_push_error_contract(self):
+        schema = json.loads((ROOT / "docs/verification/fixtures/host_wake_core_proxy_v1.schema.json").read_text())
+        allowed = set(schema["$defs"]["error"]["properties"]["error"]["enum"])
+        for code, status in (("invalid_request", 400), ("unauthorized", 401),
+                ("rich_not_allowed", 403), ("rich_history_unknown", 404),
+                ("rich_purpose_consumed", 409), ("rich_capacity", 409),
+                ("rich_stage_mismatch", 409), ("rich_body_too_large", 413),
+                ("rich_frame_unavailable", 503), ("rich_unavailable", 503), ("rich_pending", 503)):
+            with self.subTest(code=code):
+                value = wire.public_error(wire.RichError(code, status))
+                self.assertIn(value.code, allowed)
+                self.assertEqual(value.status, status)
+        for error in (wire.RichError("private-internal-exception", 403),
+                wire.RichError("rich_not_allowed", 200), wire.RichError(["private"], 503),
+                RuntimeError("private-body")):
+            value = wire.public_error(error)
+            self.assertEqual((value.code, value.status), ("rich_push_unavailable", 503))
+
     def test_original_cross_language_preimages_all_seven_routes(self):
         cases = VECTORS["positive_shape_vectors"]
         self.assertEqual({case["route"] for case in cases}, wire.OPERATIONS)

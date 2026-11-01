@@ -1,13 +1,16 @@
 """Actual warm parent-owned child RAM latch and SQL lifetime, not native admission.
 
-Normal DirectRichService setup owns one registry. The original loaded
-installation may resolve its role; no issuer/provider effect, native/clock
-factory, HTTP registration or positive credential is created here.
+Normal DirectRichService setup owns one registry. Prepare uses the actual
+installation role and issuer transport, prepared SQL ACK and final RAM handoff.
+It requires a separately supplied original attestation: this module creates no
+native/clock factory, HTTP registration or operational admission.
 """
 from __future__ import annotations
 
 import asyncio
 from copy import deepcopy
+from fractions import Fraction
+import time
 import uuid
 
 from .direct_rich_frame import utc_ms
@@ -25,6 +28,7 @@ class HostWakeChildren:
         self.journal = HostWakeChildJournal(service.journal.persistence)
         self.children = {}  # Includes every closed/spent scope; never evict/refund.
         self.closed = False
+        self.tasks = set()
 
     def close(self):
         self.closed = True
@@ -80,6 +84,14 @@ class _Child:
         self._resolved_request = self._resolved_role = None
         self._original = self._role = self._issuer_request = self._issuer_claim = None
         self._withdrawal = None
+        self._owner_attestation = None
+        self._credential = self._private_purpose = None
+        self._challenge = self._native_receipt = None
+        self._challenge_resource_start = None
+        self._withdrawal_result = None
+        self._watch = None
+        self._wall_start, self._mono_start = attempt.wall, attempt.mono
+        self._last_wall, self._last_mono = attempt.wall, attempt.mono
 
     def _request_finished(self, task):
         if self.pending is task or task.cancelled() or task.cancelling():
@@ -89,6 +101,9 @@ class _Child:
         if self.closed:
             return
         self.closed = True
+        watch, self._watch = self._watch, None
+        if watch is not None:
+            watch.stop()
         parent, self.parent = self.parent, None
         if parent is not None:
             parent.dependents.discard(self)
@@ -96,6 +111,10 @@ class _Child:
         self.registry = self.context = None
         self._prepare = self._resolved_request = self._resolved_role = None
         self._original = self._role = self._issuer_request = self._issuer_claim = None
+        self._owner_attestation = None
+        self._credential = self._private_purpose = None
+        self._challenge = self._native_receipt = None
+        self._challenge_resource_start = None
         attempt, self.initial_attempt = self.initial_attempt, None
         if attempt is not None:
             attempt.dependents.discard(self)
@@ -109,6 +128,29 @@ class _Child:
         # SQLite's FULL-sync finalizer runs in its own guard task. The inbound
         # task identity remains the original pending task, not that helper.
         return self._current(self.pending, storage=True)
+
+    def _check_clocks(self):
+        """Enforce this child's own raw ceilings; never qualify clock rates.
+
+        The separately qualified owner remains mandatory for prepare. These
+        known bounds cannot be delegated to that owner or to the longer-lived
+        display parent, nor restarted at issuer ACK or the warm handoff.
+        """
+        wall, mono = time.time(), time.monotonic()
+        require(wall >= self._last_wall and mono >= self._last_mono,
+            "rich_not_allowed", 403)
+        if self._original is not None:
+            require(type(self.metadata) is ChildMetadata
+                and self.metadata.original_hash == digest(self._original)
+                and self.metadata.role_hash == digest(self._role)
+                and self.metadata.expires_ms == self._original["original_wake_expires_at_ms"],
+                "rich_unavailable", 503)
+            expiry = self.metadata.expires_ms
+            require(Fraction(wall) * 1000 < expiry
+                and Fraction(mono) - Fraction(self._mono_start)
+                    < Fraction(expiry - self.reservation.created_ms, 1000),
+                "rich_not_allowed", 403)
+        self._last_wall, self._last_mono = wall, mono
 
     def _current(self, task, *, storage):
         try:
@@ -130,6 +172,20 @@ class _Child:
                 and parent.context is self.context and parent.issued
                 and service._purpose_current(parent), "rich_not_allowed", 403)
             self.context._inspect()
+            self._check_clocks()
+            if self._owner_attestation is not None:
+                original_attestation = self._owner_attestation
+                require(original_attestation(self) is None, "rich_unavailable", 503)
+                require(not self.closed and self.registry is registry and self.parent is parent
+                    and self._owner_attestation is original_attestation and not task.cancelling()
+                    and service._purpose_current(parent), "rich_unavailable", 503)
+                if self.initial_attempt is not None:
+                    if storage:
+                        self.initial_attempt.storage_current(task)
+                    else:
+                        self.initial_attempt.check()
+                self.context._inspect()
+                self._check_clocks()
             return True
         except BaseException:
             self.close()
@@ -231,6 +287,115 @@ class _Child:
             "rich_unavailable", 503)
         return await self.seal(prepare=self._prepare, sent_resolve=self._resolved_request,
             role=self._resolved_role, original=original)
+
+    def _resolved_original(self):
+        """Derive the original tuple from this actual parent and received role.
+
+        This is comparison DATA. The separately supplied original owner must
+        still attest clocks/identity/policy; no public DTO selects that owner.
+        """
+        self._continue_prepare()
+        require(type(self._resolved_request) is dict and type(self._resolved_role) is dict,
+            "rich_unavailable", 503)
+        role, reservation = self._resolved_role, self.reservation
+        original = {**deepcopy(self._resolved_request["scope"]),
+            **{key: role[key] for key in api.POLICY},
+            "version": api.NATIVE, "core_purpose_id": reservation.parent.purpose_id,
+            "operation_id": reservation.native_operation_id, "generation": reservation.generation,
+            "revision": 1, "token_role": "host_app_wake",
+            "native_token_sha256": self._prepare["native_token_sha256"],
+            "original_wake_issued_at_ms": reservation.created_ms,
+            "original_wake_expires_at_ms": min(reservation.parent.expires_ms,
+                role["original_authorization_expires_at_ms"],
+                reservation.created_ms + role["max_original_purpose_ms"]),
+            "original_display_expires_at_ms": reservation.parent.expires_ms}
+        api.original(original)
+        return original
+
+    async def prepare(self, *, attest_original):
+        """Actual resolve -> issuer ACK -> prepared SQL ACK -> original RAM.
+
+        Only the owning qualified composition may supply the required
+        synchronous None-or-raise attestation. There is no default, public
+        boolean, owner factory or inference of clock/native qualification.
+        The complete HTTP composition must retain that SAME original owner.
+        """
+        from .host_wake_api import HostWakeApiChannel
+        from .host_wake_proxy_wire import BODY_BYTES, decode_json
+
+        task = self._claim()
+        channel, received = None, None
+        try:
+            require(callable(attest_original) and self._owner_attestation is None
+                and not self.reserved, "rich_unavailable", 503)
+            self._owner_attestation = attest_original
+            self.current()  # Genuine original attestation BEFORE the first await.
+            await self.resolve()
+            await self.seal_resolved(original=self._resolved_original())
+            claim = await self.begin_issuer()
+            self.capture_withdrawal()  # Original negative authority BEFORE issuer IO.
+            self.current()
+            channel = HostWakeApiChannel(self.initial_attempt)
+            sent = self._issuer_request
+            scope = {key: sent[key] for key in api.SCOPE_HEADERS}
+            status, raw = await channel.post("issuer/issue", canonical(sent), scope)
+            self.current()
+            received = decode_json(raw)
+            if status != 200:
+                api.error(status, received)
+                require(False, "rich_unavailable", 503)
+            api.reply("issuer/issue", received, sent, self._original,
+                self._role["native_proof_kind"])
+            self.current()
+            context, registry = self.context, self.registry
+            prepared = await registry.journal.finish(self.reservation, claim,
+                destination="prepared", result_hash=digest(received),
+                session_id=context.session_id, owner_id=context.owner,
+                current=self.storage_current)
+            self.current()
+            require(type(prepared) is ChildMetadata and prepared.phase == "prepared"
+                and prepared.original_hash == digest(self._original)
+                and prepared.role_hash == digest(self._role)
+                and prepared.cas_revision == claim.pending_revision + 1
+                and prepared.consumed_attempts == claim.ordinal,
+                "rich_unavailable", 503)
+            result = {"success": True, "contract_version": 1,
+                "profile_id": "djconnect-direct-rich-host-wake-v1",
+                "operation_id": self.reservation.native_operation_id,
+                "request_sha256": self.reservation.prepare_request_hash,
+                "purpose_id": self.reservation.parent.purpose_id,
+                "surface": self.reservation.parent.surface,
+                "generation": self.reservation.generation, "revision": 1,
+                **{key: self._original[key] for key in api.TIMES},
+                "state": "prepared", "original": deepcopy(self._original),
+                "native_proof_kind": self._role["native_proof_kind"]}
+            encoded = canonical(result)
+            require(len(encoded) <= BODY_BYTES, "rich_unavailable", 503)
+            self.current()
+            if task.cancelling():
+                raise asyncio.CancelledError
+            # No await between final original guards and warm custody handoff.
+            self.metadata = prepared
+            self._credential, self._private_purpose = received["credential"], received["purpose_id"]
+            self.initial_attempt.dependents.discard(self)
+            self.initial_attempt, self.pending = None, None
+            return encoded  # Never publish the private issuer capability/ID.
+        except BaseException:
+            withdrawal = self._withdrawal
+            if self.pending is task:
+                self.pending = None
+            self.close()  # Local closure wins over late issuer/SQL success.
+            if withdrawal is not None:
+                try:
+                    withdrawal.schedule()
+                except Exception:
+                    pass  # Original negative port remains spent; no retry.
+            raise
+        finally:
+            if channel is not None:
+                channel.close()
+            if received is not None:
+                received.clear()
 
     async def begin_issuer(self):
         """Consume the owner's own issuer UUID/SQL claim BEFORE any API effect.
