@@ -1,5 +1,12 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.6 — 2026-11-01
+
+- Pin isolated Pico developer Ruff to 0.17.2; publish a new deterministic
+  distribution instead of changing any previous archive.
+- Align the desired-state profile 3.3.3 and bootstrap 2.0.24 exact-version
+  guards. Verification remains read-only; source delivery installs no tools.
+
 ## 4.5.5 — 2026-10-24
 
 - Pin the isolated Pico developer-tool Ruff dependency to0.17.1 and align the

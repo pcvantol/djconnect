@@ -6,7 +6,7 @@ contract tests and package documentation.
 
 ## Release alignment
 
-The current onboarding package is released as `4.5.5`, aligned with the current
+The current onboarding package is released as `4.5.6`, aligned with the current
 DJConnect platform release for operator clarity. This is version alignment only:
 the package remains independently versioned, does not consume platform release
 artifacts, and does not require a matching platform version to run or verify.
@@ -99,7 +99,7 @@ the recommended IDE is VS Code with MicroPico.
 | `picotool` | Homebrew stable formula | `picotool --version` |
 | `mpremote` | `>=1.29,<2` | `mpremote --version` |
 | `micropython-stubber` | `>=1.29,<2` | `stubber --version` |
-| Ruff | `0.17.1` (isolated Pico developer-tool pin) | `ruff --version` |
+| Ruff | `0.17.2` (isolated Pico developer-tool pin) | `ruff --version` |
 
 ### Flash, connect, upload and debug
 
@@ -177,7 +177,7 @@ Developer readiness remains read-only. Run:
 It reports `storage.<repository>.ignored_build_output` for each checked-out
 repository, verifies the 14-day retention result, confirms that the LaunchAgent
 is loaded, and requires the canonical `djconnect/onboarding/manifest.yml`
-package version to be `4.5.5`. It does not delete files or change the host.
+package version to be `4.5.6`. It does not delete files or change the host.
 
 Engineering Platform is not a DJConnect host-readiness prerequisite. The
 bootstrap does not check, install, repair or start legacy Inbox, dashboard,

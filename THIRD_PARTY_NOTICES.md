@@ -1,3 +1,7 @@
+## Developer verification tools (1 November 2026)
+
+The developer verification environment pins [coverage.py 7.17.0](https://pypi.org/project/coverage/7.17.0/), requiring Python 3.11 or newer, under [Apache-2.0](https://github.com/coveragepy/coveragepy/blob/7.17.0/LICENSE.txt). The isolated Pico developer environment pins [Ruff 0.17.2](https://github.com/astral-sh/ruff/releases/tag/0.17.2), requiring Python 3.7 or newer, under [MIT](https://github.com/astral-sh/ruff/blob/0.17.2/LICENSE). No upstream source is vendored or modified. Neither tool ships in the Home Assistant integration or Pico firmware. Older notices below retain their historical scopes.
+
 ## CI action pins (31 October 2026)
 
 The build and verification workflows use the following unmodified upstream

@@ -1,3 +1,9 @@
+## Coherent dependency and onboarding distribution maintenance (1 November 2026)
+
+PR #1391 retains both proposed developer upgrades: coverage.py 7.17.0 and isolated Pico Ruff 0.17.2. Since the Pico requirement is a deterministic onboarding archive member, a requirements-only merge would leave source and distribution inconsistent. Publish a new onboarding 4.5.6 archive, matching desired-state profile 3.3.3 and bootstrap 2.0.24/operations 1.3.16, preserving every previous distribution byte. Both exact desired/actual-package guards and negative tests remain active. Runtime product files, release inputs, provider/device authority and the HA decoder baseline remain unchanged.
+
+Qualification uses the actual new tools in an isolated developer environment, the existing four-worker full-suite coverage accounting/combine/XML path, deterministic package rebuild/check and real positive/negative package guard execution. Source delivery does not upgrade the installed Pico environment, invoke repair/onboarding or qualify any device. Required source/commit review and normal protected delivery stay separate from any later host installation.
+
 ## Ask DJ reported conversations: protected sources and documentary Final,1 November2026
 
 Core Source1409/a4f29073 and Source1410/ecce3a19 are independently originally
