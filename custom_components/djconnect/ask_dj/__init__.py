@@ -256,7 +256,8 @@ async def async_handle_ask_dj(
         or ("nog meer leuk" in _normalize(effective_text) and "artiest" in _normalize(effective_text))
         or bool(re.search(r"\b(?:nu|now|current|currently|huidige|gerade|aktuell|maintenant|ahora)\b", effective_text.casefold())))
     private_reads = {"previous_track_information", "session_forecast_information", "next_track_info", "list_outputs", "playback_control"}
-    playback_context = (await _playback_context(hass, runtime)
+    playback_context = (await _playback_context(hass, runtime, allow_cached=False)
+        if classification.intent == "current_output" else await _playback_context(hass, runtime)
         if classification.intent not in private_reads and (classification.intent != "ask_music_info" or classification.category in {"action", "hybrid"} or current_reference)
         else {})
     output_devices = await _output_devices(hass, runtime, classification)
@@ -1691,7 +1692,9 @@ _ASK_DJ_INTENT_RULES = (
     (lambda value, _: "shuffle" in value, lambda value: AskDjIntent("action", "playback_control", "set_shuffle", "uit" not in value)),
     (lambda value, _: "repeat" in value or "herhaal" in value, lambda value: AskDjIntent("action", "playback_control", "set_repeat", "off" if "uit" in value else "context")),
     (lambda value, _: _is_output_selection_request(value), AskDjIntent("informational", "list_outputs", "devices")),
-    (lambda value, _: ("waarop" in value and "muziek" in value) or any(phrase in value for phrase in ("op welke speaker speelt de muziek", "welke speaker is actief", "waar speelt dit af", "what speaker is active")), AskDjIntent("informational", "current_output", "status")),
+    (lambda value, _: ("waarop" in value and "muziek" in value) or any(phrase in value for phrase in ("op welke speaker speelt de muziek", "welke speaker is actief", "waar speelt dit af", "what speaker is active"))
+     or re.fullmatch(r"welk(?:e)? (?:speaker|luidspreker|uitgang|output|apparaat) is (?:(?:nu|momenteel) )?actief[?.!]*", value),
+     AskDjIntent("informational", "current_output", "status")),
     (lambda value, _: _is_deferred_playback_request(value), AskDjIntent("hybrid", "play_music", "play_music", play=True)),
     (lambda value, _: bool(music_command_subject(value) or re.search(r"\b(speel|draai|zet|play|put on)\b", value)), AskDjIntent("hybrid", "play_music", "play_music", play=True)),
 )
@@ -9068,9 +9071,14 @@ def _apply_mood_voice_profile(runtime: Any, payload: dict[str, Any]) -> dict[str
     return resolved
 
 
-async def _playback_context(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
+async def _playback_context(hass: HomeAssistant, runtime: Any, *, allow_cached: bool = True) -> dict[str, Any]:
     try:
-        result = await async_call_ai_tool(hass, runtime, "djconnect_now_playing")
+        # The legacy AI-tool presentation normalizes success to True. A current
+        # output observation must preserve the backend's actual success value.
+        result = (await async_call_ai_tool(hass, runtime, "djconnect_now_playing")
+                  if allow_cached else await run_music_command(hass, runtime, "status"))
+        if not allow_cached and (not isinstance(result, dict) or result.get("success") is not True):
+            return {}
         playback = result.get("playback") if isinstance(result, dict) else {}
         if isinstance(playback, dict):
             updater = getattr(runtime, "update", None)
@@ -9080,7 +9088,7 @@ async def _playback_context(hass: HomeAssistant, runtime: Any) -> dict[str, Any]
                 setattr(runtime, "last_playback", playback)
         return playback if isinstance(playback, dict) else {}
     except Exception:  # noqa: BLE001
-        return getattr(runtime, "last_playback", None) or {}
+        return (getattr(runtime, "last_playback", None) or {}) if allow_cached else {}
 
 
 async def _output_devices(
