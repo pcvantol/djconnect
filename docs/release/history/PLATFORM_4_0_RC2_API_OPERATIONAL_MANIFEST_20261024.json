@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.0.0-rc.2-api-closed-maintenance-20261024",
+  "platform_version": "4.0",
+  "release_version": "4.0.0-rc.2",
+  "release_profile": "INTERNAL_RELEASE",
+  "generated_at": "2026-10-24T08:56:49.373270+00:00",
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-10-24",
+    "approved_statement": "Peter directly requested merging, pushing and deploying the API to production on24October, then completing all remaining work needed for that deployment. Root personally verified both original human messages. This selects only the originally qualified latest API Final94a2dc6adfb6be498ec5c3cd85c69ea22d0afa4f artifact12554174111; source147/69ed and separate Final149/94a2 both retain their own original qualification.",
+    "authority_record": "docs/verification/API_CLOSED_DEPLOYMENT_BINDING_20261024.md#human-scope",
+    "effect": "Only exact compiled-closed Cloudflare Worker deployment and separate matching health smoke. Existing configuration and all ten migrations are byte-identical; no pending migration, D1 write/reset/drop/restore, secret rotation, key handling, enrollment, issuer/public/fixedQA activation, Activity/native/device grant or paid call."
+  },
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect-api",
+      "source_sha": "94a2dc6adfb6be498ec5c3cd85c69ea22d0afa4f",
+      "version": "4.0.0-rc.2",
+      "artifact_run": "40079531338"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "cloudflare_workers_production",
+      "required": true
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "pcvantol/djconnect-api",
+      "target": "cloudflare_workers_production",
+      "artifact_id": "12554174111",
+      "artifact_sha256": "628f5d094bea6d6286f2c38d0db218bdefb50c246cb1da19d77f6d8225bf2d61",
+      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/40079531338"
+    }
+  ],
+  "constraints": [
+    "Internal prerelease only; not stable/public release.",
+    "Select the actual latest qualified separate Final94 artifact12554174111/TAR628f5d09, not the source69 artifact or historical c048 artifact. Source69 and Final94 trees match for runtime/configuration/package/migrations; compiled release stamps differ.",
+    "Normal protected Core manifest source plus separate Core documentary Final and original qualification precede owning API deployment and exact matching health smoke. Pending smoke is not production acceptance.",
+    "Issuer/public rendezvous/fixedQA remain compiled CLOSED, public dispatch false and Activity profiles empty. All22 operational gates remain OPEN; source/provider deployment grants no real key, enrollment, servicepurpose, Activity, native or device authority.",
+    "All ten migrations0001..0010 are already applied; pending empty, configuration and all ten migration bytes equal currentc048. Preserve D1 data/journals/tombstones and all twelve binding identities/secrets. No new migration or database/secret operation is authorized."
+  ],
+  "next_authorized_action": "After this exact Core manifest source and its separate documentary Final are normally protected-merged and originally qualified, owning API may execute the exact bound normal deployment and matching health smoke once. Private preparation is not operative approval; no duplicate dispatch.",
+  "rollback": {
+    "previous_deployment_id": "84fdd4eb-7706-450f-849b-c9ba174a3204",
+    "retained_worker_version_id": "6d6531ba-ea62-48c2-b132-8649cdcee627",
+    "source_sha": "c04864ce7c885e0de5fb365aa0139a64c7921b22",
+    "preserved_actual_deployed_worker_sha256": "f702ae9827a21f2c92e2411e91e2bad77f80396310b8453a4b2879ee9422ccd9",
+    "worker_hash_scope": "Root rehashed retained actual c048 archive/module; owning API original provider metadata/version/live stamp agree. Provider etag is not module SHA; no new direct provider module-byte export.",
+    "retained_archive_sha256": "4ecd3a6cbb597ece37a3b6d4099e25e0c750605db8eb30ef0f9bd7c15bdb7b5b",
+    "prior_artifact_id_available": false,
+    "prior_artifact_id": "12489837064",
+    "fresh_readback_sha256": "2d8cdd074797fb62af0a32354869fdc82275682f63e5c52b11fadfe89334689c",
+    "binding_identity_sha256": "b56ee10fa3dbdb530517ca8bacdaaaa54110bcc67636055d5750425a4272f39b",
+    "binding_count": 12,
+    "rule": "Only preserved current Worker6d6531ba/c048 as rollback target; preserve all current D1 schema/data/operation fences and all bindings/secrets. No database restore/drop/reset or secret rotation. Separate actual rollback effect authorization remains required.",
+    "historical_artifact_availability": "Known original c048 artifact12489837064/run39926787789 currently404 through connector and existing authenticated CLI; use retained rehashed archive/current provider version, not a promised new provider download.",
+    "artifact_availability_readback_sha256": "66770c83908d9473de5b6beac30e64f804bac6fb0519ff8137c229ba26da6105"
+  },
+  "separate_finalization": {
+    "repository": "pcvantol/djconnect-api",
+    "source_sha": "94a2dc6adfb6be498ec5c3cd85c69ea22d0afa4f",
+    "reviewed_sha": "4091c34eefa6e084fa9ea6dec29ec97e82483d34",
+    "original_qualification": "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED",
+    "original_run": "40079531457",
+    "evidence_digest": "b735ba0eef4103335418324af1e1f34d9cad256aeab5bc737b9896201f268428",
+    "original_raw_sha256": "b3d4ce6109c2d52e4c437baac37e13dfa253936ff48cb18e00c2f529d46a5384",
+    "main_native_browser": "40079429282SUCCESS",
+    "durable_asset": "671752026",
+    "durable_raw_sha256": "7bd3bb5c0bd48192027b9ca76b6600349fbea1f93829d38d6edb478192c7b3d5"
+  },
+  "source_qualification": {
+    "source_sha": "69ed0fd75833f21c0b3862624e34c2e75efa3dc5",
+    "reviewed_sha": "162667ae76481ffc27c6f665cb031cadcf7f1665",
+    "original_run": "40077940223",
+    "evidence_digest": "c67b892695f56bb9cffe98a0e89cd734d062ba3ed23f2422535fb665c162e2cc",
+    "original_raw_sha256": "fbfc289b4230518f81cbdc9d8269f77667d1bc6a1e8056d2a439900fcfd6d9c7",
+    "main_native_browser": "40077834160SUCCESS",
+    "durable_asset": "671701606",
+    "durable_raw_sha256": "712c7c40acc409cb7fe41ea7154d643e4faa75f66563d3e3b1027f4416b04ba2"
+  },
+  "migration_boundary": {
+    "existing_0001_through_0010_bytes_unchanged": true,
+    "actual_applied": [
+      "0001_initial.sql",
+      "0002_install_tokens.sql",
+      "0003_encrypt_apns_tokens.sql",
+      "0004_bootstrap_proofs.sql",
+      "0005_install_token_revoke.sql",
+      "0006_privacy_safe_diagnostics.sql",
+      "0007_restrict_apns_push_contract.sql",
+      "0008_restore_bootstrap_proof_metadata.sql",
+      "0009_surface_push.sql",
+      "0010_surface_delegations.sql"
+    ],
+    "permitted_pending_additive": [],
+    "actual_pending": [],
+    "configuration_unchanged": true,
+    "no_seeded_capability_or_enrollment": true,
+    "no_reset_drop_restore_secret_rotation": true,
+    "fresh_D1_read_rows": 10,
+    "fresh_D1_read_rows_written": 0
+  }
+}
