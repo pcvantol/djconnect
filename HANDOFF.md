@@ -1,3 +1,15 @@
+## API private host-wake rollout binding — 1 November 2026
+
+The [exact central server binding](docs/verification/API_PRIVATE_HOST_WAKE_DEPLOYMENT_BINDING_20261101.md)
+selects originally qualified API Final757/artifact13101098852/TARa88, exact0011
+plus nine reviewed additive DDL files, and actual current94/7fb3 rollback.
+Normal protected Core Source/separate Final and original qualification precede
+execution. Fresh schema/bookmark/conflict admission and actual after-readback
+remain required. No positive operator/native policy or device acceptance follows
+from this server binding. All302 Core product bytes, existing24 requests/nine
+gates, Help/free Ask DJ, VibeCast and production/Pi scopes remain retained.
+Complete earlier bodies below retain their own historical scope.
+
 ## Current speaker question source #1413 Finalization (1 November 2026)
 
 Protected source `1a6ec54e0fd9ce6f80d8d7fdaf70e7ac8554a1bf`, reviewed `bec2e5e7f3af2c23eea6283bf1ed8c309fbe158c`, routes current-speaker questions with `nu`/`momenteel` to a fresh successful backend status read. Failed reads cannot present a cached speaker as current. Independent whole/exact source reviews and original main/reconcile/coverage/durable evidence are retained in [the source Final report](docs/verification/ASK_DJ_CURRENT_OUTPUT_SOURCE_FINALIZATION_20261101.md).
