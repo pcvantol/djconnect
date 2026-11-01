@@ -1,3 +1,36 @@
+## Current prepared host-wake runtime: original local proof resource ceiling
+
+The same prepared increment now connects the genuinely registered child to its
+original Broadcast and SQL-once content-free wakes, as specified in
+`docs/product/DIRECT_RICH_HOST_WAKE_PROXY_V1.md`. Callback clocks precede manager
+lock/foreground waits; unsent capacity/timeout/uncertain-source signals do not
+cancel or revoke the parent. Durable resolved-role budgets include every wake
+reservation; postclaim unknowns never retry. Actual isolated HA exercised all
+seven HTTP routes and this Broadcast/SQL composition with explicitly modeled
+external API/native/provider replies. Whole source/protected delivery and actual
+iPhone/APNs acceptance remain separate pending gates.
+
+The prepared seven-route runtime retains its local 30-second proof-submission ceiling from the original challenge request before body/SQL/HTTP awaits. Fresh complete requests and replies cannot restart it. This is local custody only; API owns its own nonce UTC/admission. Original token SHA256 is checked before registration disclosure. Public errors use the existing closed push-specific v1 contract.
+
+Current prepared first-key/clock document SHA256: `be043350ea59b254d3dca86b895e0c46cabf2bee45c736c61fe0528635ae7d44`. Earlier prefixes below retain their original historical snapshot. No whole-source qualification, installation, SDK, provider or device acceptance follows from these WIP checks.
+
+## Original installation first key and host-wake clock ownership, 1 November2026
+
+The canonical [first-key and deadline contract](docs/product/HOST_WAKE_FIRST_KEY_V1.md)
+separates installation-bound SDK key generation before Core prepare from genuine
+API-selected attestation and registration. Local first-key custody needs actual
+operator/effect authority, signed installation/task identity and durable once
+before SDK; no JSON flag, QR reference or key existence is permission.
+
+API owns UTC/SQL admission deadlines; Core retains original local context and
+wall/mono ceilings; Apple retains its actual pre-authorize ContinuousClock root.
+No receipt-time reanchor or unproved cross-OS rate is authority. Local bounded
+SDK effects and server admission are separate; no no-SDK-after-remote-expiry
+claim is made without a real additional bound. Late results cannot enroll or
+register. Existing rich-field rights/privacy and accepted stale OS status retain
+their own scopes. This source preparation authorizes no signing/install/key,
+provider or native action and supplies no operative consumer pin.
+
 ## Host-wake custody source and separate Final,1 November2026
 
 Core [Source1405](https://github.com/pcvantol/djconnect/pull/1405) is originally qualified at27ff068e,298 products/schema21. See the [Final report](docs/verification/HOST_WAKE_CUSTODY_SOURCE_FINALIZATION_20261101.md). All24 requests/nine gates remain; positive7HTTP/issuerACK/finalRAM/clock/native and installation remain open.

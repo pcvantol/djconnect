@@ -196,7 +196,7 @@ class HostWakeChildJournal:
         return await self.storage._settle(write, current)
 
     async def begin(self, reservation, *, expected_revision, kind, semantic_hash, request_hash, attempt_id,
-                    session_id, owner_id, current):
+                    session_id, owner_id, current, maximum_wakes=64):
         """Consume exact stage/event BEFORE IO, under the original parent/CAS.
 
         The owning RAM child must independently select actual semantic event
@@ -216,6 +216,11 @@ class HostWakeChildJournal:
             if kind in BEGIN:
                 expected, phase = BEGIN[kind]
                 require(stored.phase == expected, "rich_purpose_consumed", 409)
+                if kind == "target_wake":
+                    require(type(maximum_wakes) is int and 1 <= maximum_wakes <= 64
+                        and tx.fetchone("SELECT count(*) FROM djconnect_host_wake_attempts "
+                            "WHERE parent_purpose_id=? AND kind='target_wake'",
+                            (reservation.parent.purpose_id,))[0] < maximum_wakes, "rich_capacity", 409)
             else:
                 phase = stored.phase
             require(stored.consumed_attempts < 256 and stored.cas_revision < api.SAFE - 1

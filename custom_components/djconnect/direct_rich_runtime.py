@@ -101,8 +101,33 @@ class DirectRichService:
         self.purposes = {}
         self.scopes = {}
         self.closed = False
+        # Actual local owner/currentness, not operator/native permission. The
+        # independent API validates its own UTC/SQL policy at every effect.
+        self.host_wake_original_attestor = self._attest_host_wake_original
         from .host_wake_child_runtime import HostWakeChildren
         self.host_wake_children = HostWakeChildren(self)
+
+    def _attest_host_wake_original(self, child):
+        """Inspect the real original owner without a public/default permit.
+
+        The original pair/Session/source and raw local ceilings are checked
+        here. No cross-clock rate, operator role or native result is inferred;
+        those server permissions require their actual private API decisions.
+        """
+        self._current()
+        registry, parent, context = child.registry, child.parent, child.context
+        require(not child.closed and registry is self.host_wake_children
+            and registry.service is self and not registry.closed
+            and parent is self.purposes.get(child.reservation.parent.purpose_id)
+            and parent.original is child.reservation.parent
+            and parent.generation == child.reservation.generation
+            and parent.context is context and parent.issued,
+            "rich_not_allowed", 403)
+        require(self._purpose_current(parent) and context.pair.current(), "rich_not_allowed", 403)
+        context._inspect()
+        child._check_clocks()
+        require(not child.closed and child.registry is registry and child.parent is parent
+            and child.context is context, "rich_not_allowed", 403)
 
     def close(self):
         self.closed = True

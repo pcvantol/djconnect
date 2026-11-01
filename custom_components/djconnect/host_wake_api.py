@@ -42,7 +42,8 @@ class HostWakeApiChannel:
     """A single outbound attempt owned by the SAME inbound request lifetime."""
 
     def __init__(self, attempt):
-        require(type(attempt) is HostWakeAttempt, "rich_unavailable", 503)
+        from .host_wake_events import _BroadcastAttempt
+        require(type(attempt) in (HostWakeAttempt, _BroadcastAttempt), "rich_unavailable", 503)
         attempt.check()
         self.attempt = attempt
         self.runtime = attempt.pair.runtime

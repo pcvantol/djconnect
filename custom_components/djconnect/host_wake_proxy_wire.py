@@ -27,6 +27,30 @@ PROOF_KINDS = frozenset({"app_attest_attestation", "app_attest_assertion"})
 _BUNDLE = re.compile(r"[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+\Z")
 
 
+def public_error(error):
+    """Translate local failures into the frozen push-specific client contract.
+
+    Unknown/internal error strings and mismatched statuses never reach clients.
+    This does not change errors on the original direct-read routes.
+    """
+    known = {
+        ("invalid_request", 400): ("invalid_request", 400),
+        ("unauthorized", 401): ("unauthorized", 401),
+        ("rich_not_allowed", 403): ("rich_push_not_allowed", 403),
+        ("rich_history_unknown", 404): ("rich_push_history_unknown", 404),
+        ("rich_purpose_consumed", 409): ("rich_push_consumed", 409),
+        ("rich_capacity", 409): ("rich_push_capacity", 409),
+        ("rich_stage_mismatch", 409): ("rich_push_stage_mismatch", 409),
+        ("rich_body_too_large", 413): ("rich_push_body_too_large", 413),
+        ("rich_frame_unavailable", 503): ("rich_push_unavailable", 503),
+        ("rich_unavailable", 503): ("rich_push_unavailable", 503),
+        ("rich_pending", 503): ("rich_push_pending", 503),
+    }
+    selected = (known.get((error.code, error.status)) if isinstance(error, RichError)
+        and type(error.code) is str and type(error.status) is int else None)
+    return RichError(*(selected or ("rich_push_unavailable", 503)))
+
+
 def decoded_base64(value, minimum, maximum):
     """Canonical standard Base64, including padding bits and decoded bounds."""
     require(type(value) is str and len(value) <= 4 * ((maximum + 2) // 3))
