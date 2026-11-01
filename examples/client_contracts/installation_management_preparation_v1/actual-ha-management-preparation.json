@@ -2,7 +2,7 @@
   "classification": "ACTUAL_HA_ADMIN_PREPARATION_ONLY_NOT_CUSTODY_OR_PUSH",
   "harness": "scripts/verification/verify_installation_management_ha.py",
   "harness_sha256": "8df270f8df4b9a5bb09bd5601de583c90ab0ed5112a65f3bd37498c7ab7e36c5",
-  "original_receipt_sha256": "887b81a3f7d4cabc445ab1f429d54f35eb7d08ca6550d47d34ccdc4b35535a62",
+  "original_receipt_sha256": "957a160077b1802cc023977f83bb33bf8666f0918b81c2502a6af6391367bf8f",
   "original_receipt": {
     "classification": "ACTUAL_ISOLATED_HA_ADMIN_PREPARATION_TESTS_ONLY",
     "source_sha256": {
@@ -15,18 +15,18 @@
       "custom_components/djconnect/api_handlers.py": "5b62d381430f222ce63712d7d0f8c58ab311506886a43a70eaa5692f3755e1d4",
       "custom_components/djconnect/artist_photo.py": "49369dedce29fa90fcc545f918ea4ecc10909f58e0df5ebfe1acf35a7af5019c",
       "custom_components/djconnect/artist_review_words.py": "e0e54572d173d04e2b79093e532d1bc55d264435298ee4628c5a92fd636efc2c",
-      "custom_components/djconnect/ask_dj/__init__.py": "fa5c6dd7a14b498fbebf8022a7ed28abc4b3e9bce018b7cfdcf21bc4dc814dde",
+      "custom_components/djconnect/ask_dj/__init__.py": "d568021a7593e6ec3dc856a84f0894b382499aa3584cc5f19a4a408c243112d6",
       "custom_components/djconnect/ask_dj/actions.py": "8e42edc5bf0a3a3ef73c99273c5860d1f3ebad42dd8897cf8d2877239a25b053",
       "custom_components/djconnect/ask_dj/album_choices.py": "da7971c89f714a7cedee68a467ed80fcbc22f600af8f68196b359a71a0559d33",
       "custom_components/djconnect/ask_dj/album_tracks.py": "e354c334fb9f3c21510389fd6f5c4923271c2ddd8836e5028a8d9c9419f6bf3e",
       "custom_components/djconnect/ask_dj/artist_story.py": "c290be17d8ef89b574664d3c9b61b74a3b6f624518b95af62a99067bc52ac2f7",
       "custom_components/djconnect/ask_dj/artist_tracks.py": "45047d54f079952d6486fded5b1eae7dbce5cfc41a9cef4f0acf3bf39695cdf4",
       "custom_components/djconnect/ask_dj/biographical_dates.py": "d1b1cf5f68f258ebec60bb5716dd51cf2b96ddc1e61df2e16b4c3810b300d185",
-      "custom_components/djconnect/ask_dj/dialogue.py": "3373a4fcab101d328f1eb6f5401a273f497565f1083b9bc7c9b11a12ebe7eb32",
+      "custom_components/djconnect/ask_dj/dialogue.py": "04528dc442d8c581eee5efa422b6a06f7745250f5697f5390699a88fd706463e",
       "custom_components/djconnect/ask_dj/example_catalogue.py": "1cf64d63736bdf859ee2bb11323830c983412db41a1f198941532d9e885b6cc7",
       "custom_components/djconnect/ask_dj/example_catalogue_data.py": "2686951e64ee5cff59f5e188f753165def71eb4d244574bb2e07cf3a3a4fe85f",
       "custom_components/djconnect/ask_dj/examples_v1.json": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
-      "custom_components/djconnect/ask_dj/exploration.py": "8f982680a1e108cab2fa19cca46bff0c7d55542a846fe99b1c59d9165d9e3a50",
+      "custom_components/djconnect/ask_dj/exploration.py": "39de8b2fc0cf5dae43aa6715552174fcacdc2a98a9bc0922fbaf6bbb8f6511a4",
       "custom_components/djconnect/ask_dj/help_configuration.py": "f098ead71160b0bd90580a72db8fff9828c5069e5f7dd3e35bb29c700b27476c",
       "custom_components/djconnect/ask_dj/help_observation.py": "c309e27ce1f71acabead4122397d526952799dfc0efddfc5fd9240af4d513f7e",
       "custom_components/djconnect/ask_dj/intents.py": "545c7cf45bc5a66719d66bed5ef2633a4e01343645080af733a11869f1c01032",
@@ -36,8 +36,8 @@
       "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
       "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
       "custom_components/djconnect/ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
-      "custom_components/djconnect/ask_dj/semantic_reads.py": "905cc818a7358dfd827b1c2ef6b9d2b974af0ed2947e991ea3279c503477ebd2",
-      "custom_components/djconnect/ask_dj/service.py": "732e8790dc3ff4527448c149e3eb4a0f763e4d509e7d938b88945266e6a06e4a",
+      "custom_components/djconnect/ask_dj/semantic_reads.py": "dc9e9a5fca3cf9e3208b8a87fd2a2b99b02ec3bb796f18aa0fc4a63b69391c8f",
+      "custom_components/djconnect/ask_dj/service.py": "c0dc6d15ea329754ef492698ca68630e4dc56670897009efa46bc5ba1367926c",
       "custom_components/djconnect/ask_dj_history.py": "d421ab2d17f85746671a0e242e63a4d429c021b6346be05f11bd551c60c6a325",
       "custom_components/djconnect/assist_stt.py": "609b5a7ec4c40eda3d87a84d9391256bd930c1dd1c80a5171b03df79c68aa6e5",
       "custom_components/djconnect/ble.py": "2223ccb7fb718e51501e72042588d6920619d05d6b9b83b4a6452edbdf7e389d",
@@ -332,7 +332,7 @@
       {
         "case": "actual normal admin preparation",
         "status": 200,
-        "body_sha256": "a1bc7cbbc069847d67c7fe71ff50967b5aaf0617bce67753f6ce2db48ce86a76"
+        "body_sha256": "8a61aa20ec9b7cc78a61264100c381cdc5f70814692188bbe2d452d29a619c65"
       },
       {
         "case": "same original operation not reissued",
@@ -342,7 +342,7 @@
       {
         "case": "same refresh second independent preparation",
         "status": 200,
-        "body_sha256": "c5093d193bce065bc256981b6a40af848a1d9f6f557b9897bf67969437f4a3f3"
+        "body_sha256": "f8fa0be7ae00236216f539dbead2b3ab80de609b7600a1713501d5f43897c45a"
       },
       {
         "case": "actual synchronous refresh revoke fence",
@@ -351,7 +351,7 @@
       {
         "case": "prepare before admin ABA",
         "status": 200,
-        "body_sha256": "1e81aee604e0616b5933861a093b68cdec5e168796e50b414b890a0bef64cfa2"
+        "body_sha256": "ceb8db3123d191b9976604aef4d49bc926292e16642a576feaf05022a4fe1ddd"
       },
       {
         "case": "actual HA admin removal/readd ABA remains retired",
@@ -400,7 +400,7 @@
       {
         "case": "prepare before configuration",
         "status": 200,
-        "body_sha256": "3ff13606036e25918415b55ca66345a9981b440e86142e97bdfd125e14af33b2"
+        "body_sha256": "d44f6f4caebe325ae5a034f7512a0818c1c5d024435694e100da63137c034518"
       },
       {
         "case": "selected configuration rejects and remains retired after restore",
@@ -409,7 +409,7 @@
       {
         "case": "prepare before runtime",
         "status": 200,
-        "body_sha256": "fb9ecef4711a76ff41489f62aae2970a214d532dc6261dafb89a2a0dea3ddb61"
+        "body_sha256": "ed66015d2d800b78a18f01394739ac984c55c105572a68a6647aebe26376b67f"
       },
       {
         "case": "selected runtime rejects and remains retired after restore",
@@ -418,7 +418,7 @@
       {
         "case": "prepare before entry_state",
         "status": 200,
-        "body_sha256": "fef8c1fb12f1f6c500de2743594c409d0b5a95c49fb79e5c27a36464b1977e78"
+        "body_sha256": "9709f9344cb5fae559d7c36c07c90769afa69f36f8a7368e771bf086a38a6c56"
       },
       {
         "case": "selected entry_state rejects and remains retired after restore",
@@ -435,7 +435,7 @@
       {
         "case": "prepare before HA config ABA",
         "status": 200,
-        "body_sha256": "68606811f873bf9a1f39c16ae16125c7b74e41f90dcb543d948ba7e88de289ea"
+        "body_sha256": "124464155d186d4280a470cf9a3b30ad7b6c726cd08a75e91035073e7ca5c792"
       },
       {
         "case": "actual HA public configuration ABA cannot restore original mapping identity",
@@ -444,7 +444,7 @@
       {
         "case": "prepare before real temporary entry flow",
         "status": 200,
-        "body_sha256": "887961cf78866483e90f4145282a98f70b09df77ac3c970d6af1272d569cafb8"
+        "body_sha256": "93fa58ba0e68ab07573ed900aa13bc182072c9c1ff13ee34066fdb7170daef8c"
       },
       {
         "case": "real OptionsFlow failed temporary entry ABA retires pending and prepared management",
@@ -453,12 +453,12 @@
       {
         "case": "prepare before runtime setter A",
         "status": 200,
-        "body_sha256": "e0c45e342f63e3e928b802cc8bafe0c8b355e6f68ed9a6b4da8c9abf6c122e2d"
+        "body_sha256": "06d47cfb415abed2e9551a148e0203a7aed1f514dade1bc9bb8de32e1cb76741"
       },
       {
         "case": "prepare before runtime setter B",
         "status": 200,
-        "body_sha256": "fa142421b0240431ee57912e9f3b98aa6d5a142cdcc9bb112f4af83b7dd80d5e"
+        "body_sha256": "080e6d80e078a9fb99ee00ee6417c551d5dd177537ccbf48330f57f6c8a3a8f9"
       },
       {
         "case": "runtime setter ABA retires all siblings despite cleanup failure",
@@ -467,7 +467,7 @@
       {
         "case": "fixed original local clock",
         "status": 200,
-        "body_sha256": "122c9fa82c719ce25660c90b3336988238034bb07cff287f09feaeb54670fd36"
+        "body_sha256": "cb5ac33ac57c02b019c5d5f11be54707e99bf42df5fb07770bcd5423afa97904"
       },
       {
         "case": "exact original wall and mono expiry closes",
@@ -497,11 +497,11 @@
   "provider_activation": "NOT_RUN",
   "current_source_requalification": {
     "classification": "ACTUAL_ISOLATED_HA_SOURCE_ONLY_NOT_INSTALLED_OR_NATIVE",
-    "at": "20261101T143610004250Z",
+    "at": "20261101T152959284838Z",
     "product_files": 301,
-    "original_raw_sha256": "887b81a3f7d4cabc445ab1f429d54f35eb7d08ca6550d47d34ccdc4b35535a62",
-    "original_admission_sha256": "b186d1ba172c5139da7e1f6a3157148c2dc5e5abd71cce4932776aa6d2d17465",
-    "original_result_sha256": "98aff5cace4eac720a769f93f6fa773c3bc248cc3e7ca8c34921c2c9b7a01d00",
+    "original_raw_sha256": "957a160077b1802cc023977f83bb33bf8666f0918b81c2502a6af6391367bf8f",
+    "original_admission_sha256": "426a90c83a0aa7eea4d6d35bb6a2227b8a5117291bc5b5081142f1d1d136256d",
+    "original_result_sha256": "e168eef95fab9fe8eceefdfb0848b5c4dca93799de082d9a4f207551f73cda5a",
     "all301_before_inside_after_equal": true,
     "own_container_verified_absent": true,
     "this_group_exit": 0,

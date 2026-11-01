@@ -7926,6 +7926,62 @@
           "method": "test_multipart_named_story_uses_semantics_and_actual_question_name"
         },
         {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_failed_public_telling_keeps_user_topic_for_freeworded_fact_followup"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_failed_named_answer_keeps_only_original_user_name_reference"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_model_body_or_unmentioned_name_cannot_publish_public_reference"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_late_earlier_completion_cannot_replace_newer_reference"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_same_name_aba_never_revalidates_original_reference"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_empty_reference_aba_after_newer_origin_erasure_blocks_late_completion"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_origin_erasure_clears_reference_after_a_later_turn_became_current"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_clear_generation_and_owner_boundaries_do_not_restore_reference"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_recent_plan_carries_only_angle_and_cannot_choose_subject_or_effect"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_recent_fence_rejects_retarget_after_turn_start_and_same_name_aba"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_common_recent_execution_keeps_original_fence_over_lookup_and_delivery"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_common_recent_execution_rejects_reference_replacement_during_lookup"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_initial_guard_await_cannot_adopt_a_newer_public_reference"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_unused_recent_reference_does_not_fence_a_new_named_completion"
+        },
+        {
           "file": "tests/test_askdj_contextual_release_gate.py",
           "method": "test_actual_answer_pilot_covers_five_languages_and_cannot_qualify_a_fallback"
         },

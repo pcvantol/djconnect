@@ -116,6 +116,15 @@ def effect_media(value):
     return ()
 
 
+@dataclass(frozen=True)
+class PublicQueryReference:
+    """Original user-named public topic; no answer, source fact or permission."""
+    subject: str
+    request_hash: str
+    scope: str
+    thread_id: str
+
+
 @dataclass
 class DialogueFrame:
     touched: float
@@ -136,6 +145,12 @@ class DialogueFrame:
     read_admission_closed: bool = False
     current_client_id: str = ''
     response_dependencies: dict[str, frozenset[str]] = field(default_factory=dict)
+    public_query_reference: PublicQueryReference | None = None
+    public_query_revision: int = 0
+
+    def clear_public_query(self):
+        self.public_query_reference = None
+        self.public_query_revision += 1
 
     def reset(self, generation: str) -> None:
         if self.generation != generation:
@@ -153,6 +168,7 @@ class DialogueFrame:
         self.chosen_action_id = ""
         self.archiveable = True
         self.current_client_id = ''
+        self.clear_public_query()
 
     def clear_speech(self):
         for record in list(self.speech_references.values()):
@@ -208,9 +224,14 @@ class DialogueTurn:
     resolving_output_request: bool = False
     play_output_id: str = ""
     read_context_revision: int = field(init=False)
+    public_query_candidate: str = ''
+    public_reference_at_start: PublicQueryReference | None = field(init=False)
+    public_reference_revision_at_start: int = field(init=False)
 
     def __post_init__(self):
         self.read_context_revision = self.frame.read_context_revision
+        self.public_reference_at_start = self.frame.public_query_reference
+        self.public_reference_revision_at_start = self.frame.public_query_revision
 
     def require_effect(self, family, *, media=(), output_id=""):
         for grant in self.effect_grants:
@@ -375,6 +396,9 @@ class DialogueState:
                     or set(message.get('_source_request_hashes', ())) & request_hashes
                     or depends(message.get('_dependencies', ())))
         for frame in self.owners.get(scope, {}).values():
+            if (frame.public_query_reference is not None
+                    and frame.public_query_reference.request_hash in request_hashes):
+                frame.clear_public_query()
             frame.messages[:] = [m for m in frame.messages if not affected(m)]
             frame.local_turns[:] = [m for m in frame.local_turns if not affected(m)]
             current_affected = (_request_hash(scope, frame.current_client_id) in request_hashes
@@ -401,6 +425,7 @@ class DialogueState:
         """
         for frame in self.owners.get(scope, {}).values():
             frame.read_context_revision += 1
+            frame.clear_public_query()
             frame.messages.clear()
             frame.local_turns.clear()
             frame.subjects.clear()
@@ -483,6 +508,8 @@ class DialogueState:
         frame = turn.frame
         if (frame.generation != turn.generation
                 or frame.read_context_revision != turn.read_context_revision
+                or frame.public_query_reference is not turn.public_reference_at_start
+                or frame.public_query_revision != turn.public_reference_revision_at_start
                 or not result.get("success")):
             return
         if turn.reset_topic:
@@ -491,6 +518,17 @@ class DialogueState:
                       '_source_request_hashes': sorted(getattr(turn, 'source_request_hashes', ())),
                       '_dependencies': deepcopy(turn.dependencies)}
         frame.current_client_id = turn.client_id
+        if turn.public_query_candidate:
+            from .exploration import named_in_question
+            from .public_research import safe_subject
+            candidate = safe_subject(turn.public_query_candidate, qualified=True)
+            question = result.get('_dialogue_question', '')
+            if candidate and named_in_question(candidate, question):
+                from ..ask_dj_history import _request_hash
+                frame.public_query_reference = PublicQueryReference(
+                    candidate, _request_hash(turn.scope, turn.client_id),
+                    turn.scope, turn.thread_id)
+                frame.public_query_revision += 1
         live_ids = set(frame.catalogue_replays) | set(frame.inflight) | {
             m.get('_client_id') for m in (*frame.messages, *frame.local_turns)}
         frame.response_dependencies = {key: value for key, value in frame.response_dependencies.items() if key in live_ids}
@@ -1075,6 +1113,9 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
                 'The actual question may request a different aspect directly. Never treat the '
                 'previous telling as proof or imply that an unfetched source supports more. '
                 'Use connected conversational prose, with length proportional to the request. '
+                'When the listener asks for one surprising or interesting fact, give ONE supported factual sentence '
+                'about one documented musical activity, followed by one open question. Do not add a second fact, '
+                'an origin-to-success arc, a conclusion about its significance or an assumed effect to make it interesting. '
                 'Warmth comes from how you share a specific detail, not generic praise or invented significance. '
                 'Keep people, roles, works and performances distinct. General band sound or reputation '
                 'does not describe a particular performance. One documented cover does not establish '

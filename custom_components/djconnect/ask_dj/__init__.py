@@ -2890,6 +2890,10 @@ async def _informational_assist_response(
                     "text_source": "core", "is_generated_text": False,
                     "knowledge_basis": "public_subject_required"}
         if subject:
+            if named_subject and public_research.safe_subject(named_subject):
+                from .exploration import named_in_question
+                if named_in_question(subject, text):
+                    turn.public_query_candidate = subject
             from .dialogue import selected_lookup_topic
             lookup_topic = selected_lookup_topic(turn, text, angle=research_angle)
             fetched_sources, research_state = await public_research.research(
@@ -3193,6 +3197,7 @@ async def _informational_assist_response(
             message = public_research.unavailable_answer(turn.style.get("language", "en"), answer_unverified=True)
             response.update(text=message, dj_text=message, knowledge_basis="public_research_unqualified",
                             text_source="core", is_generated_text=False)
+            response.pop('model_processing_basis', None)
         else:
             response["knowledge_basis"] = "fetched_public_music_research_v1"
             actual_sources = [source.metadata() for source in fetched_sources]

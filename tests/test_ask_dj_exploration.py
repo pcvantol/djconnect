@@ -739,3 +739,50 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
                 self.assertFalse(result.get('playback'))
                 self.assertEqual(result['conversation']['metrics']['agent_calls'],3)
         self.assertEqual(f.effects,[])
+
+    async def test_failed_public_telling_keeps_user_topic_for_freeworded_fact_followup(self):
+        f = self.f
+        calls = []
+        answer = 'Example Band nam Paper Lanterns op. Wat zou je daarover willen ontdekken?'
+        async def agent(hass, data, **kwargs):
+            p = json.loads(data['text'].split('\nData:\n', 1)[1])
+            calls.append(p)
+            if 'available' in p:
+                if 'recent_public_query' in p:
+                    self.assertEqual(p['recent_public_query']['subject'], 'Example Band')
+                    self.assertNotIn('Unqualified', json.dumps(p))
+                    reply = {'read': 'research', 'reference': 'recent',
+                             'exclude_current': False, 'angle': 'biography'}
+                else:
+                    reply = {'read': 'research', 'reference': 'named',
+                             'exclude_current': False, 'subject': 'Example Band', 'angle': 'biography'}
+            elif 'evidence' in p:
+                if len(calls) <= 3:
+                    reply = {'supported': False, 'language_ok': True, 'style_ok': False,
+                             'unsupported_claims': [p['answer']], 'claim_checks': []}
+                else:
+                    reply = reviewed_fixture(p)
+            else:
+                reply = answer
+            return {'response': {'speech': {'plain': {'speech':
+                json.dumps(reply) if isinstance(reply, dict) else reply}}}}
+        with f.research_http(title='Example Band', text='Example Band is een rockband. Example Band nam Paper Lanterns op.'), patch.object(
+                f.pipeline, '_call_conversation_process_transport', agent):
+            rejected, status = await f.request('Vertel wat leuks over Example Band',
+                identifier='public-origin', language='nl')
+            self.assertEqual(status, 200, rejected)
+            self.assertEqual(rejected['knowledge_basis'], 'public_research_unqualified')
+            self.assertNotIn('model_processing_basis', rejected)
+            frame = f.history.dialogue.owners['profile:profile-a']['default']
+            original = frame.public_query_reference
+            self.assertEqual(original.subject, 'Example Band')
+            result, status = await f.request('Gewoon een verrassend feitje',
+                identifier='public-followup', language='nl')
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result['text'], answer, result)
+        self.assertEqual(result['knowledge_basis'], 'fetched_public_music_research_v1')
+        self.assertEqual(result['conversation']['metrics']['agent_calls'], 3)
+        self.assertIs(frame.public_query_reference, original)
+        self.assertEqual(len(calls), 6)
+        self.assertFalse(result.get('playback_actions'))
+        self.assertEqual(f.effects, [])

@@ -85,7 +85,7 @@ def named_in_question(subject, text):
                for i in range(len(words)-len(names)+1))
 
 
-async def research_response(hass, runtime, text, plan):
+async def research_response(hass, runtime, text, plan, *, recent_reference=None):
     from .dialogue import current_turn
     from . import _informational_assist_response
     turn = current_turn.get()
@@ -98,11 +98,22 @@ async def research_response(hass, runtime, text, plan):
         # actually be in this question. No invented fallback to another artist.
         if not subject or not named_in_question(subject,text):
             return None
+        turn.public_query_candidate = subject
         turn.source_context={}
         turn.selected_read_context=None
         turn.dependencies.clear()
         turn.reset_topic=True
         turn.explicit_research_subject=True
+    elif plan.reference == 'recent':
+        from .dialogue import PublicQueryReference
+        if (type(recent_reference) is not PublicQueryReference
+                or turn.frame.public_query_reference is not recent_reference
+                or recent_reference.scope != turn.scope or recent_reference.thread_id != turn.thread_id):
+            return None
+        subject = recent_reference.subject
+        turn.source_context = {}
+        turn.selected_read_context = None
+        turn.dependencies.clear()
     else:
         if turn.selected_read_context is None:
             return None

@@ -286,10 +286,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 raise SessionConversationError("session_context_changed")
         read_context_revision = frame.read_context_revision
         from ..ask_dj_history import _request_hash
-        source_request_hashes = frozenset(
+        source_request_hashes = set(
             _request_hash(scope, message['_client_id'])
             for message in (*frame.messages, *frame.local_turns) if message.get('_client_id')
-        ) if not reset_topic and not fast else frozenset()
+        ) if not reset_topic and not fast else set()
 
         def requests_withdrawn():
             from ..persistence.content_deletion import request_deleted_now
