@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from tests import test_ask_dj_contextual_dialogue as shared
+from scripts.verification.source_fixture_urls import wikipedia_api_fixture
 
 
 def calendar(when='20261114T200000'):
@@ -99,13 +100,13 @@ class ConcertCalendarTests(unittest.IsolatedAsyncioTestCase):
                 self.assertLess(owner.requests, 8)
                 owner.requests += 1
                 calls.append((url, kwargs))
-                if 'wikipedia.org' in url:
+                if wikipedia_api_fixture(url):
                     return 200, json.dumps({'query': {'pages': [{'title': 'Example Band',
                         'extract': 'Example Band is a music band.', 'pageprops': {},
                         'revisions': [{'revid': 123}]}]}}), url
                 if urlsplit(url).path == '/robots.txt':
                     return 200, 'User-agent: *\nAllow: /', url
-                if 'duckduckgo' in url:
+                if urlsplit(url).hostname == 'html.duckduckgo.com':
                     return 200, '<a href="https://artist.example/concerts">Agenda</a>', url
                 if url.endswith('.ics'):
                     self.assertEqual(kwargs.get('maximum'), 16384)
