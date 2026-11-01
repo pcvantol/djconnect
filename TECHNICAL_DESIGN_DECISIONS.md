@@ -1,3 +1,9 @@
+## Developer tooling source #1391 Finalization (1 November 2026)
+
+Protected source `c79a6faad0843e5e5271849b02ff3ab4084ca071` from reviewed `af1a83067639c9ad9cf61fd765db58c1850d0a93` is independently original-qualified. It delivers coverage.py 7.17.0, isolated Pico Ruff 0.17.2, immutable onboarding 4.5.6 and matching bootstrap 2.0.24/desired-state 3.3.3 guards. All 48 earlier distributions and all 302 HA product files remain unchanged. The actual four-worker coverage run accounts for 4,408 tests with seven existing Windows skips; native read-only verification matches 4.5.6.
+
+[The separate source Final report](docs/verification/DEVELOPER_TOOLING_1391_SOURCE_FINALIZATION_20261101.md) joins original main/reconcile/coverage/durable evidence and retained preliminary skips. This documentary increment changes no product, tool package or release input and supplies no host tool installation, HA update, key/provider/device effect or native acceptance. The HA-dev302 preparation window closed without stop, install or new once claim; HA-dev remains 277/schema18. All prior open work and acceptance gates below retain their own scopes.
+
 ## Coherent dependency and onboarding distribution maintenance (1 November 2026)
 
 PR #1391 retains both proposed developer upgrades: coverage.py 7.17.0 and isolated Pico Ruff 0.17.2. Since the Pico requirement is a deterministic onboarding archive member, a requirements-only merge would leave source and distribution inconsistent. Publish a new onboarding 4.5.6 archive, matching desired-state profile 3.3.3 and bootstrap 2.0.24/operations 1.3.16, preserving every previous distribution byte. Both exact desired/actual-package guards and negative tests remain active. Runtime product files, release inputs, provider/device authority and the HA decoder baseline remain unchanged.
