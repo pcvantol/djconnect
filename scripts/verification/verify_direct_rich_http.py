@@ -114,7 +114,7 @@ async def qualify(self, client, identity, headers):
     await post("read", read, asset_headers, 401)
     await post("read", read, paired, 400)  # Ambient paired identity is forbidden on this role.
     await post("authorize", {**request, "operation_id": str(uuid.uuid4())}, paired, 409)
-    cases = ["actual_paired_Profile_SQL20_HTTP_authorize_and_independent_role_credentials",
+    cases = ["actual_paired_Profile_SQL21_HTTP_authorize_and_independent_role_credentials",
         "twelve_reads_same_original_frame_no_publication_or_purpose_renewal",
         "ordinary_and_asset_credentials_cannot_replace_rich_read",
         "same_original_scope_new_UUID_cannot_reissue"]

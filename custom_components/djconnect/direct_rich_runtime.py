@@ -6,12 +6,13 @@ once/history, never a positive restoration or credential recovery mechanism.
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from fractions import Fraction
 import hmac
 import secrets
 import time
 import uuid
+import weakref
 
 from .direct_rich_context import capture_context
 from .direct_rich_frame import final_current, project, utc_ms
@@ -37,12 +38,16 @@ class _Purpose:
     pending: object = None
     closed: bool = False
     issued: bool = False
+    dependents: object = field(default_factory=weakref.WeakSet)
 
     def retire(self):
         if self.closed:
             return
         self.closed = True
         self.read_secret = self.asset_secret = ""
+        for dependent in tuple(self.dependents):
+            dependent.close()  # Original child fence BEFORE context/task cleanup.
+        self.dependents.clear()
         context, self.context = self.context, None
         pending, self.pending = self.pending, None
         if context is not None:
@@ -96,9 +101,12 @@ class DirectRichService:
         self.purposes = {}
         self.scopes = {}
         self.closed = False
+        from .host_wake_child_runtime import HostWakeChildren
+        self.host_wake_children = HostWakeChildren(self)
 
     def close(self):
         self.closed = True
+        self.host_wake_children.close()
         for purpose in self.purposes.values():
             purpose.retire()
 

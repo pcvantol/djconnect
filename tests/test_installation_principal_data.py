@@ -49,7 +49,7 @@ class InstallationPrincipalDataTests(unittest.TestCase):
         self.assertEqual(receipt["state"], "PASS")
         self.assertEqual(len(receipt["cases"]), 6)
         self.assertEqual(len(receipt["preceding_source_origin_cases"]), 19)
-        self.assertEqual(len(receipt["source_sha256"]), 289)
+        self.assertEqual(len(receipt["source_sha256"]), 298)
         for relative, digest in receipt["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), digest)
         actual = hashlib.sha256((root / joined["codec_harness"]).read_bytes()).hexdigest()

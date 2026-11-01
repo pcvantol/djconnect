@@ -45,6 +45,7 @@ class DirectRichPair:
     path: str
     epoch: object = field(default_factory=lambda: _EPOCH)
     retired: bool = False
+    on_retire: object = None
 
     @property
     def device_id(self):
@@ -55,7 +56,10 @@ class DirectRichPair:
         return self.coordinates[1] if self.coordinates is not None else None
 
     def retire(self):
+        if self.retired:
+            return
         self.retired = True
+        callback, self.on_retire = self.on_retire, None
         _captures.discard(self)
         # A consumer may keep this closed handle indefinitely. It must not keep
         # the old ordinary bearer, entry dictionaries or owning object graph.
@@ -63,6 +67,8 @@ class DirectRichPair:
                 "coordinates", "registration", "acknowledgement", "persistence",
                 "provider", "readiness", "path", "epoch"):
             setattr(self, name, None)
+        if callback is not None:
+            callback()  # Negative owning request closure only, after scrubbing.
 
     def current(self):
         if self.retired:

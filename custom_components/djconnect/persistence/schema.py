@@ -35,6 +35,42 @@ RICH_PURPOSE_DDL = (
     "CHECK(expires_ms>issued_ms AND expires_ms<=issued_ms+28800000))"
 )
 
+HOST_WAKE_CHILD_DDL = (
+    "CREATE TABLE djconnect_host_wake_children ("
+    "parent_purpose_id TEXT PRIMARY KEY REFERENCES djconnect_rich_purposes(purpose_id),"
+    "native_operation_id TEXT NOT NULL UNIQUE,generation TEXT NOT NULL,"
+    "native_revision INTEGER NOT NULL CHECK(native_revision=1),"
+    "parent_binding_hash TEXT NOT NULL CHECK(length(parent_binding_hash)=64),"
+    "prepare_request_hash TEXT NOT NULL CHECK(length(prepare_request_hash)=64),"
+    "created_ms INTEGER NOT NULL CHECK(created_ms BETWEEN 1 AND 9007199254740991),"
+    "original_hash TEXT CHECK(original_hash IS NULL OR length(original_hash)=64),"
+    "role_hash TEXT CHECK(role_hash IS NULL OR length(role_hash)=64),"
+    "expires_ms INTEGER CHECK(expires_ms IS NULL OR expires_ms BETWEEN 1 AND 9007199254740991),"
+    "phase TEXT NOT NULL CHECK(phase IN ('initial_reserved','sealed','issuing','prepared',"
+    "'challenging','challenge_known','completing','verifying','native_verified',"
+    "'registering','registered','unknown','withdrawn')),"
+    "cas_revision INTEGER NOT NULL CHECK(cas_revision BETWEEN 0 AND 9007199254740990),"
+    "consumed_attempts INTEGER NOT NULL CHECK(consumed_attempts BETWEEN 1 AND 256),"
+    "CHECK((original_hash IS NULL AND role_hash IS NULL AND expires_ms IS NULL "
+    "AND phase IN ('initial_reserved','unknown','withdrawn')) OR "
+    "(original_hash IS NOT NULL AND role_hash IS NOT NULL AND expires_ms IS NOT NULL AND expires_ms>created_ms "
+    "AND phase!='initial_reserved')))"
+)
+HOST_WAKE_ATTEMPT_DDL = (
+    "CREATE TABLE djconnect_host_wake_attempts ("
+    "parent_purpose_id TEXT NOT NULL REFERENCES djconnect_host_wake_children(parent_purpose_id),"
+    "ordinal INTEGER NOT NULL CHECK(ordinal BETWEEN 1 AND 256),"
+    "attempt_id TEXT NOT NULL UNIQUE,kind TEXT NOT NULL CHECK(kind IN "
+    "('role_resolve','issuer_issue','native_challenge','native_complete','native_status',"
+    "'target_register','target_wake','target_status','issuer_status')),"
+    "semantic_hash TEXT NOT NULL CHECK(length(semantic_hash)=64),"
+    "request_hash TEXT NOT NULL CHECK(length(request_hash)=64),"
+    "phase TEXT NOT NULL CHECK(phase IN ('reserved','completed','unknown')),"
+    "result_hash TEXT CHECK(result_hash IS NULL OR length(result_hash)=64),"
+    "CHECK((phase='completed' AND result_hash IS NOT NULL) OR (phase!='completed' AND result_hash IS NULL)),"
+    "PRIMARY KEY(parent_purpose_id,ordinal),UNIQUE(parent_purpose_id,kind,semantic_hash))"
+)
+
 MIGRATIONS = (
     Migration(1, "0001_persistence_metadata", "8c52f0c7"),
     Migration(2, "0002_migration_identity", "b0b063e2"),
@@ -57,9 +93,16 @@ MIGRATIONS = (
     Migration(19, "0019_installation_once_metadata", "e973862a"),
     Migration(20, "0020_direct_rich_purposes",
         hashlib.sha256(RICH_PURPOSE_DDL.encode()).hexdigest()[:8]),
+    Migration(21, "0021_host_wake_child_once",
+        hashlib.sha256((HOST_WAKE_CHILD_DDL + HOST_WAKE_ATTEMPT_DDL).encode()).hexdigest()[:8]),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_host_wake_children": {"parent_purpose_id", "native_operation_id", "generation", "native_revision",
+        "parent_binding_hash", "prepare_request_hash", "created_ms", "original_hash", "role_hash", "expires_ms",
+        "phase", "cas_revision", "consumed_attempts"},
+    "djconnect_host_wake_attempts": {"parent_purpose_id", "ordinal", "attempt_id", "kind", "semantic_hash",
+        "request_hash", "phase", "result_hash"},
     "djconnect_rich_purposes": {"scope_hash", "operation_id", "purpose_id", "owner_hash",
         "device_hash", "entry_hash", "pair_hash", "session_hash", "surface",
         "request_hash", "issued_ms", "expires_ms", "phase"},
@@ -445,6 +488,9 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
         )
     elif version == 20:
         transaction.execute(RICH_PURPOSE_DDL)
+    elif version == 21:
+        transaction.execute(HOST_WAKE_CHILD_DDL)
+        transaction.execute(HOST_WAKE_ATTEMPT_DDL)
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(
         "INSERT OR REPLACE INTO djconnect_schema_metadata "
