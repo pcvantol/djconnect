@@ -1,5 +1,24 @@
 # Shared Ask DJ contextual dialogue contract v1
 
+## Age disambiguation — 1 November 2026
+
+The closed semantic research plan additionally accepts `angle:age`. It keeps
+the same owner, exact named/selected/recent subject and read-only source budget;
+it cannot select an unmentioned band member or grant playback. After current
+public retrieval, an exact English Wikipedia/QID direct positive group lead
+may yield a localized Core question about band duration versus a person's age.
+Known direct nationality/genre descriptors and a direct band/music-group noun
+are required; negation, uncertainty, films/books/companies about a band,
+unsupported descriptors and expired/non-English leads cannot use this branch.
+All five UI locales are supported. The original source deadline remains fenced.
+
+This question sets `clarification_required:true` and
+`knowledge_basis:public_subject_clarification_v1`; it grants no numeric age,
+birth-date derivation, member identity, model-processing basis or action. It
+does not invoke biography generation/review to ask what the listener means.
+All actual factual answers retain the existing independent evidence and style
+review. See the [regression scope](../verification/ASK_DJ_RECENT_LIST_AND_AGE_REGRESSION_20261101.md).
+
 Assignment `DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013`; companion
 [experience](ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md). This directed refinement
 is committed before production changes. Existing source-main

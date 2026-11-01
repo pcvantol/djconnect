@@ -11,6 +11,7 @@ MORE_TEXT = {
     "es": "Cuéntame más",
 }
 ANGLES = {
+    "age": "musician age birth date or band existence",
     "biography": "music biography documented history",
     "members": "band members interview",
     "live_history": "live performance concert history",
@@ -20,6 +21,53 @@ ANGLES = {
     "discography": "albums discography official",
     "current_events": "official concerts tour current dates",
 }
+
+
+def band_age_question(research, language):
+    """Clarify a source-identified group, never infer a person's age or birth date."""
+    from datetime import UTC, datetime
+    from .biographical_dates import _group_source, _UNSAFE
+    from .public_research import safe_subject, _sentences
+    if not isinstance(research, dict):
+        return None
+    group = safe_subject(research.get("resolved_public_subject"), qualified=True)
+    if not group or len(group) > 120 or not isinstance(research.get("sources"), list):
+        return None
+    found = False
+    # The older biography receipt's group lens was only a prerequisite before
+    # independent factual review. A local clarification needs its own direct
+    # positive classification, never a later mention of a band in a film/book.
+    descriptor = (r"(?:American|Belgian|Dutch|English|British|German|French|Spanish|Canadian|Irish|"
+                  r"Australian|Swedish|Norwegian|Finnish|Danish|Scottish|Welsh|Italian|Japanese|"
+                  r"Icelandic|New Zealand|South African|rock|pop|alternative|indie|electronic|folk|"
+                  r"jazz|punk|metal|soul|hip-hop|hip hop|synth-pop|progressive|experimental)")
+    classification = (re.escape(group) + r"\s+(?:is|was|are|were)\s+(?:a|an)\s+"
+                      + rf"(?:{descriptor}\s+){{0,5}}(?:band|(?:music|musical|rock|pop|jazz|hip-hop) group)"
+                      + r"(?=\.|,\s|\s+(?:led|formed|founded|from|based|consisting)\b)")
+    for source in research["sources"]:
+        if (not isinstance(source, dict) or source.get('language') != 'en'
+                or not _group_source(source, group)):
+            continue
+        lead = _sentences(source['untrusted_excerpt'])[0]
+        if _UNSAFE.search(lead) or not re.match(classification, lead, re.I):
+            continue
+        try:
+            expiry = datetime.fromisoformat(source["expires_at"])
+            found = expiry.tzinfo is not None and expiry > datetime.now(UTC)
+        except (KeyError, TypeError, ValueError, OverflowError):
+            continue
+        if found:
+            break
+    if not found:
+        return None
+    copy = {
+        "en": "Do you mean how long the band {group} has existed, or the age of a particular musician?",
+        "nl": "Bedoel je hoe lang de band {group} bestaat, of de leeftijd van een specifieke muzikant?",
+        "de": "Meinst du, wie lange es die Band {group} gibt, oder das Alter eines bestimmten Musikers?",
+        "fr": "Tu veux savoir depuis combien de temps le groupe {group} existe, ou l’âge d’un musicien en particulier ?",
+        "es": "¿Te refieres a cuánto tiempo lleva existiendo la banda {group}, o a la edad de un músico en concreto?",
+    }
+    return copy.get(language, copy["en"]).format(group=group)
 
 
 def more_request(text):

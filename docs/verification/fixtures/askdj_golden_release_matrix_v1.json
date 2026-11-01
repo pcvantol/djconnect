@@ -8080,6 +8080,62 @@
         {
           "file": "tests/test_personal_dj_narration_public_artist.py",
           "method": "test_composer_year_end_bound_allows_supported_date_free_episode"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_original_display_survives_saved_exchange_reload_and_clear"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_legacy_or_missing_source_never_retains_display"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_closed_display_rejects_actions_media_unknowns_and_bad_bounds"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_same_track_occurrences_keep_original_ordinals_and_timestamps_without_media"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_paired_list_survives_minute_lease_end_store_reload_and_session_end"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_source_withdrawal_redacts_cards_and_caption_on_http_and_timeline"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_missing_original_source_is_not_requalified_from_label"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_boolean_original_authority_loss_cannot_be_archived"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_original_authority_loss_during_store_save_rolls_back_display"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_live_display_is_not_an_archive_grant"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_age_question_keeps_person_band_distinction_without_inventing_a_birth_date"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_source_without_birth_date_cannot_qualify_a_remembered_personal_age"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_age_clarification_needs_exact_fresh_group_identity_in_all_five_locales"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_current_actual_ha_original_receipt_matches_display_and_all_products"
         }
       ],
       "steps": [

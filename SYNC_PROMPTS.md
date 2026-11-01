@@ -7548,3 +7548,15 @@ frozen transcript; method+exactroute+body correlation, perHTTP original budget,
 once/UNKNOWN and local negative fences are mandatory. These are source
 contracts, not deployed handlers or native/clock/enrollment permission. Existing
 shipping Direct rich/read and legacy surface permissions remain separate.
+# Ask DJ recent-list retention — optional display-only v1
+
+Core PR1409 adds the optional `recent_history_presentation` contract described
+in [ASK_DJ_RECENT_LIST_PRESENTATION_V1](docs/product/ASK_DJ_RECENT_LIST_PRESENTATION_V1.md).
+The direct response and assistant value must agree. Retained source-qualified
+Profile/Session entries can render original caption/cards after the live
+action/media overlay expires. Validate the closed16KiB/10-item wire, original
+ordinal identities and original UTC timestamps; use full original text when
+absent/invalid/conflicting. Do not render both fallback bullets and these cards.
+No archived URI, action, image/audio token or refreshed lease is supplied.
+Music playback and speech replay remain independently admitted controls.
+Apple adoption and installed/native acceptance are separate from Core source.
