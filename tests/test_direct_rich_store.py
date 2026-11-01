@@ -196,7 +196,7 @@ class DirectRichStoreTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(seen, [('wal', 2)])
         self.assertEqual(await self.service.async_in_transaction(lambda tx:
             tx.fetchone('PRAGMA synchronous')[0]), 1)
-        self.assertEqual(self.service.readiness.schema_version, 20)
+        self.assertEqual(self.service.readiness.schema_version, 21)
 
     async def test_actual_postcommit_close_reopen_cannot_acknowledge_under_new_store_lifetime(self):
         actual = self.service.async_in_transaction

@@ -2,12 +2,12 @@
   "classification": "ACTUAL_HA_ADMIN_PREPARATION_ONLY_NOT_CUSTODY_OR_PUSH",
   "harness": "scripts/verification/verify_installation_management_ha.py",
   "harness_sha256": "8df270f8df4b9a5bb09bd5601de583c90ab0ed5112a65f3bd37498c7ab7e36c5",
-  "original_receipt_sha256": "6990f17155053cf5c362dfd8ddda8d40dbeaec6e10b2846d1e4d79273553ccb4",
+  "original_receipt_sha256": "adf41321efd3ed82dcabfebbf07c7a2ec381a0a7a97c23e9df588738dc86912d",
   "original_receipt": {
     "classification": "ACTUAL_ISOLATED_HA_ADMIN_PREPARATION_TESTS_ONLY",
     "source_sha256": {
       "custom_components/djconnect/AGENTS.md": "8fb8891e3a2cca055067fbbacafe6c189f38bc00c514a6bf6984639a182a70cf",
-      "custom_components/djconnect/__init__.py": "4545f6d81a06e9241795f7712a7b0a789e9a502009a92e41db0daabef3a9f58a",
+      "custom_components/djconnect/__init__.py": "f88f604783178dfdd0ab25bd47ee2d36e1b743f2880a6e534742504dac5c578a",
       "custom_components/djconnect/ai_tools.py": "175ac20dc1ebdb535aaec839b6fc8e8fe012ac3c81e0f0f07e1856b692c9f0c8",
       "custom_components/djconnect/album_narration.py": "0efcf09a26db6dfac6c7a0e90a09a82efc444f69fad4142ce4e39002e1a81c64",
       "custom_components/djconnect/announcement_policy.py": "046b5362490e6d581177fe9456473613e164e10fc9baf4739a5b516b8c95bea7",
@@ -82,8 +82,8 @@
       "custom_components/djconnect/direct_rich_frame.py": "d06a60f3dc9f52de5fc2ceae3bf37efe7bb2883eb62b5c4a096924264bce5b32",
       "custom_components/djconnect/direct_rich_http.py": "d20c0b0cdba0d6da84a002b169ab9f0dc5d8e5ecb21a135eef2836bca67ceb40",
       "custom_components/djconnect/direct_rich_output.py": "ec1c894ca93646091cd933e2d052019010923c21927c4919a0f76dc3b5ec29c7",
-      "custom_components/djconnect/direct_rich_pair.py": "ba5dc28d24e9c4ea0d52f016687728d452127ce76f44d7c8124337ee5268c5b8",
-      "custom_components/djconnect/direct_rich_runtime.py": "1755a65ce9fb8010b4004d2a7230f4ed9748be52a92ca3a76c0c18207dfb7744",
+      "custom_components/djconnect/direct_rich_pair.py": "868ff6cd3d6f9b92b1b1e5079d5a43ef8a1dd3ade13bfdf471100afe666b893d",
+      "custom_components/djconnect/direct_rich_runtime.py": "6456836d6b9330ab5a79a14e3cfd42009bd0185ed643861e5b0d7d16fb7defef",
       "custom_components/djconnect/direct_rich_store.py": "d41e7e0ead13d21ee2dc58fec9f6fbb30579399f06a2374542548f9be329118f",
       "custom_components/djconnect/direct_rich_wire.py": "02325a5a27ee3821223b11225ae45875fea9e08b5978e5e856d88f0a41e89db7",
       "custom_components/djconnect/discovery.py": "62017c3e427f152d63add1e43bac38a0c89a076046baee3471d39ee35cb7f082",
@@ -136,6 +136,15 @@
       "custom_components/djconnect/history_deletion_api.py": "390d4b6725963864ea540ea39af759d20ae9f09253bd634febb74004052e4ced",
       "custom_components/djconnect/history_deletion_snapshots.py": "e51d1d5718564aa0ee7722252356cc7b1566b14154d65de500f7a36f56519dff",
       "custom_components/djconnect/history_entry_contract.py": "2cb333b1a9f8fce4471449857f735aa28f462e78d5ae95f952fa48ad8d17628f",
+      "custom_components/djconnect/host_wake_api.py": "df1509f4cf9289c24e39fbe20baf313fb737d617af6999ae1df213b85d2b1ab5",
+      "custom_components/djconnect/host_wake_api_wire.py": "c722076d4b017ecffc54fdf35834205329d12e02dce7893ec530afa900c5a04b",
+      "custom_components/djconnect/host_wake_child_runtime.py": "c76dd7756d84697a0ea38aa65d236e57e1730a44359aaf3c5d7c9b0728fad8ee",
+      "custom_components/djconnect/host_wake_child_store.py": "554c2b6a43b7f00d11aeb2ac9869c9a64ce3f82ae7e7005570b1269f08cef100",
+      "custom_components/djconnect/host_wake_management.py": "7f383468179f3d8808f0882b2581de978ff0e04759a964d6995593a1bc87f862",
+      "custom_components/djconnect/host_wake_proxy_attempt.py": "c0b14208b620d0857ed3932831494de7808e2c121d636fcae0d7a5563c48e0db",
+      "custom_components/djconnect/host_wake_proxy_wire.py": "7dd7ff6b6f94d245db9f8b0199076d11f7c675c5e3a98dd3293f79098b7b2258",
+      "custom_components/djconnect/host_wake_target_wire.py": "1623491959d48f1f84143d58da27da29a1b59efe2fb0a58db4ad90b67b50aa21",
+      "custom_components/djconnect/host_wake_withdrawal.py": "0480ea22f7ddb16432f1fb3bf8ba136e74ad37f0d7be97f4cf46233f96628a23",
       "custom_components/djconnect/http.py": "a227501b04783b1c9588c5c49560ec6e36fbcd4ec7f39692b8c1bb55708a5205",
       "custom_components/djconnect/hybrid_contract.py": "098acf391b0bbbbfb4caf5d2355df274b155e6566679a08d4f4a2ad04ca95b7a",
       "custom_components/djconnect/hybrid_ingress_qualification.py": "8e220874b16e7bbb1162261a1e89607a2a6067dca3fa3c820d2cc52ee3232933",
@@ -180,7 +189,7 @@
       "custom_components/djconnect/persistence/ownership.py": "167eaa9ffb4ac5705987ac77e1e261d4741123787fd193192a4a65429bedc8e0",
       "custom_components/djconnect/persistence/provider.py": "d6116c1661f0c3188126585a2b71bb396e3bb049b5ab9bcd9808a3313537e93a",
       "custom_components/djconnect/persistence/reconciliation.py": "75d9dd20de1652f0a731870cb8d7885687c1dd04861b1250a3364e7715462c3e",
-      "custom_components/djconnect/persistence/schema.py": "9b5fb0682ed2fc61622a5de5520ebfbeb9791c0ace41f93deaf1ed828be3c075",
+      "custom_components/djconnect/persistence/schema.py": "ce25e21f0fdf5dd3790064494d5d5abfabdfb4cb2a92b62803ad5d6e1e2617d1",
       "custom_components/djconnect/persistence/service.py": "492d84400a0d948c0bc46cab4420a602c3ef37a158e750ff9e1244ac3c10a33c",
       "custom_components/djconnect/persistence/sessions.py": "19e5f68577911da193e8d1a2508930621cf68db229668d24c5a7d15919a21df5",
       "custom_components/djconnect/persistence/sqlite.py": "bbdafa6fbe5304e8e0ba7fef2a9a3a25e30da9bfd6f732459068855606fb7a1b",
@@ -320,7 +329,7 @@
       {
         "case": "actual normal admin preparation",
         "status": 200,
-        "body_sha256": "4abdce1dd3dc5818b16ca90335f397ae8b36ee3dbfd97381f3e2aa465ee0e93f"
+        "body_sha256": "1d866d56c91b3f23119fee7eb253a0578ec0857ebadfa5cdfc0f0ba624a7728b"
       },
       {
         "case": "same original operation not reissued",
@@ -330,7 +339,7 @@
       {
         "case": "same refresh second independent preparation",
         "status": 200,
-        "body_sha256": "b1ad296a40b361f8b1f793eb4f26564549b1a1e6b650a1c3556f54201661efb7"
+        "body_sha256": "cceca00feac6c7ea24d3e247592a00e500cf0d93c51c52ea718ea92fbd917513"
       },
       {
         "case": "actual synchronous refresh revoke fence",
@@ -339,7 +348,7 @@
       {
         "case": "prepare before admin ABA",
         "status": 200,
-        "body_sha256": "9adea2570b40ecaadb7d95d6842e51ae1d059ab8c8344aea8eb5ccf461c5b7ec"
+        "body_sha256": "d1b7c47ed27e74b15f2ea9f1d82193aee7be9f5fc1e9ad2befb0e2911bce6bd7"
       },
       {
         "case": "actual HA admin removal/readd ABA remains retired",
@@ -388,7 +397,7 @@
       {
         "case": "prepare before configuration",
         "status": 200,
-        "body_sha256": "697ba02677961ffb906f656ada3a15b819bcebb02479113186dee9f5f877090e"
+        "body_sha256": "c859ab30fd5b5e831382fcde448df519f7c0a53329fb397fae8464dde9141290"
       },
       {
         "case": "selected configuration rejects and remains retired after restore",
@@ -397,7 +406,7 @@
       {
         "case": "prepare before runtime",
         "status": 200,
-        "body_sha256": "312d4654ae5770968ea759e5eaf8abd0da1afc96bc92ae4db67c97781c647c5b"
+        "body_sha256": "0ec5f71731f1676998cceaa15bf8c3dd68aae990aa265917e09c9b5fd78c1482"
       },
       {
         "case": "selected runtime rejects and remains retired after restore",
@@ -406,7 +415,7 @@
       {
         "case": "prepare before entry_state",
         "status": 200,
-        "body_sha256": "2e0bdffe34641775afd64b8b015ccbe3bdf0feacd1afd6181b1376218137f121"
+        "body_sha256": "4981ea12ff7e79cc8a66cbecd65fef93f88bc2f0bac8ee22555376eb3ca5f2c6"
       },
       {
         "case": "selected entry_state rejects and remains retired after restore",
@@ -423,7 +432,7 @@
       {
         "case": "prepare before HA config ABA",
         "status": 200,
-        "body_sha256": "a201ae1dbfd9a3246f9da2bd4367059718e0654dad60ecd051ffe5f9fea75a02"
+        "body_sha256": "eea76dedd803f747d7d8d32e94d48911986d1eb7a2e3db834abcc8d06036936b"
       },
       {
         "case": "actual HA public configuration ABA cannot restore original mapping identity",
@@ -432,7 +441,7 @@
       {
         "case": "prepare before real temporary entry flow",
         "status": 200,
-        "body_sha256": "18fafa838b5a5bb986587ca870a67c5b038c857fe9cc8c32aafcdd931005ea6c"
+        "body_sha256": "d0058c933724c3599cc3ee56cee07493690a351f3041e3586b23326bb8c7e962"
       },
       {
         "case": "real OptionsFlow failed temporary entry ABA retires pending and prepared management",
@@ -441,12 +450,12 @@
       {
         "case": "prepare before runtime setter A",
         "status": 200,
-        "body_sha256": "fbbc23c0812949360e43a3c6adc184df79f7c49da3fb13df809ee82dc29f46a3"
+        "body_sha256": "f8f2fe2950cf4f1e543a5aa3b21f569b7b950fe2921f88ba0b6acb8c1c5d26f9"
       },
       {
         "case": "prepare before runtime setter B",
         "status": 200,
-        "body_sha256": "3e3f0d37ba7ee0fb7c85716fae6f61f6ff32a54f8e4737aa6bfc900d2dabba08"
+        "body_sha256": "9df63f8015c56b61a1f2a0f72546e136311c17bcc3c995929af6e23d45eb2f62"
       },
       {
         "case": "runtime setter ABA retires all siblings despite cleanup failure",
@@ -455,7 +464,7 @@
       {
         "case": "fixed original local clock",
         "status": 200,
-        "body_sha256": "2dac468d793ca1eaf446ae269641c8e6f85d5a8daeadf49b36ec3e88d1ba0100"
+        "body_sha256": "faaa5b425b5f6a54e55f44e5452aef7f1d3594f7cb779d79a658354bcd7e12af"
       },
       {
         "case": "exact original wall and mono expiry closes",
@@ -485,12 +494,14 @@
   "provider_activation": "NOT_RUN",
   "current_source_requalification": {
     "classification": "ACTUAL_ISOLATED_HA_SOURCE_ONLY_NOT_INSTALLED_OR_NATIVE",
-    "at": "20261031T202311065170Z",
-    "product_files": 289,
-    "original_raw_sha256": "6990f17155053cf5c362dfd8ddda8d40dbeaec6e10b2846d1e4d79273553ccb4",
-    "original_admission_sha256": "60f96e0119e4c03f1fa138db72a7fcaa744571043bfcb04284ca26d43fc93889",
-    "original_result_sha256": "1259aa341cac44999afc999e7c02c53a29c45ab908a7e43b53a36c6001e0e86f",
-    "all289_before_inside_after_equal": true,
-    "own_container_verified_absent": true
+    "at": "20261101T072249289717Z",
+    "product_files": 298,
+    "original_raw_sha256": "adf41321efd3ed82dcabfebbf07c7a2ec381a0a7a97c23e9df588738dc86912d",
+    "original_admission_sha256": "d0ee0f98c1d531d4d98acc33961f152c9cec4b3400c71a315e210a8bbc8b428b",
+    "original_result_sha256": "e4057b5cbee4c07f451af1e1b5622ed0d60123959fbba973dfdfd1445d1aac66",
+    "all298_before_inside_after_equal": true,
+    "own_container_verified_absent": true,
+    "this_group_exit": 0,
+    "producer_batch_partial_failure_preserved": false
   }
 }

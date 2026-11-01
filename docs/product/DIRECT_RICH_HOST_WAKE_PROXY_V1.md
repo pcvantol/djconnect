@@ -92,6 +92,27 @@ Negative remote withdrawal keeps separate bounded original authority after beare
 expiry; late/failed bookkeeping never reopens local custody. Push-only withdrawal
 does not itself retire the separately owned parent rich display.
 
+The owning Core child captures its negative issuer port before issuer IO from
+its retained authenticated resolver reply and exact consumed SQL issuer claim.
+The port retains only the original installation credential and fixed original
+issuer tuple, never the positive PairACK, Session or parent. It can issue one
+capless `issuer/withdraw` after local child closure. Its 30-second execution
+window starts before scheduling; a duplicate cannot cancel the original attempt.
+Entry unload fences this port before any unload await; service shutdown and
+installation/configuration replacement also close it without recapturing secrets.
+Unsent cancellation and completed/failed attempts release retained references.
+An `unknown` reply remains inconclusive and never restores permission or quota.
+These source components do not supply the still-missing positive prepare/HTTP,
+clock, enrollment or native admission.
+
+Local management captures the same pre-body paired request and the actual
+committed linked-profile snapshot. It joins the retained child's immutable
+reservation against all owner/device/entry/pair/Session/surface bindings and
+the native operation ID before any child closure. An ended Session or retired
+positive parent does not prevent this negative/history check; a status-request
+failure or cleanup cannot retire the child. SQL metadata is not a remote
+withdrawal acknowledgement, a native challenge result or restored permission.
+
 The Core/API/Apple directional clock-rate/suspend/domain/VM-lifetime supplier is
 still absent. Linux monotonic resolution/nonadjustability and Darwin continuous
 sleep semantics alone are insufficient. No rho=1, bool/JSON qualification,

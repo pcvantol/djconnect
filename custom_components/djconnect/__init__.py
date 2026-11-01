@@ -3445,6 +3445,8 @@ async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Conservative immediate revocation, before platform unload can yield.
+    from .host_wake_withdrawal import invalidate_entry as invalidate_host_wake_entry
+    invalidate_host_wake_entry(entry)
     retire_runtime(hass.data.get(DOMAIN, {}).get(entry.entry_id))
     from .profile_observation import invalidate
     invalidate(hass)
