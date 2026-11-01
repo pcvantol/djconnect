@@ -1,5 +1,24 @@
 # Shared Ask DJ contextual dialogue contract v1
 
+## Age disambiguation — 1 November 2026
+
+The closed semantic research plan additionally accepts `angle:age`. It keeps
+the same owner, exact named/selected/recent subject and read-only source budget;
+it cannot select an unmentioned band member or grant playback. After current
+public retrieval, an exact English Wikipedia/QID direct positive group lead
+may yield a localized Core question about band duration versus a person's age.
+Known direct nationality/genre descriptors and a direct band/music-group noun
+are required; negation, uncertainty, films/books/companies about a band,
+unsupported descriptors and expired/non-English leads cannot use this branch.
+All five UI locales are supported. The original source deadline remains fenced.
+
+This question sets `clarification_required:true` and
+`knowledge_basis:public_subject_clarification_v1`; it grants no numeric age,
+birth-date derivation, member identity, model-processing basis or action. It
+does not invoke biography generation/review to ask what the listener means.
+All actual factual answers retain the existing independent evidence and style
+review. See the [regression scope](../verification/ASK_DJ_RECENT_LIST_AND_AGE_REGRESSION_20261101.md).
+
 Assignment `DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013`; companion
 [experience](ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md). This directed refinement
 is committed before production changes. Existing source-main
@@ -833,3 +852,32 @@ loading and action behavior need Apple-owned qualification. The source fixture
 `examples/client_contracts/askdj_album_track_choices_v1.json` is an actual isolated
 HA HTTP response with synthetic Spotify input and expired lab IDs; it is not a
 published producer pin, installed response or native screenshot.
+
+## Current concert calendar read
+
+The existing `current_events` research interpretation can read a public calendar
+linked from a fetched page naming the requested artist. The internal concert
+reader allows at most 512 KiB of HTML; the existing eight-request/12-second
+owner, SSRF/redirect/robots rules, 128 KiB JSON and 16 KiB robots limits remain.
+Only a same-origin `.ics` link receives one bounded 16 KiB read after its own
+robots admission. No calendar discovered through another calendar is followed.
+
+A positive Core answer requires one non-recurring, non-cancelled VEVENT with
+an explicit valid future calendar date within 366 days, an artist-matching live
+or concert summary, and a bounded public location in that same event. Duplicate
+fields/events, recurrence, alarms/nesting, cancelled calendars, mixed serialization,
+invalid dates, missing artist/location and expired sources remain closed. Ordinary
+CRLF and uniformly literal escaped-CRLF envelopes are parsed without changing the
+retained original source bytes. A floating time supplies a date only, never an
+inferred local hour or timezone.
+
+Core renders one source-bound listing in all five UI locales and returns the
+fetched agenda link and calendar provenance. It does not claim this is the first,
+only, nearest or available concert. Ticket status, ticket purchase, a location
+preference and playback receive no grant. No factual generation/review call is
+needed for this closed rendering; the ordinary interpretation remains in place.
+The original turn/owner guard and original calendar expiry are checked again at
+delivery. Missing or unsupported calendars retain the ordinary research path;
+absence of an accepted record never means that the artist has no concerts.
+
+This is candidate source behavior in PR #1409, not an installed runtime claim.

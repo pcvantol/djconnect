@@ -1,5 +1,15 @@
 # Session conversation and history — retained foundation and shared dialogue correction
 
+## Recent-list display correction — 1 November 2026
+
+The optional producer-owned
+[`recent_history_presentation`](ASK_DJ_RECENT_LIST_PRESENTATION_V1.md) retains
+original caption, bounded display labels and original occurrence timestamps in
+the existing Store. Conversation entries remain references. Every history/read
+projection rechecks the original source; withdrawal removes cards and caption.
+The display contract carries no old playback/media authority and does not extend
+the transient live overlay. Full text stays available as the legacy fallback.
+
 ## Corrective retained-entry compatibility — 18 October 2026
 
 The current private producer also emits the four retention bases and two

@@ -56,7 +56,7 @@ def _patterns(event, actor, group, year):
     return (
         rf'{g} was (?:founded|formed) in {y}',
         rf'{g} was an? {description}band (?:formed|founded) in (?:{place} in )?{y}',
-        rf'{g} werd (?:in {y} opgericht|opgericht in {y})',
+        rf'{g} (?:werd|is) (?:in {y} opgericht|opgericht in {y})',
         rf'{g} was een {description}(?-i:[a-zà-ÿ-]*)(?:band|groep) die in {y} werd opgericht(?: in {place})?',
         rf'{g} wurde (?:im Jahr |im |){y} gegründet',
         rf'{g} a été (?:fondé|formé) en {y}',

@@ -2890,6 +2890,10 @@ async def _informational_assist_response(
                     "text_source": "core", "is_generated_text": False,
                     "knowledge_basis": "public_subject_required"}
         if subject:
+            if named_subject and public_research.safe_subject(named_subject):
+                from .exploration import named_in_question
+                if named_in_question(subject, text):
+                    turn.public_query_candidate = subject
             from .dialogue import selected_lookup_topic
             lookup_topic = selected_lookup_topic(turn, text, angle=research_angle)
             fetched_sources, research_state = await public_research.research(
@@ -2902,6 +2906,41 @@ async def _informational_assist_response(
                 expected_roles=tuple(s.get("role") for s in turn.source_context.get("subjects", [])
                                      if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
             turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)
+            if research_angle == 'current_events':
+                original_sources = tuple(fetched_sources)
+                language = turn.style.get('language', 'en')
+                calendar_answer = public_research.concert_calendar_answer(original_sources, subject, language)
+                if calendar_answer:
+                    def original_calendar_delivery_guard():
+                        if public_research.concert_calendar_answer(original_sources, subject, language) != calendar_answer:
+                            raise DialogueError('conversation_context_changed', 409)
+                    turn.delivery_validators.append(original_calendar_delivery_guard)
+                    await turn.guard()
+                    return {'success': True, 'text': calendar_answer, 'dj_text': calendar_answer,
+                            'images': [], 'sources': [s.metadata() for s in original_sources
+                                if s.provider == 'Public concert calendar'],
+                            'links': [{'title': s.title, 'url': s.revision_url, 'kind': 'source'}
+                                for s in original_sources if s.provider == 'Public concert calendar'
+                                and public_research.public_url(s.revision_url)],
+                            'text_source': 'core', 'is_generated_text': False,
+                            'knowledge_basis': 'public_concert_calendar_v1'}
+            if research_angle == "age":
+                from .exploration import band_age_question
+                original_research = json.loads(json.dumps(turn.public_research, ensure_ascii=False))
+                language = turn.style.get("language", "en")
+                question = band_age_question(original_research, language)
+                if question is not None:
+                    def original_group_evidence():
+                        if band_age_question(original_research, language) != question:
+                            raise DialogueError("conversation_context_changed", 409)
+                    turn.delivery_validators.append(original_group_evidence)
+                    await turn.guard()
+                    return {"success": True, "text": question, "dj_text": question,
+                            "action": "none", "images": [], "text_source": "core",
+                            "is_generated_text": False, "clarification_required": True,
+                            "knowledge_basis": "public_subject_clarification_v1",
+                            "sources": [source.metadata() for source in fetched_sources],
+                            "public_research_status": {**research_state, "answer_state": "person_or_band_clarification"}}
             if research_subject:
                 focus = public_research.documented_episode_focus(
                     turn.public_research, angle=research_angle,
@@ -3193,6 +3232,7 @@ async def _informational_assist_response(
             message = public_research.unavailable_answer(turn.style.get("language", "en"), answer_unverified=True)
             response.update(text=message, dj_text=message, knowledge_basis="public_research_unqualified",
                             text_source="core", is_generated_text=False)
+            response.pop('model_processing_basis', None)
         else:
             response["knowledge_basis"] = "fetched_public_music_research_v1"
             actual_sources = [source.metadata() for source in fetched_sources]
@@ -3496,11 +3536,16 @@ async def _recently_played_history_response(
         lines.append(f"- {_recent_history_item_line(item)}")
     if len(items) > 10:
         lines.append('- '+_read_text('recent_more',count=len(items)-10))
-    return _recently_played_response(
+    response = _recently_played_response(
         "\n".join(lines),
         history_type=history_type,
         items=items[:10],
     )
+    from .recent_presentation import KEY, build
+    presentation = build(items[:10], history_type, _read_text('recent', period=label), max(0, len(items)-10))
+    if presentation is not None:
+        response[KEY] = presentation
+    return response
 
 
 def _recent_history_item_line(item: dict[str, Any]) -> str:
@@ -5502,12 +5547,14 @@ def _normalized_response_payload(
         "message": text,
         **text_generation_fields,
         **{key: result[key] for key in ("model_processing_basis", "knowledge_basis", "public_research_status", "research_answer_qualification", "action_outcome", "analysis_basis",
-            "queue_observation", "queue_append", "session_forecast", "previous_observation", "_private_current_context", "_catalogue_history_caption", "playback_projection_receipt", "playback_outcome") if key in result},
+            "queue_observation", "queue_append", "session_forecast", "previous_observation", "_private_current_context", "_catalogue_history_caption", "playback_projection_receipt", "playback_outcome", "recent_history_presentation") if key in result},
         "images": images,
         "links": links,
         "sources": sources,
         "playback_actions": result.get("playback_actions") or [],
         "confirmation_actions": confirmation_actions,
+        **({"clarification_required": result["clarification_required"]}
+           if type(result.get("clarification_required")) is bool else {}),
         "error": result.get("error"),
         "intent": {
             "category": result_intent.get("category") or classification.category,

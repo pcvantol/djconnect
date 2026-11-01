@@ -12,7 +12,7 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
         receipt = value['original_receipt']
         self.assertEqual(receipt['status'], 'PASS')
         self.assertEqual(receipt['schema_version'], 21)
-        self.assertEqual(len(receipt['source_sha256']), 301)
+        self.assertEqual(len(receipt['source_sha256']), 302)
         for name, expected in receipt['source_sha256'].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         self.assertEqual(hashlib.sha256((root / value['harness']).read_bytes()).hexdigest(), value['harness_sha256'])
@@ -23,7 +23,7 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
         self.assertEqual(actual['wakes'], actual['durable_wakes'])
         self.assertEqual(actual['durable_wakes'], 1)
         self.assertEqual(actual['external_API_native_provider'], 'MODELED_ONLY')
-        self.assertTrue(value['all301_before_inside_after_equal'])
+        self.assertTrue(value['all302_before_inside_after_equal'])
         self.assertEqual(value['own_container'], 'VERIFIED_ABSENT')
         self.assertEqual(value['installed'], 'NOT_RUN')
         self.assertFalse(value['actual_native_operator_or_APNs_qualification'])
@@ -41,13 +41,13 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
         self.assertEqual(receipt['model_calls'], 0)
         self.assertTrue(receipt['ordinary_pairing'])
         self.assertEqual(receipt['ha_credentials_issued'], 0)
-        self.assertEqual(len(receipt['source_sha256']), 301)
+        self.assertEqual(len(receipt['source_sha256']), 302)
         for name, expected in receipt['source_sha256'].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         self.assertEqual(hashlib.sha256((root / value['harness']).read_bytes()).hexdigest(), value['harness_sha256'])
         self.assertEqual(hashlib.sha256((json.dumps(receipt, indent=2) + '\n').encode()).hexdigest(),
             value['original_receipt_sha256'])
-        self.assertTrue(value['all301_before_inside_after_equal'])
+        self.assertTrue(value['all302_before_inside_after_equal'])
         self.assertEqual(value['own_container'], 'VERIFIED_ABSENT')
         self.assertEqual(value['installed'], 'NOT_RUN')
         self.assertFalse(value['actual_native_clock_or_provider_or_iPhone_qualification'])

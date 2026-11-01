@@ -140,6 +140,7 @@ class PublicResolver:
 class PublicFetch:
     maximum_requests = MAX_REQUESTS
     html_maximum = MAX_BYTES
+    content_types = frozenset({"application/json", "text/html", "text/plain"})
 
     def __init__(self, guard):
         self.guard, self.requests, self.session = guard, 0, None
@@ -194,7 +195,7 @@ class PublicFetch:
                     if response.status != 200:
                         result = (response.status, "", url)
                         return (*result, None) if with_etag else result
-                    if response.content_type not in {"application/json", "text/html", "text/plain"}:
+                    if response.content_type not in self.content_types:
                         raise ResearchUnavailable("public_research_content_type")
                     limit = self.html_maximum if maximum == MAX_BYTES and response.content_type == 'text/html' else maximum
                     content = bytearray()
@@ -228,6 +229,155 @@ class AlbumPublicFetch(PublicFetch):
     """Internal Album owner profile; never selected by request/model data."""
     maximum_requests = 12
     html_maximum = 512 * 1024
+
+
+class ConcertPublicFetch(PublicFetch):
+    """Internal current-event reader; original eight requests and JSON/robots caps."""
+    html_maximum = 512 * 1024
+    content_types = PublicFetch.content_types | {"text/calendar"}
+
+
+def concert_calendar_record(body, subject, *, today=None):
+    """One non-recurring VEVENT, with an explicit date and the requested artist.
+
+    Floating times are used only as calendar dates: never infer an hour, timezone,
+    ticket availability or the absence of other concerts from this record.
+    """
+    from datetime import date
+    if not isinstance(body, str) or not safe_subject(subject, qualified=True):
+        return None
+    try:
+        if len(body.encode('utf-8')) > 16384:
+            return None
+    except UnicodeEncodeError:
+        return None
+    # Some public calendar publishers serialize CRLF literally. Accept only a
+    # uniformly escaped envelope, retaining the original fetched bytes as source.
+    wire = body.rstrip('\n')
+    if wire.startswith('BEGIN:VCALENDAR\\r\\n'):
+        if '\n' in wire or '\r' in wire or not wire.endswith('END:VCALENDAR\\r\\n'):
+            return None
+        wire = wire.replace('\\r\\n', '\r\n')
+    lines = []
+    for line in wire.splitlines():
+        if line.startswith((' ', '\t')):
+            if not lines:
+                return None
+            lines[-1] += line[1:]
+        else:
+            lines.append(line)
+    if (lines.count('BEGIN:VCALENDAR') != 1 or lines.count('END:VCALENDAR') != 1
+            or lines.count('BEGIN:VEVENT') != 1 or lines.count('END:VEVENT') != 1
+            or not lines or lines[0] != 'BEGIN:VCALENDAR'
+            or lines[-1] != 'END:VCALENDAR'):
+        return None
+    start, end = lines.index('BEGIN:VEVENT'), lines.index('END:VEVENT')
+    if start >= end or lines[end+1:] != ['END:VCALENDAR']:
+        return None
+    headers = {}
+    for line in lines[1:start]:
+        key, sep, value = line.partition(':')
+        if not sep or key not in {'VERSION', 'PRODID', 'CALSCALE', 'METHOD'} or key in headers:
+            return None
+        headers[key] = value
+    if (headers.get('VERSION') != '2.0' or headers.get('METHOD', 'PUBLISH') != 'PUBLISH'
+            or headers.get('CALSCALE', 'GREGORIAN') != 'GREGORIAN'):
+        return None
+    fields = {}
+    for line in lines[start+1:end]:
+        name, sep, value = line.partition(':')
+        key = name.split(';', 1)[0].upper()
+        if (not sep or key in fields or key not in {'UID', 'DTSTAMP', 'DTSTART', 'DTEND',
+                'SUMMARY', 'LOCATION', 'DESCRIPTION', 'URL', 'STATUS', 'SEQUENCE',
+                'CREATED', 'LAST-MODIFIED', 'TRANSP'}):
+            return None
+        fields[key] = (name, value)
+    if fields.get('STATUS', ('', 'CONFIRMED'))[1].upper() != 'CONFIRMED':
+        return None
+    name, value = fields.get('DTSTART', ('', ''))
+    # TZID values and UTC/local timestamps all retain the source's date only.
+    if (not re.fullmatch(r'DTSTART(?:;VALUE=DATE|;TZID=[A-Za-z0-9_+./-]{1,80})?', name)
+            or not re.fullmatch(r'[0-9]{8}(?:T[0-9]{6}Z?)?', value)):
+        return None
+    try:
+        when = datetime.strptime(value[:8], '%Y%m%d').date()
+        if 'T' in value:
+            datetime.strptime(value.rstrip('Z'), '%Y%m%dT%H%M%S')
+    except ValueError:
+        return None
+    if 'DTEND' in fields:
+        end_name, end_value = fields['DTEND']
+        if (end_name.replace('DTEND', 'DTSTART', 1) != name
+                or not re.fullmatch(r'[0-9]{8}(?:T[0-9]{6}Z?)?', end_value)
+                or len(end_value) != len(value)):
+            return None
+        try:
+            pattern = '%Y%m%dT%H%M%S' if 'T' in value else '%Y%m%d'
+            if datetime.strptime(end_value.rstrip('Z'), pattern) <= datetime.strptime(value.rstrip('Z'), pattern):
+                return None
+        except ValueError:
+            return None
+    today = today or datetime.now(UTC).date()
+    if type(today) is not date or not today < when or (when-today).days > 366:
+        return None
+    values = []
+    for key in ('SUMMARY', 'LOCATION'):
+        name, text = fields.get(key, ('', ''))
+        if name != key or re.search(r'\\(?![,;\\])', text):
+            return None
+        text = re.sub(r'\\([,;\\])', r'\1', text)
+        if (not 1 <= len(text) <= 240 or text != text.strip()
+                or any(not c.isprintable() for c in text) or UNSAFE_QUERY.search(text)):
+            return None
+        values.append(text)
+    summary, location = values
+    uncertain = re.compile(r'\b(?:cancel\w*|cancell\w*|postpon\w*|reschedul\w*|tentativ\w*|rumou?r\w*|'
+        r'afgelast|geannuleerd|uitgesteld|verplaatst|abgesagt|verschoben|annul\w*|reporté|'
+        r'cancelad\w*|aplazad\w*|reprogramad\w*|interview|Q\s*&\s*A|meet.and.greet|TBC|TBA|'
+        r'not (?:a )?concert|no concert|rehearsal|repetitie)\b', re.I)
+    description = fields.get('DESCRIPTION', ('', ''))[1]
+    if re.search(r'\\(?![nN,;\\])', description):
+        return None
+    description = re.sub(r'\\[nN]', '\n', description)
+    description = re.sub(r'\\([,;\\])', r'\1', description)
+    listing = re.fullmatch(r'^' + re.escape(subject)
+        + r'\s+(?:live at|in concert at|concert at)\s+(.+)', summary, re.I)
+    if not listing or uncertain.search(summary+' '+location+' '+description):
+        return None
+    places = [part.strip() for part in location.split(',')]
+    summary_places = [part.strip() for part in listing[1].split(',')]
+    if (not all(places) or summary_places[0] != places[0]
+            or (len(summary_places) > 1 and summary_places[1:] != places[-len(summary_places)+1:])):
+        return None
+    return {'date': when.isoformat(), 'summary': summary, 'location': location}
+
+
+def concert_calendar_answer(sources, subject, language):
+    """Core renders a freshly fetched, artist-bound calendar; no generated facts."""
+    candidates = []
+    for source in sources:
+        if type(source) is not PublicSource or source.provider != 'Public concert calendar':
+            continue
+        try:
+            expiry = datetime.fromisoformat(source.expires_at)
+            if expiry.tzinfo is None or expiry <= datetime.now(UTC):
+                continue
+        except (TypeError, ValueError, OverflowError):
+            continue
+        record = concert_calendar_record(source.text, subject)
+        if record:
+            candidates.append((record['date'], source.url, record))
+    if not candidates:
+        return None
+    _, _, record = min(candidates, key=lambda row: (row[0], row[1]))
+    copy = {
+        'nl': 'Ik vond een concertvermelding voor {subject}: {date} — {location}. Controleer de agenda voor de actuele beschikbaarheid van kaarten.',
+        'en': 'I found a concert listing for {subject}: {date} — {location}. Check the schedule for current ticket availability.',
+        'de': 'Ich habe einen Konzerttermin für {subject} gefunden: {date} — {location}. Prüfe den Konzertkalender auf die aktuelle Ticketverfügbarkeit.',
+        'fr': 'J’ai trouvé une date de concert pour {subject} : {date} — {location}. Consulte le calendrier pour la disponibilité actuelle des billets.',
+        'es': 'Encontré un concierto de {subject}: {date} — {location}. Consulta la agenda para comprobar la disponibilidad actual de entradas.',
+    }
+    return copy.get(language, copy['en']).format(subject=subject, **record)
 
 
 class PageText(HTMLParser):
@@ -739,6 +889,29 @@ async def web_references(fetch, subject, question, locale, *, album=None, angle=
         page = PageText()
         page.feed(body)
         text = page.text()
+        if isinstance(fetch, ConcertPublicFetch) and angle == 'current_events':
+            # Calendars must be linked from this fetched, artist-named page.
+            # One remaining request; no new robots origin, credential or retry.
+            if re.search(r'(?<!\w)' + re.escape(subject) + r'(?!\w)', text, re.I):
+                for link in page.links:
+                    calendar = urljoin(final_url, link)
+                    if (urlsplit(calendar).netloc != urlsplit(final_url).netloc
+                            or not urlsplit(calendar).path.endswith('.ics') or not public_url(calendar)):
+                        continue
+                    if fetch.requests >= fetch.maximum_requests:
+                        break
+                    if not await fetch.robots(calendar):
+                        break
+                    if fetch.requests >= fetch.maximum_requests:
+                        break
+                    try:
+                        code, original_calendar, calendar_url = await fetch.request(calendar, maximum=16384)
+                    except (ResearchUnavailable, TimeoutError, OSError):
+                        break
+                    if code == 200 and concert_calendar_record(original_calendar, subject):
+                        return [_source('Public concert calendar', subject, calendar_url,
+                                        original_calendar, locale, revision_url=final_url, current=True)]
+                    break
         if not MUSIC.search(text[:1200]) or not all(
             word in text.casefold() for word in subject.casefold().split() if len(word) > 2
         ):
@@ -820,7 +993,8 @@ async def research(subject, question, locale, guard, *, qualified_music=False, e
     try:
         async with asyncio.timeout(12):
             if fetch is None:
-                async with PublicFetch(guard) as owned:
+                owner = ConcertPublicFetch if research_angle == 'current_events' else PublicFetch
+                async with owner(guard) as owned:
                     await collect(owned)
             elif type(fetch) is PublicFetch and fetch.guard is guard:
                 # A proactive producer's actor lookup and public pages consume
@@ -1232,7 +1406,9 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         "Generic event labels, the subject name or invented work names are not source anchors. Missing source-marked names cannot qualify a date. "
         "Use one entry for each year occurrence. First and solo qualifiers must be supported by that same quote, not another sentence. "
         "For a band founding or explicit member accession, the ONLY alternative is a supplied biographical_date_events receipt. "
-        "Copy every supplied receipt field unchanged and add claim: the exact complete answer sentence. "
+        "For those events each temporal_claims object has EXACTLY schema, event, claim, actor, group, group_id, year, source_id, evidence_id, quote. "
+        "schema MUST be biographical_event_v1. Copy every supplied receipt field unchanged and add claim: the exact complete answer sentence. "
+        "Do NOT use the work-event object or event_anchor for a band founding/member date: a band name is not a work anchor. "
         "Do not invent a receipt or use a person's name as a work anchor. The claim must explicitly name the same group and actor, "
         "state only that same founding/accession and year, and be supported independently by the literal quote. "
         "A pronoun, implied group, departure, uncertain report, extra chronology or multiple events cannot qualify. "

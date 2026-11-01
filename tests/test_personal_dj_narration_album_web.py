@@ -157,9 +157,10 @@ class AlbumWebNarrationTest(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(album.web_source(page, self.web_url, identity, ''))
 
     def test_album_budget_is_internal_and_other_research_keeps_original_limits(self):
-        from custom_components.djconnect.ask_dj.public_research import PublicFetch, AlbumPublicFetch
+        from custom_components.djconnect.ask_dj.public_research import PublicFetch, AlbumPublicFetch, ConcertPublicFetch
         self.assertEqual((PublicFetch.maximum_requests, PublicFetch.html_maximum), (8, 128*1024))
         self.assertEqual((AlbumPublicFetch.maximum_requests, AlbumPublicFetch.html_maximum), (12, 512*1024))
+        self.assertEqual((ConcertPublicFetch.maximum_requests, ConcertPublicFetch.html_maximum), (8, 512*1024))
 
     async def test_actual_shared_fetch_preserves_json_robots_caps_and_stops_at_album_budget(self):
         import aiohttp
@@ -188,6 +189,12 @@ class AlbumWebNarrationTest(unittest.IsolatedAsyncioTestCase):
             (research.AlbumPublicFetch, 'text/html', 512*1024+1, 128*1024, False),
             (research.AlbumPublicFetch, 'application/json', 128*1024+1, 128*1024, False),
             (research.AlbumPublicFetch, 'text/html', 16385, 16384, False),
+            (research.ConcertPublicFetch, 'text/html', 512*1024, 128*1024, True),
+            (research.ConcertPublicFetch, 'text/html', 512*1024+1, 128*1024, False),
+            (research.ConcertPublicFetch, 'application/json', 128*1024+1, 128*1024, False),
+            (research.ConcertPublicFetch, 'text/html', 16385, 16384, False),
+            (research.ConcertPublicFetch, 'text/calendar', 16384, 16384, True),
+            (research.ConcertPublicFetch, 'text/calendar', 16385, 16384, False),
         ):
             with self.subTest(owner=owner, kind=kind, count=count):
                 async with owner(guard) as fetch:
