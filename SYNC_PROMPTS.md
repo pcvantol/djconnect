@@ -1,3 +1,7 @@
+## Host-wake live runtime Source1407 and separate Final,1 November2026
+
+Core [Source1407](https://github.com/pcvantol/djconnect/pull/1407) is originally qualified at faaf4889,301 products/schema21. Seven routes and original Broadcast/SQL-once dispatch are source-qualified; no installation or native/provider acceptance follows. See the [Final report](docs/verification/HOST_WAKE_LIVE_RUNTIME_SOURCE_FINALIZATION_20261101.md). All24 requests/nine gates and original bodies remain preserved.
+
 ## Current prepared host-wake runtime: original local proof resource ceiling
 
 The same prepared increment now connects the genuinely registered child to its
