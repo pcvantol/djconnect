@@ -286,10 +286,19 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 raise SessionConversationError("session_context_changed")
         read_context_revision = frame.read_context_revision
         from ..ask_dj_history import _request_hash
-        source_request_hashes = frozenset(
+        source_request_hashes = set(
             _request_hash(scope, message['_client_id'])
             for message in (*frame.messages, *frame.local_turns) if message.get('_client_id')
-        ) if not reset_topic and not fast else frozenset()
+        ) if not reset_topic and not fast else set()
+        unused_production_hash = None
+        if isinstance(frame.pending, dict) and frame.pending.get('type') == 'recording_production':
+            from .artist_story import recording_reference
+            original_hash = frame.pending.get('request_hash')
+            if recording_reference(text) is None and isinstance(original_hash, str):
+                # Availability alone carries no old exchange or dependency.
+                # Actual semantic consumption binds its origin before lookup.
+                unused_production_hash = original_hash
+                source_request_hashes.discard(original_hash)
 
         def requests_withdrawn():
             from ..persistence.content_deletion import request_deleted_now
@@ -362,6 +371,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                             dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
         turn.source_request_hashes = source_request_hashes
+        turn.unused_production_request_hash = unused_production_hash
         from ..reply_artwork import source_admission
         turn.reply_source_context, turn.reply_source_authority = source_admission(hass, runtime, profile_id)
         # The exact same synchronous source deadline also guards retained speech,
@@ -420,6 +430,28 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 frame.retry = {"text": text, "uncertain": turn.effect_started}
                 future.set_result((deepcopy(result), joined_admission))
                 return result
+        # Display snapshots use the existing original source/archive authority.
+        # A live provider response or old action lease alone grants no retention.
+        from .recent_presentation import KEY as RECENT_KEY, from_response as recent_display
+        retained_recent = None
+        recent_archive = None
+        candidate_recent = recent_display(result)
+        if (saved is None and persist_history and candidate_recent is not None
+                and turn.reply_source_context is not None and turn.reply_source_authority is not None):
+            from ..session_conversation import async_metadata_archive_admission
+            original_recent_authority = turn.reply_source_authority
+            def recent_authority():
+                if original_recent_authority() is not True:
+                    raise PermissionError("recent_source_withdrawn")
+            recent_archive = await async_metadata_archive_admission(
+                hass, profile_id, turn.reply_source_context, recent_authority)
+            await turn.guard()
+            if recent_archive is not None:
+                recent_archive()
+                turn.delivery_validators.append(recent_archive)
+                turn.provider_display_source = {"provider": "Spotify",
+                    "source_context": deepcopy(turn.reply_source_context)}
+                retained_recent = candidate_recent
         turn_record = {"turn_id": "turn-" + uuid5(NAMESPACE_URL, scope + ":" + client_id).hex,
                        "request_digest": digest, "profile_id": profile_id, "context": context,
                        "effective_style": {**turn.style, "persona_revision": style_revision},
@@ -448,12 +480,18 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             new = saved is None
             async def persistence_guard():
                 # SessionRuntimeManager owns its short lock here; never reacquire it.
+                if recent_archive is not None:
+                    recent_archive()
                 await guard(check_runtime=not (bool(style_session) or settings_token is not None))
+                if recent_archive is not None:
+                    recent_archive()
 
             async def finish():
                 nonlocal saved
                 if saved is None:
-                    archival_result = result
+                    archival_result = {k: v for k, v in result.items() if k != RECENT_KEY}
+                    if retained_recent is not None:
+                        archival_result[RECENT_KEY] = retained_recent
                     catalogue_caption = result.get("_catalogue_history_caption")
                     if (result.get("text_source") == "qualified_catalog_result"
                             and isinstance(catalogue_caption, str)):
@@ -524,7 +562,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             live_message = {**saved["assistant_message"], **{key:deepcopy(live_values[key]) for key in (
                 "images", "links", "sources", "audio_url", "playback_actions", "confirmation_actions", "items",
                 "track_insight", "open_screen", "navigation_actions", "origin", "text_source", "is_generated_text",
-                "type", "action_outcome") if key in live_values}}
+                "type", "action_outcome", "recent_history_presentation") if key in live_values}}
             if catalogue_caption is not None and result.get("text_source") == "qualified_catalog_result":
                 live_message["text"] = result["text"]
             saved = {**saved, "assistant_message":live_message,

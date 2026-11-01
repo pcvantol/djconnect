@@ -57,6 +57,15 @@ Each source repo should have repo-appropriate checks for:
 
 ## Platform-level checks
 
+Independent offline checks should overlap where their fixtures and outputs are
+isolated. Core uses bounded module processes for its complete unittest suite and
+coverage, with exact test-ID accounting and validated per-worker databases; see
+`docs/verification/PARALLEL_OFFLINE_CI.md`. Other repository owners qualify their
+own concurrency. Shared runtime state and resource limits must retain their
+original semantics. No parallel optimization may omit checks, turn cancellation
+or skipped prerequisites into success, multiply paid/provider/device effects, or
+reorder protected Source, Final, qualification, publication and deployment gates.
+
 Changes that affect cross-repo contracts should verify:
 
 - HA integration compatibility;

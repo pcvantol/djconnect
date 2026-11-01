@@ -739,3 +739,130 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
                 self.assertFalse(result.get('playback'))
                 self.assertEqual(result['conversation']['metrics']['agent_calls'],3)
         self.assertEqual(f.effects,[])
+
+    async def test_failed_public_telling_keeps_user_topic_for_freeworded_fact_followup(self):
+        f = self.f
+        calls = []
+        answer = 'Example Band nam Paper Lanterns op. Wat zou je daarover willen ontdekken?'
+        async def agent(hass, data, **kwargs):
+            p = json.loads(data['text'].split('\nData:\n', 1)[1])
+            calls.append(p)
+            if 'available' in p:
+                if 'recent_public_query' in p:
+                    self.assertEqual(p['recent_public_query']['subject'], 'Example Band')
+                    self.assertNotIn('Unqualified', json.dumps(p))
+                    reply = {'read': 'research', 'reference': 'recent',
+                             'exclude_current': False, 'angle': 'biography'}
+                else:
+                    reply = {'read': 'research', 'reference': 'named',
+                             'exclude_current': False, 'subject': 'Example Band', 'angle': 'biography'}
+            elif 'evidence' in p:
+                if len(calls) <= 3:
+                    reply = {'supported': False, 'language_ok': True, 'style_ok': False,
+                             'unsupported_claims': [p['answer']], 'claim_checks': []}
+                else:
+                    reply = reviewed_fixture(p)
+            else:
+                reply = answer
+            return {'response': {'speech': {'plain': {'speech':
+                json.dumps(reply) if isinstance(reply, dict) else reply}}}}
+        with f.research_http(title='Example Band', text='Example Band is een rockband. Example Band nam Paper Lanterns op.'), patch.object(
+                f.pipeline, '_call_conversation_process_transport', agent):
+            rejected, status = await f.request('Vertel wat leuks over Example Band',
+                identifier='public-origin', language='nl')
+            self.assertEqual(status, 200, rejected)
+            self.assertEqual(rejected['knowledge_basis'], 'public_research_unqualified')
+            self.assertNotIn('model_processing_basis', rejected)
+            frame = f.history.dialogue.owners['profile:profile-a']['default']
+            original = frame.public_query_reference
+            self.assertEqual(original.subject, 'Example Band')
+            result, status = await f.request('Gewoon een verrassend feitje',
+                identifier='public-followup', language='nl')
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result['text'], answer, result)
+        self.assertEqual(result['knowledge_basis'], 'fetched_public_music_research_v1')
+        self.assertEqual(result['conversation']['metrics']['agent_calls'], 3)
+        self.assertIs(frame.public_query_reference, original)
+        self.assertEqual(len(calls), 6)
+        self.assertFalse(result.get('playback_actions'))
+        self.assertEqual(f.effects, [])
+
+    async def test_age_question_keeps_person_band_distinction_without_inventing_a_birth_date(self):
+        f = self.f
+        answer = 'Bedoel je hoe lang de band Example Band bestaat, of de leeftijd van een specifieke muzikant?'
+        calls = []
+        async def agent(hass, data, **kwargs):
+            projection = json.loads(data['text'].split('\nData:\n', 1)[1])
+            calls.append(projection)
+            if 'available' in projection:
+                reply = {'read': 'research', 'reference': 'named', 'exclude_current': False,
+                         'subject': 'Example Band', 'angle': 'age'}
+            elif 'evidence' in projection:
+                reply = reviewed_fixture(projection)
+            else:
+                raise AssertionError('Source-backed disambiguation must not buy generation/review calls')
+            return {'response': {'speech': {'plain': {'speech': json.dumps(reply) if isinstance(reply, dict) else reply}}}}
+        with f.research_http(title='Example Band', text='Example Band is a rock band led by Ada Reed.', entity_id='Q1'), patch.object(
+                f.pipeline, '_call_conversation_process_transport', agent):
+            result, status = await f.request('Hoe oud is Example Band?', identifier='age-person-or-band', language='nl')
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result['text'], answer)
+        self.assertEqual(result['knowledge_basis'], 'public_subject_clarification_v1')
+        self.assertTrue(result['clarification_required'])
+        self.assertEqual(len(calls), 1)
+        self.assertFalse(result.get('playback_actions'))
+        self.assertEqual(f.effects, [])
+
+    async def test_source_without_birth_date_cannot_qualify_a_remembered_personal_age(self):
+        f = self.f
+        answer = 'Ada Reed is 55 jaar oud. Wil je meer over Example Band weten?'
+        async def agent(hass, data, **kwargs):
+            projection = json.loads(data['text'].split('\nData:\n', 1)[1])
+            if 'available' in projection:
+                reply = {'read': 'research', 'reference': 'named', 'exclude_current': False,
+                         'subject': 'Example Band', 'angle': 'biography'}
+            elif 'evidence' in projection:
+                reply = {'supported': False, 'language_ok': True, 'style_ok': True,
+                         'unsupported_claims': ['Ada Reed is 55 jaar oud.'], 'claim_checks': []}
+            else:
+                reply = answer
+            return {'response': {'speech': {'plain': {'speech': json.dumps(reply) if isinstance(reply, dict) else reply}}}}
+        with f.research_http(title='Example Band', text='Example Band is een rockband rond Ada Reed.'), patch.object(
+                f.pipeline, '_call_conversation_process_transport', agent):
+            result, status = await f.request('Hoe oud is Example Band?', identifier='age-unproved-memory', language='nl')
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result['knowledge_basis'], 'public_research_unqualified')
+        self.assertNotIn('55', result['text'])
+        self.assertEqual(f.effects, [])
+
+    def test_age_clarification_needs_exact_fresh_group_identity_in_all_five_locales(self):
+        from copy import deepcopy
+        from datetime import UTC, datetime, timedelta
+        from custom_components.djconnect.ask_dj import public_research as research
+        from custom_components.djconnect.ask_dj.exploration import band_age_question
+        source = research._source('Wikipedia', 'Example Band', 'https://en.wikipedia.org/wiki/Example_Band',
+            'Example Band is a rock band led by Ada Reed.', 'en', entity_id='Q1')
+        context = research.research_projection('Example Band', [source], {})
+        for language in ('en', 'nl', 'de', 'fr', 'es'):
+            text = band_age_question(context, language)
+            self.assertIn('Example Band', text)
+            self.assertTrue(text.endswith('?'))
+            self.assertNotRegex(text, r'\d')
+        bad = []
+        for field, value in (('provider', 'Unknown'), ('wikidata_id', ''),
+                             ('untrusted_excerpt', 'Example Band is a singer and songwriter.'),
+                             ('untrusted_excerpt', 'Example Band is not a rock band.'),
+                             ('untrusted_excerpt', 'Example Band is possibly a rock band.'),
+                             ('untrusted_excerpt', 'Example Band is a documentary about a rock band.'),
+                             ('untrusted_excerpt', 'Example Band is a book about a rock band.'),
+                             ('untrusted_excerpt', 'Example Band is a rock band documentary.'),
+                             ('untrusted_excerpt', 'Example Band is a company with a rock band.'),
+                             ('untrusted_excerpt', 'Different Band is a rock band.'),
+                             ('expires_at', (datetime.now(UTC)-timedelta(seconds=1)).isoformat()),
+                             ('expires_at', 'not-a-date')):
+            candidate = deepcopy(context)
+            candidate['sources'][0][field] = value
+            bad.append(candidate)
+        for candidate in bad:
+            with self.subTest(candidate=candidate):
+                self.assertIsNone(band_age_question(candidate, 'nl'))

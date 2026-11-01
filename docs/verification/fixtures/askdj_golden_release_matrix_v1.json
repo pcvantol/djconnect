@@ -7926,6 +7926,62 @@
           "method": "test_multipart_named_story_uses_semantics_and_actual_question_name"
         },
         {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_failed_public_telling_keeps_user_topic_for_freeworded_fact_followup"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_failed_named_answer_keeps_only_original_user_name_reference"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_model_body_or_unmentioned_name_cannot_publish_public_reference"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_late_earlier_completion_cannot_replace_newer_reference"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_same_name_aba_never_revalidates_original_reference"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_empty_reference_aba_after_newer_origin_erasure_blocks_late_completion"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_origin_erasure_clears_reference_after_a_later_turn_became_current"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_clear_generation_and_owner_boundaries_do_not_restore_reference"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_recent_plan_carries_only_angle_and_cannot_choose_subject_or_effect"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_recent_fence_rejects_retarget_after_turn_start_and_same_name_aba"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_common_recent_execution_keeps_original_fence_over_lookup_and_delivery"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_common_recent_execution_rejects_reference_replacement_during_lookup"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_initial_guard_await_cannot_adopt_a_newer_public_reference"
+        },
+        {
+          "file": "tests/test_ask_dj_public_query_reference.py",
+          "method": "test_unused_recent_reference_does_not_fence_a_new_named_completion"
+        },
+        {
           "file": "tests/test_askdj_contextual_release_gate.py",
           "method": "test_actual_answer_pilot_covers_five_languages_and_cannot_qualify_a_fallback"
         },
@@ -7948,6 +8004,18 @@
         {
           "file": "tests/test_ask_dj_biographical_dates.py",
           "method": "test_literal_candidates_are_value_only_and_leave_sources_unchanged"
+        },
+        {
+          "file": "tests/test_ask_dj_biographical_dates.py",
+          "method": "test_dutch_completed_founding_can_use_is_without_losing_exact_event_proof"
+        },
+        {
+          "file": "tests/test_ask_dj_biographical_dates.py",
+          "method": "test_researched_date_instruction_keeps_extra_facts_out_of_date_sentence"
+        },
+        {
+          "file": "tests/test_ask_dj_biographical_dates.py",
+          "method": "test_assessment_distinguishes_biographical_receipts_from_legacy_work_dates"
         },
         {
           "file": "tests/test_ask_dj_exploration.py",
@@ -8012,6 +8080,62 @@
         {
           "file": "tests/test_personal_dj_narration_public_artist.py",
           "method": "test_composer_year_end_bound_allows_supported_date_free_episode"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_original_display_survives_saved_exchange_reload_and_clear"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_legacy_or_missing_source_never_retains_display"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_closed_display_rejects_actions_media_unknowns_and_bad_bounds"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_same_track_occurrences_keep_original_ordinals_and_timestamps_without_media"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_paired_list_survives_minute_lease_end_store_reload_and_session_end"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_source_withdrawal_redacts_cards_and_caption_on_http_and_timeline"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_missing_original_source_is_not_requalified_from_label"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_boolean_original_authority_loss_cannot_be_archived"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_original_authority_loss_during_store_save_rolls_back_display"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_live_display_is_not_an_archive_grant"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_age_question_keeps_person_band_distinction_without_inventing_a_birth_date"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_source_without_birth_date_cannot_qualify_a_remembered_personal_age"
+        },
+        {
+          "file": "tests/test_ask_dj_exploration.py",
+          "method": "test_age_clarification_needs_exact_fresh_group_identity_in_all_five_locales"
+        },
+        {
+          "file": "tests/test_ask_dj_recent_presentation.py",
+          "method": "test_current_actual_ha_original_receipt_matches_display_and_all_products"
         }
       ],
       "steps": [

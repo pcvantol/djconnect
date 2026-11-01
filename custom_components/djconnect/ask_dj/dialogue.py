@@ -116,6 +116,15 @@ def effect_media(value):
     return ()
 
 
+@dataclass(frozen=True)
+class PublicQueryReference:
+    """Original user-named public topic; no answer, source fact or permission."""
+    subject: str
+    request_hash: str
+    scope: str
+    thread_id: str
+
+
 @dataclass
 class DialogueFrame:
     touched: float
@@ -128,6 +137,7 @@ class DialogueFrame:
     dependencies: list[dict] = field(default_factory=list)
     result_set: dict | None = None
     pending: dict | None = None
+    pending_revision: int = 0
     chosen_action_id: str = ""
     archiveable: bool = True
     inflight: dict[str, tuple[str, asyncio.Future, bool]] = field(default_factory=dict)
@@ -136,8 +146,19 @@ class DialogueFrame:
     read_admission_closed: bool = False
     current_client_id: str = ''
     response_dependencies: dict[str, frozenset[str]] = field(default_factory=dict)
+    public_query_reference: PublicQueryReference | None = None
+    public_query_revision: int = 0
 
-    def reset(self, generation: str) -> None:
+    def set_pending(self, value):
+        """Every replacement/clear advances the RAM-only original slot epoch."""
+        self.pending_revision += 1
+        self.pending = deepcopy(value)
+
+    def clear_public_query(self):
+        self.public_query_reference = None
+        self.public_query_revision += 1
+
+    def reset(self, generation: str, *, preserve_production_pending=False) -> None:
         if self.generation != generation:
             self.catalogue_replays.clear()
             self.read_admission_closed = False
@@ -149,10 +170,13 @@ class DialogueFrame:
         self.retry = None
         self.subjects.clear()
         self.dependencies.clear()
-        self.result_set = self.pending = None
+        self.result_set = None
+        if not preserve_production_pending:
+            self.set_pending(None)
         self.chosen_action_id = ""
         self.archiveable = True
         self.current_client_id = ''
+        self.clear_public_query()
 
     def clear_speech(self):
         for record in list(self.speech_references.values()):
@@ -208,9 +232,25 @@ class DialogueTurn:
     resolving_output_request: bool = False
     play_output_id: str = ""
     read_context_revision: int = field(init=False)
+    public_query_candidate: str = ''
+    public_reference_at_start: PublicQueryReference | None = field(init=False)
+    public_reference_revision_at_start: int = field(init=False)
+    pending_at_start: dict | None = field(init=False)
+    pending_revision_at_start: int = field(init=False)
+    clear_production_pending: bool = False
+    consume_production_pending: bool = False
+    consumed_production_revision: int | None = None
+    installed_production_pending: dict | None = None
+    installed_production_revision: int | None = None
+    unused_production_request_hash: str | None = None
+    recording_research: bool = False
 
     def __post_init__(self):
         self.read_context_revision = self.frame.read_context_revision
+        self.public_reference_at_start = self.frame.public_query_reference
+        self.public_reference_revision_at_start = self.frame.public_query_revision
+        self.pending_at_start = self.frame.pending
+        self.pending_revision_at_start = self.frame.pending_revision
 
     def require_effect(self, family, *, media=(), output_id=""):
         for grant in self.effect_grants:
@@ -332,7 +372,7 @@ class DialogueState:
             if row[1] is not None and now >= row[4]:
                 frame.catalogue_replays[identifier] = (row[0], None, row[2], 0, row[4])
         if frame.pending and now >= frame.pending["deadline"]:
-            frame.pending = None
+            frame.set_pending(None)
         return frame
 
     def invalidate(self, scope: str | None = None) -> None:
@@ -375,6 +415,12 @@ class DialogueState:
                     or set(message.get('_source_request_hashes', ())) & request_hashes
                     or depends(message.get('_dependencies', ())))
         for frame in self.owners.get(scope, {}).values():
+            if (isinstance(frame.pending, dict) and frame.pending.get('type') == 'recording_production'
+                    and frame.pending.get('request_hash') in request_hashes):
+                frame.set_pending(None)
+            if (frame.public_query_reference is not None
+                    and frame.public_query_reference.request_hash in request_hashes):
+                frame.clear_public_query()
             frame.messages[:] = [m for m in frame.messages if not affected(m)]
             frame.local_turns[:] = [m for m in frame.local_turns if not affected(m)]
             current_affected = (_request_hash(scope, frame.current_client_id) in request_hashes
@@ -383,7 +429,8 @@ class DialogueState:
             if current_affected:
                 frame.subjects.clear()
                 frame.dependencies.clear()
-                frame.result_set = frame.pending = frame.retry = None
+                frame.result_set = frame.retry = None
+                frame.set_pending(None)
                 frame.chosen_action_id = ''
             for client, row in list(frame.catalogue_replays.items()):
                 if (_request_hash(scope, client) in request_hashes
@@ -401,11 +448,13 @@ class DialogueState:
         """
         for frame in self.owners.get(scope, {}).values():
             frame.read_context_revision += 1
+            frame.clear_public_query()
             frame.messages.clear()
             frame.local_turns.clear()
             frame.subjects.clear()
             frame.dependencies.clear()
-            frame.retry = frame.result_set = frame.pending = None
+            frame.retry = frame.result_set = None
+            frame.set_pending(None)
             frame.chosen_action_id = ""
             for identifier, row in list(frame.catalogue_replays.items()):
                 frame.catalogue_replays[identifier] = (row[0], None, row[2], 0, row[4])
@@ -483,14 +532,31 @@ class DialogueState:
         frame = turn.frame
         if (frame.generation != turn.generation
                 or frame.read_context_revision != turn.read_context_revision
+                or frame.public_query_reference is not turn.public_reference_at_start
+                or frame.public_query_revision != turn.public_reference_revision_at_start
                 or not result.get("success")):
             return
         if turn.reset_topic:
-            frame.reset(turn.generation)
+            preserve_newer = (isinstance(frame.pending, dict)
+                and frame.pending.get('type') == 'recording_production'
+                and (frame.pending is not turn.pending_at_start
+                     or frame.pending_revision != turn.pending_revision_at_start))
+            frame.reset(turn.generation, preserve_production_pending=preserve_newer)
         provenance = {'_client_id': turn.client_id,
                       '_source_request_hashes': sorted(getattr(turn, 'source_request_hashes', ())),
                       '_dependencies': deepcopy(turn.dependencies)}
         frame.current_client_id = turn.client_id
+        if turn.public_query_candidate:
+            from .exploration import named_in_question
+            from .public_research import safe_subject
+            candidate = safe_subject(turn.public_query_candidate, qualified=True)
+            question = result.get('_dialogue_question', '')
+            if candidate and named_in_question(candidate, question):
+                from ..ask_dj_history import _request_hash
+                frame.public_query_reference = PublicQueryReference(
+                    candidate, _request_hash(turn.scope, turn.client_id),
+                    turn.scope, turn.thread_id)
+                frame.public_query_revision += 1
         live_ids = set(frame.catalogue_replays) | set(frame.inflight) | {
             m.get('_client_id') for m in (*frame.messages, *frame.local_turns)}
         frame.response_dependencies = {key: value for key, value in frame.response_dependencies.items() if key in live_ids}
@@ -498,10 +564,24 @@ class DialogueState:
         frame.response_dependencies[turn.client_id] = frozenset({
             _request_hash(turn.scope, turn.client_id), *getattr(turn, 'source_request_hashes', ())})
         frame.archiveable = frame.archiveable and turn.archiveable
+        pending_original = (frame.pending is turn.pending_at_start
+                            and frame.pending_revision == turn.pending_revision_at_start)
+        if turn.consume_production_pending and not pending_original:
+            raise DialogueError('conversation_context_changed', 409)
+        if turn.clear_production_pending and pending_original:
+            frame.set_pending(None)
+            if turn.consume_production_pending:
+                turn.consumed_production_revision = frame.pending_revision
         if turn.clear_pending:
-            frame.pending = None
+            frame.set_pending(None)
         if turn.pending is not None:
-            frame.pending = deepcopy(turn.pending)
+            production = turn.pending.get('type') == 'recording_production'
+            if production and not pending_original:
+                raise DialogueError('conversation_context_changed', 409)
+            frame.set_pending(turn.pending)
+            if production:
+                turn.installed_production_pending = frame.pending
+                turn.installed_production_revision = frame.pending_revision
         if result.get("selected_action_id"):
             frame.chosen_action_id = result["selected_action_id"]
             # Catalog selection is a new local subject, not a model-processing
@@ -511,7 +591,7 @@ class DialogueState:
             frame.local_turns.clear()
             frame.messages = [m for m in frame.messages if m["role"] == "user"][-3:]
         if result.get("_consume_pending"):
-            frame.pending = None
+            frame.set_pending(None)
         if turn.clear_result_set:
             frame.result_set = None
             frame.chosen_action_id = ""
@@ -961,15 +1041,19 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
     style = turn.style if turn else style_projection(payload)
     frame = turn.frame if turn else None
     operation = "refine" if is_refinement(text) else "lookup" if requests_lookup(text) else "answer"
+    messages = frame.messages if frame and not turn.reset_topic else []
+    unused = turn.unused_production_request_hash if turn else None
+    if unused:
+        from ..ask_dj_history import _request_hash
+        messages = [m for m in messages if _request_hash(turn.scope, m.get('_client_id', '')) != unused
+                    and unused not in m.get('_source_request_hashes', ())]
     projection = {
         "question": text[:4000],
         "requested_operation": operation,
         "style": style,
         "answer_form": persona_answer_form(style.get("persona"))
         if operation == "answer" else "Return only the typed read-only query object; Core owns result captions.",
-        "recent_turns": [{"role": m["role"], "text": m["text"]} for m in frame.messages]
-        if frame and not turn.reset_topic
-        else [],
+        "recent_turns": [{"role": m["role"], "text": m["text"]} for m in messages],
         "context": source or (turn.source_context if turn else {}),
         "public_music_research": turn.public_research if turn else {},
         "relevant_subjects": frame.subjects
@@ -981,7 +1065,7 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
     }
     researched = bool(turn and turn.public_research.get("sources"))
     if researched:
-        if focus := selected_public_focus(turn):
+        if not turn.recording_research and (focus := selected_public_focus(turn)):
             projection['selected_contribution'] = focus
         # Data must not replace the trusted Persona with a generic biography
         # recipe. Keep the presentation choice in Core-owned instructions.
@@ -995,6 +1079,10 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
         # question/subject, never re-feed unsupported or cropped narration.
         if explicit_subject(text):
             projection["recent_turns"] = []
+    if turn and turn.recording_research:
+        # This request has independently fetched public work evidence. Neither
+        # private playback labels nor a previous clarification becomes evidence.
+        projection.update(recent_turns=[], relevant_subjects=[], choices={}, context={})
     narration_rules = ""
     if operation == "answer":
         from ..narration_style import instructions as narration_instructions
@@ -1034,7 +1122,11 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
             "Use a concrete work, collaboration or activity from the evidence to answer a general introduction. "
             "Leave dates out unless needed to answer this question; when needed bind each absolute year to its exact source-marked work and event. "
             "Band founding/member dates instead require an exact supplied biographical_date_events proof: name its group and actor explicitly, "
-            "in a separate simple sentence about that one event. Omit other biography dates; an excerpt year alone is insufficient. "
+            "in a separate simple sentence containing ONLY the named group/actor, founding/joining action and year. "
+            "Do not attach a place, founder names, instruments or another clause to that date sentence: "
+            "the date proof does not cover those additions. If the question also asks for them, give independently supported details in separate sentences. "
+            "Answer the requested date first, without expanding a short date question into a biography. "
+            "Omit other biography dates; an excerpt year alone is insufficient. "
             "Keep uncertainty and conflicts explicit, especially for concerts. If evidence is missing, say so briefly. "
             "Write only natural connected prose, not JSON, bullets, metadata or markdown emphasis. "
             "No unasked playback suggestion or fixed greeting. End with one relevant, open follow-up question about the supported subject; never imply an unsupported fact in its premise. "
@@ -1071,6 +1163,9 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
                 'The actual question may request a different aspect directly. Never treat the '
                 'previous telling as proof or imply that an unfetched source supports more. '
                 'Use connected conversational prose, with length proportional to the request. '
+                'When the listener asks for one surprising or interesting fact, give ONE supported factual sentence '
+                'about one documented musical activity, followed by one open question. Do not add a second fact, '
+                'an origin-to-success arc, a conclusion about its significance or an assumed effect to make it interesting. '
                 'Warmth comes from how you share a specific detail, not generic praise or invented significance. '
                 'Keep people, roles, works and performances distinct. General band sound or reputation '
                 'does not describe a particular performance. One documented cover does not establish '
@@ -1313,7 +1408,7 @@ def qualify_agent(hass, identifier):
 def deictic_subject(subject: str) -> bool:
     """Closed whole-subject lens; never a source or identity admission."""
     return bool(re.fullmatch(
-        r"(?:dat|die|dit|hem|haar|deze|that|this|him|her|he|she|it|them|er|sie|das|diese|diesen|diesem|dieser|dieses|celui|celle|ça|il|elle|ce|cet|cette|ese|esa|este|esta|él|ella|the|de|der|le|la|el)(?:\s+(?:artist|artiest|band|album|track|moment|contribution|bijdrage|beitrag|contribución|künstler|artiste|artista|persoon|person|composer|producer|singer|componist|producent|zanger|komponist|produzent|sänger|compositeur|producteur|chanteur|compositor|productor|cantante))?",
+        r"(?:dat|die|dit|hem|haar|deze|that|this|him|her|he|she|it|them|er|sie|das|diese|diesen|diesem|dieser|dieses|celui|celle|ça|il|elle|ce|cet|cette|ese|esa|este|esta|él|ella|the|de|der|le|la|el)(?:\s+(?:artist|artiest|band|album|track|moment|contribution|bijdrage|beitrag|contribución|künstler|artiste|artista|persoon|person|production|productie|produktion|producción|recording|opname|aufnahme|enregistrement|grabación|composer|producer|singer|componist|producent|zanger|komponist|produzent|sänger|compositeur|producteur|chanteur|compositor|productor|cantante))?",
         subject.strip(" .?!").casefold(),
     ))
 

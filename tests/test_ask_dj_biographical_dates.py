@@ -2,6 +2,7 @@
 from copy import deepcopy
 import json
 import unittest
+from types import SimpleNamespace
 
 from tests import test_ask_dj_contextual_dialogue as shared
 
@@ -139,3 +140,55 @@ class BiographicalDateTests(unittest.TestCase):
         review=json.loads(self.research.assessment_prompt('Synthetic Group was founded in 1990.',context,
             'en','When was the band founded?').split('\nData:\n')[1])
         self.assertEqual(review['biographical_date_events'],candidates)
+
+    def test_dutch_completed_founding_can_use_is_without_losing_exact_event_proof(self):
+        quote = 'Synthetic Group was an American rock band formed in Aberdeen, Washington, in 1990.'
+        context = self.context(quote)
+        for answer in ('Synthetic Group is in 1990 opgericht.',
+                       'Synthetic Group is opgericht in 1990.'):
+            proof = self.receipt(context, quote, answer,
+                                 event='group_founded', actor='Synthetic Group')
+            review = self.assessment(context, proof)
+            with self.subTest(answer=answer):
+                self.assertTrue(self.research.supported(json.dumps(review), answer, context))
+                for changed in (answer.replace('1990', '1991'),
+                                answer.replace('Synthetic Group', 'Other Group'),
+                                answer.replace(' is ', ' is mogelijk '),
+                                answer.replace('opgericht', 'niet opgericht'),
+                                answer[:-1] + ' en bracht een album uit.'):
+                    forged = {**proof, 'claim': changed}
+                    bad_review = self.assessment(context, forged)
+                    self.assertFalse(self.research.supported(json.dumps(bad_review), changed, context))
+
+    def test_researched_date_instruction_keeps_extra_facts_out_of_date_sentence(self):
+        from custom_components.djconnect.ask_dj import dialogue
+        context = self.context('Synthetic Group was founded in 1990.')
+        turn = SimpleNamespace(style=dialogue.style_projection({'language': 'nl'}),
+            frame=None, reset_topic=True, source_context={},
+            public_research=context['public_music_research'], prompt_bytes=0,
+            selected_read_context=None, interpreted_artist_research=False,
+            interpreted_context_research=False, recording_research=False,
+            unused_production_request_hash=None)
+        token = dialogue.current_turn.set(turn)
+        try:
+            prompt = dialogue.model_prompt('Wanneer is deze band opgericht?', {'language': 'nl'})
+        finally:
+            dialogue.current_turn.reset(token)
+        instructions, data = prompt.split('\nData:\n', 1)
+        self.assertIn('containing ONLY the named group/actor, founding/joining action and year', instructions)
+        self.assertIn('Do not attach a place, founder names, instruments or another clause', instructions)
+        self.assertNotIn('Synthetic Group', instructions)
+        self.assertEqual(json.loads(data)['public_music_research']['biographical_date_events'][0]['year'], '1990')
+
+    def test_assessment_distinguishes_biographical_receipts_from_legacy_work_dates(self):
+        quote = 'Synthetic Group was founded in 1990.'
+        context = self.context(quote)
+        proof = self.receipt(context, quote, event='group_founded', actor='Synthetic Group')
+        review = self.assessment(context, proof)
+        legacy = {key: proof[key] for key in ('claim', 'year', 'source_id', 'quote')}
+        legacy['event_anchor'] = 'Synthetic Group'
+        review['temporal_claims'] = [legacy]
+        self.assertFalse(self.research.supported(json.dumps(review), quote, context))
+        prompt = self.research.assessment_prompt(quote, context, 'nl', 'Wanneer is deze band opgericht?')
+        self.assertIn('EXACTLY schema, event, claim, actor, group, group_id, year, source_id, evidence_id, quote', prompt)
+        self.assertIn('Do NOT use the work-event object or event_anchor for a band founding/member date', prompt)

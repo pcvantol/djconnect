@@ -1,3 +1,202 @@
+## Ask DJ reported conversations: protected sources and documentary Final,1 November2026
+
+Core Source1409/a4f29073 and Source1410/ecce3a19 are independently originally
+qualified. The latter preserves recording-production purpose across explicit or
+semantically interpreted current/selected clarification, with original
+clock/CAS/history/source fences and independent public work evidence. See the
+[separate Final report](docs/verification/ASK_DJ_REPORTED_CONVERSATIONS_SOURCE_FINALIZATION_20261101.md).
+All302 product files/schema21 stay unchanged in this documentary increment.
+HA-dev remains277/schema18 after the fully rolled-back301 attempt; no install
+or old once/window reuse. Apple response-image transport, clock/native receipt,
+discovery This Is/album context-start/queue audit and all24 requests/nine gates
+retain their separate open scopes. Original bodies and failed proofs remain.
+
+## Prepared Ask DJ recording-production continuation,1 November2026
+
+Apple response-image adoption uses the existing protected producer's
+[observed image contract](docs/product/ASK_DJ_RESPONSE_IMAGES_V1.md): original
+paired authenticated relative route, expiry and no-store, with no borrowed
+Now Playing cover. This is documentation of unchanged Core product bytes;
+Apple transport and actual incident/native acceptance remain separate.
+
+The new [recording-production contract](docs/product/ASK_DJ_RECORDING_PRODUCTION_V1.md)
+separates public work evidence from private playback labels and retains the
+original production purpose across an explicit current/selected clarification.
+Implementation and synthetic regressions are under review; no new source,
+installed HA, factual-quality or provider/native qualification follows. Source1409
+is separately protected at a4f29073; this new correction was not included there.
+All24 requests/nine gates and the discovery context-play requests remain open.
+
+## Host-wake live runtime Source1407 and separate Final,1 November2026
+
+Core [Source1407](https://github.com/pcvantol/djconnect/pull/1407) is originally qualified at faaf4889,301 products/schema21. Seven routes and original Broadcast/SQL-once dispatch are source-qualified; no installation or native/provider acceptance follows. See the [Final report](docs/verification/HOST_WAKE_LIVE_RUNTIME_SOURCE_FINALIZATION_20261101.md). All24 requests/nine gates and original bodies remain preserved.
+
+## Current prepared host-wake runtime: original local proof resource ceiling
+
+The same prepared increment now connects the genuinely registered child to its
+original Broadcast and SQL-once content-free wakes, as specified in
+`docs/product/DIRECT_RICH_HOST_WAKE_PROXY_V1.md`. Callback clocks precede manager
+lock/foreground waits; unsent capacity/timeout/uncertain-source signals do not
+cancel or revoke the parent. Durable resolved-role budgets include every wake
+reservation; postclaim unknowns never retry. Actual isolated HA exercised all
+seven HTTP routes and this Broadcast/SQL composition with explicitly modeled
+external API/native/provider replies. Whole source/protected delivery and actual
+iPhone/APNs acceptance remain separate pending gates.
+
+The prepared seven-route runtime retains its local 30-second proof-submission ceiling from the original challenge request before body/SQL/HTTP awaits. Fresh complete requests and replies cannot restart it. This is local custody only; API owns its own nonce UTC/admission. Original token SHA256 is checked before registration disclosure. Public errors use the existing closed push-specific v1 contract.
+
+Current prepared first-key/clock document SHA256: `be043350ea59b254d3dca86b895e0c46cabf2bee45c736c61fe0528635ae7d44`. Earlier prefixes below retain their original historical snapshot. No whole-source qualification, installation, SDK, provider or device acceptance follows from these WIP checks.
+
+## Original installation first key and host-wake clock ownership, 1 November2026
+
+The canonical [first-key and deadline contract](docs/product/HOST_WAKE_FIRST_KEY_V1.md)
+separates installation-bound SDK key generation before Core prepare from genuine
+API-selected attestation and registration. Local first-key custody needs actual
+operator/effect authority, signed installation/task identity and durable once
+before SDK; no JSON flag, QR reference or key existence is permission.
+
+API owns UTC/SQL admission deadlines; Core retains original local context and
+wall/mono ceilings; Apple retains its actual pre-authorize ContinuousClock root.
+No receipt-time reanchor or unproved cross-OS rate is authority. Local bounded
+SDK effects and server admission are separate; no no-SDK-after-remote-expiry
+claim is made without a real additional bound. Late results cannot enroll or
+register. Existing rich-field rights/privacy and accepted stale OS status retain
+their own scopes. This source preparation authorizes no signing/install/key,
+provider or native action and supplies no operative consumer pin.
+
+## Host-wake custody source and separate Final,1 November2026
+
+Core [Source1405](https://github.com/pcvantol/djconnect/pull/1405) is originally qualified at27ff068e,298 products/schema21. See the [Final report](docs/verification/HOST_WAKE_CUSTODY_SOURCE_FINALIZATION_20261101.md). All24 requests/nine gates remain; positive7HTTP/issuerACK/finalRAM/clock/native and installation remain open.
+
+## Original Session rich HTTP source and separate Final,31 October2026
+
+Core [Source1403](https://github.com/pcvantol/djconnect/pull/1403) is originally
+qualified at7d004f30,289 products/schema20. See the
+[Final report](docs/verification/DIRECT_RICH_HTTP_SOURCE_FINALIZATION_20261031.md).
+All24 requests/nine gates remain; real clock/enrollment/native/provider and HA
+installation are separate open work. API/Apple owning adapters continue against
+the selected closed operation contract; no fake supplier closes those gates.
+
+## Direct rich Session runtime — implementation in progress, 31 October 2026
+
+The sole Core writer is implementing the separate
+[Direct rich contract](docs/product/DIRECT_RICH_SESSION_RUNTIME_V1.md), with its
+[closed schema](docs/verification/fixtures/direct_rich_session_runtime_v1.schema.json).
+This is UNCOMMITTED WIP: the actual original RAM-purpose/SQL20 owner and five
+HTTP routes are now connected in source, but not protected or installed. An
+isolated actual HA proof exercises ordinary pairing, twelve pure reads, original
+prepared PNG/asset bytes and negative history after Session end over289 identical
+product hashes. The request decoder is not a permission factory. Existing widget-v2/v3/status8 and rich
+format v1 stay unchanged. The selected original direct purpose has its own
+eight-hour maximum; each actual field/asset retains at most120s original bounds.
+Ordinary style/playback updates preserve the original purpose, while actual
+owner/privacy/source/consent withdrawal remains irreversible. Direct reads use
+the genuine paired HTTPS channel and separate RAM credentials, not an API rich
+proxy. API owns a separately admitted content-free host-app-wake role; Apple
+owns original native capture, clock/once/SDK and original-byte staging. No
+installed, provider or iPhone-working claim follows from this WIP.
+
+The separate [DIRECT-local native-v2 mapping](docs/product/DIRECT_RICH_NATIVE_LOCAL_V2.md)
+selects a compiled local profile, directLocalVersion=2 and typed research
+attribution INSIDE the same rich Activity content, within unchanged2800/4096
+caps. Frozen DATA-v1/preflight/relay remain unchanged and reject these new keys.
+This is non-operative source preparation; real native clock qualification is
+still absent and no positive SDK/provider admission follows from the mapping.
+
+## Workflow action source: qualified successor and separate Final, 31 October 2026
+
+Core [Source1401](https://github.com/pcvantol/djconnect/pull/1401) is originally
+qualified from the current coherent base; the earlier Source1392 original
+provenance failure remains NOT_QUALIFIED. See the
+[Final report](docs/verification/WORKFLOW_ACTION_UPDATES_FINALIZATION_20261031.md).
+Parallel CI and all281 product files remain unchanged. All24 requests/nine gates
+retain their scopes; no new HA installation or provider/native acceptance follows.
+
+## Parallel offline CI: protected source and separate Final, 31 October 2026
+
+Core [Source1399](https://github.com/pcvantol/djconnect/pull/1399) is originally
+qualified for four-process complete offline tests and coverage. See the
+[Final report](docs/verification/PARALLEL_CI_FINALIZATION_20261031.md).
+All existing checks and release/effect ordering remain; API/Apple own their
+parallel-flow increments. All 24 requests/nine gates remain, including actual
+rich receiving/provider/native acceptance. No new HA installation is implied.
+
+## HA-admin preparation: protected source and separate Final, 31 October 2026
+
+Core [Source1397](https://github.com/pcvantol/djconnect/pull/1397) is originally
+qualified for actual normal-session HA-admin preparation only. See the
+[Final report](docs/verification/HA_ADMIN_MANAGEMENT_FINALIZATION_20261031.md).
+No key/custody execution, rich receiving wire or new installed runtime is granted;
+all24 requests/nine gates retain their scope. The next selected step is the
+joint Core/API/Apple original permission/read/artwork receiving contract.
+
+## HA-admin preparation source increment — 2026-10-30
+
+The real HA-admin management preparation route and its closed request/reply are specified in [INSTALLATION_MANAGEMENT_PREPARATION_V1](docs/product/INSTALLATION_MANAGEMENT_PREPARATION_V1.md). This bounded source increment prepares only the selected loaded entry; no key, custody, enrollment, authenticated successor wire, installed runtime or operational push is granted. Existing 24 requests and nine acceptance gates retain their own scopes.
+
+## Rich Session surface contract: originally qualified source, 30 October 2026
+
+Core [Source1395](https://github.com/pcvantol/djconnect/pull/1395) is protected
+`7f8966cbd797d38618fca02764fa6689191761e5` and independently ORIGINAL_QUALIFIED.
+It preserves one rich Session widget and one rich Live Activity with push as
+the product goal. See [the separate Final record](docs/verification/RICH_SESSION_SURFACE_CONTRACT_FINALIZATION_20261030.md)
+for original source/coverage/durable evidence and the precise closed gates.
+
+The normative contract and36 declarative requirements remain byte-frozen; all280
+product files are unchanged. Apple has independently executed28 existing-type
+encoder cases, including deliberately inadmissible counterexamples; these do
+not prove new carrier, 4096-byte producer, original owner/clock or native push
+acceptance. This documentary increment needs its OWN normal review, protected
+merge and original qualification. HA-dev retains its prior277/schema18 scope;
+no restart/provider/device effect follows. All24 requests/nine gates, Help EN/NL,
+free Ask DJ, VibeCast and HA production/Pi scopes remain retained. Actual rich
+permission/read/artwork/clock adapters and native/provider receipt remain open.
+
+## Rich Session widget and Live Activity push: successor contract, 30 October 2026
+
+The selected product is **one rich Session widget and one rich Live Activity
+with push**, retaining playback, qualified artwork and static VibeScape. The
+[successor contract](docs/product/RICH_SESSION_SURFACE_PUSH_CONTRACT_V1.md)
+preserves the existing Apple rich types, original clock/field rights and three
+independent byte budgets. Content-free invalidation, an admitted background
+read/local update and separately permitted direct rich Activity transport are
+distinct operations of that same presentation. WidgetKit reload is not app wake.
+
+This is contract/source preparation, with a new closed DATA carrier and
+[declarative conformance requirements](docs/verification/fixtures/rich_session_surface_contract_v1.json),
+not a positive runtime, signed permission wire, enabled profile or installed
+push capability. Current status8/af201/v3 and all280 product bytes stay unchanged;
+external_relay:false is not broadened. Source1393 and separateFinal1394 retain
+their own qualified scope. Apple236/237 and separateFinal238 are each originally
+qualified preparation, not rich push acceptance. HA-dev retains prior277/schema18;
+HA production/native config and Pi recovery remain separate open gates. Preserve
+all24 requests/nine gates, Help EN/NL/free Ask DJ and VibeCast. This increment
+requires its own normal independent source and separate Final qualification.
+
+## Current closed custody source delivery
+
+Source1393 is protected `6cae8540a83a880c4bcb37dd302320336f7e15cb` and independently
+ORIGINAL_QUALIFIED. [The separate documentary Final record](docs/verification/INSTALLATION_CUSTODY_ONCE_FINALIZATION_20261029.md)
+records its original main/coverage/formal/durable evidence and preserved limits.
+The coordinator remains unused, with required independent owners and two fixed
+synchronous ports; no actual custodian, key/signing operation, route or factory.
+All280 product bytes and release inputs remain unchanged by this Final; HA-dev
+retains actual277/schema18. All24 requests/nine gates, Help EN/NL/free Ask DJ,
+VibeCast and separate provider/native/production/Pi work remain preserved.
+This Final requires its own protected delivery and original qualification.
+Complete earlier bodies below retain their historical scope.
+
+## Closed custody orchestration source preparation — 29 October 2026
+
+[The unused custody coordinator](docs/product/INSTALLATION_CUSTODY_ONCE_ORCHESTRATION_V1.md)
+composes original SQL19 reservation ACKs with two required synchronous ports and
+independent owner validation. It adds no concrete custodian, key/signing operation,
+startup/route/factory or operational push permission. Existing279 product bytes,
+public records, release inputs and installed HA-dev277/schema18 remain unchanged.
+Normal whole/exact review, protected Source and separate Final are still required.
+All24 requests/nine gates, Help EN/NL/free Ask DJ and VibeCast remain preserved.
+Complete earlier bodies below retain their historical scope.
+
 ## Current original native lifecycle DESIGN delivery
 
 Source1389 is protected `a3c30619baae0e5ec3c0edfa950e8275d7c076fc` and independently
@@ -7368,3 +7567,25 @@ Session/generation/environment/topic/expiry tuple and explicit relay content
 permission. No client credentials or rich content in hints; no lease from push.
 Background capability remains false until connected Core/API/Apple delivery and
 source-purpose gates pass. Existing writers only; no consumer/relay code adopted.
+
+## Direct rich host-wake proxy selected source contract
+
+Core, API and Apple select `docs/product/DIRECT_RICH_HOST_WAKE_PROXY_V1.md`
+and its closed perroute schema/vectors for the original paired RAM-purpose
+adapter. Required proof-kind comes from actual API enrollment/job outside the
+frozen transcript; method+exactroute+body correlation, perHTTP original budget,
+once/UNKNOWN and local negative fences are mandatory. These are source
+contracts, not deployed handlers or native/clock/enrollment permission. Existing
+shipping Direct rich/read and legacy surface permissions remain separate.
+# Ask DJ recent-list retention — optional display-only v1
+
+Core PR1409 adds the optional `recent_history_presentation` contract described
+in [ASK_DJ_RECENT_LIST_PRESENTATION_V1](docs/product/ASK_DJ_RECENT_LIST_PRESENTATION_V1.md).
+The direct response and assistant value must agree. Retained source-qualified
+Profile/Session entries can render original caption/cards after the live
+action/media overlay expires. Validate the closed16KiB/10-item wire, original
+ordinal identities and original UTC timestamps; use full original text when
+absent/invalid/conflicting. Do not render both fallback bullets and these cards.
+No archived URI, action, image/audio token or refreshed lease is supplied.
+Music playback and speech replay remain independently admitted controls.
+Apple adoption and installed/native acceptance are separate from Core source.

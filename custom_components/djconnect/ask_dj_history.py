@@ -623,6 +623,11 @@ class AskDJHistoryManager:
         if session_turn is not None:
             user_message["session_turn"] = deepcopy(session_turn)
             assistant_message["session_turn"] = deepcopy(session_turn)
+            if session_turn.get("provider_display_source") is not None:
+                from .ask_dj.recent_presentation import KEY as RECENT_KEY, from_response as recent_display
+                recent = recent_display(stored_response)
+                if recent is not None:
+                    assistant_message[RECENT_KEY] = recent
             refs = list(assistant_response.get("historical_matches") or [])
             refs.extend(session_turn.get("dependency_entries", []))
             selected = session_turn.get("context", {}).get("selected_entry")

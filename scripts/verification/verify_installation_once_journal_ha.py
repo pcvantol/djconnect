@@ -40,7 +40,7 @@ class InstallationOnceLab(codec_lab.InstallationDataLab):
         vectors = json.loads((root / "expired-synthetic-records.json").read_text())
         records = vectors["records"]
         service = self.manager._persistent_sessions._persistence
-        assert service.readiness.schema_version == 19
+        assert service.readiness.schema_version == 21
         owner = SyntheticOwner()
         journal = InstallationOnceJournal(service, owner, capacity=2)
         text = records["custody_generation_preparation"]["canonical"]

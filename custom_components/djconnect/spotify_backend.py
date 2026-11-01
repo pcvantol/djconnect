@@ -152,6 +152,8 @@ async def handle_spotify_command(
         }
     if normalized == "album_tracks":
         return {"success": True, **await backend.album_tracks(value)}
+    if normalized == "track_metadata":
+        return {"success": True, "track": await backend.track_metadata(value)}
     if normalized == "search_albums":
         albums = await backend.search_albums(
             _search_query(value),
@@ -975,6 +977,26 @@ class SpotifyBackend:
             selected=tracks[0] if tracks else {},
         )
         return tracks
+
+    async def track_metadata(self, target: Any) -> dict[str, Any]:
+        """One exact catalogue GET; no private playback-label search or model data."""
+        if type(target) is not str or not re.fullmatch(r'spotify:track:[A-Za-z0-9]{22}', target):
+            raise SpotifyBackendError('Public recording identity unavailable')
+        identifier = target.rsplit(':', 1)[1]
+        data = await self._request('GET', '/tracks/' + identifier)
+        if (type(data) is not dict or data.get('id') != identifier or data.get('uri') != target
+                or data.get('type') != 'track' or data.get('is_local') is not False
+                or data.get('linked_from') or type(data.get('artists')) is not list
+                or len(data['artists']) != 1 or type(data['artists'][0]) is not dict):
+            raise SpotifyBackendError('Public recording catalogue identity mismatch')
+        artist = data['artists'][0]
+        name, title, aid = artist.get('name'), data.get('name'), artist.get('id')
+        if (type(aid) is not str or not re.fullmatch(r'[A-Za-z0-9]{22}', aid)
+                or artist.get('uri') != 'spotify:artist:' + aid or artist.get('type') != 'artist'
+                or any(type(v) is not str or not 1 <= len(v) <= 160
+                       or v != v.strip() or any(not c.isprintable() for c in v) for v in (name, title))):
+            raise SpotifyBackendError('Public recording catalogue fields unavailable')
+        return {'uri': target, 'artist': name, 'title': title, 'artist_id': aid}
 
     async def album_tracks(self, target: Any) -> dict[str, Any]:
         """Exact edition catalog snapshot; at most50items and three GETs, no search."""

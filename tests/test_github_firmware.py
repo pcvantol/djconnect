@@ -67,6 +67,17 @@ class GithubFirmwareTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         install_github_stubs()
+        # Other suites use deliberately minimal const modules. Own the actual
+        # constants required here and restore the prior binding after this class.
+        name = "custom_components.djconnect.const"
+        previous = sys.modules.pop(name, None)
+        def restore_const():
+            if previous is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = previous
+        cls.addClassCleanup(restore_const)
+        importlib.import_module(name)
         cls.github = importlib.import_module("custom_components.djconnect.github")
 
     def test_select_release_assets_matches_manifest_only(self) -> None:

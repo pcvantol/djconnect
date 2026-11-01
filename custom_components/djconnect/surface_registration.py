@@ -29,6 +29,12 @@ class PairingRetirement:
 
 
 def retire_runtime(runtime):
+    from .direct_rich_context import retire_runtime as retire_direct_rich_context
+    retire_direct_rich_context(runtime)
+    from .direct_rich_pair import retire_runtime as retire_direct_rich_pair
+    retire_direct_rich_pair(runtime)
+    from .installation_management import retire_runtime_preparations
+    retire_runtime_preparations(runtime)  # Before any temporary entry/token mutation.
     from .surface_source_origin import retire_runtime_sources
     retire_runtime_sources(runtime)
     from .surface_status_samples import retire_runtime_status

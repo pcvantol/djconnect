@@ -7196,6 +7196,8 @@ class SessionRuntimeManager:
         session_id: str = "",
     ) -> DJSessionRuntime | None:
         """End and dispose of the active Runtime for a Profile."""
+        from .direct_rich_context import retire_session as retire_direct_rich_session
+        retire_direct_rich_session(self, owner_profile_id, session_id)
         from .surface_source_origin import retire_sources
         retire_sources(self, owner_profile_id, session_id)
         from .surface_status_samples import capture_end, retire_for_end, release_end, publish

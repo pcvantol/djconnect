@@ -80,6 +80,8 @@ class ProfilePlatformStorage:
 
     @_household.setter
     def _household(self, household: Household) -> None:
+        from ..direct_rich_context import fence_profile_household
+        fence_profile_household(self, household)
         manager_changed(self)
         self._household_value = household
 

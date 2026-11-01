@@ -415,7 +415,7 @@ class ManagedSessionExpiryAsyncTests(unittest.IsolatedAsyncioTestCase):
                 with (patch.dict(sys.modules,{'aiohttp':SimpleNamespace(ClientTimeout=lambda **kwargs:None),
                                               'homeassistant.helpers.aiohttp_client':
                                               SimpleNamespace(async_get_clientsession=lambda hass:network)}),
-                      patch.object(self.registry,'decode',AsyncMock(return_value=(64,64)))):
+                      patch.object(self.registry,'decode',AsyncMock(return_value=((64,64),None)))):
                     with self.assertRaisesRegex(ValueError,'^'+reason+'$'):
                         await self.art._fetch(self.hass,SimpleNamespace(_request=AsyncMock(return_value=candidate)),
                                               uri,guard=AsyncMock(),expected_album_uri='spotify:album:'+'B'*22)

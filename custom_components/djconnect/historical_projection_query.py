@@ -103,6 +103,9 @@ class HistoricalProjectionQueryService:
         if message.get("content_state") == "source_withdrawn":
             return False
         source = message.get("session_turn",{}).get("provider_display_source")
+        from .ask_dj.recent_presentation import KEY as RECENT_KEY, checked as recent_display
+        if RECENT_KEY in message and (source is None or recent_display(message[RECENT_KEY]) is None):
+            return False
         if source is not None:
             if (not isinstance(source,dict) or set(source) != {"provider","source_context"}
                     or self._source_validator is None):
@@ -182,6 +185,10 @@ class HistoricalProjectionQueryService:
         for field in ("sources", "links", "historical_matches", "navigation_actions"):
             if isinstance(message.get(field), list):
                 entry[field] = message[field][:20]
+        from .ask_dj.recent_presentation import KEY as RECENT_KEY, checked as recent_display
+        recent = recent_display(message.get(RECENT_KEY))
+        if recent is not None and message.get("session_turn", {}).get("provider_display_source") is not None:
+            entry[RECENT_KEY] = recent
         if entry["kind"] == "conversation_dj":
             from .session_speech import retained_projection
             entry["session_speech"] = retained_projection(entry)

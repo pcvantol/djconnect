@@ -2841,7 +2841,8 @@ async def _async_handle_ask_dj_history_payload(
         for message in result["messages"]:
             if not await query.async_conversation_source_visible(context.profile_id,message):
                 safe.append({**message,"text":"", "status":"source_withdrawn", "images":[],
-                    "sources":[], "links":[], "playback_actions":[], "audio_url":None})
+                    "sources":[], "links":[], "items":[], "recent_history_presentation":None,
+                    "playback_actions":[], "audio_url":None})
                 continue
             visible=True
             for target in message.get("historical_entry_references",[]):

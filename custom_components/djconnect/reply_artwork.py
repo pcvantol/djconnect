@@ -46,7 +46,7 @@ def checked(value):
 def public(value):
     """A stored original source binding is internal, including nested duplicate receipts."""
     if isinstance(value, dict):
-        return {k: public(v) for k, v in value.items() if k != KEY}
+        return {k: public(v) for k, v in value.items() if k not in {KEY, "provider_display_source"}}
     if isinstance(value, list):
         return [public(v) for v in value]
     return value

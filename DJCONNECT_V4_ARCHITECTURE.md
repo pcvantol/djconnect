@@ -1,3 +1,26 @@
+## Current prepared host-wake runtime: original local proof resource ceiling
+
+The prepared seven-route runtime retains its local 30-second proof-submission ceiling from the original challenge request before body/SQL/HTTP awaits. Fresh complete requests and replies cannot restart it. This is local custody only; API owns its own nonce UTC/admission. Original token SHA256 is checked before registration disclosure. Public errors use the existing closed push-specific v1 contract.
+
+Current prepared first-key/clock document SHA256: `be043350ea59b254d3dca86b895e0c46cabf2bee45c736c61fe0528635ae7d44`. Earlier prefixes below retain their original historical snapshot. No whole-source qualification, installation, SDK, provider or device acceptance follows from these WIP checks.
+
+## Original installation first key and host-wake clock ownership, 1 November2026
+
+The canonical [first-key and deadline contract](docs/product/HOST_WAKE_FIRST_KEY_V1.md)
+separates installation-bound SDK key generation before Core prepare from genuine
+API-selected attestation and registration. Local first-key custody needs actual
+operator/effect authority, signed installation/task identity and durable once
+before SDK; no JSON flag, QR reference or key existence is permission.
+
+API owns UTC/SQL admission deadlines; Core retains original local context and
+wall/mono ceilings; Apple retains its actual pre-authorize ContinuousClock root.
+No receipt-time reanchor or unproved cross-OS rate is authority. Local bounded
+SDK effects and server admission are separate; no no-SDK-after-remote-expiry
+claim is made without a real additional bound. Late results cannot enroll or
+register. Existing rich-field rights/privacy and accepted stale OS status retain
+their own scopes. This source preparation authorizes no signing/install/key,
+provider or native action and supplies no operative consumer pin.
+
 # DJConnect v4 Architecture
 
 **Status:** Accepted architecture direction

@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "classification": "DECLARATIVE_RICH_CONTRACT_REQUIREMENTS_NOT_EXECUTED_TESTS_OR_ADMISSION",
+  "normative_document": "docs/product/RICH_SESSION_SURFACE_PUSH_CONTRACT_V1.md",
+  "normative_sha256": "2a4a4a4f49e0f6d5a1015169ff63b27091f80d6d857423940a0381d955bbb499",
+  "profile_id": "djconnect-session-rich-v1",
+  "data_carrier_required_fields": [
+    "schema_version",
+    "profile_id",
+    "attributes_utf8_b64u",
+    "content_state_utf8_b64u",
+    "source_observed_at_ms",
+    "source_expires_at_ms"
+  ],
+  "limits_bytes": {
+    "carrier": 16384,
+    "nested_rich": 2800,
+    "attributes_plus_complete_state": 4096,
+    "complete_apns_body": 4096
+  },
+  "source_utc_mapping": {
+    "observation": "ceil(1000*original_UTC_seconds)",
+    "expiry": "floor(1000*original_UTC_seconds)",
+    "not_derived_from": "native Date/uptime/local render cap"
+  },
+  "cases": [
+    {
+      "id": "R01",
+      "area": "product",
+      "given": "One rich widget and one rich Activity; status-only design does not become a second selected product",
+      "required_result": "SAME_EXISTING_RICH_SURFACES"
+    },
+    {
+      "id": "R02",
+      "area": "initial",
+      "given": "Missing independent original rich start/display permission despite valid source/status8/token DATA",
+      "required_result": "ZERO_SDK"
+    },
+    {
+      "id": "R03",
+      "area": "initial",
+      "given": "Initial rich display permission cannot depend on future native ID/API A/B; original permission absent",
+      "required_result": "CLOSED_NOT_CIRCULAR_WAIT"
+    },
+    {
+      "id": "R04",
+      "area": "initial",
+      "given": "Accepted start and real SDK ID do not imply accepted API A or B",
+      "required_result": "ENROLLMENT_SEPARATE"
+    },
+    {
+      "id": "R05",
+      "area": "rights",
+      "given": "Rich payload with external_relay:false sent through API/APNs or plaintext read proxy",
+      "required_result": "DENY_RICH_RELAY"
+    },
+    {
+      "id": "R06",
+      "area": "wake",
+      "given": "WidgetKit timeline invalidation accepted but no admitted host-app background path/OS runtime",
+      "required_result": "NO_LIVE_ACTIVITY_REFRESH_CLAIM"
+    },
+    {
+      "id": "R07",
+      "area": "read",
+      "given": "Existing schema2/widget/noart response offered as Activity or artwork permission",
+      "required_result": "DENY_FAMILY_REINTERPRETATION"
+    },
+    {
+      "id": "R08",
+      "area": "clock",
+      "given": "Direct server state fabricates receivedUptime or anchors on arrival",
+      "required_result": "DENY_POSITIVE_PUBLICATION"
+    },
+    {
+      "id": "R09",
+      "area": "clock",
+      "given": "Repeated read/rotation/equal state tries to extend SAME purpose minimum",
+      "required_result": "RETAIN_ORIGINAL_MINIMUM"
+    },
+    {
+      "id": "R10",
+      "area": "clock",
+      "given": "Genuinely new source observation with new field deadline but same original purpose",
+      "required_result": "BOUND_NEW_FIELD_BY_ORIGINAL_PURPOSE"
+    },
+    {
+      "id": "R11",
+      "area": "clock",
+      "given": "Clock-domain/boot/rate/suspend/restore identity missing or replaced after an await",
+      "required_result": "CLOSED"
+    },
+    {
+      "id": "R12",
+      "area": "clock",
+      "given": "Cold extension lost original C0 and attempts v3 status-GET re-delegation",
+      "required_result": "CLOSED_NO_NEW_PIN"
+    },
+    {
+      "id": "R13",
+      "area": "clock",
+      "given": "UTC source conversion with fractional millisecond precision",
+      "required_result": "CEIL_OBSERVATION_FLOOR_EXPIRY"
+    },
+    {
+      "id": "R14",
+      "area": "clock",
+      "given": "Native Foundation Date is confused with Unix source instant",
+      "required_result": "DENY_UNQUALIFIED_CLOCK_CONVERSION"
+    },
+    {
+      "id": "R15",
+      "area": "format",
+      "given": "Attributes add the status design second UUID or use Session identity instead of original presentationID",
+      "required_result": "DENY_ATTRIBUTES_MISMATCH"
+    },
+    {
+      "id": "R16",
+      "area": "format",
+      "given": "Default Foundation Date roundtrip preserves original Date/uptime and optional omission",
+      "required_result": "DATA_COMPATIBILITY_ONLY"
+    },
+    {
+      "id": "R17",
+      "area": "format",
+      "given": "Unix-seconds, Unix-ms or ISO8601 substituted for original Foundation default dates",
+      "required_result": "DENY_ALTERNATE_ENCODING"
+    },
+    {
+      "id": "R18",
+      "area": "format",
+      "given": "Duplicate/unknown JSON keys, invalid UTF8, nonfinite/bool number, unsafe integer or missing required nested field",
+      "required_result": "DENY_DATA"
+    },
+    {
+      "id": "R19",
+      "area": "carrier",
+      "given": "Base64url padding/whitespace/alternate alphabet/noncanonical tail bits or extra carrier keys",
+      "required_result": "DENY_DATA"
+    },
+    {
+      "id": "R20",
+      "area": "carrier",
+      "given": "Parsed JsonObject or generic re-encode presented as original signed Foundation bytes",
+      "required_result": "DENY_BYTE_EQUIVALENCE_ASSUMPTION"
+    },
+    {
+      "id": "R21",
+      "area": "carrier",
+      "given": "Original attribute bytes match request but not independently accepted native creation witness",
+      "required_result": "CLOSED"
+    },
+    {
+      "id": "R22",
+      "area": "budget",
+      "given": "Encoded nested rich exactly2800 bytes vs2801",
+      "required_result": "ALLOW_SIZE_ONLY_THEN_DENY_OVERSIZE"
+    },
+    {
+      "id": "R23",
+      "area": "budget",
+      "given": "Actual static attributes plus complete state exactly4096 bytes vs4097",
+      "required_result": "ALLOW_SIZE_ONLY_THEN_DENY_OVERSIZE"
+    },
+    {
+      "id": "R24",
+      "area": "budget",
+      "given": "Actual final complete APNs body exactly4096 bytes vs4097 with Unicode/escapes/metadata",
+      "required_result": "ALLOW_SIZE_ONLY_THEN_DENY_OVERSIZE"
+    },
+    {
+      "id": "R25",
+      "area": "budget",
+      "given": "Factual copy or required attribution removed to make an over-budget payload pass",
+      "required_result": "DENY_SILENT_TRUNCATION"
+    },
+    {
+      "id": "R26",
+      "area": "artwork",
+      "given": "TrackB arrives while contributionA and imageA remain; late Aimage callback targets B slot",
+      "required_result": "NO_WRONG_SUBJECT_COVER"
+    },
+    {
+      "id": "R27",
+      "area": "artwork",
+      "given": "Missing/expired/unqualified art but independently valid text",
+      "required_result": "RETAIN_ONLY_INDEPENDENT_VALID_FIELDS"
+    },
+    {
+      "id": "R28",
+      "area": "artwork",
+      "given": "LiveActivity state contains image bytes or fetches a URL itself",
+      "required_result": "DENY_UNSELECTED_IMAGE_TRANSPORT"
+    },
+    {
+      "id": "R29",
+      "area": "withdrawal",
+      "given": "Withdrawal/cancel/error/owner-settings-source replacement or ABA during read/image/token await",
+      "required_result": "ZERO_LATE_PUBLICATION"
+    },
+    {
+      "id": "R30",
+      "area": "once",
+      "given": "Consumed SDK attempt lostACK then restart/newoperation/emptyinventory",
+      "required_result": "UNKNOWN_SPENT_NO_RETRY"
+    },
+    {
+      "id": "R31",
+      "area": "once",
+      "given": "Late actual Activity ID returns after retirement",
+      "required_result": "NO_REGISTER_UPDATE_WITHOUT_ORIGINAL_AUTHORITY"
+    },
+    {
+      "id": "R32",
+      "area": "subjects",
+      "given": "Two Sessions on same device; one is withdrawn",
+      "required_result": "OTHER_ORIGINAL_SESSION_UNAFFECTED"
+    },
+    {
+      "id": "R33",
+      "area": "effects",
+      "given": "Repeated pure rich read and media read",
+      "required_result": "ZERO_PROVIDER_MODEL_PUBLICATION_PLAYBACK_EFFECTS"
+    },
+    {
+      "id": "R34",
+      "area": "platform",
+      "given": "Mac/watch mirror treated as independent native Activity start owner",
+      "required_result": "DENY_PLATFORM_FALLBACK"
+    },
+    {
+      "id": "R35",
+      "area": "retention",
+      "given": "Offline OS retains an old frame after missed withdrawal",
+      "required_result": "NO_IMMEDIATE_PIXEL_ERASURE_CLAIM"
+    },
+    {
+      "id": "R36",
+      "area": "delivery",
+      "given": "Candidate/Source/Final CI passes but no native provider receipt",
+      "required_result": "NO_IPHONE_PUSH_ACCEPTANCE"
+    }
+  ],
+  "execution_claim": "NONE; future owning source/codec/actual-native tests must execute relevant causal cases and retain original evidence.",
+  "actual_public_profile_or_factory": false
+}

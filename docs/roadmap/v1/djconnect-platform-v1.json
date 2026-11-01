@@ -4318,7 +4318,7 @@
       "owning_register": "https://github.com/pcvantol/djconnect-app/issues/87",
       "register_discovery": "Dedicated owning issue created; existing local backlog retained",
       "portfolio_register": "https://github.com/pcvantol/djconnect/issues/1101",
-      "proposed_documentary_next_step": "Reconcileer bestaande lokale TODO/ISSUES en native-surface/Watch-evidence. Noteer PR #88 pairing source/CI zonder installed HA/client acceptatie te claimen; actualiseer writerslot/WIP vóór bronwerk. Behoud huidige implementatie tegenover de nog assessment-first Watch Moment-First-doelervaring.",
+      "proposed_documentary_next_step": "Reconcileer bestaande lokale TODO/ISSUES en native-surface/Watch-evidence. Noteer PR #88 pairing source/CI zonder installed HA/client acceptatie te claimen; actualiseer writerslot/WIP v\u00f3\u00f3r bronwerk. Behoud huidige implementatie tegenover de nog assessment-first Watch Moment-First-doelervaring.",
       "local_backlog_audit": "Bounded documentary source/backlog/status inventory CLOSED in AUDIT-DJC-APPLE: 47/173 current Markdown sources represented, 126 exact historical path/blob dispositions, zero unclassified. Watch/native-surface and PR #88 pairing boundaries remain source-specific; installed HA/client acceptance remains open.",
       "local_test_policy": "Pinned repository test and workflow policy read; exact-main Apple CI after PR #88 passed, and main post-merge workflow effects were read. Those receipts do not qualify installed Apple/HA consumers or authorize a new release.",
       "release_effect_audit": "Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push"
@@ -4423,7 +4423,7 @@
       "owning_register": "https://github.com/pcvantol/djconnect-website/issues/59",
       "register_discovery": "Dedicated owning issue created; existing local backlog retained",
       "portfolio_register": "https://github.com/pcvantol/djconnect/issues/1101",
-      "proposed_documentary_next_step": "Reconcileer de publieke Spotify OAuth-callbacktekst, MacCatalyst-titel/platform, iOS-distributiekanaal, verouderde automatische-deploybeschrijving en de bounded live downloadfeed/locale-gap in owning issue #59. De website tracked-status readback timed out; hercontroleer writer/WIP vóór bronwerk. Verifieer exact producer-, consumer- en deploybewijs; geen website push of deploy onder deze planning.",
+      "proposed_documentary_next_step": "Reconcileer de publieke Spotify OAuth-callbacktekst, MacCatalyst-titel/platform, iOS-distributiekanaal, verouderde automatische-deploybeschrijving en de bounded live downloadfeed/locale-gap in owning issue #59. De website tracked-status readback timed out; hercontroleer writer/WIP v\u00f3\u00f3r bronwerk. Verifieer exact producer-, consumer- en deploybewijs; geen website push of deploy onder deze planning.",
       "local_backlog_audit": "Owning backlog, four phase/status projections and all non-release-note Markdown are pinned. All 348 remaining Markdown paths are classified by exact path/blob as pre-3.3.0 release copy without full-text reading. Five download code sources are fully read and six HTML data bindings bounded; live route/DOM state is recorded without deployed commit provenance. Other static HTML/runtime consumers remain separate audit frontiers.",
       "local_test_policy": "Pinned TESTS.md is fully read but contains older auto-deploy assumptions. Current website validation, artifact, evidence and dispatch-only deployment workflows are separately pinned. Read-only live route/DOM observations do not qualify full locale, installed consumer or deployment acceptance.",
       "release_effect_audit": "Successful Validate on website main can start automatic Actions artifact build plus a separate post-merge evidence workflow capable, after its gates, of GitHub prerelease asset/status writes. Cloudflare deploy and post-deployment smoke are workflow_dispatch-only. No website push or dispatch occurred"
@@ -4507,7 +4507,7 @@
       "owning_register": "https://github.com/pcvantol/djconnect-app-releases/issues/25",
       "register_discovery": "Dedicated owning issue created; existing local backlog retained",
       "portfolio_register": "https://github.com/pcvantol/djconnect/issues/1101",
-      "proposed_documentary_next_step": "Behoud één distributielane voor Apple en Windows in deze repository. Bepaal de huidige artifact-, kanaal- en publicatiegrens uit workflows/receipts; conditionele website-copy volgt pas een goedgekeurde asset. Geen tweede writer of productpickup.",
+      "proposed_documentary_next_step": "Behoud \u00e9\u00e9n distributielane voor Apple en Windows in deze repository. Bepaal de huidige artifact-, kanaal- en publicatiegrens uit workflows/receipts; conditionele website-copy volgt pas een goedgekeurde asset. Geen tweede writer of productpickup.",
       "local_backlog_audit": "All 25 tracked paths, including all 15 Markdown paths, were inventoried at exact main; owning status/phase projections and sole planning issue retained. GitHub release and source-to-consumer reconciliation remain open beyond the CLOSED documentary source inventory.",
       "local_test_policy": "Main-only distribution-integrity check validates dry-run metadata; exact-main validation run not retained in the latest run listing; local source audit is not live/installed acceptance.",
       "release_effect_audit": "Main push runs integrity validation and Action-run cleanup; successful main workflow_run may invoke contents-write reusable release-evidence workflow that can create/append internal-ha-{SHA} prerelease after gates and can write the main Post-Merge Release Evidence commit status. Manual release execution contract accepts dry_run only. No distribution push/merge under this planning assignment."
@@ -4920,7 +4920,7 @@
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
       "read_boundary": "complete prior baseline plus exact complete diff to current main 192703ea; current path/blob independently reread in untruncated Git tree",
       "read_complete": true,
-      "status_authority": "Current rolling finalization record; historical entries and predecessor ready claims do not establish this assignment’s admission",
+      "status_authority": "Current rolling finalization record; historical entries and predecessor ready claims do not establish this assignment\u2019s admission",
       "observed_at": "2026-10-03 16:19 UTC current-main re-pin",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/REPOSITORY_STATUS.md",
@@ -15625,7 +15625,7 @@
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
       "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
       "read_complete": true,
-      "status_authority": "Dated Phase 6 reconstruction of app→HA, HA→local device and device→HA pairing families; acceptance per current owner still required.",
+      "status_authority": "Dated Phase 6 reconstruction of app\u2192HA, HA\u2192local device and device\u2192HA pairing families; acceptance per current owner still required.",
       "observed_at": "2026-10-03; exact local git main-tree and full text read",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/PAIRING.md",
@@ -20624,7 +20624,7 @@
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
       "read_boundary": "complete; exact pinned full-text read in this continuation",
       "read_complete": true,
-      "status_authority": "Canonical Software Assurance implementation prerequisites and Platform Baseline qualification conditions remain applicable; its Prompt 2 active / Prompts 3–4 blocked execution status is dated and superseded by later Generation 1 closure. No new implementation selection follows.",
+      "status_authority": "Canonical Software Assurance implementation prerequisites and Platform Baseline qualification conditions remain applicable; its Prompt 2 active / Prompts 3\u20134 blocked execution status is dated and superseded by later Generation 1 closure. No new implementation selection follows.",
       "observed_at": "2026-10-03 15:23 UTC",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/SOFTWARE_ASSURANCE_IMPLEMENTATION_PREREQUISITES.md",
@@ -21055,7 +21055,7 @@
       "path": "Sources/DJConnectUI/DJConnectAppModel.swift",
       "blob_sha": "4c076a00cba81cbc6bfa8f8e7e70c06dc8829028",
       "commit_sha": "b857eb77eb848a404ac904d0911d9ed43783851c",
-      "read_boundary": "bounded continuous lines 7595–8010 at exact current Apple main: paired-state guard, HA push registration, issuer-proof retry and HA recovery response",
+      "read_boundary": "bounded continuous lines 7595\u20138010 at exact current Apple main: paired-state guard, HA push registration, issuer-proof retry and HA recovery response",
       "read_complete": false,
       "status_authority": "Current Apple source requires paired status and a stored APNs token before HA push registration; on missing bootstrap proof it requests /v1/pairing/bootstrap-proof from the trusted API issuer and retries HA registration. This bounded code read is not a full installed-client acceptance.",
       "observed_at": "2026-10-03 15:35 UTC",
@@ -22534,7 +22534,7 @@
       "completion_claim": "NONE",
       "count_as_delivered_feature": false,
       "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
-      "visible_outcome": "Bepaal de daadwerkelijke huidige artifact- en publicatiegrens uit workflows/receipts. Behoud één lane voor deze repo; maak geen tweede Windows-distributiewriter.",
+      "visible_outcome": "Bepaal de daadwerkelijke huidige artifact- en publicatiegrens uit workflows/receipts. Behoud \u00e9\u00e9n lane voor deze repo; maak geen tweede Windows-distributiewriter.",
       "scope": "Reference-only disposition for Artifact-handoff; Apple-only README versus Windows/Mac Catalyst consumerclaim is onopgelost: Unassessed. This record preserves the owning source status and cannot certify implementation or consumer acceptance.",
       "non_goals": [
         "No product implementation under this planning assignment",
@@ -24840,16 +24840,16 @@
       "completion_claim": "NONE",
       "count_as_delivered_feature": false,
       "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
-      "visible_outcome": "Assess an understandable installation → Profile → one supported backend → optional voice → paired/mapped host → first safe DJ Session journey. No automatic Session start.",
-      "scope": "After connectivity and CMB-05/06/07/09 host-profile evidence, assess the installation → Profile → backend authorization → optional voice → paired/mapped host → safe first Session journey, including recovery, five-language accessibility and privacy.",
+      "visible_outcome": "Assess an understandable installation \u2192 Profile \u2192 one supported backend \u2192 optional voice \u2192 paired/mapped host \u2192 first safe DJ Session journey. No automatic Session start.",
+      "scope": "After connectivity and CMB-05/06/07/09 host-profile evidence, assess the installation \u2192 Profile \u2192 backend authorization \u2192 optional voice \u2192 paired/mapped host \u2192 safe first Session journey, including recovery, five-language accessibility and privacy.",
       "non_goals": [
         "No product implementation under this planning assignment",
         "No release or live qualification inferred from documentation"
       ],
       "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
-      "acceptance_boundary": "After connectivity and CMB-05/06/07/09 host-profile evidence, assess the installation → Profile → backend authorization → optional voice → paired/mapped host → safe first Session journey, including recovery, five-language accessibility and privacy.",
+      "acceptance_boundary": "After connectivity and CMB-05/06/07/09 host-profile evidence, assess the installation \u2192 Profile \u2192 backend authorization \u2192 optional voice \u2192 paired/mapped host \u2192 safe first Session journey, including recovery, five-language accessibility and privacy.",
       "acceptance_criteria": [
-        "After connectivity and CMB-05/06/07/09 host-profile evidence, assess the installation → Profile → backend authorization → optional voice → paired/mapped host → safe first Session journey, including recovery, five-language accessibility and privacy."
+        "After connectivity and CMB-05/06/07/09 host-profile evidence, assess the installation \u2192 Profile \u2192 backend authorization \u2192 optional voice \u2192 paired/mapped host \u2192 safe first Session journey, including recovery, five-language accessibility and privacy."
       ],
       "completion_requirements": [
         "Exact owning decision and phase-specific producer/consumer evidence before any completion claim."
@@ -25482,15 +25482,15 @@
       "count_as_delivered_feature": false,
       "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
       "visible_outcome": "Analyse Apple-Windows atomic convergence",
-      "scope": "Use the already assessed Apple–Windows Profile, playback, queue, Ask DJ, Discover and Track Insight convergence as onboarding host-profile input; the normalized active-Session contract remains a separate open CMB07-ACTIVE producer.",
+      "scope": "Use the already assessed Apple\u2013Windows Profile, playback, queue, Ask DJ, Discover and Track Insight convergence as onboarding host-profile input; the normalized active-Session contract remains a separate open CMB07-ACTIVE producer.",
       "non_goals": [
         "No product implementation under this planning assignment",
         "No release or live qualification inferred from documentation"
       ],
       "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
-      "acceptance_boundary": "Use the already assessed Apple–Windows Profile, playback, queue, Ask DJ, Discover and Track Insight convergence as onboarding host-profile input; the normalized active-Session contract remains a separate open CMB07-ACTIVE producer.",
+      "acceptance_boundary": "Use the already assessed Apple\u2013Windows Profile, playback, queue, Ask DJ, Discover and Track Insight convergence as onboarding host-profile input; the normalized active-Session contract remains a separate open CMB07-ACTIVE producer.",
       "acceptance_criteria": [
-        "Use the already assessed Apple–Windows Profile, playback, queue, Ask DJ, Discover and Track Insight convergence as onboarding host-profile input; the normalized active-Session contract remains a separate open CMB07-ACTIVE producer."
+        "Use the already assessed Apple\u2013Windows Profile, playback, queue, Ask DJ, Discover and Track Insight convergence as onboarding host-profile input; the normalized active-Session contract remains a separate open CMB07-ACTIVE producer."
       ],
       "completion_requirements": [
         "Exact owning producer receipt and consumer-specific acceptance are required before marking this gate fulfilled."
@@ -25666,7 +25666,7 @@
     {
       "id": "CMB-11",
       "canonical_id": "CMB-11",
-      "title": "Sharing producers and native renderer: bounded Track Insight → Apple sharing",
+      "title": "Sharing producers and native renderer: bounded Track Insight \u2192 Apple sharing",
       "type": "assessment",
       "family": "capability_assessment",
       "lane": "DJC-CORE",
@@ -25687,14 +25687,14 @@
       "completion_claim": "NONE",
       "count_as_delivered_feature": false,
       "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
-      "visible_outcome": "Sharing producers and native renderer: bounded Track Insight → Apple sharing",
-      "scope": "Reference-only disposition for Sharing producers and native renderer: bounded Track Insight → Apple sharing: Assessed / implementation completed (bounded sharing only). This record preserves the owning source status and cannot certify implementation or consumer acceptance.",
+      "visible_outcome": "Sharing producers and native renderer: bounded Track Insight \u2192 Apple sharing",
+      "scope": "Reference-only disposition for Sharing producers and native renderer: bounded Track Insight \u2192 Apple sharing: Assessed / implementation completed (bounded sharing only). This record preserves the owning source status and cannot certify implementation or consumer acceptance.",
       "non_goals": [
         "No product implementation under this planning assignment",
         "No release or live qualification inferred from documentation"
       ],
       "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
-      "acceptance_boundary": "Reference-only disposition for Sharing producers and native renderer: bounded Track Insight → Apple sharing: Assessed / implementation completed (bounded sharing only). This record preserves the owning source status and cannot certify implementation or consumer acceptance.",
+      "acceptance_boundary": "Reference-only disposition for Sharing producers and native renderer: bounded Track Insight \u2192 Apple sharing: Assessed / implementation completed (bounded sharing only). This record preserves the owning source status and cannot certify implementation or consumer acceptance.",
       "acceptance_criteria": [],
       "completion_requirements": [],
       "contract_binding": "SOURCE_REFERENCES_ONLY; exact consuming artifact/contract qualification not complete",
@@ -27431,7 +27431,7 @@
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
-      "source_status_summary": "Implemented and Finalized — Execute Qualification pending",
+      "source_status_summary": "Implemented and Finalized \u2014 Execute Qualification pending",
       "original_status": null,
       "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
       "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
@@ -27441,13 +27441,13 @@
       "count_as_delivered_feature": false,
       "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
       "visible_outcome": "Component Release Mode",
-      "scope": "Reference-only disposition for Component Release Mode: Implemented and Finalized — Execute Qualification pending. This record preserves the owning source status and cannot certify implementation or consumer acceptance.",
+      "scope": "Reference-only disposition for Component Release Mode: Implemented and Finalized \u2014 Execute Qualification pending. This record preserves the owning source status and cannot certify implementation or consumer acceptance.",
       "non_goals": [
         "No product implementation under this planning assignment",
         "No release or live qualification inferred from documentation"
       ],
       "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
-      "acceptance_boundary": "Reference-only disposition for Component Release Mode: Implemented and Finalized — Execute Qualification pending. This record preserves the owning source status and cannot certify implementation or consumer acceptance.",
+      "acceptance_boundary": "Reference-only disposition for Component Release Mode: Implemented and Finalized \u2014 Execute Qualification pending. This record preserves the owning source status and cannot certify implementation or consumer acceptance.",
       "acceptance_criteria": [],
       "completion_requirements": [],
       "contract_binding": "SOURCE_REFERENCES_ONLY; exact consuming artifact/contract qualification not complete",
@@ -34945,7 +34945,7 @@
       "kind": "integration_contract",
       "phase": "integration_acceptance",
       "required_subset": "Trusted Apple pairing issuer one-time proof and HA registration recovery; distinct from APNs relay delivery",
-      "reason": "Apple client source directly calls the API trusted pairing issuer and then retries HA push registration with the one-time proof. This API→Apple contract is separately required alongside the API→HA relay/token and HA→Apple push-consumer relations.",
+      "reason": "Apple client source directly calls the API trusted pairing issuer and then retries HA push registration with the one-time proof. This API\u2192Apple contract is separately required alongside the API\u2192HA relay/token and HA\u2192Apple push-consumer relations.",
       "source_ids": [
         "README::DJC-API",
         "API_PAIRING_BOOTSTRAP_ISSUER_SOURCE",
@@ -35744,7 +35744,7 @@
         "API_CONTRACT"
       ],
       "mode": "OR",
-      "description": "Each profile-bound installation selects Spotify Direct or Music Assistant; exact selected adapter is required only for that installation’s integration acceptance."
+      "description": "Each profile-bound installation selects Spotify Direct or Music Assistant; exact selected adapter is required only for that installation\u2019s integration acceptance."
     }
   ],
   "resources": {
@@ -36176,7 +36176,7 @@
     {
       "id": "DRIFT-PI",
       "status": "OPEN",
-      "description": "Pi source deliberately has no local Ask DJ input, PTT, TTS or audio path, while distribution README still promises voice requests. Stable 3.3.0 has only a generic bundle; 4.0.0-rc.2 prerelease lists generic plus Pi 5 and Pi Zero 2 W profile bundles, with a manifest whose source SHA and three artifact hashes match the release API. Neither version proves physical installed-target qualification or the older component-register identity; reconcile copy and exact consumer evidence in owning records. The pinned Pi source changelog calls 3.3.0 a dry run not published despite observed 3.3.0 stable release metadata; treat this as a source/release chronology conflict requiring exact asset/provenance reconciliation. The observed public GitHub v3.3.0 release body still says “dry run — not published” despite a non-prerelease release with four assets; release metadata is publication evidence, not proof of installed support. Pi CODE_OF_CONDUCT.md also forbids a local /api/device/dj_response route, while current README/source status includes it; this is a documentary contradiction, not a reason to remove the route. DEVELOPMENT_ENVIRONMENT.md's production command asks releases/latest for djconnect-pi-3.2.0.tar.gz and then enters djconnect-pi-3.2.0, but current latest v3.3.0 offers djconnect-pi-3.3.0.tar.gz and no 3.2.0 asset. This stale/broken latest install example requires owning documentation repair; do not treat it as installed-target evidence.",
+      "description": "Pi source deliberately has no local Ask DJ input, PTT, TTS or audio path, while distribution README still promises voice requests. Stable 3.3.0 has only a generic bundle; 4.0.0-rc.2 prerelease lists generic plus Pi 5 and Pi Zero 2 W profile bundles, with a manifest whose source SHA and three artifact hashes match the release API. Neither version proves physical installed-target qualification or the older component-register identity; reconcile copy and exact consumer evidence in owning records. The pinned Pi source changelog calls 3.3.0 a dry run not published despite observed 3.3.0 stable release metadata; treat this as a source/release chronology conflict requiring exact asset/provenance reconciliation. The observed public GitHub v3.3.0 release body still says \u201cdry run \u2014 not published\u201d despite a non-prerelease release with four assets; release metadata is publication evidence, not proof of installed support. Pi CODE_OF_CONDUCT.md also forbids a local /api/device/dj_response route, while current README/source status includes it; this is a documentary contradiction, not a reason to remove the route. DEVELOPMENT_ENVIRONMENT.md's production command asks releases/latest for djconnect-pi-3.2.0.tar.gz and then enters djconnect-pi-3.2.0, but current latest v3.3.0 offers djconnect-pi-3.3.0.tar.gz and no 3.2.0 asset. This stale/broken latest install example requires owning documentation repair; do not treat it as installed-target evidence.",
       "source_ids": [
         "README::DJC-PI",
         "README::DJC-DIST-PI",
@@ -36199,7 +36199,7 @@
     {
       "id": "SHARING-BOUNDED",
       "status": "RECORDED_NOT_REQUALIFIED",
-      "description": "CMB11 includes completed Track Insight→Apple Native Sharing only; not generic sharing implementation.",
+      "description": "CMB11 includes completed Track Insight\u2192Apple Native Sharing only; not generic sharing implementation.",
       "source_ids": [
         "CMB",
         "E2E_ROADMAP",
@@ -36931,7 +36931,7 @@
     {
       "id": "API-APPLE-PROOF-HANDOFF",
       "status": "DIRECT_SOURCE_CONTRACT_CAPTURED__INSTALLED_ACCEPTANCE_OPEN",
-      "description": "Apple main directly requests a short-lived pairing bootstrap proof from the central API trusted issuer when HA push registration requires bootstrap, then retries HA registration with that proof. This adds a distinct API→Apple contract alongside API→HA relay/token and HA→Apple delivery. The source path does not prove an exact deployed issuer, successful HA token mint or live APNs delivery. Apple source also requires confirmed paired status before it attempts push registration; the intra-Apple pairing→push evidence gate is recorded separately.",
+      "description": "Apple main directly requests a short-lived pairing bootstrap proof from the central API trusted issuer when HA push registration requires bootstrap, then retries HA registration with that proof. This adds a distinct API\u2192Apple contract alongside API\u2192HA relay/token and HA\u2192Apple delivery. The source path does not prove an exact deployed issuer, successful HA token mint or live APNs delivery. Apple source also requires confirmed paired status before it attempts push registration; the intra-Apple pairing\u2192push evidence gate is recorded separately.",
       "source_ids": [
         "README::DJC-API",
         "API_PAIRING_BOOTSTRAP_ISSUER_SOURCE",
@@ -36941,7 +36941,7 @@
     {
       "id": "API-WEBSITE-OPERATOR-HANDOFF",
       "status": "SOURCE_PATHS_CONFIRMED__DEPLOYED_ACCEPTANCE_OPEN",
-      "description": "The pinned website has server-side Pages Functions that proxy operator registration summaries and token-ID revocation to the central API, with Cloudflare Access middleware and a server-side operator secret. The existing DJC-API-REVOKE owning backlog node remains the sole revocation status authority; the added API node covers only registration summaries. This is a distinct API→Website read/revoke dependency, not a product or release selection. Current deployed API/Pages revisions, Access configuration and live operator acceptance are not proven. The source revoke proxy and API validator currently accept any nonempty token_id, so raw djci-like input exclusion is a separate unmet acceptance check, not a proven safety property.",
+      "description": "The pinned website has server-side Pages Functions that proxy operator registration summaries and token-ID revocation to the central API, with Cloudflare Access middleware and a server-side operator secret. The existing DJC-API-REVOKE owning backlog node remains the sole revocation status authority; the added API node covers only registration summaries. This is a distinct API\u2192Website read/revoke dependency, not a product or release selection. Current deployed API/Pages revisions, Access configuration and live operator acceptance are not proven. The source revoke proxy and API validator currently accept any nonempty token_id, so raw djci-like input exclusion is a separate unmet acceptance check, not a proven safety property.",
       "source_ids": [
         "README::DJC-API",
         "README::DJC-WEBSITE",
@@ -37130,7 +37130,7 @@
       "status": "CLOSED",
       "scope": "platform",
       "reason": "The identified current/planned phase-specific documentary dependency graph, reciprocal source links, explicit reference-only classifications and structured source-only conditions are complete for this pinned snapshot; this is not future product or installed-consumer qualification.",
-      "closure_evidence": "Independent graph reread on 2026-10-03 found no remaining material P1/P2: 207 source-backed nodes (89 REFERENCE_ONLY, 24 ROADMAP_PROJECTION, 13 EVIDENCE_PRODUCER, 81 EXECUTION_CONDITION), 93 typed relations (82 hard, 11 nonhard), 26 cross-lane handoffs, seven reciprocally linked typed source-only conditions outside the execution DAG, five unchanged Horizon items and zero generic acceptance/scope placeholders. P5/P6 assessment prerequisites, CMB07-ACTIVE Watch gate, HA onboarding assessed parent subsets, Website and Pi completion staging and hard-producer roles were reconciled. Offline validator checks source↔node reciprocity, edge endpoint/prerequisite ownership, valid handoff source/acceptance owner, lane/phase coverage for hard cross-lane edges, unknown reason IDs and DAG acyclicity. Future selected/physical/release acceptance stays open under PRODUCER-EVIDENCE and owning nodes.",
+      "closure_evidence": "Independent graph reread on 2026-10-03 found no remaining material P1/P2: 207 source-backed nodes (89 REFERENCE_ONLY, 24 ROADMAP_PROJECTION, 13 EVIDENCE_PRODUCER, 81 EXECUTION_CONDITION), 93 typed relations (82 hard, 11 nonhard), 26 cross-lane handoffs, seven reciprocally linked typed source-only conditions outside the execution DAG, five unchanged Horizon items and zero generic acceptance/scope placeholders. P5/P6 assessment prerequisites, CMB07-ACTIVE Watch gate, HA onboarding assessed parent subsets, Website and Pi completion staging and hard-producer roles were reconciled. Offline validator checks source\u2194node reciprocity, edge endpoint/prerequisite ownership, valid handoff source/acceptance owner, lane/phase coverage for hard cross-lane edges, unknown reason IDs and DAG acyclicity. Future selected/physical/release acceptance stays open under PRODUCER-EVIDENCE and owning nodes.",
       "future_product_boundary": "Unselected reference dependencies are recorded as source-only conditions, not graph edges or execution-start gates. No source-only condition authorizes a future assessment, implementation, release or monitor."
     },
     {
@@ -41816,7 +41816,7 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "b885386825eeed68d2b4f505879ffe6c558b3f016b0b3d9ca6aaa1f19cb333b5"
+        "sha256": "66a783027cb2ea59b550342e5105dc5954a963500f8ca22108acac5a2ea47f11"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
@@ -41856,7 +41856,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "d3ada5f4b42b955f6446136e67e012b1e09736215529a115cbac432a333311b5"
+        "sha256": "fbd50e7ff8ef8b8d0c7c5ec164f002bc1bee71b012322b2065e28e191f3be996"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -41960,7 +41960,7 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "e60e5793a3ce2378bf076342ea815b5a849d7b7805c737f6154f51ba5382e13b"
+        "sha256": "89c2a0df07feeabfc56c9479787383ea2d225ff3ed450ce145b2e5399d9cff01"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",

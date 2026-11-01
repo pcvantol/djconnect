@@ -1,3 +1,34 @@
+## Rich Session surface contract — 30 October 2026
+
+[Source #1395](https://github.com/pcvantol/djconnect/pull/1395) is originally qualified; [delivery evidence](docs/verification/RICH_SESSION_SURFACE_CONTRACT_FINALIZATION_20261030.md).
+One rich widget and Live Activity remains the product goal; native push is not yet accepted.
+The contract and all280 product files are unchanged by this documentary Final.
+This Final needs its own release qualification; no installation is needed.
+
+## Current closed custody source delivery
+
+Source1393 is protected `6cae8540a83a880c4bcb37dd302320336f7e15cb` and independently
+ORIGINAL_QUALIFIED. [The separate documentary Final record](docs/verification/INSTALLATION_CUSTODY_ONCE_FINALIZATION_20261029.md)
+records its original main/coverage/formal/durable evidence and preserved limits.
+The coordinator remains unused, with required independent owners and two fixed
+synchronous ports; no actual custodian, key/signing operation, route or factory.
+All280 product bytes and release inputs remain unchanged by this Final; HA-dev
+retains actual277/schema18. All24 requests/nine gates, Help EN/NL/free Ask DJ,
+VibeCast and separate provider/native/production/Pi work remain preserved.
+This Final requires its own protected delivery and original qualification.
+Complete earlier bodies below retain their historical scope.
+
+## Closed custody orchestration source preparation — 29 October 2026
+
+[The unused custody coordinator](docs/product/INSTALLATION_CUSTODY_ONCE_ORCHESTRATION_V1.md)
+composes original SQL19 reservation ACKs with two required synchronous ports and
+independent owner validation. It adds no concrete custodian, key/signing operation,
+startup/route/factory or operational push permission. Existing279 product bytes,
+public records, release inputs and installed HA-dev277/schema18 remain unchanged.
+Normal whole/exact review, protected Source and separate Final are still required.
+All24 requests/nine gates, Help EN/NL/free Ask DJ and VibeCast remain preserved.
+Complete earlier bodies below retain their historical scope.
+
 # DJConnect
 
 <img src="https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png" alt="DJConnect" width="64" height="64">

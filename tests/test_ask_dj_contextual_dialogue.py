@@ -950,7 +950,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         # the original excerpt once and no generator bookkeeping contract.
         from types import SimpleNamespace
         turn = SimpleNamespace(style={'persona':'home_dj', 'mood':'chill', 'language':'en'},
-            frame=None, public_research=context['public_music_research'], source_context={}, prompt_bytes=0)
+            frame=None, public_research=context['public_music_research'], source_context={}, prompt_bytes=0,
+            recording_research=False, unused_production_request_hash=None)
         token = self.dialogue.current_turn.set(turn)
         try:
             generation = self.dialogue.model_prompt('Who is Brian Eno?', {})
@@ -1818,7 +1819,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         for span in data["public_music_research"]["sources"][0]["evidence_spans"]:
             self.assertNotIn(span["text"], header)
 
-    def research_http(self, *, title="Peter Luts", text="Peter Luts is a Belgian music producer and composer."):
+    def research_http(self, *, title="Peter Luts", text="Peter Luts is a Belgian music producer and composer.", entity_id=""):
         from custom_components.djconnect.ask_dj import public_research
         async def fetch(boundary, url, **kwargs):
             self.web_calls.append(url)
@@ -1826,7 +1827,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             await boundary.guard()
             if wikipedia_api_fixture(url):
                 return 200, json.dumps({"query": {"pages": [{"title": title, "extract": text,
-                    "pageprops": {}, "revisions": [{"revid": 123456}]}]}}), url
+                    "pageprops": {"wikibase_item": entity_id} if entity_id else {},
+                    "revisions": [{"revid": 123456}]}]}}), url
             return 200, "User-agent: *\nDisallow: /", url
         return patch.object(public_research.PublicFetch, "request", fetch)
 

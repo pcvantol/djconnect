@@ -1,3 +1,174 @@
+## Ask DJ reported conversations: protected sources and documentary Final,1 November2026
+
+Core Source1409/a4f29073 and Source1410/ecce3a19 are independently originally
+qualified. The latter preserves recording-production purpose across explicit or
+semantically interpreted current/selected clarification, with original
+clock/CAS/history/source fences and independent public work evidence. See the
+[separate Final report](docs/verification/ASK_DJ_REPORTED_CONVERSATIONS_SOURCE_FINALIZATION_20261101.md).
+All302 product files/schema21 stay unchanged in this documentary increment.
+HA-dev remains277/schema18 after the fully rolled-back301 attempt; no install
+or old once/window reuse. Apple response-image transport, clock/native receipt,
+discovery This Is/album context-start/queue audit and all24 requests/nine gates
+retain their separate open scopes. Original bodies and failed proofs remain.
+
+## Host-wake live runtime Source1407 and separate Final,1 November2026
+
+Core [Source1407](https://github.com/pcvantol/djconnect/pull/1407) is originally qualified at faaf4889,301 products/schema21. Seven routes and original Broadcast/SQL-once dispatch are source-qualified; no installation or native/provider acceptance follows. See the [Final report](docs/verification/HOST_WAKE_LIVE_RUNTIME_SOURCE_FINALIZATION_20261101.md). All24 requests/nine gates and original bodies remain preserved.
+
+## Host-wake custody source and separate Final,1 November2026
+
+Core [Source1405](https://github.com/pcvantol/djconnect/pull/1405) is originally qualified at27ff068e,298 products/schema21. See the [Final report](docs/verification/HOST_WAKE_CUSTODY_SOURCE_FINALIZATION_20261101.md). All24 requests/nine gates remain; positive7HTTP/issuerACK/finalRAM/clock/native and installation remain open.
+
+## Original Session rich HTTP source and separate Final,31 October2026
+
+Core [Source1403](https://github.com/pcvantol/djconnect/pull/1403) is originally
+qualified at7d004f30,289 products/schema20. See the
+[Final report](docs/verification/DIRECT_RICH_HTTP_SOURCE_FINALIZATION_20261031.md).
+All24 requests/nine gates remain; real clock/enrollment/native/provider and HA
+installation are separate open work. API/Apple owning adapters continue against
+the selected closed operation contract; no fake supplier closes those gates.
+
+## Direct rich Session runtime — implementation in progress, 31 October 2026
+
+Use a distinct direct-rich namespace/profile and original durable purpose scope;
+do not widen legacy surface grants. The selected design separates original
+purpose lifetime/security from per-attempt committed readiness and per-field
+source deadlines. The closed request decoder rejects duplicate/unknown keys,
+nonfinite/unsafe numeric domains, unpaired Unicode and wrong token families.
+Its canonical UTF8 equality contains no delivery-time field. This is WIP, not
+a native authority port or whole-source qualification result. See
+[the implementation contract](docs/product/DIRECT_RICH_SESSION_RUNTIME_V1.md).
+SQL20 reserves only original scope metadata. The new pure paired capture uses
+the genuine existing PairJournal ACK and its original storage lifetime; runtime
+retirement closes and scrubs held captures before token mutation. The committed
+Profile lifetime helper retains owner/manager/Store identity, not a Household
+snapshot for eight hours. Each attempt still needs a fresh committed snapshot;
+known pending writes suspend while uncertainty/replacement retires permanently.
+The candidate now composes the actual original RAM-purpose owner and five
+closed HTTP routes. Typed original prepared-byte evidence is created by the
+existing bounded image executor, never decoded during reads. Static compiled
+schema predicates plus explicit UTF8 byte caps precede emission; original
+field/frame/purpose/source guards run after the single JSON serialization.
+The actual original paired negative intent closes known RAM credentials before
+committed Profile lookup or SQL, including a queued cosmetic write. Source-only
+actual HA proof now covers289 product hashes/schema20, twelve pure reads,
+original PNG bytes and Session-end/withdrawal history. Full regression, whole
+source/exact review and protected delivery remain separate pending gates.
+Existing normal protected Source/separate Final and actual HA/native/provider
+acceptance remain required. No dependency, library or action pin changes.
+
+## Workflow action source: qualified successor and separate Final, 31 October 2026
+
+Core [Source1401](https://github.com/pcvantol/djconnect/pull/1401) is originally
+qualified from the current coherent base; the earlier Source1392 original
+provenance failure remains NOT_QUALIFIED. See the
+[Final report](docs/verification/WORKFLOW_ACTION_UPDATES_FINALIZATION_20261031.md).
+Parallel CI and all281 product files remain unchanged. All24 requests/nine gates
+retain their scopes; no new HA installation or provider/native acceptance follows.
+
+## CI action pin maintenance (31 October 2026)
+
+Update the five action entries in Core PR #1392 as a coherent workflow and
+dependency-documentation increment on the current qualified Core base. The
+23 `uses` changes in 11 workflows are limited to these upstream commits:
+
+| Action | Previous pin | Current source pin | License |
+| --- | --- | --- | --- |
+| `actions/setup-python` (19 references) | v7.0.0, `5fda3b95a4ea91299a34e894583c3862153e4b97` | v7.1.0, `6d4fd22b20465ccc0f7354476588e8df7c9ca0e0` | MIT |
+| `github/codeql-action/init` and `analyze` (one each) | v4.39.0, `6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee` | v4.39.1, `9b3254085494b55a0f7c4c2b3d2d52cc712ce370` | MIT action repository |
+| `home-assistant/actions/hassfest` (one reference) | `cd6f3635a740c84d8a14f6121a90068b8ece6bf6` | `86d4564712fa02543c808e3a693dd04f9d3f8361` | Apache-2.0 |
+| `docker/login-action` (one reference) | v4.6.0, `dbcb813823bdd20940b903addbd779551569679f` | v4.7.0, `81c6f93d4bc991e510b342a00b419b3bb4efc5c6` | Apache-2.0 |
+
+Exact upstream source and license URLs are recorded in `THIRD_PARTY_NOTICES.md`.
+Version tags are checked against their actual commit targets, including peeled
+annotated CodeQL tags. Hassfest retains the existing governed immutable-master
+exception: its upstream comparison changes an unrelated version-push helper,
+not the hassfest subtree; no semantic release tag is invented. The optional
+setup-python mirror inputs are not enabled. Python, CodeQL and Docker action
+metadata retain their Node24 execution family and existing input interface.
+
+Keep all existing triggers, conditions, permissions, interpreter/dependency
+selections, test and coverage commands, isolated output roots, concurrency
+limits and protected Source/Final ordering. The four-process complete offline
+runner and all 281 integration product files remain unchanged. This maintenance
+does not install a new host toolchain or application, request a provider deploy,
+or broaden any credential authority. Existing automated publication predicates
+and credential references remain unchanged; any actual subsequent release work
+requires its own original receipts. No workflow or provider is manually
+dispatched by this source preparation.
+
+The bare bot head predates the separate parallel-CI Final documents. Preserve
+those current documents when preparing the reviewed successor, and require
+fresh exact-head review, normal CI and Owner Authorization where required before
+protected delivery and its separate Final. PR #1391's Python dependency update
+remains separate pending a coherent versioned onboarding bundle and safe host
+transition. Other existing product, installation, provider and native gates keep
+their own scopes. Historical design entries below remain unchanged.
+
+## Parallel offline CI: protected source and separate Final, 31 October 2026
+
+Core [Source1399](https://github.com/pcvantol/djconnect/pull/1399) is originally
+qualified for four-process complete offline tests and coverage. See the
+[Final report](docs/verification/PARALLEL_CI_FINALIZATION_20261031.md).
+All existing checks and release/effect ordering remain; API/Apple own their
+parallel-flow increments. All 24 requests/nine gates remain, including actual
+rich receiving/provider/native acceptance. No new HA installation is implied.
+
+## HA-admin preparation: protected source and separate Final, 31 October 2026
+
+Core [Source1397](https://github.com/pcvantol/djconnect/pull/1397) is originally
+qualified for actual normal-session HA-admin preparation only. See the
+[Final report](docs/verification/HA_ADMIN_MANAGEMENT_FINALIZATION_20261031.md).
+No key/custody execution, rich receiving wire or new installed runtime is granted;
+all24 requests/nine gates retain their scope. The next selected step is the
+joint Core/API/Apple original permission/read/artwork receiving contract.
+
+## HA-admin preparation source increment — 2026-10-30
+
+The real HA-admin management preparation route and its closed request/reply are specified in [INSTALLATION_MANAGEMENT_PREPARATION_V1](docs/product/INSTALLATION_MANAGEMENT_PREPARATION_V1.md). This bounded source increment prepares only the selected loaded entry; no key, custody, enrollment, authenticated successor wire, installed runtime or operational push is granted. Existing 24 requests and nine acceptance gates retain their own scopes.
+
+## Rich Session surface contract: originally qualified source, 30 October 2026
+
+Core [Source1395](https://github.com/pcvantol/djconnect/pull/1395) is protected
+`7f8966cbd797d38618fca02764fa6689191761e5` and independently ORIGINAL_QUALIFIED.
+It preserves one rich Session widget and one rich Live Activity with push as
+the product goal. See [the separate Final record](docs/verification/RICH_SESSION_SURFACE_CONTRACT_FINALIZATION_20261030.md)
+for original source/coverage/durable evidence and the precise closed gates.
+
+The normative contract and36 declarative requirements remain byte-frozen; all280
+product files are unchanged. Apple has independently executed28 existing-type
+encoder cases, including deliberately inadmissible counterexamples; these do
+not prove new carrier, 4096-byte producer, original owner/clock or native push
+acceptance. This documentary increment needs its OWN normal review, protected
+merge and original qualification. HA-dev retains its prior277/schema18 scope;
+no restart/provider/device effect follows. All24 requests/nine gates, Help EN/NL,
+free Ask DJ, VibeCast and HA production/Pi scopes remain retained. Actual rich
+permission/read/artwork/clock adapters and native/provider receipt remain open.
+
+## Current closed custody source delivery
+
+Source1393 is protected `6cae8540a83a880c4bcb37dd302320336f7e15cb` and independently
+ORIGINAL_QUALIFIED. [The separate documentary Final record](docs/verification/INSTALLATION_CUSTODY_ONCE_FINALIZATION_20261029.md)
+records its original main/coverage/formal/durable evidence and preserved limits.
+The coordinator remains unused, with required independent owners and two fixed
+synchronous ports; no actual custodian, key/signing operation, route or factory.
+All280 product bytes and release inputs remain unchanged by this Final; HA-dev
+retains actual277/schema18. All24 requests/nine gates, Help EN/NL/free Ask DJ,
+VibeCast and separate provider/native/production/Pi work remain preserved.
+This Final requires its own protected delivery and original qualification.
+Complete earlier bodies below retain their historical scope.
+
+## Closed custody orchestration source preparation — 29 October 2026
+
+[The unused custody coordinator](docs/product/INSTALLATION_CUSTODY_ONCE_ORCHESTRATION_V1.md)
+composes original SQL19 reservation ACKs with two required synchronous ports and
+independent owner validation. It adds no concrete custodian, key/signing operation,
+startup/route/factory or operational push permission. Existing279 product bytes,
+public records, release inputs and installed HA-dev277/schema18 remain unchanged.
+Normal whole/exact review, protected Source and separate Final are still required.
+All24 requests/nine gates, Help EN/NL/free Ask DJ and VibeCast remain preserved.
+Complete earlier bodies below retain their historical scope.
+
 ## Original native surface lifecycle design — 29 October 2026
 
 [The bounded native lifecycle design](docs/product/ORIGINAL_NATIVE_SURFACE_LIFECYCLE_DESIGN_V1.md) separates original automatic
@@ -1331,3 +1502,15 @@ Bulk snapshots bind a complete bounded terminal set, its original authority and
 deadlines. Later completion is outside consent. Dependent answers keep stable
 unavailable IDs, without copied context or replay. Individual-content deletion
 remains a separate capability, not a fallback to whole-Session removal.
+
+## Original direct-rich host wake Core proxy
+
+Select the exact sevenroute paired Core proxy in
+`docs/product/DIRECT_RICH_HOST_WAKE_PROXY_V1.md` with closed schema/synthetic
+vectors. Original RAM parent and actual API enrollment/signed environment
+receiving state supply immutable witnesses and proof-kind; DTOs cannot supply
+authority. Bind request digest to POST+exactroute+canonicalbody. Preserve
+prebody whole-attempt budgets, original purpose/challenge deadlines and
+once/UNKNOWN history; synchronous child-only negative withdrawal precedes
+awaits. No original transcript mutation, new clock profile, provider activation
+or native acceptance follows from this documentary selection.
