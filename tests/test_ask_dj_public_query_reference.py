@@ -1,5 +1,6 @@
 """Reference-only public topic: actual frame lifecycle, never factual authority."""
 import json
+from importlib import import_module
 import asyncio
 from types import SimpleNamespace
 import unittest
@@ -12,7 +13,8 @@ class PublicQueryReferenceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         shared.SharedDialogueTest.setUpClass()
-        from custom_components.djconnect.ask_dj import dialogue, semantic_reads
+        dialogue = import_module("custom_components.djconnect.ask_dj.dialogue")
+        semantic_reads = import_module("custom_components.djconnect.ask_dj.semantic_reads")
         cls.d, cls.s = dialogue, semantic_reads
 
     @classmethod
@@ -131,7 +133,8 @@ class PublicQueryAwaitTests(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
         shared.SharedDialogueTest.setUpClass()
-        from custom_components.djconnect.ask_dj import dialogue, semantic_reads
+        dialogue = import_module("custom_components.djconnect.ask_dj.dialogue")
+        semantic_reads = import_module("custom_components.djconnect.ask_dj.semantic_reads")
         cls.d, cls.s = dialogue, semantic_reads
 
     @classmethod
@@ -150,6 +153,7 @@ class PublicQueryAwaitTests(unittest.IsolatedAsyncioTestCase):
             'digest', self.frame.generation, valid, None,
             public_query_candidate=candidate, style=self.d.style_projection({'language': 'nl'}))
         turn.source_request_hashes = set()
+        turn.history = SimpleNamespace(dialogue=self.state)
         return turn
 
     def complete(self, turn, question):
@@ -157,8 +161,8 @@ class PublicQueryAwaitTests(unittest.IsolatedAsyncioTestCase):
             '_dialogue_question': question})
 
     async def test_common_recent_execution_keeps_original_fence_over_lookup_and_delivery(self):
-        from custom_components.djconnect import session_runtime
-        from custom_components.djconnect.ask_dj import exploration
+        session_runtime = import_module("custom_components.djconnect.session_runtime")
+        exploration = import_module("custom_components.djconnect.ask_dj.exploration")
         turn = self.turn('followup')
         original = turn.public_reference_at_start
         scope = self.s.ReadScope(None, None, original, turn.public_reference_revision_at_start)
@@ -184,8 +188,8 @@ class PublicQueryAwaitTests(unittest.IsolatedAsyncioTestCase):
             self.d.current_turn.reset(token)
 
     async def test_common_recent_execution_rejects_reference_replacement_during_lookup(self):
-        from custom_components.djconnect import session_runtime
-        from custom_components.djconnect.ask_dj import exploration
+        session_runtime = import_module("custom_components.djconnect.session_runtime")
+        exploration = import_module("custom_components.djconnect.ask_dj.exploration")
         turn = self.turn('followup')
         scope = self.s.ReadScope(None, None, turn.public_reference_at_start,
                                  turn.public_reference_revision_at_start)
@@ -205,7 +209,8 @@ class PublicQueryAwaitTests(unittest.IsolatedAsyncioTestCase):
             self.d.current_turn.reset(token)
 
     async def test_initial_guard_await_cannot_adopt_a_newer_public_reference(self):
-        from custom_components.djconnect import session_runtime, ask_dj
+        session_runtime = import_module("custom_components.djconnect.session_runtime")
+        ask_dj = import_module("custom_components.djconnect.ask_dj")
         turn = self.turn('waiting')
         async def guard():
             await asyncio.sleep(0)
@@ -224,8 +229,9 @@ class PublicQueryAwaitTests(unittest.IsolatedAsyncioTestCase):
             self.d.current_turn.reset(token)
 
     async def test_unused_recent_reference_does_not_fence_a_new_named_completion(self):
-        from custom_components.djconnect import session_runtime, ask_dj
-        from custom_components.djconnect.ask_dj import exploration
+        session_runtime = import_module("custom_components.djconnect.session_runtime")
+        ask_dj = import_module("custom_components.djconnect.ask_dj")
+        exploration = import_module("custom_components.djconnect.ask_dj.exploration")
         turn = self.turn('new-named')
         async def agent(*args, **kwargs):
             return {'response': {'speech': {'plain': {'speech': json.dumps({

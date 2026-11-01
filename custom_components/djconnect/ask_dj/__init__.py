@@ -140,7 +140,19 @@ async def async_handle_ask_dj(
     if action_request is None and confirmed_entry is not None and current_artist_question(text):
         return await current_artist_read(hass, runtime, confirmed_entry)
     if action_request is not None:
+        if (turn is not None and isinstance(turn.pending_at_start, dict)
+                and turn.pending_at_start.get('type') == 'recording_production'):
+            turn.clear_production_pending = True
         return await _execute_dialogue_command(hass, runtime, payload, action_request, user_id=user_id)
+    if turn is not None:
+        from .artist_story import production_continuation, recording_reference
+        continued = await production_continuation(hass, runtime, text)
+        if continued is not None:
+            return continued
+        if recording_reference(text) == 'current':
+            from .semantic_reads import ReadPlan, capture_scope, execute_plan
+            return await execute_plan(hass, runtime, text, ReadPlan('recording', 'current', False),
+                                      capture_scope(hass, turn))
     if (turn is not None and turn.frame.pending and turn.frame.pending.get("type")=="mood_direction"
             and not turn.fast_control):
         from ..mood_music_steering import direction_response
@@ -2839,6 +2851,7 @@ async def _informational_assist_response(
     research_subject: str | None = None,
     research_angle: str = "",
     contextual_research: bool = False,
+    recording_lookup: tuple[str, str] | None = None,
 ) -> dict[str, Any]:
     if _looks_like_gibberish(text) or _looks_like_prompt_or_sandbox_attack(text):
         message = _unrecognized_request_text()
@@ -2879,9 +2892,13 @@ async def _informational_assist_response(
             return {"success": True, "text": message, "dj_text": message, "images": []}
         if not subject and turn.source_context.get("basis") != "runtime_authored_direction_v1":
             from .semantic_reads import read_response
-            semantic = await read_response(hass, runtime, text, payload)
+            semantic = await read_response(hass, runtime, text, payload, scope=semantic_scope)
             if semantic is not None:
                 return semantic
+            from .artist_story import stage_production_clarification
+            clarification = stage_production_clarification(turn, text, semantic_scope)
+            if clarification is not None:
+                return clarification
             # An unrecognized public question is not authority to answer from
             # unchecked recollection. Clarify in the same owner before any I/O.
             message = public_research.unavailable_answer(turn.style.get("language", "en"),
@@ -2895,7 +2912,8 @@ async def _informational_assist_response(
                 if named_in_question(subject, text):
                     turn.public_query_candidate = subject
             from .dialogue import selected_lookup_topic
-            lookup_topic = selected_lookup_topic(turn, text, angle=research_angle)
+            lookup_topic = (recording_lookup[1] if recording_lookup is not None
+                            else selected_lookup_topic(turn, text, angle=research_angle))
             fetched_sources, research_state = await public_research.research(
                 subject, text, turn.style.get("language", "en"), turn.guard,
                 qualified_music=qualified_music,
@@ -2906,6 +2924,21 @@ async def _informational_assist_response(
                 expected_roles=tuple(s.get("role") for s in turn.source_context.get("subjects", [])
                                      if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
             turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)
+            if recording_lookup is not None:
+                public_names = public_research.public_recording_names(fetched_sources, *recording_lookup)
+                if public_names is None:
+                    from .artist_story import production_unavailable
+                    return production_unavailable(turn.style['language'])
+                public_artist, public_work = public_names
+                turn.recording_research = True
+                questions = {
+                    'nl': 'Wat is er gedocumenteerd over de opname en productie van {work} van {artist}?',
+                    'en': 'What is documented about the recording and production of {work} by {artist}?',
+                    'de': 'Was ist über die Aufnahme und Produktion von {work} von {artist} dokumentiert?',
+                    'fr': 'Que sait-on de source vérifiée sur l’enregistrement et la production de {work} de {artist} ?',
+                    'es': '¿Qué está documentado sobre la grabación y producción de {work} de {artist}?',
+                }
+                text = questions.get(turn.style['language'], questions['en']).format(work=public_work, artist=public_artist)
             if research_angle == 'current_events':
                 original_sources = tuple(fetched_sources)
                 language = turn.style.get('language', 'en')

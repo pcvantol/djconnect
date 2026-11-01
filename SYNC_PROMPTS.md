@@ -1,3 +1,19 @@
+## Prepared Ask DJ recording-production continuation,1 November2026
+
+Apple response-image adoption uses the existing protected producer's
+[observed image contract](docs/product/ASK_DJ_RESPONSE_IMAGES_V1.md): original
+paired authenticated relative route, expiry and no-store, with no borrowed
+Now Playing cover. This is documentation of unchanged Core product bytes;
+Apple transport and actual incident/native acceptance remain separate.
+
+The new [recording-production contract](docs/product/ASK_DJ_RECORDING_PRODUCTION_V1.md)
+separates public work evidence from private playback labels and retains the
+original production purpose across an explicit current/selected clarification.
+Implementation and synthetic regressions are under review; no new source,
+installed HA, factual-quality or provider/native qualification follows. Source1409
+is separately protected at a4f29073; this new correction was not included there.
+All24 requests/nine gates and the discovery context-play requests remain open.
+
 ## Host-wake live runtime Source1407 and separate Final,1 November2026
 
 Core [Source1407](https://github.com/pcvantol/djconnect/pull/1407) is originally qualified at faaf4889,301 products/schema21. Seven routes and original Broadcast/SQL-once dispatch are source-qualified; no installation or native/provider acceptance follows. See the [Final report](docs/verification/HOST_WAKE_LIVE_RUNTIME_SOURCE_FINALIZATION_20261101.md). All24 requests/nine gates and original bodies remain preserved.

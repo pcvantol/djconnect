@@ -137,6 +137,7 @@ class DialogueFrame:
     dependencies: list[dict] = field(default_factory=list)
     result_set: dict | None = None
     pending: dict | None = None
+    pending_revision: int = 0
     chosen_action_id: str = ""
     archiveable: bool = True
     inflight: dict[str, tuple[str, asyncio.Future, bool]] = field(default_factory=dict)
@@ -148,11 +149,16 @@ class DialogueFrame:
     public_query_reference: PublicQueryReference | None = None
     public_query_revision: int = 0
 
+    def set_pending(self, value):
+        """Every replacement/clear advances the RAM-only original slot epoch."""
+        self.pending_revision += 1
+        self.pending = deepcopy(value)
+
     def clear_public_query(self):
         self.public_query_reference = None
         self.public_query_revision += 1
 
-    def reset(self, generation: str) -> None:
+    def reset(self, generation: str, *, preserve_production_pending=False) -> None:
         if self.generation != generation:
             self.catalogue_replays.clear()
             self.read_admission_closed = False
@@ -164,7 +170,9 @@ class DialogueFrame:
         self.retry = None
         self.subjects.clear()
         self.dependencies.clear()
-        self.result_set = self.pending = None
+        self.result_set = None
+        if not preserve_production_pending:
+            self.set_pending(None)
         self.chosen_action_id = ""
         self.archiveable = True
         self.current_client_id = ''
@@ -227,11 +235,22 @@ class DialogueTurn:
     public_query_candidate: str = ''
     public_reference_at_start: PublicQueryReference | None = field(init=False)
     public_reference_revision_at_start: int = field(init=False)
+    pending_at_start: dict | None = field(init=False)
+    pending_revision_at_start: int = field(init=False)
+    clear_production_pending: bool = False
+    consume_production_pending: bool = False
+    consumed_production_revision: int | None = None
+    installed_production_pending: dict | None = None
+    installed_production_revision: int | None = None
+    unused_production_request_hash: str | None = None
+    recording_research: bool = False
 
     def __post_init__(self):
         self.read_context_revision = self.frame.read_context_revision
         self.public_reference_at_start = self.frame.public_query_reference
         self.public_reference_revision_at_start = self.frame.public_query_revision
+        self.pending_at_start = self.frame.pending
+        self.pending_revision_at_start = self.frame.pending_revision
 
     def require_effect(self, family, *, media=(), output_id=""):
         for grant in self.effect_grants:
@@ -353,7 +372,7 @@ class DialogueState:
             if row[1] is not None and now >= row[4]:
                 frame.catalogue_replays[identifier] = (row[0], None, row[2], 0, row[4])
         if frame.pending and now >= frame.pending["deadline"]:
-            frame.pending = None
+            frame.set_pending(None)
         return frame
 
     def invalidate(self, scope: str | None = None) -> None:
@@ -396,6 +415,9 @@ class DialogueState:
                     or set(message.get('_source_request_hashes', ())) & request_hashes
                     or depends(message.get('_dependencies', ())))
         for frame in self.owners.get(scope, {}).values():
+            if (isinstance(frame.pending, dict) and frame.pending.get('type') == 'recording_production'
+                    and frame.pending.get('request_hash') in request_hashes):
+                frame.set_pending(None)
             if (frame.public_query_reference is not None
                     and frame.public_query_reference.request_hash in request_hashes):
                 frame.clear_public_query()
@@ -407,7 +429,8 @@ class DialogueState:
             if current_affected:
                 frame.subjects.clear()
                 frame.dependencies.clear()
-                frame.result_set = frame.pending = frame.retry = None
+                frame.result_set = frame.retry = None
+                frame.set_pending(None)
                 frame.chosen_action_id = ''
             for client, row in list(frame.catalogue_replays.items()):
                 if (_request_hash(scope, client) in request_hashes
@@ -430,7 +453,8 @@ class DialogueState:
             frame.local_turns.clear()
             frame.subjects.clear()
             frame.dependencies.clear()
-            frame.retry = frame.result_set = frame.pending = None
+            frame.retry = frame.result_set = None
+            frame.set_pending(None)
             frame.chosen_action_id = ""
             for identifier, row in list(frame.catalogue_replays.items()):
                 frame.catalogue_replays[identifier] = (row[0], None, row[2], 0, row[4])
@@ -513,7 +537,11 @@ class DialogueState:
                 or not result.get("success")):
             return
         if turn.reset_topic:
-            frame.reset(turn.generation)
+            preserve_newer = (isinstance(frame.pending, dict)
+                and frame.pending.get('type') == 'recording_production'
+                and (frame.pending is not turn.pending_at_start
+                     or frame.pending_revision != turn.pending_revision_at_start))
+            frame.reset(turn.generation, preserve_production_pending=preserve_newer)
         provenance = {'_client_id': turn.client_id,
                       '_source_request_hashes': sorted(getattr(turn, 'source_request_hashes', ())),
                       '_dependencies': deepcopy(turn.dependencies)}
@@ -536,10 +564,24 @@ class DialogueState:
         frame.response_dependencies[turn.client_id] = frozenset({
             _request_hash(turn.scope, turn.client_id), *getattr(turn, 'source_request_hashes', ())})
         frame.archiveable = frame.archiveable and turn.archiveable
+        pending_original = (frame.pending is turn.pending_at_start
+                            and frame.pending_revision == turn.pending_revision_at_start)
+        if turn.consume_production_pending and not pending_original:
+            raise DialogueError('conversation_context_changed', 409)
+        if turn.clear_production_pending and pending_original:
+            frame.set_pending(None)
+            if turn.consume_production_pending:
+                turn.consumed_production_revision = frame.pending_revision
         if turn.clear_pending:
-            frame.pending = None
+            frame.set_pending(None)
         if turn.pending is not None:
-            frame.pending = deepcopy(turn.pending)
+            production = turn.pending.get('type') == 'recording_production'
+            if production and not pending_original:
+                raise DialogueError('conversation_context_changed', 409)
+            frame.set_pending(turn.pending)
+            if production:
+                turn.installed_production_pending = frame.pending
+                turn.installed_production_revision = frame.pending_revision
         if result.get("selected_action_id"):
             frame.chosen_action_id = result["selected_action_id"]
             # Catalog selection is a new local subject, not a model-processing
@@ -549,7 +591,7 @@ class DialogueState:
             frame.local_turns.clear()
             frame.messages = [m for m in frame.messages if m["role"] == "user"][-3:]
         if result.get("_consume_pending"):
-            frame.pending = None
+            frame.set_pending(None)
         if turn.clear_result_set:
             frame.result_set = None
             frame.chosen_action_id = ""
@@ -999,15 +1041,19 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
     style = turn.style if turn else style_projection(payload)
     frame = turn.frame if turn else None
     operation = "refine" if is_refinement(text) else "lookup" if requests_lookup(text) else "answer"
+    messages = frame.messages if frame and not turn.reset_topic else []
+    unused = turn.unused_production_request_hash if turn else None
+    if unused:
+        from ..ask_dj_history import _request_hash
+        messages = [m for m in messages if _request_hash(turn.scope, m.get('_client_id', '')) != unused
+                    and unused not in m.get('_source_request_hashes', ())]
     projection = {
         "question": text[:4000],
         "requested_operation": operation,
         "style": style,
         "answer_form": persona_answer_form(style.get("persona"))
         if operation == "answer" else "Return only the typed read-only query object; Core owns result captions.",
-        "recent_turns": [{"role": m["role"], "text": m["text"]} for m in frame.messages]
-        if frame and not turn.reset_topic
-        else [],
+        "recent_turns": [{"role": m["role"], "text": m["text"]} for m in messages],
         "context": source or (turn.source_context if turn else {}),
         "public_music_research": turn.public_research if turn else {},
         "relevant_subjects": frame.subjects
@@ -1019,7 +1065,7 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
     }
     researched = bool(turn and turn.public_research.get("sources"))
     if researched:
-        if focus := selected_public_focus(turn):
+        if not turn.recording_research and (focus := selected_public_focus(turn)):
             projection['selected_contribution'] = focus
         # Data must not replace the trusted Persona with a generic biography
         # recipe. Keep the presentation choice in Core-owned instructions.
@@ -1033,6 +1079,10 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
         # question/subject, never re-feed unsupported or cropped narration.
         if explicit_subject(text):
             projection["recent_turns"] = []
+    if turn and turn.recording_research:
+        # This request has independently fetched public work evidence. Neither
+        # private playback labels nor a previous clarification becomes evidence.
+        projection.update(recent_turns=[], relevant_subjects=[], choices={}, context={})
     narration_rules = ""
     if operation == "answer":
         from ..narration_style import instructions as narration_instructions
@@ -1358,7 +1408,7 @@ def qualify_agent(hass, identifier):
 def deictic_subject(subject: str) -> bool:
     """Closed whole-subject lens; never a source or identity admission."""
     return bool(re.fullmatch(
-        r"(?:dat|die|dit|hem|haar|deze|that|this|him|her|he|she|it|them|er|sie|das|diese|diesen|diesem|dieser|dieses|celui|celle|ça|il|elle|ce|cet|cette|ese|esa|este|esta|él|ella|the|de|der|le|la|el)(?:\s+(?:artist|artiest|band|album|track|moment|contribution|bijdrage|beitrag|contribución|künstler|artiste|artista|persoon|person|composer|producer|singer|componist|producent|zanger|komponist|produzent|sänger|compositeur|producteur|chanteur|compositor|productor|cantante))?",
+        r"(?:dat|die|dit|hem|haar|deze|that|this|him|her|he|she|it|them|er|sie|das|diese|diesen|diesem|dieser|dieses|celui|celle|ça|il|elle|ce|cet|cette|ese|esa|este|esta|él|ella|the|de|der|le|la|el)(?:\s+(?:artist|artiest|band|album|track|moment|contribution|bijdrage|beitrag|contribución|künstler|artiste|artista|persoon|person|production|productie|produktion|producción|recording|opname|aufnahme|enregistrement|grabación|composer|producer|singer|componist|producent|zanger|komponist|produzent|sänger|compositeur|producteur|chanteur|compositor|productor|cantante))?",
         subject.strip(" .?!").casefold(),
     ))
 
