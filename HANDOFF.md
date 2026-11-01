@@ -1,3 +1,7 @@
+## Host-wake custody source and separate Final,1 November2026
+
+Core [Source1405](https://github.com/pcvantol/djconnect/pull/1405) is originally qualified at27ff068e,298 products/schema21. See the [Final report](docs/verification/HOST_WAKE_CUSTODY_SOURCE_FINALIZATION_20261101.md). All24 requests/nine gates remain; positive7HTTP/issuerACK/finalRAM/clock/native and installation remain open.
+
 ## Original Session rich HTTP source and separate Final,31 October2026
 
 Core [Source1403](https://github.com/pcvantol/djconnect/pull/1403) is originally
