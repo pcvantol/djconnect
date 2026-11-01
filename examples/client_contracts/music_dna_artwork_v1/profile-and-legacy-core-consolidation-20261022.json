@@ -440,7 +440,7 @@
     }
   },
   "qualification": "ACTUAL_NETWORK_ISOLATED_SYNTHETIC_HA_HTTP_STORE_IMAGE_BYTES",
-  "actual_receipt_sha256": "f1a604a7aa1eaf23fe59d55977af942d04c354a3d050a174c112d48616537b27",
+  "actual_receipt_sha256": "59cc955d3a83a25d314df465d6c08dc6acfafae9ec211d325fbdb5f173401caa",
   "source_pins": {
     "custom_components/djconnect/AGENTS.md": "8fb8891e3a2cca055067fbbacafe6c189f38bc00c514a6bf6984639a182a70cf",
     "custom_components/djconnect/__init__.py": "256928e106f389d2d9507b7cb26b02b2c70ce9f291c977e45aae8c982c1ae6f6",
@@ -451,7 +451,7 @@
     "custom_components/djconnect/api_handlers.py": "f4ca5cddbb2b92e401c18ad46a82efba6ba2da028df940323142fe3d121f5bd0",
     "custom_components/djconnect/artist_photo.py": "49369dedce29fa90fcc545f918ea4ecc10909f58e0df5ebfe1acf35a7af5019c",
     "custom_components/djconnect/artist_review_words.py": "e0e54572d173d04e2b79093e532d1bc55d264435298ee4628c5a92fd636efc2c",
-    "custom_components/djconnect/ask_dj/__init__.py": "d13104f7c2b45f7f45575fcf97e5bdc3a7c64c805d41c69f3aa45618ab56bf2f",
+    "custom_components/djconnect/ask_dj/__init__.py": "163ea7ef9f96ea15531edad0ba10939aed2c8b92f4f3fd52ba1e147c62763c9f",
     "custom_components/djconnect/ask_dj/actions.py": "8e42edc5bf0a3a3ef73c99273c5860d1f3ebad42dd8897cf8d2877239a25b053",
     "custom_components/djconnect/ask_dj/album_choices.py": "da7971c89f714a7cedee68a467ed80fcbc22f600af8f68196b359a71a0559d33",
     "custom_components/djconnect/ask_dj/album_tracks.py": "e354c334fb9f3c21510389fd6f5c4923271c2ddd8836e5028a8d9c9419f6bf3e",
@@ -468,7 +468,7 @@
     "custom_components/djconnect/ask_dj/intents.py": "545c7cf45bc5a66719d66bed5ef2633a4e01343645080af733a11869f1c01032",
     "custom_components/djconnect/ask_dj/observations.py": "ef788fa96d23f124fdb66f4af766831110b7224b3738d884ff8c47550aef54fd",
     "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
-    "custom_components/djconnect/ask_dj/public_research.py": "b095b0c3cf51d36fec33fdcde5640b99f565598b7aee968620953b579c0a107d",
+    "custom_components/djconnect/ask_dj/public_research.py": "5058e21c039a1a706eade30d92144b67b897f28a14682b76d2b9c4d4cc8b7ea8",
     "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
     "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
     "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",
@@ -749,11 +749,11 @@
   "harness_sha256": "b8498a652d3ba411ae310b1ffbc2a6426a3a3e2c6d6a6c471e88177616bba8cc",
   "current_source_requalification": {
     "classification": "ACTUAL_ISOLATED_HA_SOURCE_ONLY_NOT_INSTALLED_OR_NATIVE",
-    "at": "20261101T163656651445Z",
+    "at": "20261101T171945591905Z",
     "product_files": 302,
-    "original_raw_sha256": "f1a604a7aa1eaf23fe59d55977af942d04c354a3d050a174c112d48616537b27",
-    "original_admission_sha256": "a5926cf4f63185f35e473d9ae9a8fe00169d3113d0665075b58e12d31c9082fe",
-    "original_result_sha256": "6523b7e173d957111cfefde025ef9728dc413f2eb4e1a8c7ef295dd912cc2266",
+    "original_raw_sha256": "59cc955d3a83a25d314df465d6c08dc6acfafae9ec211d325fbdb5f173401caa",
+    "original_admission_sha256": "cc2cef203995bd96eebdf7637b516f4d834383f8024cfa4fcce35e513cc30779",
+    "original_result_sha256": "daa6e74bd5b299ae9aa78f04194564bbda2fefc2a7ffd4916190b9d3634cd503",
     "all302_before_inside_after_equal": true,
     "own_container_verified_absent": true,
     "this_group_exit": 0

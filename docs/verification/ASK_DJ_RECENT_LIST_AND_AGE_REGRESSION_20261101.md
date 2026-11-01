@@ -55,3 +55,32 @@ Source, isolated HA, CI, protected delivery, installation, native rendering,
 clickable playback and user acceptance remain separate. All Core changes stay
 in PR1409. Apple owns presentation adoption; the running predecessor is not
 claimed to contain this source fix.
+
+## HAEVN upcoming concerts: additional same-PR correction
+
+The reported Dutch question reached the public-research route. Original public
+readback fetched the official agenda URL, but the 199,553-byte HTML exceeded the
+ordinary 128 KiB cap. Its rendered calendar also has no complete dated prose
+sentences, so increasing a cap alone did not qualify the concert dates.
+
+The bounded current-event reader now admits a same-origin, robots-approved
+16 KiB calendar linked by the fetched artist-named agenda. The original live
+readback used eight total requests and retained the original 566-byte calendar;
+it contains the same-event HAEVN summary, explicit 2026-11-14 date and
+TivoliVredenburg location. A final-source replay retained the original source's
+expiry rather than re-fetching or renewing its clock. All five UI locale copies
+render the one listing; they do not claim first/only/nearest, hours, ticket
+availability or ticket purchase. No new paid model call was made.
+
+The new regression suite covers normal/folded/escaped calendar serialization,
+strict date and event boundaries, unsupported properties, mixed-case duplicate
+and cancellation/recurrence denial, escaped DESCRIPTION cancellation, and
+contradictory summary suffixes. It also exercises the real common request owner
+and registered transport delivery admission: holding the accepted response and
+expiring its original calendar rejects subsequent rich delivery. Synthetic
+provider/interpreter boundaries are explicit; they prove no native acceptance.
+
+The first two independent component reviews returned NO_GO. Those packets and
+counterprobes remain preserved. R3 closes the same original failed vectors and
+keeps positive venue/city/calendar formats working. This component review is
+separate from cumulative source qualification, protected delivery and installation.

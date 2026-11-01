@@ -2906,6 +2906,24 @@ async def _informational_assist_response(
                 expected_roles=tuple(s.get("role") for s in turn.source_context.get("subjects", [])
                                      if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
             turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)
+            if research_angle == 'current_events':
+                original_sources = tuple(fetched_sources)
+                language = turn.style.get('language', 'en')
+                calendar_answer = public_research.concert_calendar_answer(original_sources, subject, language)
+                if calendar_answer:
+                    def original_calendar_delivery_guard():
+                        if public_research.concert_calendar_answer(original_sources, subject, language) != calendar_answer:
+                            raise DialogueError('conversation_context_changed', 409)
+                    turn.delivery_validators.append(original_calendar_delivery_guard)
+                    await turn.guard()
+                    return {'success': True, 'text': calendar_answer, 'dj_text': calendar_answer,
+                            'images': [], 'sources': [s.metadata() for s in original_sources
+                                if s.provider == 'Public concert calendar'],
+                            'links': [{'title': s.title, 'url': s.revision_url, 'kind': 'source'}
+                                for s in original_sources if s.provider == 'Public concert calendar'
+                                and public_research.public_url(s.revision_url)],
+                            'text_source': 'core', 'is_generated_text': False,
+                            'knowledge_basis': 'public_concert_calendar_v1'}
             if research_angle == "age":
                 from .exploration import band_age_question
                 original_research = json.loads(json.dumps(turn.public_research, ensure_ascii=False))
