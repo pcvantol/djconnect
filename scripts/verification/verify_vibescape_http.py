@@ -197,6 +197,8 @@ async def qualify(hass, manager, history, request, client):
     assert caps_response.status == 200 and caps["vibescape_visual_director"] == capability()
     assert caps_response.headers["Cache-Control"] == "no-store"
     assert caps_response.headers["Referrer-Policy"] == "no-referrer"
+    assert caps["capabilities"]["vibescape_visual_settings_fence"] is True
+    assert caps["contract_versions"]["vibescape_visual_settings_fence"] == 1
     from custom_components.djconnect import visual_director_catalogue
 
     next_catalogue = capability()
@@ -321,6 +323,104 @@ async def qualify(hass, manager, history, request, client):
     await poll()
     await post("interpret", old, 409)
     cases["actual_stage1_A_B_A_invalidates_original_turn"] = "PASS"
+
+    # Ordinary confirmed settings updates are separate from measured visual
+    # requests. Reuse the existing Session producer; no new persona endpoint.
+    from custom_components.djconnect.session_runtime import DJPersona
+    from custom_components.djconnect.const import API_SESSION_ACTIVE
+    visual_engine = adapter.engine(hass)
+    settings_visit = {**identity, "visit_id": str(uuid.uuid4())}
+    await poll()
+    original_context = await post("context", settings_visit)
+    visit = next(v for v in visual_engine.visits.values() if v.identifier == settings_visit["visit_id"])
+    original_deadline = visit.deadline
+    original_persona = manager.current_active("profile-a").dj_persona
+    await manager.async_update_persona(owner_profile_id="profile-a", session_id=active.session_id,
+                                      dj_persona=DJPersona.RADIO_DJ)
+    await manager.async_update_persona(owner_profile_id="profile-a", session_id=active.session_id,
+                                      dj_persona=original_persona)
+    await post("interpret", turn(original_context, "Meer diepte", settings_visit), 409)
+    await poll()
+    original_context = await post("context", settings_visit)
+    original_mood = manager.current_active("profile-a").selected_mood
+    await manager.async_update_mood(owner_profile_id="profile-a", session_id=active.session_id,
+                                   selected_mood="chill")
+    await manager.async_update_mood(owner_profile_id="profile-a", session_id=active.session_id,
+                                   selected_mood=original_mood)
+    await post("interpret", turn(original_context, "Meer diepte", settings_visit), 409)
+    await poll()
+    current = await post("context", settings_visit)
+    original_yield = visual_engine.yield_once
+    async def change_persona_during_visual_wait():
+        visual_engine.yield_once = original_yield
+        await manager.async_update_persona(owner_profile_id="profile-a", session_id=active.session_id,
+                                          dj_persona=DJPersona.CLUB_DJ)
+    visual_engine.yield_once = change_persona_during_visual_wait
+    await post("interpret", turn(current, "Meer diepte", settings_visit), 409)
+    visual_engine.yield_once = original_yield
+    await poll()
+    current = await post("context", settings_visit)
+    assert visit.deadline == original_deadline and visit.valid
+    await post("revoke", settings_visit)
+    cases["actual_confirmed_persona_and_mood_ABA_and_late_interpret_reject_old_lease"] = "PASS"
+    cases["confirmed_settings_changes_preserve_original_visit_budget"] = "PASS"
+
+    examples["four_world_context_states"] = []
+    for persona in DJPersona:
+        for mood in ("chill", "groove", "energy", "party"):
+            await manager.async_update_persona(owner_profile_id="profile-a", session_id=active.session_id,
+                                              dj_persona=persona)
+            await manager.async_update_mood(owner_profile_id="profile-a", session_id=active.session_id,
+                                           selected_mood=mood)
+            await poll()
+            await hass.async_block_till_done()
+            scenario_visit = {**identity, "visit_id": str(uuid.uuid4())}
+            before_sql, before_household, before_calls = sql_snapshot(), storage.household, list(calls)
+            with (patch.object(storage, "async_save", side_effect=AssertionError("visual Profile write")),
+                  patch.object(history, "async_append_exchange", side_effect=AssertionError("visual history write")),
+                  patch.object(service, "async_in_transaction", side_effect=AssertionError("visual SQL access"))):
+                snapshot, status = await request("GET", API_SESSION_ACTIVE)
+                assert status == 200, snapshot
+                session = snapshot["session"]
+                assert session["owner_profile_id"] == "profile-a"
+                assert session["session_id"] == active.session_id
+                assert session["dj_persona"] == persona.value and session["selected_mood"] == mood
+                for key in ("session_id", "dj_persona", "persona_revision", "selected_mood", "mood_revision"):
+                    assert session[key] == session["broadcast"]["session"][key]
+                context = await post("context", scenario_visit)
+                assert context["music_context"]["audio_features"] is None
+                assert context["music_context"]["genres"] == []
+                for index, dynamics in enumerate((0.0, 0.5, 1.0)):
+                    data = turn(context, "Meer diepte", scenario_visit, index + 1)
+                    data.update(active_scene={**scene, "motion": dynamics}, dynamics_bias=dynamics)
+                    answer = await post("interpret", data)
+                    assert set(answer["directive"]["patch"]) == {"depth"}
+                    examples["four_world_context_states"].append({
+                        "session_id": session["session_id"], "owner_profile_id": session["owner_profile_id"],
+                        "dj_persona": session["dj_persona"], "persona_revision": session["persona_revision"],
+                        "selected_mood": session["selected_mood"], "mood_revision": session["mood_revision"],
+                        "local_dynamics": dynamics, "context": context, "response": answer,
+                        "qualification": "ACTUAL_CORE_CONTEXT_NOT_RENDERER_OR_GPU_ACCEPTANCE"})
+                await hass.async_block_till_done()
+            assert sql_snapshot() == before_sql and storage.household is before_household and calls == before_calls
+            await post("revoke", scenario_visit)
+    assert len(examples["four_world_context_states"]) == 48
+    cases["four_confirmed_personas_four_moods_three_local_dynamics_48_actual_context_states"] = "PASS"
+    cases["existing_active_session_and_broadcast_axes_agree_without_new_visual_wire_fields"] = "PASS"
+    cases["48_visual_states_no_SQL_Profile_history_provider_or_numeric_dependency"] = "PASS"
+
+    await poll()
+    alias_visit = {**identity, "visit_id": str(uuid.uuid4())}
+    alias_context = await post("context", alias_visit)
+    for index, text in enumerate(("Meer dynamiek", "Minder dynamiek", "More dynamics", "Less dynamics",
+                                  "Mehr Dynamik", "Weniger Dynamik", "Plus de dynamisme", "Moins de dynamisme",
+                                  "Más dinamismo", "Menos dinamismo")):
+        data = turn(alias_context, text, alias_visit, revision=index + 1)
+        data.update(active_scene={**scene, "motion": 0.5}, dynamics_bias=0.5)
+        answer = await post("interpret", data)
+        assert answer["directive"]["patch"] == {"motion": 0.65 if index % 2 == 0 else 0.35}
+    await post("revoke", alias_visit)
+    cases["ten_bounded_dynamics_aliases_five_locales_same_effective_control"] = "PASS"
     old_admission = adapter.capture_observer(hass, observed)
     old_projection = weakref.ref(active.broadcast.passive_observation[2])
     await post("revoke", identity)

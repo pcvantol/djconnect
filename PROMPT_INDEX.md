@@ -1,3 +1,22 @@
+## 2026-11-02 — Bounded VibeScape four-world Core source preparation
+
+Core1271/1101 and Apple177 reuse the existing confirmed active Session/Broadcast
+persona and Mood axes. Apple owns all four native worlds and local Dynamics.
+The concrete old Visual Director lease gap is causally reproduced and corrected:
+strict original persona/Mood values plus both revisions, terminal mismatch and
+original visit budget preservation. Additive settings-fence capability1 leaves
+closed visual wire v1 unchanged. Ten whole-clause Dynamics aliases reuse the
+same client-visible control; no model/provider or ordinary Ask DJ fallback.
+
+[Current contract](docs/product/VIBESCAPE_FOUR_WORLD_CONTEXT_V1.md) distinguishes
+actual wire fields, local checks, Core fixtures and open native acceptance.
+Current source QA:4480 tests accounted,4473 PASS/seven existing skips;all25
+isolated HA groups PASS,including48 new visual context states. Independent
+whole/exact review and protected delivery remain pending. Keep all24/nine open records, prior1423 source qualification,
+Golden failures, Apple/native/installed/provider/Pi gates in their own scopes.
+No deployment or new paid test. Bundle code/docs/closing record in one owner-
+requested PR, without another writer or redundant endpoint.
+
 ## 2026-11-02 — Music DNA startup choices v2, single PR preparation
 
 The selected startup flow now has Core source work for Verras me→three genres

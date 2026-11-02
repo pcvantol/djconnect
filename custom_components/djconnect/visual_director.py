@@ -224,6 +224,14 @@ _FILLER = set(
     "maak het wat en iets nee wel een beetje make it a bit and no mach es etwas und et un peu de y haz lo mas".split()
 )
 _ALLOWED = _FILLER | set().union(*_LEXICON.values())
+_DYNAMICS_ALIASES = {
+    phrase: control
+    for phrases, control in (
+        (("meer dynamiek", "more dynamics", "mehr dynamik", "plus de dynamisme", "mas dinamismo"), "faster"),
+        (("minder dynamiek", "less dynamics", "weniger dynamik", "moins de dynamisme", "menos dinamismo"), "calmer"),
+    )
+    for phrase in phrases
+}
 
 
 def interpret_visual(text, scene, scope):
@@ -239,6 +247,10 @@ def interpret_visual(text, scene, scope):
     normalized = " ".join(normalized.split())
     _require(len(scopes) <= 1, "visual_direction_ambiguous", 422)
     scope = next(iter(scopes), scope)
+    # Whole-clause aliases only: mixed music/HA text is never stripped or
+    # forwarded. The existing motion patch targets the client's one effective
+    # Dynamics value; it is not another hidden intensity multiplier.
+    normalized = _DYNAMICS_ALIASES.get(normalized, normalized)
     if normalized in _CONTROLS:
         kind = _CONTROLS[normalized]
         if kind == "hold":

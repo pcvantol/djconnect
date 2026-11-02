@@ -16,6 +16,25 @@ class VisualDirectorContractTests(unittest.TestCase):
     def fixture(self):
         return json.loads((DIRECTORY / "actual-ha-wire-core-consolidation-20261022.json").read_text())
 
+    def test_four_world_context_grid_is_actual_producer_data_not_extra_visual_wire_fields(self):
+        data = self.fixture()
+        rows = data["examples"]["four_world_context_states"]
+        expected = {(persona, mood, dynamics)
+                    for persona in ("home_dj", "radio_dj", "club_dj", "festival_dj")
+                    for mood in ("chill", "groove", "energy", "party")
+                    for dynamics in (0.0, 0.5, 1.0)}
+        self.assertEqual(len(rows), 48)
+        self.assertEqual({(r["dj_persona"], r["selected_mood"], r["local_dynamics"]) for r in rows}, expected)
+        for row in rows:
+            self.assertEqual(row["qualification"], "ACTUAL_CORE_CONTEXT_NOT_RENDERER_OR_GPU_ACCEPTANCE")
+            self.assertEqual(row["response"]["context_lease_id"], row["context"]["context_lease_id"])
+            self.assertEqual(row["response"]["observed_occurrence_id"], row["context"]["observed_occurrence_id"])
+            self.assertEqual(set(row["response"]["directive"]["patch"]), {"depth"})
+            self.assertIsNone(row["context"]["music_context"]["audio_features"])
+            self.assertEqual(row["context"]["music_context"]["genres"], [])
+            for omitted in ("owner_profile_id", "dj_persona", "persona_revision", "mood_revision"):
+                self.assertNotIn(omitted, row["context"])
+
     def test_actual_registered_wire_pins_current_producer_and_declares_boundary(self):
         data = self.fixture()
         for relative, expected in data["source_pins"].items():

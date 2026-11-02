@@ -1,5 +1,5 @@
 {
-  "original_receipt_sha256": "09e905076b01bb1fa1800eac6ec3afe5d5a7b1372a906ffbfeed3e4f32638764",
+  "original_receipt_sha256": "ad29562ad381c2b6af3648a9542937c18aebd381301db980a155551698db296a",
   "original_receipt": {
     "state": "PASS",
     "source_origin_DATA_only": true,
@@ -92,7 +92,7 @@
       "custom_components/djconnect/bulletin_service.py": "1d487d0cb3d8d4d45930365ea9a1b0b8cd4cee5dc0ead8e82878c1a0f5d69ccb",
       "custom_components/djconnect/bulletin_source_policy.py": "a1fb7ecb6babb256fbe74b3f14be7cace712fb042d21c028bf43fc3f396c9202",
       "custom_components/djconnect/button.py": "aa1c3290c4369d99ecf6fc88f865e65e02d438d7e3b0a399621a5791062ba9bc",
-      "custom_components/djconnect/capability_contract.py": "16714b41187a583e0583a5961d1e8da32bdab6c97c524eff0d35065c16a05457",
+      "custom_components/djconnect/capability_contract.py": "e5185362b023c55016829225881a2dace93962e59123d15438cb9503790d8100",
       "custom_components/djconnect/central_api.py": "78cd4645d9fd1979bbc33e500c525bffc23ae45deaeef02b129adb418674b9e6",
       "custom_components/djconnect/ci_qualification_report.py": "a45c358669fea9cfb57a601a109443c722e10d91b067eacbb550a11cd264229b",
       "custom_components/djconnect/client_identity.py": "31543e0cf3ed7aa8322af24d0835c0fecf77974db0d8a07c7908d9deff7588cd",
@@ -335,10 +335,10 @@
       "custom_components/djconnect/vibecast_renderer/renderer.js": "32ed3a41ca025438a636913af6c41f02a66180d713abf7762f4e9b55b7d14303",
       "custom_components/djconnect/vibecast_renderer/style.css": "4565a5bd15d6ededca96e5629a4c35d4ec248feacd1dbe086db012eebc028304",
       "custom_components/djconnect/vibecast_renderer/template.html": "a1b05dd781e4da992a5a1c0633bdcd8c25fdc216d6db1e38465362bb02221d62",
-      "custom_components/djconnect/visual_director.py": "24894213d09baa82cf52e4b613b8b019a61adade4a6f58e607678c15134b4e05",
+      "custom_components/djconnect/visual_director.py": "17eb7db9b903fc4341cb0e881c6935b5d4bd2dccc76dd32d41a715eab73c22ec",
       "custom_components/djconnect/visual_director_catalogue.py": "cf4004a0ec6f4960bfd1f797d656403752574f3f60fc3ca6f7a08ff4926fec84",
       "custom_components/djconnect/visual_director_http.py": "acfd399ea33433fabfbe14dbca7ecb744e4c36c1affd9ff8919545bb25422255",
-      "custom_components/djconnect/visual_director_runtime.py": "93ab79731d71f114d850bfaa7b4a9dad9690885867a80391c0db544dcaecd7ec",
+      "custom_components/djconnect/visual_director_runtime.py": "e2482668c44fefcee65dd658abda37035115d6b36f695747d1bbd83b711e8d85",
       "custom_components/djconnect/voice_preview.py": "ea1edd78efa3843911e39e94b374f1afdbc44f319baeca321000442f6175807b",
       "custom_components/djconnect/voice_profiles.py": "5aba9ae572b92c783686d9ccac3af3b97c2689ca98c10f086ba7ae4cdb2696c9",
       "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
@@ -349,7 +349,7 @@
   },
   "codec_harness": "scripts/verification/verify_installation_principal_data_ha.py",
   "codec_harness_sha256": "01bb57a41d2c3debc7dc8e6ac4252077f626fd8c4a330656dc7a104af19d3b48",
-  "admission_sha256": "cd0daa63c1bd340188ab342cfefdfd0b200381a17af1777afe7925a9ce68ee4b",
+  "admission_sha256": "b3e3540a075f078e2b04bf7b2e2fbbe3a7e883a5e76f794a6c471cf983290bc3",
   "parent_causal_RED": {
     "sha": "44696e1b4ef9aebc726b36ecccddf4542b6706cd",
     "actual_products": 277,
@@ -366,11 +366,11 @@
   "registry_signer_or_live_authority": "NOT_RUN",
   "current_source_requalification": {
     "classification": "ACTUAL_ISOLATED_HA_SOURCE_ONLY_NOT_INSTALLED_OR_NATIVE",
-    "at": "2026-11-02T15:42:59.152710+00:00",
+    "at": "2026-11-02T16:39:05.170824+00:00",
     "product_files": 302,
-    "original_raw_sha256": "09e905076b01bb1fa1800eac6ec3afe5d5a7b1372a906ffbfeed3e4f32638764",
-    "original_admission_sha256": "cd0daa63c1bd340188ab342cfefdfd0b200381a17af1777afe7925a9ce68ee4b",
-    "original_result_sha256": "fd38c61cc3101c56c10f9e86e323af34f0d343c1657a3d189ce793900cbbafb4",
+    "original_raw_sha256": "ad29562ad381c2b6af3648a9542937c18aebd381301db980a155551698db296a",
+    "original_admission_sha256": "b3e3540a075f078e2b04bf7b2e2fbbe3a7e883a5e76f794a6c471cf983290bc3",
+    "original_result_sha256": "94fa1410579f07bedb391e321b0d748bc0c33da522f93864e8530ba0a288bf5e",
     "all302_before_inside_after_equal": true,
     "own_container_verified_absent": true,
     "this_group_exit": 0

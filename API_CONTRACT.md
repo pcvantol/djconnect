@@ -1,3 +1,12 @@
+## VibeScape confirmed-settings fence v1
+
+Reuse existing active_session_persona:1 and active_session_mood:1. Additive
+vibescape_visual_settings_fence boolean/version1 advertises strict original
+confirmed Runtime/Broadcast persona+revision and Mood+revision guards on visual
+observation/leases. Closed visual request/response DTOs remain v1 with no new
+fields or endpoints; local client tickets are not extra wire echoes. See
+[bounded four-world contract](docs/product/VIBESCAPE_FOUR_WORLD_CONTEXT_V1.md).
+
 ## Session startup Music DNA choices v2
 
 Existing authenticated Session start/active responses add session_start_actions
