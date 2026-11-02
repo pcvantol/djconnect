@@ -1073,6 +1073,10 @@
         {
           "file": "tests/test_ask_dj_playback_request_truth.py",
           "method": "test_duplicate_output_tap_never_repeats_accepted_playback"
+        },
+        {
+          "file": "tests/test_ask_dj_playback_request_truth.py",
+          "method": "test_scoped_backend_failure_is_closed_json_without_rebinding_or_private_cache"
         }
       ],
       "real_ha_profile": "output",

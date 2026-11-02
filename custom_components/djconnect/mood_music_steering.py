@@ -611,9 +611,39 @@ FIRST_PLAY_COPY = {
            "Elige un género para iniciar tu mezcla DJConnect con canciones de Spotify.", "Se ha solicitado la mezcla.",
            "Ahora no puedo preparar una mezcla. No se ha iniciado nada."),
 }
-FIRST_PLAY_GENRES = {"chill": ("ambient", "jazz", "soul"), "groove": ("soul", "jazz", "funk"),
-                     "energy": ("rock", "electronic", "house"), "party": ("dance", "house", "techno")}
-FIRST_PLAY_LABELS = {**GENRE_DIRECTIONS, "funk": {lang: "funk" for lang in COPY}}
+FIRST_PLAY_DNA_UNAVAILABLE = {
+    "en": "This mix needs three genres from your Music DNA. You can also choose a playlist.",
+    "nl": "Voor deze mix zijn drie genres uit je Music DNA nodig. Je kunt ook een playlist kiezen.",
+    "de": "Dieser Mix benötigt drei Genres aus deiner Music DNA. Du kannst auch eine Playlist auswählen.",
+    "fr": "Ce mix nécessite trois genres de ta Music DNA. Tu peux aussi choisir une playlist.",
+    "es": "Esta mezcla necesita tres géneros de tu Music DNA. También puedes seleccionar una playlist.",
+}
+FIRST_PLAY_PLAYLIST_LABELS = dict(zip(COPY, ("Select playlist", "Selecteer playlist", "Playlist auswählen",
+                                           "Choisir une playlist", "Seleccionar playlist")))
+
+
+def _first_play_dna(hass, runtime, profile_id):
+    """Only already-loaded original Profile data; no identity from request text."""
+    from .domain.storage import ProfilePlatformStorage, STORE_KEY
+    from .music_dna import MusicDNAManager
+    from .profile_privacy import resolve_profile_privacy_policy
+    domain = getattr(hass, "data", {}).get("djconnect", {})
+    storage, memory = domain.get(STORE_KEY), getattr(runtime, "memory", None)
+    if not isinstance(storage, ProfilePlatformStorage) or not storage._loaded or not isinstance(memory, MusicDNAManager):
+        return None
+    profile = storage.household.profiles.get(profile_id)
+    if profile is None or not resolve_profile_privacy_policy(profile).allow_personal_read:
+        return None
+    seeds = memory.loaded_genre_seed_snapshot(profile_id)
+    if seeds is None:
+        return None
+    def original():
+        current = getattr(hass, "data", {}).get("djconnect", {}).get(STORE_KEY)
+        return (current is storage and storage._loaded
+                and storage.household.profiles.get(profile_id) is profile
+                and resolve_profile_privacy_policy(profile).allow_personal_read
+                and getattr(runtime, "memory", None) is memory and seeds.valid())
+    return seeds, original
 
 
 def first_play_requested(text):
@@ -624,8 +654,8 @@ def first_play_requested(text):
 def _first_play_empty(active):
     playback = active.broadcast.state.playback
     return (active.broadcast.first_play_state == "ready"
-        and not active.broadcast.first_play_observed and not active.last_accepted_media_identity
-        and playback.state in {"idle", "stopped"} and not playback.item_id)
+        and not active.broadcast.first_play_observed
+        and playback.state in {"idle", "stopped", "paused"})
 
 
 def first_play_catalogue(hass, runtime, profile_id, active):
@@ -634,14 +664,32 @@ def first_play_catalogue(hass, runtime, profile_id, active):
     source, authority = source_admission(hass, runtime, profile_id) if active is not None else (None, None)
     from .session_runtime import session_runtime_manager
     stored = session_runtime_manager(hass)._history_source_contexts.get(active.session_id) if active else None
-    available = bool(active and active.selected_mood in FIRST_PLAY_GENRES and _first_play_empty(active)
+    dna = _first_play_dna(hass, runtime, profile_id)
+    available = bool(active and _first_play_empty(active) and dna
                      and source and stored == source and callable(authority) and authority())
     locale = active.locale if active is not None and active.locale in FIRST_PLAY_COPY else "en"
-    return {"schema_version": 1, "id": "session_first_play_surprise_mix", "available": available,
+    return {"schema_version": 2, "id": "session_first_play_surprise_mix", "available": available,
+        "genre_basis": "music_dna", "unavailable_reason": None if available else "startup_or_music_dna_unavailable",
         "label": FIRST_PLAY_COPY[locale][0], "prompt": FIRST_PLAY_COPY[locale][1],
         "localizations": {lang: {"label": copy[0], "prompt": copy[1]} for lang, copy in FIRST_PLAY_COPY.items()},
         "mix_availability": "not_queried", "transport": "existing_session_conversation",
         "selection_effect": "genre_starts_exact_mix", "automatic_playback": False}
+
+
+def session_start_catalogue(hass, runtime, profile_id, active):
+    """UI intents only: explicit conversation or navigation, never playback."""
+    manager = getattr(hass, "data", {}).get("djconnect", {}).get("session_runtime_manager")
+    current = manager.current_active(profile_id) if manager is not None else None
+    eligible = bool(active and current and current.session_id == active.session_id
+                    and current.broadcast is active.broadcast and _first_play_empty(current))
+    surprise = first_play_catalogue(hass, runtime, profile_id, active if eligible else None)
+    locale = active.locale if active and active.locale in COPY else "en"
+    return {"schema_version": 1, "available": eligible, "automatic_playback": False,
+        "items": [{**surprise, "kind": "conversation_request"},
+            {"schema_version": 1, "id": "session_start_playlists", "kind": "navigation",
+             "available": eligible, "destination": "playlists", "label": FIRST_PLAY_PLAYLIST_LABELS[locale],
+             "localizations": {lang: {"label": label} for lang, label in FIRST_PLAY_PLAYLIST_LABELS.items()},
+             "automatic_playback": False}]}
 
 
 @dataclass(eq=False)
@@ -659,6 +707,8 @@ class FirstPlayAdmission:
     clock: object
     deadline: float
     wall_deadline: float
+    dna_seeds: object
+    dna_guard: object
     output_id: str = ""
     phase: str = "output"
     output_attempted: bool = False
@@ -692,6 +742,7 @@ class FirstPlayAdmission:
             if (self.withdrawn or self.clock() >= self.deadline or time.time() >= self.wall_deadline
                     or session_runtime_manager(self.hass) is not self.manager or now is None
                     or session_scope(now) != self.scope or not self.authority()
+                    or not callable(self.dna_guard) or not self.dna_guard()
                     or self.manager._history_source_contexts.get(now.session_id) is not self.source
                     or tuple(sorted(self.source.items())) != self.captured_source
                     or history_grant_revision(self.hass, self.profile_id) != self.grant):
@@ -699,8 +750,7 @@ class FirstPlayAdmission:
             if not self.play_dispatched:
                 expected = "attempted" if self.play_attempted else "ready"
                 if (now.broadcast.first_play_state != expected or now.broadcast.first_play_observed
-                        or now.last_accepted_media_identity or now.broadcast.state.playback.item_id
-                        or now.broadcast.state.playback.state not in {"idle", "stopped"}
+                        or now.broadcast.state.playback.state not in {"idle", "stopped", "paused"}
                         or (self.play_attempted and current_turn.get() is not self.execution_turn)):
                     raise DialogueError("first_play_context_changed", 409)
         except BaseException:
@@ -751,27 +801,20 @@ class FirstPlayAdmission:
     async def outputs(self, backend):
         devices = await self.read(backend.devices(fresh=True))
         observed = await self.read(backend.async_observe_current_playback())
-        if observed.state not in {"idle", "stopped"} or observed.media_identity:
+        if observed.state not in {"idle", "stopped", "paused"}:
             self.active.broadcast.first_play_observed = True
             self.active.broadcast.first_play_state = "closed"
             raise DialogueError("first_play_existing_playback", 409)
         return [d for d in devices if isinstance(d, dict) and d.get("id") and d.get("name")
                 and not d.get("cached") and not d.get("is_restricted")]
 
-    async def empty_queue(self, backend):
-        # Preserve the raw empty/current evidence; normal queue presentation
-        # intentionally omits currently_playing and cannot prove this boundary.
-        queue = await self.read(backend._request("GET", "/me/player/queue"))
-        if (not isinstance(queue, dict) or queue.get("queue") != []
-                or "currently_playing" not in queue or queue["currently_playing"] is not None):
-            raise DialogueError("first_play_existing_queue", 409)
 
 
 def _first_play_reply(admission, text, actions=(), *, state, reason=None):
     result = {"success": state != "unavailable", "text": text, "dj_text": text,
         "action": "none", "origin": "session_first_play", "playback_actions": list(actions),
         "text_source": "runtime_acknowledgement", "is_generated_text": False,
-        "first_play": {"schema_version": 1, "state": state,
+        "first_play": {"schema_version": 2, "genre_basis": "music_dna", "state": state,
                        "selection_effect": "genre_starts_exact_mix", "reason": reason}}
     if admission is not None:
         result["first_play"]["expires_in"] = max(0, min(admission.deadline-admission.clock(),
@@ -787,10 +830,9 @@ async def _first_play_genres(hass, runtime, admission, backend):
     active_ids = [d["id"] for d in devices if d.get("is_active") or d.get("active")]
     if active_ids != [admission.output_id]:
         raise DialogueError("first_play_output_changed", 409)
-    await admission.empty_queue(backend)
-    directions = FIRST_PLAY_GENRES[admission.active.selected_mood]
+    directions = admission.dna_seeds.genres
     async def mix(genre):
-        params = urlencode({"q": "genre:"+genre, "type": "track", "limit": 8,
+        params = urlencode({"q": 'genre:"'+genre+'"',  "type": "track", "limit": 8,
                             "market": backend.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET})
         data = await admission.read(backend._request("GET", "/search?"+params))
         items = ((data.get("tracks") or {}).get("items") or []) if isinstance(data, dict) else []
@@ -814,14 +856,13 @@ async def _first_play_genres(hass, runtime, admission, backend):
     devices = await admission.outputs(backend)
     if [d["id"] for d in devices if d.get("is_active") or d.get("active")] != [admission.output_id]:
         raise DialogueError("first_play_output_changed", 409)
-    await admission.empty_queue(backend)
     actions = []
     for genre, tracks in found:
-        label = FIRST_PLAY_LABELS[genre][admission.locale]
+        label = genre
         actions.append({"kind": "track_mix", "title": label, "label": label, "button_label": label,
             "uri": tracks[0]["uri"], "uris": [track["uri"] for track in tracks],
             "subtitle": MIX_PRESENTATION[admission.locale][1].format(count=len(tracks)),
-            "backend": admission.source["backend_id"], "genre": genre,
+            "backend": admission.source["backend_id"], "genre": genre, "genre_basis": "music_dna",
             "selection_source": "spotify_genre_search", "fit_basis": "catalog_genre_query",
             "fit_qualified": False, "queue_effect": "start_context_now"})
     admission.phase = "genres"
@@ -844,12 +885,15 @@ async def first_play_response(hass, runtime):
     source = manager._history_source_contexts.get(active.session_id) if active else None
     authority = turn.reply_source_authority
     if (active is None or turn.session_id != active.session_id or not _first_play_empty(active)
-            or active.selected_mood not in FIRST_PLAY_GENRES or not callable(authority)
+            or not callable(authority)
             or not authority() or not source or source != turn.reply_source_context):
         return _first_play_reply(None, FIRST_PLAY_COPY[locale][5], state="unavailable", reason="session_or_source_unavailable")
+    dna = _first_play_dna(hass, runtime, profile_id)
+    if dna is None:
+        return _first_play_reply(None, FIRST_PLAY_DNA_UNAVAILABLE[locale], state="unavailable", reason="music_dna_unavailable")
     admission = FirstPlayAdmission(hass, manager, profile_id, active, source, authority,
         session_scope(active), history_grant_revision(hass, profile_id), locale,
-        turn.history.dialogue.clock, turn.history.dialogue.clock()+60, time.time()+60)
+        turn.history.dialogue.clock, turn.history.dialogue.clock()+60, time.time()+60, dna[0], dna[1])
     admission.bind(turn)
     backend = SpotifyBackend(hass, runtime)
     try:
@@ -905,7 +949,6 @@ async def first_play_choose(hass, runtime, action, shown, turn):
         raise DialogueError("choice_unavailable", 409)
     if [d["id"] for d in devices if d.get("is_active") or d.get("active")] != [admission.output_id]:
         raise DialogueError("first_play_output_changed", 409)
-    await admission.empty_queue(backend)
     await turn.guard()
     admission.selected_media = tuple(action.get("uris") or ())
     if len(admission.selected_media) < 2:

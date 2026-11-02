@@ -41,9 +41,24 @@ async def qualify(hass, manager, history, request, client):
     hass.config_entries.async_update_entry(owner_entry, data={**owner_entry.data,
         "profile_backend_entry_id": "source-entry", "music_backend": "source-spotify",
         "music_account_id": "source-account"})
+    from homeassistant.helpers.storage import Store
+    from custom_components.djconnect.music_dna import MusicDNAManager
+    dna_genres = ("neo soul", "r&b", "indie rock")
+    dna_store = Store(hass, 1, "first_play_dna_synthetic_fixture")
+    owner_runtime = hass.data["djconnect"]["owner-entry"]
+    async def install_dna(*, enabled=True, genres=dna_genres, owner="profile-a"):
+        # Original persisted data is explicitly synthetic owner consent/taste;
+        # the actual MusicDNAManager and HA Store are not replaced by an adapter.
+        await dna_store.async_save({"version": 1, "memories": {"profile:"+owner: {
+            "enabled": enabled, "generation": 4, "favorite_genres": list(genres)}}})
+        memory = MusicDNAManager(hass, store=dna_store)
+        await memory.async_load()
+        owner_runtime.memory = memory
+        return memory
+    await install_dna()
     source = {"backend_id": "source-spotify", "music_account_id": "source-account",
               "provider_entry_id": "source-entry", "provider_account_id": "synthetic-first-play-provider"}
-    state = {"active": True, "playing": False, "track": None, "effects": [], "reads": [], "missing": ""}
+    state = {"active": True, "playing": False, "track": None, "effects": [], "reads": [], "missing": "", "tracks": {}, "legacy_mode": False}
     class Response:
         status = 200
         headers = {}
@@ -78,15 +93,23 @@ async def qualify(hass, manager, history, request, client):
                     return Response({"artists": []})
                 assert path == "/search", path
                 query = parse_qs(parsed.query)
-                genre = query["q"][0].split(":", 1)[1]
+                genre = query["q"][0].split(":", 1)[1].strip('"')
                 assert int(query["limit"][0]) == 8 and query["type"] == ["track"]
                 tracks = [] if state["missing"] == genre else [track(genre, i) for i in range(3)]
+                state["tracks"].update({item["uri"]: item for item in tracks})
                 return Response({"tracks": {"items": tracks}})
             assert method == "PUT" and path in {"/me/player", "/me/player/play"}, (method, path)
             body = kwargs["json"]
             # This external seam is reached only after the ACTUAL shared normal
             # adapter has validated/reserved the effect in the actual HA Store.
             turn = current_turn.get()
+            if state["legacy_mode"]:
+                assert turn is None
+                active = manager.current_active("profile-a")
+                expected = "ready" if state.get("replacement_control") else "closed"
+                assert active.broadcast.first_play_state == expected, (expected, active.broadcast.first_play_state)
+                state["effects"].append({"kind": "ordinary_play_unknown", "uris": body.get("uris", [])})
+                raise spotify_backend.SpotifyBackendError("synthetic_lost_acknowledgement")
             assert turn is not None and turn.effect_started
             receipt = history._data["users"][turn.scope]["dialogue_effect_receipts"].get(
                 _request_hash(turn.scope, turn.client_id))
@@ -101,8 +124,7 @@ async def qualify(hass, manager, history, request, client):
                 uris = body["uris"]
                 state["effects"].append({"kind": "play", "uris": list(uris), "output": "synthetic-first-play-output"})
                 state["playing"] = True
-                state["track"] = next(track(g, i) for g in first.FIRST_PLAY_LABELS for i in range(3)
-                                      if track(g, i)["uri"] == uris[0])
+                state["track"] = state["tracks"][uris[0]]
             return Response({})
     def track(genre, index):
         identifier = hashlib.sha256((genre+str(index)).encode()).hexdigest()[:22]
@@ -111,13 +133,19 @@ async def qualify(hass, manager, history, request, client):
             "artists": [{"id": "A"*22, "name": "Synthetic artist"}], "duration_ms": 180000,
             "album": {"name": "Synthetic album", "images": []}}
     async def token(*args, **kwargs):
+        if state.get("replace_on_token"):
+            state["replace_on_token"] = False
+            old = manager.current_active("profile-a")
+            await manager.async_end(owner_profile_id="profile-a", session_id=old.session_id)
+            state["replacement"] = await manager.async_start(owner_profile_id="profile-a", music_backend="source-spotify",
+                selected_mood="groove", locale="nl", history_source_context=source)
         return "SYNTHETIC_OFFLINE_UNUSABLE_TOKEN"
     cases, examples = {}, []
     async def fresh(mood="groove", locale="nl"):
         previous = manager.current_active("profile-a")
         if previous:
             await manager.async_end(owner_profile_id="profile-a", session_id=previous.session_id)
-        state.update(playing=False, track=None, active=True, effects=[], reads=[], missing="")
+        state.update(playing=False, track=None, active=True, effects=[], reads=[], missing="", tracks={}, legacy_mode=False, replacement_control=False, replace_on_token=False)
         return await manager.async_start(owner_profile_id="profile-a", music_backend="source-spotify",
             selected_mood=mood, locale=locale, history_source_context=source)
     async def submit(session, identifier, *, locale="nl", choice=None):
@@ -129,16 +157,21 @@ async def qualify(hass, manager, history, request, client):
         return await request("POST", "/api/djconnect/v1/ask_dj/message", payload)
     with patch.object(spotify_backend, "async_get_clientsession", return_value=Wire()), \
             patch.object(spotify_backend.SpotifyBackend, "_access_token", token):
-        for mood in first.FIRST_PLAY_GENRES:
+        for mood in ("chill", "groove", "energy", "party"):
             for locale in first.FIRST_PLAY_COPY:
                 session = await fresh(mood, locale)
                 catalog, status = await request("GET", "/api/djconnect/v1/session/active")
                 assert status == 200 and catalog["first_play_action"]["available"], catalog
                 assert set(catalog["first_play_action"]["localizations"]) == set(first.FIRST_PLAY_COPY)
+                menu = catalog["session_start_actions"]
+                assert menu["schema_version"] == 1 and menu["available"] and len(menu["items"]) == 2
+                assert menu["items"][0]["schema_version"] == 2 and menu["items"][0]["genre_basis"] == "music_dna"
+                assert menu["items"][1]["destination"] == "playlists" and menu["items"][1]["kind"] == "navigation"
+                assert menu["items"][1]["label"] == first.FIRST_PLAY_PLAYLIST_LABELS[locale]
                 result, status = await submit(session, "first-play-"+mood+locale, locale=locale)
                 assert status == 200 and result["success"], result
                 actions = result["result_set"]["items"]
-                assert tuple(a["genre"] for a in actions) == first.FIRST_PLAY_GENRES[mood]
+                assert tuple(a["genre"] for a in actions) == dna_genres
                 assert len({a["action_id"] for a in actions}) == 3 and all(len(a["uris"]) == 3 for a in actions)
                 assert not state["effects"]
                 cases[mood+"_"+locale+"_actual_owner_catalog_and_three_backed_genres_without_play"] = "PASS"
@@ -174,12 +207,88 @@ async def qualify(hass, manager, history, request, client):
         cases["real_durable_effect_journal_before_both_wire_effects"] = "PASS"
         cases["same_id_replay_and_new_id_original_action_never_redispatch"] = "PASS"
         cases["consumed_first_play_action_is_retired"] = "PASS"
-        examples.append({"catalogue_before": catalog_before["first_play_action"],
+        examples.append({"start_menu_before": catalog_before["session_start_actions"], "start_menu_after": catalog["session_start_actions"],
+            "catalogue_before": catalog_before["first_play_action"],
             "catalogue_after": catalog["first_play_action"],
             "output": before, "genres": genre, "played": played, "denied": denied})
+        session = await fresh()
+        await install_dna()
+        prior = track("prior paused music", 0)
+        state["track"] = prior
+        await manager.async_update_playback_projection(owner_profile_id="profile-a", session_id=session.session_id,
+            state="paused", media_identity=prior["uri"], title=prior["name"])
+        catalog, status = await request("GET", "/api/djconnect/v1/session/active")
+        assert status == 200 and catalog["session_start_actions"]["available"] and catalog["first_play_action"]["available"]
+        offered, status = await submit(session, "paused-startup-dna-offer")
+        assert status == 200 and offered["first_play"]["state"] == "genres" and not state["effects"], offered
+        played_paused, status = await submit(session, "paused-startup-explicit-genre", choice=offered["result_set"]["items"][1])
+        assert status == 200 and played_paused["action_outcome"]["readback_confirmed"]
+        assert len(state["effects"]) == 1 and state["effects"][0]["kind"] == "play"
+        cases["actual_paused_current_track_offers_dna_and_only_explicit_genre_starts_new_context"] = "PASS"
+        session = await fresh()
+        await manager.async_update_playback_projection(owner_profile_id="profile-a", session_id=session.session_id,
+            state="playing", media_identity=prior["uri"], title=prior["name"])
+        catalog, status = await request("GET", "/api/djconnect/v1/session/active")
+        assert status == 200 and not catalog["session_start_actions"]["available"]
+        assert not any(item["available"] for item in catalog["session_start_actions"]["items"])
+        await manager.async_update_playback_projection(owner_profile_id="profile-a", session_id=session.session_id, state="idle")
+        catalog, status = await request("GET", "/api/djconnect/v1/session/active")
+        assert status == 200 and not catalog["session_start_actions"]["available"] and not state["effects"]
+        cases["actual_playing_hides_both_start_choices_and_later_silence_never_reopens"] = "PASS"
+        session = await fresh()
+        offered, status = await submit(session, "navigation-not-play-authority")
+        assert status == 200 and offered["first_play"]["state"] == "genres", offered
+        denied_nav, status = await request("POST", "/api/djconnect/v1/ask_dj/message", {
+            "client_message_id": "forged-navigation-as-music", "text": "Selecteer playlist", "audio_response": "never",
+            "conversation_context": {"session_id": session.session_id},
+            "choice_action": {"result_set_id": offered["result_set"]["result_set_id"],
+                "action_id": "session_start_playlists", "operation": "select"}})
+        assert status in {400, 409} and not state["effects"], denied_nav
+        cases["playlist_navigation_catalogue_id_cannot_be_executed_as_a_genre_play_grant"] = "PASS"
+        session = await fresh()
+        await install_dna(enabled=False)
+        catalog, status = await request("GET", "/api/djconnect/v1/session/active")
+        assert status == 200 and catalog["session_start_actions"]["available"]
+        assert not catalog["first_play_action"]["available"] and catalog["session_start_actions"]["items"][1]["available"]
+        denied, status = await submit(session, "dna-disabled-no-fallback")
+        assert status == 200 and denied["first_play"]["reason"] == "music_dna_unavailable", denied
+        assert not state["effects"] and not any("/search" in x for x in state["reads"])
+        cases["disabled_loaded_owned_dna_never_falls_back_to_mood_and_playlist_navigation_stays"] = "PASS"
+        await install_dna(owner="other-profile")
+        denied, status = await submit(session, "dna-other-profile-no-fallback")
+        assert status == 200 and denied["first_play"]["reason"] == "music_dna_unavailable"
+        cases["other_profile_dna_never_substitutes_original_owner"] = "PASS"
+        dna = await install_dna()
+        result, status = await submit(session, "dna-original-offer")
+        assert status == 200 and result["first_play"]["schema_version"] == 2
+        row = dna.data["memories"]["profile:profile-a"]
+        generation = row["generation"]
+        row["favorite_genres"] = ["jazz", "ambient", "funk"]
+        row["favorite_genres"] = list(dna_genres)
+        assert row["generation"] == generation
+        denied, status = await submit(session, "dna-aba-old-genre", choice=result["result_set"]["items"][0])
+        assert status == 409 and not state["effects"], denied
+        cases["same_generation_dna_publication_aba_retires_original_opaque_choice_before_effect"] = "PASS"
+        session = await fresh()
+        await install_dna()
+        state["legacy_mode"] = True
+        result, status = await request("POST", "/api/djconnect/v1/command", {"command": "play_uris", "value": ["spotify:track:"+"A"*22]})
+        assert status >= 400 or result.get("success") is False, result
+        assert len(state["effects"]) == 1, result
+        assert manager.current_active("profile-a").broadcast.first_play_state == "closed"
+        assert not manager.current_active("profile-a").broadcast.first_play_observed
+        cases["real_paired_legacy_spotify_play_lost_ack_retires_original_startup_before_wire"] = "PASS"
+        session = await fresh()
+        state.update(legacy_mode=True, replacement_control=True, replace_on_token=True)
+        result, status = await request("POST", "/api/djconnect/v1/command", {"command": "play_uris", "value": ["spotify:track:"+"A"*22]})
+        assert status >= 400 or result.get("success") is False, result
+        assert len(state["effects"]) == 1, result
+        assert manager.current_active("profile-a").session_id != session.session_id
+        assert manager.current_active("profile-a").broadcast.first_play_state == "ready"
+        cases["legacy_adapter_original_session_never_rebinds_to_replacement_after_oauth_await"] = "PASS"
     return {"qualification": "ACTUAL_ISOLATED_HA_PAIRED_HTTP_STORE_FIRST_PLAY_SYNTHETIC_PROVIDER_ONLY",
         "cases": cases, "examples": examples, "model_provider_calls": 0, "real_provider_calls": 0,
-        "native_installed_acceptance": "NOT_RUN", "paid_or_DNA_dependency": False,
+        "native_installed_acceptance": "NOT_RUN", "paid_dependency": False, "music_dna_dependency": "ACTUAL_LOADED_OWNER_PROFILE_WITH_SYNTHETIC_PERSISTED_TASTE_AND_CONSENT",
         "harness_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
 
 

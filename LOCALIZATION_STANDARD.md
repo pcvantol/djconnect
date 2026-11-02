@@ -1,3 +1,11 @@
+## Music DNA Session startup UI
+
+Both startup choices and the DNA prerequisite message have all five canonical UI
+language families. Selecteer playlist is navigation only. Actual normalized genre
+names remain Music DNA data, not invented translations or measured sound/style.
+No new LLM content or paid-language/catalogue qualification is published by this
+runtime-authored UI contract. See SESSION_START_ACTIONS_DNA_V2.
+
 ## Session first-play control copy — five UI language families
 
 The separately versioned first-play action catalogue provides Core-owned

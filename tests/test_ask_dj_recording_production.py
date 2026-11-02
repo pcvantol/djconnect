@@ -199,6 +199,7 @@ class RecordingProductionTests(unittest.IsolatedAsyncioTestCase):
     async def test_backend_exact_catalogue_read_closes_ambiguous_and_local_data(self):
         from custom_components.djconnect.spotify_backend import SpotifyBackend, SpotifyBackendError
         backend = object.__new__(SpotifyBackend)
+        backend._retire_startup = None  # Constructor-bypassing provider transport fixture.
         valid = {'id': 'A'*22, 'uri': URI, 'type': 'track', 'is_local': False, 'name': 'Paper Windows',
                  'artists': [{'id': AID, 'uri': 'spotify:artist:'+AID, 'type': 'artist', 'name': 'Example Band'}]}
         current = valid

@@ -34,6 +34,26 @@ PENDING_FOLLOWUP_TTL_SECONDS = 10 * 60
 SECRET_KEY_FRAGMENTS = ("token", "password", "secret", "authorization")
 
 
+class _LoadedGenreSeeds:
+    """An original local read snapshot, never a transport/playback grant."""
+
+    def __init__(self, manager, owner, signature):
+        self.manager, self.owner, self.signature = manager, owner, signature
+        self.withdrawn = False
+
+    @property
+    def genres(self):
+        return self.signature[-1]
+
+    def valid(self):
+        current = self.manager._loaded_genre_signature(self.owner)
+        if (self.withdrawn or current is None
+                or any(a is not b for a, b in zip(self.signature[:6], current[:6]))
+                or self.signature[6:] != current[6:]):
+            self.withdrawn = True
+        return not self.withdrawn
+
+
 class MusicDNAManager:
     """Manage compact server-side Music DNA for Ask DJ."""
 
@@ -41,6 +61,8 @@ class MusicDNAManager:
         self.hass = hass
         self._store = store if store is not None else self._create_store(hass)
         self._loaded = False
+        self._genre_safety_epoch = 0
+        self._genre_save_failed = False
         self._save_lock = asyncio.Lock()
         self._data: dict[str, Any] = {"version": STORE_VERSION, "memories": {}}
         self._session: dict[str, deque[dict[str, Any]]] = defaultdict(
@@ -51,6 +73,45 @@ class MusicDNAManager:
     def data(self) -> dict[str, Any]:
         """Return the in-memory persistent data cache."""
         return self._data
+
+    def loaded_genre_seed_snapshot(self, profile_id: str):
+        """Read three already-loaded Profile genres without loading or writing."""
+        signature = self._loaded_genre_signature(profile_id)
+        return _LoadedGenreSeeds(self, profile_id, signature) if signature else None
+
+    def _loaded_genre_signature(self, profile_id):
+        if (not self._loaded or self._genre_save_failed or self._save_lock.locked()
+                or not isinstance(profile_id, str) or not profile_id):
+            return None
+        memories = self._data.get("memories")
+        row = memories.get(f"profile:{profile_id}") if isinstance(memories, dict) else None
+        if not isinstance(row, dict) or row.get("enabled") is not True:
+            return None
+        generation = row.get("generation", 0)
+        if type(generation) is not int or not 0 <= generation <= 2**53-1:
+            return None
+        favorite = row.get("favorite_genres")
+        listening = row.get("listening_profile")
+        inferred = listening.get("inferred_genres") if isinstance(listening, dict) else None
+        genres = []
+        for value in [*(favorite[:20] if isinstance(favorite, list) else []),
+                      *(inferred[:20] if isinstance(inferred, list) else [])]:
+            if (not isinstance(value, str) or len(value) > 128
+                    or any(ord(char) < 32 or ord(char) == 127 for char in value)):
+                continue
+            genre = " ".join(value.casefold().split())
+            if (not 2 <= len(genre) <= 64 or not re.fullmatch(r"[\w &'\-]+", genre)
+                    or genre in genres):
+                continue
+            genres.append(genre)
+            if len(genres) == 3:
+                break
+        if len(genres) != 3:
+            return None
+        # Normal genre publications replace these containers without changing
+        # generation. Their original identities also fence unobserved A-B-A.
+        return (self._data, memories, row, favorite, listening, inferred,
+                generation, self._genre_safety_epoch, tuple(genres))
 
     async def async_load(self) -> dict[str, Any]:
         """Load persistent Music DNA from Home Assistant Store."""
@@ -65,19 +126,25 @@ class MusicDNAManager:
 
     async def async_save(self) -> None:
         """Persist compact Music DNA."""
-        await self.async_load()
-        if self._store is not None:
-            async with self._save_lock:
-                save = asyncio.create_task(self._store.async_save(_compact_store_data(self._data)))
-                cancelled = False
-                while not save.done():
-                    try:
-                        await asyncio.shield(save)
-                    except asyncio.CancelledError:
-                        cancelled = True
-                await save
-                if cancelled:
-                    raise asyncio.CancelledError
+        try:
+            await self.async_load()
+            if self._store is not None:
+                async with self._save_lock:
+                    save = asyncio.create_task(self._store.async_save(_compact_store_data(self._data)))
+                    cancelled = False
+                    while not save.done():
+                        try:
+                            await asyncio.shield(save)
+                        except asyncio.CancelledError:
+                            cancelled = True
+                    await save
+                    if cancelled:
+                        raise asyncio.CancelledError
+        except BaseException:
+            self._genre_safety_epoch += 1
+            self._genre_save_failed = True
+            raise
+        self._genre_save_failed = False
 
     async def async_clear(self, music_dna_key: str | None = None) -> None:
         """Clear all memory or one resolved memory key."""

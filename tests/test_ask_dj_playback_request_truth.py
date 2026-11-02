@@ -84,6 +84,7 @@ class PlaybackRequestTruthTests(unittest.IsolatedAsyncioTestCase):
         b = object.__new__(self.backend_module.SpotifyBackend)
         b.runtime = SimpleNamespace(config={"spotify_market": "NL"}, backend_cache={})
         b.hass, b.session = object(), Session()
+        b._retire_startup = None  # This transport fixture has no Session manager.
 
         async def token(**kwargs):
             return "FIXTURE_ONLY"
@@ -656,5 +657,28 @@ class PlaybackRequestTruthTests(unittest.IsolatedAsyncioTestCase):
                 self.assertTrue(response["images"])
                 self.assertFalse(any("Guns" in str(i) for i in response["images"]))
                 self.assertTrue(response["conversation"]["metrics"]["agent_calls"] <= 3)
+        finally:
+            await f.asyncTearDown()
+
+    async def test_scoped_backend_failure_is_closed_json_without_rebinding_or_private_cache(self):
+        from custom_components.djconnect.domain.storage import ProfileStorageValidationError
+        f = dialogue_tests.SharedDialogueTest()
+        await f.asyncSetUp()
+        try:
+            f.runtime.last_playback = {"title": "synthetic-private-cache-must-not-be-disclosed"}
+            f.runtime.update = lambda **values: f.runtime.__dict__.update(values)
+            for command in ("play_uris", "playlists"):
+                with patch.object(f.handlers, "_backend_unavailable_payload",
+                                  side_effect=ProfileStorageValidationError("profile_connection_unavailable")):
+                    result, status = f.handlers._unexpected_backend_error_result(
+                        f.hass, f.runtime, {}, command, command,
+                        self.backend_module.SpotifyBackendError("synthetic_lost_acknowledgement"))
+                self.assertEqual(status, 200)
+                self.assertFalse(result["success"])
+                self.assertFalse(result["backend_available"])
+                self.assertEqual(result["error"], "backend_unavailable")
+                self.assertNotIn("synthetic-private-cache", json.dumps(result))
+                if command == "playlists":
+                    self.assertEqual(result["playlists"], [])
         finally:
             await f.asyncTearDown()

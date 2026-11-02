@@ -218,6 +218,7 @@ class DialogueTurn:
     music_steering_offer: dict | None = None
     first_play_admission: Any = None  # Original RAM-only first-play owner, never caller data.
     first_play_request: bool = False  # Local control reply; no narration/TTS dependency.
+    retire_startup_after_play: Any = None  # Original server Session, negative-only fence.
     provider_display_source: dict | None = None  # Original archive binding, never model input.
     reply_source_context: dict | None = None
     reply_source_authority: Any = None
@@ -344,6 +345,9 @@ async def guard_effect_dispatch(*, method=None, path=None, body=None, service=No
         # Last synchronous handoff after the shared durable effect reservation.
         # A second adapter dispatch (including a 401 retry) cannot reuse it.
         turn.first_play_admission.before_dispatch(family, tuple(media), output_id)
+    if (turn is not None and callable(turn.retire_startup_after_play)
+            and (family == "play" or (family == "output" and isinstance(body, dict) and body.get("play") is True))):
+        turn.retire_startup_after_play()
 
 
 class DialogueState:

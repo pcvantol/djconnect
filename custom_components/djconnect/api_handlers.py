@@ -351,9 +351,10 @@ async def async_handle_session_start_payload(
             raise PermissionError("session_result_withdrawn")
     from .transport_delivery import register_delivery_admission
     register_delivery_admission(delivery_guard)
-    from .mood_music_steering import first_play_catalogue
+    from .mood_music_steering import first_play_catalogue, session_start_catalogue
     return {"success": True, "session": (active or session).as_dict(),
-            "first_play_action": first_play_catalogue(hass, runtime, context.profile_id, active or session)}, 201
+            "first_play_action": first_play_catalogue(hass, runtime, context.profile_id, active or session),
+            "session_start_actions": session_start_catalogue(hass, runtime, context.profile_id, active or session)}, 201
 
 
 async def _async_generate_initial_session_moment(
@@ -490,9 +491,10 @@ async def async_handle_active_session_payload(
     if error is not None:
         return error, int(status or 400)
     session = await session_runtime_manager(hass).async_get_active(context.profile_id)
-    from .mood_music_steering import first_play_catalogue
+    from .mood_music_steering import first_play_catalogue, session_start_catalogue
     return {"success": True, "session": session.as_dict() if session else None,
-            "first_play_action": first_play_catalogue(hass, _runtime, context.profile_id, session)}, 200
+            "first_play_action": first_play_catalogue(hass, _runtime, context.profile_id, session),
+            "session_start_actions": session_start_catalogue(hass, _runtime, context.profile_id, session)}, 200
 
 
 async def _async_owner_broadcast_session_context(
@@ -1214,6 +1216,7 @@ def _unexpected_backend_error_result(
 ) -> tuple[dict[str, Any], int]:
     """Map expected and unexpected backend exceptions to legacy responses."""
     from .spotify_backend import SpotifyOutputError
+    from .domain.storage import ProfileStorageValidationError
     if isinstance(exc, SpotifyOutputError):
         from .playback_request import failure
         from .ask_dj import _response_language
@@ -1227,7 +1230,16 @@ def _unexpected_backend_error_result(
     _LOGGER.warning("DJConnect backend command failed: %s", _safe_backend_error_message(exc))
     runtime.update(last_error=_safe_backend_error_message(exc))
     runtime.device_status["backend_available"] = False
-    result = _backend_unavailable_payload(command, runtime, exc)
+    try:
+        result = _backend_unavailable_payload(command, runtime, exc)
+    except ProfileStorageValidationError:
+        # The legacy metadata helper has no HA owner context. A scoped provider
+        # must not rebind or disclose its cached playback while composing an
+        # error; return the established closed JSON shape instead of another500.
+        result = {**_error_payload("backend_unavailable"), "backend_available": False, "playback": {}}
+        if normalized_command == "playlists":
+            result.update(playlists=[], items=[], data={"playlists": [], "items": []},
+                          result={"playlists": [], "items": []}, count=0)
     return _backend_error_result(
         runtime, data, command, normalized_command, result, 200, backend_exception=exc
     )

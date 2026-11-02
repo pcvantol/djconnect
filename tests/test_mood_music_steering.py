@@ -389,6 +389,7 @@ class MoodMusicSteeringTests(unittest.IsolatedAsyncioTestCase):
             return {'success':True,'tracks':[{'uri':uri,'name':'Private exact catalog choice',
                 'artist':'Catalog performer'}]}
         backend=object.__new__(SpotifyBackend)
+        backend._retire_startup = None  # Constructor-bypassing provider transport fixture.
         backend.hass,backend.runtime=f.hass,f.runtime
         async def token(**kwargs):
             return 'SYNTHETIC_FIXTURE_TOKEN'
