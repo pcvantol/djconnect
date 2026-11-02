@@ -273,21 +273,32 @@ def _capture_observer(hass, observed):
             expected_source=dict(original),
         )
         command = observed.command_revision
+        active = admission.manager.current_active(admission.owner)
+        axes = _confirmed_visual_axes(active, admission.broadcast)
+        _need(axes is not None)
+        withdrawn = False
 
         def scope_allowed():
             return admission.authorized() and source_allowed()
 
         def allowed():
+            nonlocal withdrawn
+            if withdrawn:
+                return False
             try:
                 current = admission.manager.current_active(admission.owner)
-                return (
+                valid = (
                     scope_allowed()
                     and observed.command_revision == command
                     and current is not None
-                    and str(current.selected_mood) == admission.mood
+                    and _confirmed_visual_axes(current, admission.broadcast) == axes
                 )
             except Exception:
-                return False
+                valid = False
+            # Keep the original lease withdrawn even if a later poll replaces
+            # the Observation guard or a conflicting value returns to A.
+            withdrawn = not valid
+            return valid
 
         _need(allowed())
         return Admission(
@@ -306,6 +317,26 @@ def _capture_observer(hass, observed):
     except VisualDirectorError:
         item.withdraw(observed.visual_source)
         return None
+
+
+def _confirmed_visual_axes(active, broadcast):
+    """Read existing confirmed Runtime/Broadcast axes, without any defaults."""
+    if active is None or active.broadcast is not broadcast:
+        return None
+    persona = getattr(active.dj_persona, "value", None)
+    axes = (persona, active.persona_revision, active.selected_mood, active.mood_revision)
+    if (type(persona) is not str or persona not in {"home_dj", "radio_dj", "club_dj", "festival_dj"}
+            or type(active.selected_mood) is not str
+            or active.selected_mood not in {"chill", "groove", "energy", "party"}
+            or any(type(value) is not int or not 0 <= value <= 9007199254740991
+                   for value in (active.persona_revision, active.mood_revision))):
+        return None
+    state = broadcast.state
+    broadcast_axes = (state.dj_persona, state.persona_revision, state.selected_mood, state.mood_revision)
+    if any(type(left) is not type(right) or left != right
+           for left, right in zip(axes, broadcast_axes)):
+        return None
+    return axes
 
 
 def _accept_observation(hass, observed, result, admission):

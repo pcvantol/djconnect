@@ -1,3 +1,7 @@
+# Current four-world compatibility
+
+See [confirmed context and settings fence v1](VIBESCAPE_FOUR_WORLD_CONTEXT_V1.md). The original closed visual wire remains v1; the additive settings-fence capability is explicitly versioned separately. Historical verification scopes below remain their own evidence.
+
 # VibeScape Visual Director v1
 
 Core owns bounded visual interpretation and admission. The native Apple client

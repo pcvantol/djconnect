@@ -2,7 +2,7 @@
   "classification": "ACTUAL_HA_ADMIN_PREPARATION_ONLY_NOT_CUSTODY_OR_PUSH",
   "harness": "scripts/verification/verify_installation_management_ha.py",
   "harness_sha256": "8df270f8df4b9a5bb09bd5601de583c90ab0ed5112a65f3bd37498c7ab7e36c5",
-  "original_receipt_sha256": "5ab52648d3505bcee7398940d10cc7116cf3a8f993219dd27082a6dd06b11e2f",
+  "original_receipt_sha256": "7e180e7852f91f213552110d4a1251d17b201c73400e6b871e2e132e9b5fc6c6",
   "original_receipt": {
     "classification": "ACTUAL_ISOLATED_HA_ADMIN_PREPARATION_TESTS_ONLY",
     "source_sha256": {
@@ -57,7 +57,7 @@
       "custom_components/djconnect/bulletin_service.py": "1d487d0cb3d8d4d45930365ea9a1b0b8cd4cee5dc0ead8e82878c1a0f5d69ccb",
       "custom_components/djconnect/bulletin_source_policy.py": "a1fb7ecb6babb256fbe74b3f14be7cace712fb042d21c028bf43fc3f396c9202",
       "custom_components/djconnect/button.py": "aa1c3290c4369d99ecf6fc88f865e65e02d438d7e3b0a399621a5791062ba9bc",
-      "custom_components/djconnect/capability_contract.py": "16714b41187a583e0583a5961d1e8da32bdab6c97c524eff0d35065c16a05457",
+      "custom_components/djconnect/capability_contract.py": "e5185362b023c55016829225881a2dace93962e59123d15438cb9503790d8100",
       "custom_components/djconnect/central_api.py": "78cd4645d9fd1979bbc33e500c525bffc23ae45deaeef02b129adb418674b9e6",
       "custom_components/djconnect/ci_qualification_report.py": "a45c358669fea9cfb57a601a109443c722e10d91b067eacbb550a11cd264229b",
       "custom_components/djconnect/client_identity.py": "31543e0cf3ed7aa8322af24d0835c0fecf77974db0d8a07c7908d9deff7588cd",
@@ -300,10 +300,10 @@
       "custom_components/djconnect/vibecast_renderer/renderer.js": "32ed3a41ca025438a636913af6c41f02a66180d713abf7762f4e9b55b7d14303",
       "custom_components/djconnect/vibecast_renderer/style.css": "4565a5bd15d6ededca96e5629a4c35d4ec248feacd1dbe086db012eebc028304",
       "custom_components/djconnect/vibecast_renderer/template.html": "a1b05dd781e4da992a5a1c0633bdcd8c25fdc216d6db1e38465362bb02221d62",
-      "custom_components/djconnect/visual_director.py": "24894213d09baa82cf52e4b613b8b019a61adade4a6f58e607678c15134b4e05",
+      "custom_components/djconnect/visual_director.py": "17eb7db9b903fc4341cb0e881c6935b5d4bd2dccc76dd32d41a715eab73c22ec",
       "custom_components/djconnect/visual_director_catalogue.py": "cf4004a0ec6f4960bfd1f797d656403752574f3f60fc3ca6f7a08ff4926fec84",
       "custom_components/djconnect/visual_director_http.py": "acfd399ea33433fabfbe14dbca7ecb744e4c36c1affd9ff8919545bb25422255",
-      "custom_components/djconnect/visual_director_runtime.py": "93ab79731d71f114d850bfaa7b4a9dad9690885867a80391c0db544dcaecd7ec",
+      "custom_components/djconnect/visual_director_runtime.py": "e2482668c44fefcee65dd658abda37035115d6b36f695747d1bbd83b711e8d85",
       "custom_components/djconnect/voice_preview.py": "ea1edd78efa3843911e39e94b374f1afdbc44f319baeca321000442f6175807b",
       "custom_components/djconnect/voice_profiles.py": "5aba9ae572b92c783686d9ccac3af3b97c2689ca98c10f086ba7ae4cdb2696c9",
       "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
@@ -333,7 +333,7 @@
       {
         "case": "actual normal admin preparation",
         "status": 200,
-        "body_sha256": "be682be3c111bfddecf28c58a40dc3d861daf6c285845b84ccea2a1fb3b8c59e"
+        "body_sha256": "440bc921ad5bdbabc68a7e06f6163ab7ccb214016e41b23b09bca00cf87231da"
       },
       {
         "case": "same original operation not reissued",
@@ -343,7 +343,7 @@
       {
         "case": "same refresh second independent preparation",
         "status": 200,
-        "body_sha256": "ddbe166154b99134bdbde04e918df8e06ab85b950110b20bf1f26428920cb046"
+        "body_sha256": "b9a523c65323669b2338da99ac4ac82d15cfbda771c4effcacfbe25a95b87e64"
       },
       {
         "case": "actual synchronous refresh revoke fence",
@@ -352,7 +352,7 @@
       {
         "case": "prepare before admin ABA",
         "status": 200,
-        "body_sha256": "0951e4dedee050af65eb0a0900794ab4ccb88eb25238ff6ca5ef31683f0ab3c2"
+        "body_sha256": "3845de6323ef0b2ef4e06bc24cda8cc1244e0d171ebde81ddb433e3d2b3dd3f4"
       },
       {
         "case": "actual HA admin removal/readd ABA remains retired",
@@ -401,7 +401,7 @@
       {
         "case": "prepare before configuration",
         "status": 200,
-        "body_sha256": "2bb22bf5c376977e8800a574c33dfeac22dc95ad8ac085b74a45b1e92e1c3cce"
+        "body_sha256": "fbeb3889784ba1a61bf2689d9c4771dc450fbe29c591c3d0a3de382a4e042b00"
       },
       {
         "case": "selected configuration rejects and remains retired after restore",
@@ -410,7 +410,7 @@
       {
         "case": "prepare before runtime",
         "status": 200,
-        "body_sha256": "408ac820c143723819e947faa58a26ff4954f59d0d461b50a690a192a8f43b5c"
+        "body_sha256": "ef5f8598cf445aa0b3e838cdb9c0f2a8326f3671114e17551261118b25949d96"
       },
       {
         "case": "selected runtime rejects and remains retired after restore",
@@ -419,7 +419,7 @@
       {
         "case": "prepare before entry_state",
         "status": 200,
-        "body_sha256": "5b0283d824831f21f3a8dbb33253a88ee591591d92229f9837f2f59272e197e2"
+        "body_sha256": "121d895ad21cf66ad1be805f9681bb5ce6b54d4d800335fb8fb14c457b3621e1"
       },
       {
         "case": "selected entry_state rejects and remains retired after restore",
@@ -436,7 +436,7 @@
       {
         "case": "prepare before HA config ABA",
         "status": 200,
-        "body_sha256": "13a2262cf240ede6104b3f6f30256dcd41ba00cf20117605c69b3348d9db49d1"
+        "body_sha256": "6ad0fc9ac4db9e046895c73b7a4ef486d348766131210ac4bd3fdc352d686c8b"
       },
       {
         "case": "actual HA public configuration ABA cannot restore original mapping identity",
@@ -445,7 +445,7 @@
       {
         "case": "prepare before real temporary entry flow",
         "status": 200,
-        "body_sha256": "1c6c9f2fc8107f64f74023355897a924e020c49d3459bdcc49cc9b185b513685"
+        "body_sha256": "2b5736f7a09d3a6075e585be54da8ce570dea7b85dcde58b1c4cfb490c3eb81e"
       },
       {
         "case": "real OptionsFlow failed temporary entry ABA retires pending and prepared management",
@@ -454,12 +454,12 @@
       {
         "case": "prepare before runtime setter A",
         "status": 200,
-        "body_sha256": "583f051e4a5d3e8ab697a9158aea05f2553e98cae4d35fca6be4234447599e7a"
+        "body_sha256": "75617be5e3deb4e15cf8edcbc17fef9806df078651609f9fd2f405b9fa68f2cd"
       },
       {
         "case": "prepare before runtime setter B",
         "status": 200,
-        "body_sha256": "251e5bfa1f5445ccf78f1e84dc38e81f981e13f9a46e706bf2943d5a5586131e"
+        "body_sha256": "daa5639f8993a2de0fa4119724bcd493e65426680322607d8c80f2fe7c85f57b"
       },
       {
         "case": "runtime setter ABA retires all siblings despite cleanup failure",
@@ -468,7 +468,7 @@
       {
         "case": "fixed original local clock",
         "status": 200,
-        "body_sha256": "a33737af0f576a729b41c8f4890d7cbe376ffd54807c163c5b5f5ce05a8be3e4"
+        "body_sha256": "d325c97c967cb5bea136aabbfe2a1b061d628381b219a621d728babc9dd28925"
       },
       {
         "case": "exact original wall and mono expiry closes",
@@ -498,11 +498,11 @@
   "provider_activation": "NOT_RUN",
   "current_source_requalification": {
     "classification": "ACTUAL_ISOLATED_HA_SOURCE_ONLY_NOT_INSTALLED_OR_NATIVE",
-    "at": "2026-11-02T15:42:59.106713+00:00",
+    "at": "2026-11-02T16:39:05.124247+00:00",
     "product_files": 302,
-    "original_raw_sha256": "5ab52648d3505bcee7398940d10cc7116cf3a8f993219dd27082a6dd06b11e2f",
-    "original_admission_sha256": "cd0daa63c1bd340188ab342cfefdfd0b200381a17af1777afe7925a9ce68ee4b",
-    "original_result_sha256": "fd38c61cc3101c56c10f9e86e323af34f0d343c1657a3d189ce793900cbbafb4",
+    "original_raw_sha256": "7e180e7852f91f213552110d4a1251d17b201c73400e6b871e2e132e9b5fc6c6",
+    "original_admission_sha256": "b3e3540a075f078e2b04bf7b2e2fbbe3a7e883a5e76f794a6c471cf983290bc3",
+    "original_result_sha256": "94fa1410579f07bedb391e321b0d748bc0c33da522f93864e8530ba0a288bf5e",
     "all302_before_inside_after_equal": true,
     "own_container_verified_absent": true,
     "this_group_exit": 0
