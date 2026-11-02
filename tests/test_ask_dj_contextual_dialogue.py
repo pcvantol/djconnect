@@ -5415,7 +5415,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                     answer,code=await self.request(text,identifier=f'release-{i}-{mode}',context=selection,language=locale)
                     self.assertEqual(code,200,answer)
                     self.assertIn('One',answer['text'])
-                    self.assertIn('1988-08-25',answer['text'],(i,mode,observed.get('playback'),answer.get('release_observation')))
+                    self.assertIn({'nl':'25-08-1988','en':'08/25/1988','de':'25.08.1988','fr':'25/08/1988','es':'25/08/1988'}[locale],answer['text'],(i,mode,observed.get('playback'),answer.get('release_observation')))
+                    self.assertEqual(answer['release_observation']['release_date'],'1988-08-25')
                     self.assertEqual(answer['release_observation']['basis'],'album_edition')
                     self.assertFalse(answer['release_observation']['original_release_verified'])
                     self.assertFalse(answer['history_persisted'])
@@ -5428,6 +5429,38 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertNotIn('2001',answer['text'])
             self.assertEqual(answer['release_observation']['state'],'unknown')
         self.assertTrue(reads)
+        self.assertEqual(self.prompts,[])
+        self.assertEqual(self.effects,[])
+
+    async def test_release_display_follows_app_language_without_changing_source_precision(self):
+        metadata={'uri':'spotify:track:'+'A'*22,'title':'Promise','artist':'Synthetic performer'}
+        async def status(*args,**kwargs):
+            self.assertEqual(args[2],'status')
+            return {'success':True,'playback':dict(metadata)}
+        formats=[('nl-NL','20-12-2024','12-2024'),('en-US','12/20/2024','12/2024'),
+                 ('de-DE','20.12.2024','12.2024'),('fr-FR','20/12/2024','12/2024'),
+                 ('es-ES','20/12/2024','12/2024')]
+        with patch.object(self.core,'run_music_command',status):
+            for locale,day,month in formats:
+                for precision,raw,display in [('day','2024-12-20',day),('month','2024-12',month),
+                                              ('year','2024','2024')]:
+                    with self.subTest(locale=locale,precision=precision):
+                        metadata.update(release_date=raw,release_date_precision=precision)
+                        answer,code=await self.request('When was the current song released?',
+                            identifier=f'release-localized-{locale}-{precision}',language=locale)
+                        self.assertEqual(code,200,answer)
+                        self.assertIn(display,answer['text'])
+                        if precision!='year':
+                            self.assertNotIn(raw,answer['text'])
+                        self.assertEqual(answer['release_observation']['release_date'],raw)
+                        self.assertEqual(answer['release_observation']['precision'],precision)
+                        self.assertEqual(answer['conversation']['metrics']['agent_calls'],0)
+            metadata.update(title='Promise 2024-12-20',release_date='2024-12-20',release_date_precision='day')
+            answer,code=await self.request('Wanneer is dit nummer uitgekomen?',
+                identifier='release-localized-title-literal',language='nl')
+            self.assertEqual(code,200,answer)
+            self.assertEqual(answer['text'],
+                'De albumuitgave met Promise 2024-12-20 vermeldt 20-12-2024 als releasedatum.')
         self.assertEqual(self.prompts,[])
         self.assertEqual(self.effects,[])
 

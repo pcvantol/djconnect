@@ -1,3 +1,22 @@
+## 2026-11-02 — Localized album-edition date presentation
+
+Ask DJ release-date sentences use the effective app/request language, normalized
+to the existing five canonical families. Full numeric dates display as follows:
+
+| Language | Example for ISO `2024-12-20` | Month-only `2024-12` |
+| --- | --- | --- |
+| nl | 20-12-2024 | 12-2024 |
+| en | 12/20/2024 | 12/2024 |
+| de | 20.12.2024 | 12.2024 |
+| fr | 20/12/2024 | 12/2024 |
+| es | 20/12/2024 | 12/2024 |
+
+A year-only source remains `2024`. Never invent a missing day or month. Validate
+source date and precision before presentation; retain the original ISO value and
+precision in structured observations. Format only the date slot, not dates that
+happen to occur in artist or work titles. This uses the app language rather than
+the host operating-system locale and adds no provider or model lookup.
+
 ## Scoped textual Help qualification — 26 October2026
 
 Peter explicitly limited the current textual Help qualification/release to

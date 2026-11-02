@@ -381,7 +381,7 @@
   "native": "NOT_RUN",
   "audible": "NOT_RUN",
   "ha_sdk_version": "2026.10.0",
-  "actual_ha_receipt_sha256": "10229d78027ba2acc641f89cb32eed6cd9cb27e8860c846ad05548df8462bfbc",
+  "actual_ha_receipt_sha256": "b5d2062a1b0482b236a918680bfa72f55cec18f71e6ebe5910f7b78dfed15933",
   "requests_observed": 45,
   "source_unchanged": true,
   "source_pins": {
@@ -616,7 +616,7 @@
     "custom_components/djconnect/ask_dj/example_catalogue.py": "1cf64d63736bdf859ee2bb11323830c983412db41a1f198941532d9e885b6cc7",
     "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
     "custom_components/djconnect/ask_dj/example_catalogue_data.py": "2686951e64ee5cff59f5e188f753165def71eb4d244574bb2e07cf3a3a4fe85f",
-    "custom_components/djconnect/ask_dj/observations.py": "ef788fa96d23f124fdb66f4af766831110b7224b3738d884ff8c47550aef54fd",
+    "custom_components/djconnect/ask_dj/observations.py": "68632c101f1e5727200e0941c2ba79c81ae1666f7c3af1befc681c4880dd9150",
     "custom_components/djconnect/ask_dj/exploration.py": "9b1333b6d2ddf37ef6a5baee4423e1161a7a1dba50b909224f470783c862d4be",
     "custom_components/djconnect/ask_dj/examples_v1.json": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
     "custom_components/djconnect/ask_dj/public_research.py": "0a405b2c9d095b67a42a8aa29bed5313a14b0aa3c18cd374dde5545a8329a471",
@@ -691,11 +691,11 @@
   "harness": "scripts/verification/verify_history_playback_reply_artwork_http.py",
   "current_source_requalification": {
     "classification": "ACTUAL_ISOLATED_HA_SOURCE_ONLY_NOT_INSTALLED_OR_NATIVE",
-    "at": "2026-11-01T21:34:13.725506+00:00",
+    "at": "2026-11-02T09:30:39.080911+00:00",
     "product_files": 302,
-    "original_raw_sha256": "10229d78027ba2acc641f89cb32eed6cd9cb27e8860c846ad05548df8462bfbc",
-    "original_admission_sha256": "155119a807b438691425e3ca49d91c3d48e5a6bae92b3cb38e0a7141788f996f",
-    "original_result_sha256": "dd5557ef32176eb71d719becb1ca7d2d3de679fbd8c327d2540ca5d44f907b92",
+    "original_raw_sha256": "b5d2062a1b0482b236a918680bfa72f55cec18f71e6ebe5910f7b78dfed15933",
+    "original_admission_sha256": "15ef4d0055ee3fda18b6e94da8c8a109a529206902ef4fc0136b5239428ef63e",
+    "original_result_sha256": "4d681ca37d49ed15b47e11ff8daea0b260615e4588a4b8f9a2c4f1893400ade3",
     "all302_before_inside_after_equal": true,
     "own_container_verified_absent": true,
     "this_group_exit": 0

@@ -1,3 +1,13 @@
+## 2026-11-02 — Ask DJ release-date localization source
+
+Prepared [date-presentation correction](docs/verification/ASK_DJ_RELEASE_DATE_LOCALIZATION_20261102.md):
+release-date sentences now use the effective app language (Dutch `20-12-2024`),
+with original ISO metadata and partial-date precision preserved. Five-language,
+current/selected recording, title-literal and race/expiry regressions pass.
+Source review/protected delivery/separate Final and runtime installation are
+separate gates; this preparation is not an installed/native acceptance claim.
+Existing Pi producer handoff, API/Apple work and all24/nine open gates remain.
+
 ## 2026-11-02 — Protected rc.7 producer Source1417 qualified
 
 Core Source [#1417](https://github.com/pcvantol/djconnect/pull/1417) is protected
