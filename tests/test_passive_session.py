@@ -461,6 +461,7 @@ class ResearchedPassiveProjectionTests(unittest.IsolatedAsyncioTestCase):
         moment = await self.story.publish()
         sources = moment.as_dict()['sources']
         self.assertEqual(researched_sources(moment, time.monotonic()), sources)
+        cc0_index = next(i for i, value in enumerate(sources) if value['provider'] == 'MusicBrainz')
         # Policy-unit negatives over source metadata; original publication and
         # its cryptographic acceptance are independently exercised above.
         for index, field, value in (
@@ -474,9 +475,9 @@ class ResearchedPassiveProjectionTests(unittest.IsolatedAsyncioTestCase):
                 (0, 'untrusted_excerpt', 'Never cache provider prose'),
                 (0, 'expires_at', '2000-01-01T00:00:00+00:00'),
                 (0, 'expires_at', '2099-01-01T00:00:00'),
-                (2, 'provider', 'Public Web'),
-                (2, 'license', 'Unknown'),
-                (2, 'url', 'https://musicbrainz.org/artist/'+'-'*36)):
+                (cc0_index, 'provider', 'Public Web'),
+                (cc0_index, 'license', 'Unknown'),
+                (cc0_index, 'url', 'https://musicbrainz.org/artist/'+'-'*36)):
             with self.subTest(field=field, value=value):
                 altered = deepcopy(sources)
                 altered[index][field] = value

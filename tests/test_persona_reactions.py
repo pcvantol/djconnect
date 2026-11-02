@@ -287,14 +287,21 @@ class PersonaReactionTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_observer_original_deadline_has_real_expiry_no_read_renewal(self):
         stack, _, _, calls, _ = self.provider()
-        with stack, patch.object(self.react, 'MAX_SECONDS', .15):
+        # Exercise real timer expiry after successful admission. A 150ms total
+        # fixture lease can expire during settings/journal I/O on loaded CI,
+        # before this observer exists; that pending-expiry path has its own test.
+        # Product MAX_SECONDS and its original-deadline guards remain unchanged.
+        with stack, patch.object(self.react, 'MAX_SECONDS', 2):
             await self.start()
-            delivered, _ = await self.execute()
+            delivered, status = await self.execute()
+            self.assertEqual(status, 200, delivered)
+            self.assertIn('persona_reaction', delivered)
             frames = []
             observation = await self.observe(delivered, frames=frames)
             try:
                 deadline = observation.snapshot()['expires_at']
-                await asyncio.wait_for(observation.lease.cancelled.wait(), 1)
+                self.assertEqual(deadline, delivered['persona_reaction']['expires_at'])
+                await asyncio.wait_for(observation.lease.cancelled.wait(), 3)
                 self.assertEqual(len(frames), 1)
                 self.assertEqual(observation.snapshot()['state'], 'withdrawn')
                 self.assertEqual(observation.snapshot()['expires_at'], deadline)

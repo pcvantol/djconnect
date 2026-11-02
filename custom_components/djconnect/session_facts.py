@@ -650,6 +650,55 @@ def catalog_facts(catalog: dict[str, Any]) -> list[QualifiedSessionFact]:
     return [fact]
 
 
+async def public_artist_identity(get, artist: str, spotify_id: str):
+    """Exact provider URL and reciprocal public artist; no recording assertion.
+
+    The caller supplies its existing guarded request owner/deadline. Catalogue
+    names/IDs select the lookup locally; they are not model evidence.
+    """
+    if (not isinstance(spotify_id, str) or not re.fullmatch(r"[A-Za-z0-9]{22}", spotify_id)
+            or not label(artist, 160)):
+        return None
+    resource = "https://open.spotify.com/artist/" + spotify_id
+    data = await get("url", {"resource": resource, "inc": "artist-rels", "fmt": "json"})
+    if data.get("resource") != resource or not isinstance(data.get("relations"), list):
+        return None
+    actors = [r.get("artist") for r in data["relations"] if isinstance(r, dict)
+              and r.get("target-type") == "artist" and isinstance(r.get("artist"), dict)]
+    ids = {a.get("id") for a in actors if isinstance(a.get("id"), str)}
+    if (not actors or len(ids) != 1 or len(actors) != sum(isinstance(a.get("id"), str) for a in actors)
+            or not MBID.fullmatch(next(iter(ids)))):
+        return None
+    mbid = next(iter(ids))
+    person = await get("artist/" + mbid, {"fmt": "json", "inc": "url-rels"})
+    relations = person.get("relations", [])
+    if not isinstance(relations, list):
+        return None
+    qids = {m[1] for r in relations if isinstance(r, dict) and r.get("type") == "wikidata"
+            and isinstance(r.get("url"), dict) and not r.get("ended")
+            and (m := re.fullmatch(r"https?://www\.wikidata\.org/wiki/(Q[1-9][0-9]*)",
+                                  str(r["url"].get("resource") or "")))}
+    links = {r["url"].get("resource") for r in relations if isinstance(r, dict)
+             and r.get("type") in {"streaming", "free streaming"} and not r.get("ended")
+             and isinstance(r.get("url"), dict)}
+    if (person.get("id") != mbid or match_name(person.get("name")) != match_name(artist)
+            or person.get("type") not in {"Person", "Group"} or resource not in links or len(qids) != 1):
+        return None
+    qid = next(iter(qids))
+    entity = (await get("", {"action": "wbgetentities", "ids": qid,
+        "props": "labels|descriptions|claims", "languages": "|".join(LANGUAGES),
+        "format": "json", "maxlag": "5"}, wikidata=True)).get("entities", {}).get(qid, {})
+    reciprocal = {c.get("mainsnak", {}).get("datavalue", {}).get("value")
+                  for c in entity.get("claims", {}).get("P434", [])
+                  if isinstance(c, dict) and c.get("rank") != "deprecated"}
+    provider = {c.get("mainsnak", {}).get("datavalue", {}).get("value")
+                for c in entity.get("claims", {}).get("P1902", [])
+                if isinstance(c, dict) and c.get("rank") != "deprecated"}
+    if entity.get("id") != qid or reciprocal != {mbid} or (provider and provider != {spotify_id}):
+        return None
+    return person, entity, qid
+
+
 class SessionFactsResolver:
     """One HA-wide rate limiter, no persistent cache or personal source query."""
 
@@ -746,29 +795,48 @@ class SessionFactsResolver:
             label(catalog.get("artist")),
         )
         isrc = str(catalog.get("isrc") or "").upper()
-        if (
-            not re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}", uri)
-            or not title
-            or not artist
-            or not re.fullmatch(r"[A-Z]{2}[A-Z0-9]{3}\d{7}", isrc)
-        ):
+        if not re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}", uri) or not title or not artist:
             return tuple(facts)
+        # Capture the local lookup selection before any source await. It may
+        # qualify this artist only, never the observed recording or its work.
+        artist_ids = catalog.get("artist_ids")
+        artist_id = (artist_ids[0] if isinstance(artist_ids, (list, tuple))
+                     and len(artist_ids) == 1 and isinstance(artist_ids[0], str) else "")
+        original_catalog = dict(catalog)
+        original_catalog["artist_ids"] = [artist_id] if artist_id else []
+        async def artist_only():
+            if credits_only:
+                return tuple(facts)
+            identity = await public_artist_identity(get, artist, artist_id)
+            if identity is None:
+                return tuple(facts)
+            person, entity, qid = identity
+            artist_context = artist_facts(original_catalog, person)
+            description = description_fact(original_catalog, entity, qid, person=person)
+            if description is not None:
+                artist_context.append(description)
+            image = qualified_artist_image_identity(original_catalog, person, entity, qid)
+            return tuple((*facts, *(replace(f, public_artist_qid=qid,
+                artwork_artist_identity=image) for f in artist_context)))[:6]
+
         async with asyncio.timeout(35):
+            if not re.fullmatch(r"[A-Z]{2}[A-Z0-9]{3}\d{7}", isrc):
+                return await artist_only()
             data = await get("isrc/" + isrc, {"fmt": "json", "inc": "artist-credits"})
             recordings = data.get("recordings") or []
             # An ISRC reused for multiple recordings is ambiguous, even if one title looks close.
             if len(recordings) != 1 or not isinstance(recordings[0], dict):
-                return tuple(facts)
+                return await artist_only()
             recording = recordings[0]
             credit = recording.get("artist-credit") or []
             names = [c.get("artist", {}).get("name") for c in credit if isinstance(c, dict)]
             if match_name(recording.get("title")) != match_name(title) or match_name(
                 ", ".join(str(n) for n in names)
             ) != match_name(artist):
-                return tuple(facts)
+                return await artist_only()
             recording_id = str(recording.get("id") or "")
             if not MBID.fullmatch(recording_id):
-                return tuple(facts)
+                return await artist_only()
             detailed = await get(
                 "recording/" + recording_id,
                 {"fmt": "json", "inc": "artist-credits+artist-rels+work-rels+work-level-rels"},
@@ -776,11 +844,11 @@ class SessionFactsResolver:
             if detailed.get("id") != recording_id or match_name(
                 detailed.get("title")
             ) != match_name(title):
-                return tuple(facts)
+                return await artist_only()
             detailed_names = [c.get("artist", {}).get("name") for c in detailed.get("artist-credit", [])
                               if isinstance(c, dict)]
             if match_name(", ".join(str(n) for n in detailed_names)) != match_name(artist):
-                return tuple(facts)
+                return await artist_only()
             facts.extend(recording_facts(catalog, detailed))
             facts.extend(work_facts(catalog, detailed))
             if credits_only:

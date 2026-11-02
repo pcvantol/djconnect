@@ -138,6 +138,87 @@ class PlaybackObservationTest(unittest.TestCase):
             "analysis": {"summary": "Observed context."},
         }
 
+    def test_catalog_source_denial_prevents_general_insight_and_late_withdrawal_discards_it(self):
+        async def scenario(initially_denied, empty_catalog):
+            session = await self.manager.async_start(owner_profile_id='profile-a', music_backend='spotify_direct')
+            session = await self.manager.async_update_presence(owner_profile_id='profile-a',
+                session_id=session.session_id, selected_presence='presenter')
+            uri = 'spotify:track:'+'A'*22
+            catalog = {'uri': uri, 'title': 'Fixture live recording', 'artist': 'Fixture group'}
+            observed = types.SimpleNamespace(is_playing=True, state='playing', media_identity=uri,
+                title=catalog['title'], artist=catalog['artist'], target_name='', artwork_url='',
+                position_ms=0, duration_ms=300000, catalog={} if empty_catalog else catalog)
+            self.spotify.SpotifyBackend.responses = [observed]
+            if empty_catalog:
+                # With no initial catalogue, stage one intentionally baselines
+                # playback. Exercise the real later changed-recording entrance.
+                self.spotify.SpotifyBackend.responses.insert(0, self._observation('spotify:track:'+'B'*22))
+            available = [not initially_denied]
+            storage = types.SimpleNamespace(authority_revision=1)
+            profile = types.ModuleType(f'{PACKAGE}.profile_context')
+            profile.profile_storage = lambda hass: storage
+            from custom_components.djconnect import forecast_imagery, session_facts
+            source_calls, insight_calls = [], []
+            returned_insights = []
+            process = self.manager.async_process_track_started
+            async def inspect_return(**kwargs):
+                provide = kwargs['insight_provider']
+                async def inspected():
+                    value = await provide()
+                    returned_insights.append(value)
+                    return value
+                return await process(**{**kwargs, 'insight_provider': inspected})
+            entered, release = asyncio.Event(), asyncio.Event()
+            async def resolve(catalog, *, authorize):
+                authorize()
+                source_calls.append('empty_source')
+                return ()
+            async def insight():
+                insight_calls.append('general_insight')
+                entered.set()
+                if not initially_denied:
+                    await release.wait()
+                return await self._insight()
+            with patch.dict(sys.modules, {profile.__name__: profile}), \
+                    patch.object(forecast_imagery, 'artist_authority', return_value=lambda: available[0]), \
+                    patch.object(session_facts, 'session_facts_resolver', return_value=types.SimpleNamespace(resolve=resolve)), \
+                    patch.object(self.manager, 'async_process_track_started', inspect_return):
+                async def observe():
+                    await self.observer.async_start_spotify(
+                        integration_runtime=object(), session=session, insight_provider=insight)
+                    if empty_catalog:
+                        await self.observer._async_poll_spotify(self.observer._spotify_sessions['profile-a'])
+                task = asyncio.create_task(observe())
+                try:
+                    if not initially_denied:
+                        await asyncio.wait_for(entered.wait(), 1)
+                        available[0] = False
+                        release.set()
+                    await asyncio.wait_for(task, 2)
+                finally:
+                    release.set()
+                    if not task.done():
+                        task.cancel()
+                        await asyncio.gather(task, return_exceptions=True)
+            self.assertEqual(insight_calls, [] if initially_denied else ['general_insight'])
+            self.assertEqual(source_calls, [] if initially_denied else ['empty_source'])
+            self.assertTrue(returned_insights)
+            self.assertTrue(all('analysis' not in value for value in returned_insights))
+            active = self.manager.current_active('profile-a')
+            if empty_catalog:
+                # The old no-fact planning entrance may record intentional
+                # Silence. It must contain no returned source text or claim.
+                self.assertTrue(all(m.moment_type is self.runtime.DJMomentType.SILENCE and not m.content
+                                    for m in active.broadcast.state.dj_moments))
+            else:
+                self.assertEqual(active.broadcast.state.dj_moments, ())
+            self.assertEqual(active.presence_ledger.total_published, 0)
+        for initially_denied in (True, False):
+            for empty_catalog in (True, False):
+                with self.subTest(initially_denied=initially_denied, empty_catalog=empty_catalog):
+                    self.setUp()
+                    asyncio.run(scenario(initially_denied, empty_catalog))
+
     def _start(self, strategy=None):
         return asyncio.run(
             self.manager.async_start(
@@ -255,8 +336,9 @@ class PlaybackObservationTest(unittest.TestCase):
             source_valid = [True]
             started, release = asyncio.Event(), asyncio.Event()
 
-            async def resolve(_catalog):
+            async def resolve(_catalog, *, authorize):
                 nonlocal source_calls
+                authorize()
                 source_calls += 1
                 if source_calls == 1 or outcome in {"empty", "later_empty"}:
                     return ()
@@ -267,6 +349,7 @@ class PlaybackObservationTest(unittest.TestCase):
                 if outcome in {"concurrent", "cancel"}:
                     started.set()
                     await release.wait()
+                authorize()
                 if outcome == "expired":
                     from dataclasses import replace
                     return tuple(replace(f, source_expires_at=0) for f in facts)

@@ -969,7 +969,7 @@ async def web_references(fetch, subject, question, locale, *, album=None, angle=
 
 
 async def research(subject, question, locale, guard, *, qualified_music=False, expected_roles=(),
-                   expected_entity_id="", allow_web=True, fetch=None,original_paragraphs=False,artist_introduction=False,story_topic='',research_angle='',lookup_topic=''):
+                   expected_entity_id="", allow_web=True, fetch=None,original_paragraphs=False,artist_introduction=False,story_topic='',research_angle='',lookup_topic='',secondary_language=True):
     """One explicit turn owns source work; caller keeps all owner/Session guards."""
     if (
         not isinstance(subject, str)
@@ -997,7 +997,7 @@ async def research(subject, question, locale, guard, *, qualified_music=False, e
             if source:
                 sources.append(source)
                 state["wikipedia"] = "fetched"
-                if source.language != "en" and source.entity_id:
+                if secondary_language and source.language != "en" and source.entity_id:
                     english = await wikipedia(
                         fetch, subject, question, "en", expected_roles=expected_roles,
                         expected_entity_id=source.entity_id,original_paragraphs=original_paragraphs,

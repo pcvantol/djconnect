@@ -125,13 +125,6 @@ def lookup_subject(fact):
     return fact.display_core.subject, fact.album_artist, fact.album_artist_id
 
 
-def _qid(relations):
-    values = {m[1] for r in relations if isinstance(r, dict) and r.get('type') == 'wikidata'
-        and isinstance(r.get('url'), dict)
-        and (m := re.fullmatch(r'https?://www.wikidata.org/wiki/(Q[1-9][0-9]*)',
-                              str(r['url'].get('resource') or '')))}
-    return next(iter(values)) if len(values) == 1 else None
-
 
 async def public_identity(fetch, fact):
     """Exact artist URL → reciprocal artist → one exact public album/EP.
@@ -143,7 +136,6 @@ async def public_identity(fetch, fact):
     if selected is None:
         return None
     title, artist, spotify_id = selected
-    resource = 'https://open.spotify.com/artist/' + spotify_id
 
     async def get(path, params, *, wikidata=False):
         base = 'https://www.wikidata.org/w/api.php' if wikidata else 'https://musicbrainz.org/ws/2/' + path
@@ -152,28 +144,12 @@ async def public_identity(fetch, fact):
         return data if isinstance(data, dict) else {}
 
     try:
-        data = await get('url', {'resource': resource, 'inc': 'artist-rels', 'fmt': 'json'})
-        if data.get('resource') != resource or not isinstance(data.get('relations'), list):
+        from .session_facts import public_artist_identity
+        resolved = await public_artist_identity(get, artist, spotify_id)
+        if resolved is None:
             return None
-        actors = [r.get('artist') for r in data['relations'] if isinstance(r, dict)
-                  and r.get('target-type') == 'artist' and isinstance(r.get('artist'), dict)]
-        ids = {a.get('id') for a in actors}
-        if len(ids) != 1 or not isinstance(next(iter(ids)), str) or not MBID.fullmatch(next(iter(ids))):
-            return None
-        mbid = next(iter(ids))
-        actor = await get('artist/' + mbid, {'fmt': 'json', 'inc': 'url-rels'})
-        qid = _qid(actor.get('relations', []))
-        urls = {r.get('url', {}).get('resource') for r in actor.get('relations', [])
-                if isinstance(r, dict) and isinstance(r.get('url'), dict)}
-        if (actor.get('id') != mbid or match_name(actor.get('name')) != match_name(artist)
-                or actor.get('type') not in {'Person', 'Group'} or resource not in urls or not qid):
-            return None
-        entity = (await get('', {'action': 'wbgetentities', 'ids': qid, 'props': 'claims',
-                                 'format': 'json'}, wikidata=True)).get('entities', {}).get(qid, {})
-        reciprocal = {c.get('mainsnak', {}).get('datavalue', {}).get('value')
-                      for c in entity.get('claims', {}).get('P434', []) if c.get('rank') != 'deprecated'}
-        if entity.get('id') != qid or reciprocal != {mbid}:
-            return None
+        actor, _, qid = resolved
+        mbid = actor['id']
         escaped = title.replace('\\', '\\\\').replace('"', '\\"')
         groups = await get('release-group', {'query': 'releasegroup:"' + escaped + '" AND arid:' + mbid,
                                             'limit': '5', 'fmt': 'json'})

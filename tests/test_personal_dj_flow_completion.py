@@ -43,6 +43,10 @@ class PublishedFlowCompletionTest(unittest.IsolatedAsyncioTestCase):
         async def realize(brief, guard):
             # External expression boundary fixture, not a real-LLM style claim.
             guard()
+            if brief.fact.key == 'genre_context':
+                from custom_components.djconnect.narration_brief import NarratedText
+                frame = 'Even bij {artist} blijven: Spotify noemt {genre}. Je hoort {track}.'
+                return NarratedText(brief.render(frame), frame)
             return brief.seed
         async def archive(binding):
             return await async_metadata_archive_admission(self.hass, 'profile-a', binding, lambda: None)
