@@ -47,11 +47,11 @@ class PersonalDJNarrationTest(unittest.TestCase):
         if cls.previous_const is not None:
             sys.modules['custom_components.djconnect.const'] = cls.previous_const
 
-    async def setup_runtime(self, *, presence='presenter', family='edition', history=None):
+    async def setup_runtime(self, *, presence='presenter', family='edition', history=None, allowed_intents=None):
         manager = self.runtime.SessionRuntimeManager(historical_projections=history)
         session = await manager.async_start(owner_profile_id='narration-owner', selected_mood='energy',
             dj_persona=self.runtime.DJPersona.HOME_DJ, locale='nl', music_backend='spotify_direct',
-            allowed_capability_intents=frozenset({'artist_story','album_story'}))
+            allowed_capability_intents=allowed_intents if allowed_intents is not None else frozenset({'artist_story','album_story'}))
         session = await manager.async_update_presence(owner_profile_id=session.owner_profile_id,
             session_id=session.session_id, selected_presence=presence)
         catalog, fact = source(family, 0)
@@ -252,6 +252,44 @@ class PersonalDJNarrationTest(unittest.TestCase):
             self.assertNotIn('provider failure',result.content)
             self.assertEqual(session.presence_ledger.total_published,1)
         asyncio.run(scenario())
+
+    def test_registered_narrator_never_publishes_unaccepted_genre_metadata_as_story(self):
+        async def scenario(outcome):
+            manager, session, _, _ = await self.setup_runtime(allowed_intents=frozenset({'genre_story'}))
+            catalog, _ = source('edition', 0)
+            from custom_components.djconnect.session_facts import observed_genre_facts
+            import time
+            fact = observed_genre_facts({'source': 'spotify_playback_status', 'backend': 'spotify_direct',
+                'is_playing': True, 'media_identity': catalog['uri'], 'title': catalog['title'],
+                'artist': catalog['artist'], 'artist_ids': ['Z'*22], 'genres': ['folk rock'],
+                'genre_source_expires_at': time.monotonic()+600}, media_identity=catalog['uri'],
+                title=catalog['title'], artist=catalog['artist'])[0]
+            calls = []
+            async def provider(brief, guard):
+                calls.append(brief)
+                if outcome == 'error':
+                    raise RuntimeError('synthetic unavailable')
+                if outcome == 'untyped':
+                    return brief.seed.replace('Spotify', 'De catalogus van Spotify')
+                return brief.seed
+            manager.connect_narration(session.owner_profile_id, session.session_id, provider, lambda: None)
+            async def provide():
+                return {'_qualified_facts': (fact,)}
+            result = await manager.async_process_track_started(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id, media_identity=catalog['uri'], insight_provider=provide,
+                require_current_playback=True, allow_initial_facts=True)
+            self.assertIsNone(result)
+            self.assertEqual(session.presence_ledger.total_published, 0)
+            self.assertEqual(session.broadcast.state.dj_moments, ())
+            opportunity = manager._intra_track_opportunities[session.owner_profile_id]
+            self.assertIn('genre_context', opportunity.used_fact_keys)
+            self.assertIsNone(await manager.async_maybe_publish_intra_track_moment(
+                owner_profile_id=session.owner_profile_id, session_id=session.session_id,
+                media_identity=catalog['uri']))
+            self.assertEqual(len(calls), 1)
+        for outcome in ('error', 'fallback', 'untyped'):
+            with self.subTest(outcome=outcome):
+                asyncio.run(scenario(outcome))
 
     def test_noop_mood_preserves_inflight_publication_and_duplicate_observation_does_not_join(self):
         async def scenario():

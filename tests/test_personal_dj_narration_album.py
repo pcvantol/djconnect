@@ -13,6 +13,13 @@ from tests import test_personal_dj_narration_public_artist as fixtures
 from scripts.verification.source_fixture_urls import wikipedia_api_fixture
 
 
+def accepted_genre_expression(brief):
+    """Explicit assessed-writer boundary, not a real model quality result."""
+    from custom_components.djconnect.narration_brief import NarratedText
+    frame = 'Even bij {artist} blijven: Spotify noemt {genre} bij de artiestgenres. Je hoort {track}.'
+    return NarratedText(brief.render(frame), frame)
+
+
 class AlbumNarrationTest(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
@@ -230,8 +237,9 @@ class AlbumNarrationTest(unittest.IsolatedAsyncioTestCase):
         async def expression(brief, guard):
             guard()
             callbacks.append(brief.fact.key)
-            # Explicit synthetic research rejection; no network or model call.
-            return brief.seed
+            # Album rejection and separately accepted genre expression are
+            # explicit transport fixtures, not model/editorial qualification.
+            return accepted_genre_expression(brief) if brief.fact.key == 'genre_context' else brief.seed
         self.base.manager.connect_narration(owner,sid,expression,lambda:None)
         async def insight():
             return {'_qualified_facts':(self.base.fact,*genres)}
@@ -297,7 +305,7 @@ class AlbumNarrationTest(unittest.IsolatedAsyncioTestCase):
                 async def expression(brief,guard):
                     guard()
                     expressions.append(brief.fact.key)
-                    return brief.seed
+                    return accepted_genre_expression(brief) if brief.fact.key == 'genre_context' else brief.seed
                 self.base.manager.connect_narration('profile-a',active.session_id,expression,lambda:None)
                 async def no_other_insight():
                     raise AssertionError('catalogue evidence must not trigger TrackInsight/model fallback')

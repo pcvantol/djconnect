@@ -1,3 +1,15 @@
+## 2026-11-02 — Existing public artist identity and expression owners
+
+Reuse the shared exact artist-URL/reciprocal MusicBrainz/Wikidata identity function
+between catalogue-independent artist context and the existing album researcher.
+Keep recording/work proof separate, original guarded resolver35s/rate/backoff and
+credits-only behavior unchanged. Independent publisher retrieval precedes a
+second Wikipedia language edition in the existing artist eight-request/12s owner.
+Registered genre expression requires an accepted typed local frame, not a returned
+metadata seed. See [bounded contract](docs/product/PERSONAL_DJ_ARTIST_STORY_INTEGRATION_V1.md).
+No dependency/version/license, release input or manifest change. Unrelated upgrades
+are outside this focused correction; existing third-party notices remain intact.
+
 ## API host-wake server binding source #1415: separate Final
 
 Source1415 is protected `4f569b407217666908b0cbadf01e7873e3170bf8` and independently

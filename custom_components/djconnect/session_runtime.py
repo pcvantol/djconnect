@@ -5473,6 +5473,8 @@ class SessionRuntimeManager:
         owner_profile_id, active, opportunity, generation, working_moments, moment, fact, original_moments = prepared
         provider = self._narration_providers.get(owner_profile_id)
         requires_public_story = fact.key in {'work_composers', 'artist_begin', 'artist_description'}
+        genre_expression_accepted = False
+        original_genre_seed = moment.content
         try:
             owner_guard = provider[3]() if provider is not None and provider[3] is not None else (provider[2] if provider else None)
         except Exception:
@@ -5524,6 +5526,19 @@ class SessionRuntimeManager:
                         recent_public_stories=stories, rotate_artist_topics=bool(fact.public_artist_qid))
                     text = await provider[1](brief, guard)
                     guard()
+                    if fact.key == 'genre_context':
+                        # An unavailable/rejected writer must not turn its
+                        # literal metadata seed into a promised DJ contribution.
+                        # The existing two-call owner alone admits a value-free
+                        # expression; Spotify values remain local substitutions.
+                        from .narration_brief import NarratedText, candidate
+                        frame = getattr(text, 'frame', None)
+                        genre_expression_accepted = (type(text) is NarratedText and 20 <= len(text) <= 700
+                            and isinstance(frame, str)
+                            and candidate(brief, json.dumps({'text': frame})) == frame
+                            and brief.render(frame) == str(text) and text != moment.content)
+                        if not genre_expression_accepted:
+                            text = moment.content
                     if isinstance(text, str) and text != moment.content:
                         # Provider is the existing qualified HA announcement owner.
                         # Recompute fit before the one immutable semantic commit.
@@ -5568,6 +5583,10 @@ class SessionRuntimeManager:
                     opportunity.pending = False
                 return None
             opportunity.pending = False
+            if (provider is not None and fact.key == 'genre_context'
+                    and (not genre_expression_accepted or moment.content == original_genre_seed)):
+                opportunity.used_fact_keys.add(fact.key)
+                return None
             if ((provider is not None and (requires_public_story or
                     (fact.key == 'album_release' and fact.album_artist_id)))
                     or (fact.key in {'artist_begin','artist_description'} and fact.public_artist_qid)):

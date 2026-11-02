@@ -1,3 +1,22 @@
+## 2026-11-02 — Personal DJ artist-story integration, Active single-PR source preparation
+
+The reported cold genre sentence is an actual home_dj metadata template, not
+proof of a researched narrative. The current [integration correction](docs/product/PERSONAL_DJ_ARTIST_STORY_INTEGRATION_V1.md)
+separates independent exact artist identity from recording recognition, prioritizes
+an independent publisher before a translated Wikipedia edition within the same
+budget, and rejects unaccepted genre metadata seeds on the registered narrative
+path. Existing Persona/Mood, research, claim/rights and original publication owners
+remain. [Current verification](docs/verification/PERSONA_ARTIST_STORY_INTEGRATION_20261102.md)
+tracks original causal failures, source-only QA and actual HA boundaries.
+
+Current QA:4493 accounted/4486 PASS/seven existing skips,4workers46.961s;
+all26 isolated HA groups PASS/final302 equal/eight current containers removed.
+Independent whole/exact review and protected delivery remain pending. No new paid
+model test, install, native or audible/story-quality acceptance. Prior1424/c874
+is originally source-qualified in its own scope; older rolling bodies below
+retain their historical states. Preserve all24/nine tasks and all RAW/backups.
+Keep this increment and its closing documentation in ONE PR, no separate Final.
+
 ## 2026-11-02 — Bounded VibeScape four-world Core source preparation
 
 Core1271/1101 and Apple177 reuse the existing confirmed active Session/Broadcast

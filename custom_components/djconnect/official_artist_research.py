@@ -167,8 +167,13 @@ async def artist_references(subject, question, locale, guard, *, identity, roles
             async with research.PublicFetch(guard) as fetch:
                 sources,_=await research.research(subject,question,locale,guard,
                     qualified_music=True,expected_roles=roles,expected_entity_id=identity[4],
-                    allow_web=False,fetch=fetch,original_paragraphs=True,story_topic=topic)
+                    allow_web=False,fetch=fetch,original_paragraphs=True,story_topic=topic,
+                    secondary_language=False)
+                # Reserve the remaining original allowance for an independent
+                # publisher before requesting another edition of Wikipedia.
+                # Missing/denied sources never buy more requests or time.
                 if sources:
+                    extra = None
                     try:
                         extra=await website_reference(fetch,identity,topic)
                         if extra:
@@ -180,6 +185,20 @@ async def artist_references(subject, question, locale, guard, *, identity, roles
                         raise
                     except (research.ResearchUnavailable,OSError,TimeoutError,ValueError,TypeError,AttributeError,KeyError):
                         pass
+                    if extra is None and sources[0].language != 'en':
+                        # A missing independent page must not hide a useful
+                        # English article. It gets only the original remaining
+                        # requests/time, after the independent publisher.
+                        try:
+                            english = await research.wikipedia(fetch, subject, question, 'en',
+                                expected_roles=roles, expected_entity_id=identity[4],
+                                original_paragraphs=True, story_topic=topic)
+                            if english and english.entity_id == sources[0].entity_id:
+                                sources.append(english)
+                        except PermissionError:
+                            raise
+                        except (research.ResearchUnavailable,OSError,TimeoutError,ValueError,TypeError,AttributeError,KeyError):
+                            pass
     except TimeoutError:
         pass
     await guard()

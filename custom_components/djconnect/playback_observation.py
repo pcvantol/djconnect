@@ -503,6 +503,7 @@ class PlaybackObservationManager:
                 nonlocal source_authorize
                 from .session_facts import session_facts_resolver, catalog_facts, observed_genre_facts
                 catalog = getattr(result, "catalog", {})
+                catalog_backed = hasattr(result, "catalog")
                 # Capture before source awaits. Neither a catalogue descriptor
                 # nor a later account/command may authorize this extra evidence.
                 from .profile_context import profile_storage
@@ -531,12 +532,25 @@ class PlaybackObservationManager:
 
                 admitted_genre_lookup = genre_current()
                 source_authorize = genre_current
+                # Modern normalized observations own the catalogue/source path,
+                # including an empty catalogue. Denial must not buy a general
+                # model fallback. Older no-catalogue adapters retain their
+                # existing independently guarded insight-only mechanism.
+                if catalog_backed and not admitted_genre_lookup:
+                    return {"_qualified_facts": ()}
+                def facts_current():
+                    if not genre_current():
+                        raise PermissionError("fact_source_authority_changed")
                 async def facts() -> tuple[Any, ...]:
                     try:
-                        return await session_facts_resolver(self._hass).resolve(catalog)
+                        return await session_facts_resolver(self._hass).resolve(catalog, authorize=facts_current)
+                    except PermissionError:
+                        return ()
                     except Exception:  # Provider absence never creates invented facts.
-                        return tuple(catalog_facts(catalog))
-                evidence = await facts()
+                        return tuple(catalog_facts(catalog)) if genre_current() else ()
+                evidence = await facts() if admitted_genre_lookup else ()
+                if admitted_genre_lookup and not genre_current():
+                    return {"_qualified_facts": ()}
                 if evidence:
                     # A rejected album story must not hide independently valid
                     # genre context. The existing Planner still ranks/consumes
@@ -553,7 +567,12 @@ class PlaybackObservationManager:
                     return {"_qualified_facts": evidence}
                 if facts_only:
                     return {"_qualified_facts": ()}
-                return {**await observed.insight_provider(), "_qualified_facts": ()}
+                if catalog_backed or admitted_genre_lookup:
+                    facts_current()
+                insight = await observed.insight_provider()
+                if (catalog_backed or admitted_genre_lookup) and not genre_current():
+                    return {"_qualified_facts": ()}
+                return {**insight, "_qualified_facts": ()}
 
             await session_runtime_manager(self._hass).async_process_track_started(
                 owner_profile_id=observed.owner_profile_id,
