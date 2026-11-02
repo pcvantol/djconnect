@@ -393,6 +393,21 @@ def release_question(text):
     return bool(subject and (year or (when and released)))
 
 
+def _release_display_date(value, precision, locale):
+    """Format validated edition metadata for the app's canonical language.
+
+    Keep partial dates partial; the observation retains its original ISO value.
+    """
+    if precision == 'year':
+        return value
+    year, month, *days = value.split('-')
+    separator = {'nl': '-', 'de': '.'}.get(locale, '/')
+    if precision == 'month':
+        return separator.join((month, year))
+    parts = (month, days[0], year) if locale == 'en' else (days[0], month, year)
+    return separator.join(parts)
+
+
 async def release_read(hass,runtime,selected=None):
     """Read exact edition metadata locally; no catalog-to-model or archive grant."""
     from . import run_music_command
@@ -511,7 +526,7 @@ async def release_read(hass,runtime,selected=None):
             value=None
     # A historical/selected recording remains selected when current playback differs.
     known=target is not None
-    text=(copy[locale][0].format(title=target[2],date=value) if known and value
+    text=(copy[locale][0].format(title=target[2],date=_release_display_date(value,metadata['release_date_precision'],locale)) if known and value
           else copy[locale][1].format(title=target[2]) if known else copy[locale][2])
     sources=[]
     if known and re.fullmatch(r'spotify:track:[A-Za-z0-9]{22}',target[0]):

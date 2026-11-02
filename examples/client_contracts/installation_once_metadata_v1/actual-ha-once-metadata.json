@@ -77,7 +77,7 @@
       "custom_components/djconnect/ask_dj/help_configuration.py": "f098ead71160b0bd90580a72db8fff9828c5069e5f7dd3e35bb29c700b27476c",
       "custom_components/djconnect/ask_dj/help_observation.py": "c309e27ce1f71acabead4122397d526952799dfc0efddfc5fd9240af4d513f7e",
       "custom_components/djconnect/ask_dj/intents.py": "545c7cf45bc5a66719d66bed5ef2633a4e01343645080af733a11869f1c01032",
-      "custom_components/djconnect/ask_dj/observations.py": "ef788fa96d23f124fdb66f4af766831110b7224b3738d884ff8c47550aef54fd",
+      "custom_components/djconnect/ask_dj/observations.py": "68632c101f1e5727200e0941c2ba79c81ae1666f7c3af1befc681c4880dd9150",
       "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
       "custom_components/djconnect/ask_dj/public_research.py": "0a405b2c9d095b67a42a8aa29bed5313a14b0aa3c18cd374dde5545a8329a471",
       "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
@@ -359,9 +359,9 @@
     "ordinary_pairing": true,
     "ha_credentials_issued": 0
   },
-  "original_receipt_sha256": "a3fccf0ff9bb30490d860ba9919c0aacb454383f0c2883fdd431b71993aa1efb",
-  "original_raw_location": "/Volumes/Shared Data/tmp/pcvantol/core-window-20261021-12h/current-output-r1-regression-regression-all20-20261101/batch0/once/source-origin-ha-receipt.json",
-  "original_admission_sha256": "155119a807b438691425e3ca49d91c3d48e5a6bae92b3cb38e0a7141788f996f",
+  "original_receipt_sha256": "ed8445084fc02fca2cde5d0e9f95796617413f3dcbdd4ac45eb859bcba21789f",
+  "original_raw_location": "/Volumes/Shared Data/tmp/pcvantol/core-release-date-localization-20261102/actual-ha-run1/release-date-r1-regression-regression-all20-20261102/batch0/once/source-origin-ha-receipt.json",
+  "original_admission_sha256": "15ef4d0055ee3fda18b6e94da8c8a109a529206902ef4fc0136b5239428ef63e",
   "harness": "scripts/verification/verify_installation_once_journal_ha.py",
   "harness_sha256": "bde8511736936753a81f3d3542e4a1bfc276c3b8b7a7eb0b984d457b2a809bfc",
   "parent_causal_RED": {
@@ -385,11 +385,11 @@
   },
   "current_source_requalification": {
     "classification": "ACTUAL_ISOLATED_HA_SOURCE_ONLY_NOT_INSTALLED_OR_NATIVE",
-    "at": "2026-11-01T21:34:13.754445+00:00",
+    "at": "2026-11-02T09:30:39.100329+00:00",
     "product_files": 302,
-    "original_raw_sha256": "a3fccf0ff9bb30490d860ba9919c0aacb454383f0c2883fdd431b71993aa1efb",
-    "original_admission_sha256": "155119a807b438691425e3ca49d91c3d48e5a6bae92b3cb38e0a7141788f996f",
-    "original_result_sha256": "dd5557ef32176eb71d719becb1ca7d2d3de679fbd8c327d2540ca5d44f907b92",
+    "original_raw_sha256": "ed8445084fc02fca2cde5d0e9f95796617413f3dcbdd4ac45eb859bcba21789f",
+    "original_admission_sha256": "15ef4d0055ee3fda18b6e94da8c8a109a529206902ef4fc0136b5239428ef63e",
+    "original_result_sha256": "4d681ca37d49ed15b47e11ff8daea0b260615e4588a4b8f9a2c4f1893400ade3",
     "all302_before_inside_after_equal": true,
     "own_container_verified_absent": true,
     "this_group_exit": 0

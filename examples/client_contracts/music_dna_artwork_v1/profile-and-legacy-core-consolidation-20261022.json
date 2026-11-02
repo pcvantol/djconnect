@@ -440,7 +440,7 @@
     }
   },
   "qualification": "ACTUAL_NETWORK_ISOLATED_SYNTHETIC_HA_HTTP_STORE_IMAGE_BYTES",
-  "actual_receipt_sha256": "46e0b9ab2277b082039ad5a64f61045106b96db46324cc53fce913ed8c0d03ef",
+  "actual_receipt_sha256": "3c6dfd421f149f8ee56b4393bf072da80a48bd8a57ba7e80d3e2001cf6a1770b",
   "source_pins": {
     "custom_components/djconnect/update.py": "d6a1ea30a3a33e04e8668dd6b11b6720d5b8f531b1160ac8771a16742179c7a5",
     "custom_components/djconnect/entity_ids.py": "2de2482c841bb4a1cd86af04730963ef7d9915a3ff26df86d8101731df6ff0f2",
@@ -673,7 +673,7 @@
     "custom_components/djconnect/ask_dj/example_catalogue.py": "1cf64d63736bdf859ee2bb11323830c983412db41a1f198941532d9e885b6cc7",
     "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
     "custom_components/djconnect/ask_dj/example_catalogue_data.py": "2686951e64ee5cff59f5e188f753165def71eb4d244574bb2e07cf3a3a4fe85f",
-    "custom_components/djconnect/ask_dj/observations.py": "ef788fa96d23f124fdb66f4af766831110b7224b3738d884ff8c47550aef54fd",
+    "custom_components/djconnect/ask_dj/observations.py": "68632c101f1e5727200e0941c2ba79c81ae1666f7c3af1befc681c4880dd9150",
     "custom_components/djconnect/ask_dj/exploration.py": "9b1333b6d2ddf37ef6a5baee4423e1161a7a1dba50b909224f470783c862d4be",
     "custom_components/djconnect/ask_dj/examples_v1.json": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
     "custom_components/djconnect/ask_dj/public_research.py": "0a405b2c9d095b67a42a8aa29bed5313a14b0aa3c18cd374dde5545a8329a471",
@@ -749,11 +749,11 @@
   "harness_sha256": "b8498a652d3ba411ae310b1ffbc2a6426a3a3e2c6d6a6c471e88177616bba8cc",
   "current_source_requalification": {
     "classification": "ACTUAL_ISOLATED_HA_SOURCE_ONLY_NOT_INSTALLED_OR_NATIVE",
-    "at": "2026-11-01T21:33:36.549608+00:00",
+    "at": "2026-11-02T09:30:39.054466+00:00",
     "product_files": 302,
-    "original_raw_sha256": "46e0b9ab2277b082039ad5a64f61045106b96db46324cc53fce913ed8c0d03ef",
-    "original_admission_sha256": "5399b029e4c574de17829cdbe7ee6088c3539c29564a3181f4bc090a4434371e",
-    "original_result_sha256": "c8fad91042c3c399f1cf995b81303ca14aaf86302cbf7e77007bafd68a5bdbf1",
+    "original_raw_sha256": "3c6dfd421f149f8ee56b4393bf072da80a48bd8a57ba7e80d3e2001cf6a1770b",
+    "original_admission_sha256": "fab1f6463120b3b7db46b0aa81c25de58c80dfd9b6357f036ccfa6b7ddeda6aa",
+    "original_result_sha256": "50056a8f67061b4ab91e1bb1a66ca70cec27e065bb97801dbdd082eb53a6d0dd",
     "all302_before_inside_after_equal": true,
     "own_container_verified_absent": true,
     "this_group_exit": 0
