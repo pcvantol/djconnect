@@ -1,3 +1,20 @@
+## 2026-11-02 — Pi rc.7 two-host producer and watchdog contract
+
+Prepared from protected Core94ce: [V3 contract](docs/release/PI_TWO_HOST_DEPLOYMENT_CONTRACT_V3.md),
+request V4 and manifest V4 pin the actual published rc.7 two-instance packages,
+unchanged inventory and native runtime. [Qualification and handoff](docs/verification/PI_RC7_TWO_HOST_PRODUCER_QUALIFICATION_20261102.md)
+records fresh original publication/source joins and 275 pure schema/reference
+cases. All302 HA product files and prior normative/operative evidence stay equal.
+
+Pi must deliver a matching protected consumer Source/separate Final and actual
+isolated PID1 watchdog/updater/maintenance/nightly-reboot guard qualification
+before any operative V4 binding or installation. Guard all four services and
+four timers before client stop, preserve original scheduler states, retain holds
+on UNKNOWN/reboot/connection loss. No Root Pi SSH/device effect, install claim,
+automatic recovery or fake approval. Source, consumer, installation, separate
+per-instance smoke and physical acceptance remain separate gates. Existing
+24 requests/nine gates, API/Apple push work and prior receipts are preserved.
+
 ## API host-wake server binding source #1415: separate Final
 
 Source1415 is protected `4f569b407217666908b0cbadf01e7873e3170bf8` and independently

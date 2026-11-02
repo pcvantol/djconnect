@@ -1,0 +1,125 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "action": {
+      "const": "deployment"
+    },
+    "candidate_sha": {
+      "const": "30c0f8278619a6a5e0ab24726e4c138d167e22c8"
+    },
+    "execution_mode": {
+      "const": "execute"
+    },
+    "manifest_id": {
+      "type": "string",
+      "pattern": "^release-[A-Za-z0-9._-]+(?![\\s\\S])"
+    },
+    "artifact_id": {
+      "enum": [
+        "release-asset:pcvantol/djconnect-pi-releases:v4.0.0-rc.7:djconnect-pi-pi-zero-2w-arm64-4.0.0-rc.7.tar.gz",
+        "release-asset:pcvantol/djconnect-pi-releases:v4.0.0-rc.7:djconnect-pi-pi5-arm64-4.0.0-rc.7.tar.gz"
+      ]
+    },
+    "artifact_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "target": {
+      "const": "rbpi-djconnect"
+    },
+    "platform_version": {
+      "const": "4.0"
+    },
+    "release_profile": {
+      "const": "INTERNAL_RELEASE"
+    },
+    "deployment_instance": {
+      "enum": [
+        "wall-4inch",
+        "wall-10inch"
+      ]
+    },
+    "device_profile": {
+      "enum": [
+        "pi-zero-2w-arm64",
+        "pi5-arm64"
+      ]
+    },
+    "inventory_sha256": {
+      "const": "530220ee38f6ccbcc824a78331b9dd89f236a5fa6ede12ebf7899dac83ff50c0"
+    },
+    "schema_version": {
+      "const": 4
+    },
+    "guard_contract_id": {
+      "const": "pi-rc7-pid1-transaction-guard-v1"
+    }
+  },
+  "required": [
+    "action",
+    "candidate_sha",
+    "execution_mode",
+    "manifest_id",
+    "artifact_id",
+    "artifact_sha256",
+    "target",
+    "platform_version",
+    "release_profile",
+    "deployment_instance",
+    "device_profile",
+    "inventory_sha256",
+    "schema_version",
+    "guard_contract_id"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Explicit Pi rc.7 V4 request; exact manifest/inventory/qualification joins mandatory",
+  "oneOf": [
+    {
+      "properties": {
+        "deployment_instance": {
+          "const": "wall-4inch"
+        },
+        "device_profile": {
+          "const": "pi-zero-2w-arm64"
+        },
+        "artifact_id": {
+          "const": "release-asset:pcvantol/djconnect-pi-releases:v4.0.0-rc.7:djconnect-pi-pi-zero-2w-arm64-4.0.0-rc.7.tar.gz"
+        },
+        "artifact_sha256": {
+          "const": "d738f636d2ccbf35b2d10e705b5bf4091630ad394d25cc1d3755515d453fe55e"
+        }
+      },
+      "required": [
+        "deployment_instance",
+        "device_profile",
+        "artifact_id",
+        "artifact_sha256"
+      ]
+    },
+    {
+      "properties": {
+        "deployment_instance": {
+          "const": "wall-10inch"
+        },
+        "device_profile": {
+          "const": "pi5-arm64"
+        },
+        "artifact_id": {
+          "const": "release-asset:pcvantol/djconnect-pi-releases:v4.0.0-rc.7:djconnect-pi-pi5-arm64-4.0.0-rc.7.tar.gz"
+        },
+        "artifact_sha256": {
+          "const": "dd48d4fd165d8538d10c29c2ebc2168b165520b015015d3d9324ec39a236a0a7"
+        }
+      },
+      "required": [
+        "deployment_instance",
+        "device_profile",
+        "artifact_id",
+        "artifact_sha256"
+      ]
+    }
+  ]
+}
