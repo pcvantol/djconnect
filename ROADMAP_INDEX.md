@@ -1,3 +1,23 @@
+## 2026-11-02 — Music DNA startup choices v2, single PR preparation
+
+The selected startup flow now has Core source work for Verras me→three genres
+from the original owner's loaded Music DNA→a backed Spotify-track mix, plus
+navigation-only Selecteer playlist→the playlists screen. Fixed Mood genres are
+not a DNA fallback. Both choices are separate from the three normal suggestions;
+no screen opening, Session creation or music starts on render. Original owner/
+Profile/privacy/DNA revision containers/source/Session/lifetime/pending actor
+and durable pre-effect fences apply; ordinary unknown play ACK also retires the
+same original startup state without rebinding a replacement Session.
+
+[Current contract](docs/product/SESSION_START_ACTIONS_DNA_V2.md) and
+[verification](docs/verification/SESSION_START_ACTIONS_DNA_V2_20261102.md)
+record the bounded one-PR owner instruction and all source/installed/provider/
+Apple/native distinctions. Current source QA:4468 tests accounted, seven existing skips,25 isolated HA
+groups including32 startup cases pass. Independent whole/exact review and
+protected DNA2 delivery remain pending.
+Earlier1421/1422 fixed-Mood source receipts keep their historical scopes. Keep
+all24/nine requests, Golden preflight/CI timing followups and existing gates.
+
 ## 2026-11-02 — Combined first-play and Track Insight source qualified
 
 Core Source [#1421](https://github.com/pcvantol/djconnect/pull/1421) is protected

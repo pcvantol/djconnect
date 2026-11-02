@@ -17,6 +17,16 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
         self.dialogue = importlib.import_module("custom_components.djconnect.ask_dj.dialogue")
         self.spotify = importlib.import_module("custom_components.djconnect.spotify_backend")
         self.use_cases = importlib.import_module("custom_components.djconnect.use_cases")
+        from custom_components.djconnect.domain.storage import ProfilePlatformStorage, STORE_KEY
+        from tests.test_music_dna import FakeStore, MusicDNAManager
+        storage = ProfilePlatformStorage(store=FakeStore())
+        await storage.async_create_profile("Synthetic owner", profile_id="synthetic-owner")
+        self.hass.data["djconnect"][STORE_KEY] = storage
+        self.owned_genres = ("neo soul", "r&b", "indie rock")
+        self.runtime.memory = MusicDNAManager(store=FakeStore({"version": 1, "memories": {
+            "profile:synthetic-owner": {"enabled": True, "generation": 4,
+                "favorite_genres": list(self.owned_genres)}}}))
+        await self.runtime.memory.async_load()
         self.allowed = True
         self.grant = "synthetic-grant"
         seam = patch("custom_components.djconnect.session_conversation.history_grant_revision", side_effect=lambda *_: self.grant)
@@ -45,7 +55,7 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
                 if path == "/me/player/queue":
                     return test.queue
                 query = parse_qs(urlsplit(path).query)
-                genre = query["q"][0].split(":", 1)[1]
+                genre = query["q"][0].split(":", 1)[1].strip('"')
                 tracks = [] if genre == test.unavailable_genre else [
                     {"uri": "spotify:track:"+hashlib.sha256((genre+str(i)).encode()).hexdigest()[:22],
                      "is_playable": True, "is_local": False, "name": "Synthetic track"} for i in range(3)]
@@ -99,6 +109,7 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
             "synthetic-digest-"+identifier, frame.generation, owner, self.history,
             style={"language": locale}, session_id=self.active.session_id,
             reply_source_context=self.source, reply_source_authority=lambda: self.allowed)
+        self.turn.retire_startup_after_play = self.core.capture_first_play_retirement(self.hass, "synthetic-owner")
         token = self.dialogue.current_turn.set(self.turn)
         self.addCleanup(self.dialogue.current_turn.reset, token)
 
@@ -116,7 +127,7 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
         return result
 
     async def test_all_four_moods_five_languages_return_exact_three_backed_genres_without_effect(self):
-        for mood in self.steering.FIRST_PLAY_GENRES:
+        for mood in ("chill", "groove", "energy", "party"):
             for locale in self.steering.FIRST_PLAY_COPY:
                 with self.subTest(mood=mood, locale=locale):
                     await self.new_session(mood, locale)
@@ -125,7 +136,7 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
                     result = await self.offer()
                     self.assertEqual(result["first_play"]["state"], "genres")
                     actions = result["result_set"]["items"]
-                    self.assertEqual(tuple(a["genre"] for a in actions), self.steering.FIRST_PLAY_GENRES[mood])
+                    self.assertEqual(tuple(a["genre"] for a in actions), self.owned_genres)
                     self.assertEqual(len({a["action_id"] for a in actions}), 3)
                     self.assertTrue(all(len(a["uris"]) >= 2 for a in actions))
                     self.assertEqual(result["text"], self.steering.FIRST_PLAY_COPY[locale][3])
@@ -164,26 +175,33 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
         self.assertEqual([effect[0] for effect in self.effects], ["set_output", "play_uris"])
 
     async def test_fewer_than_three_mix_sources_produces_no_genre_button(self):
-        self.unavailable_genre = "jazz"
+        self.unavailable_genre = self.owned_genres[0]
         result = await self.offer()
         self.assertFalse(result["success"])
         self.assertEqual(result["first_play"]["reason"], "fewer_than_three_playable_mixes")
         self.assertFalse(result["playback_actions"])
         self.assertEqual(self.effects, [])
 
-    async def test_paused_or_nonempty_queue_is_never_overwritten(self):
-        for current in ({"state": "paused", "media_identity": "spotify:track:"+"A"*22},):
-            self.observed = SimpleNamespace(**current)
-            with self.assertRaises(self.dialogue.DialogueError):
-                await self.offer()
+    async def test_paused_music_offers_dna_but_never_starts_before_genre_click(self):
+        self.observed = SimpleNamespace(state="paused", media_identity="spotify:track:"+"A"*22)
+        self.queue = {"queue": [{"uri": "spotify:track:"+"B"*22}], "currently_playing": {"uri": "spotify:track:"+"A"*22}}
+        await self.manager.async_update_playback_projection(owner_profile_id="synthetic-owner",
+            session_id=self.active.session_id, state="paused", media_identity=self.observed.media_identity)
+        self.assertTrue(self.steering._first_play_empty(self.manager.current_active("synthetic-owner")))
+        result = await self.offer()
+        self.assertEqual(result["first_play"]["state"], "genres")
         self.assertFalse(self.effects)
+        await self.choose()
+        self.assertEqual(len(self.effects), 1)
+        self.assertEqual(self.effects[0][0], "play_uris")
 
-    async def test_queue_added_after_offer_blocks_genre_play(self):
+    async def test_existing_queue_is_replaced_only_on_explicit_new_mix_selection(self):
         await self.offer()
         self.queue = {"queue": [{"uri": "spotify:track:"+"A"*22}], "currently_playing": None}
-        with self.assertRaises(self.dialogue.DialogueError):
-            await self.choose()
         self.assertFalse(self.effects)
+        await self.choose()
+        self.assertEqual(len(self.effects), 1)
+        self.assertEqual(self.effects[0][0], "play_uris")
 
     async def test_original_source_history_and_expiry_cannot_rearm(self):
         for mutation in ("source", "history", "expiry"):
@@ -209,7 +227,7 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
 
     async def test_silence_after_playback_does_not_restore_first_play(self):
         await self.manager.async_update_playback_projection(owner_profile_id="synthetic-owner",
-            session_id=self.active.session_id, state="paused", media_identity="spotify:track:"+"A"*22)
+            session_id=self.active.session_id, state="playing", media_identity="spotify:track:"+"A"*22)
         await self.manager.async_update_playback_projection(owner_profile_id="synthetic-owner",
             session_id=self.active.session_id, state="idle")
         self.assertFalse(self.steering._first_play_empty(self.active))
@@ -312,11 +330,14 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
         self.assertFalse(any(path.startswith("/search") for path in self.reads))
         self.assertFalse(self.effects)
 
-    async def test_missing_queue_evidence_is_not_known_empty(self):
+    async def test_starting_a_new_mix_does_not_claim_queue_preservation(self):
         self.queue = {"queue": []}
-        with self.assertRaises(self.dialogue.DialogueError):
-            await self.offer()
+        result = await self.offer()
+        self.assertEqual(result["first_play"]["genre_basis"], "music_dna")
+        self.assertFalse(any(path.startswith("/me/player/queue") for path in self.reads))
         self.assertFalse(self.effects)
+        await self.choose()
+        self.assertEqual(len(self.effects), 1)
 
     async def test_missing_playability_is_not_a_qualified_mix(self):
         original = self.backend._request
@@ -414,12 +435,105 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
         self.assertFalse(self.effects)
 
 
+    async def test_missing_dna_has_no_provider_fallback_and_keeps_playlist_navigation(self):
+        self.runtime.memory.data["memories"]["profile:synthetic-owner"]["enabled"] = False
+        with patch("custom_components.djconnect.reply_artwork.source_admission", return_value=(self.source, lambda: True)):
+            menu = self.steering.session_start_catalogue(self.hass, self.runtime, "synthetic-owner", self.active)
+        self.assertTrue(menu["available"])
+        self.assertFalse(menu["items"][0]["available"])
+        self.assertEqual(menu["items"][1]["destination"], "playlists")
+        self.assertEqual(menu["items"][1]["kind"], "navigation")
+        self.assertTrue(menu["items"][1]["available"])
+        self.assertFalse(menu["items"][1]["automatic_playback"])
+        result = await self.offer()
+        self.assertEqual(result["first_play"]["reason"], "music_dna_unavailable")
+        self.assertFalse(self.reads)
+        self.assertFalse(self.effects)
+
+    async def test_start_menu_is_two_localized_actions_and_pure_loaded_data(self):
+        from copy import deepcopy
+        before = deepcopy(self.runtime.memory.data)
+        for locale in self.steering.FIRST_PLAY_COPY:
+            await self.new_session(locale=locale)
+            with patch("custom_components.djconnect.reply_artwork.source_admission", return_value=(self.source, lambda: True)):
+                menu = self.steering.session_start_catalogue(self.hass, self.runtime, "synthetic-owner", self.active)
+            self.assertEqual(len(menu["items"]), 2)
+            surprise, playlists = menu["items"]
+            self.assertEqual(surprise["schema_version"], 2)
+            self.assertEqual(surprise["genre_basis"], "music_dna")
+            self.assertTrue(surprise["available"])
+            self.assertEqual(playlists["label"], self.steering.FIRST_PLAY_PLAYLIST_LABELS[locale])
+            self.assertEqual(set(playlists["localizations"]), {"en", "nl", "de", "fr", "es"})
+            self.assertNotIn("action_id", playlists)
+            self.assertNotIn("uris", playlists)
+        self.assertEqual(self.runtime.memory.data, before)
+        self.assertFalse(self.reads)
+        self.assertFalse(self.effects)
+
+    async def test_genre_publication_aba_without_generation_change_closes_original_offer(self):
+        await self.offer()
+        row = self.runtime.memory.data["memories"]["profile:synthetic-owner"]
+        generation = row["generation"]
+        row["favorite_genres"] = ["house", "jazz", "funk"]
+        row["favorite_genres"] = list(self.owned_genres)
+        self.assertEqual(row["generation"], generation)
+        with self.assertRaises(self.dialogue.DialogueError):
+            await self.choose()
+        self.assertFalse(self.effects)
+
+    async def test_disabled_then_restored_dna_never_renews_captured_offer(self):
+        await self.offer()
+        row = self.runtime.memory.data["memories"]["profile:synthetic-owner"]
+        row["enabled"] = False
+        admission = self.turn.first_play_admission
+        with self.assertRaises(self.dialogue.DialogueError):
+            admission.guard()
+        row["enabled"] = True
+        with self.assertRaises(self.dialogue.DialogueError):
+            await self.choose()
+        self.assertFalse(self.effects)
+
+    async def test_private_profile_changes_cannot_reuse_personal_genres(self):
+        from custom_components.djconnect.domain.storage import STORE_KEY
+        from custom_components.djconnect.domain import ProfilePrivacyMode
+        await self.offer()
+        await self.hass.data["djconnect"][STORE_KEY].async_update_profile("synthetic-owner", privacy_mode=ProfilePrivacyMode.SHARED)
+        with self.assertRaises(self.dialogue.DialogueError):
+            await self.choose()
+        self.assertFalse(self.effects)
+
+    async def test_ordinary_play_dispatch_unknown_ack_retires_startup(self):
+        uri = "spotify:track:"+"A"*22
+        self.new_turn("ordinary-play-unknown")
+        self.turn.effect_grants = (self.dialogue.EffectGrant(frozenset({"play"}), "ordinary_explicit_play", media=(uri,)),)
+        token = self.dialogue.current_effect.set(self.dialogue.CommandEffect("play", "play_uris", [uri], True))
+        try:
+            await self.dialogue.guard_effect_dispatch(method="PUT", path="/me/player/play", body={"uris": [uri]})
+            # The normal send boundary has been reached; the network outcome is
+            # deliberately unknown and no playing observation is fabricated.
+        finally:
+            self.dialogue.current_effect.reset(token)
+        self.assertTrue(self.turn.effect_started)
+        self.assertEqual(self.active.broadcast.first_play_state, "closed")
+        self.assertFalse(self.active.broadcast.first_play_observed)
+        self.new_turn("new-surprise-after-unknown")
+        result = await self.offer()
+        self.assertEqual(result["first_play"]["state"], "unavailable")
+        self.assertFalse(self.reads)
+
+    async def test_retained_plain_play_retirement_never_rebinds_to_replacement_session(self):
+        retire = self.core.capture_first_play_retirement(self.hass, "synthetic-owner")
+        await self.new_session()
+        retire()
+        self.assertEqual(self.active.broadcast.first_play_state, "ready")
+
+
 class FirstPlayWireEvidenceTests(IsolatedAsyncioTestCase):
     async def test_actual_source_fixture_binds_all_products_and_original_harness(self):
         import json
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
-        fixture = json.loads((root/'examples/client_contracts/session_first_play_v1/actual-ha-wire.json').read_text())
+        fixture = json.loads((root/'examples/client_contracts/session_first_play_v2/actual-ha-wire.json').read_text())
         self.assertEqual(len(fixture['source_pins']), 302)
         for name, digest in fixture['source_pins'].items():
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
@@ -436,7 +550,7 @@ class FirstPlayWireEvidenceTests(IsolatedAsyncioTestCase):
         import json
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
-        fixture = json.loads((root/'examples/client_contracts/session_first_play_v1/actual-ha-wire.json').read_text())
+        fixture = json.loads((root/'examples/client_contracts/session_first_play_v2/actual-ha-wire.json').read_text())
         example = fixture['examples'][0]
         self.assertTrue(example['catalogue_before']['available'])
         self.assertFalse(example['catalogue_after']['available'])

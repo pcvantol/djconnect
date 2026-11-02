@@ -1,3 +1,13 @@
+## Session startup Music DNA choices v2
+
+Existing authenticated Session start/active responses add session_start_actions
+contract1 (exactly conversation_request and navigation-only playlists destination).
+first_play_action/first_play use schema2 and genre_basis music_dna, with exactly
+three owned loaded-DNA directions and no fixed-Mood fallback. The existing owner
+Session conversation/result-set/effect journal owns deliberate selections. No new
+executable catalogue ID, playback-on-navigation, endpoint or authority import.
+See [canonical DNA2 contract](docs/product/SESSION_START_ACTIONS_DNA_V2.md).
+
 ## Session first-play surprise mix v1 — additive producer
 
 Authenticated Session start/active replies add Core-owned `first_play_action`

@@ -4419,6 +4419,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         entered, release = asyncio.Event(), asyncio.Event()
         dispatched = []
         backend = object.__new__(SpotifyBackend)
+        backend._retire_startup = None  # Constructor-bypassing provider transport fixture.
         backend.hass, backend.runtime = self.hass, self.runtime
 
         class Transport:
@@ -4898,6 +4899,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             tick[0] = frame.result_set["deadline"] + 1
 
         backend = object.__new__(SpotifyBackend)
+        backend._retire_startup = None  # Constructor-bypassing provider transport fixture.
         backend.hass = self.hass
         backend.runtime = self.runtime
         sent = []
@@ -5062,6 +5064,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         from custom_components.djconnect.spotify_backend import SpotifyBackend
 
         backend = object.__new__(SpotifyBackend)
+        backend._retire_startup = None  # Constructor-bypassing provider transport fixture.
         backend.hass = self.hass
         backend.runtime = self.runtime
         attempts = [0]
@@ -5540,6 +5543,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         from custom_components.djconnect.spotify_backend import SpotifyBackend
 
         backend = object.__new__(SpotifyBackend)
+        backend._retire_startup = None  # Constructor-bypassing provider transport fixture.
         backend.hass = self.hass
         backend.runtime = self.runtime
 
@@ -5664,6 +5668,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             offered, status = await self.request("Play A", identifier="bound-output-offer")
         self.assertEqual(status, 200, offered)
         backend = object.__new__(SpotifyBackend)
+        backend._retire_startup = None  # Constructor-bypassing provider transport fixture.
         backend.hass, backend.runtime = self.hass, self.runtime
         async def token(**kwargs):
             return "SYNTHETIC_FIXTURE_TOKEN"

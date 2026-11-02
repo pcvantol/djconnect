@@ -5024,7 +5024,7 @@ class SessionRuntimeManager:
             if active is None or active.session_id != session_id:
                 return False
             old_playback = active.broadcast.state.playback
-            if projection.state in {"playing", "paused"}:
+            if projection.state == "playing":
                 # Close in-flight startup work before the first persistence
                 # await; stopping/clearing history cannot reopen this latch.
                 active.broadcast.first_play_observed = True
@@ -8056,3 +8056,21 @@ def _payload_contains_owner_only_moment(payload: dict[str, Any]) -> bool:
     if not isinstance(presentation, dict):
         return False
     return presentation.get("visibility") == DJMomentVisibility.OWNER_ONLY.value
+
+
+def capture_first_play_retirement(hass, owner_profile_id):
+    """Capture a negative-only original Session latch; never create or rebind."""
+    domain = getattr(hass, "data", {}).get("djconnect", {})
+    manager = domain.get("session_runtime_manager")
+    active = manager.current_active(owner_profile_id) if manager is not None else None
+    if active is None:
+        return None
+    session_id, broadcast = active.session_id, active.broadcast
+    def retire():
+        if getattr(hass, "data", {}).get("djconnect", {}).get("session_runtime_manager") is not manager:
+            return
+        current = manager.current_active(owner_profile_id)
+        if (current is not None and current.session_id == session_id and current.broadcast is broadcast
+                and broadcast.first_play_state in {"ready", "attempted"}):
+            broadcast.first_play_state = "closed"
+    return retire

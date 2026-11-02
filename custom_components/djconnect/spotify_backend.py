@@ -286,6 +286,15 @@ class SpotifyBackend:
         self.hass = hass
         self.runtime = profile_backend_runtime(hass, runtime)
         self.session = async_get_clientsession(hass)
+        # Even a plain legacy command with an unknown acknowledgement must not
+        # leave the original same-Session startup offer reusable.
+        conf = getattr(runtime, "config", {}) or {}
+        owner = getattr(runtime, "profile_context_profile_id", "") or (conf.get("profile_id", "") if isinstance(conf, dict) else "")
+        self._retire_startup = None
+        if (isinstance(owner, str) and owner
+                and getattr(hass, "data", {}).get("djconnect", {}).get("session_runtime_manager") is not None):
+            from .session_runtime import capture_first_play_retirement
+            self._retire_startup = capture_first_play_retirement(hass, owner)
 
     @property
     def conf(self) -> dict[str, Any]:
@@ -482,6 +491,9 @@ class SpotifyBackend:
             from .ask_dj.dialogue import guard_effect_dispatch
 
             await guard_effect_dispatch(method=method, path=path, body=json)
+            if (callable(self._retire_startup) and (urlsplit(path).path == "/me/player/play"
+                    or (urlsplit(path).path == "/me/player" and isinstance(json, dict) and json.get("play") is True))):
+                self._retire_startup()
         async with self.session.request(
             method,
             SPOTIFY_API_BASE + path,

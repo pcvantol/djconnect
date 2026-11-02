@@ -183,6 +183,7 @@ class MoodMixCorrectionTests(unittest.IsolatedAsyncioTestCase):
                 return {'success':True, 'tracks':[{'uri':uri, 'name':'Exact mix track'} for uri in uris]}
             return {'success':True, 'queue':[], 'playlists':[]}
         backend = object.__new__(SpotifyBackend)
+        backend._retire_startup = None  # Constructor-bypassing provider transport fixture.
         backend.hass, backend.runtime = f.hass, f.runtime
         async def token(**kwargs):
             return 'SYNTHETIC_FIXTURE_TOKEN'
@@ -281,6 +282,7 @@ class MoodMixCorrectionTests(unittest.IsolatedAsyncioTestCase):
         from custom_components.djconnect.spotify_backend import SpotifyBackend
         from types import SimpleNamespace
         backend = object.__new__(SpotifyBackend)
+        backend._retire_startup = None  # Constructor-bypassing provider transport fixture.
         backend.runtime = SimpleNamespace(config={'spotify_market':'NL'})
         async def no_artists(names):
             self.assertEqual(names, [])

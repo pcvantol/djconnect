@@ -1,3 +1,8 @@
+> Historical version1: fixed-Mood startup semantics. The explicit updated owner
+> scope is Music DNA version2 plus playlist navigation, described in
+> [SESSION_START_ACTIONS_DNA_V2](SESSION_START_ACTIONS_DNA_V2.md). Original v1
+> schema, RAW and protected receipts retain their own scope.
+
 # Session first-play surprise mix v1
 
 This Core-owned action is separate from ordinary recommendations, automatic Mood

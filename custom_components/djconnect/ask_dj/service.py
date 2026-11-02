@@ -370,6 +370,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                             source_context=model_source(selected), selected_read_context=selected,
                             dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
                             archiveable=persist_history)
+        from ..session_runtime import capture_first_play_retirement
+        turn.retire_startup_after_play = capture_first_play_retirement(hass, profile_id)
         turn.source_request_hashes = source_request_hashes
         turn.unused_production_request_hash = unused_production_hash
         from ..reply_artwork import source_admission
