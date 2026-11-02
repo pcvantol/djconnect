@@ -290,7 +290,9 @@ class CurrentTrackInsightTests(IsolatedAsyncioTestCase):
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), digest, relative)
         self.assertEqual(hashlib.sha256((root / fixture["harness"]).read_bytes()).hexdigest(), fixture["harness_sha256"])
         self.assertTrue(fixture["source_unchanged"])
-        self.assertEqual(fixture["model_reply_fixture_calls"], 2)
+        self.assertEqual(fixture["model_reply_fixture_calls"], 4)
+        self.assertEqual(fixture["cases"]["explicit_current_actual_paired_http_resolves_cc0_without_opportunity_or_publication"], "PASS")
+        self.assertEqual(fixture["cases"]["on_demand_credits_never_fabricate_audio_measurements"], "PASS")
         self.assertEqual((fixture["installed"], fixture["native"], fixture["model_provider_calls"], fixture["playback_mutations"]),
                          ("NOT_RUN", "NOT_RUN", 0, 0))
         self.assertEqual(set(fixture["cases"].values()), {"PASS"})

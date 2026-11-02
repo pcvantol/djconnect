@@ -659,15 +659,23 @@ class SessionFactsResolver:
         self.backoff_until = 0.0
 
     async def _get(
-        self, path: str, params: dict[str, str] | None = None, *, wikidata: bool = False
+        self, path: str, params: dict[str, str] | None = None, *, wikidata: bool = False,
+        authorize=None,
     ) -> dict[str, Any]:
         async with self.lock:
+            if authorize is not None:
+                authorize()
             now = time.monotonic()
             if now < self.backoff_until:
                 return {}
             from . import musicbrainz_rate
-            if not wikidata and not await musicbrainz_rate.admit():
+            async def rate_guard():
+                authorize()
+            if not wikidata and not await musicbrainz_rate.admit(
+                    rate_guard if authorize is not None else None):
                 return {}
+            if authorize is not None:
+                authorize()
             url = (
                 "https://www.wikidata.org/w/api.php"
                 if wikidata
@@ -706,6 +714,8 @@ class SessionFactsResolver:
                     import json
 
                     result = json.loads(raw)
+                    if authorize is not None:
+                        authorize()
                     if isinstance(result, dict) and result.get("error"):
                         self.backoff_until = time.monotonic() + 60
                         return {}
@@ -713,7 +723,22 @@ class SessionFactsResolver:
             except (ValueError, OSError, ClientError, asyncio.TimeoutError):
                 return {}
 
-    async def resolve(self, catalog: dict[str, Any]) -> tuple[QualifiedSessionFact, ...]:
+    async def resolve(self, catalog: dict[str, Any], *, authorize=None,
+                      credits_only: bool = False) -> tuple[QualifiedSessionFact, ...]:
+        # Explicit detail uses the same public resolver and rate limiter, with
+        # original request authority around every wait. Legacy Session callers
+        # retain their existing complete fact lookup.
+        async def get(*args, **kwargs):
+            if authorize is not None:
+                authorize()
+                kwargs["authorize"] = authorize
+            value = await self._get(*args, **kwargs)
+            if authorize is not None:
+                authorize()
+            return value
+
+        if authorize is not None:
+            authorize()
         facts = catalog_facts(catalog)
         uri, title, artist = (
             str(catalog.get("uri") or ""),
@@ -729,7 +754,7 @@ class SessionFactsResolver:
         ):
             return tuple(facts)
         async with asyncio.timeout(35):
-            data = await self._get("isrc/" + isrc, {"fmt": "json", "inc": "artist-credits"})
+            data = await get("isrc/" + isrc, {"fmt": "json", "inc": "artist-credits"})
             recordings = data.get("recordings") or []
             # An ISRC reused for multiple recordings is ambiguous, even if one title looks close.
             if len(recordings) != 1 or not isinstance(recordings[0], dict):
@@ -744,7 +769,7 @@ class SessionFactsResolver:
             recording_id = str(recording.get("id") or "")
             if not MBID.fullmatch(recording_id):
                 return tuple(facts)
-            detailed = await self._get(
+            detailed = await get(
                 "recording/" + recording_id,
                 {"fmt": "json", "inc": "artist-credits+artist-rels+work-rels+work-level-rels"},
             )
@@ -758,10 +783,12 @@ class SessionFactsResolver:
                 return tuple(facts)
             facts.extend(recording_facts(catalog, detailed))
             facts.extend(work_facts(catalog, detailed))
+            if credits_only:
+                return tuple(facts[:6])
             if len(credit) == 1 and isinstance(credit[0], dict):
                 artist_id = str(credit[0].get("artist", {}).get("id") or "")
                 if MBID.fullmatch(artist_id):
-                    person = await self._get(
+                    person = await get(
                         "artist/" + artist_id, {"fmt": "json", "inc": "url-rels"}
                     )
                     if person.get("id") == artist_id and match_name(
@@ -782,7 +809,7 @@ class SessionFactsResolver:
                         }
                         if len(wikidata_ids) == 1:
                             qid = next(iter(wikidata_ids))
-                            entity_data = await self._get(
+                            entity_data = await get(
                                 "",
                                 {
                                     "action": "wbgetentities",

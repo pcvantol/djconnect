@@ -78,9 +78,25 @@ current-playback fence and the proof has a short original lifetime.
 
 The existing exact-artist genre helper may supply display-only `track.genres`.
 Its original owner/source deadline remains intact. Catalog identity, names,
-artwork and genres do not grant model ingestion. Only the already qualified
-current CC0 recording/work-credit context can enter the existing guarded
-analysis and independent assessment path. The original Session backend, account,
+artwork and genres do not grant model ingestion. Only independently qualified current CC0 recording/work-credit context can
+enter the existing guarded analysis and independent assessment path. Already
+qualified opportunity facts are reused first. If absent, the explicit closed
+current selector alone may perform one user-triggered lookup using the EXISTING
+HA-wide SessionFactsResolver and its shared MusicBrainz rate limiter. Its original
+Spotify observation supplies immutable exact URI/title/artist/ISRC lookup anchors,
+never model evidence. A unique exact ISRC recording and exact detailed recording
+must qualify a MusicBrainz CC0 recording/work credit through the same normalizer.
+Only two public MusicBrainz reads are needed; artist/Wikidata enrichment is not
+part of this request. The complete lookup has at most five seconds within the
+original thirty-second frame; no retry, renewal or background task is added.
+The original owner/source guard runs after resolver-lock and global-rate waits,
+before HTTP and after response acceptance, and stays retained through model,
+assessment, cache and final transport. Cancellation propagates. No original
+Session/source authority, invalid ISRC, missing/ambiguous evidence or source
+unavailability leaves the existing honest unmeasured response. Withdrawal is
+rejected rather than silently downgraded. Fresh credits remain local to this
+request; they never create a fake opportunity or publish a Moment. Ordinary
+requests without the explicit selector retain the existing reuse-only path. The original Session backend, account,
 provider entry and provider account must match the current qualified binding;
 reuse the existing source authority before selection and in the retained guard.
 Every current Session-CC0 route uses this join, including ordinary requests

@@ -234,8 +234,8 @@ async def main():
         assert mode.get("allow_model"), "Catalog-only or old-source context has no model grant"
         body = ({"supported": True, "language_ok": True, "style_ok": True}
                 if "Review every claim" in data["text"] else
-                {"summary": "Een gekwalificeerde componistbijdrage.",
-                 "full_text": "Een gekwalificeerde componistbijdrage.", "listening_cues": []})
+                {"summary": "Een gekwalificeerde producentbijdrage." if mode.get("lookup_context") else "Een gekwalificeerde componistbijdrage.",
+                 "full_text": "Een gekwalificeerde producentbijdrage." if mode.get("lookup_context") else "Een gekwalificeerde componistbijdrage.", "listening_cues": []})
         return {"response": {"speech": {"plain": {"speech": json.dumps(body)}}}}
 
     async def provider(req):
@@ -451,6 +451,42 @@ async def main():
                     assert not record.get(key)
             memory_before = deepcopy(rt.memory.data)
             cases["legacy_status_no_optout_learning"] = "PASS"
+            # Explicit detail must work even before any opportunity has acquired
+            # credits. Only external MusicBrainz replies are synthetic here;
+            # real paired HTTP, source authority, resolver qualification, Assist,
+            # independent assessment and delivery remain the shipping chain.
+            from custom_components.djconnect.session_facts import SessionFactsResolver
+            recording_id = "22222222-2222-2222-2222-222222222222"
+            credit_recording = {"id": recording_id, "title": TRACK["name"],
+                "artist-credit": [{"artist": {"name": TRACK["artists"][0]["name"]}}]}
+            lookup_calls = []
+            class CreditWireFixture(SessionFactsResolver):
+                async def _get(self, path, params=None, **kwargs):
+                    lookup_calls.append(path)
+                    if path.startswith("isrc/"):
+                        return {"recordings": [credit_recording]}
+                    assert path == "recording/" + recording_id
+                    return {**credit_recording, "relations": [{"type": "producer", "target-type": "artist",
+                        "artist": {"name": "Fixture producer"}}]}
+            manager._intra_track_opportunities.pop("artwork-profile", None)
+            TRACK["external_ids"] = {"isrc": "USABC0100001"}
+            hass.data["djconnect"]["session_facts_resolver"] = CreditWireFixture(hass)
+            mode["allow_model"] = True
+            mode["lookup_context"] = True
+            code, looked_up = await detail()
+            assert code == 200, looked_up
+            assert looked_up["analysis"]["basis"] == "qualified_credit_and_interpretation_v1", looked_up
+            assert "Fixture producer" in looked_up["analysis"]["verified_context"]
+            assert len(model_calls) == 4
+            assert lookup_calls == ["isrc/USABC0100001", "recording/" + recording_id]
+            assert "artwork-profile" not in manager._intra_track_opportunities
+            assert len(active.broadcast.state.dj_moments) == count
+            for key in ("energy", "danceability", "intensity", "mood", "vibe", "texture"):
+                assert looked_up["analysis"][key] is None
+            cases["explicit_current_actual_paired_http_resolves_cc0_without_opportunity_or_publication"] = "PASS"
+            cases["on_demand_credits_never_fabricate_audio_measurements"] = "PASS"
+            responses["on_demand_credit"] = looked_up
+            mode["allow_model"] = False
             entered.clear()
             release.clear()
             mode["delay_at"] = mode["reads"] + 1
@@ -467,7 +503,7 @@ async def main():
                     pending.cancel()
                     await asyncio.gather(pending, return_exceptions=True)
             cases["paired_authority_withdrawn_during_source_read"] = "PASS"
-            assert len(model_calls) == 2
+            assert len(model_calls) == 4
             assert rt.memory.data == memory_before
             assert storage.household == before_storage
             cases["withdrawn_closed_current_remains_inert"] = "PASS"

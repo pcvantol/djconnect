@@ -1,3 +1,22 @@
+## 2026-11-02 — Track Insight current-credit retrieval
+
+The explicit current Track Insight request can use the existing bounded exact-ISRC
+MusicBrainz CC0 resolver when no current Session opportunity already holds an
+eligible recording/work credit. Original current owner, Session/Broadcast,
+four-field source authority, history/settings, output and observation expiry
+remain mandatory before and after every wait; absence grants no model input.
+No opportunity, publication, playback, Profile or Music DNA is created.
+
+[Current-detail contract](docs/product/CURRENT_TRACK_INSIGHT_SUBJECT_V1.md) and
+[verification](docs/verification/TRACK_INSIGHT_CURRENT_KNOWLEDGE_20261102.md)
+distinguish checked credit context from absent audio measurements. No energy,
+danceability, intensity, mood, vibe or texture is invented from metadata. Apple
+[owning correction #296](https://github.com/pcvantol/djconnect-app/issues/296)
+must omit empty panels and retain real source/context boundaries. Consumer,
+installed, provider and native acceptance remain separate from this source.
+Preserve all24/nine requests, qualified date Source1419/Final1420 (not installed),
+Pi rc7 Source1417/Final1418 and its owning-consumer/watchdog/device gates.
+
 ## 2026-11-02 — Date localization Source1419 original qualified
 
 Date-format source [#1419](https://github.com/pcvantol/djconnect/pull/1419) is protected
