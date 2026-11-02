@@ -23,8 +23,13 @@ ANGLES = {
 }
 
 
-def band_age_question(research, language):
+def band_age_question(research, language, *, question=""):
     """Clarify a source-identified group, never infer a person's age or birth date."""
+    # An explicit selection of band duration/founding resolves the ambiguity;
+    # it is still not evidence of the founding date or an uninterrupted career.
+    if (re.fullmatch(r'(?:band|the band|de band|die band|le groupe|la banda)[.!? ]*', question, re.I)
+            or re.search(r'hoe lang.*bestaat|how long.*(?:existed|exist)|wanneer.*opgericht|when.*(?:formed|founded)|wann.*gegründet|quand.*fondé|cuándo.*fundad', question, re.I)):
+        return None
     from datetime import UTC, datetime
     from .biographical_dates import _group_source, _UNSAFE
     from .public_research import safe_subject, _sentences

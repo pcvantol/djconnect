@@ -1,3 +1,14 @@
+## 2026-11-02 — Question purpose and exact person dates
+
+Keep the existing read/interpreter/expression owner. Retain only a bounded
+question angle in its original public-topic reference; no answer or authority
+is inherited. Explicit public-question source profiles may use16reads/20seconds;
+proactive eight-read owners are unchanged. Prefer independent publishers before
+same-entity translations. Exact reciprocal person dates support local calendar
+arithmetic; never manufacture a birthday, life state or public name by casing
+private prose. See docs/product/ASK_DJ_QUESTION_CONTINUITY_V1.md. One combined
+owner-requested PR; real prose and installed acceptance remain separate.
+
 ## 2026-11-02 — Existing public artist identity and expression owners
 
 Reuse the shared exact artist-URL/reciprocal MusicBrainz/Wikidata identity function

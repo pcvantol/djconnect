@@ -123,6 +123,7 @@ class PublicQueryReference:
     request_hash: str
     scope: str
     thread_id: str
+    angle: str = ""  # Bounded question purpose only, never evidence or authority.
 
 
 @dataclass
@@ -236,6 +237,7 @@ class DialogueTurn:
     play_output_id: str = ""
     read_context_revision: int = field(init=False)
     public_query_candidate: str = ''
+    public_query_angle: str = ''
     public_reference_at_start: PublicQueryReference | None = field(init=False)
     public_reference_revision_at_start: int = field(init=False)
     pending_at_start: dict | None = field(init=False)
@@ -557,7 +559,7 @@ class DialogueState:
                       '_dependencies': deepcopy(turn.dependencies)}
         frame.current_client_id = turn.client_id
         if turn.public_query_candidate:
-            from .exploration import named_in_question
+            from .exploration import ANGLES, named_in_question
             from .public_research import safe_subject
             candidate = safe_subject(turn.public_query_candidate, qualified=True)
             question = result.get('_dialogue_question', '')
@@ -565,7 +567,8 @@ class DialogueState:
                 from ..ask_dj_history import _request_hash
                 frame.public_query_reference = PublicQueryReference(
                     candidate, _request_hash(turn.scope, turn.client_id),
-                    turn.scope, turn.thread_id)
+                    turn.scope, turn.thread_id,
+                    turn.public_query_angle if turn.public_query_angle in ANGLES else "")
                 frame.public_query_revision += 1
         live_ids = set(frame.catalogue_replays) | set(frame.inflight) | {
             m.get('_client_id') for m in (*frame.messages, *frame.local_turns)}
@@ -1141,7 +1144,7 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
             "Omit other biography dates; an excerpt year alone is insufficient. "
             "Keep uncertainty and conflicts explicit, especially for concerts. If evidence is missing, say so briefly. "
             "Write only natural connected prose, not JSON, bullets, metadata or markdown emphasis. "
-            "No unasked playback suggestion or fixed greeting. End with one relevant, open follow-up question about the supported subject; never imply an unsupported fact in its premise. "
+            "No unasked playback suggestion or fixed greeting. Answer a precise factual question directly and stop when answered; no compulsory follow-up. For an open exploration, one relevant open follow-up may help; never imply an unsupported fact in its premise. "
         )
         if projection['public_music_research'].get('editorial_focus'):
             instructions += (
@@ -1254,7 +1257,7 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
     if operation == "answer" and researched:
         instructions += (
             " Prefer a new useful angle rather than repeating earlier answers or the selected contribution. "
-            "The final follow-up invites this listener to deepen the same supported musical subject; "
+            "If a follow-up is useful for an open exploration, it invites this listener to deepen the same supported musical subject; "
             "it is not a generic offer to help, a promise of playback, or a new factual assertion. "
             "No obligatory joke or slogan. Keep the chosen Persona and independent Mood in its rhythm. "
         )

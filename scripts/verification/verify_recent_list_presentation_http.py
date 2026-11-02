@@ -108,7 +108,7 @@ async def qualify(hass, manager, history, request, client):
     assert age["knowledge_basis"] == "public_subject_clarification_v1"
     assert age["text"] == "Bedoel je hoe lang de band Example Band bestaat, of de leeftijd van een specifieke muzikant?"
     assert not age.get("playback_actions") and "model_processing_basis" not in age
-    assert age["conversation"]["metrics"]["agent_calls"] == len(age_calls) == 1
+    assert age["conversation"]["metrics"]["agent_calls"] == len(age_calls) == 0  # Exact public slot needs no interpreter call.
     source_data = dict(source_entry.data)
     source_data.pop("spotify_refresh_token", None)
     hass.config_entries.async_update_entry(source_entry, data=source_data)

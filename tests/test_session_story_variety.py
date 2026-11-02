@@ -597,7 +597,8 @@ assert.equal(validate(bad),null);"""
         self.assertIn('recorded Paper Lanterns',web.text)
         self.assertNotIn('Discovery text',web.text)
         self.assertIn('https://artist.example.org/robots.txt',calls)
-        self.assertEqual(calls[-1],'https://artist.example.org/about')
+        self.assertLess(calls.index('https://artist.example.org/about'),
+                        next(i for i,url in enumerate(calls) if url.startswith('https://en.wikipedia.org/')))
         self.assertEqual(state['requests'],8)
         self.assertEqual(len(calls),8)
 

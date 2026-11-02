@@ -809,7 +809,7 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result['text'], answer)
         self.assertEqual(result['knowledge_basis'], 'public_subject_clarification_v1')
         self.assertTrue(result['clarification_required'])
-        self.assertEqual(len(calls), 1)
+        self.assertEqual(len(calls), 0)  # Literal public name; no routing-model call needed.
         self.assertFalse(result.get('playback_actions'))
         self.assertEqual(f.effects, [])
 
