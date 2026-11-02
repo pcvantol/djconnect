@@ -2929,13 +2929,19 @@ async def _informational_assist_response(
             fetched_sources, research_state = await public_research.research(
                 subject, text, turn.style.get("language", "en"), turn.guard,
                 qualified_music=qualified_music,
-                original_paragraphs=bool(research_subject or public_research.rich_introduction(text)),
+                original_paragraphs=bool(research_subject or research_angle == "members"
+                                         or public_research.rich_introduction(text)),
                 artist_introduction=bool(research_subject and not contextual_research),
                 research_angle=research_angle,
                 **({'lookup_topic':lookup_topic} if lookup_topic else {}),
                 expected_roles=tuple(s.get("role") for s in turn.source_context.get("subjects", [])
                                      if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
             turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)
+            if research_angle == "members":
+                from .band_story import band_identity
+                turn.membership_research = bool(band_identity(tuple(fetched_sources), subject)
+                    and turn.public_research.get("schema_version") == 3)
+
             if research_state.get('exact_date') == 'conflicting_dates':
                 message = public_research.unavailable_answer(turn.style.get('language', 'en'), answer_unverified=True)
                 await turn.guard()
@@ -3051,8 +3057,9 @@ async def _informational_assist_response(
     draft_context = None
     draft_pool = None
     artist_corpus = None
-    if (turn and fetched_sources and turn.interpreted_artist_research
-            and not turn.interpreted_context_research
+    if (turn and fetched_sources
+            and ((turn.interpreted_artist_research and not turn.interpreted_context_research)
+                 or turn.membership_research)
             and turn.public_research.get('schema_version') == 3):
         from .dialogue import selected_public_focus
         draft_context = {"public_music_research": turn.public_research,
@@ -3090,7 +3097,15 @@ async def _informational_assist_response(
         turn = current_turn.get()
         if turn:
             await turn.guard()
-        typed_artist = artist_corpus is not None and str(language).split("-")[0].lower() in {"en", "nl"}
+        from ..structured_playback import TASK_CONFIG
+        configured_task = (getattr(runtime, "config", {}) or {}).get(TASK_CONFIG)
+        # This new membership presentation also supports the existing qualified
+        # conversation agent when no public task was configured. Choose before
+        # any I/O; an explicitly configured task failure never changes provider.
+        conversation_membership = (turn is not None and turn.membership_research
+            and (configured_task is None or configured_task == ""))
+        typed_artist = (artist_corpus is not None and not conversation_membership
+            and str(language).split("-")[0].lower() in {"en", "nl"})
         if typed_artist:
             from ..structured_artist import generation
             from ..structured_playback import TASK_CONFIG
@@ -3165,6 +3180,8 @@ async def _informational_assist_response(
                 return answer
             try:
                 draft_pool = artist_evidence_drafts(message, artist_corpus, normalize_draft)
+                if turn.membership_research and len(draft_pool.texts) != 1:
+                    raise ValueError("membership_requires_one_whole_draft")
                 from ..artist_review_words import AnswerWordReview
                 word_review = AnswerWordReview.capture(draft_pool)
             except (ValueError, TypeError, RecursionError, UnicodeError) as exc:
@@ -3217,7 +3234,8 @@ async def _informational_assist_response(
                 from .dialogue import selected_public_focus
                 if focus := selected_public_focus(turn):
                     grounding_context['selected_contribution'] = focus
-            id_review = bool((turn.interpreted_artist_research or turn.interpreted_context_research)
+            id_review = bool((turn.interpreted_artist_research or turn.interpreted_context_research
+                or turn.membership_research)
                 and turn.public_research.get('schema_version') == 3)
             from ..public_artist_narration import complete_review_projection, resolve_review_quotes
             review_context = complete_review_projection(grounding_context,
@@ -3328,6 +3346,12 @@ async def _informational_assist_response(
             response["links"] = [{"kind": "source", "title": source.get("title", source.get("provider", "Source")),
                                   "url": source["url"], "source": source.get("provider", "Source")}
                                  for source in response["sources"] if source.get("url")]
+        if accepted and turn.membership_research:
+            from .band_story import band_identity, prepare_photo
+            identity = band_identity(tuple(fetched_sources),
+                turn.public_research.get("resolved_public_subject", ""))
+            response["images"] = await prepare_photo(hass, runtime, turn, identity)
+            await turn.guard()
         research_state = {**research_state, 'answer_state': answer_state}
     if research_state:
         response["public_research_status"] = research_state
@@ -9353,6 +9377,12 @@ def _provided_images(hass: HomeAssistant, provided: Any) -> list[dict[str, Any]]
         if not url:
             continue
         proxy = register_image_proxy_url(hass, str(url))
+        if "/image_proxy/band-" in proxy:
+            from .band_story import projection_for_url
+            photo = projection_for_url(hass, proxy)
+            if photo is not None:
+                images.append(photo)
+            continue
         images.append({"url": proxy, "thumbnail_url": proxy, "title": str(item.get("title") or "Image"), "subtitle": str(item.get("subtitle") or ""), "kind": str(item.get("kind") or "image"), "source": str(item.get("source") or "source")})
     return images
 

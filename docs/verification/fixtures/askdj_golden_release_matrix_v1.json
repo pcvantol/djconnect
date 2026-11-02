@@ -3986,6 +3986,58 @@
             {
               "file": "tests/test_ask_dj_contextual_dialogue.py",
               "method": "test_public_research_five_language_wikipedia_selection_and_revision"
+            },
+            {
+              "file": "tests/test_ask_dj_band_story.py",
+              "method": "test_current_source_and_original_ha_receipt_are_exact_and_not_editorial_acceptance"
+            },
+            {
+              "file": "tests/test_ask_dj_band_story.py",
+              "method": "test_distinct_provider_unload_scrubs_without_a_get"
+            },
+            {
+              "file": "tests/test_ask_dj_band_story.py",
+              "method": "test_empty_partial_duplicate_credentials_do_not_downgrade_to_headerless"
+            },
+            {
+              "file": "tests/test_ask_dj_band_story.py",
+              "method": "test_expiry_and_actual_entry_unload_remove_assets"
+            },
+            {
+              "file": "tests/test_ask_dj_band_story.py",
+              "method": "test_explicit_membership_uses_complete_artist_route"
+            },
+            {
+              "file": "tests/test_ask_dj_band_story.py",
+              "method": "test_explicit_task_lost_from_assist_projection_cannot_select_another_path"
+            },
+            {
+              "file": "tests/test_ask_dj_band_story.py",
+              "method": "test_interpreted_membership_uses_complete_artist_route"
+            },
+            {
+              "file": "tests/test_ask_dj_band_story.py",
+              "method": "test_observed_withdrawal_is_terminal_and_scrubs_original_bytes"
+            },
+            {
+              "file": "tests/test_ask_dj_band_story.py",
+              "method": "test_original_pixels_and_attribution_survive_normalization_without_refetch"
+            },
+            {
+              "file": "tests/test_ask_dj_band_story.py",
+              "method": "test_registry_capacity_is_bounded_and_stop_scrubs_all"
+            },
+            {
+              "file": "tests/test_ask_dj_band_story.py",
+              "method": "test_targeted_privacy_clear_is_not_hidden_by_dialogue_revision"
+            },
+            {
+              "file": "tests/test_ask_dj_band_story.py",
+              "method": "test_unified_erase_scrubs_original_pixels_after_store_ack_without_get"
+            },
+            {
+              "file": "tests/test_session_artist_images.py",
+              "method": "test_original_commons_thumbnail_host_is_bound_to_the_exact_original_file"
             }
           ],
           "acceptance_status": "owner_contract",
@@ -10406,7 +10458,8 @@
     "tests/test_ask_dj_exploration.py",
     "tests/test_mood_music_steering.py",
     "tests/test_ask_dj_biographical_dates.py",
-    "tests/test_session_retention_policy.py"
+    "tests/test_session_retention_policy.py",
+    "tests/test_ask_dj_band_story.py"
   ],
   "issue_policy": {
     "new_findings": "Add a named failing reproduction and semantic expected answer in the same corrective candidate; preserve it after the fix.",

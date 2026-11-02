@@ -26,7 +26,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 
 | Local design source | SHA256 |
 |---|---|
-| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `ac22edb77e39390947cac2b4d120702ff1f47e51167b424e83107613e44c4851` |
+| [PRODUCT_ROADMAP.md](../../../PRODUCT_ROADMAP.md) | `6c4e3406a04bd0d6e7b35564d5f04e36a40bab0ea23034f198be9d647f0a86aa` |
 | [PRODUCT_BACKLOG.md](../../../PRODUCT_BACKLOG.md) | `79a0d260495ff36e70e0cfbdfa1a6c36ed290e82315c874b1ab7cb7e34af5634` |
 | [docs/product/DJ_PRESENCE_V1.md](../../../docs/product/DJ_PRESENCE_V1.md) | `c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4` |
 | [DJ_SESSION_RUNTIME_CONTRACTS.md](../../../DJ_SESSION_RUNTIME_CONTRACTS.md) | `637b4b0018be25405d21cf9a2c873f1e36534bfe14d3d54fc42b5d78f3ccc0ac` |
@@ -36,7 +36,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/DJ_PRESENCE_CORE_POLICY_V1.md](../../../docs/product/DJ_PRESENCE_CORE_POLICY_V1.md) | `8d8a0871538d18df4a273c583836b29a4e45f3cb5f95ed663f8bde21977fde7e` |
 | [docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md](../../../docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) | `be132d88b24f54659f4ab64e8381b4d2e3a45e3fdd874ce37ab6cf5e515bcc9c` |
 | [docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md](../../../docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md) | `66afc37ff6b71b0dacffe6e340ccde274bd3f0f7354155920ebd327fd822ed98` |
-| [API_CONTRACT.md](../../../API_CONTRACT.md) | `3089cb7591c7639f727dab0fa82496334fc8c14144bc75983086a1a6d1b42bf7` |
+| [API_CONTRACT.md](../../../API_CONTRACT.md) | `c4a598a1b8b4e5cacbd1543a5f21e670fbccf515ea3749cab5bf47919b0d938a` |
 | [docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md](../../../docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md) | `179d45df97a9f4e260c90fdfa211563f6ed2789ec78a0e691f4d89784c4f5552` |
 | [docs/product/DJ_INTELLIGENCE_MATURITY.md](../../../docs/product/DJ_INTELLIGENCE_MATURITY.md) | `d74bd11b57afda561c21bc3df0cd829c5a2ae0b3baf6e8138a89e91d1c5b8241` |
 | [docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md](../../../docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md) | `d06d2563b1de4fcfdff15bd76e0952e19f0970666b8ce5677db10cf6ee11a2ed` |
@@ -111,7 +111,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/history/prompts/2026-10-16-profile-session-settings-finalization.md](../../../docs/history/prompts/2026-10-16-profile-session-settings-finalization.md) | `fd8f95f219e8293cc4133e1e7543209c66993fa3e636c52f83d189df640b013d` |
 | [docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md](../../../docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md) | `d48a23e8367250cc30156b197b9f05f203848bc23eaeef16c336e6506c938e09` |
 | [docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md](../../../docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) | `240bf5f06c8381376ed4f1330fedfb75943d5469d9f2c84a8272cf7bd45046d7` |
-| [docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md](../../../docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md) | `061f5eca3129f4e418d879c0abfa23709394ae5e7e8ca8026fa393b3a063370a` |
+| [docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md](../../../docs/product/ASK_DJ_PUBLIC_MUSIC_RESEARCH_V1.md) | `2a9a8888e7a4f927b224bc529c7571cdf78363a0074745f1178a189b3eece1e0` |
 | [docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md](../../../docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md) | `6144b95a829a9a92bc4225bb599885efdf69dad0b5e17184542637bb4741a0fa` |
 | [docs/product/SESSION_VOICE_PREVIEW_V1.md](../../../docs/product/SESSION_VOICE_PREVIEW_V1.md) | `1c34f2eebad7fd3bbffb6a96a37aa35be3271da86b511cafb76a9e99ced13fd8` |
 | [docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md](../../../docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md) | `01005eb8ec55e996a9c18723dea9aae1c3eb8d43b2b8c9a5fea07a73be26b36f` |

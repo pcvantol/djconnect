@@ -12,11 +12,11 @@ class PersonaStoryActualHATest(unittest.TestCase):
 
     def test_current_source_and_verifiers_are_bound_to_the_original_actual_ha_trace(self):
         root, receipt = self.fixture()
-        self.assertEqual(len(receipt['source_pins']), 303)
+        self.assertEqual(len(receipt['source_pins']), 304)
         for name, digest in {**receipt['source_pins'], **receipt['original_common_harness_source_pins'],
                              receipt['harness']: receipt['harness_sha256']}.items():
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
-        self.assertTrue(receipt['all303_before_inside_after_equal'])
+        self.assertTrue(receipt['all304_before_inside_after_equal'])
         self.assertTrue(receipt['own_container_verified_absent'])
         self.assertIn('NOT_REAL_PROSE_OR_INSTALLED', receipt['classification'])
         self.assertEqual((receipt['external_network_calls'], receipt['paid_model_calls']), (0, 0))

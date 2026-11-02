@@ -5,6 +5,8 @@ on:
     paths:
       - '.github/workflows/help-container-preflight.yml'
       - 'tools/verification/verify_help_container_preflight.py'
+      - 'tools/verification/run_askdj_release_matrix.py'
+      - 'tools/verification/run_askdj_owner_contracts.py'
       - 'tools/verification/run_help_catalogue_qualification_20261023.py'
       - 'scripts/verification/**'
       - 'custom_components/djconnect/**'
@@ -15,6 +17,8 @@ on:
     paths:
       - '.github/workflows/help-container-preflight.yml'
       - 'tools/verification/verify_help_container_preflight.py'
+      - 'tools/verification/run_askdj_release_matrix.py'
+      - 'tools/verification/run_askdj_owner_contracts.py'
       - 'tools/verification/run_help_catalogue_qualification_20261023.py'
       - 'scripts/verification/**'
       - 'custom_components/djconnect/**'
@@ -39,6 +43,30 @@ jobs:
           python3 tools/verification/verify_help_container_preflight.py \
             --source-root "$GITHUB_WORKSPACE" \
             --report-dir "$RUNNER_TEMP/help-container-preflight"
+      - name: Run the first release owner contract without credentials or network
+        run: |
+          python3 - <<'PYCODE'
+          import json, os
+          from pathlib import Path
+          from tools.verification.run_askdj_release_matrix import IMAGE, owned_run
+          output = Path(os.environ["RUNNER_TEMP"]) / "release-owner-contract-preflight"
+          output.mkdir(mode=0o700)
+          code = owned_run([IMAGE, "/candidate/tools/verification/run_askdj_owner_contracts.py",
+              "test_pipeline.py", "/lab/owner-contracts.json"], payload={}, directory=output,
+              seconds=240, network="none")
+          proof = output / "owner-contracts.json"
+          result = json.loads(proof.read_text()) if proof.is_file() else {}
+          assert code == 0 and result.get("status") == "PASS" and result.get("tests_run", 0) > 0
+          assert result.get("paid_attempts") == 0 and result.get("network") == "none"
+          PYCODE
+      - name: Preserve the closed first-owner receipt
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-owner-contract-preflight
+          path: ${{ runner.temp }}/release-owner-contract-preflight/owner-contracts.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Preserve only closed cost-free receipt
         if: ${{ always() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

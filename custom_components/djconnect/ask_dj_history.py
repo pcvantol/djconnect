@@ -48,14 +48,14 @@ def _committed_mutation(method):
                         await _settle_store_writer(asyncio.create_task(
                             self._store.async_save(_compact_store_data(self._data))))
                 else:
-                    self._data = staged._data
+                    self._publish_committed_data(staged._data)
                 raise
             except Exception:
                 if staged._committed_store_write and self._store is not None:
                     await _settle_store_writer(asyncio.create_task(
                         self._store.async_save(_compact_store_data(self._data))))
                 raise
-            self._data = staged._data
+            self._publish_committed_data(staged._data)
             return result
 
     return commit
@@ -212,6 +212,41 @@ class AskDJHistoryManager:
         self._deletion_barriers = set()
         self._data: dict[str, Any] = {"version": STORE_VERSION, "global_clear_revision": 0, "users": {}}
 
+    def _publish_committed_data(self, data):
+        """Publish Store-acknowledged state and retire old public-photo leases."""
+        before = self._data
+        self._data = data
+        from .const import DOMAIN
+        registry = getattr(self.hass, "data", {}).get(DOMAIN, {}).get("public_band_images")
+        if registry is None:
+            return
+        from .ask_dj.band_story import BandImages
+        if type(registry) is not BandImages:
+            return
+        old_users, new_users = before.get("users", {}), data.get("users", {})
+        changed = frozenset(scope for scope in set(old_users) | set(new_users)
+            if scope.startswith("profile:") and any(
+                old_users.get(scope, {}).get(key, 0) != new_users.get(scope, {}).get(key, 0)
+                for key in ("clear_revision", "history_trimmed_count")))
+        if changed:
+            registry.invalidate_history(self, changed)
+
+    def live_public_images(self, scope, request_id):
+        """Read a still-valid original photo lease without fetching or renewing it."""
+        from .const import DOMAIN
+        from .ask_dj.band_story import BandImages
+        registry = getattr(self.hass, "data", {}).get(DOMAIN, {}).get("public_band_images")
+        return registry.for_request(self, scope, request_id) if type(registry) is BandImages else []
+
+    def _project_public_media(self, scope, messages):
+        """Read existing live capabilities only; no fetch, lease renewal or Store write."""
+        for message in messages:
+            if message.get("role") == "assistant":
+                pictures = self.live_public_images(scope, message.get("client_message_id"))
+                if pictures:
+                    message["images"] = pictures
+        return messages
+
     def register_session_request(self, scope: str, client_id: str) -> None:
         self._pending_session_requests.setdefault(scope, Counter())[client_id] += 1
 
@@ -250,7 +285,7 @@ class AskDJHistoryManager:
             self._require_settled_erasure()
             if not self._loaded:
                 loaded = await self._store.async_load() if self._store is not None else None
-                self._data = _normalize_store_data(loaded)
+                self._publish_committed_data(_normalize_store_data(loaded))
                 self._loaded = True
             return self._data
 
@@ -350,7 +385,8 @@ class AskDJHistoryManager:
 
             async def save():
                 await self._store.async_save(_compact_store_data(data))
-                self._data, self._loaded, self._erasure_uncertain = data, True, False
+                self._publish_committed_data(data)
+                self._loaded, self._erasure_uncertain = True, False
                 return durable
 
             task = asyncio.create_task(save())
@@ -364,7 +400,7 @@ class AskDJHistoryManager:
         """Only after the coordinator proves no durable intent was installed."""
         async with self._write_lock:
             loaded = await self._store.async_load() if self._store is not None else None
-            self._data = _normalize_store_data(loaded)
+            self._publish_committed_data(_normalize_store_data(loaded))
             self._loaded, self._erasure_uncertain = True, False
             self._deletion_barriers.discard(barrier)
 
@@ -437,7 +473,7 @@ class AskDJHistoryManager:
             async def save():
                 if changed and self._store is not None:
                     await self._store.async_save(_compact_store_data(data))
-                self._data = data
+                self._publish_committed_data(data)
                 self._loaded = True
                 self._erasure_uncertain = False
                 return removed
@@ -482,7 +518,7 @@ class AskDJHistoryManager:
             "history_revision": int(state.get("history_revision") or 0),
             "clear_revision": self._effective_clear_revision(state, user_key),
             **_history_limit_metadata(state),
-            "messages": deepcopy(messages),
+            "messages": self._project_public_media(user_key, deepcopy(messages)),
             "server_time": _now(),
         }
 
@@ -755,6 +791,18 @@ class AskDJHistoryManager:
         if user_key.startswith("profile:"):
             revision -= _targeted_clear_revision(state)
         return str(state.get("history_trimmed_count",0))+":"+str(revision)
+
+    def media_privacy_revision(self, scope_key: str) -> str:
+        """Original public-media lease fence, including targeted erase/forget.
+
+        Ordinary message appends do not renew or revoke image leases. Unlike
+        dialogue scope_revision, every committed targeted privacy clear counts.
+        """
+        self._require_settled_erasure()
+        user_key = _user_key(scope_key)
+        state = self._data.get("users", {}).get(user_key, {})
+        return str(state.get("history_trimmed_count", 0)) + ":" + str(
+            self._effective_clear_revision(state, user_key))
 
     def scope_revision_for_receipt(self, scope_key: str, receipt: dict) -> str:
         """Compare an append receipt in the server privacy revision domain."""

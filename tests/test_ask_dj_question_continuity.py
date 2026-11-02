@@ -32,7 +32,7 @@ class QuestionContinuityTests(unittest.IsolatedAsyncioTestCase):
                 / "examples/client_contracts/ask_dj_question_continuity_v1/actual-ha-current.json"
             ).read_text()
         )
-        self.assertEqual(len(proof["source_pins"]), 303)
+        self.assertEqual(len(proof["source_pins"]), 304)
         for name, digest in {
             **proof["source_pins"],
             **proof["original_common_harness_source_pins"],

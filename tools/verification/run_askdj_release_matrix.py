@@ -148,11 +148,13 @@ def validate_prosody_report(raw, directory):
 
 def owned_run(args, *, payload, directory, seconds, network):
     name = 'djc-golden-' + os.urandom(8).hex()
-    cmd = ['docker', 'run', '--rm', '-i', '--name', name, '--network', network,
+    cmd = ['docker', 'run', '--rm', '-i', '--name', name,
+           '--user', f'{os.getuid()}:{os.getgid()}', '--network', network,
            '--memory', '1g', '--cpus', '2', '--pids-limit', '256',
            '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges',
            '--workdir', '/candidate', '--entrypoint', 'python',
-           '-e', 'PYTHONPATH=/candidate', '-e', 'DJC_SOURCE_ROOT=/candidate',
+           '-e', 'PYTHONPATH=/candidate', '-e', 'PYTHONDONTWRITEBYTECODE=1',
+           '-e', 'HOME=/lab', '-e', 'DJC_SOURCE_ROOT=/candidate',
            '-v', str(ROOT)+':/candidate:ro', '-v', str(directory)+':/lab', *args]
     try:
         with (directory/'private.log').open('w') as log:
