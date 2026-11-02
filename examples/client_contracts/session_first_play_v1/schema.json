@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/pcvantol/djconnect/session-first-play-v1/schema.json",
+  "title": "Core Session first-play action v1 (source contract only)",
+  "$defs": {
+    "catalogue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "id",
+        "available",
+        "label",
+        "prompt",
+        "localizations",
+        "mix_availability",
+        "transport",
+        "selection_effect",
+        "automatic_playback"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "id": {
+          "const": "session_first_play_surprise_mix"
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 180
+        },
+        "localizations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "en",
+            "nl",
+            "de",
+            "fr",
+            "es"
+          ],
+          "properties": {
+            "en": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "label",
+                "prompt"
+              ],
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "prompt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 180
+                }
+              }
+            },
+            "nl": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "label",
+                "prompt"
+              ],
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "prompt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 180
+                }
+              }
+            },
+            "de": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "label",
+                "prompt"
+              ],
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "prompt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 180
+                }
+              }
+            },
+            "fr": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "label",
+                "prompt"
+              ],
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "prompt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 180
+                }
+              }
+            },
+            "es": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "label",
+                "prompt"
+              ],
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80
+                },
+                "prompt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 180
+                }
+              }
+            }
+          }
+        },
+        "mix_availability": {
+          "const": "not_queried"
+        },
+        "transport": {
+          "const": "existing_session_conversation"
+        },
+        "selection_effect": {
+          "const": "genre_starts_exact_mix"
+        },
+        "automatic_playback": {
+          "const": false,
+          "type": "boolean"
+        }
+      }
+    },
+    "first_play": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "state",
+        "selection_effect",
+        "reason"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "state": {
+          "enum": [
+            "output",
+            "genres",
+            "requested",
+            "uncertain",
+            "unavailable"
+          ]
+        },
+        "selection_effect": {
+          "const": "genre_starts_exact_mix"
+        },
+        "reason": {
+          "enum": [
+            null,
+            "session_or_source_unavailable",
+            "no_confirmed_output",
+            "provider_unavailable",
+            "fewer_than_three_playable_mixes"
+          ]
+        },
+        "expires_in": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 60
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/catalogue"
+    },
+    {
+      "$ref": "#/$defs/first_play"
+    }
+  ]
+}

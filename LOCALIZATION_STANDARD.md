@@ -1,3 +1,14 @@
+## Session first-play control copy — five UI language families
+
+The separately versioned first-play action catalogue provides Core-owned
+labels/prompts for en/nl/de/fr/es and deterministic control replies. Clients use
+the exact Core locale entry; no static unqualified executable CTA is introduced.
+Genre IDs, result/action IDs, error codes and wire keys remain untranslated.
+This source-route coverage does not publish additional Help catalogue leaves or
+widen the existing EN/NL-only textual qualification boundary. Existing Help
+catalogue/hash, UI language data, date precision and rendering remain intact.
+See [Session first-play v1](docs/product/SESSION_FIRST_PLAY_SURPRISE_MIX_V1.md).
+
 ## 2026-11-02 — Localized album-edition date presentation
 
 Ask DJ release-date sentences use the effective app/request language, normalized

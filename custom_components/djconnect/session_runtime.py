@@ -3606,6 +3606,10 @@ class DJSessionBroadcastEngine:
     _status_end_pending: Any = field(default=None, repr=False)
     # Content-free freshness token for actual accepted Stage1 samples only.
     passive_observation_serial: int = field(default=0, init=False, repr=False)
+    # Only genuine new Session creation may admit the first-play request.
+    # Unknown/recovered engines never infer a fresh start from an idle snapshot.
+    first_play_state: str = field(default="unknown", init=False, repr=False)
+    first_play_observed: bool = field(default=False, init=False, repr=False)
     passive_state_observed: tuple = field(default_factory=lambda: (time.monotonic(), time.time()), repr=False)
     _media_revision: str = field(default="", init=False, repr=False)
     pending_events: tuple[BroadcastEventType, ...] = ()
@@ -4901,6 +4905,7 @@ class SessionRuntimeManager:
                     )
                     raise
             active.presence_ledger.clock = elapsed_time_source or self._monotonic_source
+            active.broadcast.first_play_state = "ready"
             self._active_by_profile[owner_profile_id] = active
             def owner_speech_output():
                 current = self._active_by_profile.get(owner_profile_id)
@@ -5019,6 +5024,11 @@ class SessionRuntimeManager:
             if active is None or active.session_id != session_id:
                 return False
             old_playback = active.broadcast.state.playback
+            if projection.state in {"playing", "paused"}:
+                # Close in-flight startup work before the first persistence
+                # await; stopping/clearing history cannot reopen this latch.
+                active.broadcast.first_play_observed = True
+                active.broadcast.first_play_state = "closed"
             if (self._historical_projections is not None and projection.state == "playing"
                 and projection.item_id and projection.item_id != old_playback.item_id):
                 from .session_history_projection import new_observation_reference

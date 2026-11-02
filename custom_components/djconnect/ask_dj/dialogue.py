@@ -216,6 +216,8 @@ class DialogueTurn:
     accepted_playback_narration: bool = False
     playback_reply_deadline: float | None = None
     music_steering_offer: dict | None = None
+    first_play_admission: Any = None  # Original RAM-only first-play owner, never caller data.
+    first_play_request: bool = False  # Local control reply; no narration/TTS dependency.
     provider_display_source: dict | None = None  # Original archive binding, never model input.
     reply_source_context: dict | None = None
     reply_source_authority: Any = None
@@ -338,6 +340,10 @@ async def guard_effect_dispatch(*, method=None, path=None, body=None, service=No
         else:
             await turn.guard()
     validate_transport_effect_now()
+    if turn is not None and turn.first_play_admission is not None:
+        # Last synchronous handoff after the shared durable effect reservation.
+        # A second adapter dispatch (including a 401 retry) cannot reuse it.
+        turn.first_play_admission.before_dispatch(family, tuple(media), output_id)
 
 
 class DialogueState:
@@ -688,6 +694,8 @@ class DialogueState:
             }
             if turn.historical_playback_admission is not None:
                 frame.result_set["historical_playback_admission"] = turn.historical_playback_admission
+            if turn.first_play_admission is not None:
+                frame.result_set["first_play_admission"] = turn.first_play_admission
             steering_offer = result.get("music_steering") if result.get("origin") == "mood_change" else turn.music_steering_offer
             if isinstance(steering_offer, dict):
                 frame.result_set["music_steering"] = deepcopy(steering_offer)

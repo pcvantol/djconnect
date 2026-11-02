@@ -1,6 +1,7 @@
 """Exact, temporary owner target for the existing shared Track Insight service."""
 
 from __future__ import annotations
+import asyncio
 from dataclasses import dataclass
 import hashlib
 import json
@@ -282,3 +283,101 @@ def current_knowledge_context(hass, profile_id, track, *, source_authority=None)
         return None
     return context, guard, hashlib.sha256(json.dumps([profile_id, grant, captured, fact.source_url,
         fact.observed_at, fact.source_expires_at, context],sort_keys=True).encode()).hexdigest(), active, source_deadline(fact)
+
+
+async def resolve_current_knowledge(hass, profile_id, current):
+    """User-requested exact CC0 detail, without requiring a published Moment.
+
+    A playback descriptor is only a lookup key. Original Session/source authority
+    and the independently qualified public recording fact remain mandatory.
+    This does not create or amend an opportunity, publication or source grant.
+    """
+    from .current_track_insight import session_scope
+    from .session_facts import QualifiedSessionFact, session_facts_resolver
+    from .ask_dj.dialogue import model_source, normalized_subjects
+
+    authority = current.knowledge_authority
+    if not callable(authority) or not authority():
+        return None
+    current.guard()
+    manager = session_runtime_manager(hass)
+    active = manager.current_active(profile_id)
+    if active is None:
+        return None
+    scope = session_scope(active)
+    grant = history_grant_revision(hass, profile_id)
+    uri = current.frame.uri
+    identity = hashlib.sha256(uri.encode()).hexdigest()[:24]
+    playback = active.broadcast.state.playback
+    if (playback.item_id != identity or playback.state != "playing"
+            or playback.title != current.track.get("title")
+            or playback.artist != current.track.get("artist")
+            or playback.target_name != current.observed.target_name):
+        return None
+    observed_catalog = getattr(current.observed, "catalog", {}) or {}
+    # Only immutable scalar lookup anchors; no mutable provider payload or
+    # caller-controlled metadata may change identity during a source await.
+    catalog = {key: value for key, value in observed_catalog.items()
+               if key in {"uri", "title", "artist", "isrc"} and type(value) is str}
+    if (catalog.get("uri") != uri or catalog.get("title") != current.track.get("title")
+            or catalog.get("artist") != current.track.get("artist")
+            or not re.fullmatch(r"[A-Z]{2}[A-Z0-9]{3}\d{7}", str(catalog.get("isrc") or "").upper())):
+        return None
+    withdrawn = False
+
+    def guard():
+        nonlocal withdrawn
+        try:
+            task = asyncio.current_task()
+            if task is not None and task.cancelling():
+                raise asyncio.CancelledError
+            current.guard()
+            now = manager.current_active(profile_id)
+            playback = now.broadcast.state.playback if now is not None else None
+            if (withdrawn or not authority() or now is None or session_scope(now) != scope
+                    or history_grant_revision(hass, profile_id) != grant
+                    or playback.item_id != identity or playback.state != "playing"
+                    or playback.title != current.track.get("title")
+                    or playback.artist != current.track.get("artist")
+                    or playback.target_name != current.observed.target_name):
+                raise TrackInsightError("track_insight_context_changed",
+                    "The current qualified recording context changed.", status=409)
+        except BaseException:
+            withdrawn = True
+            raise
+
+    guard()
+    try:
+        async with asyncio.timeout(min(5.0, max(0.0, current.original_deadline - time.monotonic()))):
+            resolved = await session_facts_resolver(hass).resolve(
+                catalog, authorize=guard, credits_only=True)
+    except (TimeoutError, ValueError, TypeError, KeyError):
+        guard()
+        return None
+    guard()
+    facts = [fact for fact in resolved if type(fact) is QualifiedSessionFact
+             and fact.key in {"recording_credits", "work_composers"}
+             and fact.provider == "MusicBrainz" and fact.license == "CC0-1.0"
+             and fact.eligible(uri, time.monotonic())]
+    if not facts or any(a.key == b.key and a != b for a in facts for b in facts):
+        return None
+    fact = min(facts, key=lambda item: (item.key, item.source_url))
+    context = model_source({"archive_basis": "cc0_normalized_fields_v1",
+        "text": fact.copy_for(active.locale)[1], "qualified_fact_text": fact.copy_for(active.locale)[1],
+        "source_attribution": {"provider": fact.provider, "url": fact.source_url, "license": fact.license},
+        "dialogue_subjects": normalized_subjects(fact)})
+    if not context:
+        return None
+
+    def fact_guard():
+        guard()
+        if not fact.eligible(uri, time.monotonic()):
+            raise TrackInsightError("track_insight_context_changed",
+                "The current qualified recording context expired.", status=409)
+
+    deadline = min(current.original_deadline, source_deadline(fact))
+    current.limit_deadline(deadline)
+    fact_guard()
+    fingerprint = hashlib.sha256(json.dumps([profile_id, grant, scope, fact.source_url,
+        fact.observed_at, fact.source_expires_at, context], sort_keys=True).encode()).hexdigest()
+    return context, fact_guard, fingerprint, active, deadline

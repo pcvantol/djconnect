@@ -579,7 +579,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 "metrics": {"agent_calls": turn.agent_calls, "lookup_calls": turn.lookup_calls, "prompt_bytes": turn.prompt_bytes}}}
         from ..session_speech import remember
         from . import _should_generate_audio_response
-        requested_audio = _should_generate_audio_response(payload, intent)
+        requested_audio = (False if turn.first_play_request
+                           else _should_generate_audio_response(payload, intent))
         # Old AVPlayer clients only understand a headerless GET audio_url.
         # An accepted private reference cannot be downgraded to that grant.
         # Negotiate the new adapter explicitly; text/semantic acceptance stays

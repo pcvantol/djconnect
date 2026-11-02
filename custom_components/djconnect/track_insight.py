@@ -380,6 +380,9 @@ class TrackInsightService:
             current_knowledge = (current_knowledge_context(hass, owner_profile_id, track,
                     source_authority=source_authority)
                 if request.source != 'session_moment' and not (request.title or request.artist) else None)
+            if current_knowledge is None and current is not None:
+                from .track_insight_target import resolve_current_knowledge
+                current_knowledge = await resolve_current_knowledge(hass, owner_profile_id, current)
             if current_knowledge is not None:
                 model, source_guard, fingerprint, active, deadline = current_knowledge
                 if current is not None:

@@ -144,6 +144,9 @@ async def async_handle_ask_dj(
                 and turn.pending_at_start.get('type') == 'recording_production'):
             turn.clear_production_pending = True
         return await _execute_dialogue_command(hass, runtime, payload, action_request, user_id=user_id)
+    from ..mood_music_steering import first_play_requested, first_play_response
+    if first_play_requested(text):
+        return await first_play_response(hass, runtime)
     if turn is not None:
         from .artist_story import production_continuation, recording_reference
         continued = await production_continuation(hass, runtime, text)
@@ -10380,12 +10383,19 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
     activate = explicit_activate(text) or (isinstance(value, dict) and value["operation"] == "activate")
     play = explicit_play(text) or (isinstance(value, dict) and value["operation"] == "play")
     no_play = re.search(r"\b(?:without (?:starting |resuming )?(?:playback|playing)|zonder (?:afspelen|te spelen|muziek te starten)|ohne (?:wiedergabe|abzuspielen)|sans (?:lancer|reprendre|jouer)|sin (?:reproducir|iniciar))\b", text.casefold())
+    if activate and not output:
+        raise DialogueError("invalid_choice_action", 400)
+    if shown.get("first_play_admission") is not None:
+        # This genre selection grants play directly, but explicit negation or
+        # an informational question must never be promoted into that grant.
+        if _nonexecuting_speech_act(text) or (not output and no_play):
+            raise DialogueError("playback_effect_not_authorized", 403)
+        from ..mood_music_steering import first_play_choose
+        return await first_play_choose(hass, runtime, action, shown, turn)
     if play and (_nonexecuting_speech_act(text) or no_play):
         raise DialogueError("playback_effect_not_authorized", 403)
     if output and (activate or play):
         return await _activate_dialogue_output(hass, runtime, payload, action, turn, play=play)
-    if activate and not output:
-        raise DialogueError("invalid_choice_action", 400)
     if play:
         from .dialogue import EffectGrant, effect_media
         turn.effect_grants = (EffectGrant(frozenset({"play"}), "validated_result_play", media=effect_media(action)),)

@@ -1,3 +1,41 @@
+## 2026-11-02 — Session first-play surprise mix, same Core batch
+
+The selected dedicated first-play CTA now has a staged Core producer in the same
+open1421 batch as Track Insight; no second writer or automatic Session is added.
+The ordinary owner-bound request offers a speaker if necessary, then exactly
+three actual search-backed genre mixes; a genre selection itself dispatches one
+exact ordered mix on that bound output. No extra Play Now, DNA/model/TTS dependency,
+Recommendations access claim or invented genre/result. Original actor, source,
+Session/Mood/settings/history and60s wall+mono guards survive all continuations.
+
+[Canonical contract](docs/product/SESSION_FIRST_PLAY_SURPRISE_MIX_V1.md) and
+[verification](docs/verification/SESSION_FIRST_PLAY_SURPRISE_MIX_20261102.md)
+separate source/actual isolated HA from protected delivery, installation and
+native/Spotify acceptance. Apple295 remains intake pending protected producer
+handoff, not implemented acceptance. Prior TrackInsight7f exact QA keeps its own
+scope; new combined source needs full current QA and independent review.
+Keep all24/nine requests, TrackInsight Apple296/numeric gaps, date1419/1420 not
+installed, Pi1417/1418 owning-watchdog/consumer/device gates and all original RAW.
+
+## 2026-11-02 — Track Insight current-credit retrieval
+
+The explicit current Track Insight request can use the existing bounded exact-ISRC
+MusicBrainz CC0 resolver when no current Session opportunity already holds an
+eligible recording/work credit. Original current owner, Session/Broadcast,
+four-field source authority, history/settings, output and observation expiry
+remain mandatory before and after every wait; absence grants no model input.
+No opportunity, publication, playback, Profile or Music DNA is created.
+
+[Current-detail contract](docs/product/CURRENT_TRACK_INSIGHT_SUBJECT_V1.md) and
+[verification](docs/verification/TRACK_INSIGHT_CURRENT_KNOWLEDGE_20261102.md)
+distinguish checked credit context from absent audio measurements. No energy,
+danceability, intensity, mood, vibe or texture is invented from metadata. Apple
+[owning correction #296](https://github.com/pcvantol/djconnect-app/issues/296)
+must omit empty panels and retain real source/context boundaries. Consumer,
+installed, provider and native acceptance remain separate from this source.
+Preserve all24/nine requests, qualified date Source1419/Final1420 (not installed),
+Pi rc7 Source1417/Final1418 and its owning-consumer/watchdog/device gates.
+
 ## 2026-11-02 — Date localization Source1419 original qualified
 
 Date-format source [#1419](https://github.com/pcvantol/djconnect/pull/1419) is protected

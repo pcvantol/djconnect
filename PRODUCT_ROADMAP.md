@@ -1,3 +1,18 @@
+## Current selected Core1210 addition — dedicated Session first-play
+
+The owner-selected first-play “Verras me” action has a staged Core producer in
+the current ONE1421 batch, preserving the Track Insight fix. Source request:
+active never-played Session → speaker if necessary → three actually prepared
+Mood-direction mixes → one genre tap dispatches the exact ordered mix. No
+additional Play Now, auto-Session, Mood-trigger playback, private taste/model
+requirement, fake Spotify-generated mix or inferred audio measurement.
+
+[Canonical source contract](docs/product/SESSION_FIRST_PLAY_SURPRISE_MIX_V1.md)
+keeps existing Help/three-suggestion publication intact. Apple295 implementation,
+protected delivery/Final, installed Core/consumer, actual Spotify/native/user
+acceptance remain open until their exact receipts exist. No new parallel engine,
+writer, provider budget or device grant; all existing24/nine work remains selected.
+
 ## HA-admin preparation source increment — 2026-10-30
 
 The real HA-admin management preparation route and its closed request/reply are specified in [INSTALLATION_MANAGEMENT_PREPARATION_V1](docs/product/INSTALLATION_MANAGEMENT_PREPARATION_V1.md). This bounded source increment prepares only the selected loaded entry; no key, custody, enrollment, authenticated successor wire, installed runtime or operational push is granted. Existing 24 requests and nine acceptance gates retain their own scopes.

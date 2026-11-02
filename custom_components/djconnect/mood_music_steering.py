@@ -590,3 +590,349 @@ async def response(hass, runtime, payload, transition, *, source_context, genre=
         # Expanded titles are provider display data, not reusable model context.
         "speech_processing_basis":"spotify_owner_local_read_v1" if actions else "runtime_authored_direction_v1",
         "model_processing_basis":"local_provider_display_only_v1" if actions else "runtime_authored_direction_v1"}
+
+
+# Separate explicit first-play action. The Mood-change path above remains
+# read-only on genre selection and never acquires this playback authority.
+FIRST_PLAY_COPY = {
+    "en": ("Surprise me", "Surprise me with a mix for this session", "Choose a speaker first.",
+           "Choose a genre to start your DJConnect mix with Spotify tracks.", "The mix was requested.",
+           "I can’t prepare a mix right now. Nothing has started."),
+    "nl": ("Verras me", "Verras me met een mix voor deze sessie", "Kies eerst een speaker.",
+           "Kies een genre om je DJConnect-mix met Spotify-nummers te starten.", "De mix is aangevraagd.",
+           "Ik kan nu geen mix klaarzetten. Er is niets gestart."),
+    "de": ("Überrasche mich", "Überrasche mich mit einem Mix für diese Session", "Wähle zuerst einen Lautsprecher.",
+           "Wähle ein Genre, um deinen DJConnect-Mix mit Spotify-Titeln zu starten.", "Der Mix wurde angefordert.",
+           "Ich kann gerade keinen Mix zusammenstellen. Es wurde nichts gestartet."),
+    "fr": ("Surprends-moi", "Surprends-moi avec un mix pour cette session", "Choisis d’abord une enceinte.",
+           "Choisis un genre pour lancer ton mix DJConnect avec des titres Spotify.", "Le mix a été demandé.",
+           "Je ne peux pas préparer de mix pour le moment. Rien n’a démarré."),
+    "es": ("Sorpréndeme", "Sorpréndeme con una mezcla para esta sesión", "Elige primero un altavoz.",
+           "Elige un género para iniciar tu mezcla DJConnect con canciones de Spotify.", "Se ha solicitado la mezcla.",
+           "Ahora no puedo preparar una mezcla. No se ha iniciado nada."),
+}
+FIRST_PLAY_GENRES = {"chill": ("ambient", "jazz", "soul"), "groove": ("soul", "jazz", "funk"),
+                     "energy": ("rock", "electronic", "house"), "party": ("dance", "house", "techno")}
+FIRST_PLAY_LABELS = {**GENRE_DIRECTIONS, "funk": {lang: "funk" for lang in COPY}}
+
+
+def first_play_requested(text):
+    return str(text or "").strip().casefold().rstrip(".!?") in {
+        value[1].casefold() for value in FIRST_PLAY_COPY.values()}
+
+
+def _first_play_empty(active):
+    playback = active.broadcast.state.playback
+    return (active.broadcast.first_play_state == "ready"
+        and not active.broadcast.first_play_observed and not active.last_accepted_media_identity
+        and playback.state in {"idle", "stopped"} and not playback.item_id)
+
+
+def first_play_catalogue(hass, runtime, profile_id, active):
+    """Loaded owner-only request catalogue, not a claim of provider readiness."""
+    from .reply_artwork import source_admission
+    source, authority = source_admission(hass, runtime, profile_id) if active is not None else (None, None)
+    from .session_runtime import session_runtime_manager
+    stored = session_runtime_manager(hass)._history_source_contexts.get(active.session_id) if active else None
+    available = bool(active and active.selected_mood in FIRST_PLAY_GENRES and _first_play_empty(active)
+                     and source and stored == source and callable(authority) and authority())
+    locale = active.locale if active is not None and active.locale in FIRST_PLAY_COPY else "en"
+    return {"schema_version": 1, "id": "session_first_play_surprise_mix", "available": available,
+        "label": FIRST_PLAY_COPY[locale][0], "prompt": FIRST_PLAY_COPY[locale][1],
+        "localizations": {lang: {"label": copy[0], "prompt": copy[1]} for lang, copy in FIRST_PLAY_COPY.items()},
+        "mix_availability": "not_queried", "transport": "existing_session_conversation",
+        "selection_effect": "genre_starts_exact_mix", "automatic_playback": False}
+
+
+@dataclass(eq=False)
+class FirstPlayAdmission:
+    """Original RAM-only owner. No HTTP field can construct this authority."""
+    hass: object
+    manager: object
+    profile_id: str
+    active: object
+    source: object
+    authority: object
+    scope: tuple
+    grant: str
+    locale: str
+    clock: object
+    deadline: float
+    wall_deadline: float
+    output_id: str = ""
+    phase: str = "output"
+    output_attempted: bool = False
+    output_dispatched: bool = False
+    selection_pending: bool = False
+    play_attempted: bool = False
+    play_dispatched: bool = False
+    execution_turn: object = None
+    selected_media: tuple = ()
+    withdrawn: bool = False
+    captured_source: tuple = field(init=False, repr=False)
+
+    def __post_init__(self):
+        self.captured_source = tuple(sorted(self.source.items()))
+
+    def guard(self):
+        from .current_track_insight import session_scope
+        from .session_runtime import session_runtime_manager
+        from .session_conversation import history_grant_revision
+        # A competing turn is refused without withdrawing the original actor
+        # whose durable reservation/provider call may still be in progress.
+        exclusive = ((self.phase == "output" and self.output_attempted)
+                     or (self.selection_pending and not self.play_dispatched))
+        if exclusive and current_turn.get() is not self.execution_turn:
+            raise DialogueError("first_play_already_attempted", 409)
+        try:
+            task = asyncio.current_task()
+            if task is not None and task.cancelling():
+                raise asyncio.CancelledError
+            now = self.manager.current_active(self.profile_id)
+            if (self.withdrawn or self.clock() >= self.deadline or time.time() >= self.wall_deadline
+                    or session_runtime_manager(self.hass) is not self.manager or now is None
+                    or session_scope(now) != self.scope or not self.authority()
+                    or self.manager._history_source_contexts.get(now.session_id) is not self.source
+                    or tuple(sorted(self.source.items())) != self.captured_source
+                    or history_grant_revision(self.hass, self.profile_id) != self.grant):
+                raise DialogueError("first_play_context_changed", 409)
+            if not self.play_dispatched:
+                expected = "attempted" if self.play_attempted else "ready"
+                if (now.broadcast.first_play_state != expected or now.broadcast.first_play_observed
+                        or now.last_accepted_media_identity or now.broadcast.state.playback.item_id
+                        or now.broadcast.state.playback.state not in {"idle", "stopped"}
+                        or (self.play_attempted and current_turn.get() is not self.execution_turn)):
+                    raise DialogueError("first_play_context_changed", 409)
+        except BaseException:
+            self.withdrawn = True
+            raise
+
+    def bind(self, turn):
+        self.guard()
+        if turn.session_id != self.active.session_id or turn.scope != "profile:" + self.profile_id:
+            raise DialogueError("first_play_context_changed", 409)
+        turn.first_play_admission = self
+        turn.first_play_request = True
+        turn.effect_validators.append(self.guard)
+        turn.delivery_validators.append(self.guard)
+        turn.replacement_result_deadline = self.deadline
+
+    def before_dispatch(self, family, media, output_id):
+        self.guard()
+        if current_turn.get() is not self.execution_turn:
+            raise DialogueError("first_play_context_changed", 409)
+        if family == "output" and self.phase == "output" and not self.output_dispatched:
+            if output_id != self.output_id or media:
+                raise DialogueError("playback_effect_not_authorized", 403)
+            self.output_dispatched = True
+        elif (family == "play" and self.phase == "genres" and self.play_attempted
+                and not self.play_dispatched and media == self.selected_media and output_id == self.output_id):
+            self.play_dispatched = True
+            self.active.broadcast.first_play_state = "closed"
+        else:
+            raise DialogueError("first_play_already_attempted", 409)
+
+    async def read(self, awaitable):
+        try:
+            self.guard()
+            turn = current_turn.get()
+            await turn.guard()
+        except BaseException:
+            # The adapter coroutine has not started; do not leave an unawaited
+            # source lookup behind when original authority closes first.
+            awaitable.close()
+            raise
+        async with asyncio.timeout(min(5, max(0, self.deadline - self.clock()))):
+            result = await awaitable
+        await turn.guard()
+        self.guard()
+        return result
+
+    async def outputs(self, backend):
+        devices = await self.read(backend.devices(fresh=True))
+        observed = await self.read(backend.async_observe_current_playback())
+        if observed.state not in {"idle", "stopped"} or observed.media_identity:
+            self.active.broadcast.first_play_observed = True
+            self.active.broadcast.first_play_state = "closed"
+            raise DialogueError("first_play_existing_playback", 409)
+        return [d for d in devices if isinstance(d, dict) and d.get("id") and d.get("name")
+                and not d.get("cached") and not d.get("is_restricted")]
+
+    async def empty_queue(self, backend):
+        # Preserve the raw empty/current evidence; normal queue presentation
+        # intentionally omits currently_playing and cannot prove this boundary.
+        queue = await self.read(backend._request("GET", "/me/player/queue"))
+        if (not isinstance(queue, dict) or queue.get("queue") != []
+                or "currently_playing" not in queue or queue["currently_playing"] is not None):
+            raise DialogueError("first_play_existing_queue", 409)
+
+
+def _first_play_reply(admission, text, actions=(), *, state, reason=None):
+    result = {"success": state != "unavailable", "text": text, "dj_text": text,
+        "action": "none", "origin": "session_first_play", "playback_actions": list(actions),
+        "text_source": "runtime_acknowledgement", "is_generated_text": False,
+        "first_play": {"schema_version": 1, "state": state,
+                       "selection_effect": "genre_starts_exact_mix", "reason": reason}}
+    if admission is not None:
+        result["first_play"]["expires_in"] = max(0, min(admission.deadline-admission.clock(),
+                                                        admission.wall_deadline-time.time()))
+    return result
+
+
+async def _first_play_genres(hass, runtime, admission, backend):
+    from urllib.parse import urlencode
+    from .const import DEFAULT_SPOTIFY_MARKET
+    admission.guard()
+    devices = await admission.outputs(backend)
+    active_ids = [d["id"] for d in devices if d.get("is_active") or d.get("active")]
+    if active_ids != [admission.output_id]:
+        raise DialogueError("first_play_output_changed", 409)
+    await admission.empty_queue(backend)
+    directions = FIRST_PLAY_GENRES[admission.active.selected_mood]
+    async def mix(genre):
+        params = urlencode({"q": "genre:"+genre, "type": "track", "limit": 8,
+                            "market": backend.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET})
+        data = await admission.read(backend._request("GET", "/search?"+params))
+        items = ((data.get("tracks") or {}).get("items") or []) if isinstance(data, dict) else []
+        import re
+        tracks, seen = [], set()
+        for item in items[:8] if isinstance(items, list) else []:
+            uri = item.get("uri") if isinstance(item, dict) else None
+            if (not isinstance(uri, str) or not re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}", uri)
+                    or uri in seen or item.get("is_playable") is not True or item.get("is_local") is True
+                    or item.get("restrictions")):
+                continue
+            tracks.append(item)
+            seen.add(uri)
+        return genre, tracks
+    found = await asyncio.gather(*(mix(genre) for genre in directions))
+    admission.guard()
+    if (any(len(tracks) < 2 for _, tracks in found)
+            or len({tuple(t["uri"] for t in tracks) for _, tracks in found}) != 3):
+        return _first_play_reply(admission, FIRST_PLAY_COPY[admission.locale][5],
+                                 state="unavailable", reason="fewer_than_three_playable_mixes")
+    devices = await admission.outputs(backend)
+    if [d["id"] for d in devices if d.get("is_active") or d.get("active")] != [admission.output_id]:
+        raise DialogueError("first_play_output_changed", 409)
+    await admission.empty_queue(backend)
+    actions = []
+    for genre, tracks in found:
+        label = FIRST_PLAY_LABELS[genre][admission.locale]
+        actions.append({"kind": "track_mix", "title": label, "label": label, "button_label": label,
+            "uri": tracks[0]["uri"], "uris": [track["uri"] for track in tracks],
+            "subtitle": MIX_PRESENTATION[admission.locale][1].format(count=len(tracks)),
+            "backend": admission.source["backend_id"], "genre": genre,
+            "selection_source": "spotify_genre_search", "fit_basis": "catalog_genre_query",
+            "fit_qualified": False, "queue_effect": "start_context_now"})
+    admission.phase = "genres"
+    return _first_play_reply(admission, FIRST_PLAY_COPY[admission.locale][3], actions, state="genres")
+
+
+async def first_play_response(hass, runtime):
+    from .session_runtime import session_runtime_manager
+    from .current_track_insight import session_scope
+    from .session_conversation import history_grant_revision
+    from .spotify_backend import SpotifyBackend, SpotifyBackendError
+    turn = current_turn.get()
+    if turn is None:
+        raise DialogueError("conversation_authority_required", 403)
+    turn.first_play_request = True
+    profile_id = turn.scope.removeprefix("profile:")
+    manager = session_runtime_manager(hass)
+    active = manager.current_active(profile_id)
+    locale = turn.style.get("language", "en")
+    source = manager._history_source_contexts.get(active.session_id) if active else None
+    authority = turn.reply_source_authority
+    if (active is None or turn.session_id != active.session_id or not _first_play_empty(active)
+            or active.selected_mood not in FIRST_PLAY_GENRES or not callable(authority)
+            or not authority() or not source or source != turn.reply_source_context):
+        return _first_play_reply(None, FIRST_PLAY_COPY[locale][5], state="unavailable", reason="session_or_source_unavailable")
+    admission = FirstPlayAdmission(hass, manager, profile_id, active, source, authority,
+        session_scope(active), history_grant_revision(hass, profile_id), locale,
+        turn.history.dialogue.clock, turn.history.dialogue.clock()+60, time.time()+60)
+    admission.bind(turn)
+    backend = SpotifyBackend(hass, runtime)
+    try:
+        devices = await admission.outputs(backend)
+        active_ids = [d["id"] for d in devices if d.get("is_active") or d.get("active")]
+        if len(active_ids) == 1:
+            admission.output_id = active_ids[0]
+            return await _first_play_genres(hass, runtime, admission, backend)
+        if not devices or len(active_ids) > 1:
+            return _first_play_reply(admission, FIRST_PLAY_COPY[locale][5], state="unavailable", reason="no_confirmed_output")
+        from .ask_dj import _output_device_actions
+        actions = _output_device_actions(devices, locale)
+        return _first_play_reply(admission, FIRST_PLAY_COPY[locale][2], actions, state="output")
+    except (SpotifyBackendError, TimeoutError):
+        admission.guard()
+        return _first_play_reply(admission, FIRST_PLAY_COPY[locale][5], state="unavailable", reason="provider_unavailable")
+
+
+async def first_play_choose(hass, runtime, action, shown, turn):
+    from .ask_dj.dialogue import EffectGrant
+    from .spotify_backend import SpotifyBackend, SpotifyBackendError
+    from .use_cases import run_music_command
+    admission = shown.get("first_play_admission")
+    if type(admission) is not FirstPlayAdmission:
+        raise DialogueError("choice_changed", 409)
+    if (admission.play_attempted or admission.selection_pending
+            or (admission.phase == "output" and admission.output_attempted)):
+        raise DialogueError("first_play_already_attempted", 409)
+    admission.bind(turn)
+    # Exclusive original pending ownership precedes the first provider await.
+    # Rejected competitors cannot overwrite the original execution actor.
+    admission.execution_turn = turn
+    if admission.phase == "output":
+        admission.output_attempted = True
+    else:
+        admission.selection_pending = True
+    backend = SpotifyBackend(hass, runtime)
+    devices = await admission.outputs(backend)
+    if admission.phase == "output":
+        output_id = action.get("device_id")
+        if action.get("kind") != "output" or not any(d["id"] == output_id for d in devices):
+            raise DialogueError("choice_unavailable", 409)
+        admission.output_id = output_id
+        turn.effect_grants = (EffectGrant(frozenset({"output"}), "first_play_output", output_id=output_id),)
+        result = await run_music_command(hass, runtime, "set_output", output_id, play=False)
+        await turn.guard()
+        if result.get("success") is False:
+            raise DialogueError("first_play_output_unavailable", 409)
+        # The new three-action set is a continuation, not selection of an old
+        # media item; do not return selected_action_id and suppress its admission.
+        return await _first_play_genres(hass, runtime, admission, backend)
+    if action.get("kind") != "track_mix" or admission.phase != "genres":
+        raise DialogueError("choice_unavailable", 409)
+    if [d["id"] for d in devices if d.get("is_active") or d.get("active")] != [admission.output_id]:
+        raise DialogueError("first_play_output_changed", 409)
+    await admission.empty_queue(backend)
+    await turn.guard()
+    admission.selected_media = tuple(action.get("uris") or ())
+    if len(admission.selected_media) < 2:
+        raise DialogueError("choice_unavailable", 409)
+    admission.execution_turn = turn
+    admission.play_attempted = True
+    admission.active.broadcast.first_play_state = "attempted"
+    turn.play_output_id = admission.output_id
+    turn.effect_grants = (EffectGrant(frozenset({"play"}), "first_play_genre_selection",
+                                    media=admission.selected_media, output_id=admission.output_id),)
+    try:
+        result = await run_music_command(hass, runtime, "play_uris", list(admission.selected_media), play=True)
+    except (SpotifyBackendError, TimeoutError):
+        # No resetting the claim or handing out another button after uncertainty.
+        text = {"en": "The playback result is uncertain. I will not send it again.",
+                "nl": "Het afspeelresultaat is onzeker. Ik stuur de opdracht niet opnieuw.",
+                "de": "Das Wiedergabeergebnis ist unklar. Ich sende den Auftrag nicht erneut.",
+                "fr": "Le résultat de lecture est incertain. Je ne renvoie pas la demande.",
+                "es": "El resultado de reproducción es incierto. No volveré a enviar la solicitud."}[admission.locale]
+        return {**_first_play_reply(admission, text, state="uncertain"),
+                "selected_action_id": action["action_id"], "action_outcome": {"state": "uncertain", "retry_automatically": False}}
+    await turn.guard()
+    playback = result.get("playback") or {}
+    device = playback.get("device") or {}
+    confirmed = (result.get("success") is not False and playback.get("uri") == admission.selected_media[0]
+                 and playback.get("is_playing") is True and device.get("id") == admission.output_id)
+    return {**_first_play_reply(admission, FIRST_PLAY_COPY[admission.locale][4], state="requested"),
+        "success": result.get("success") is not False, "selected_action_id": action["action_id"],
+        "playback": playback, "action_outcome": {"state": "dispatched" if admission.play_dispatched else "uncertain",
+                "readback_confirmed": confirmed, "retry_automatically": False}}
