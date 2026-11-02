@@ -52,12 +52,37 @@ corrected with original admission before and after fallback. No unauthorized
 publication was claimed from the negative test. Modern empty catalogues remain
 fenced; older absent-catalogue mechanism fixtures are not a public-source grant.
 Final current full QA after that correction:4493 discovered/run/accounted,
-4486 PASS/seven unchanged existing skips, four workers all exit0,46.961seconds,
+4486 PASS/seven unchanged existing skips, four workers all exit0,71.305seconds,
 branch coverage combined. All26 final-source3 actual HA groups retain exact302
 before/inside/after equality and eight current container-removal readbacks.
-Ruff16scanned Python files, including all15changed:zero findings; configured Bandit medium/high:zero.
+Ruff on all changed Python source/tests/verifier:zero findings; configured Bandit medium/high:zero.
 Independent whole/exact review and protected delivery remain pending.
 Do not treat previous source snapshots or passing synthetic text as current
 installed/native, real prose/persona contrast or multi-publisher semantic GO.
 All24 requests/nine gates and separate provider, native, Pi, Track Insight numeric,
 Golden, API production and HA installed scopes are preserved.
+
+## Hosted CI observer-test timing correction, same PR
+
+Original draft1425/567 TDEobserve41499410682 failed on Python3.11 in the
+pre-existing real-expiry observer test. That test patched the entire operation
+lifetime to150ms, ignored admission status and then accessed persona_reaction.
+The actual failed response body was not retained, so its precise status is not
+invented. A controlled local3.11 diagnostic demonstrates the reachable condition:
+200ms settings latency with150ms lifetime correctly returns409withdrawn/no reaction;
+a2s test lifetime admits the same response. No model or device calls occur.
+
+The test-only correction gives preparation2s, waits up to3s for the actual original
+timer, and first asserts200/positive reaction. The observer deadline must equal the
+delivered deadline, remain unchanged on reads, and actually withdraw with one frame
+and zero synthesis. Original settings-wait, retry/wallrollback and all other test
+methods are unchanged. Product deadlines/workflows and all302 source3 product hashes
+are unchanged; the same26 original HA groups remain exact, not relabelled reruns.
+
+The unrelated local PlatformIO3.11 suite printed41tests OK but exited134 during
+interpreter finalization (none_dealloc); preserve that as process failure, not QA.
+The approved Core3.14 final full suite is4493 accounted/4486PASS/seven unchanged
+skips, four exits0/branch coverage,71.305s. Actual hosted3.11 CI for the new exact
+candidate remains required. No skipped/waived check, blind CI retry, interpreter
+repair or new paid execution is substituted. The original567 Owner Authorization
+keeps only its own exact-candidate scope; it cannot authorize its successor.

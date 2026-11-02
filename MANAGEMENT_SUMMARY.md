@@ -9,9 +9,12 @@ path. Existing Persona/Mood, research, claim/rights and original publication own
 remain. [Current verification](docs/verification/PERSONA_ARTIST_STORY_INTEGRATION_20261102.md)
 tracks original causal failures, source-only QA and actual HA boundaries.
 
-Current QA:4493 accounted/4486 PASS/seven existing skips,4workers46.961s;
+Current QA:4493 accounted/4486 PASS/seven existing skips,4workers71.305s;
 all26 isolated HA groups PASS/final302 equal/eight current containers removed.
-Independent whole/exact review and protected delivery remain pending. No new paid
+The original draft1425 CI exposed a150ms observer-test admission race; the
+current test keeps real2s expiry/3s observation with explicit accepted admission.
+Product deadlines and all302 product bytes are unchanged by that test correction.
+Current whole/exact review and hosted CI/protected delivery remain pending. No new paid
 model test, install, native or audible/story-quality acceptance. Prior1424/c874
 is originally source-qualified in its own scope; older rolling bodies below
 retain their historical states. Preserve all24/nine tasks and all RAW/backups.
