@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 COLLECTION_PATH = ROOT / "examples" / "djconnect.postman_collection.json"
 POSTMAN_SCHEMA = "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 AUTH_REQUIRED_PATHS = {
+    "/api/djconnect/v1/session/active",
     "/api/djconnect/v1/push/surface/context",
     "/api/djconnect/v1/push/surface/register",
     "/api/djconnect/v1/session/content/delete/prepare",
@@ -42,6 +43,7 @@ AUTH_REQUIRED_PATHS = {
     "/api/djconnect/v1/voice",
 }
 DEVICE_ID_HEADER_REQUIRED_PATHS = {
+    "/api/djconnect/v1/session/active",
     "/api/djconnect/v1/push/surface/context",
     "/api/djconnect/v1/push/surface/register",
     "/api/djconnect/v1/session/content/delete/prepare",
@@ -271,3 +273,20 @@ class PostmanCollectionTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SessionFirstPlayPostmanTest(unittest.TestCase):
+    def test_original_server_prompt_and_opaque_selection_without_client_media(self):
+        group = next(item for item in _collection()["item"]
+                     if item["name"] == "Session first-play surprise mix v1 (explicit manual flow)")
+        self.assertEqual(len(group["item"]), 3)
+        read, start, choose = [item["request"] for item in group["item"]]
+        self.assertEqual(_path(_raw_url(read)), "/api/djconnect/v1/session/active")
+        self.assertIn("mix_availability", read["description"])
+        body = _raw_json_body(start)
+        self.assertEqual(body["text"], "{{first_play_prompt}}")
+        self.assertEqual(body["conversation_context"], {"session_id": "{{first_play_session_id}}"})
+        action = _raw_json_body(choose)
+        self.assertEqual(set(action["choice_action"]), {"result_set_id", "action_id", "operation"})
+        self.assertEqual(action["choice_action"]["operation"], "select")
+        self.assertFalse({"uri", "uris", "device_id_override", "profile_id"} & set(action["choice_action"]))

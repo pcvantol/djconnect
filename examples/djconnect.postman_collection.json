@@ -171,6 +171,31 @@
     {
       "key": "management_operation_id",
       "value": ""
+    },
+    {
+      "key": "first_play_session_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "first_play_prompt",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "first_play_result_set_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "first_play_action_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "first_play_choice_label",
+      "value": "",
+      "type": "string"
     }
   ],
   "auth": {
@@ -725,7 +750,7 @@
           }
         },
         {
-          "name": "Track Insight \u2014 current recording",
+          "name": "Track Insight — current recording",
           "request": {
             "method": "POST",
             "header": [
@@ -2220,6 +2245,127 @@
               }
             },
             "description": "Use a current normal HA administrator session, never a long-lived or DJConnect device token. Set one new canonical UUIDv4 operation ID for this original attempt; no automatic POST replay. This only returns a bounded RAM PREPARATION_ONLY receipt (execution_available=false), not key/custody/enrollment/native permission. No query, inherited identity headers, scripts, private path or key fields."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Session first-play surprise mix v1 (explicit manual flow)",
+      "item": [
+        {
+          "name": "Read qualified first-play request catalogue (no effect)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/session/active?device_id={{device_id}}&client_type={{client_type}}",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "session",
+                "active"
+              ],
+              "query": [
+                {
+                  "key": "device_id",
+                  "value": "{{device_id}}"
+                },
+                {
+                  "key": "client_type",
+                  "value": "{{client_type}}"
+                }
+              ]
+            },
+            "description": "Requires capability session_first_play_surprise_mix and version1. Owner-only existing active Session; no Session creation or provider/model lookup. Read first_play_action.available and exact requested-language label/prompt from localizations. available qualifies this request only; mix_availability remains not_queried. Fill first_play_session_id and first_play_prompt only from the current actual response. Never hardcode an executable Help ID or a genre."
+          }
+        },
+        {
+          "name": "Explicit first-play request (no autoplay)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/ask_dj/message",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "ask_dj",
+                "message"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"client_message_id\": \"{{$guid}}\",\n  \"language\": \"nl\",\n  \"audio_response\": \"never\",\n  \"conversation_context\": {\n    \"session_id\": \"{{first_play_session_id}}\"\n  },\n  \"text\": \"{{first_play_prompt}}\"\n}"
+            },
+            "description": "One deliberate CTA submits its original message ID in an already active never-played Session. Preserve that ID for transport retries. Output choice is offered before actual three genre mixes when necessary; no autoplay or automatic Session start. No MusicDNA/model or deprecated Recommendations access dependency."
+          }
+        },
+        {
+          "name": "Choose the exact offered speaker or genre (deliberate effect)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/ask_dj/message",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "ask_dj",
+                "message"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"client_message_id\": \"{{$guid}}\",\n  \"language\": \"nl\",\n  \"audio_response\": \"never\",\n  \"conversation_context\": {\n    \"session_id\": \"{{first_play_session_id}}\"\n  },\n  \"text\": \"{{first_play_choice_label}}\",\n  \"choice_action\": {\n    \"result_set_id\": \"{{first_play_result_set_id}}\",\n    \"action_id\": \"{{first_play_action_id}}\",\n    \"operation\": \"select\"\n  }\n}"
+            },
+            "description": "MANUAL deliberate selection only. Fill exact original result_set_id/action_id/label from the immediately offered set in this Session. A speaker tap transfers with play:false and continues the ORIGINAL request. A GENRE tap is itself the single exact ordered mix play grant; no later Play Now, client URI list or automatic second tap. No retry/new ID after uncertain outcome. Existing paused/nonempty/expired/withdrawn contexts remain closed. Defaults are empty so no fictitious authority is supplied."
           }
         }
       ]

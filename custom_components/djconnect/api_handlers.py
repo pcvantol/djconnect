@@ -351,7 +351,9 @@ async def async_handle_session_start_payload(
             raise PermissionError("session_result_withdrawn")
     from .transport_delivery import register_delivery_admission
     register_delivery_admission(delivery_guard)
-    return {"success": True, "session": (active or session).as_dict()}, 201
+    from .mood_music_steering import first_play_catalogue
+    return {"success": True, "session": (active or session).as_dict(),
+            "first_play_action": first_play_catalogue(hass, runtime, context.profile_id, active or session)}, 201
 
 
 async def _async_generate_initial_session_moment(
@@ -488,7 +490,9 @@ async def async_handle_active_session_payload(
     if error is not None:
         return error, int(status or 400)
     session = await session_runtime_manager(hass).async_get_active(context.profile_id)
-    return {"success": True, "session": session.as_dict() if session else None}, 200
+    from .mood_music_steering import first_play_catalogue
+    return {"success": True, "session": session.as_dict() if session else None,
+            "first_play_action": first_play_catalogue(hass, _runtime, context.profile_id, session)}, 200
 
 
 async def _async_owner_broadcast_session_context(

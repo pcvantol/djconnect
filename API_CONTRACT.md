@@ -1,3 +1,16 @@
+## Session first-play surprise mix v1 — additive producer
+
+Authenticated Session start/active replies add Core-owned `first_play_action`
+(request eligibility and five localized labels/prompts, not provider readiness).
+The explicit action uses existing Session Ask DJ messages and result-set/action
+identities. Output selection preserves silence; genre selection starts exactly
+the frozen mix, without a second Play Now. Unknown/paused/nonempty/expired/source-
+withdrawn contexts remain closed. No new endpoint, caller authority, catalogue-ID
+execution, automatic Session creation or change to the qualified Help catalogue.
+See [the canonical first-play contract](docs/product/SESSION_FIRST_PLAY_SURPRISE_MIX_V1.md)
+and `examples/client_contracts/session_first_play_v1/schema.json` before adoption.
+Source delivery, installation, provider and native acceptance remain separate.
+
 ## HA-admin preparation source increment — 2026-10-30
 
 The real HA-admin management preparation route and its closed request/reply are specified in [INSTALLATION_MANAGEMENT_PREPARATION_V1](docs/product/INSTALLATION_MANAGEMENT_PREPARATION_V1.md). This bounded source increment prepares only the selected loaded entry; no key, custody, enrollment, authenticated successor wire, installed runtime or operational push is granted. Existing 24 requests and nine acceptance gates retain their own scopes.

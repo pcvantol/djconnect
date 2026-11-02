@@ -1,3 +1,14 @@
+## Current selected Core increment — Session first-play and Track Insight
+
+Continue the ONE open Core1421 batch and sole existing writer. First-play is the
+Core1210/Apple128 dedicated CTA in an already-active never-played Session, not a
+fourth suggestion, Mood trigger or automatic Session start. Canonical producer:
+[Session first-play v1](docs/product/SESSION_FIRST_PLAY_SURPRISE_MIX_V1.md).
+Source, current isolated HA, protected Source/Final, installed and native gates
+remain separate; Apple295 cannot adopt a future/operative pin before protected
+producer delivery. Preserve TrackInsight7f/Apple296 and numeric-provider gaps,
+prior date/Pi delivery and all24/nine requests. Do not redo old protected merges.
+
 ## 2026-11-02 — Date localization Source1419 original qualified
 
 Date-format source [#1419](https://github.com/pcvantol/djconnect/pull/1419) is protected
