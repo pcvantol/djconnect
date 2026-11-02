@@ -2872,6 +2872,12 @@ async def _informational_assist_response(
     from .dialogue import current_turn, requests_lookup, DialogueError
     from . import public_research
     turn = current_turn.get()
+    if not research_angle:
+        kind, _ = public_research.direct_question(text)
+        research_angle = "age" if kind == "formation" else kind
+    if turn is not None:
+        from .exploration import ANGLES
+        turn.public_query_angle = research_angle if research_angle in ANGLES else ""
     fetched_sources = []
     research_state = {}
     semantic_scope = None
@@ -2885,7 +2891,7 @@ async def _informational_assist_response(
             # An open exploration chooses an angle through the existing read
             # interpreter, even if just one typed name is available.
             subject, ambiguous = "", False
-        named_subject = public_research.explicit_public_subject(text)
+        named_subject = public_research.public_name_slot(public_research.explicit_public_subject(text) or "")
         implicit_subject = not named_subject or not public_research.safe_subject(named_subject)
         if implicit_subject and not research_subject and semantic_reads.admissible_question(text):
             semantic_scope = semantic_reads.capture_scope(hass, turn)
@@ -2930,6 +2936,48 @@ async def _informational_assist_response(
                 expected_roles=tuple(s.get("role") for s in turn.source_context.get("subjects", [])
                                      if s.get("name", "").casefold() == public_research.safe_subject(subject).casefold()))
             turn.public_research = public_research.research_projection(subject, fetched_sources, research_state, question=text)
+            if research_state.get('exact_date') == 'conflicting_dates':
+                message = public_research.unavailable_answer(turn.style.get('language', 'en'), answer_unverified=True)
+                await turn.guard()
+                return {'success': True, 'text': message, 'dj_text': message, 'images': [],
+                        'sources': [source.metadata() for source in fetched_sources],
+                        'text_source': 'core', 'is_generated_text': False,
+                        'knowledge_basis': 'public_research_conflicting_dates',
+                        'public_research_status': {**research_state, 'answer_state': 'calendar_conflict'}}
+            if research_angle == 'age':
+                from .biographical_dates import group_inception_answer
+                from .exploration import band_age_question
+                original_group_sources = tuple(fetched_sources)
+                group_language = turn.style.get('language', 'en')
+                group_answer = (group_inception_answer(original_group_sources, subject, group_language)
+                    if band_age_question(turn.public_research, group_language, question=text) is None else None)
+                if group_answer:
+                    def original_group_date_delivery_guard():
+                        if group_inception_answer(original_group_sources, subject, group_language) != group_answer:
+                            raise DialogueError('conversation_context_changed', 409)
+                    turn.delivery_validators.append(original_group_date_delivery_guard)
+                    await turn.guard()
+                    return {'success': True, 'text': group_answer, 'dj_text': group_answer,
+                            'images': [], 'sources': [s.metadata() for s in original_group_sources
+                                if s.provider in {'Wikipedia', 'Wikidata'}],
+                            'text_source': 'core', 'is_generated_text': False,
+                            'knowledge_basis': 'public_group_inception_v1'}
+            if public_research.direct_question(text)[0] == 'age':
+                from .person_age import age_answer
+                original_sources = tuple(fetched_sources)
+                language = turn.style.get('language', 'en')
+                answer = age_answer(original_sources, subject, language)
+                if answer:
+                    def original_age_delivery_guard():
+                        if age_answer(original_sources, subject, language) != answer:
+                            raise DialogueError('conversation_context_changed', 409)
+                    turn.delivery_validators.append(original_age_delivery_guard)
+                    await turn.guard()
+                    return {'success': True, 'text': answer, 'dj_text': answer,
+                            'images': [], 'sources': [s.metadata() for s in original_sources
+                                if s.provider in {'Wikipedia', 'Wikidata'}],
+                            'text_source': 'core', 'is_generated_text': False,
+                            'knowledge_basis': 'public_person_age_v1'}
             if recording_lookup is not None:
                 public_names = public_research.public_recording_names(fetched_sources, *recording_lookup)
                 if public_names is None:
@@ -2967,10 +3015,10 @@ async def _informational_assist_response(
                 from .exploration import band_age_question
                 original_research = json.loads(json.dumps(turn.public_research, ensure_ascii=False))
                 language = turn.style.get("language", "en")
-                question = band_age_question(original_research, language)
+                question = band_age_question(original_research, language, question=text)
                 if question is not None:
                     def original_group_evidence():
-                        if band_age_question(original_research, language) != question:
+                        if band_age_question(original_research, language, question=text) != question:
                             raise DialogueError("conversation_context_changed", 409)
                     turn.delivery_validators.append(original_group_evidence)
                     await turn.guard()
@@ -3183,7 +3231,8 @@ async def _informational_assist_response(
                     ' Also return language_ok and style_ok booleans. language_ok requires fluent '
                     'requested-language prose; style_ok requires a useful connected personal DJ '
                     'answer in the requested Persona/Mood, addressing each requested musical aspect '
-                    'and ending with one relevant open follow-up grounded in the supplied evidence. '
+                    'and answering a precise fact question directly without a compulsory follow-up. '
+                    'Only open exploration benefits from a relevant grounded invitation. '
                     'A metadata/biography list, generic praise or a cropped first detail is insufficient. '
                     'No compulsory joke or fixed opening. '
                     'When selected_contribution is supplied, judge whether the answer deepens that '

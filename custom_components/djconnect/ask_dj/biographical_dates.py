@@ -153,3 +153,90 @@ def candidates(research):
                         if len(result) >= 8:
                             return result
     return result
+
+
+def _group_inception_answer(sources, subject, language, *, today=None):
+    """One exact musical-group P571, not an invented first member or lineup.
+
+    Year/month precision proves a year only; never compute an exact anniversary
+    or pretend the current band name was already in use at inception.
+    """
+    from datetime import UTC, date, datetime
+    from .person_age import linked_entity, PublicDateConflict
+    bound = linked_entity(sources, subject)
+    if bound is None:
+        return None
+    entity, linked = bound
+    if any(not _group_source(s.model_data(), s.title) for s in linked):
+        return None
+    today = today or datetime.now(UTC).date()
+    try:
+        claims = entity['claims']
+        kinds = claims.get('P31', [])
+        if not isinstance(kinds, list) or not kinds:
+            return None
+        for row in kinds:
+            snak = row.get('mainsnak', {})
+            value = snak.get('datavalue', {})
+            if (row.get('rank') not in {'normal', 'preferred'} or row.get('qualifiers')
+                    or snak.get('property') != 'P31' or snak.get('snaktype') != 'value'
+                    or snak.get('datatype') != 'wikibase-item'
+                    or value.get('type') != 'wikibase-entityid'
+                    or value.get('value') != {'entity-type':'item', 'numeric-id':215380, 'id':'Q215380'}
+                    or type(value['value']['numeric-id']) is not int):
+                return None
+        rows = claims.get('P571', [])
+        if not isinstance(rows, list):
+            return None
+        preferred = [r for r in rows if isinstance(r, dict) and r.get('rank') == 'preferred']
+        rows = preferred or [r for r in rows if isinstance(r, dict) and r.get('rank') == 'normal']
+        if len(rows) != 1 or rows[0].get('qualifiers'):
+            return None
+        snak = rows[0].get('mainsnak', {})
+        value = snak.get('datavalue', {})
+        if (snak.get('property') != 'P571' or snak.get('snaktype') != 'value'
+                or snak.get('datatype') != 'time' or value.get('type') != 'time'):
+            return None
+        value = value['value']
+        if (any(type(value.get(k)) is not int for k in ('precision','before','after','timezone'))
+                or value['precision'] not in {9,10,11} or value['before'] or value['after']
+                or value['timezone'] or value.get('calendarmodel') != 'http://www.wikidata.org/entity/Q1985727'):
+            return None
+        match = re.fullmatch(r'\+(\d{4})-(\d{2})-(\d{2})T00:00:00Z', value.get('time', ''))
+        if not match:
+            return None
+        year, month, day = map(int, match.groups())
+        precision = value['precision']
+        if not 1500 <= year <= today.year:
+            return None
+        if precision == 9:
+            if month not in {0,1} or day not in {0,1} or year == today.year:
+                return None
+        elif precision == 10:
+            if (not 1 <= month <= 12 or day not in {0,1}
+                    or (year, month) >= (today.year, today.month)):
+                return None
+        elif not date(year, month, day) <= today:
+            return None
+    except (KeyError, TypeError, ValueError, AttributeError, OverflowError, RecursionError):
+        return None
+    from .public_research import _sentences
+    for source in linked:
+        for sentence in _sentences(source.text):
+            if _FOUNDING.search(sentence) and any(int(y) != year for y in _YEAR.findall(sentence)):
+                raise PublicDateConflict()
+    copy = {
+        'nl': '{name} is opgericht in {year}.', 'en': '{name} was formed in {year}.',
+        'de': '{name} wurde {year} gegründet.', 'fr': '{name} a été fondé en {year}.',
+        'es': '{name} se formó en {year}.',
+    }
+    return copy.get(language, copy['en']).format(name=linked[0].title, year=year)
+
+
+def group_inception_answer(sources, subject, language, *, today=None):
+    """A conflicting literal date stays unqualified, not silently reconciled."""
+    from .person_age import PublicDateConflict
+    try:
+        return _group_inception_answer(sources, subject, language, today=today)
+    except PublicDateConflict:
+        return None

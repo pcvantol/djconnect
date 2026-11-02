@@ -157,10 +157,11 @@ class AlbumWebNarrationTest(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(album.web_source(page, self.web_url, identity, ''))
 
     def test_album_budget_is_internal_and_other_research_keeps_original_limits(self):
-        from custom_components.djconnect.ask_dj.public_research import PublicFetch, AlbumPublicFetch, ConcertPublicFetch
+        from custom_components.djconnect.ask_dj.public_research import PublicFetch, AlbumPublicFetch, ConcertPublicFetch, ResearchPublicFetch
         self.assertEqual((PublicFetch.maximum_requests, PublicFetch.html_maximum), (8, 128*1024))
+        self.assertEqual(ResearchPublicFetch.maximum_requests, 16)
         self.assertEqual((AlbumPublicFetch.maximum_requests, AlbumPublicFetch.html_maximum), (12, 512*1024))
-        self.assertEqual((ConcertPublicFetch.maximum_requests, ConcertPublicFetch.html_maximum), (8, 512*1024))
+        self.assertEqual((ConcertPublicFetch.maximum_requests, ConcertPublicFetch.html_maximum), (16, 512*1024))
 
     async def test_actual_shared_fetch_preserves_json_robots_caps_and_stops_at_album_budget(self):
         import aiohttp

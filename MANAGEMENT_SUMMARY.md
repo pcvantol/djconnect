@@ -1,3 +1,14 @@
+<!-- ASK_DJ_QUESTION_QUALITY_20261102 -->
+## Current Ask DJ quality batch — 2 November 2026
+
+One owner-requested PR covers public question understanding, retained question
+purpose, non-repeating clarification, source diversity, exact person-age evidence
+and shared Club DJ wit. Candidate303 product files; no installation or real
+editorial acceptance is implied. See [scope](docs/product/ASK_DJ_QUESTION_CONTINUITY_V1.md)
+and [verification](docs/verification/ASK_DJ_QUESTION_QUALITY_20261102.md).
+Keep all24 requests/nine gates and previous source/installed/provider/native
+qualifications in their own scope. No separate Final PR for this batch.
+
 ## 2026-11-02 — Personal DJ artist-story integration, Active single-PR source preparation
 
 The reported cold genre sentence is an actual home_dj metadata template, not

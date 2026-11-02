@@ -534,14 +534,14 @@ class FirstPlayWireEvidenceTests(IsolatedAsyncioTestCase):
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
         fixture = json.loads((root/'examples/client_contracts/session_first_play_v2/actual-ha-wire.json').read_text())
-        self.assertEqual(len(fixture['source_pins']), 302)
+        self.assertEqual(len(fixture['source_pins']), 303)
         for name, digest in fixture['source_pins'].items():
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
         for name, digest in fixture['original_common_harness_source_pins'].items():
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root/fixture['harness']).read_bytes()).hexdigest(), fixture['harness_sha256'])
         self.assertEqual((fixture['model_provider_calls'], fixture['real_provider_calls']), (0, 0))
-        self.assertTrue(fixture['all302_before_inside_after_equal'])
+        self.assertTrue(fixture['all303_before_inside_after_equal'])
         self.assertTrue(fixture['own_container_verified_absent'])
         self.assertEqual(set(fixture['cases'].values()), {'PASS'})
         self.assertGreaterEqual(len(fixture['cases']), 24)

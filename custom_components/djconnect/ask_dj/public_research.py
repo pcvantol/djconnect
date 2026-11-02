@@ -51,11 +51,11 @@ UNSAFE_QUERY = re.compile(
     re.I,
 )
 PRIVATE_RELATION = re.compile(
-    r"\b(?:my\s+(?:neighbou?r|wife|husband|friend|daughter|son)|"
-    r"mijn\s+(?:buur\w*|vrouw|man|vriend\w*|dochter|zoon)|"
-    r"mein\w*\s+(?:nachbar\w*|frau|mann|freund\w*|tochter|sohn)|"
-    r"(?:mon|ma|mes)\s+(?:voisin\w*|femme|mari|ami\w*|fille|fils)|"
-    r"(?:mi|mis)\s+(?:vecin\w*|esposa|esposo|amig\w*|hij\w*))\b",
+    r"\b(?:my\s+(?:neighbou?r|wife|husband|friend|daughter|son|colleague|salary|divorce)|"
+    r"mijn\s+(?:buur\w*|vrouw|man|vriend\w*|dochter|zoon|collega|salaris|scheiding)|"
+    r"mein\w*\s+(?:nachbar\w*|frau|mann|freund\w*|tochter|sohn|kolleg\w*|gehalt|scheidung)|"
+    r"(?:mon|ma|mes)\s+(?:voisin\w*|femme|mari|ami\w*|fille|fils|collègue|salaire|divorce)|"
+    r"(?:mi|mis)\s+(?:vecin\w*|esposa|esposo|amig\w*|hij\w*|compañer\w*|salario|divorcio))\b",
     re.I,
 )
 
@@ -231,8 +231,14 @@ class AlbumPublicFetch(PublicFetch):
     html_maximum = 512 * 1024
 
 
-class ConcertPublicFetch(PublicFetch):
-    """Internal current-event reader; original eight requests and JSON/robots caps."""
+class ResearchPublicFetch(PublicFetch):
+    """Explicit human question only; proactive owners keep their eight reads."""
+    maximum_requests = 16
+    html_maximum = 512 * 1024
+
+
+class ConcertPublicFetch(ResearchPublicFetch):
+    """Explicit current-event reader; bounded JSON/calendar/robots reads."""
     html_maximum = 512 * 1024
     content_types = PublicFetch.content_types | {"text/calendar"}
 
@@ -681,7 +687,7 @@ def _source(provider, title, url, text, language, *, revision_url="", entity_id=
         language,
         datetime.fromtimestamp(now, UTC).isoformat(),
         datetime.fromtimestamp(now + (900 if current else 3600), UTC).isoformat(),
-        "CC-BY-SA-4.0" if provider == "Wikipedia" else "public_page_short_reference",
+        "CC-BY-SA-4.0" if provider == "Wikipedia" else "CC0-1.0" if provider == "Wikidata" else "public_page_short_reference",
         revision_url,
         entity_id if re.fullmatch(r"Q[1-9][0-9]*", str(entity_id)) else "",
         tuple(dict.fromkeys(anchor for anchor in source_anchors if anchor in text))[:24],
@@ -822,10 +828,10 @@ async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expe
             not all(t in re.findall(r"[\wÀ-ÿ]+", title.casefold()) for t in tokens)
             or not (MUSIC_IDENTITY.search(description + " " + lead)
                     or MUSICAL_GROUP.search(description + " " + lead))
-            or NON_MUSIC_IDENTITY.search(description + " " + lead.split(".", 1)[0])
+            or NON_MUSIC_IDENTITY.search(description + " " + (_sentences(lead) or [lead])[0])
         ):
             continue
-        description_text = (description or lead.split(".", 1)[0]).casefold()
+        description_text = (description or (_sentences(lead) or [lead])[0]).casefold()
         is_group = bool(MUSICAL_GROUP.search(description_text))
         is_work = bool(
             re.search(
@@ -867,18 +873,29 @@ async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expe
     return None
 
 
-async def web_references(fetch, subject, question, locale, *, album=None, angle="", lookup_topic=""):
+async def web_references(fetch, subject, question, locale, *, album=None, angle="", lookup_topic="", alternate=False):
     """Best-effort discovery, then actual public pages; no snippet-only evidence."""
     # Never export the full conversational question or its incidental private context.
+    kind, _ = direct_question(question)
     topic = (
+        "date of birth biography" if kind == 'age' else
+        "band formation founded year" if kind == 'formation' else
+        "band members" if kind == 'members' else
         "concert tour dates"
-        if re.search(r"concert|tour|optreden|tournée|gira", question, re.I)
+        if (direct_question(question)[0] == "current_events" or re.search(r"concert|tour|optreden|tournée|gira", question, re.I))
         else "band members"
         if re.search(r"member|bandlid|bandleden|membre|miembro|mitglied", question, re.I)
         else "music biography discography"
     )
     from .exploration import ANGLES
     query = subject + ' official ' + ANGLES.get(angle, topic)
+    if alternate:
+        # One public, Core-owned reformulation. No raw conversational/private
+        # question, new fetch owner, request allowance or timeout is introduced.
+        alternatives = {'age':'date of birth musician biography',
+            'formation':'band founding origins history', 'members':'band official lineup members',
+            'current_events':'official live concert schedule'}
+        query = subject + ' official ' + alternatives.get(kind or angle, 'music biography interview')
     if lookup_topic := safe_lookup_topic(lookup_topic):
         query += ' \"' + lookup_topic + '\"'
     if album is not None:
@@ -958,13 +975,18 @@ async def web_references(fetch, subject, question, locale, *, album=None, angle=
                 final_url,
                 excerpt(text, question, 600, lookup_topic=lookup_topic),
                 page.language,
-                current=bool(re.search(r"concert|tour|live|optreden|tournée|gira", question, re.I)),
+                current=bool(direct_question(question)[0] == "current_events" or re.search(r"concert|tour|live|optreden|tournée|gira", question, re.I)),
                 source_anchors=source_work_anchors(text, page.source_anchors) if lookup_topic else (),
             )
         if result:
             sources.append(result)
         if len(sources) >= (1 if album is not None else 2) or fetch.requests >= fetch.maximum_requests:
             break
+    if (not sources and not alternate and album is None
+            and type(fetch) in {ResearchPublicFetch, ConcertPublicFetch}
+            and fetch.maximum_requests-fetch.requests >= 4):
+        return await web_references(fetch, subject, question, locale, angle=angle,
+                                    lookup_topic=lookup_topic, alternate=True)
     return sources
 
 
@@ -997,17 +1019,36 @@ async def research(subject, question, locale, guard, *, qualified_music=False, e
             if source:
                 sources.append(source)
                 state["wikipedia"] = "fetched"
-                if secondary_language and source.language != "en" and source.entity_id:
-                    english = await wikipedia(
-                        fetch, subject, question, "en", expected_roles=expected_roles,
-                        expected_entity_id=source.entity_id,original_paragraphs=original_paragraphs,
-                        artist_introduction=artist_introduction,story_topic=story_topic,
-                        **({"lookup_topic":lookup_topic} if lookup_topic else {})
-                    )
-                    # Combine language editions only with the same canonical
-                    # public entity ID; a shared spelling alone is insufficient.
-                    if english and english.entity_id == source.entity_id:
-                        sources.append(english)
+                # Exact-age questions can use canonical date fields and local
+                # calendar arithmetic. This consumes the SAME guarded request
+                # allowance; no new fetch owner or model maths is introduced.
+                if (direct_question(question)[0] in {'age', 'formation'} or research_angle == 'age') and source.entity_id:
+                    from .person_age import _age_answer, entity_url, PublicDateConflict
+                    from .biographical_dates import _group_inception_answer
+                    url = entity_url(source.entity_id, source.language)
+                    code, raw, final = await fetch.request(url, maximum=512*1024)
+                    if code == 200 and final == url:
+                        dates = _source('Wikidata', source.title, url, raw, source.language,
+                            entity_id=source.entity_id, current=True)
+                        try:
+                            exact = (_age_answer([source, dates], subject, locale)
+                                     or _group_inception_answer([source, dates], subject, locale))
+                        except PublicDateConflict:
+                            # Preserve both originals and terminate this exact
+                            # fact attempt; do not discard the contrary source
+                            # and generate a confident answer from just one side.
+                            sources.append(dates)
+                            state['requests'] = fetch.requests
+                            state['exact_date'] = 'conflicting_dates'
+                            return
+                        if exact:
+                            sources.append(dates)
+                            # The precise fact is already supported. Do not
+                            # spend the rest of a broad research allowance on
+                            # unrelated pages or ask a model to redo arithmetic.
+                            state['requests'] = fetch.requests
+                            state['exact_date'] = 'qualified_without_generation'
+                            return
         except (ResearchUnavailable, TimeoutError, OSError):
             pass
         try:
@@ -1022,11 +1063,25 @@ async def research(subject, question, locale, guard, *, qualified_music=False, e
                 state["web"] = "fetched"
         except (ResearchUnavailable, TimeoutError, OSError):
             pass
+        # Spend the shared allowance on an independent publisher before a
+        # second language edition. Missing web evidence is not a factual answer.
+        if (secondary_language and sources and sources[0].provider == 'Wikipedia'
+                and sources[0].language != 'en' and sources[0].entity_id
+                and len(sources) < MAX_SOURCES):
+            try:
+                english = await wikipedia(fetch, subject, question, 'en',
+                    expected_roles=expected_roles, expected_entity_id=sources[0].entity_id,
+                    original_paragraphs=original_paragraphs, artist_introduction=artist_introduction,
+                    story_topic=story_topic, **({'lookup_topic': lookup_topic} if lookup_topic else {}))
+                if english and english.entity_id == sources[0].entity_id:
+                    sources.append(english)
+            except (ResearchUnavailable, TimeoutError, OSError):
+                pass
         state["requests"] = fetch.requests
     try:
-        async with asyncio.timeout(12):
+        async with asyncio.timeout(20 if fetch is None else 12):
             if fetch is None:
-                owner = ConcertPublicFetch if research_angle == 'current_events' else PublicFetch
+                owner = ConcertPublicFetch if research_angle == 'current_events' else ResearchPublicFetch
                 async with owner(guard) as owned:
                     await collect(owned)
             elif type(fetch) is PublicFetch and fetch.guard is guard:
@@ -1089,7 +1144,7 @@ def safe_subject(subject, *, qualified=False):
         # such as Anja's chemotherapy. Other literal punctuation needs quoting.
         if token == "&":
             continue
-        if not re.fullmatch(r"(?:[A-Z]\.|(?:[OD]['’])?[^\W_]+(?:[-.!][^\W_]+)*(?:['’]s)?)", token):
+        if not re.fullmatch(r"(?:(?:[A-Z]\.){2,}|[A-Z]\.|(?:[OD]['’])?[^\W_]+(?:[-.!][^\W_]+)*(?:['’]s)?)", token):
             return ""
         if not qualified and len(tokens) > 1 and token.casefold() not in connectors and not token[0].isupper():
             # Explicit musical concept identifiers are not person-name clauses.
@@ -1128,10 +1183,45 @@ def rich_introduction(text):
         r"vertel (?:me )?(?:meer )?over)\b", text.strip(), re.I))
 
 
+def direct_question(text):
+    """Common name slots; free formulations retain the semantic interpreter.
+
+    A name slot proves no identity, fact, source or effect authority.
+    """
+    patterns = (
+        ('age', r'(?:how old is|hoe oud is|wie alt ist|quel âge a|qué edad tiene)\s+(.+?)'),
+        ('members', r'(?:wie zijn (?:de )?(?:muzikanten|bandleden|leden) van(?: (?:de )?band)?|uit welke (?:muzikanten|bandleden|leden) bestaat|who are (?:the )?members of|wer sind die mitglieder von|qui sont les membres de|quiénes son los miembros de)\s+(.+?)'),
+        ('formation', r'(?:wanneer (?:is|werd)|when was|wann wurde|quand a été|cuándo fue)\s+(.+?)\s+(?:opgericht|formed|founded|gegründet|fondé|fundado)(?:,?\s*(?:welk jaar|in welk jaar|which year))?'),
+        ('current_events', r'(?:treedt|treden)\s+(.+?)\s+(?:nog |weer |nog samen |samen )?op'),
+        ('current_events', r'(?:does|do)\s+(.+?)\s+still perform(?: together)?'),
+    )
+    for kind, pattern in patterns:
+        match = re.fullmatch(pattern + r'\s*[?!]*', str(text).strip().lstrip('¿¡'), re.I)
+        if match:
+            name = match[1].strip(' ?!')
+            if not re.search(r'(?:[^\W\d_]\.){2,}$', name):
+                name = name.rstrip('.')
+            return kind, name
+    return '', ''
+
+
+def public_name_slot(name):
+    """Keep the original positive name grammar; a model may resolve casing.
+
+    Title-casing a whole user clause can turn private trailing prose into an
+    apparently valid public name. Lowercase ambiguous slots retain the existing
+    guarded semantic reader, which must select a name present in the question.
+    """
+    return safe_subject(name)
+
+
 def explicit_public_subject(text):
     """One shared extraction rule for owner topic reset and source retrieval."""
     from .dialogue import deictic_subject, explicit_subject
 
+    _, direct = direct_question(text)
+    if direct:
+        return direct if not deictic_subject(direct) else None
     named = explicit_subject(text)
     # These patterns extract only the public musical subject, not the surrounding
     # private conversational question. Context remains the first choice for
@@ -1199,10 +1289,10 @@ def subject_for_question(text, turn):
         if referenced:
             return resolved, True, False
         original = named
-        named = safe_subject(named)
+        named = public_name_slot(named)
         if not named:
             return "", False, True
-        if original != named:
+        if original != named and original[:1] in {'"', '“', '«', "'"}:
             named = original  # one quoted-slot normalization at the outbound boundary
         return named, False, False
     names = list(
@@ -1542,7 +1632,24 @@ _WORK_MODIFIERS = (
 
 def _sentences(text):
     """Exact source/answer spans, not generated or reconstructed quotations."""
-    return [match.group().strip() for match in re.finditer(r"\S.*?(?:[.!?](?=\s|$)|$)", text, re.S)]
+    result = []
+    start = None
+    for match in re.finditer(r"\S.*?(?:[.!?](?=\s|$)|$)", text, re.S):
+        if start is None:
+            start = match.start()
+        # The last dot of an initialism is not a sentence boundary before a
+        # continuing lowercase predicate. Preserve exact original characters,
+        # including intervening whitespace; never reconstruct a source quote.
+        end = match.end()
+        following = text[end:].lstrip()
+        if (re.search(r'(?:\b[A-Za-z]\.){2,}$', match.group())
+                and following and following[0].islower()):
+            continue
+        result.append(text[start:end].strip())
+        start = None
+    if start is not None:
+        result.append(text[start:].strip())
+    return result
 
 
 def evidence_spans(source):
@@ -1979,15 +2086,9 @@ def qualified_prefix(response, original, context=None):
 
 def unavailable_answer(language, *, ambiguous=False, answer_unverified=False):
     if answer_unverified:
-        # Keep the failed research answer unqualified, but offer a new direction
-        # instead of inviting an identical retry. This copy grants no new fact.
-        unverified = {
-            'en': 'I found sources, but I can’t tell this story reliably yet. What would you most like to know about it?',
-            'nl': 'Ik heb bronnen gevonden, maar kan dit verhaal nog niet betrouwbaar vertellen. Wat wil je hierover vooral weten?',
-            'de': 'Ich habe Quellen gefunden, kann dir die Geschichte aber noch nicht verlässlich erzählen. Was möchtest du darüber vor allem wissen?',
-            'fr': 'J’ai trouvé des sources, mais je ne peux pas encore te raconter cela de façon fiable. Que souhaites-tu surtout savoir à ce sujet ?',
-            'es': 'He encontrado fuentes, pero aún no puedo contarte esta historia con suficiente certeza. ¿Qué te gustaría saber en concreto?',
-        }
+        # A failed verification is not ambiguity in the user question.
+        # Keep its public topic, but do not ask the already answered question again.
+        unverified = {'en': 'I found sources, but could not verify an answer to your question. I can’t give you a reliable answer yet.', 'nl': 'Ik heb bronnen gevonden, maar kon het antwoord op je vraag niet voldoende controleren. Ik kan je daarom nog geen betrouwbaar antwoord geven.', 'de': 'Ich habe Quellen gefunden, konnte die Antwort auf deine Frage aber nicht ausreichend prüfen. Eine verlässliche Antwort kann ich dir noch nicht geben.', 'fr': 'J’ai trouvé des sources, mais je n’ai pas pu vérifier suffisamment la réponse à ta question. Je ne peux pas encore te donner de réponse fiable.', 'es': 'He encontrado fuentes, pero no he podido verificar suficientemente la respuesta a tu pregunta. Aún no puedo darte una respuesta fiable.'}
         return unverified.get(language, unverified['en'])
     messages = {
         "en": (
