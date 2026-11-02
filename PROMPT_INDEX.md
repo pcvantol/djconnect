@@ -1,3 +1,21 @@
+## 2026-11-02 — Combined first-play and Track Insight source qualified
+
+Core Source [#1421](https://github.com/pcvantol/djconnect/pull/1421) is protected
+`3b425f503e4c0713fa48a84366f77c32aaa86f8e` and ORIGINAL_SOURCE_QUALIFIED.
+The dedicated new-Session owner action offers a speaker when necessary, then
+three search-backed genres; genre selection starts the exact ordered mix without
+an extra Play Now. Explicit current Track Insight can retrieve eligible exact
+recording/work credits through the bounded original-authority CC0 path.
+
+[Source closure](docs/verification/SESSION_FIRST_PLAY_TRACK_INSIGHT_FINALIZATION_20261102.md)
+records4453 tests/seven existing skips,25 actual isolated HA groups/equal302,
+original formal/durable evidence and independent whole/exact/original reviews.
+This one remaining documentary PR preserves every product/fixture/release byte.
+Apple295 owns first-play UI adoption; Apple296 owns empty Insight panels. Actual
+numeric audio measurements, real Spotify/native acceptance and installation remain
+separate. HA-dev has its previous302 snapshot, not these new source bytes. Preserve
+all24/nine open requests, prior date/Pi/API scope, RAW, backups and proof refs.
+
 ## Current selected Core increment — Session first-play and Track Insight
 
 Continue the ONE open Core1421 batch and sole existing writer. First-play is the
