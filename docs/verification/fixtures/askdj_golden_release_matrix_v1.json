@@ -10402,13 +10402,13 @@
     {
       "id": "ASKDJ-ISSUE-history-last-grant-read-source-withdrawal",
       "family_id": "ASKDJ-FLOW-style-lifecycle",
-      "core_qualification": "open",
+      "core_qualification": "locally_covered",
       "finding": "Independent review and nine initial causal cases find query and HTTP history can expose an already projected old-source body after source disable in the last retention/owner await: Profile remains paired and current backend valid, deadline guards pass. Production query factory now supplies committed synchronous source-grant comparison; history HTTP captures original grant/policy fence and rechecks after all final owner awaits, including natural Session/entry expiry. New regression covers12 boundaries with healthy original body controls; local correction is not consumer or native acceptance."
     },
     {
       "id": "ASKDJ-ISSUE-history-last-owner-pairing-withdrawal",
       "family_id": "ASKDJ-FLOW-style-lifecycle",
-      "core_qualification": "open",
+      "core_qualification": "locally_covered",
       "finding": "Independent re-review and six causal handler cases find paired token rotation or authorization withdrawal after the final owner resolver can return old body with200 although Profile and source-grant revisions remain unchanged. Reuse original-runtime/identity/headers/Profile synchronous conversation fence before response representation and register it with the shared delivery admission; preserve archive and qualified fresh-owner read. Local fix is not production pairing/native acceptance."
     },
     {
