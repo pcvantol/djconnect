@@ -1108,7 +1108,10 @@ The first v4 runtime slice exposes only the server-owned lifecycle below:
 - `GET /api/djconnect/v1/session/active`
 
 Requests use the paired client identity and bearer token, then resolve the
-owning DJConnect Profile. A Profile may have exactly one active Runtime. Start
+owning DJConnect Profile. An authenticated Watch binding cannot start a Session.
+The start endpoint returns `403 session_start_not_allowed` before creating a
+Runtime, including for a legacy Watch device ID. A request's client label does
+not change the paired binding. A Profile may have exactly one active Runtime. Start
 returns `201` with the active session; a duplicate start returns `409
 active_session_exists` with the existing session. Active lookup returns the
 same runtime for client reconnect, or `session: null` when idle. End returns an
@@ -2490,7 +2493,7 @@ See [DJ Bulletin V1](docs/product/DJ_BULLETIN_V1.md) and the actual isolated
 Ask DJ turn. `generation_metadata.bulletin_schema` is `"1"`; two `sources` carry
 public provider, original URL, license, title and publication time. Existing
 `native_delivery` and Session speech descriptors remain authoritative. The
-original publication+30-minute expiry and original owner/source/agent/settings
+original publication-plus-two-hours expiry and original owner/source/agent/settings
 admission apply to display and speech; reads do not renew them. Existing client
 speech autoplay controls rendition and does not debit a second contribution.
 Unknown consumers skip this unsupported Moment/speech while retaining surrounding

@@ -12,7 +12,16 @@ class BulletinWireContractTests(unittest.TestCase):
         wire = json.loads((ROOT / "examples/client_contracts/dj_bulletin_v1/actual-ha-wire.json").read_text())
         self.assertEqual(wire["schema_version"], 1)
         self.assertEqual(wire["ha_sdk_version"], "2026.10.0")
-        for relative, expected in wire["source_pins"].items():
+        current = json.loads((ROOT / 'examples/client_contracts/dj_bulletin_v1/news_bulletin_http-requalification-1432.json').read_text())
+        self.assertTrue(current['source_before_after_equal'])
+        self.assertEqual(len(current['source_pins']), 304)
+        self.assertEqual(hashlib.sha256((ROOT / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
+        extension = current['receipt']['extension']
+        self.assertEqual(extension['state'], 'PASS')
+        self.assertEqual(extension['external_RSS_calls'], 0)
+        self.assertEqual(extension['model_provider_calls'], 0)
+        self.assertEqual(extension['installed_or_native_acceptance'], 'NOT_RUN')
+        for relative, expected in current['source_pins'].items():
             self.assertEqual(hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(), expected, relative)
         self.assertEqual(hashlib.sha256((ROOT / wire["harness"]).read_bytes()).hexdigest(), wire["harness_sha256"])
         sample = wire["sample"]

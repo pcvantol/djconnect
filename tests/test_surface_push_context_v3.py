@@ -234,9 +234,18 @@ class OriginalClockActualHAProofTests(unittest.TestCase):
         proof = json.loads((root / 'examples/client_contracts/surface_push_v3/actual-ha-original-clock-context.json').read_text())
         self.assertEqual(proof['contract_version'], 3)
         self.assertEqual(proof['ha_sdk_version'], '2026.10.0')
-        self.assertEqual(len(proof['source_pins']), 304)
+        current = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-requalification-1432.json').read_text())
+        self.assertTrue(current['source_before_after_equal'])
+        self.assertEqual(len(current['source_pins']), 304)
+        self.assertEqual(current['harness'], proof['harness'])
+        self.assertEqual(current['harness_sha256'], proof['harness_sha256'])
+        self.assertEqual(hashlib.sha256((root / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
+        extension = current['receipt']['extension']
+        self.assertEqual(extension['SQL_commit_before_synthetic_relay'], True)
+        self.assertEqual(extension['external_API_calls'], 0)
+        self.assertEqual(extension['APNs_native_or_installed_acceptance'], 'NOT_RUN')
         self.assertIn('custom_components/djconnect/artist_review_words.py', proof['source_pins'])
-        for relative, digest in proof['source_pins'].items():
+        for relative, digest in current['source_pins'].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), digest, relative)
         self.assertEqual(hashlib.sha256((root / proof['harness']).read_bytes()).hexdigest(), proof['harness_sha256'])
         self.assertTrue(all(proof['checks'].values()))
