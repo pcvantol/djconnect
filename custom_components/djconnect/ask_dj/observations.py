@@ -280,18 +280,15 @@ async def current_artist_read(hass, runtime, selected=None, *, require_recording
             turn.speech_deadline = min(turn.speech_deadline or deadline, deadline)
         playback=result.get('playback') if isinstance(result,dict) and result.get('success') is not False else None
         identity=subject(playback)
-        sample=None
-        if identity and turn is not None:
-            from ..reply_artwork import subject as image_subject
-            from ..discovery_artwork import provider_asset_id
-            reference=image_subject(playback,turn.reply_source_context)
-            if reference is not None:
-                url=next(playback[k] for k in ('album_image_url','media_image_url','image_url','thumbnail_url')
-                         if playback.get(k))
-                sample=(reference,provider_asset_id(url),{
-                    'uri':reference['subject_uri'],'album_uri':reference['album_uri'],
-                    'album_image_url':url,'title':identity[2],'artist':identity[1]})
-        image_samples.append(sample)
+        artist_ids = playback.get("artist_ids") if identity else None
+        artist_id = None
+        if (
+            identity and re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}", identity[0])
+            and isinstance(artist_ids, list) and len(artist_ids) == 1
+            and isinstance(artist_ids[0], str) and re.fullmatch(r"[A-Za-z0-9]{22}", artist_ids[0])
+        ):
+            artist_id = artist_ids[0]
+        image_samples.append(artist_id)
         return identity
 
     answer = None
@@ -330,18 +327,25 @@ async def current_artist_read(hass, runtime, selected=None, *, require_recording
             url = selected["playback"].get("source_url", "")
             if isinstance(url, str) and re.fullmatch(r"https://open\.spotify\.com/track/[A-Za-z0-9]{22}", url):
                 sources[0]["url"] = url
-    images=[]
-    if (answer and selected is None and len(image_samples)==2 and image_samples[0] is not None
-            and image_samples[1] is not None and image_samples[0][:2]==image_samples[1][:2]
-            and turn.reply_source_authority is not None and turn.reply_source_authority()):
-        from ..reply_artwork import observed_current_image
+    images = []
+    if (
+        answer and selected is None and not require_recording and turn is not None
+        and len(image_samples) == 2 and image_samples[0] is not None
+        and image_samples[0] == image_samples[1]
+        and turn.reply_source_authority is not None and turn.reply_source_authority()
+    ):
+        from ..reply_artwork import observed_current_artist_image
+
         def validate_image_source():
             if not turn.reply_source_authority():
-                raise DialogueError('source_withdrawn',409)
+                raise DialogueError("source_withdrawn", 409)
+
         turn.delivery_validators.append(validate_image_source)
-        image=await observed_current_image(hass,turn,image_admission,image_samples[1][2])
+        image = await observed_current_artist_image(
+            hass, runtime, turn, image_admission, image_samples[0], target[1]
+        )
         if image is not None:
-            images=[image]
+            images = [image]
     if turn:
         await turn.guard()
     return {"success": True, "text": answer or unavailable[locale], "dj_text": answer or unavailable[locale],
