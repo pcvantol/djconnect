@@ -1,12 +1,14 @@
 """Core signed Watch preference request and reconciliation boundaries."""
 from dataclasses import replace
+import hashlib
 import json
 import unittest
 from unittest.mock import AsyncMock, Mock
 
 from tests.test_persistence_platform import PersistenceService  # noqa: F401
 from custom_components.djconnect.watch_preference_client import (
-    EnrolledWatchReceiver, WatchPreferenceIntent, update_watch_preference, watch_preference_https,
+    EnrolledWatchReceiver, WatchPreferenceIntent, retire_watch_receiver, update_watch_preference,
+    watch_preference_https,
 )
 
 
@@ -91,3 +93,35 @@ class WatchPreferenceClientTests(unittest.IsolatedAsyncioTestCase):
             with self.subTest(endpoint=endpoint), self.assertRaisesRegex(
                     ValueError, "invalid_watch_preference_endpoint"):
                 watch_preference_https(endpoint)
+
+
+class WatchRetirementClientTests(unittest.IsolatedAsyncioTestCase):
+    async def test_lost_retirement_receipt_reconciles_original_body(self):
+        receiver = EnrolledWatchReceiver("lab-api", "install-a", "watch-a", "pair-a", 2, "a" * 64)
+        post = AsyncMock(side_effect=[ConnectionError("lost reply"), "committed"])
+        sign = AsyncMock(return_value=bytes(64))
+        result = await retire_watch_receiver(
+            receiver, operation="withdraw", expiry=125, require_current=lambda _: None,
+            sign_frame=sign, post_signed=post, wall=lambda: 100,
+        )
+
+        self.assertEqual(result, "committed")
+        self.assertEqual(post.await_count, 2)
+        original, status = (call.args[0] for call in post.await_args_list)
+        self.assertEqual(json.loads(original)["action"], "retire")
+        readback = json.loads(status)
+        self.assertEqual(readback["action"], "lifecycle-status")
+        self.assertEqual(readback["target_operation"], "withdraw")
+        self.assertEqual(readback["target_body_sha256"], hashlib.sha256(original).hexdigest())
+
+    async def test_pairing_change_during_signing_stops_retirement_post(self):
+        receiver = EnrolledWatchReceiver("lab-api", "install-a", "watch-a", "pair-a", 2, "a" * 64)
+        guard = Mock(side_effect=[None, None, PermissionError("pairing changed")])
+        post = AsyncMock()
+        result = await retire_watch_receiver(
+            receiver, operation="withdraw", expiry=125, require_current=guard,
+            sign_frame=AsyncMock(return_value=bytes(64)), post_signed=post, wall=lambda: 100,
+        )
+
+        self.assertEqual(result, "discarded")
+        post.assert_not_awaited()

@@ -25,6 +25,7 @@ _MAX_COUNTER = (1 << 53) - 1
 _RECEIPT = {"incarnation", "revision", "operation", "enabled", "sealed"}
 
 PreferenceOutcome = Literal["confirmed", "superseded", "unknown", "discarded"]
+RetirementOutcome = Literal["committed", "denied", "unknown", "discarded"]
 
 
 @dataclass(frozen=True)
@@ -49,14 +50,19 @@ def _counter(value: object) -> bool:
     return type(value) is int and 0 <= value <= _MAX_COUNTER
 
 
-def _validate(receiver: EnrolledWatchReceiver, intent: WatchPreferenceIntent) -> None:
+def _validate_binding(receiver: EnrolledWatchReceiver, operation: str, expiry: int) -> None:
     if (not isinstance(receiver.audience, str) or not re.fullmatch(r"[!-~]{1,160}", receiver.audience)
             or any(not isinstance(value, str) or not _IDENTIFIER.fullmatch(value)
-                   for value in (receiver.installation, receiver.receiver, receiver.incarnation, intent.operation))
+                   for value in (receiver.installation, receiver.receiver, receiver.incarnation, operation))
             or not isinstance(receiver.key_fingerprint, str) or not _FINGERPRINT.fullmatch(receiver.key_fingerprint)
-            or not _counter(receiver.epoch) or receiver.epoch == 0
-            or not _counter(intent.expected_version) or intent.expected_version == _MAX_COUNTER
-            or not _counter(intent.expiry) or type(intent.enabled) is not bool):
+            or not _counter(receiver.epoch) or receiver.epoch == 0 or not _counter(expiry)):
+        raise ValueError("invalid_watch_preference_binding")
+
+
+def _validate(receiver: EnrolledWatchReceiver, intent: WatchPreferenceIntent) -> None:
+    _validate_binding(receiver, intent.operation, intent.expiry)
+    if (not _counter(intent.expected_version) or intent.expected_version == _MAX_COUNTER
+            or type(intent.enabled) is not bool):
         raise ValueError("invalid_watch_preference_binding")
 
 
@@ -71,11 +77,15 @@ def _request(receiver: EnrolledWatchReceiver, intent: WatchPreferenceIntent, *, 
     }
     if not read:
         claims.update(expected_version=intent.expected_version, enabled=intent.enabled)
+    return _frame(claims)
+
+
+def _frame(claims: dict) -> tuple[bytes, bytes]:
     body = json.dumps(claims, separators=(",", ":")).encode()
     fields = (
-        receiver.audience, action, receiver.installation, receiver.receiver,
-        str(receiver.epoch), receiver.key_fingerprint, receiver.incarnation, "",
-        str(intent.expiry), operation, "" if read else str(intent.expected_version),
+        claims["audience"], claims["action"], claims["installation"], claims["receiver"],
+        str(claims["epoch"]), claims["key_fingerprint"], claims["incarnation"], "",
+        str(claims["expiry"]), claims["operation"], str(claims.get("expected_version", "")),
         hashlib.sha256(body).hexdigest(),
     )
     frame = bytearray(_DOMAIN)
@@ -145,6 +155,61 @@ async def update_watch_preference(
             except OSError:
                 result = "unknown"
             return await attempt(read=True) if result == "unknown" else result
+    except PermissionError:
+        return "discarded"
+    except (OSError, TimeoutError):
+        return "unknown"
+
+
+async def retire_watch_receiver(
+    receiver: EnrolledWatchReceiver, *, operation: str, expiry: int,
+    require_current, sign_frame, post_signed, wall=time.time,
+) -> RetirementOutcome:
+    """Submit one retirement and reconcile ambiguity with one exact signed status request."""
+    _validate_binding(receiver, operation, expiry)
+    claims = {
+        "audience": receiver.audience, "action": "retire",
+        "installation": receiver.installation, "receiver": receiver.receiver,
+        "epoch": receiver.epoch, "key_fingerprint": receiver.key_fingerprint,
+        "expiry": expiry, "operation": operation, "incarnation": receiver.incarnation,
+    }
+
+    def guard():
+        if require_current(receiver) is not None:
+            raise PermissionError("watch_retirement_authority_unavailable")
+        remaining = expiry - wall()
+        if not 0 < remaining <= 30:
+            raise TimeoutError
+        return remaining
+
+    async def send(request_claims):
+        guard()
+        body, frame = _frame(request_claims)
+        raw = await sign_frame(frame)
+        guard()
+        if type(raw) is not bytes or len(raw) != 64:
+            raise PermissionError("watch_preference_signer_unavailable")
+        signature = base64.urlsafe_b64encode(raw).decode().rstrip("=")
+        try:
+            outcome = await post_signed(body, signature)
+        except PermissionError:
+            raise
+        except (OSError, TimeoutError):
+            outcome = "unknown"
+        guard()
+        return body, outcome
+
+    try:
+        async with asyncio.timeout(guard()):
+            body, outcome = await send(claims)
+            if outcome in ("committed", "denied"):
+                return outcome
+            status_claims = {
+                **claims, "action": "lifecycle-status", "operation": uuid4().hex,
+                "target_operation": operation, "target_body_sha256": hashlib.sha256(body).hexdigest(),
+            }
+            _, outcome = await send(status_claims)
+            return "committed" if outcome == "committed" else "unknown"
     except PermissionError:
         return "discarded"
     except (OSError, TimeoutError):
