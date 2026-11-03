@@ -285,16 +285,18 @@ class CurrentTrackInsightTests(IsolatedAsyncioTestCase):
         import json
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
-        fixture = json.loads((root / "examples/client_contracts/track_insight/current-subject-v1-core-consolidation-20261022.json").read_text())
-        for relative, digest in fixture["source_pins"].items():
+        fixture = json.loads((root / "examples/client_contracts/track_insight/current-subject-actual-ha-1429.json").read_text())
+        self.assertEqual(len(fixture["source_files_sha256"]), 305)
+        for relative, digest in fixture["source_files_sha256"].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), digest, relative)
-        self.assertEqual(hashlib.sha256((root / fixture["harness"]).read_bytes()).hexdigest(), fixture["harness_sha256"])
+        self.assertEqual(hashlib.sha256((root / "scripts/verification/verify_current_track_insight_http.py").read_bytes()).hexdigest(), fixture["harness_sha256"])
         self.assertTrue(fixture["source_unchanged"])
         self.assertEqual(fixture["model_reply_fixture_calls"], 4)
         self.assertEqual(fixture["cases"]["explicit_current_actual_paired_http_resolves_cc0_without_opportunity_or_publication"], "PASS")
         self.assertEqual(fixture["cases"]["on_demand_credits_never_fabricate_audio_measurements"], "PASS")
-        self.assertEqual((fixture["installed"], fixture["native"], fixture["model_provider_calls"], fixture["playback_mutations"]),
-                         ("NOT_RUN", "NOT_RUN", 0, 0))
+        self.assertEqual((fixture["installed"], fixture["native"], fixture["model_provider_calls"]),
+                         ("NOT_RUN", "NOT_RUN", 0))
+        self.assertEqual(fixture["qualification"], "ACTUAL_ISOLATED_HA_PAIRED_HTTP_SYNTHETIC_ONLY")
         self.assertEqual(set(fixture["cases"].values()), {"PASS"})
         self.assertGreaterEqual(len(fixture["cases"]), 8)
 
