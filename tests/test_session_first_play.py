@@ -534,10 +534,19 @@ class FirstPlayWireEvidenceTests(IsolatedAsyncioTestCase):
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
         fixture = json.loads((root/'examples/client_contracts/session_first_play_v2/actual-ha-wire.json').read_text())
-        self.assertEqual(len(fixture['source_pins']), 304)
-        for name, digest in fixture['source_pins'].items():
+        current = json.loads((root / 'examples/client_contracts/session_first_play_v2/session_first_play_http-requalification-1429.json').read_text())
+        self.assertTrue(current['source_before_after_equal'])
+        self.assertEqual(len(current['source_pins']), 305)
+        self.assertEqual(hashlib.sha256((root / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
+        extension = current['receipt']['extension']
+        self.assertEqual(extension['model_provider_calls'], 0)
+        self.assertEqual(extension['real_provider_calls'], 0)
+        self.assertEqual(extension['native_installed_acceptance'], 'NOT_RUN')
+        self.assertTrue(extension['cases'])
+        self.assertEqual(set(extension['cases'].values()), {'PASS'})
+        for name, digest in current['source_pins'].items():
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
-        for name, digest in fixture['original_common_harness_source_pins'].items():
+        for name, digest in current['receipt']['source_files_sha256'].items():
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root/fixture['harness']).read_bytes()).hexdigest(), fixture['harness_sha256'])
         self.assertEqual((fixture['model_provider_calls'], fixture['real_provider_calls']), (0, 0))
