@@ -1108,7 +1108,10 @@ The first v4 runtime slice exposes only the server-owned lifecycle below:
 - `GET /api/djconnect/v1/session/active`
 
 Requests use the paired client identity and bearer token, then resolve the
-owning DJConnect Profile. A Profile may have exactly one active Runtime. Start
+owning DJConnect Profile. An authenticated Watch binding cannot start a Session.
+The start endpoint returns `403 session_start_not_allowed` before creating a
+Runtime, including for a legacy Watch device ID. A request's client label does
+not change the paired binding. A Profile may have exactly one active Runtime. Start
 returns `201` with the active session; a duplicate start returns `409
 active_session_exists` with the existing session. Active lookup returns the
 same runtime for client reconnect, or `session: null` when idle. End returns an
