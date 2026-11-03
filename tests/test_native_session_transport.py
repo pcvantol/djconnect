@@ -41,6 +41,35 @@ class NativeSessionTransportTest(unittest.TestCase):
             self.assertEqual(result.status, 400)
             self.assertEqual(result.headers['Cache-Control'], 'no-store')
 
+    def test_paired_watch_cannot_start_a_session_with_ios_in_the_request(self):
+        for paired_type, device_id, backend_id in (
+            ("watchos", "djconnect-watchos-ABCDEFGHIJKL", "spotify"),
+            ("ios", "djconnect-watchos-ABCDEFGHIJKL", "spotify"),
+            ("watchos", "djconnect-watchos-ABCDEFGHIJKL", ""),
+        ):
+            with self.subTest(paired_type=paired_type, backend_id=backend_id):
+                runtime = types.SimpleNamespace(client_type=lambda: paired_type)
+                context = types.SimpleNamespace(backend_id=backend_id, device_id=device_id)
+
+                async def authenticate(*args, **kwargs):
+                    return runtime, context, None, None
+
+                async def payload():
+                    return {"client_type": "ios"}
+
+                request = types.SimpleNamespace(
+                    json=payload, app={"hass": object()}, headers={}, context=None
+                )
+                with (
+                    patch.object(handlers, "_session_profile_context", authenticate),
+                    patch.object(handlers, "session_runtime_manager") as manager,
+                ):
+                    result = asyncio.run(http.DJConnectSessionStartView(object()).post(request))
+                self.assertEqual(result.status, 403)
+                self.assertEqual(json.loads(result.text)["error"], "session_start_not_allowed")
+                self.assertEqual(result.headers["Cache-Control"], "no-store")
+                manager.assert_not_called()
+
     def test_non_object_json_is_a_no_store_parse_error(self):
         for value in ([], "text", 42, True):
             async def payload():

@@ -30,15 +30,18 @@ class PassiveRegistrationTests(unittest.IsolatedAsyncioTestCase):
     def test_actual_HA_fixture_joins_exact_product_and_closed_acceptance(self):
         root = Path(__file__).resolve().parents[1]
         proof = json.loads((root / 'examples/client_contracts/passive_surface_registration_v1/actual-ha-wire.json').read_text())
-        self.assertEqual(proof['status'], 'PASS')
-        self.assertEqual(len(proof['source_hashes']), 304)
-        for name, digest in proof['source_hashes'].items():
+        current = json.loads((root / "examples/client_contracts/passive_surface_registration_v1/actual-ha-wire-1430.json").read_text())
+        self.assertEqual(current['status'], 'PASS')
+        self.assertEqual(len(current['source_hashes']), 304)
+        for name, digest in current['source_hashes'].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root / proof['harness']).read_bytes()).hexdigest(), proof['harness_sha256'])
-        self.assertEqual(len(proof['cases']), 12)
-        self.assertTrue(proof['actual_temporary_entry_rotation_failed_await_ABA_stays_retired'])
-        self.assertEqual(proof['model_calls'], 0)
-        self.assertEqual(proof['external_provider_calls'], 0)
+        self.assertEqual(len(current['cases']), 12)
+        self.assertTrue(current['actual_temporary_entry_rotation_failed_await_ABA_stays_retired'])
+        self.assertEqual(current['model_calls'], 0)
+        self.assertEqual(current['external_provider_calls'], 0)
+        self.assertTrue(current['source_before_after_equal'])
+        self.assertEqual(current['positive_purpose_commit_native_installed_provider'], 'NOT_RUN')
         for key in ('installed', 'native', 'provider_activation'):
             self.assertEqual(proof[key], 'NOT_RUN')
 
