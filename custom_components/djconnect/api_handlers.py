@@ -7,7 +7,7 @@ from typing import Any, Awaitable, Callable
 from .discovery_artwork import capture_refresh_guard, project_music_dna_images
 
 from . import http as http_helpers
-from .const import CLIENT_TYPE_ESP32, CONF_CLIENT_TYPE, CONF_LOCAL_URL, VERSION
+from .const import CLIENT_TYPE_ESP32, CLIENT_TYPE_WATCHOS, CONF_CLIENT_TYPE, CONF_LOCAL_URL, VERSION
 from .http import (
     ERROR_MESSAGES,
     _backend_unavailable_payload,
@@ -292,6 +292,10 @@ async def async_handle_session_start_payload(
     )
     if error is not None:
         return error, int(status or 400)
+    # Use the authorized binding, including legacy Watch IDs.
+    if (runtime_client_type(runtime) == CLIENT_TYPE_WATCHOS
+            or context.device_id.lower().startswith("djconnect-watchos-")):
+        return _error_payload("session_start_not_allowed"), 403
     if not context.backend_id:
         return _error_payload("profile_backend_missing"), 409
     strategy = _session_start_strategy(data.get("session_start_strategy"))

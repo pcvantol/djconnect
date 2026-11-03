@@ -33,17 +33,19 @@ class SourceOriginActualProofTests(unittest.TestCase):
     def test_current_source_joins_original_actual_HA_and_same_harness_parent_failure(self):
         root = Path(__file__).resolve().parents[1]
         receipt = json.loads((root / "examples/client_contracts/source_origin_v1/actual-ha-source-origin-data.json").read_text())
-        self.assertEqual(receipt["state"], "PASS")
-        self.assertEqual(len(receipt["cases"]), 19)
-        self.assertEqual(len(receipt["source_sha256"]), 304)
-        for relative, digest in receipt["source_sha256"].items():
+        current = json.loads((root / "examples/client_contracts/source_origin_v1/actual-ha-source-origin-data-1430.json").read_text())
+        self.assertEqual(current["state"], "PASS")
+        self.assertEqual(len(current["cases"]), 19)
+        self.assertEqual(len(current["source_sha256"]), 304)
+        for relative, digest in current["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), digest, relative)
         harness = hashlib.sha256((root / receipt["harness"]).read_bytes()).hexdigest()
         self.assertEqual(harness, receipt["harness_sha256"])
         self.assertEqual(harness, receipt["parent_causal_RED"]["same_harness_sha256"])
         self.assertEqual(receipt["parent_causal_RED"]["sha"], "99c3ab376047a376415d61c1234645a2c631f3af")
-        self.assertTrue(receipt["source_origin_DATA_only"])
-        self.assertEqual(receipt["af201_native_mapping"], "NOT_IMPLEMENTED")
+        self.assertTrue(current["source_origin_DATA_only"])
+        self.assertEqual(current["af201_native_mapping"], "NOT_IMPLEMENTED")
+        self.assertEqual(current["installed_native_provider"], "NOT_RUN")
         self.assertEqual(receipt["authority"], "NOT_GRANTED")
         for key in ("installed", "native", "provider_activation"):
             self.assertEqual(receipt[key], "NOT_RUN")
