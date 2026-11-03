@@ -230,13 +230,19 @@ async def async_handle_session_history_payload(
             if (
                 not isinstance(action, dict)
                 or action.get("kind") != "open_session"
-                or set(action) - {"kind", "session_id", "entry_id", "navigation_only"}
+                or set(action) - {"kind", "session_id", "entry_id", "moment_id", "navigation_only"}
+                or ("moment_id" in action and (
+                    "entry_id" in action
+                    or not isinstance(action["moment_id"], str)
+                    or not action["moment_id"].strip()
+                ))
             ):
                 raise HistoryQueryError("invalid_history_action")
             result = await query.async_open_entry(
                 context.profile_id,
                 str(action.get("session_id") or ""),
                 str(action.get("entry_id") or ""),
+                **({"moment_id": action["moment_id"]} if "moment_id" in action else {}),
             )
         else:
             return _error_payload("unsupported_history_operation"), 400

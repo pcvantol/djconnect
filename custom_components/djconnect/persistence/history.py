@@ -178,12 +178,19 @@ class HistoricalProjectionRepository(PersistenceRepository):
         return await self._async_in_transaction(read)
 
     async def async_entry_record(
-        self, owner_profile_id: str, session_id: str, entry_id: str
+        self, owner_profile_id: str, session_id: str, entry_id: str, *, moment_id: str | None = None
     ) -> dict | None:
         def read(tx):
-            row = tx.fetchone(
-                "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,retained_until,visibility,revoked_at FROM djconnect_session_entries WHERE owner_profile_id=? AND session_id=? AND entry_id=? AND " "NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets AS deletion WHERE deletion.owner_profile_id=djconnect_session_entries.owner_profile_id AND deletion.session_id=djconnect_session_entries.session_id)",
-                (owner_profile_id, session_id, entry_id),
+            rows = tx.fetchall(
+                "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,"
+                "retained_until,visibility,revoked_at FROM djconnect_session_entries "
+                "WHERE owner_profile_id=? AND session_id=? "
+                "AND ((? IS NULL AND entry_id=?) OR (kind='dj_moment' AND reference_id=?)) "
+                "AND NOT EXISTS ("
+                "SELECT 1 FROM djconnect_history_deletion_targets AS deletion "
+                "WHERE deletion.owner_profile_id=djconnect_session_entries.owner_profile_id "
+                "AND deletion.session_id=djconnect_session_entries.session_id) LIMIT 2",
+                (owner_profile_id, session_id, moment_id, entry_id, moment_id),
             )
             keys = (
                 "entry_id",
@@ -197,7 +204,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 "visibility",
                 "revoked_at",
             )
-            return dict(zip(keys, row)) if row else None
+            return dict(zip(keys, rows[0])) if len(rows) == 1 else None
 
         return await self._async_in_transaction(read)
 

@@ -532,12 +532,16 @@ class HistoricalProjectionQueryService:
         opened['entry'].pop('images', None)
         return opened
 
-    async def async_open_entry(self, owner: str, session_id: str, entry_id: str) -> dict:
+    async def async_open_entry(
+        self, owner: str, session_id: str, entry_id: str, *, moment_id: str | None = None
+    ) -> dict:
         from .session_history_projection import HistoryQueryError, public_session
 
         session = await self._session(owner, session_id)
         # Anchor reads are scoped directly; they do not traverse unbounded timelines.
-        row = await self._repository.async_entry_record(owner, session_id, entry_id)
+        row = await self._repository.async_entry_record(
+            owner, session_id, entry_id, moment_id=moment_id
+        )
         entry = await self._project_entry(owner, row) if row else None
         if entry is None:
             raise HistoricalProjectionAccessDenied("entry_unavailable")

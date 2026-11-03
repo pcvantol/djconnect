@@ -1624,6 +1624,20 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         moments = [e for e in payload["entries"] if e["kind"] == "dj_moment"]
         self.assertEqual(len(moments), 1)
         target = {"session_id": session.session_id, "entry_id": moments[0]["entry_id"]}
+        action = {"kind": "open_session", "session_id": session.session_id,
+                  "moment_id": moment.moment_id}
+        for candidate, expected in (
+            (action, 200),
+            ({**action, "moment_id": "missing-moment"}, 404),
+            ({**action, "entry_id": target["entry_id"]}, 400),
+        ):
+            with self.subTest(action=candidate):
+                opened, status = await self.handlers.async_handle_session_history_payload(
+                    hass, {**identity, "action": candidate}, operation="open", headers=headers,
+                )
+                self.assertEqual(status, expected, opened)
+                if status == 200:
+                    self.assertEqual(opened["entry"]["entry_id"], target["entry_id"])
         responses = []
         for index, input_type in enumerate(("text", "voice")):
             response, status = await self.handlers.async_handle_ask_dj_message_payload(
