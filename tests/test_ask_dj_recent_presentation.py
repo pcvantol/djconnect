@@ -30,15 +30,28 @@ class RecentDisplayHistoryTests(unittest.IsolatedAsyncioTestCase):
         root = Path(__file__).resolve().parents[1]
         fixture = json.loads((root/'examples/client_contracts/ask_dj_recent_list_presentation_v1/actual-ha-wire.json').read_bytes())
         self.assertEqual(fixture['classification'], 'ACTUAL_ISOLATED_HA_SOURCE_ONLY_NOT_INSTALLED_OR_NATIVE')
-        self.assertEqual(len(fixture['source_pins']), 304)
-        for name, digest in fixture['source_pins'].items():
+        current = json.loads((root / 'examples/client_contracts/ask_dj_recent_list_presentation_v1/actual-ha-requalification-1429.json').read_text())
+        self.assertTrue(current['source_before_after_equal'])
+        self.assertEqual(current['harness'], fixture['harness'])
+        self.assertEqual(current['harness_sha256'], fixture['harness_sha256'])
+        self.assertEqual(len(current['source_pins']), 305)
+        for name, digest in current['source_pins'].items():
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root/fixture['harness']).read_bytes()).hexdigest(), fixture['harness_sha256'])
-        extension = fixture['original_receipt']['extension']
+        extension = current['receipt']['extension']
         self.assertTrue(all(v == 'PASS' for v in extension['cases'].values()))
         self.assertEqual(extension['effect_count'], 0)
         self.assertEqual(extension['model_provider_calls'], 0)
-        self.assertEqual(extension['example'], checked(fixture['example']))
+        current_example = extension['example']
+        self.assertEqual(current_example, checked(current_example))
+        historical_example = checked(fixture['example'])
+        # The harness observes the same fixture tracks at a fresh run time.
+        def without_played_at(example):
+            return {**example, 'items': [
+                {key: value for key, value in item.items() if key != 'played_at'}
+                for item in example['items']
+            ]}
+        self.assertEqual(without_played_at(current_example), without_played_at(historical_example))
         self.assertEqual((fixture['installed'], fixture['native']), ('NOT_RUN', 'NOT_RUN'))
 
     async def test_original_display_survives_saved_exchange_reload_and_clear(self):

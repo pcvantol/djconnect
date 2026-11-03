@@ -12,14 +12,22 @@ class PersonaStoryActualHATest(unittest.TestCase):
 
     def test_current_source_and_verifiers_are_bound_to_the_original_actual_ha_trace(self):
         root, receipt = self.fixture()
-        self.assertEqual(len(receipt['source_pins']), 304)
-        for name, digest in {**receipt['source_pins'], **receipt['original_common_harness_source_pins'],
+        current = json.loads((root / 'examples/client_contracts/personal_dj_artist_story_v1/actual-ha-requalification-1429.json').read_text())
+        self.assertTrue(current['source_before_after_equal'])
+        self.assertEqual(current['harness'], receipt['harness'])
+        self.assertEqual(current['harness_sha256'], receipt['harness_sha256'])
+        self.assertEqual(len(current['source_pins']), 305)
+        for name, digest in {**current['source_pins'], **current['receipt']['source_files_sha256'],
                              receipt['harness']: receipt['harness_sha256']}.items():
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
         self.assertTrue(receipt['all304_before_inside_after_equal'])
         self.assertTrue(receipt['own_container_verified_absent'])
         self.assertIn('NOT_REAL_PROSE_OR_INSTALLED', receipt['classification'])
         self.assertEqual((receipt['external_network_calls'], receipt['paid_model_calls']), (0, 0))
+        extension = current['receipt']['extension']
+        self.assertEqual(len(extension['cases']), 20)
+        self.assertEqual({row['state'] for row in extension['cases']}, {'PASS'})
+        self.assertEqual((extension['external_network_calls'], extension['paid_model_calls']), (0, 0))
 
     def test_all_persona_locale_pairs_include_success_and_closed_failure_without_metadata_publication(self):
         _, receipt = self.fixture()
