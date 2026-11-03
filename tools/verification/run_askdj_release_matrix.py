@@ -49,7 +49,7 @@ def validate_owner_pattern_coverage(matrix, patterns=TEST_PATTERNS):
         raise ValueError('required_owning_file_not_scheduled:' + ','.join(missing))
 
 
-def host_renderer_run(directory, *, seconds=240):
+def host_renderer_run(directory, *, pattern="test_vibecast_renderer.py", seconds=240):
     """The renderer needs Node; this is a host fixture proof, never real HA.
 
     Keep paid/provider credentials out of the host test process. The pinned HA
@@ -62,7 +62,7 @@ def host_renderer_run(directory, *, seconds=240):
         'SYSTEMROOT', 'LANG', 'LC_ALL') if key in os.environ}
     env.update(PYTHONPATH=str(ROOT), PYTHONDONTWRITEBYTECODE='1')
     args = [sys.executable, str(ROOT/'tools/verification/run_askdj_owner_contracts.py'),
-            'test_vibecast_renderer.py', str(directory/'owner-contracts.json')]
+            pattern, str(directory/'owner-contracts.json')]
     try:
         with (directory/'private.log').open('w') as log:
             return subprocess.run(args, cwd=ROOT, env=env, stdout=log,
@@ -410,8 +410,8 @@ def run(candidate, output):
         for i, pattern in enumerate(TEST_PATTERNS):
             directory=temp/('unit'+str(i))
             directory.mkdir()
-            renderer = pattern == 'test_vibecast_renderer.py'
-            code = (host_renderer_run(directory) if renderer else owned_run(
+            renderer = pattern in {'test_vibecast_renderer.py', 'test_session_story_variety.py'}
+            code = (host_renderer_run(directory, pattern=pattern) if renderer else owned_run(
                 [IMAGE, '/candidate/tools/verification/run_askdj_owner_contracts.py', pattern, '/lab/owner-contracts.json'],
                 payload={},directory=directory,seconds=240,network='none'))
             proof=directory/'owner-contracts.json'
