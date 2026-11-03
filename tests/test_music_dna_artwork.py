@@ -263,10 +263,14 @@ class MusicDNAArtworkTest(unittest.IsolatedAsyncioTestCase):
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
         path = root / "examples/client_contracts/music_dna_artwork_v1/profile-and-legacy-core-consolidation-20261022.json"
-        fixture = json.loads(path.read_text())
-        for relative, expected in fixture["source_pins"].items():
-            self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), expected)
-        self.assertEqual(hashlib.sha256((root / fixture["harness"]).read_bytes()).hexdigest(), fixture["harness_sha256"])
+        original = json.loads(path.read_text())
+        fixture = json.loads(path.with_name("profile-and-legacy-actual-ha-1430.json").read_text())
+        self.assertEqual(len(fixture["integration_source_hashes"]), 304)
+        for relative, expected in fixture["integration_source_hashes"].items():
+            self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), expected, relative)
+        self.assertEqual(hashlib.sha256((root / original["harness"]).read_bytes()).hexdigest(), original["harness_sha256"])
+        for field in ("installed", "native", "live_spotify"):
+            self.assertEqual(fixture[field], "NOT_RUN")
         self.assertEqual(fixture["cases"]["unshown_recommendation_still_rejected"], "409_CHOICE_EXPIRED")
         self.assertEqual(fixture["cases"]["music_dna_actual_original_expiry"], "REAL_WALL_CLOCK_200_TO_404_THEN_OMITTED")
         self.assertEqual(fixture["cases"]["actual_browser_decode"], "NOT_RUN_ISOLATED_CONTAINER")
