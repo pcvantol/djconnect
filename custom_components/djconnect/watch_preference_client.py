@@ -15,6 +15,7 @@ import re
 import struct
 import time
 from typing import Literal
+from urllib.parse import urlsplit
 from uuid import uuid4
 
 _DOMAIN = b"DJC-WATCH-LIFECYCLE-V1\x00"
@@ -148,3 +149,62 @@ async def update_watch_preference(
         return "discarded"
     except (OSError, TimeoutError):
         return "unknown"
+
+
+def watch_preference_https(endpoint: str):
+    """Bind the signed transport to a provisioned API endpoint.
+
+    No ambient authentication, proxy, cookie, or redirect can move a signed
+    request away from this destination. Endpoint selection belongs to the
+    enrolled server composition, not the paired client.
+    """
+    from .surface_issuer_owner import DNS_HOST
+
+    if type(endpoint) is not str or len(endpoint) > 2048:
+        raise ValueError("invalid_watch_preference_endpoint")
+    try:
+        parsed = urlsplit(endpoint)
+        valid = (
+            parsed.scheme == "https" and parsed.hostname is not None
+            and DNS_HOST.fullmatch(parsed.hostname) is not None
+            and re.fullmatch(r"(?:/[A-Za-z0-9_-]+)+", parsed.path) is not None
+            and endpoint == f"https://{parsed.hostname}{parsed.path}"
+        )
+    except ValueError:
+        valid = False
+    if not valid:
+        raise ValueError("invalid_watch_preference_endpoint")
+
+    async def post_signed(body: bytes, signature: str):
+        import aiohttp
+
+        from .surface_issuer_transport import strict_body
+
+        if (type(body) is not bytes or not 0 < len(body) <= 2048
+                or type(signature) is not str
+                or not re.fullmatch(r"[A-Za-z0-9_-]{85}[AQgw]", signature)):
+            raise ValueError("invalid_watch_preference_request")
+        try:
+            async with aiohttp.ClientSession(
+                cookie_jar=aiohttp.DummyCookieJar(), trust_env=False, auto_decompress=False,
+                timeout=aiohttp.ClientTimeout(total=5),
+            ) as session:
+                async with session.post(endpoint, data=body, allow_redirects=False, headers={
+                    "Content-Type": "application/json", "Accept": "application/json",
+                    "Accept-Encoding": "identity", "DJC-Watch-Lifecycle-Signature": signature,
+                }) as response:
+                    media = response.headers.getall("Content-Type", [])
+                    if (response.status != 200 or response.headers.getall("Content-Encoding", [])
+                            not in ([], ["identity"]) or len(media) != 1
+                            or not re.fullmatch(r"application/json(?:;\s*charset=utf-8)?", media[0], re.I)):
+                        return None
+                    raw = bytearray()
+                    async for chunk in response.content.iter_chunked(1024):
+                        raw.extend(chunk)
+                        if len(raw) > 2048:
+                            return None
+                    return strict_body(bytes(raw))
+        except (aiohttp.ClientError, ValueError, TimeoutError):
+            return None
+
+    return post_signed
