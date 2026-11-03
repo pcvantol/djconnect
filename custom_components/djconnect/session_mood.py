@@ -21,6 +21,7 @@ def capability() -> dict[str, Any]:
         "moods": list(MOODS),
         "ordering": "expected_mood_revision",
         "scope": "active_device_bound_owner_session",
+        "write_scopes": ["session_only"],
     }
 
 
@@ -61,6 +62,13 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
         selected_key,
         expected_key,
     }
+    session_only = (
+        setting == "mood"
+        and isinstance(data, dict)
+        and data.get("write_scope") == "session_only"
+    )
+    if session_only:
+        fields.add("write_scope")
     if not isinstance(data, dict) or set(data) != fields:
         return error("invalid_request", 400)
     if type(data["contract_version"]) is not int or data["contract_version"] != VERSION:
@@ -132,7 +140,7 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
     if manager is None:
         return result, status
     active_settings = manager.current_active(profile_id)
-    if active_settings is not None and active_settings.settings_contract_version == 2:
+    if not session_only and active_settings is not None and active_settings.settings_contract_version == 2:
         return error('settings_contract_upgrade_required', 426,
                      settings_contract_version=2, settings_path='/api/djconnect/v1/profile/settings')
 
@@ -159,9 +167,11 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
             **{selected_attribute: DJPersona(data[selected_key]) if setting == "persona" else data[selected_key]},
             expected_revision=revision,
             authorize=owner_is_current,
-            legacy_user_choice=True,
+            legacy_user_choice=not session_only,
         )
     except SettingsCommitError:
+        if session_only:
+            return error("session_settings_conflict", 409)
         return error('settings_contract_upgrade_required', 426,
                      settings_contract_version=2, settings_path='/api/djconnect/v1/profile/settings')
     except PermissionError:
@@ -193,4 +203,5 @@ async def async_handle_owner_setting(hass, data, *, headers=None, setting):
         selected_key: getattr(active, selected_attribute),
         revision_key: getattr(active, revision_key),
         "changed": getattr(active, revision_key) != revision,
+        **({"write_scope": "session_only"} if session_only else {}),
     }, 200

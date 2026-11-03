@@ -40,6 +40,16 @@ registered runtime/entry, enabled/loaded state, device identity/token, lifecycle
 generation and server-bound Profile are rechecked under the existing Runtime
 lock immediately before any mutation; no await separates that check and commit.
 
+## Explicit Session-only write
+
+Core advertises `write_scopes: ["session_only"]` in the Mood capability. Clients
+that need a Session-only write include `"write_scope": "session_only"` in the
+request and require the same field in the success response. An older producer
+rejects the extra field. Clients must never retry without it or through Profile
+settings. The existing device, owner, Session and Mood revision checks apply.
+Core persists effective Session Mood through Runtime settings acceptance and
+leaves Profile defaults and their revision untouched.
+
 ## Ordering and acknowledgement
 
 `mood_revision` starts at zero for each new Session, and increases once for each
