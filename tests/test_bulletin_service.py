@@ -53,10 +53,12 @@ class BulletinServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(self.service.ready(self.fixture.work.owner, self.fixture.sid))
 
     async def test_single_poll_owner_prepares_without_publishing_or_duplicate_background_work(self):
-        await self.service.start()
-        self.service.tick()
-        self.service.tick()
-        await self.service._task
+        with self.assertLogs(BulletinService.__module__, level="DEBUG") as logs:
+            await self.service.start()
+            self.service.tick()
+            self.service.tick()
+            await self.service._task
+        self.assertIn("candidate prepared, awaiting Planner", logs.output[0])
         self.assertEqual(len(self.tasks), 1)
         self.assertEqual(len(self.http.calls), 5)
         self.assertEqual(len(self.fixture.calls), 2)
@@ -115,7 +117,10 @@ class BulletinServiceTests(unittest.IsolatedAsyncioTestCase):
         async def unavailable(**kwargs):
             raise ValueError("synthetic-clock-failure")
         self.service.collector.collect = unavailable
-        await self.service.poll()
+        with self.assertLogs(BulletinService.__module__, level="DEBUG") as logs:
+            await self.service.poll()
+        self.assertIn("DJ Bulletin poll: technical failure", logs.output[0])
+        self.assertNotIn("synthetic-clock-failure", "".join(logs.output))
         self.assertIsNone(self.service.builder._candidate)
         self.assertIsNone(self.service._work)
         self.fixture.revision[0] += 1
