@@ -1,12 +1,14 @@
 """Core signed Watch preference request and reconciliation boundaries."""
 from dataclasses import replace
+import hashlib
 import json
 import unittest
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock, Mock, patch
 
 from tests.test_persistence_platform import PersistenceService  # noqa: F401
 from custom_components.djconnect.watch_preference_client import (
-    EnrolledWatchReceiver, WatchPreferenceIntent, update_watch_preference, watch_preference_https,
+    EnrolledWatchReceiver, WatchPreferenceIntent, retire_watch_receiver, update_watch_preference,
+    watch_preference_https, watch_retirement_https,
 )
 
 
@@ -91,3 +93,63 @@ class WatchPreferenceClientTests(unittest.IsolatedAsyncioTestCase):
             with self.subTest(endpoint=endpoint), self.assertRaisesRegex(
                     ValueError, "invalid_watch_preference_endpoint"):
                 watch_preference_https(endpoint)
+
+
+class WatchRetirementClientTests(unittest.IsolatedAsyncioTestCase):
+    async def test_lost_retirement_receipt_reconciles_original_body(self):
+        receiver = EnrolledWatchReceiver("lab-api", "install-a", "watch-a", "pair-a", 2, "a" * 64)
+        post = AsyncMock(side_effect=[ConnectionError("lost reply"), "committed"])
+        sign = AsyncMock(return_value=bytes(64))
+        result = await retire_watch_receiver(
+            receiver, operation="withdraw", expiry=125, require_current=lambda _: None,
+            sign_frame=sign, post_signed=post, wall=lambda: 100,
+        )
+
+        self.assertEqual(result, "committed")
+        self.assertEqual(post.await_count, 2)
+        original, status = (call.args[0] for call in post.await_args_list)
+        self.assertEqual(json.loads(original)["action"], "retire")
+        readback = json.loads(status)
+        self.assertEqual(readback["action"], "lifecycle-status")
+        self.assertEqual(readback["target_operation"], "withdraw")
+        self.assertEqual(readback["target_body_sha256"], hashlib.sha256(original).hexdigest())
+
+    async def test_pairing_change_during_signing_stops_retirement_post(self):
+        receiver = EnrolledWatchReceiver("lab-api", "install-a", "watch-a", "pair-a", 2, "a" * 64)
+        guard = Mock(side_effect=[None, None, PermissionError("pairing changed")])
+        post = AsyncMock()
+        result = await retire_watch_receiver(
+            receiver, operation="withdraw", expiry=125, require_current=guard,
+            sign_frame=AsyncMock(return_value=bytes(64)), post_signed=post, wall=lambda: 100,
+        )
+
+        self.assertEqual(result, "discarded")
+        post.assert_not_awaited()
+
+
+    async def test_https_retirement_accepts_only_exact_responses(self):
+        transport = AsyncMock(side_effect=[
+            (200, {"outcome": "committed"}),
+            (200, {"outcome": "committed", "extra": True}),
+            (403, {"error": "watch_retirement_unavailable"}),
+            (403, {"outcome": "committed"}),
+            (403, {"error": "unexpected"}),
+            None,
+        ])
+        module = "custom_components.djconnect.watch_preference_client"
+        with patch(f"{module}._watch_lifecycle_https", return_value=transport) as bind:
+            post = watch_retirement_https("https://example.com/retirement")
+        bind.assert_called_once_with("https://example.com/retirement", accepted_statuses=(200, 403))
+
+        outcomes = [await post(b"body", "A" * 86) for _ in range(6)]
+        self.assertEqual(outcomes, ["committed", "unknown", "denied", "unknown", "unknown", "unknown"])
+
+    async def test_definitive_denial_does_not_send_status_request(self):
+        receiver = EnrolledWatchReceiver("lab-api", "install-a", "watch-a", "pair-a", 2, "a" * 64)
+        post = AsyncMock(return_value="denied")
+        result = await retire_watch_receiver(
+            receiver, operation="withdraw", expiry=125, require_current=lambda _: None,
+            sign_frame=AsyncMock(return_value=bytes(64)), post_signed=post, wall=lambda: 100,
+        )
+        self.assertEqual(result, "denied")
+        self.assertEqual(post.await_count, 1)
