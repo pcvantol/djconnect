@@ -390,7 +390,12 @@ def release_question(text):
     when=re.search(r"\b(?:wanneer|when|wann|quand|cuándo)\b",value)
     released=re.search(r"\b(?:uitgekomen|verschenen|uitgebracht|released|release|erschienen|veröffentlicht|sorti|sortie|publié|publiée|salió|publicado|publicada|lanzó|lanzado)\b",value)
     year=re.search(r"\b(?:jaar|year|jahr|année|año)\b",value)
-    return bool(subject and (year or (when and released)))
+    came_out = re.search(
+        r"\bkwam\s+(?:dit|het huidige)\s+album\s+uit\b"
+        r"|\bdid\s+(?:this|the current)\s+album\s+come\s+out\b",
+        value,
+    )
+    return bool(subject and (year or (when and (released or came_out))))
 
 
 def _release_display_date(value, precision, locale):

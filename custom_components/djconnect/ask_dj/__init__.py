@@ -144,6 +144,10 @@ async def async_handle_ask_dj(
                 and turn.pending_at_start.get('type') == 'recording_production'):
             turn.clear_production_pending = True
         return await _execute_dialogue_command(hass, runtime, payload, action_request, user_id=user_id)
+    from .spotify_collection_offers import collection_request, collection_response
+    collection = collection_request(text)
+    if collection is not None:
+        return await collection_response(hass, runtime, *collection, turn=turn)
     from ..mood_music_steering import first_play_requested, first_play_response
     if first_play_requested(text):
         return await first_play_response(hass, runtime)
@@ -3099,12 +3103,13 @@ async def _informational_assist_response(
             await turn.guard()
         from ..structured_playback import TASK_CONFIG
         configured_task = (getattr(runtime, "config", {}) or {}).get(TASK_CONFIG)
-        # This new membership presentation also supports the existing qualified
-        # conversation agent when no public task was configured. Choose before
+        # Membership and brief current-artist questions can use the existing
+        # qualified conversation agent when no public task is configured. Choose before
         # any I/O; an explicitly configured task failure never changes provider.
-        conversation_membership = (turn is not None and turn.membership_research
+        conversation_artist = (turn is not None
+            and (turn.membership_research or public_research.brief_contextual_artist_question(text))
             and (configured_task is None or configured_task == ""))
-        typed_artist = (artist_corpus is not None and not conversation_membership
+        typed_artist = (artist_corpus is not None and not conversation_artist
             and str(language).split("-")[0].lower() in {"en", "nl"})
         if typed_artist:
             from ..structured_artist import generation

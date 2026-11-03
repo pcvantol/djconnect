@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import plistlib
+import shlex
 import tempfile
 import unittest
 from pathlib import Path
@@ -528,7 +529,7 @@ class AppleAdapterTests(unittest.TestCase):
                 "os.environ",
                 {
                     "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
-                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": f"test ! -e {stale_file}",
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": f"test ! -e {shlex.quote(str(stale_file))}",
                     "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(derived_data),
                     "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
                     "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",

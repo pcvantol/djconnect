@@ -962,6 +962,23 @@ class SpotifyBackend:
         )
         return playlists
 
+    async def playlist_contains_artist(self, uri: str, artist_id: str) -> bool:
+        """Require a track credit in the bounded provider page."""
+        if not re.fullmatch(r"spotify:playlist:[A-Za-z0-9]{22}", uri):
+            return False
+        data = await self._request("GET", f"/playlists/{uri.rsplit(':', 1)[1]}/items?limit=50")
+        rows = data.get("items") if isinstance(data, dict) else None
+        for row in rows[:50] if isinstance(rows, list) else []:
+            track = (row.get("item") or row.get("track")) if isinstance(row, dict) else None
+            if not isinstance(track, dict) or track.get("type") != "track" or track.get("is_local"):
+                continue
+            artists = track.get("artists")
+            if isinstance(artists, list) and any(
+                isinstance(artist, dict) and artist.get("id") == artist_id for artist in artists
+            ):
+                return True
+        return False
+
     async def search_tracks(self, query: str, *, limit: int = 10) -> list[dict[str, Any]]:
         """Search Spotify tracks and return normalized playable items."""
         query = str(query or "").strip()
@@ -2491,6 +2508,7 @@ def _normalize_playlist(item: dict[str, Any]) -> dict[str, str]:
         "title": name,
         "display_title": name,
         "owner": owner_name,
+        "owner_id": str(owner.get("id") or ""),
         "subtitle": owner_name,
         "uri": uri,
         "value": uri,

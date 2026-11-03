@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from copy import deepcopy
 from dataclasses import dataclass
 import hashlib
@@ -15,7 +16,7 @@ ARTWORK_TTL_SECONDS = 6 * 60 * 60
 ARTWORK_LEASE_SECONDS = 15 * 60
 ARTWORK_MAX_BYTES = 2 * 1024 * 1024
 ARTWORK_MAX_GRANTS = 512
-_URI = re.compile(r"spotify:(track|album|artist):([A-Za-z0-9]{22})\Z")
+_URI = re.compile(r"spotify:(track|album|artist|playlist):([A-Za-z0-9]{22})\Z")
 _ASSET = re.compile(r"[a-f0-9]{40,64}\Z")
 _IMAGE_KEYS = frozenset(
     {
@@ -474,6 +475,60 @@ async def discovery_image_response(hass: Any, request: Any, token: str) -> Any:
     )
 
 
+async def _recover_recommendation_artwork(hass, guard, items):
+    """Look up at most six distinct accepted items using exact Spotify identities."""
+    if not guard.enabled or not guard.valid():
+        return {}
+    subjects = {}
+    for item in items:
+        uri = item.get("uri")
+        match = _URI.fullmatch(uri) if isinstance(uri, str) else None
+        if match and "accepted_recommendations" in item.get("reason_sources", ()):
+            subjects.setdefault(uri, match.groups())
+        if len(subjects) == 6:
+            break
+    if not subjects:
+        return {}
+    from aiohttp import ClientError
+
+    from .spotify_backend import SpotifyBackend, SpotifyBackendError
+
+    backend = SpotifyBackend(hass, guard.runtime)
+    owner = artwork_owner(guard.runtime)
+
+    async def lookup(uri, kind, identifier):
+        if not guard.valid():
+            return {}
+        try:
+            data = await asyncio.wait_for(
+                backend._request("GET", f"/{kind}s/{identifier}"), timeout=4
+            )
+        except (SpotifyBackendError, ClientError, TimeoutError):
+            return {}
+        if (not guard.valid() or not isinstance(data, dict)
+                or data.get("id") != identifier or data.get("uri") != uri
+                or data.get("type") != kind or data.get("linked_from") or data.get("is_local")):
+            return {}
+        media = data.get("album") if kind == "track" else data
+        if not isinstance(media, dict):
+            return {}
+        media_uri = media.get("uri")
+        if not isinstance(media_uri, str) or media.get("id") != media_uri.rsplit(":", 1)[-1]:
+            return {}
+        images = media.get("images")
+        if not isinstance(images, list):
+            return {}
+        for image in images[:3]:
+            if isinstance(image, dict):
+                ref = capture_artwork(image.get("url"), uri, media_uri)
+                if ref:
+                    return {**ref, "owner": owner}
+        return {}
+
+    refs = await asyncio.gather(*(lookup(uri, *identity) for uri, identity in subjects.items()))
+    return dict(zip(subjects, refs, strict=True)) if guard.valid() else {}
+
+
 async def project_discovery_images(
     hass: Any,
     runtime: Any,
@@ -485,15 +540,25 @@ async def project_discovery_images(
     """Project private reference cache into fresh scoped delivery URLs, never grants in Store."""
     result = deepcopy(response)
     guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
-    for section in result.get("sections", []):
-        for item in section.get("items", []):
-            ref = item.pop("_artwork", {})
-            item.pop("image_url", None)
-            if ref and guard is not None and hass is not None:
-                valid = compact_artwork(
-                    {"uri": item.get("uri"), "album_uri": ref.get("media_uri"), "artwork": ref}
-                )
-                url, expiry = register_discovery_image(hass, guard, valid) if valid else ("", 0)
+    items = [item for section in result.get("sections", []) for item in section.get("items", [])]
+    owner = artwork_owner(runtime)
+    refs = []
+    for item in items:
+        ref = item.pop("_artwork", {})
+        item.pop("image_url", None)
+        valid = compact_artwork(
+            {"uri": item.get("uri"), "album_uri": ref.get("media_uri"), "artwork": ref}
+        ) if isinstance(ref, dict) else {}
+        refs.append(valid if valid.get("owner") == owner else {})
+    if guard is not None and hass is not None:
+        recovered = await _recover_recommendation_artwork(
+            hass, guard, (item for item, ref in zip(items, refs, strict=True) if not ref)
+        )
+        for item, ref in zip(items, refs, strict=True):
+            if not ref and "accepted_recommendations" in item.get("reason_sources", ()):
+                ref = recovered.get(item.get("uri"))
+            if ref:
+                url, expiry = register_discovery_image(hass, guard, ref)
                 if url:
                     item.update(
                         image_url=url,
