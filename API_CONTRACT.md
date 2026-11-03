@@ -2493,7 +2493,7 @@ See [DJ Bulletin V1](docs/product/DJ_BULLETIN_V1.md) and the actual isolated
 Ask DJ turn. `generation_metadata.bulletin_schema` is `"1"`; two `sources` carry
 public provider, original URL, license, title and publication time. Existing
 `native_delivery` and Session speech descriptors remain authoritative. The
-original publication+30-minute expiry and original owner/source/agent/settings
+original publication-plus-two-hours expiry and original owner/source/agent/settings
 admission apply to display and speech; reads do not renew them. Existing client
 speech autoplay controls rendition and does not debit a second contribution.
 Unknown consumers skip this unsupported Moment/speech while retaining surrounding

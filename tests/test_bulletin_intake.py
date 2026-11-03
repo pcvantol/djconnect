@@ -37,10 +37,10 @@ class BulletinIntakeTests(unittest.TestCase):
             intake.parse_feed(alien, rss(alien), now=NOW)
 
     def test_original_publication_window_boundary_never_fetch_time(self):
-        self.assertEqual(len(self.parse(rss(self.source, age=1799))), 1)
-        for age in (1800, 1801, -1, -30000):
+        self.assertEqual(len(self.parse(rss(self.source, age=7199))), 1)
+        for age in (7200, 7201, -1, -30000):
             self.assertEqual(self.parse(rss(self.source, age=age)), ())
-        item = self.parse(rss(self.source, age=1799))[0]
+        item = self.parse(rss(self.source, age=7199))[0]
         self.assertEqual(item.observed_at, NOW)
         self.assertFalse(item.fresh(NOW + 1))
         for date in ("", "not a date", "Thu, 22 Oct 2026 10:00:00"):
@@ -52,7 +52,7 @@ class BulletinIntakeTests(unittest.TestCase):
         self.assertEqual(iso, intake.publication_time("2026-10-22T08:00:00Z"))
 
     def test_flat_wallclock_cannot_keep_an_old_intake_item_fresh(self):
-        item = intake.parse_feed(self.source, rss(self.source, age=1790),
+        item = intake.parse_feed(self.source, rss(self.source, age=7190),
             now=NOW, monotonic=100)[0]
         self.assertTrue(item.fresh(NOW, monotonic=109))
         self.assertFalse(item.fresh(NOW, monotonic=110))
@@ -120,11 +120,11 @@ class BulletinIntakeTests(unittest.TestCase):
     def test_exact_knmi_feed_owner_notice_uses_reviewed_cc0_default_without_new_lease(self):
         source = next(source for source in intake.SOURCES if source.source_id == 'knmi')
         notice = b'<copyright>Copyright: KNMI, https://www.knmi.nl/</copyright>'
-        body = rss(source, age=1799).replace(b'</channel>', notice + b'</channel>')
+        body = rss(source, age=7199).replace(b'</channel>', notice + b'</channel>')
         items = intake.parse_feed(source, body, now=NOW, monotonic=100)
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0].license, 'CC0-1.0')
-        self.assertEqual(items[0].published_at, NOW-1799)
+        self.assertEqual(items[0].published_at, NOW-7199)
         self.assertEqual(items[0].monotonic_deadline, 101)
         self.assertEqual(intake.parse_feed(source, body, now=NOW+1, monotonic=101), ())
 
@@ -225,7 +225,7 @@ class BulletinCollectorTests(unittest.IsolatedAsyncioTestCase):
                 clock[0] += 20
                 return self
         http = HTTP()
-        http.reply = lambda source: Slow(200, rss(source, age=1790))
+        http.reply = lambda source: Slow(200, rss(source, age=7190))
         collector = intake.FeedCollector(http, monotonic=lambda: clock[0])
         self.assertEqual(await collector.collect(now=NOW), ())
 
@@ -253,7 +253,7 @@ class BulletinCollectorTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(args["headers"]["If-None-Match"], '"same"')
             self.assertFalse(args["allow_redirects"])
             self.assertNotIn("Authorization", args["headers"])
-        self.assertEqual(await collector.collect(now=NOW + 1800), ())
+        self.assertEqual(await collector.collect(now=NOW + 7200), ())
 
     async def test_outage_redirect_malformed_oversized_are_backed_off_per_source(self):
         http = HTTP()

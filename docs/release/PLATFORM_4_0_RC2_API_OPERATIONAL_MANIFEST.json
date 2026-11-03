@@ -2,24 +2,25 @@
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
   "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
-  "manifest_id": "release-4.0.0-rc.2-api-private-host-wake-20261101",
+  "manifest_id": "release-4.0.0-rc.2-api-worker-176d71af-20261103",
   "platform_version": "4.0",
   "release_version": "4.0.0-rc.2",
   "release_profile": "INTERNAL_RELEASE",
-  "generated_at": "2026-11-01T22:53:51.049036+00:00",
+  "generated_at": "2026-11-03",
   "approval": {
     "state": "APPROVED",
-    "approved_at": "2026-11-01",
-    "approved_statement": "Peter directly requested the complete widget/Live Activity integration, normal merge of open work and deployment to HA-dev. This continues his directly verified API production deployment and complete rollout coordination instruction. Root personally verified current userMessage 01a1994c-585f-7aa3-bf1c-7c2885be282b in thread 01a15af5-fe41-76a3-a35f-c87dcc1a8f16, turn 01a1994c-5840-70a1-afc3-cd042aaa6e95. This selects only the originally qualified API Final757 artifact13101098852/TARa88 and the exact separately reviewed additive schema below.",
-    "authority_record": "docs/verification/API_PRIVATE_HOST_WAKE_DEPLOYMENT_BINDING_20261101.md#human-scope",
-    "effect": "After normal protected Core Source plus separate Final and original qualification, owning API may apply exact0011 and manualnine with fresh schema/bookmark/conflict admission, then deploy the exact selected Worker and perform separate matching health/negative smoke. No positive operator/native policy, key generation or rotation, registration, real SDK proof, APNs/device effect or paid call is granted by this server binding."
+    "authority_record": "Current Core conversation, user reply akkoord to the 176d71af draft manifest.",
+    "approved_at": "2026-11-03",
+    "approved_statement": "Peter approved the proposed 176d71af production rollout with the Watch Moment route closed in the current Core release conversation."
   },
   "repositories": [
     {
       "repository": "pcvantol/djconnect-api",
-      "source_sha": "75763b9bf5e8f76d94f2dec189f1baf54a4cc8c8",
+      "source_sha": "176d71afe111a70028fef0d7ed2c28f41f66aaab",
+      "tree": "6e7ead67e1481ba07243701ea0e025acc32b2186",
       "version": "4.0.0-rc.2",
-      "artifact_run": "41351303727"
+      "validate_run": "41621749146",
+      "artifact_run": "41622629657"
     }
   ],
   "required_targets": [
@@ -32,183 +33,36 @@
     {
       "owner": "pcvantol/djconnect-api",
       "target": "cloudflare_workers_production",
-      "artifact_id": "13101098852",
-      "artifact_sha256": "a88e34aa62ec64dda095d51ef8003dc90a28dd90a501dd9b7d62c6558dbaa5dd",
-      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/41351303727"
+      "artifact_id": "13224630725",
+      "artifact_sha256": "8e1bbec9239048d49bf982fb6861d92dff25115b2610841744f6814a4bf9e173",
+      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/41622629657"
     }
-  ],
-  "constraints": [
-    "Normal protected Core Source and separate documentary Final with original qualification must precede execution. This tracked binding is not a claim that either Core delivery or live API execution has already completed.",
-    "The source-selected private host-wake HTTP mount retains existing HMAC-only operator/current principal/native-policy/original-clock/once guards. Public surface issuer/rendezvous and fixedQA remain source closed; all22 rendezvous operational gates OPEN.",
-    "Exact numbered0011 and manualnine schema additions are separate from the Worker deployment. Fresh pending set must be only0011 before numberedapply and empty after schema readback before normal deploy.",
-    "Preserve every existing schema definition, application row, installation identity, all12 bindings/secrets and negative history. No drop/reset/restore or credentialrotation.",
-    "No invented original child, custodian identity, native key, signed build category, permission boolean or device acceptance. Native phase requires its own actual original facts and admission."
   ],
   "migration_boundary": {
-    "existing_0001_through_0010_bytes_unchanged": true,
-    "last_actual_applied": [
-      "0001_initial.sql",
-      "0002_install_tokens.sql",
-      "0003_encrypt_apns_tokens.sql",
-      "0004_bootstrap_proofs.sql",
-      "0005_install_token_revoke.sql",
-      "0006_privacy_safe_diagnostics.sql",
-      "0007_restrict_apns_push_contract.sql",
-      "0008_restore_bootstrap_proof_metadata.sql",
-      "0009_surface_push.sql",
-      "0010_surface_delegations.sql"
-    ],
-    "permitted_pending_additive": [
-      "0011_surface_enrollment_authorizations.sql"
-    ],
-    "manual_host_wake_files": [
-      {
-        "path": "coordinator/host-app-wake/schema.sql",
-        "sha256": "671f6552232cde34847fdde28e207da43e3d1a58af72f33108c1dd86712715d7",
-        "mechanism": "separately reviewed manual host-wake DDL"
-      },
-      {
-        "path": "coordinator/host-app-wake-receiving/schema.sql",
-        "sha256": "3c445ae6c75e95bf16ef0c153f36fa8b73e8b818dc9e3a62a7c2354878ff0b72",
-        "mechanism": "separately reviewed manual host-wake DDL"
-      },
-      {
-        "path": "coordinator/host-app-wake-receiving/eligibility-view.sql",
-        "sha256": "3d2eec6548b9c9821c9653718072a81d6c571e80273e13667d8447be0d5ee9b1",
-        "mechanism": "separately reviewed manual host-wake DDL"
-      },
-      {
-        "path": "coordinator/host-app-wake-receiving/issuer-guard.sql",
-        "sha256": "8f17457bf6f237ecf35dac2432b4551d47bfae8c0d11f68d1e90b9c1e24044de",
-        "mechanism": "separately reviewed manual host-wake DDL"
-      },
-      {
-        "path": "coordinator/host-app-wake-receiving/registration-guard.sql",
-        "sha256": "892b72f73438eb41efe0a0a3872f31fe980e6a6857d16693027ec7259124ba69",
-        "mechanism": "separately reviewed manual host-wake DDL"
-      },
-      {
-        "path": "coordinator/host-app-wake-receiving/dispatch-guard.sql",
-        "sha256": "1a4f6f95ddfddd0fcfabb2c420839ed59edef481fc511f08a027cf300f79f599",
-        "mechanism": "separately reviewed manual host-wake DDL"
-      },
-      {
-        "path": "coordinator/host-app-wake-receiving/native-first-job-guard.sql",
-        "sha256": "cb5462532981462511bd35f9536be583376a31c5f048659480c1e4b885a3114a",
-        "mechanism": "separately reviewed manual host-wake DDL"
-      },
-      {
-        "path": "coordinator/host-app-wake-receiving/native-key-insert-guard.sql",
-        "sha256": "0573721a7eae7e7e20fead22d96761c5f701ba2fd1b423259d08817c8193b0a1",
-        "mechanism": "separately reviewed manual host-wake DDL"
-      },
-      {
-        "path": "coordinator/host-app-wake-receiving/native-first-proof-guard.sql",
-        "sha256": "bc8b44d715b56b6eafc17824b1af4a6fa5df5b178b648a683b121e0c3b691014",
-        "mechanism": "separately reviewed manual host-wake DDL"
-      }
-    ],
-    "exact_numbered_source": {
-      "path": "migrations/0011_surface_enrollment_authorizations.sql",
-      "sha256": "6fd3be56034da4a8d1bfcfa56b9286f3ccf4ce596e44ddf73cfc100852044c3b",
-      "mechanism": "existing numbered migration mechanism only with exact pending0011 check"
-    },
-    "expected_existing_objects": 28,
-    "exact_additive_objects": 20,
-    "code_pinned_guards": 7,
-    "allowed_registry_write": "Only normal0011 migration bookkeeping row; no direct non-schema application DML",
-    "no_seeded_capability_policy_or_enrollment": true,
-    "fresh_inventory_bookmark_conflict_checks_and_exact_after_readback_required": true,
-    "must_refresh_before_execution": true,
-    "reviewed_plan_SHA256": "ebc0e0dfb6f2b4a64c33debec5d03ad3656b206a879cfd2178177fd8d4bdce62",
-    "Root_plan_review_SHA256": "a7ad22792abef0350d78f78b0416dfd64c693fb04c2e1951d68c923e4296a893",
-    "manual_nine_bytes_SHA256": "1abf1c180afdacd12a3afe6bd5cbb419247e3be613f59443a0c5009a5ef8ba0a",
-    "expected_additive_objects_SHA256": "c3c4b7176a12abfb614dd7f55956343d1e72b36af407cd7fe94b48c4dce6d51c"
+    "preflight_pending": [],
+    "permitted_pending_additive": [],
+    "manual_ddl": [],
+    "application_dml": false
   },
   "rollback": {
-    "current_actual_deployment_id": "c4c0cf5d-2f48-4e6f-af66-00c2f54ae837",
-    "retained_worker_version_id": "7fb3ff91-79a6-4230-abfe-d524ed8d0050",
-    "source_sha": "94a2dc6adfb6be498ec5c3cd85c69ea22d0afa4f",
-    "fresh_version_metadata_SHA256": "4ad0bae6d35c15526d0cde8ac165a8fee4e2195775c57ffadd1d456ab6f09ff1",
-    "actual_binding_count": 12,
-    "binding_names_types": [
-      {
-        "name": "APNS_ENVIRONMENT",
-        "type": "plain_text"
-      },
-      {
-        "name": "APNS_KEY_ID",
-        "type": "plain_text"
-      },
-      {
-        "name": "APNS_PRIVATE_KEY",
-        "type": "secret_text"
-      },
-      {
-        "name": "APNS_TEAM_ID",
-        "type": "plain_text"
-      },
-      {
-        "name": "APNS_TOKEN_ENCRYPTION_KEY",
-        "type": "secret_text"
-      },
-      {
-        "name": "APNS_TOPIC_IOS",
-        "type": "plain_text"
-      },
-      {
-        "name": "APNS_TOPIC_MACOS",
-        "type": "plain_text"
-      },
-      {
-        "name": "APNS_TOPIC_WATCHOS",
-        "type": "plain_text"
-      },
-      {
-        "name": "DB",
-        "type": "d1"
-      },
-      {
-        "name": "DJCONNECT_PAIRING_ISSUER_SECRET",
-        "type": "secret_text"
-      },
-      {
-        "name": "DJCONNECT_RELAY_SECRET",
-        "type": "secret_text"
-      },
-      {
-        "name": "DJCONNECT_SMOKE_TEST_MODE",
-        "type": "secret_text"
-      }
-    ],
-    "Worker_module_SHA256": null,
-    "hash_scope": "Current provider version/bindings and public94 release stamp are observed; provider metadata etag is not module SHA. No new export of deployed module bytes claimed.",
-    "rule": "Retain current closed94 version as code rollback target; retain additive D1 data/history/fences. WholeDBrestore remains separate emergency decision and coordinated write scope."
+    "source_sha": "75763b9bf5e8f76d94f2dec189f1baf54a4cc8c8",
+    "deployment_id": "4121b4cc-2e06-4adb-b83c-3afbfe8ee9bf",
+    "worker_version_id": "06b7f6da-9fe9-4868-a966-7e63a0e1f3ac"
   },
   "separate_finalization": {
-    "repository": "pcvantol/djconnect-api",
-    "source_sha": "75763b9bf5e8f76d94f2dec189f1baf54a4cc8c8",
-    "reviewed_sha": "a60663d9cdd8fa8cac9c4f4b3c608ddcf56b7998",
-    "source_review_SHA256": "13502a3391eceff7db5a9a6cd87910b455fa81efdea84f2aeb43f1d0ad46ce2b",
-    "original_qualification": "ORIGINAL_FINAL_QUALIFIED_BOUNDED_SOURCE_ONLY",
-    "original_run": "41351303989",
-    "evidence_digest": "d41ce770e74eca80a8a077e88e48465ab6276116279424220bdfb95e3c9989ea",
-    "original_raw_sha256": "997b78ac862e4a045e7a58bcba32a1f31eb4828fa5a864d56f8da8f62223f9e0",
-    "main_native_browser": "41350930540SUCCESS",
-    "durable_asset": "699552751",
-    "durable_raw_sha256": "3638135f0a597549f430050d712c88223fef33df59d793928f7d1213cf25be60",
-    "own_original_packet_SHA256": "7b8711c841cad394af8f47257dfb02d609998541e42ae87eb0309aa8503e8f8c",
-    "independent_own_Final_receipt": {
-      "path": "api189-root-personal-original-closure-20261101.json",
-      "sha256": "e8dc01ec83752ecb220e55a9f40b60bf376892779150900723f1dfead4fc14df"
-    }
+    "state": "PENDING",
+    "requires": [
+      "original deployment receipt",
+      "exact live SHA",
+      "negative Watch Moment route smoke"
+    ]
   },
   "execution": {
-    "phase_A": "Fresh account/DB identity, exact existing28 schema, pending only0011 and recovery bookmark; apply only exact0011 through existing numbered mechanism then exactmanual9; require old28 unchanged/new20 exact/7guard hashes and pendingempty; no positive grants. Stop on partial/unknown/conflict without automatic retry.",
-    "phase_B": "Only exact757 artifact13101098852/TARa88 through existing manifest-bound deployment, with all12 original binding identities preserved, exact release_sha health and separate strict negative private smoke. Normal deploy migration stage must observe pendingempty.",
-    "phase_C": "Separate actual original/native/custodian/client/device path; not admitted by this server manifest"
+    "preflight": "Refresh exact Worker and D1 identities, pending migrations, rollback version and aggregate active Watch registrations immediately before deployment. Require zero active rows still using the legacy topic.",
+    "deployment": "Only the selected immutable Worker artifact through the protected manifest-bound workflow. The Watch Moment route stays closed.",
+    "smoke": "Run the separate health smoke with exact release SHA and verify negative Watch Moment routing."
   },
-  "next_authorized_action": "After exact Core Source plus separate Final are normally protected and originally qualified, owning API performs fresh phase_A admission, exact additive schema once with original after-readback, then exact artifact deployment and separate matching phase_B smoke. On unknown/partial failure or unexpected pending/schema conflict, stop without automatic retry, reset, drop or restore. Phase_C remains separately closed.",
+  "next_authorized_action": "After protected manifest delivery and fresh preflight, dispatch the exact API artifact and run separate production smoke.",
   "target_identity": {
     "worker": "djconnect-api",
     "database": "djconnect_api",
@@ -216,11 +70,13 @@
     "compatibility_date": "2026-06-20"
   },
   "worker_payload": {
-    "sha256": "c8d7ab374b44e326443ccb458a07de9476c0df80c382b6bb42b76ac94d7d8716",
-    "bytes": 1468037,
-    "regular_tar_members": 19,
-    "actual_parent": "823178cb09494cff19819846fa45d81c1c87ff83",
-    "other18_members_equal_actual_parent": true,
-    "worker_only_embedded_release_sha_change": true
+    "sha256": "e56f16e21b78bfd491638ba09163d8fa024e1ae093b23b2ce755dc40b7bb7c5c",
+    "bytes": 1468601
+  },
+  "legacy_watch_topic": {
+    "previous": "dev.djconnect.watch",
+    "candidate": "dev.djconnect.ios.watch",
+    "preflight_active_rows_by_topic_and_environment": [],
+    "existing_row_behavior": "Authenticated re-registration updates the existing row. No automatic rewrite."
   }
 }
