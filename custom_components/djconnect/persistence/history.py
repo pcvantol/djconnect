@@ -181,15 +181,16 @@ class HistoricalProjectionRepository(PersistenceRepository):
         self, owner_profile_id: str, session_id: str, entry_id: str, *, moment_id: str | None = None
     ) -> dict | None:
         def read(tx):
-            selector = "entry_id=?" if moment_id is None else "kind='dj_moment' AND reference_id=?"
             rows = tx.fetchall(
                 "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,"
                 "retained_until,visibility,revoked_at FROM djconnect_session_entries "
-                f"WHERE owner_profile_id=? AND session_id=? AND {selector} AND NOT EXISTS ("
+                "WHERE owner_profile_id=? AND session_id=? "
+                "AND ((? IS NULL AND entry_id=?) OR (kind='dj_moment' AND reference_id=?)) "
+                "AND NOT EXISTS ("
                 "SELECT 1 FROM djconnect_history_deletion_targets AS deletion "
                 "WHERE deletion.owner_profile_id=djconnect_session_entries.owner_profile_id "
                 "AND deletion.session_id=djconnect_session_entries.session_id) LIMIT 2",
-                (owner_profile_id, session_id, entry_id if moment_id is None else moment_id),
+                (owner_profile_id, session_id, moment_id, entry_id, moment_id),
             )
             keys = (
                 "entry_id",
