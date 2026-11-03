@@ -45,19 +45,23 @@ class HelpObservationTests(unittest.IsolatedAsyncioTestCase):
     def test_original_actual_ha_wire_binds_all_current_products_without_native_claim(self):
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
-        fixture = json.loads((root / 'examples/client_contracts/ask_dj_help_context_v1/actual-ha-wire.json').read_text())
+        receipts = root / 'examples/client_contracts/ask_dj_help_context_v1'
+        original = json.loads((receipts / 'actual-ha-wire.json').read_text())
+        fixture = json.loads((receipts / 'actual-ha-wire-1431.json').read_text())
         self.assertEqual(fixture['status'], 'PASS')
+        self.assertTrue(fixture['source_before_after_equal'])
         self.assertEqual(len(fixture['source_hashes']), 304)
         for path, digest in fixture['source_hashes'].items():
             self.assertEqual(hashlib.sha256((root / path).read_bytes()).hexdigest(), digest, path)
-        self.assertEqual(hashlib.sha256((root / fixture['harness']).read_bytes()).hexdigest(), fixture['harness_sha256'])
+        self.assertEqual(hashlib.sha256((root / original['harness']).read_bytes()).hexdigest(), original['harness_sha256'])
         self.assertEqual(len(fixture['cases']), 18)
         self.assertEqual({len(row['response_body']['eligible_entry_ids']) for row in fixture['cases']
                           if row['response_body'].get('available')}, {0, 9, 10, 14})
         self.assertEqual(fixture['model_calls'], 0)
         self.assertEqual(fixture['external_provider_calls'], 0)
+        self.assertEqual(fixture['installed_native_audio_or_physical_acceptance'], 'NOT_RUN')
         for field in ('installed', 'native', 'operator_or_provider_activation'):
-            self.assertEqual(fixture[field], 'NOT_RUN')
+            self.assertEqual(original[field], 'NOT_RUN')
 
     def test_public_postman_example_uses_exact_r5_get_without_execution_or_profile_body(self):
         from pathlib import Path

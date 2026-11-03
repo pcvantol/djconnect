@@ -49,16 +49,18 @@ class ManagementGrammarTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         proof = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation.json").read_text())
         original = proof["original_receipt"]
-        self.assertEqual(len(original["source_sha256"]), 304)
-        for name, digest in original["source_sha256"].items():
+        current = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation-1431.json").read_text())
+        self.assertEqual(len(current["source_sha256"]), 304)
+        for name, digest in current["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root / proof["harness"]).read_bytes()).hexdigest(), proof["harness_sha256"])
         self.assertEqual(hashlib.sha256((json.dumps(original, indent=2) + "\n").encode()).hexdigest(), proof["original_receipt_sha256"])
-        self.assertTrue(original["actual_HA_auth_users_tokens_middleware"])
-        self.assertFalse(original["real_service_key_or_custody_effect"])
-        self.assertFalse(original["provider_or_device_effect"])
-        self.assertFalse(original["native_or_push_acceptance"])
-        cases = {case["case"] for case in original["cases"]}
+        self.assertEqual(current["classification"], "ACTUAL_ISOLATED_HA_ADMIN_PREPARATION_TESTS_ONLY")
+        self.assertTrue(current["actual_HA_auth_users_tokens_middleware"])
+        self.assertFalse(current["real_service_key_or_custody_effect"])
+        self.assertFalse(current["provider_or_device_effect"])
+        self.assertFalse(current["native_or_push_acceptance"])
+        cases = {case["case"] for case in current["cases"]}
         self.assertIn("real OptionsFlow failed temporary entry ABA retires pending and prepared management", cases)
         self.assertIn("runtime setter ABA retires all siblings despite cleanup failure", cases)
         self.assertEqual(proof["same_test_pre_hook_causal_RED"]["test_sha256"], proof["harness_sha256"])

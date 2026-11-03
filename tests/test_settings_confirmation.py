@@ -201,7 +201,16 @@ class SettingsConfirmationTests(unittest.IsolatedAsyncioTestCase):
         for key in ('installed','native','audible'):
             self.assertEqual(d[key],'NOT_RUN')
         self.assertEqual(hashlib.sha256((root/'scripts/verification/verify_settings_confirmation_http.py').read_bytes()).hexdigest(),d['harness_sha256'])
-        for relative,digest in d['source_pins'].items():
+        current = json.loads((root / 'examples/client_contracts/settings_confirmation_v1/settings_confirmation_http-requalification-1431.json').read_text())
+        self.assertTrue(current['source_before_after_equal'])
+        self.assertEqual(len(current['source_pins']), 304)
+        self.assertEqual(hashlib.sha256((root / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
+        extension = current['receipt']['extension']
+        self.assertEqual(extension['model_provider_calls'], 0)
+        self.assertEqual(extension['playback_or_device_effects'], 0)
+        self.assertTrue(extension['cases'])
+        self.assertEqual(set(extension['cases'].values()), {'PASS'})
+        for relative,digest in current['source_pins'].items():
             self.assertEqual(hashlib.sha256((root/relative).read_bytes()).hexdigest(),digest,relative)
         for example in d['examples']:
             self.assertEqual(example['moment']['source_references'],['accepted_settings'])

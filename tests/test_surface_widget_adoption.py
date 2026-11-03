@@ -381,15 +381,22 @@ class WidgetActualHAContractTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         wire = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-actual-ha.json').read_text())
         self.assertEqual(wire['ha_sdk_version'], '2026.10.0')
-        self.assertEqual(len(wire['source_pins']), 304)
-        self.assertIn('custom_components/djconnect/artist_review_words.py', wire['source_pins'])
-        for relative, expected in wire['source_pins'].items():
+        current = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-requalification-1431.json').read_text())
+        self.assertTrue(current['source_before_after_equal'])
+        self.assertEqual(len(current['source_pins']), 304)
+        self.assertEqual(current['harness'], wire['harness'])
+        self.assertEqual(current['harness_sha256'], wire['harness_sha256'])
+        extension = current['receipt']['extension']
+        self.assertEqual(extension['APNs_native_or_installed_acceptance'], 'NOT_RUN')
+        self.assertEqual(extension['external_API_calls'], 0)
+        self.assertIn('custom_components/djconnect/artist_review_words.py', current['source_pins'])
+        for relative, expected in current['source_pins'].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), expected, relative)
         self.assertEqual(hashlib.sha256((root / wire['harness']).read_bytes()).hexdigest(), wire['harness_sha256'])
         for key in ('pre_scheduling_unload_denied', 'late_paired_authority_scrubbed',
                 'original_ES256_and_SQL15_before_RPC', 'once_original_winner_no_renewal'):
-            self.assertIs(wire['widget_adoption'][key], True)
-        self.assertEqual(wire['widget_adoption']['synthetic_issuer_calls'], ['challenge', 'issue'])
+            self.assertIs(extension['widget_adoption'][key], True)
+        self.assertEqual(extension['widget_adoption']['synthetic_issuer_calls'], ['challenge', 'issue'])
         for key in ('operator_enrollment', 'actual_key_custody', 'installed', 'APNs', 'native'):
             self.assertEqual(wire[key], 'NOT_RUN')
         self.assertEqual(wire['Activity_rights'], 'NOT_ADMITTED')
