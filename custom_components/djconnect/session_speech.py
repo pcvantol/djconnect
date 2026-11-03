@@ -375,11 +375,15 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
               if admission["active_flow_display_allowed"] else admission["display_expires_at"])
     if not expiry or datetime.fromisoformat(expiry).timestamp() <= time.time():
         return unavailable(reference, "original_source_expired")
-    return _contribution_descriptor(reference, text=moment.content, locale=broadcast.state.locale,
+    descriptor = _contribution_descriptor(reference, text=moment.content, locale=broadcast.state.locale,
         persona=moment.presentation_intent.dj_persona.value, persona_revision=boundary.persona_revision,
         mood=moment.presentation_intent.source_session_mood,
         expires_at=expiry, source_kind="published_dj_moment",
         attribution=moment.as_dict().get('sources') or ([dict(moment.source_attribution)] if moment.source_attribution else []), autoplay=autoplay)
+    from .bulletin_runtime import private_bulletin
+    if descriptor["manual_allowed"] and private_bulletin(moment):
+        descriptor["processors"] = ["local_on_device"]
+    return descriptor
 
 
 async def resolve_moment(hass, profile_id, reference):
@@ -684,7 +688,8 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expec
     # Exact accepted-text synthesis is owner-authorized through the configured
     # HA provider, independently of a provider's locality. This admits no new
     # model context, arbitrary text or source/history rights.
-    if admission.processor_basis not in LITERAL_PROCESSING_BASES:
+    if (admission.processor_basis not in LITERAL_PROCESSING_BASES
+            or "ha_configured" not in descriptor.get("processors", ())):
         return unavailable(data["reference"], "source_processor_not_qualified")
     def resolve_processor():
         if "voice_id" in data:

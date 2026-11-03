@@ -6,7 +6,7 @@ source material. It cannot certify third-party rights absent from feed metadata.
 """
 from __future__ import annotations
 
-from .bulletin_intake import NewsItem, SOURCES, article_url
+from .bulletin_intake import NewsItem, PRIVATE_SOURCES, SOURCES, article_url
 
 
 # Reviewed metadata defaults, not a rule for future additions to SOURCES.
@@ -37,9 +37,9 @@ def qualified_item(item):
     """Accept only the exact fixed publisher/metadata default, never arbitrary labels."""
     if type(item) is not NewsItem:
         return False
-    source = next((source for source in SOURCES if source.source_id == item.source_id), None)
-    if (source is None or SOURCE_DEFAULTS.get(source.source_id)
-            != (source.title, source.license, source.rights_url)
+    source = next((source for source in (*SOURCES, *PRIVATE_SOURCES) if source.source_id == item.source_id), None)
+    if (source is None or (source not in PRIVATE_SOURCES and SOURCE_DEFAULTS.get(source.source_id)
+            != (source.title, source.license, source.rights_url))
             or item.source_title != source.title or item.license != source.license):
         return False
     try:
@@ -48,10 +48,19 @@ def qualified_item(item):
         return False
 
 
+def private_headlines(items):
+    """Use only the two publisher headlines in a private presentation."""
+    if (len(items) != len(PRIVATE_SOURCES)
+            or not all(qualified_item(item) and not item.description for item in items)
+            or {item.source_id for item in items} != {source.source_id for source in PRIVATE_SOURCES}):
+        return None
+    return "\n\n".join(f"{item.source_title}: {item.title}" for item in items)
+
+
 def source_notice(items, locale):
     language = locale.replace("_", "-").split("-", 1)[0].lower() if type(locale) is str else ""
     if (language not in NOTICES or len(items) != 2
-            or not all(qualified_item(item) for item in items)
+            or not all(qualified_item(item) and item.license != "private_feed_headlines_v1" for item in items)
             or len({item.source_id for item in items}) != 2):
         raise ValueError("bulletin_source_policy_unavailable")
     return NOTICES[language].format(sources=" / ".join(item.source_title for item in items))
@@ -59,6 +68,8 @@ def source_notice(items, locale):
 
 def admitted_text(text, items, locale):
     """Every publication/delivery rechecks the same complete, unstripped notice."""
+    if any(item.license == "private_feed_headlines_v1" for item in items):
+        return type(text) is str and text == private_headlines(items)
     try:
         notice = source_notice(items, locale)
     except ValueError:
