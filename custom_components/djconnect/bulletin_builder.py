@@ -14,7 +14,7 @@ import math
 import re
 import time
 
-from .bulletin_intake import NewsItem, SOURCES
+from .bulletin_intake import WINDOW_SECONDS, NewsItem, SOURCES
 from .bulletin_source_policy import admitted_text, qualified_item, source_notice
 from .narration_style import instructions
 
@@ -202,7 +202,7 @@ class BulletinBuilder:
                 return None
             if len(self._state["reservations"]) + 4 > MAX_RESERVATIONS:
                 return None  # Never evict unexpired dedup evidence to grant work.
-            expires = min(i.published_at + 1800 for i in selected)
+            expires = min(i.published_at + WINDOW_SECONDS for i in selected)
             deadline = min(original_monotonic + expires - original_wall,
                 *(i.monotonic_deadline for i in selected))
             now = self._current(session, guard, selected, deadline)

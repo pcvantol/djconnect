@@ -20,7 +20,7 @@ import xml.etree.ElementTree as ET
 from defusedxml.common import DefusedXmlException
 from defusedxml.ElementTree import DefusedXMLParser
 
-WINDOW_SECONDS = 1800
+WINDOW_SECONDS = 2 * 60 * 60
 POLL_SECONDS = 300
 MAX_BYTES = 524288
 MAX_ITEMS = 64
