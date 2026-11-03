@@ -56,9 +56,10 @@ async def async_register(
     *,
     user_id: str | None,
     payload: dict[str, Any],
+    paired_watch: bool = False,
 ) -> dict[str, Any]:
     """Forward an Apple push token registration to the central DJConnect relay."""
-    cleaned = _registration_payload(runtime, user_id=user_id, payload=payload)
+    cleaned = _registration_payload(runtime, user_id=user_id, payload=payload, paired_watch=paired_watch)
     if not cleaned:
         _log_registration_failure(runtime, payload, "invalid_push_registration")
         return {"success": False, "error": "invalid_push_registration"}
@@ -493,7 +494,9 @@ async def _post_relay(
         return {"success": False, "error": "push_relay_unavailable"}
 
 
-def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[str, Any]) -> dict[str, Any]:
+def _registration_payload(
+    runtime: Any, *, user_id: str | None, payload: dict[str, Any], paired_watch: bool = False
+) -> dict[str, Any]:
     # Native WidgetKit/ActivityKit tokens have distinct topic/lifecycle owners.
     # Silently accepting their metadata here would overwrite the app alert row.
     if any(key in payload for key in ('token_role', 'widget_kind', 'activity_id', 'surface_target')):
@@ -508,6 +511,17 @@ def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[st
         or not push_environment
     ):
         return {}
+    bundle_id = _clean_text(payload.get("app_bundle_id"), 200)
+    requested = payload.get("categories", payload.get("notification_categories"))
+    categories = ["ask_dj"]
+    if (
+        paired_watch
+        and client_type == CLIENT_TYPE_WATCHOS
+        and bundle_id == "dev.djconnect.ios.watch"
+        and isinstance(requested, list)
+        and "dj_moments_v1" in requested
+    ):
+        categories.append("dj_moments_v1")
     return {
         "ha_install_id": ensure_ha_install_id(runtime),
         "ha_user_hash": _hash_value(user_id),
@@ -515,10 +529,10 @@ def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[st
         "client_type": client_type,
         "apns_token": push_token,
         "apns_environment": _relay_environment(push_environment),
-        "app_bundle_id": _clean_text(payload.get("app_bundle_id"), 200),
+        "app_bundle_id": bundle_id,
         "app_version": _clean_text(payload.get("app_version"), 64),
         "locale": _clean_text(payload.get("locale"), 32),
-        "categories": _clean_categories(payload.get("categories") or payload.get("notification_categories")),
+        "categories": categories,
     }
 
 
@@ -732,15 +746,6 @@ def _valid_push_token(value: Any) -> bool:
     if not token:
         return False
     return not any(char.isspace() or char in "<>" for char in token)
-
-
-def _clean_categories(value: Any) -> list[str]:
-    if not isinstance(value, list):
-        return ["ask_dj"]
-    cleaned = {_clean_text(item, 64) for item in value}
-    if "ask_dj" in cleaned or cleaned & {EVENT_ASK_DJ_RESPONSE, EVENT_ASK_DJ_CONFIRM}:
-        return ["ask_dj"]
-    return ["ask_dj"]
 
 
 def _clean_environment(value: Any) -> str:
