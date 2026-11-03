@@ -127,19 +127,29 @@ class WatchRetirementClientTests(unittest.IsolatedAsyncioTestCase):
         post.assert_not_awaited()
 
 
-    async def test_https_retirement_accepts_only_exact_commit_receipt(self):
+    async def test_https_retirement_accepts_only_exact_responses(self):
         transport = AsyncMock(side_effect=[
-            {"outcome": "committed"},
-            {"outcome": "committed", "extra": True},
-            {"error": "watch_retirement_outcome_unknown"},
+            (200, {"outcome": "committed"}),
+            (200, {"outcome": "committed", "extra": True}),
+            (403, {"error": "watch_retirement_unavailable"}),
+            (403, {"outcome": "committed"}),
+            (403, {"error": "unexpected"}),
             None,
-            "committed",
         ])
         module = "custom_components.djconnect.watch_preference_client"
-        with patch(f"{module}.watch_preference_https", return_value=transport) as bind:
+        with patch(f"{module}._watch_lifecycle_https", return_value=transport) as bind:
             post = watch_retirement_https("https://example.com/retirement")
-        bind.assert_called_once_with("https://example.com/retirement")
+        bind.assert_called_once_with("https://example.com/retirement", accepted_statuses=(200, 403))
 
-        outcomes = [await post(b"body", "A" * 86) for _ in range(5)]
-        self.assertEqual(outcomes, ["committed", "unknown", "unknown", "unknown", "unknown"])
-        self.assertEqual(transport.await_count, 5)
+        outcomes = [await post(b"body", "A" * 86) for _ in range(6)]
+        self.assertEqual(outcomes, ["committed", "unknown", "denied", "unknown", "unknown", "unknown"])
+
+    async def test_definitive_denial_does_not_send_status_request(self):
+        receiver = EnrolledWatchReceiver("lab-api", "install-a", "watch-a", "pair-a", 2, "a" * 64)
+        post = AsyncMock(return_value="denied")
+        result = await retire_watch_receiver(
+            receiver, operation="withdraw", expiry=125, require_current=lambda _: None,
+            sign_frame=AsyncMock(return_value=bytes(64)), post_signed=post, wall=lambda: 100,
+        )
+        self.assertEqual(result, "denied")
+        self.assertEqual(post.await_count, 1)

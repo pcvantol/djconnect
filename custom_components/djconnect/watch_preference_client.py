@@ -216,7 +216,7 @@ async def retire_watch_receiver(
         return "unknown"
 
 
-def watch_preference_https(endpoint: str):
+def _watch_lifecycle_https(endpoint: str, *, accepted_statuses: tuple[int, ...]):
     """Bind the signed transport to a provisioned API endpoint.
 
     No ambient authentication, proxy, cookie, or redirect can move a signed
@@ -259,7 +259,7 @@ def watch_preference_https(endpoint: str):
                     "Accept-Encoding": "identity", "DJC-Watch-Lifecycle-Signature": signature,
                 }) as response:
                     media = response.headers.getall("Content-Type", [])
-                    if (response.status != 200 or response.headers.getall("Content-Encoding", [])
+                    if (response.status not in accepted_statuses or response.headers.getall("Content-Encoding", [])
                             not in ([], ["identity"]) or len(media) != 1
                             or not re.fullmatch(r"application/json(?:;\s*charset=utf-8)?", media[0], re.I)):
                         return None
@@ -268,21 +268,34 @@ def watch_preference_https(endpoint: str):
                         raw.extend(chunk)
                         if len(raw) > 2048:
                             return None
-                    return strict_body(bytes(raw))
+                    return response.status, strict_body(bytes(raw))
         except (aiohttp.ClientError, ValueError, TimeoutError):
             return None
 
     return post_signed
 
 
+def watch_preference_https(endpoint: str):
+    """Bind preference requests to the provisioned endpoint."""
+    request = _watch_lifecycle_https(endpoint, accepted_statuses=(200,))
+
+    async def post_signed(body: bytes, signature: str):
+        reply = await request(body, signature)
+        return reply[1] if reply is not None else None
+
+    return post_signed
+
+
 def watch_retirement_https(endpoint: str):
-    """Bind retirement to a provisioned HTTPS endpoint and require an exact commit receipt."""
-    request = watch_preference_https(endpoint)
+    """Bind retirement to the provisioned endpoint and verify the response contract."""
+    request = _watch_lifecycle_https(endpoint, accepted_statuses=(200, 403))
 
     async def post_signed(body: bytes, signature: str) -> RetirementOutcome:
         reply = await request(body, signature)
-        if isinstance(reply, dict) and reply == {"outcome": "committed"}:
+        if reply == (200, {"outcome": "committed"}):
             return "committed"
+        if reply == (403, {"error": "watch_retirement_unavailable"}):
+            return "denied"
         return "unknown"
 
     return post_signed
