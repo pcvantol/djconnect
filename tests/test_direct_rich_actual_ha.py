@@ -9,14 +9,15 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
     def test_actual_host_wake_HTTP_Broadcast_SQL_originals_bind_current_source(self):
         root = Path(__file__).resolve().parents[1]
         value = json.loads((root / 'examples/client_contracts/direct_rich_v1/actual-ha-host-wake-runtime.json').read_bytes())
-        receipt = value['original_receipt']
+        receipt = json.loads((root / 'examples/client_contracts/direct_rich_v1/actual-ha-host-wake-runtime-1429.json').read_bytes())
         self.assertEqual(receipt['status'], 'PASS')
         self.assertEqual(receipt['schema_version'], 21)
-        self.assertEqual(len(receipt['source_sha256']), 304)
+        self.assertFalse(receipt['actual_operator_enrollment_native_clock_or_APNs_GO'])
+        self.assertEqual(len(receipt['source_sha256']), 305)
         for name, expected in receipt['source_sha256'].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         self.assertEqual(hashlib.sha256((root / value['harness']).read_bytes()).hexdigest(), value['harness_sha256'])
-        self.assertEqual(hashlib.sha256((json.dumps(receipt, indent=2) + '\n').encode()).hexdigest(),
+        self.assertEqual(hashlib.sha256((json.dumps(value['original_receipt'], indent=2) + '\n').encode()).hexdigest(),
             value['original_receipt_sha256'])
         actual = receipt['host_wake_runtime']
         self.assertEqual(actual['actual_http_operations'], 7)
@@ -31,21 +32,22 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
     def test_original_actual_HTTP_SQL_and_asset_proof_matches_entire_current_product(self):
         root = Path(__file__).resolve().parents[1]
         value = json.loads((root / 'examples/client_contracts/direct_rich_v1/actual-ha-original-purpose-and-assets.json').read_bytes())
-        receipt = value['original_receipt']
+        receipt = json.loads((root / 'examples/client_contracts/direct_rich_v1/actual-ha-host-wake-management-1429.json').read_bytes())
         self.assertEqual(value['classification'], 'ACTUAL_ISOLATED_HA_DIRECT_RICH_SOURCE_ONLY')
         self.assertEqual(receipt['classification'], 'DIRECT_RICH_ACTUAL_ISOLATED_HA_SOURCE_ONLY')
         self.assertEqual(receipt['status'], 'PASS')
         self.assertEqual(receipt['schema_version'], 21)
+        self.assertFalse(receipt['actual_operator_enrollment_native_clock_or_APNs_GO'])
         self.assertEqual(receipt['original_prepared_covers'], 1)
         self.assertEqual(receipt['read_reissues'], 0)
         self.assertEqual(receipt['model_calls'], 0)
         self.assertTrue(receipt['ordinary_pairing'])
         self.assertEqual(receipt['ha_credentials_issued'], 0)
-        self.assertEqual(len(receipt['source_sha256']), 304)
+        self.assertEqual(len(receipt['source_sha256']), 305)
         for name, expected in receipt['source_sha256'].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         self.assertEqual(hashlib.sha256((root / value['harness']).read_bytes()).hexdigest(), value['harness_sha256'])
-        self.assertEqual(hashlib.sha256((json.dumps(receipt, indent=2) + '\n').encode()).hexdigest(),
+        self.assertEqual(hashlib.sha256((json.dumps(value['original_receipt'], indent=2) + '\n').encode()).hexdigest(),
             value['original_receipt_sha256'])
         self.assertTrue(value['all304_before_inside_after_equal'])
         self.assertEqual(value['own_container'], 'VERIFIED_ABSENT')
