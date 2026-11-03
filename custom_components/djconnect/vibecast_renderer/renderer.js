@@ -107,7 +107,7 @@
       if (typeof source.title !== "string" || !source.title || source.title.length > 240 ||
           source.license !== publisher.license || !publicCitationURL(source.url) ||
           !publisher.hosts.includes(new URL(source.url).hostname) ||
-          !Number.isFinite(published) || published > Date.now() || Date.now()-published >= 1800000 ||
+          !Number.isFinite(published) || published > Date.now() || Date.now()-published >= 7200000 ||
           source.revision_url || urls.has(source.url) || providers.has(source.provider)) return null;
       urls.add(source.url); providers.add(source.provider);
     }
@@ -138,7 +138,7 @@
     if (bulletin && (!stamped || !Number.isFinite(explicitExpiry))) return null;
     const expiry = Math.min((stamped ? created : firstSeen.get(key)) + seconds*1000,
       Number.isFinite(explicitExpiry) ? explicitExpiry : Infinity,
-      bulletin ? Math.min(...citations.map(s=>Date.parse(s.published_at)+1800000)) : Infinity);
+      bulletin ? Math.min(...citations.map(s=>Date.parse(s.published_at)+7200000)) : Infinity);
     return now < expiry ? {key, created:stamped ? created : firstSeen.get(key), expiry, summary,
       detail:bulletin ? item.content : String(item.content || "").slice(0,1200), attribution:item.source_attribution, sources:citations, type:item.type || "", itemId:item.playback_item_id || "", stamped} : null;
   }
