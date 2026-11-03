@@ -273,3 +273,16 @@ def watch_preference_https(endpoint: str):
             return None
 
     return post_signed
+
+
+def watch_retirement_https(endpoint: str):
+    """Bind retirement to a provisioned HTTPS endpoint and require an exact commit receipt."""
+    request = watch_preference_https(endpoint)
+
+    async def post_signed(body: bytes, signature: str) -> RetirementOutcome:
+        reply = await request(body, signature)
+        if isinstance(reply, dict) and reply == {"outcome": "committed"}:
+            return "committed"
+        return "unknown"
+
+    return post_signed

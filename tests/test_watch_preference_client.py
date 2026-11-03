@@ -3,12 +3,12 @@ from dataclasses import replace
 import hashlib
 import json
 import unittest
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock, Mock, patch
 
 from tests.test_persistence_platform import PersistenceService  # noqa: F401
 from custom_components.djconnect.watch_preference_client import (
     EnrolledWatchReceiver, WatchPreferenceIntent, retire_watch_receiver, update_watch_preference,
-    watch_preference_https,
+    watch_preference_https, watch_retirement_https,
 )
 
 
@@ -125,3 +125,21 @@ class WatchRetirementClientTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(result, "discarded")
         post.assert_not_awaited()
+
+
+    async def test_https_retirement_accepts_only_exact_commit_receipt(self):
+        transport = AsyncMock(side_effect=[
+            {"outcome": "committed"},
+            {"outcome": "committed", "extra": True},
+            {"error": "watch_retirement_outcome_unknown"},
+            None,
+            "committed",
+        ])
+        module = "custom_components.djconnect.watch_preference_client"
+        with patch(f"{module}.watch_preference_https", return_value=transport) as bind:
+            post = watch_retirement_https("https://example.com/retirement")
+        bind.assert_called_once_with("https://example.com/retirement")
+
+        outcomes = [await post(b"body", "A" * 86) for _ in range(5)]
+        self.assertEqual(outcomes, ["committed", "unknown", "unknown", "unknown", "unknown"])
+        self.assertEqual(transport.await_count, 5)
