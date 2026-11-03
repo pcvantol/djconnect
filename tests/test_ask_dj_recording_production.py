@@ -90,7 +90,7 @@ class RecordingProductionTests(unittest.IsolatedAsyncioTestCase):
     async def test_current_actual_ha_receipt_binds_all_products_without_quality_or_native_claim(self):
         root = Path(__file__).resolve().parents[1]
         proof = json.loads((root/'examples/client_contracts/ask_dj_recording_production_v1/actual-ha-wire.json').read_text())
-        self.assertEqual(len(proof['source_pins']), 303)
+        self.assertEqual(len(proof['source_pins']), 304)
         for name, digest in proof['source_pins'].items():
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root/proof['harness']).read_bytes()).hexdigest(), proof['harness_sha256'])

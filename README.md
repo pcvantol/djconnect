@@ -4,7 +4,7 @@
 One rich widget and Live Activity remains the product goal; native push is not yet accepted.
 The contract and all280 product files are unchanged by this documentary Final.
 This Final needs its own release qualification; no installation is needed.
-
+[Bandvragen en bandfoto’s](docs/product/ASK_DJ_BAND_MEMBERS_STORY_V1.md).
 ## Current closed custody source delivery
 
 Source1393 is protected `6cae8540a83a880c4bcb37dd302320336f7e15cb` and independently

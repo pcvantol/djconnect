@@ -1,3 +1,15 @@
+<!-- ASK_DJ_BAND_STORY_20261102 -->
+## Current rich band-membership batch — 2 November2026
+
+A clear membership question now shares the complete source-reviewed artist path,
+selected Persona and original licensed-band-photo projection across Ask DJ and
+Session history. [Contract](docs/product/ASK_DJ_BAND_MEMBERS_STORY_V1.md) and
+[verification](docs/verification/ASK_DJ_BAND_STORY_20261102.md) distinguish304-file
+source preparation,28 isolated HA groups and real editorial/client acceptance.
+One PR includes this batch and closing documentation; no separate Final.
+No new installed/native/provider/prose GO. Preserve all24 requests/nine gates and
+the complete earlier historical bodies below.
+
 ## 2026-11-02 — Bounded VibeScape four-world Core source preparation
 
 Core1271/1101 and Apple177 reuse the existing confirmed active Session/Broadcast

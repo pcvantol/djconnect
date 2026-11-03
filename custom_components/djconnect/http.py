@@ -4924,6 +4924,9 @@ class DJConnectImageProxyView(HomeAssistantView):
         hass = request.app["hass"]
         if token.startswith("disc-") and len(token) == 37:
             return await discovery_image_response(hass, request, token)
+        if token.startswith("band-"):
+            from .ask_dj.band_story import image_response
+            return await image_response(hass, request, token)
         target = image_proxy_target(hass, token)
         if not target:
             return web.Response(status=404, text="DJConnect image not found")

@@ -1,3 +1,10 @@
+## Rich band membership and public photo continuation
+
+The additive [band-membership contract](ASK_DJ_BAND_MEMBERS_STORY_V1.md) owns
+complete membership telling and live original photos. It adds no source/effect
+authority and does not renew image leases through history reads. Existing
+contracts below retain their earlier scope.
+
 # Ask DJ public music research v1
 
 Status: local implementation and qualification in progress; not released. The directed contract was committed before runtime changes in `05d021a164f1ac8d212ee61d686cdf5535bb4dc4`.

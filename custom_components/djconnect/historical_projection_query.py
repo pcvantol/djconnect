@@ -194,6 +194,17 @@ class HistoricalProjectionQueryService:
             entry["session_speech"] = retained_projection(entry)
         return entry
 
+    def _project_public_images(self, owner, entries):
+        """Attach only existing owner-bound leases after all awaited query checks."""
+        project = getattr(self._conversation_history, "live_public_images", None)
+        if not callable(project):
+            return
+        for entry in entries:
+            if entry.get("kind") == "conversation_dj" and entry.get("state") != "source_withdrawn":
+                pictures = project("profile:" + owner, entry.get("client_message_id"))
+                if pictures:
+                    entry["images"] = pictures
+
     def _validate_grant_revision(self, owner, expected):
         if self._grant_revision_now is not None and self._grant_revision_now(owner) != expected:
             from .session_history_projection import HistoryQueryError
@@ -396,6 +407,7 @@ class HistoricalProjectionQueryService:
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("invalid_history_cursor")
         self._validate_entry_deadlines(visible)
+        self._project_public_images(owner, visible)
         return {
             "success": True,
             "schema_version": 1,
@@ -443,6 +455,7 @@ class HistoricalProjectionQueryService:
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("invalid_history_cursor")
         self._validate_entry_deadlines(visible)
+        self._project_public_images(owner, visible)
         return {
             "success": True,
             "schema_version": 1,
@@ -515,6 +528,8 @@ class HistoricalProjectionQueryService:
         if (opened['entry'].get('state')=='source_withdrawn'
                 or opened['entry'].get('kind')=='dj_publication'):
             raise HistoricalProjectionAccessDenied('entry_source_withdrawn')
+        # Temporary presentation capabilities never enter dependent source/model input.
+        opened['entry'].pop('images', None)
         return opened
 
     async def async_open_entry(self, owner: str, session_id: str, entry_id: str) -> dict:
@@ -531,6 +546,7 @@ class HistoricalProjectionQueryService:
         from .session_history_projection import entry_retained
         if not entry_retained(entry):
             raise HistoricalProjectionAccessDenied("entry_unavailable")
+        self._project_public_images(owner, [entry])
         return {
             "success": True,
             "schema_version": 1,

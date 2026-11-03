@@ -96,6 +96,26 @@ def upload_url(value):
         and not any(v in p.path.lower() for v in ('..','\\','%2e','%2f','%5c')))
 
 
+def thumbnail_url(value, original):
+    """Only Commons' exact original-bound thumbnail CDN, never arbitrary hosts."""
+    if upload_url(value):
+        return True  # Existing admitted Commons upload/thumbnail URLs.
+    if not isinstance(value, str) or not upload_url(original):
+        return False
+    p, source = urlsplit(value), urlsplit(original)
+    original_path = source.path
+    if original_path.startswith('/wikipedia/commons/thumb/'):
+        return False
+    prefix = '/wikipedia/commons/thumb/' + original_path.removeprefix('/wikipedia/commons/') + '/'
+    filename = original_path.rsplit('/', 1)[-1]
+    tail = p.path.removeprefix(prefix)
+    return bool(p.scheme == 'https' and p.netloc == 'thumb.wikimedia.org'
+        and p.path.startswith(prefix) and not p.fragment
+        and re.fullmatch(r'[1-9][0-9]{1,3}px-' + re.escape(filename), tail)
+        and all(k in {'utm_source', 'utm_campaign', 'utm_content'} for k, _ in parse_qsl(p.query))
+        and not any(v in p.path.lower() for v in ('..', '\\', '%2e', '%2f', '%5c')))
+
+
 @dataclass(frozen=True)
 class Candidate:
     title: str
@@ -109,6 +129,7 @@ class Candidate:
     license_url: str
     revision: str
     live_hint: bool
+    original_url: str = ""
 
     def metadata(self):
         return {'provider':'Wikimedia Commons','mark':'wikimedia_commons','url':file_url(self.title),
@@ -149,7 +170,7 @@ def candidates(data, titles):
             w,h=original_w,original_h
         revision=info.get('sha1','')
         if (not license or field('LicenseUrl').rstrip('/')!=license[1].rstrip('/') or not author
-                or field('Restrictions') or not upload_url(url)
+                or field('Restrictions') or not thumbnail_url(url, info.get('url'))
                 or info.get('descriptionurl')!=file_url(page['title'])
                 or info.get('mediatype')!='BITMAP' or (info.get('thumbmime') or info.get('mime')) not in {'image/jpeg','image/png','image/webp'}
                 or type(w) is not int or type(h) is not int or min(w,h)<256 or max(w,h)<320
@@ -164,7 +185,7 @@ def candidates(data, titles):
             continue
         live=bool(re.search(r'\b(?:concert|live performance|live music|on stage|performing live)\b',description,re.I))
         result.append(Candidate(page['title'],urlsplit(url)._replace(query='').geturl(),w,h,author,credit,attribution or ' — '.join(
-            v for v in (author,credit,license[0]) if v),license[0],license[1],revision,live))
+            v for v in (author,credit,license[0]) if v),license[0],license[1],revision,live,info.get('url','')))
     return sorted(result,key=lambda c:(not c.live_hint,-c.width*c.height,c.title))
 
 
@@ -203,7 +224,7 @@ async def _depicted_candidates(hass,qid,guard):
     query=await _read(hass,API+'?'+urlencode({'action':'query','generator':'search',
         'gsrsearch':'haswbstatement:P180='+qid+' (concert OR "live performance" OR "on stage") filetype:bitmap','gsrnamespace':6,'gsrlimit':3,
         'prop':'imageinfo','iiprop':'url|size|mime|mediatype|sha1|extmetadata',
-        'iiurlwidth':1024,'iiextmetadatalanguage':'en','format':'json','formatversion':2}),guard,json_body=True)
+        'iiurlwidth':1280,'iiextmetadatalanguage':'en','format':'json','formatversion':2}),guard,json_body=True)
     pages=query.get('query',{}).get('pages',[])
     if not isinstance(pages,list) or len(pages)>3:
         return []
@@ -250,7 +271,7 @@ async def fetch(hass, qid, *, guard, decode):
     if titles:
         data=await _read(hass,API+'?'+urlencode({'action':'query','titles':'|'.join(titles),
             'prop':'imageinfo','iiprop':'url|size|mime|mediatype|sha1|extmetadata',
-            'iiurlwidth':1024,'iiextmetadatalanguage':'en','format':'json','formatversion':2}),guard,json_body=True)
+            'iiurlwidth':1280,'iiextmetadatalanguage':'en','format':'json','formatversion':2}),guard,json_body=True)
         choices=candidates(data,titles)
     if not choices or not choices[0].live_hint:
         try:

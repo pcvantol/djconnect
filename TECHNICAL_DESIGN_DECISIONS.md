@@ -1,3 +1,15 @@
+## 2026-11-03 — Source-reviewed membership and original public photo continuation
+
+Use the existing artist corpus/draft/word-ID reviewer for clear band-membership
+questions. A band focus is presentation only, not identity, facts or effects.
+Retain exact licensed bytes under bounded original UTC/monotonic capabilities;
+history reads neither fetch nor renew, and dependent source reads exclude URLs.
+Commons thumbnail CDN acceptance binds to its exact original upload file and
+retains the real pixel decoder. See docs/product/ASK_DJ_BAND_MEMBERS_STORY_V1.md.
+Release owner containers use their actual output UID/GID and cost-free Ubuntu
+preflight before provider work. No model budget, dependency or release version
+changes. Whole-source, real editorial and installed/native acceptance stay apart.
+
 ## 2026-11-02 — Question purpose and exact person dates
 
 Keep the existing read/interpreter/expression owner. Retain only a bounded

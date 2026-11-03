@@ -139,6 +139,30 @@ class ArtistPhotoSourceTests(unittest.IsolatedAsyncioTestCase):
         )[0]
         self.assertEqual((original_candidate.width, original_candidate.height), (367, 346))
 
+    def test_original_commons_thumbnail_host_is_bound_to_the_exact_original_file(self):
+        value = page()
+        info = value["imageinfo"][0]
+        original = "https://upload.wikimedia.org/wikipedia/commons/a/ab/Fixture.png"
+        thumbnail = "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Fixture.png/640px-Fixture.png"
+        info.update(url=original, thumburl=thumbnail)
+        admitted = photo.candidates({"query": {"pages": [value]}}, [value["title"]])
+        self.assertEqual(len(admitted), 1)
+        self.assertEqual(admitted[0].url, thumbnail)
+        for wrong in (
+            thumbnail.replace("/ab/", "/ac/"),
+            thumbnail.replace("/640px-Fixture.png", "/640px-Different.png"),
+            thumbnail.replace("thumb.wikimedia.org", "thumb.wikimedia.org.attacker.invalid"),
+            thumbnail.replace("https://", "http://"),
+            thumbnail + "?redirect=https://attacker.invalid",
+            thumbnail + "#fragment",
+            thumbnail.replace("/640px-", "/../640px-"),
+            thumbnail.replace("/640px-", "/%2e%2e/640px-"),
+        ):
+            bad = deepcopy(value)
+            bad["imageinfo"][0]["thumburl"] = wrong
+            with self.subTest(wrong=wrong):
+                self.assertEqual(photo.candidates({"query": {"pages": [bad]}}, [bad["title"]]), [])
+
     def test_missing_ambiguous_restricted_rights_and_untrusted_image_hosts_never_admit_pixels(self):
         base = page()
         for mutation in (
