@@ -381,3 +381,68 @@ class ArtworkLifecycleTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(self.runtime.backend_cache), 1)
         self.runtime.config["spotify_client_id"] = "different-provider-client"
         self.assertFalse(guard.valid())
+
+
+class RecommendationArtworkRecoveryTest(unittest.IsolatedAsyncioTestCase):
+    async def test_exact_provider_recovery_and_authority_change(self):
+        playlist = "spotify:playlist:" + "D" * 22
+        subjects = [TRACK_URI, ALBUM_URI, ARTIST_URI, playlist]
+        entries = [{"uri": uri, "reason_sources": ["accepted_recommendations"]}
+                   for uri in subjects + [playlist]]
+        for revoke in (False, True):
+            with self.subTest(revoke=revoke):
+                guard = types.SimpleNamespace(enabled=True, runtime=types.SimpleNamespace())
+                guard.valid = lambda: guard.enabled
+                calls = []
+
+                async def request(method, path):
+                    calls.append((method, path))
+                    kind, identifier = path.strip("/").split("/")
+                    kind = kind[:-1]
+                    if revoke:
+                        guard.enabled = False
+                    if kind == "track":
+                        return {**provider_track(), "type": kind}
+                    return {"id": identifier, "uri": f"spotify:{kind}:{identifier}",
+                            "type": kind, "images": [{"url": URL}]}
+
+                backend = types.SimpleNamespace(_request=request)
+                with (
+                    patch("aiohttp.ClientError", OSError, create=True),
+                    patch("custom_components.djconnect.spotify_backend.SpotifyBackend", return_value=backend),
+                ):
+                    refs = await art._recover_recommendation_artwork(None, guard, entries)
+                if revoke:
+                    self.assertEqual(refs, {})
+                else:
+                    self.assertEqual(len(calls), 4)
+                    self.assertEqual(list(refs), subjects)
+                    self.assertEqual(refs[TRACK_URI]["media_uri"], ALBUM_URI)
+                    self.assertEqual(refs[playlist]["media_uri"], playlist)
+                    self.assertTrue(all(ref["asset_id"] == "a" * 40 for ref in refs.values()))
+
+    async def test_feed_projects_recovered_playlist_without_mutating_cached_response(self):
+        playlist = "spotify:playlist:" + "D" * 22
+        runtime = types.SimpleNamespace()
+        guard = types.SimpleNamespace(enabled=True, runtime=runtime, valid=lambda: True)
+        item = {"uri": playlist, "reason_sources": ["accepted_recommendations"]}
+        unrelated = {"uri": playlist, "reason_sources": ["other"]}
+        response = {"sections": [{"items": [item, unrelated]}]}
+
+        async def request(method, path):
+            self.assertEqual((method, path), ("GET", "/playlists/" + "D" * 22))
+            return {"id": "D" * 22, "uri": playlist, "type": "playlist", "images": [{"url": URL}]}
+
+        backend = types.SimpleNamespace(_request=request)
+        hass = types.SimpleNamespace(data={})
+        with (
+            patch("aiohttp.ClientError", OSError, create=True),
+            patch("custom_components.djconnect.spotify_backend.SpotifyBackend", return_value=backend),
+            patch.object(art, "capture_refresh_guard", return_value=guard),
+        ):
+            projected = await art.project_discovery_images(hass, runtime, response, {})
+        recovered, other = projected["sections"][0]["items"]
+        self.assertIn("/disc-", recovered["image_url"])
+        self.assertEqual(recovered["image_attribution"]["media_uri"], playlist)
+        self.assertNotIn("image_url", other)
+        self.assertNotIn("image_url", item)

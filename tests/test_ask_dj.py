@@ -5,6 +5,7 @@ import importlib
 from pathlib import Path
 import types
 import unittest
+from unittest.mock import AsyncMock, patch
 
 from tests.test_http_voice_helpers import install_http_stubs
 
@@ -6656,53 +6657,44 @@ class AskDjTest(unittest.TestCase):
         self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
         self.assertEqual(result["items"], result["playback_actions"])
 
-    def test_plural_playlist_question_returns_search_results(self) -> None:
+    def test_spotify_collection_questions_offer_only_verified_choices(self) -> None:
         runtime = make_runtime()
-        calls = []
-
-        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
-            calls.append((command_name, value))
-            if command_name == "status":
-                return {"success": True, "playback": runtime.last_playback}
-            if command_name == "search_playlists":
-                self.assertEqual(value["query"], "snowpatrol")
-                self.assertEqual(value["limit"], 10)
-                return {
-                    "success": True,
-                    "playlists": [
-                        {
-                            "uri": "spotify:playlist:snowpatrol-1",
-                            "title": "Snow Patrol: Best Of The Best",
-                            "owner": "Best Of The Best",
-                            "image_url": "https://img.example/snowpatrol.jpg",
-                        }
-                    ],
-                }
-            raise AssertionError(f"unexpected playback mutation: {command_name}")
-
-        original_command = self.ask_dj.run_music_command
-        self.ask_dj.run_music_command = command
-        try:
-            result = asyncio.run(
-                self.ask_operational(
-                    types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
-                    runtime,
-                    {
-                        "text": "heb je playlists van snowpatrol",
-                        "device_id": runtime.device_status["device_id"],
-                        "client_type": "watchos",
-                    },
-                )
-            )
-        finally:
-            self.ask_dj.run_music_command = original_command
-
-        self.assertEqual([call[0] for call in calls], ["status", "search_playlists"])
-        self.assertTrue(result["success"])
-        self.assertEqual(result["intent"]["intent"], "spotify_playlist_search")
-        self.assertEqual(result["playback_actions"][0]["kind"], "playlist")
-        self.assertEqual(result["playback_actions"][0]["label"], "Afspelen")
-        self.assertEqual(result["playback_actions"][0]["uri"], "spotify:playlist:snowpatrol-1")
+        hass = types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}})
+        playlists = [
+            {"uri": "spotify:playlist:" + letter * 22, "title": f"Rock Mix {letter}",
+             "owner_id": "spotify" if letter != "H" else "another-owner"}
+            for letter in "ABCDEFGH"
+        ]
+        backend = types.SimpleNamespace(
+            search_playlists=AsyncMock(return_value=playlists),
+            artist_profile=AsyncMock(return_value={"id": "Q" * 22}),
+            playlist_contains_artist=AsyncMock(side_effect=lambda uri, _: uri != playlists[0]["uri"]),
+        )
+        for question, first in [
+            ("heb je playlists van queen?", playlists[1]),
+            ("heb je een paar leuke mixes voor me?", playlists[0]),
+            ("Do you have Spotify playlists featuring Queen?", playlists[1]),
+            ("Can you suggest five Spotify mixes for me?", playlists[0]),
+        ]:
+            with (
+                patch("aiohttp.ClientError", OSError, create=True),
+                patch("custom_components.djconnect.spotify_backend.SpotifyBackend", return_value=backend),
+                patch.object(self.ask_dj, "run_music_command", AsyncMock(
+                    side_effect=AssertionError("Unexpected playback command")
+                )),
+            ):
+                result = asyncio.run(self.ask_operational(hass, runtime, {
+                    "text": question,
+                    "device_id": runtime.device_status["device_id"],
+                    "client_type": "watchos",
+                    "language": "nl",
+                }))
+            self.assertTrue(result["success"], result)
+            self.assertEqual(result["action"], "none")
+            self.assertEqual(len(result["playback_actions"]), 5)
+            self.assertEqual(result["playback_actions"][0]["uri"], first["uri"])
+        self.assertEqual(backend.artist_profile.await_count, 2)
+        self.assertEqual(backend.playlist_contains_artist.await_count, 12)
 
     def test_playlist_with_artist_request_returns_playlist_results(self) -> None:
         runtime = make_runtime()

@@ -33,10 +33,10 @@ class SourceOriginActualProofTests(unittest.TestCase):
     def test_current_source_joins_original_actual_HA_and_same_harness_parent_failure(self):
         root = Path(__file__).resolve().parents[1]
         receipt = json.loads((root / "examples/client_contracts/source_origin_v1/actual-ha-source-origin-data.json").read_text())
-        current = json.loads((root / "examples/client_contracts/source_origin_v1/actual-ha-source-origin-data-1439.json").read_text())
+        current = json.loads((root / "examples/client_contracts/source_origin_v1/actual-ha-source-origin-data-1439-after-1429.json").read_text())
         self.assertEqual(current["state"], "PASS")
         self.assertEqual(len(current["cases"]), 19)
-        self.assertEqual(len(current["source_sha256"]), 304)
+        self.assertEqual(len(current["source_sha256"]), 305)
         for relative, digest in current["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), digest, relative)
         harness = hashlib.sha256((root / receipt["harness"]).read_bytes()).hexdigest()

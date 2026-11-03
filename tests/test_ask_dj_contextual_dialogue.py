@@ -5410,6 +5410,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             return {'success':True,'playback':dict(metadata)}
         questions=[('nl','Wanneer is dit nummer uitgekomen?'),('nl','Wanneer is huidig nummer uitgekomen'),
                    ('nl','Wanneer is het huidige nummer uitgekomen?'),('en','When was the current song released?'),
+                   ('nl','wanneer kwam dit album uit'),('en','When did this album come out?'),
                    ('de','Wann wurde dieser Titel veröffentlicht?'),('fr','Quand est sortie cette chanson ?'),
                    ('es','¿Cuándo salió esta canción?')]
         with patch.object(self.core,'run_music_command',status):
