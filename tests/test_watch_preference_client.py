@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, Mock
 
 from tests.test_persistence_platform import PersistenceService  # noqa: F401
 from custom_components.djconnect.watch_preference_client import (
-    EnrolledWatchReceiver, WatchPreferenceIntent, update_watch_preference,
+    EnrolledWatchReceiver, WatchPreferenceIntent, update_watch_preference, watch_preference_https,
 )
 
 
@@ -75,3 +75,19 @@ class WatchPreferenceClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(await self.update(), "unknown")
         self.sign.assert_not_awaited()
         self.post.assert_not_awaited()
+
+
+    def test_https_transport_only_accepts_canonical_provisioned_endpoint(self):
+        self.assertTrue(callable(watch_preference_https("https://watch.example.test/internal/preference")))
+        for endpoint in (
+            "http://watch.example.test/internal/preference",
+            "https://user@watch.example.test/internal/preference",
+            "https://watch.example.test:443/internal/preference",
+            "https://watch.example.test/internal/preference?next=other",
+            "https://watch.example.test/internal/%70reference",
+            "https://watch.example.test/../internal/preference",
+            "https://127.0.0.1/internal/preference",
+        ):
+            with self.subTest(endpoint=endpoint), self.assertRaisesRegex(
+                    ValueError, "invalid_watch_preference_endpoint"):
+                watch_preference_https(endpoint)
