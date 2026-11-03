@@ -6228,6 +6228,14 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["playback_actions"][-1]["uri"], "spotify:playlist:knallen-5")
 
     def test_counted_artist_album_request_returns_requested_play_now_rows(self) -> None:
+        self._assert_artist_album_choices("geef me 3 albums van Radiohead", "Radiohead", 3)
+
+    def test_artist_album_availability_question_offers_five_without_playing(self) -> None:
+        for question in ("Heb je een album van Air", "Heb je vijf albums van Air?"):
+            with self.subTest(question=question):
+                self._assert_artist_album_choices(question, "Air", 5)
+
+    def _assert_artist_album_choices(self, question, artist, expected_count) -> None:
         runtime = make_runtime()
         calls = []
 
@@ -6236,18 +6244,18 @@ class AskDjTest(unittest.TestCase):
             if command_name == "status":
                 return {"success": True, "playback": runtime.last_playback}
             if command_name == "artist_albums":
-                self.assertEqual(value, {"artist": "Radiohead"})
+                self.assertEqual(value, {"artist": artist})
                 return {
                     "success": True,
-                    "artist": "Radiohead",
+                    "artist": artist,
                     "albums": [
                         {
-                            "uri": f"spotify:album:radiohead-{index}",
-                            "name": f"Radiohead Album {index}",
+                            "uri": f"spotify:album:artist-{index}",
+                            "name": f"{artist} Album {index}",
                             "release_date": f"199{index}-01-01",
-                            "image_url": f"https://img.example/radiohead-{index}.jpg",
+                            "image_url": f"https://img.example/artist-{index}.jpg",
                         }
-                        for index in range(1, 6)
+                        for index in range(1, 7)
                     ],
                 }
             raise AssertionError(f"unexpected command: {command_name}")
@@ -6260,7 +6268,7 @@ class AskDjTest(unittest.TestCase):
                     types.SimpleNamespace(services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}),
                     runtime,
                     {
-                        "text": "geef me 3 albums van Radiohead",
+                        "text": question,
                         "device_id": runtime.device_status["device_id"],
                         "client_type": "ios",
                     },
@@ -6270,11 +6278,11 @@ class AskDjTest(unittest.TestCase):
             self.ask_dj.run_music_command = original_command
 
         self.assertEqual([call[0] for call in calls], ["status", "artist_albums"])
-        self.assertIn("Volgens Spotify heeft Radiohead", result["text"])
-        self.assertEqual(len(result["playback_actions"]), 3)
+        self.assertIn(f"Volgens Spotify heeft {artist}", result["text"])
+        self.assertEqual(len(result["playback_actions"]), expected_count)
         self.assertTrue(all(action["kind"] == "album" for action in result["playback_actions"]))
         self.assertTrue(all(action["label"] == "Afspelen" for action in result["playback_actions"]))
-        self.assertNotIn("Radiohead Album 4", result["text"])
+        self.assertNotIn(f"{artist} Album {expected_count + 1}", result["text"])
 
     def test_play_another_artist_album_returns_album_choices_without_playing(self) -> None:
         runtime = make_runtime()

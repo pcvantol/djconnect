@@ -12,7 +12,7 @@ class BulletinWireContractTests(unittest.TestCase):
         wire = json.loads((ROOT / "examples/client_contracts/dj_bulletin_v1/actual-ha-wire.json").read_text())
         self.assertEqual(wire["schema_version"], 1)
         self.assertEqual(wire["ha_sdk_version"], "2026.10.0")
-        current = json.loads((ROOT / 'examples/client_contracts/dj_bulletin_v1/news_bulletin_http-requalification-1431.json').read_text())
+        current = json.loads((ROOT / 'examples/client_contracts/dj_bulletin_v1/news_bulletin_http-requalification-1435.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
         self.assertEqual(len(current['source_pins']), 304)
         self.assertEqual(hashlib.sha256((ROOT / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])

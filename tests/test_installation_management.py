@@ -49,7 +49,7 @@ class ManagementGrammarTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         proof = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation.json").read_text())
         original = proof["original_receipt"]
-        current = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation-1431.json").read_text())
+        current = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation-1435.json").read_text())
         self.assertEqual(len(current["source_sha256"]), 304)
         for name, digest in current["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
