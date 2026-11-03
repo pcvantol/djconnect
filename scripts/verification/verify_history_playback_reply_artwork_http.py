@@ -24,6 +24,7 @@ async def qualify(hass, manager, history, request, client):
         http,
         ask_dj,
         session_artwork,
+        spotify_backend,
     )
     from custom_components.djconnect.domain.music_account import MusicAccountKind
     from custom_components.djconnect.ask_dj.dialogue import current_turn
@@ -346,7 +347,8 @@ async def qualify(hass, manager, history, request, client):
 
     # Real current-identification route and real registered image GETs. Only
     # Spotify/CDN I/O is synthetic; no provider/model request leaves this lab.
-    from custom_components.djconnect import reply_artwork
+    artist_id = "D" * 22
+    artist_uri = f"spotify:artist:{artist_id}"
     await manager.async_update_playback_projection(
         owner_profile_id='profile-a',session_id=active.session_id,state='playing',
         media_identity=media['uri'],title=media['title'],artist=media['artist'],
@@ -357,21 +359,27 @@ async def qualify(hass, manager, history, request, client):
     async def current_status(hass,runtime,command,*args,**kwargs):
         assert command=='status'
         status_reads.append(command)
-        return {'success':True,'playback':dict(media)}
-    async def current_pixels(hass,url,guard,registry):
-        assert url==media['album_image_url']
+        return {'success': True, 'playback': {**media, 'artist_ids': [artist_id]}}
+    async def current_pixels(hass, backend, uri, *, guard):
+        assert uri == artist_uri
         await guard()
-        return png,'image/png'
-    with patch.object(ask_dj,'run_music_command',current_status),patch.object(
-            reply_artwork,'_download_observed_cover',current_pixels):
+        source = f"https://open.spotify.com/artist/{artist_id}"
+        return png, 'image/png', source, '', 1, 1, media['artist']
+    with (
+        patch.object(ask_dj, 'run_music_command', current_status),
+        patch.object(spotify_backend, 'async_get_clientsession', return_value=client),
+        patch.object(session_artwork, '_fetch', current_pixels),
+    ):
         current,status=await request('POST','/api/djconnect/v1/ask_dj/message',{
-            'client_message_id':'current-cover-session','text':'Wie zijn dit?',
+            'client_message_id':'current-artist-photo-session','text':'Wie zijn dit?',
             'language':'nl','audio_response':'never',
             'conversation_context':{'session_id':active.session_id}})
         assert status==200 and not current['history_persisted'] and len(current['images'])==1,current
         assert len(status_reads)==2 and not current['playback_actions']
         assert active.broadcast.media_projector()==media_before
         active.broadcast.native_delivery()
+        assert current['images'][0]['kind'] == 'artist_image'
+        assert current['images'][0]['title'] == media['artist']
         current_url=current['images'][0]['url']
         assert (await client.get(current_url)).status==401
         response=await client.get(current_url,params=identity,headers=headers)
@@ -384,11 +392,11 @@ async def qualify(hass, manager, history, request, client):
         assert active.broadcast.media_projector()==media_before
         active.broadcast.native_delivery()
         cases['current_reply_resource_excluded_from_attached_live_projector_even_after_expiry']='PASS'
-        cases['current_cover_original_observation_authenticated_GET_and_expiry']='PASS'
+        cases['current_artist_photo_exact_identity_authenticated_GET_and_expiry']='PASS'
         examples['current_identification_reply']=current
         await manager.async_end(owner_profile_id='profile-a',session_id=active.session_id)
         general,status=await request('POST','/api/djconnect/v1/ask_dj/message',{
-            'client_message_id':'current-cover-general','text':'Wie zijn dit?',
+            'client_message_id':'current-artist-photo-general','text':'Wie zijn dit?',
             'language':'nl','audio_response':'never','conversation_context':{}})
         assert status==200 and not general['history_persisted'] and len(general['images'])==1,general
         assert manager.current_active('profile-a') is None and len(status_reads)==4
@@ -397,11 +405,11 @@ async def qualify(hass, manager, history, request, client):
         assert (await client.get(general_url)).status==401
         response=await client.get(general_url,params=identity,headers=headers)
         assert response.status==200 and await response.read()==png
-        cases['general_Profile_current_cover_without_creating_Session']='PASS'
+        cases['general_Profile_current_artist_photo_without_creating_Session']='PASS'
         provider=domain['source-entry']
         provider._receiver_end_generation=getattr(provider,'_receiver_end_generation',0)+1
         assert (await client.get(general_url,params=identity,headers=headers)).status==404
-        cases['general_current_cover_original_source_withdrawal_revokes_GET']='PASS'
+        cases['general_current_artist_photo_source_withdrawal_revokes_GET']='PASS'
         examples['general_current_identification_reply']=general
 
     return {
