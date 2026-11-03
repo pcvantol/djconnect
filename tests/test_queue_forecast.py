@@ -136,7 +136,7 @@ class QueueProjectionTests(unittest.TestCase):
 
     def test_actual_ha_receipt_pins_current_source_and_declares_visible_acceptance_open(self):
         root = Path(__file__).resolve().parents[1]
-        fixture = json.loads((root/'examples/client_contracts/session_forecast_v1/observed-queue-bulletin-actual-ha-1434-combined.json').read_text())
+        fixture = json.loads((root/'examples/client_contracts/session_forecast_v1/observed-queue-bulletin-actual-ha-1429-watch-combined.json').read_text())
         import hashlib
         self.assertEqual(fixture['state'], 'PASS')
         self.assertEqual(len(fixture['cases']), 20)
@@ -144,7 +144,7 @@ class QueueProjectionTests(unittest.TestCase):
         self.assertTrue(all(r['late_queue_discarded'] for r in fixture['stale_results']))
         self.assertFalse(fixture['HA_dev_writes'])
         self.assertEqual(fixture['native_acceptance'], 'NOT_RUN')
-        self.assertEqual(len(fixture['source_sha256']), 304)
+        self.assertEqual(len(fixture['source_sha256']), 305)
         for path, sha in fixture['source_sha256'].items():
             self.assertEqual(hashlib.sha256((root/path).read_bytes()).hexdigest(), sha, path)
 
