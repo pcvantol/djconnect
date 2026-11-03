@@ -493,6 +493,28 @@ class PushTest(unittest.TestCase):
                 self.assertEqual(outbound["device_id"], overrides.get("device_id", watch["device_id"]))
                 self.assertEqual(outbound["categories"], expected)
 
+    def test_watch_moment_registration_timeout_is_not_acknowledged(self) -> None:
+        class TimeoutSession(FakeSession):
+            def post(self, url, **kwargs):
+                super().post(url, **kwargs)
+                raise TimeoutError
+
+        hass = types.SimpleNamespace(session=TimeoutSession())
+        result = asyncio.run(self.push.async_register(
+            hass, self._runtime(), user_id="user-1", paired_watch=True,
+            payload={
+                "device_id": "djconnect-watchos-ABCDEFGHIJKL",
+                "client_type": "watchos",
+                "push_token": "watch-token-secret-value",
+                "push_environment": "sandbox",
+                "app_bundle_id": "dev.djconnect.ios.watch",
+                "categories": [],
+            },
+        ))
+        self.assertEqual(hass.session.calls[-1]["json"]["categories"], ["ask_dj"])
+        self.assertFalse(result["success"])
+        self.assertFalse(result["push_registered"])
+
     def test_register_rejects_client_type_device_id_mismatch(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())
         runtime = self._runtime()
