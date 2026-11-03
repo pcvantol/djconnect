@@ -10396,7 +10396,7 @@
     {
       "id": "ASKDJ-ISSUE-history-collection-natural-expiry",
       "family_id": "ASKDJ-FLOW-style-lifecycle",
-      "core_qualification": "open",
+      "core_qualification": "locally_covered",
       "finding": "Independent static review and six causal collection cases find natural expiry after final unchanged grant/revision awaits: Session summaries, playback lookup bodies and timeline/window/search/latest entries can escape. Real retention shortening then widening preserves earlier entry deadlines via MIN; Session validity alone is insufficient. Final synchronous original-deadline validation refuses stale collections without refreshing caps or changing representations. Local repair does not establish native/installed/end-user acceptance."
     },
     {
