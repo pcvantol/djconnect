@@ -392,6 +392,13 @@ class QuestionContinuityTests(unittest.IsolatedAsyncioTestCase):
             group_inception_answer([wiki, source(document)], "Example Band", "nl"),
             "Example Band is opgericht in 1996.",
         )
+        from custom_components.djconnect.ask_dj.biographical_dates import _group_source
+
+        self.assertTrue(_group_source({
+            "provider": "Wikipedia",
+            "wikidata_id": "Q323187",
+            "untrusted_excerpt": "Above & Beyond is een trancemuziekgroep.",
+        }, "Above & Beyond"))
         conflicting = replace(
             wiki, text="Example Band is a rock band. Example Band was formed in 2005."
         )
