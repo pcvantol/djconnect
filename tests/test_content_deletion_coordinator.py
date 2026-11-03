@@ -10,6 +10,7 @@ install_http_stubs()
 from tests.test_archived_session_erasure_safety import Store  # noqa: E402
 from tests.test_history_deletion_journal import identifier  # noqa: E402
 from custom_components.djconnect.ask_dj_history import AskDJHistoryManager, _request_hash  # noqa: E402
+from custom_components.djconnect.const import DOMAIN  # noqa: E402,F401 - load while the HA test package is installed.
 from custom_components.djconnect.content_deletion import ContentDeletionCoordinator  # noqa: E402
 from custom_components.djconnect.persistence.content_deletion import ContentDeletionRepository, scope_digest  # noqa: E402
 from custom_components.djconnect.persistence.service import PersistenceService  # noqa: E402
