@@ -40,7 +40,7 @@ NON_MUSIC_IDENTITY = re.compile(
 )
 MUSICAL_GROUP = re.compile(
     r"\b(?:band|(?:music(?:al)?|pop|rock|jazz|folk|metal|punk|grunge|soul|indie|electronic|hip[- ]hop) group|"
-    r"(?:muziek|pop|rock|jazz|folk|metal|punk|grunge)(?:groep|band)|"
+    r"(?:muziek|trancemuziek|pop|rock|jazz|folk|metal|punk|grunge)(?:groep|band)|"
     r"(?:pop|rock|jazz|folk|metal|punk|grunge)(?:band|gruppe)|"
     r"groupe (?:musical|(?:de )?(?:pop|rock|jazz|folk|metal|grunge))|"
     r"grupo (?:musical|(?:de )?(?:pop|rock|jazz|folk|metal|grunge)))\b", re.I,
