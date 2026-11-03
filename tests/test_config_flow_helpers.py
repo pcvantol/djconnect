@@ -2407,7 +2407,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertNotIn(self.const.CONF_DEVICE_TOKEN, result["data"])
         self.assertNotIn(self.const.CONF_LOCAL_URL, result["data"])
 
-    def test_voice_step_pairs_device_before_creating_entry(self) -> None:
+    @patch("custom_components.djconnect.surface_registration.retire_runtime", autospec=True)
+    def test_voice_step_pairs_device_before_creating_entry(self, retire_runtime) -> None:
         package = sys.modules["custom_components.djconnect"]
         original_runtime = getattr(package, "DJConnectRuntime", None)
         calls = []
@@ -2458,6 +2459,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 package.DJConnectRuntime = original_runtime
 
         self.assertEqual(result["type"], "create_entry")
+        retire_runtime.assert_called_once()
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0]["pairing_code"], "123456")
         self.assertEqual(calls[0]["pairing_device_id"], "djconnect-123456")
@@ -3223,7 +3225,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(markers[1].key, self.const.CONF_LOCAL_URL)
         self.assertIsNone(markers[1].default)
 
-    def test_options_repair_pairing_uses_manual_local_url(self) -> None:
+    @patch("custom_components.djconnect.surface_registration.retire_runtime", autospec=True)
+    def test_options_repair_pairing_uses_manual_local_url(self, retire_runtime) -> None:
         calls = []
 
         class Runtime:
@@ -3274,6 +3277,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
 
         self.assertEqual(result["type"], "create_entry")
+        retire_runtime.assert_called_once()
         self.assertIn(
             (
                 "pair_device",
@@ -3285,7 +3289,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         self.assertEqual(entry.data[self.const.CONF_LOCAL_URL], "http://192.168.1.104:60955")
 
-    def test_options_repair_pairing_empty_local_url_reuses_stored_url(self) -> None:
+    @patch("custom_components.djconnect.surface_registration.retire_runtime", autospec=True)
+    def test_options_repair_pairing_empty_local_url_reuses_stored_url(self, retire_runtime) -> None:
         calls = []
 
         class Runtime:
@@ -3341,6 +3346,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
 
         self.assertEqual(result["type"], "create_entry")
+        retire_runtime.assert_called_once()
         self.assertIn(
             (
                 "pair_device",
