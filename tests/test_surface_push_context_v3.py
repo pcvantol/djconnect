@@ -234,7 +234,7 @@ class OriginalClockActualHAProofTests(unittest.TestCase):
         proof = json.loads((root / 'examples/client_contracts/surface_push_v3/actual-ha-original-clock-context.json').read_text())
         self.assertEqual(proof['contract_version'], 3)
         self.assertEqual(proof['ha_sdk_version'], '2026.10.0')
-        current = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-requalification-1439-after-1429.json').read_text())
+        current = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-requalification-1439-after-1441.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
         self.assertEqual(len(current['source_pins']), 305)
         self.assertEqual(current['harness'], proof['harness'])

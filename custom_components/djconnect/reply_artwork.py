@@ -141,35 +141,7 @@ def accepted(turn, result):
     return checked(candidate[0]) if candidate[1] in urls else None
 
 
-async def _download_observed_cover(hass, url, guard, registry):
-    """Only the already observed CDN asset; no new Spotify metadata/model call."""
-    from aiohttp import ClientTimeout
-    from homeassistant.helpers.aiohttp_client import async_get_clientsession
-    from .session_artwork import MAX_BYTES, _decoded_size
-    from .forecast_imagery import image_format
-
-    async with async_get_clientsession(hass).get(
-        url, allow_redirects=False, timeout=ClientTimeout(total=4)
-    ) as response:
-        await guard()
-        if response.status != 200:
-            raise ValueError('source_unavailable')
-        mime=response.headers.get('Content-Type','').split(';')[0].strip().lower()
-        body=bytearray()
-        async for chunk in response.content.iter_chunked(65536):
-            await guard()
-            body.extend(chunk)
-            if len(body)>MAX_BYTES:
-                raise ValueError('image_too_large')
-    pixels=bytes(body)
-    if not image_format(pixels,mime):
-        raise ValueError('unsafe_image')
-    await registry.decode(_decoded_size,pixels)
-    await guard()
-    return pixels,mime
-
-
-async def observed_current_image(hass, turn, admission, sample):
+async def observed_current_artist_image(hass, runtime, turn, admission, artist_id, artist_name):
     """Bounded current-reply pixels under the existing authenticated RAM owner.
 
     An originally general Profile turn uses no Session identity and never
@@ -180,7 +152,8 @@ async def observed_current_image(hass, turn, admission, sample):
     import time
     from datetime import UTC, datetime
     from .image_proxy import session_images
-    from .session_artwork import PATH
+    from .session_artwork import PATH, _fetch
+    from .spotify_backend import SpotifyBackend
 
     if admission is None or turn.reply_source_authority is None:
         return None
@@ -216,10 +189,15 @@ async def observed_current_image(hass, turn, admission, sample):
     registry.collect()
     if not authority() or len(registry.assets)+len(registry.inflight)>=64:
         return None
+    uri = 'spotify:artist:' + artist_id
     try:
-        async with asyncio.timeout(4),registry.semaphore:
+        async with asyncio.timeout(4), registry.semaphore:
             await guard()
-            body,mime=await _download_observed_cover(hass,sample['album_image_url'],guard,registry)
+            body, mime, source, _, _, _, name = await _fetch(
+                hass, SpotifyBackend(hass, runtime), uri, guard=guard
+            )
+            if name.strip().casefold() != artist_name.strip().casefold():
+                return None
             await guard()
     except asyncio.CancelledError:
         raise
@@ -229,13 +207,13 @@ async def observed_current_image(hass, turn, admission, sample):
     asset_id=secrets.token_urlsafe(24)
     key=(owner,session_id,(('resource_scope','current_reply'),('reply_id',turn.digest)))
     asset={'body':body,'mime':mime,'deadline':deadline,'authority':authority,'allowed':allowed,
-           'asset_id':asset_id,'subject':sample['uri'],'historical':False,
+           'asset_id':asset_id,'subject':uri,'historical':False,
            'expected_source':dict(turn.reply_source_context)}
     if not registry.commit(key,asset):
         return None
     url=(PATH.format(session_id=session_id,asset_id=asset_id) if session_id else
          '/api/djconnect/v1/ask_dj/reply/image/'+asset_id)
-    return {'url':url,'thumbnail_url':url,'title':sample['title'],'subtitle':sample['artist'],
-            'kind':'album_art','source':'spotify','requires_device_auth':True,
+    return {'url':url,'thumbnail_url':url,'title':artist_name,
+            'kind':'artist_image','source':'spotify','source_url':source,'requires_device_auth':True,
             'expires_at':datetime.fromtimestamp(time.time()+max(0,deadline-time.monotonic()),UTC).isoformat(),
             'cache_policy':'no-store'}

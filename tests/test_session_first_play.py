@@ -534,7 +534,7 @@ class FirstPlayWireEvidenceTests(IsolatedAsyncioTestCase):
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
         fixture = json.loads((root/'examples/client_contracts/session_first_play_v2/actual-ha-wire.json').read_text())
-        current = json.loads((root / 'examples/client_contracts/session_first_play_v2/session_first_play_http-requalification-1439-after-1429.json').read_text())
+        current = json.loads((root / 'examples/client_contracts/session_first_play_v2/session_first_play_http-requalification-1439-after-1441.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
         self.assertEqual(len(current['source_pins']), 305)
         self.assertEqual(hashlib.sha256((root / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])

@@ -53,6 +53,7 @@ class CapturedReplyArtworkTests(unittest.IsolatedAsyncioTestCase):
             "album_uri": "spotify:album:" + "B" * 22,
             "title": "Synthetic original recording",
             "artist": "Synthetic original artist",
+            "artist_ids": ["D" * 22],
             "album_image_url": "https://i.scdn.co/image/" + "a" * 40,
         }
 
@@ -62,7 +63,7 @@ class CapturedReplyArtworkTests(unittest.IsolatedAsyncioTestCase):
             registry.close()
         await self.app.asyncTearDown()
 
-    async def current_identification(self, *, second=None, question='Wie zijn dit?', active_session=True):
+    async def current_identification(self, *, second=None, question='Wie zijn dit?', active_session=True, photo_name=None, photo_error=None):
         reads=[]
         if active_session:
             await self.app.f.manager.async_update_playback_projection(
@@ -78,38 +79,44 @@ class CapturedReplyArtworkTests(unittest.IsolatedAsyncioTestCase):
             reads.append(command)
             media=self.media if len(reads)==1 or second is None else second
             return {'success':True, 'playback':deepcopy(media)}
-        download=AsyncMock(return_value=(b'fixture-pixels','image/png'))
+        source = 'https://open.spotify.com/artist/' + 'D' * 22
+        fetch = AsyncMock(side_effect=photo_error, return_value=(
+            b'fixture-pixels', 'image/png', source, '', 100, 100,
+            self.media['artist'] if photo_name is None else photo_name,
+        ))
         with patch.object(self.core, 'run_music_command', provider), patch.object(
-                self.reply, '_download_observed_cover', download), patch.object(
+                self.art, '_fetch', fetch), patch.object(
                 self.core, '_call_dialogue_agent', side_effect=AssertionError('local identification is no model call')):
             result,status=await self.app.f.handlers.async_handle_ask_dj_message_payload(
                 self.hass, {**self.app.identity, 'text':question, 'language':'nl',
                     'audio_response':'never', 'client_message_id':'current-identification-art-'+str(counter),
                     'conversation_context':{'session_id':self.app.current.session_id} if active_session else {}},
                 headers=self.app.headers)
-        self.current_cover_download=download
+        self.current_photo_fetch = fetch
         return result,status,reads
 
-    async def test_current_identification_returns_exact_observed_album_cover_without_archiving(self):
+    async def test_current_identification_returns_exact_artist_photo_without_archiving(self):
         result,status,reads=await self.current_identification()
         self.assertEqual(status,200,result)
         self.assertEqual(result['text'],'Dit is Synthetic original artist, met Synthetic original recording.')
         self.assertEqual(reads,['status','status'])
         self.assertEqual(len(result['images']),1)
-        self.assertEqual(result['images'][0]['kind'],'album_art')
+        self.assertEqual(result['images'][0]['kind'], 'artist_image')
+        self.assertEqual(result['images'][0]['title'], self.media['artist'])
+        self.assertEqual(self.current_photo_fetch.await_args.args[2], 'spotify:artist:' + 'D' * 22)
         self.assertIn('/api/djconnect/v1/session/media/image/',result['images'][0]['url'])
         self.assertTrue(result['images'][0]['requires_device_auth'])
         from datetime import datetime, UTC
         remaining=(datetime.fromisoformat(result['images'][0]['expires_at'])-datetime.now(UTC)).total_seconds()
         self.assertGreater(remaining,0)
         self.assertLessEqual(remaining,60)
-        self.current_cover_download.assert_awaited_once()
+        self.current_photo_fetch.assert_awaited_once()
         self.assertNotIn('i.scdn.co',json.dumps(result))
         self.assertFalse(result['history_persisted'])
         self.assertEqual(result['playback_actions'],[])
         self.assertNotIn('reply_media_reference',json.dumps(result))
 
-    async def test_current_reply_cover_stays_out_of_attached_live_projection_even_after_expiry(self):
+    async def test_current_reply_photo_stays_out_of_attached_live_projection_even_after_expiry(self):
         self.art.attach_live_projection(self.hass,'profile-a',self.app.current.session_id)
         broadcast=self.app.current.broadcast
         before=broadcast.media_projector()
@@ -125,23 +132,32 @@ class CapturedReplyArtworkTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(broadcast.media_projector(),before)
         broadcast.native_delivery()
 
-    async def test_current_identification_different_edition_or_untrusted_cover_is_omitted(self):
-        for replacement in [
-            {**self.media,'album_uri':'spotify:album:'+'C'*22},
-            {**self.media,'album_image_url':'https://untrusted.test/art.jpg'},
-            {**self.media,'album_image_url':'https://i.scdn.co/image/'+'b'*40},
-            {**self.media,'album_uri':''},
-        ]:
-            # Fresh client identity for each synthetic observation, no cached replay.
-            with self.subTest(replacement=replacement):
-                result,status,reads=await self.current_identification(second=replacement)
-                self.assertEqual(status,200,result)
-                self.assertEqual(reads,['status','status'])
-                self.assertEqual(result['images'],[])
-                self.current_cover_download.assert_not_awaited()
-                self.assertFalse(result['history_persisted'])
+    async def test_current_identification_requires_the_same_single_artist_credit_twice(self):
+        for ids in ([], ["E" * 22], ["D" * 22, "E" * 22], ["invalid"]):
+            with self.subTest(ids=ids):
+                result, status, reads = await self.current_identification(
+                    second={**self.media, "artist_ids": ids}
+                )
+                self.assertEqual(status, 200, result)
+                self.assertEqual(reads, ["status", "status"])
+                self.assertEqual(result["images"], [])
+                self.current_photo_fetch.assert_not_awaited()
+                self.assertFalse(result["history_persisted"])
 
-    async def test_current_identification_changed_recording_rejects_cover_and_text(self):
+    async def test_current_identification_omits_photo_with_mismatched_artist_label(self):
+        result, status, _ = await self.current_identification(photo_name="Another artist")
+        self.assertEqual(status, 200, result)
+        self.assertIn(self.media["artist"], result["text"])
+        self.assertEqual(result["images"], [])
+
+    async def test_current_identification_keeps_text_when_artist_has_no_photo(self):
+        result, status, _ = await self.current_identification(photo_error=ValueError("missing_image"))
+        self.assertEqual(status, 200, result)
+        self.assertIn(self.media["artist"], result["text"])
+        self.assertEqual(result["images"], [])
+        self.current_photo_fetch.assert_awaited_once()
+
+    async def test_current_identification_changed_recording_rejects_photo_and_text(self):
         result,status,reads=await self.current_identification(
             second={**self.media,'uri':'spotify:track:'+'C'*22})
         self.assertEqual(status,409,result)
@@ -162,7 +178,7 @@ class CapturedReplyArtworkTests(unittest.IsolatedAsyncioTestCase):
         session_id,asset_id=url.rsplit('/',2)[-2:] if '/session/media/' in url else ('',url.rsplit('/',1)[-1])
         return await http.DJConnectSessionMediaImageView(self.hass).get(request,session_id,asset_id)
 
-    async def test_general_current_reply_cover_creates_no_session_and_requires_auth(self):
+    async def test_general_current_reply_photo_creates_no_session_and_requires_auth(self):
         result,status,reads=await self.current_identification(active_session=False)
         self.assertEqual(status,200,result)
         self.assertEqual(reads,['status','status'])
@@ -176,7 +192,7 @@ class CapturedReplyArtworkTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(result['history_persisted'])
         self.assertIsNone(self.app.f.manager.current_active('profile-a'))
 
-    async def test_current_cover_actual_image_get_requires_auth_and_revokes_after_source_withdrawal(self):
+    async def test_current_photo_actual_image_get_requires_auth_and_revokes_after_source_withdrawal(self):
         result,status,_=await self.current_identification()
         self.assertEqual(status,200,result)
         image=await self.image_http(result)
@@ -190,7 +206,7 @@ class CapturedReplyArtworkTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(withdrawn.status,404)
         self.assertNotIn(b'fixture-pixels',withdrawn.body or b'')
 
-    async def test_current_cover_actual_image_get_expires_and_other_owner_cannot_read(self):
+    async def test_current_photo_actual_image_get_expires_and_other_owner_cannot_read(self):
         result,status,_=await self.current_identification()
         self.assertEqual(status,200,result)
         session_id,asset_id=result['images'][0]['url'].rsplit('/',2)[-2:]
