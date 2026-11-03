@@ -64,6 +64,7 @@ const withdrawing=run();
 withdrawing.event(3,{admissions:[]});assert.equal(withdrawing.get('moment-detail').textContent,'');
 withdrawing.event(2,{admissions:[{moment_id:'news',qualification:'qualified',current_display_allowed:true,display_expires_at:expiry}]});
 assert.equal(withdrawing.get('moment-detail').textContent,'','older delivery cannot revive withdrawn authority');
+assert.notEqual(run([sources[0],{...sources[1],published_at:new Date(now-7199000).toISOString()}]).get("moment-detail").textContent,"");
 const rejected=[[],[sources[0]],[sources[0],sources[0]],sources.concat(sources[0]),
  [sources[0],{...sources[0],url:'https://www.cbs.nl/another'}],
  [sources[0],{...sources[1],provider:'Invented'}],[sources[0],{...sources[1],provider:'toString'}],
@@ -72,7 +73,7 @@ const rejected=[[],[sources[0]],[sources[0],sources[0]],sources.concat(sources[0
  [sources[0],{...sources[1],url:'https://secret@www.knmi.nl/synthetic'}],
  [sources[0],{...sources[1],license:'invented'}],[sources[0],{...sources[1],published_at:'invalid'}],
  [sources[0],{...sources[1],published_at:new Date(now+1).toISOString()}],
- [sources[0],{...sources[1],published_at:new Date(now-1800000).toISOString()}],
+ [sources[0],{...sources[1],published_at:new Date(now-7200000).toISOString()}],
  [sources[0],{...sources[1],revision_url:'https://www.knmi.nl/invented'}]];
 for(const citations of rejected)assert.equal(run(citations).get('moment-detail').textContent,'');
 for(const options of [{deadline:''},{deadline:stamp},{admitted:false},{qualified:false},{created:''},{type:'track'}])

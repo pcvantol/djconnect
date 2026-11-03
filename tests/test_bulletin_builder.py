@@ -69,7 +69,7 @@ class BulletinBuilderTests(unittest.IsolatedAsyncioTestCase):
         self.assertIs(await self.prepare(), candidate)
         self.assertEqual(len(self.calls), 2)
         self.assertEqual(candidate.session, self.session)
-        self.assertEqual(candidate.expires_at, min(i.published_at + 1800 for i in self.items))
+        self.assertEqual(candidate.expires_at, min(i.published_at + 7200 for i in self.items))
         self.assertFalse(hasattr(self.builder, "publish"))
         stored = json.dumps(self.store.data)
         self.assertNotIn(self.text, stored)
@@ -172,8 +172,8 @@ class BulletinBuilderTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_window_expires_during_model_and_ready_candidate_does_not_get_renewed(self):
         async def expire():
-            self.clock[0] += 1800
-            self.clock[1] += 1800
+            self.clock[0] += 7200
+            self.clock[1] += 7200
         self.hook = expire
         self.assertIsNone(await self.prepare())
         self.assertEqual(len(self.calls), 1)
@@ -219,7 +219,7 @@ class BulletinBuilderTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(self.store.data["reservations"]), 4)
 
     async def test_flat_wallclock_cannot_renew_original_monotonic_window_after_model(self):
-        self.items = tuple(replace(i, published_at=NOW - 1790) for i in self.items)
+        self.items = tuple(replace(i, published_at=NOW - 7190) for i in self.items)
         async def slow_with_flat_wall():
             self.clock[1] += 20  # UTC is frozen, genuine elapsed time is not.
         self.hook = slow_with_flat_wall
@@ -261,7 +261,7 @@ class BulletinBuilderTests(unittest.IsolatedAsyncioTestCase):
             await self.builder.take(candidate, session=self.session, guard=self.guard)
 
     async def test_slow_reservation_save_cannot_restart_freshness_before_first_model(self):
-        self.items = tuple(replace(i, published_at=NOW - 1790) for i in self.items)
+        self.items = tuple(replace(i, published_at=NOW - 7190) for i in self.items)
         save = self.store.async_save
         async def delayed(data):
             await save(data)
@@ -271,7 +271,7 @@ class BulletinBuilderTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.calls, [])
 
     async def test_wait_for_lock_cannot_restart_the_original_candidate_deadline(self):
-        self.items = tuple(replace(i, published_at=NOW - 1790) for i in self.items)
+        self.items = tuple(replace(i, published_at=NOW - 7190) for i in self.items)
         await self.builder._lock.acquire()
         task = asyncio.create_task(self.prepare())
         await asyncio.sleep(0)

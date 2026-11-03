@@ -48,7 +48,7 @@ queue preview is a separate feature; it is not this news bulletin.
 ## Product and ownership
 
 Core collects fixed public RSS/Atom metadata, requires at least two genuinely
-different new stories published within the last30minutes, and prepares one
+different new stories published within the last two hours, and prepares one
 60–110word source-grounded narrative in the current Session language, Mood and
 Persona. Source text is untrusted data. Existing configured HA generation is the
 only permitted model boundary; this feature introduces no provider, key or
@@ -77,7 +77,7 @@ recovery and speech; choosing an owner-only field alone is not sufficient proof.
 Exactly five sources are defined in `bulletin_intake.SOURCES`. Public official
 catalogues and actual XML were checked on22October2026. This deliberately uses
 attributable public institutional announcements; it is not comprehensive world
-news. Low volume in the strict30minute window is expected and means silence.
+news. Low volume in the strict two-hour window is expected and means silence.
 Do not widen the window, invent news or use observation time to fill a bulletin.
 
 | Source | Literal feed URL | Reuse baseline |
@@ -159,7 +159,7 @@ Actual source/style and native/audio acceptance remain separate qualification.
 The parser accepts RSS2 or Atom, explicit publication dates with timezone, and
 HTTPS article links on each source's literal host allowlist. It rejects missing
 publication dates, `updated`-only Atom entries, future dates and items at or
-beyond publication+1800seconds. CBS's actual explicit `+02:00` spelling is
+beyond publication plus 7,200 seconds. CBS's actual explicit `+02:00` spelling is
 normalized without inventing a timezone. A304 does not renew original dates.
 Intake captures a monotonic deadline before HTTP/lock waits. Builder retains
 that deadline and its own original pre-await clock anchor through storage,
@@ -187,7 +187,7 @@ Profile or Session ID is written to that dedup store. Unexpired evidence is
 never evicted to allow work. Generation failure, timeout, cancellation and
 process restart do not release an attempted pair for automatic re-generation.
 A lost RAM candidate means silence. A candidate retains the earliest original
-publication+30minute deadline on both UTC and monotonic clocks. Reads never
+publication-plus-two-hours deadline on both UTC and monotonic clocks. Reads never
 renew it. Planner consumption is once-only; failed publication must not trigger
 a second model generation or forced catch-up announcement.
 

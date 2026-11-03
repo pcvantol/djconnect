@@ -7791,3 +7791,12 @@ absent/invalid/conflicting. Do not render both fallback bullets and these cards.
 No archived URI, action, image/audio token or refreshed lease is supplied.
 Music playback and speech replay remain independently admitted controls.
 Apple adoption and installed/native acceptance are separate from Core source.
+
+### Watch V2 · Session-only Mood producer contract
+
+The explicit `session_only` write scope in
+[Active Session Mood v1](docs/product/ACTIVE_SESSION_MOOD_V1.md#explicit-session-only-write)
+is the Apple Watch handoff. Send it on every Watch Mood write and require the
+same scope in the acknowledgement. Keep the original paired Watch identity,
+active Session ID and expected Mood revision. An older Core rejects the extra
+field. Preserve that denial and never retry using Profile settings.

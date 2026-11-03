@@ -7709,6 +7709,7 @@ def _artist_item_list_request(text: str) -> dict[str, Any]:
                 return {"item_type": "album", "artist": artist, "count": None}
     patterns = (
         r"^\s*(?:zeig(?:e)?|gib|montre|donne|muestra|muéstrame|dame)(?:-moi|\s+mir)?\s+(?:(?:les|los|las|die)\s+)?(?:(\d+)\s+)?(alben|álbumes?|albums?|songs?|titres?|canciones|tracks?|playlists?)\s+(?:von|de)\s+(.+?)\s*\??\s*$",
+        r"^\s*heb\s+je\s+(?:een\s+|(?:(\d+|twee|drie|vier|vijf|zes|zeven|acht|negen|tien)\s+)?)(albums?)\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*(?:geef|toon|laat\s+zien|laat|zoek|vind)\s+(?:me|mij)?\s*(?:(\d+|een|twee|drie|vier|vijf|zes|zeven|acht|negen|tien)\s+)?(albums?|tracks?|nummers?|songs?|playlists?|afspeellijsten?)\s+van\s+(.+?)\s*\??\s*$",
         r"^\s*welke\s+(albums?)\s+(?:bracht|brachten|heeft|hebben)\s+(.+?)\s+(?:uit|uitgebracht|gereleased|released)\s*\??\s*$",
         r"^\s*welke\s+(muziek|tracks?|nummers?|songs?)\s+(?:heeft|hebben)\s+(.+?)\s+(?:gemaakt|uitgebracht|gereleased|released)\s*\??\s*$",

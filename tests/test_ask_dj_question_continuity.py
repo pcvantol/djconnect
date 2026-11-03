@@ -32,11 +32,11 @@ class QuestionContinuityTests(unittest.IsolatedAsyncioTestCase):
                 / "examples/client_contracts/ask_dj_question_continuity_v1/actual-ha-current.json"
             ).read_text()
         )
-        current = json.loads((root / 'examples/client_contracts/ask_dj_question_continuity_v1/actual-ha-requalification-1429.json').read_text())
+        current = json.loads((root / 'examples/client_contracts/ask_dj_question_continuity_v1/actual-ha-requalification-1431-combined.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
         self.assertEqual(current['harness'], proof['harness'])
         self.assertEqual(current['harness_sha256'], proof['harness_sha256'])
-        self.assertEqual(len(current['source_pins']), 305)
+        self.assertEqual(len(current['source_pins']), 304)
         for name, digest in {
             **current['source_pins'],
             **proof["original_common_harness_source_pins"],
@@ -396,6 +396,13 @@ class QuestionContinuityTests(unittest.IsolatedAsyncioTestCase):
             group_inception_answer([wiki, source(document)], "Example Band", "nl"),
             "Example Band is opgericht in 1996.",
         )
+        from custom_components.djconnect.ask_dj.biographical_dates import _group_source
+
+        self.assertTrue(_group_source({
+            "provider": "Wikipedia",
+            "wikidata_id": "Q323187",
+            "untrusted_excerpt": "Above & Beyond is een trancemuziekgroep.",
+        }, "Above & Beyond"))
         conflicting = replace(
             wiki, text="Example Band is a rock band. Example Band was formed in 2005."
         )
