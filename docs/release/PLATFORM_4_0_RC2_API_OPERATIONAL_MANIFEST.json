@@ -46,8 +46,8 @@
   },
   "rollback": {
     "source_sha": "7006293faedf1e48cfee0aabefe2dc9afd5e0cf0",
-    "deployment_id": "4aa8eb29-cea6-4f41-bc30-8fa662ed55e3",
-    "worker_version_id": "dd2f7d15-fce4-46a9-b1d5-42cf1f45c2f1"
+    "deployment_id": "9c9795a8-819e-4285-8f4b-35dde946517b",
+    "worker_version_id": "695ca2b9-ddc1-4bea-bbe1-f206a2f06d00"
   },
   "separate_finalization": {
     "state": "PENDING",
