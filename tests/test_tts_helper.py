@@ -604,7 +604,7 @@ class TtsHelperTest(unittest.TestCase):
 
         self.assertTrue(result["refreshed"])
         self.assertFalse(result["music_dna_profile_refreshed"])
-        self.assertEqual(runtime.memory.ttl_seconds, 60 * 60)
+        self.assertEqual(runtime.memory.ttl_seconds, music_discovery.DISCOVERY_RECENTLY_PLAYED_REFRESH_SECONDS)
         self.assertEqual([call[0] for call in calls], ["artist_recommendations"])
         self.assertGreaterEqual(result["items"], 1)
 

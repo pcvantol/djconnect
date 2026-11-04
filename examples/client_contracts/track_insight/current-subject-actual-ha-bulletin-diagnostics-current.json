@@ -337,7 +337,7 @@
   "responses": {
     "current": {
       "id": "track_insight_46f2f86799b7612de36684bd",
-      "created_at": "2026-11-04T11:44:31.839961+00:00",
+      "created_at": "2026-11-04T11:55:07.706122+00:00",
       "source": "current_detail",
       "language": "nl",
       "mood_context": null,
@@ -404,13 +404,13 @@
         "schema_version": 1,
         "media_identity": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
         "observation_id": "<opaque-observation-redacted>",
-        "expires_at": 1793792701.8374064,
+        "expires_at": 1793793337.7040687,
         "expires_in": 29
       }
     },
     "on_demand_credit": {
-      "id": "track_insight_5445999327a0780faabaf123",
-      "created_at": "2026-11-04T11:44:32.067745+00:00",
+      "id": "track_insight_6e3e0c41e7448be80586d0eb",
+      "created_at": "2026-11-04T11:55:07.837700+00:00",
       "source": "current_detail",
       "language": "nl",
       "mood_context": null,
@@ -474,14 +474,14 @@
       },
       "cache": {
         "hit": false,
-        "key": "5445999327a0780faabaf123"
+        "key": "6e3e0c41e7448be80586d0eb"
       },
       "subject": {
         "mode": "current",
         "schema_version": 1,
         "media_identity": "spotify:track:BBBBBBBBBBBBBBBBBBBBBB",
         "observation_id": "<opaque-observation-redacted>",
-        "expires_at": 1793792702.0648594,
+        "expires_at": 1793793337.8339093,
         "expires_in": 29
       }
     },
