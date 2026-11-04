@@ -209,7 +209,7 @@
     "custom_components/djconnect/moment_navigation.py": "7c4d94c6d4ebe947abf083818a2264c28e9d2ae3b577b45c2009e72712412af6",
     "custom_components/djconnect/mood.py": "84aefec705178fe6b32f601771d6280e5eb788f161c8cff1fd106a061d792e8c",
     "custom_components/djconnect/mood_music_steering.py": "db98df5b9f16a63d167ec6717ae9d6e1b271c7215bd608993f336761f40163ff",
-    "custom_components/djconnect/music_discovery.py": "2e613ffed84b4007dc04777938304026af922854a033e26ba789c0033ccd372e",
+    "custom_components/djconnect/music_discovery.py": "d7aac6f94253bfedaa4cf933d78935a57d51f027ea8f12f53008220259fc8cf2",
     "custom_components/djconnect/music_dna.py": "8f77afe5b2e7a88f7eacda8b7dd2da7f8ba29c958851a23eb6d89d0660644300",
     "custom_components/djconnect/music_intent.py": "1c23fbc72358fefa64c409d5334bddb97230216fac1943233a10fec0c333e7f1",
     "custom_components/djconnect/musicbrainz_rate.py": "6e40f3c605fbd73dc246630cd4a1b60d7fb89b03344663d6102007d63846453a",
