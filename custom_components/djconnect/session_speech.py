@@ -626,7 +626,9 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
         if shared_settings:
             descriptor = {**descriptor, 'settings_contract_version': snapshot['contract_version'],
                           'settings_revision': settings_token}
-        if data["processor"] == "ha_configured":
+        if data["processor"] == "ha_configured" and "ha_configured" not in descriptor.get("processors", ()):
+            descriptor = unavailable(data["reference"], "source_processor_not_qualified")
+        elif data["processor"] == "ha_configured":
             descriptor = await prepare_ha(hass, runtime, context.profile_id, data,
                                           descriptor, guard, expected_provider=(
                                               selected.voice.provider_id if selected is not None
@@ -688,8 +690,7 @@ async def prepare_ha(hass, runtime, owner, data, descriptor, admission, *, expec
     # Exact accepted-text synthesis is owner-authorized through the configured
     # HA provider, independently of a provider's locality. This admits no new
     # model context, arbitrary text or source/history rights.
-    if (admission.processor_basis not in LITERAL_PROCESSING_BASES
-            or "ha_configured" not in descriptor.get("processors", ())):
+    if admission.processor_basis not in LITERAL_PROCESSING_BASES:
         return unavailable(data["reference"], "source_processor_not_qualified")
     def resolve_processor():
         if "voice_id" in data:
