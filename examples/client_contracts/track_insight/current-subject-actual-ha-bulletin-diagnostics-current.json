@@ -170,7 +170,7 @@
     "custom_components/djconnect/mood.py": "84aefec705178fe6b32f601771d6280e5eb788f161c8cff1fd106a061d792e8c",
     "custom_components/djconnect/mood_music_steering.py": "db98df5b9f16a63d167ec6717ae9d6e1b271c7215bd608993f336761f40163ff",
     "custom_components/djconnect/music_discovery.py": "d7aac6f94253bfedaa4cf933d78935a57d51f027ea8f12f53008220259fc8cf2",
-    "custom_components/djconnect/music_dna.py": "8f77afe5b2e7a88f7eacda8b7dd2da7f8ba29c958851a23eb6d89d0660644300",
+    "custom_components/djconnect/music_dna.py": "729df75f67fae75c0b0796bf88ec3d64a846e79d721b7175df4c5023ccfc8103",
     "custom_components/djconnect/music_intent.py": "1c23fbc72358fefa64c409d5334bddb97230216fac1943233a10fec0c333e7f1",
     "custom_components/djconnect/musicbrainz_rate.py": "6e40f3c605fbd73dc246630cd4a1b60d7fb89b03344663d6102007d63846453a",
     "custom_components/djconnect/narration_brief.py": "4be7fe79d9e69d8052c35fb9f4ca4798f5dbe8bf3bbd73c6dd054e5372bf157a",
@@ -337,7 +337,7 @@
   "responses": {
     "current": {
       "id": "track_insight_46f2f86799b7612de36684bd",
-      "created_at": "2026-11-04T11:55:07.706122+00:00",
+      "created_at": "2026-11-04T13:30:29.186314+00:00",
       "source": "current_detail",
       "language": "nl",
       "mood_context": null,
@@ -404,13 +404,13 @@
         "schema_version": 1,
         "media_identity": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
         "observation_id": "<opaque-observation-redacted>",
-        "expires_at": 1793793337.7040687,
+        "expires_at": 1793799059.1857743,
         "expires_in": 29
       }
     },
     "on_demand_credit": {
-      "id": "track_insight_6e3e0c41e7448be80586d0eb",
-      "created_at": "2026-11-04T11:55:07.837700+00:00",
+      "id": "track_insight_6e6c7ac4429eb9170fa84f04",
+      "created_at": "2026-11-04T13:30:29.230992+00:00",
       "source": "current_detail",
       "language": "nl",
       "mood_context": null,
@@ -474,14 +474,14 @@
       },
       "cache": {
         "hit": false,
-        "key": "6e3e0c41e7448be80586d0eb"
+        "key": "6e6c7ac4429eb9170fa84f04"
       },
       "subject": {
         "mode": "current",
         "schema_version": 1,
         "media_identity": "spotify:track:BBBBBBBBBBBBBBBBBBBBBB",
         "observation_id": "<opaque-observation-redacted>",
-        "expires_at": 1793793337.8339093,
+        "expires_at": 1793799059.2292714,
         "expires_in": 29
       }
     },

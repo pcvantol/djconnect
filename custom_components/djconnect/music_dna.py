@@ -1427,7 +1427,7 @@ def _profile_payload(memory: dict[str, Any]) -> dict[str, Any]:
     profile = {
         "summary": _profile_summary(memory, favorite_genres, artists, recent_tracks, playtime),
         "favorite_genres": [{"name": value} for value in favorite_genres],
-        "favorite_artists": artist_items,
+        "favorite_artists": _profile_favorite_artist_rows(artist_items, listening),
         "energy_profile": energy_profile,
         "playtime": playtime,
         "listening_rhythm": listening_rhythm,
@@ -1606,6 +1606,33 @@ def _profile_artist_items(memory: dict[str, Any], listening: dict[str, Any]) -> 
         count_items.append({"name": artist})
         seen.add(artist.lower())
     return count_items[:20]
+
+
+def _profile_favorite_artist_rows(
+    local_artists: list[dict[str, Any]], listening: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Lead with ranked Spotify artists whose catalog identity is already known."""
+    top_artists = listening.get("top_artists_by_range") or {}
+    rows: list[dict[str, Any]] = []
+    seen_uris: set[str] = set()
+    for period in ("long_term", "medium_term", "short_term"):
+        for artist in top_artists.get(period) or []:
+            if not isinstance(artist, dict):
+                continue
+            name = _clean_text(artist.get("name"))
+            uri = artist.get("uri")
+            if not name or not isinstance(uri, str) or not re.fullmatch(r"spotify:artist:[A-Za-z0-9]{22}", uri):
+                continue
+            artist_id = uri.rsplit(":", 1)[-1]
+            if artist.get("id") != artist_id or uri in seen_uris:
+                continue
+            rows.append({"name": name, "id": artist_id, "uri": uri})
+            seen_uris.add(uri)
+
+    # Suppress duplicate display labels, without transferring local counts or
+    # identity to a Spotify artist on the strength of a matching name.
+    catalog_names = {row["name"].casefold() for row in rows}
+    return (rows + [artist for artist in local_artists if artist["name"].casefold() not in catalog_names])[:20]
 
 
 def _profile_playtime(memory: dict[str, Any]) -> dict[str, Any]:
