@@ -264,7 +264,10 @@ def watch_signer_unix_socket(path: Path, receiver: EnrolledWatchReceiver, public
     return sign_frame
 
 
-def _watch_lifecycle_https(endpoint: str, *, accepted_statuses: tuple[int, ...]):
+def _watch_lifecycle_https(
+    endpoint: str, *, accepted_statuses: tuple[int, ...],
+    access_credentials: tuple[str, str] | None = None,
+):
     """Bind the signed transport to a provisioned API endpoint.
 
     No ambient authentication, proxy, cookie, or redirect can move a signed
@@ -287,6 +290,17 @@ def _watch_lifecycle_https(endpoint: str, *, accepted_statuses: tuple[int, ...])
         valid = False
     if not valid:
         raise ValueError("invalid_watch_preference_endpoint")
+    access_headers = {}
+    if access_credentials is not None:
+        if (type(access_credentials) is not tuple or len(access_credentials) != 2
+                or any(type(value) is not str or not re.fullmatch(r"[!-~]{1,512}", value)
+                       for value in access_credentials)):
+            raise ValueError("invalid_watch_access_credentials")
+        client_id, client_secret = access_credentials
+        access_headers = {
+            "CF-Access-Client-Id": client_id,
+            "CF-Access-Client-Secret": client_secret,
+        }
 
     async def post_signed(body: bytes, signature: str):
         import aiohttp
@@ -305,6 +319,7 @@ def _watch_lifecycle_https(endpoint: str, *, accepted_statuses: tuple[int, ...])
                 async with session.post(endpoint, data=body, allow_redirects=False, headers={
                     "Content-Type": "application/json", "Accept": "application/json",
                     "Accept-Encoding": "identity", "DJC-Watch-Lifecycle-Signature": signature,
+                    **access_headers,
                 }) as response:
                     media = response.headers.getall("Content-Type", [])
                     if (response.status not in accepted_statuses or response.headers.getall("Content-Encoding", [])
@@ -323,9 +338,11 @@ def _watch_lifecycle_https(endpoint: str, *, accepted_statuses: tuple[int, ...])
     return post_signed
 
 
-def watch_preference_https(endpoint: str):
-    """Bind preference requests to the provisioned endpoint."""
-    request = _watch_lifecycle_https(endpoint, accepted_statuses=(200,))
+def watch_preference_https(endpoint: str, *, access_credentials: tuple[str, str] | None = None):
+    """Bind preference requests and optional machine credentials to one endpoint."""
+    request = _watch_lifecycle_https(
+        endpoint, accepted_statuses=(200,), access_credentials=access_credentials,
+    )
 
     async def post_signed(body: bytes, signature: str):
         reply = await request(body, signature)

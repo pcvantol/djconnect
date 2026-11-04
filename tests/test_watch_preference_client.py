@@ -1,4 +1,5 @@
 """Core signed Watch preference request and reconciliation boundaries."""
+from contextlib import asynccontextmanager
 from dataclasses import replace
 import hashlib
 import json
@@ -93,6 +94,42 @@ class WatchPreferenceClientTests(unittest.IsolatedAsyncioTestCase):
             with self.subTest(endpoint=endpoint), self.assertRaisesRegex(
                     ValueError, "invalid_watch_preference_endpoint"):
                 watch_preference_https(endpoint)
+
+    async def test_private_preference_transport_does_not_forward_credentials_on_redirect(self):
+        import aiohttp
+
+        endpoint = "https://watch.example.test/internal/preference"
+        with self.assertRaisesRegex(ValueError, "invalid_watch_access_credentials"):
+            watch_preference_https(endpoint, access_credentials=("test-client", "bad\nsecret"))
+
+        response = Mock(status=302)
+        response.headers.getall.return_value = []
+        session = Mock()
+
+        @asynccontextmanager
+        async def redirect_response(*args, **kwargs):
+            yield response
+
+        session.post.side_effect = redirect_response
+
+        @asynccontextmanager
+        async def open_session(**kwargs):
+            self.assertFalse(kwargs["trust_env"])
+            self.assertIsInstance(kwargs["cookie_jar"], aiohttp.DummyCookieJar)
+            yield session
+
+        with patch("aiohttp.ClientSession", side_effect=open_session):
+            post = watch_preference_https(endpoint, access_credentials=("test-client", "test-secret"))
+            self.assertIsNone(await post(b"original signed body", "A" * 86))
+
+        session.post.assert_called_once()
+        args, kwargs = session.post.call_args
+        self.assertEqual(args, (endpoint,))
+        self.assertEqual(kwargs["data"], b"original signed body")
+        self.assertFalse(kwargs["allow_redirects"])
+        self.assertEqual(kwargs["headers"]["CF-Access-Client-Id"], "test-client")
+        self.assertEqual(kwargs["headers"]["CF-Access-Client-Secret"], "test-secret")
+        self.assertEqual(kwargs["headers"]["DJC-Watch-Lifecycle-Signature"], "A" * 86)
 
 
 class WatchRetirementClientTests(unittest.IsolatedAsyncioTestCase):
