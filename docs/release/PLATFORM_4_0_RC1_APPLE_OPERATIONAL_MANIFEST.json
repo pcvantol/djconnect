@@ -4,9 +4,12 @@
   "manifest_id": "release-apple-internal-4.0.0-40470",
   "platform_version": "4.0",
   "release_version": "4.0.0",
-  "status": "DRAFT_PENDING_CORE_APPROVAL",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
   "approval": {
-    "state": "PENDING"
+    "state": "APPROVED",
+    "approved_at": "2026-11-04",
+    "approved_statement": "The maintainer authorized private installation of DJConnect 4.0.0 build 40470 on the Mac mini, MacBook, iPhone with its paired Watch, and iPad, followed by development APNs verification.",
+    "effect": "This approval covers the exact source and the three SHA-256-bound artifacts below on the specified devices using the Apple Secure Distribution Relay and local Apple Development provisioning."
   },
   "release_profile": "INTERNAL_RELEASE",
   "repositories": [
