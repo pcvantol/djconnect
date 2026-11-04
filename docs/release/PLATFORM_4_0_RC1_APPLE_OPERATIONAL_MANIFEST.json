@@ -1,4 +1,9 @@
 {
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "manifest_id": "release-apple-internal-4.0.0-40470",
+  "platform_version": "4.0",
+  "release_version": "4.0.0",
   "status": "DRAFT_PENDING_CORE_APPROVAL",
   "approval": {
     "state": "PENDING"
