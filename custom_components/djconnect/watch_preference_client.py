@@ -12,8 +12,10 @@ from contextlib import suppress
 from dataclasses import dataclass
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
+import stat
 import struct
 import time
 from typing import Literal
@@ -338,8 +340,38 @@ def _watch_lifecycle_https(
     return post_signed
 
 
-def watch_preference_https(endpoint: str, *, access_credentials: tuple[str, str] | None = None):
+def _read_watch_access_file(path: Path, endpoint: str) -> tuple[str, str]:
+    from .surface_issuer_transport import SurfacePushError, strict_body
+
+    if not isinstance(path, Path) or not path.is_absolute():
+        raise ValueError("invalid_watch_access_file")
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(fd, "rb") as stream:
+            info = os.fstat(stream.fileno())
+            if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+                    or stat.S_IMODE(info.st_mode) not in (0o400, 0o600)):
+                raise ValueError("invalid_watch_access_file")
+            data = stream.read(2049)
+        if len(data) > 2048:
+            raise ValueError("invalid_watch_access_file")
+        record = strict_body(data)
+        if set(record) != {"endpoint", "client_id", "client_secret"} or record["endpoint"] != endpoint:
+            raise ValueError("invalid_watch_access_file")
+        return record["client_id"], record["client_secret"]
+    except (OSError, SurfacePushError):
+        raise ValueError("invalid_watch_access_file") from None
+
+
+def watch_preference_https(
+    endpoint: str, *, access_credentials: tuple[str, str] | None = None,
+    access_file: Path | None = None,
+):
     """Bind preference requests and optional machine credentials to one endpoint."""
+    if access_file is not None:
+        if access_credentials is not None:
+            raise ValueError("invalid_watch_access_file")
+        access_credentials = _read_watch_access_file(access_file, endpoint)
     request = _watch_lifecycle_https(
         endpoint, accepted_statuses=(200,), access_credentials=access_credentials,
     )

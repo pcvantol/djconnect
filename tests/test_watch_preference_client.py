@@ -3,7 +3,9 @@ from contextlib import asynccontextmanager
 from dataclasses import replace
 import hashlib
 import json
+from pathlib import Path
 import sys
+from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
 from unittest.mock import AsyncMock, Mock, patch
@@ -125,9 +127,24 @@ class WatchPreferenceClientTests(unittest.IsolatedAsyncioTestCase):
             ClientTimeout=Mock(),
             DummyCookieJar=lambda: cookie_jar,
         )
-        with patch.dict(sys.modules, {"aiohttp": aiohttp}):
-            post = watch_preference_https(endpoint, access_credentials=("test-client", "test-secret"))
-            self.assertIsNone(await post(b"original signed body", "A" * 86))
+        with TemporaryDirectory() as directory:
+            credential = Path(directory) / "access.json"
+            credential.write_text(json.dumps({
+                "endpoint": endpoint, "client_id": "test-client", "client_secret": "test-secret",
+            }))
+            credential.chmod(0o600)
+            with patch.dict(sys.modules, {"aiohttp": aiohttp}):
+                post = watch_preference_https(endpoint, access_file=credential)
+                self.assertIsNone(await post(b"original signed body", "A" * 86))
+            alias = credential.with_name("alias.json")
+            alias.symlink_to(credential)
+            with self.assertRaisesRegex(ValueError, "invalid_watch_access_file"):
+                watch_preference_https(endpoint, access_file=alias)
+            with self.assertRaisesRegex(ValueError, "invalid_watch_access_file"):
+                watch_preference_https(endpoint + "-other", access_file=credential)
+            credential.chmod(0o644)
+            with self.assertRaisesRegex(ValueError, "invalid_watch_access_file"):
+                watch_preference_https(endpoint, access_file=credential)
 
         session.post.assert_called_once()
         args, kwargs = session.post.call_args

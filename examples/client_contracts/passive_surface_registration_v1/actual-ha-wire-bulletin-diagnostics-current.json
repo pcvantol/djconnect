@@ -305,7 +305,7 @@
     "custom_components/djconnect/visual_director_runtime.py": "e2482668c44fefcee65dd658abda37035115d6b36f695747d1bbd83b711e8d85",
     "custom_components/djconnect/voice_preview.py": "ea1edd78efa3843911e39e94b374f1afdbc44f319baeca321000442f6175807b",
     "custom_components/djconnect/voice_profiles.py": "5aba9ae572b92c783686d9ccac3af3b97c2689ca98c10f086ba7ae4cdb2696c9",
-    "custom_components/djconnect/watch_preference_client.py": "44c72b68a066cb69c59bcbae885e6b42cc837d54fde4b62d086f55111c253917",
+    "custom_components/djconnect/watch_preference_client.py": "0b654be9802768f5a0e2cc4c53d0b22908af940d968327c20259473689158116",
     "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
     "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
   },
