@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 from dataclasses import replace
 import hashlib
 import json
+import sys
+from types import SimpleNamespace
 import unittest
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -96,8 +98,6 @@ class WatchPreferenceClientTests(unittest.IsolatedAsyncioTestCase):
                 watch_preference_https(endpoint)
 
     async def test_private_preference_transport_does_not_forward_credentials_on_redirect(self):
-        import aiohttp
-
         endpoint = "https://watch.example.test/internal/preference"
         with self.assertRaisesRegex(ValueError, "invalid_watch_access_credentials"):
             watch_preference_https(endpoint, access_credentials=("test-client", "bad\nsecret"))
@@ -112,13 +112,20 @@ class WatchPreferenceClientTests(unittest.IsolatedAsyncioTestCase):
 
         session.post.side_effect = redirect_response
 
+        cookie_jar = object()
+
         @asynccontextmanager
         async def open_session(**kwargs):
             self.assertFalse(kwargs["trust_env"])
-            self.assertIsInstance(kwargs["cookie_jar"], aiohttp.DummyCookieJar)
+            self.assertIs(kwargs["cookie_jar"], cookie_jar)
             yield session
 
-        with patch("aiohttp.ClientSession", side_effect=open_session):
+        aiohttp = SimpleNamespace(
+            ClientSession=open_session,
+            ClientTimeout=Mock(),
+            DummyCookieJar=lambda: cookie_jar,
+        )
+        with patch.dict(sys.modules, {"aiohttp": aiohttp}):
             post = watch_preference_https(endpoint, access_credentials=("test-client", "test-secret"))
             self.assertIsNone(await post(b"original signed body", "A" * 86))
 
