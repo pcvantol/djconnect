@@ -1763,8 +1763,13 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 if is_app_pairing:
                     original = self._surface_pending_origin
-                    if original is not None and not original.handoff(self):
-                        self._surface_pending_origin = None
+                    if original is not None:
+                        if not original.handoff(self):
+                            self._surface_pending_origin = None
+                        elif client_type == CLIENT_TYPE_WATCHOS and (
+                            install_id := pending_app_pairing.get(CONF_HA_INSTALL_ID)
+                        ):
+                            self._pairing[CONF_HA_INSTALL_ID] = install_id
                     self._clear_pending_app_pairing(pair_code)
                 return await self.async_step_profile_choice()
 
