@@ -4,20 +4,23 @@ from __future__ import annotations
 import asyncio
 from contextlib import suppress
 from datetime import timedelta
+import logging
 import time
 
 from .bulletin_builder import BulletinBuilder
-from .bulletin_intake import FeedCollector, POLL_SECONDS
+from .bulletin_intake import FeedCollector, POLL_SECONDS, PRIVATE_SOURCES, SOURCES
 from .bulletin_runtime import capture_work
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class BulletinService:
     def __init__(self, manager, store, http, *, create_task, subscribe,
-                 wall=time.time, monotonic=time.monotonic):
+                 wall=time.time, monotonic=time.monotonic, sources=SOURCES):
         self.manager, self.http = manager, http
         self.create_task, self.subscribe = create_task, subscribe
         self.wall, self.monotonic = wall, monotonic
-        self.collector = FeedCollector(http, monotonic=monotonic)
+        self.collector = FeedCollector(http, monotonic=monotonic, sources=sources)
         self.builder = BulletinBuilder(store, self._generate, wall=wall, monotonic=monotonic)
         self.closed = False
         self._task = None
@@ -64,11 +67,13 @@ class BulletinService:
                     candidate = self.builder._candidate
                     if candidate is not None and candidate.eligible(session=self._work.session,
                             now=self.wall(), monotonic=self.monotonic()):
+                        _LOGGER.debug("DJ Bulletin poll: retaining prepared candidate")
                         return
                 except PermissionError:
                     self._work = None
                 self.builder._candidate = None
                 self._work = None
+            eligible_sessions = 0
             for owner in tuple(self.manager._active_by_profile):
                 if self.closed:
                     return
@@ -76,14 +81,21 @@ class BulletinService:
                     work = capture_work(self.manager, owner)
                     if work is None:
                         continue
+                    eligible_sessions += 1
                     self._work = work
                     candidate = await self.builder.prepare(items, session=work.session, guard=work.guard)
                     if candidate is not None:
+                        _LOGGER.debug("DJ Bulletin poll: candidate prepared, awaiting Planner")
                         return
                 except (PermissionError, ValueError):
                     self._work = None
                 self._work = None
-        except Exception:  # noqa: BLE001 - technical failure is silence; never log source bodies.
+            _LOGGER.debug(
+                "DJ Bulletin poll: no candidate, collected_items=%d eligible_sessions=%d",
+                len(items), eligible_sessions,
+            )
+        except Exception:  # noqa: BLE001 - never log exception text or source bodies.
+            _LOGGER.debug("DJ Bulletin poll: technical failure")
             self.builder._candidate = None
             self._work = None
 
@@ -141,7 +153,7 @@ async def async_start_bulletin_service(hass):
     http = ClientSession(cookie_jar=DummyCookieJar(), trust_env=False,
         timeout=ClientTimeout(total=8), headers={"User-Agent": "DJConnect-Bulletin/1"})
     service = BulletinService(session_runtime_manager(hass),
-        store, http,
+        store, http, sources=PRIVATE_SOURCES,
         create_task=lambda coro: hass.async_create_background_task(coro, "djconnect-bulletin-intake"),
         subscribe=subscribe)
     data["bulletin_service"] = service  # Before first await: parallel entry setup cannot duplicate owners.

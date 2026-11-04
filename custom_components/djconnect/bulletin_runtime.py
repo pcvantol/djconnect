@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import time
 
 from .bulletin_builder import BulletinCandidate, BulletinSession, BuilderError
+from .bulletin_source_policy import private_headlines
 
 LABELS = {"en": "DJ Bulletin", "nl": "DJ Bulletin", "de": "DJ-Bulletin",
     "fr": "Bulletin du DJ", "es": "Boletín del DJ"}
@@ -54,6 +55,12 @@ class BulletinProof:
     original_guard: object
 
 
+def private_bulletin(moment):
+    proof = getattr(moment, "bulletin", None)
+    return (type(proof) is BulletinProof and type(proof.candidate) is BulletinCandidate
+            and private_headlines(proof.candidate.items) is not None)
+
+
 def admitted(moment, *, monotonic=None, wall=None):
     proof = getattr(moment, "bulletin", None)
     if type(proof) is not BulletinProof or type(proof.candidate) is not BulletinCandidate:
@@ -65,6 +72,7 @@ def admitted(moment, *, monotonic=None, wall=None):
     except Exception:  # noqa: BLE001 - original authority fails closed at every delivery boundary.
         return False
     candidate = proof.candidate
+    private = private_bulletin(moment)
     mono = time.monotonic() if monotonic is None else monotonic
     utc = time.time() if wall is None else wall
     return (moment.moment_type.value == "dj_bulletin"
@@ -74,8 +82,8 @@ def admitted(moment, *, monotonic=None, wall=None):
         and moment.content == candidate.text and not moment.summary
         and not moment.actions and not moment.artwork_url and not moment.source_attribution
         and moment.source_references == ("fixed_rss_metadata_v1",)
-        and moment.presentation_intent.visibility.value == "session_shared"
-        and tuple(c.value for c in moment.presentation_intent.delivery_channels) == ("broadcast", "owner", "shared")
+        and moment.presentation_intent.visibility.value == ("owner_only" if private else "session_shared")
+        and tuple(c.value for c in moment.presentation_intent.delivery_channels) == (("owner",) if private else ("broadcast", "owner", "shared"))
         and moment.presentation_intent.dj_persona.value == candidate.session.persona
         and moment.presentation_intent.source_session_mood == (candidate.session.mood.strip() or "neutral")
         and candidate.eligible(session=candidate.session, now=utc, monotonic=mono))
@@ -94,6 +102,9 @@ def create_moment(core, candidate, original_guard):
     session = candidate.session
     intent = replace(core._presentation_intent(session.mood, core.DJPersona(session.persona),
         reading_characters=len(candidate.text)), delivery_style="short source-grounded news story")
+    if private_headlines(candidate.items) is not None:
+        intent = replace(intent, visibility=core.DJMomentVisibility.OWNER_ONLY,
+                         delivery_channels=(core.DeliveryChannel.OWNER,))
     language = session.locale.replace("_", "-").split("-", 1)[0].lower()
     return core.DJMoment(moment_id="moment-" + candidate.candidate_id[:32],
         session_id=session.session_id, created_at=core._timestamp(),

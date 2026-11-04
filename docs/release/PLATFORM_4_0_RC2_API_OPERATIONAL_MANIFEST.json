@@ -2,25 +2,25 @@
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
   "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
-  "manifest_id": "release-4.0.0-rc.2-api-worker-4dc3f0d9-20261103",
+  "manifest_id": "release-4.0.0-rc.2-api-worker-7006293f-20261104",
   "platform_version": "4.0",
   "release_version": "4.0.0-rc.2",
   "release_profile": "INTERNAL_RELEASE",
-  "generated_at": "2026-11-03",
+  "generated_at": "2026-11-04",
   "approval": {
     "state": "APPROVED",
-    "approved_at": "2026-11-03",
-    "approved_statement": "Peter instructed production installation of merged API #195 in the API lane.",
-    "authority_record": "API lane 01a15afc-c690-7783-8a49-93b7d0de4baa user message 01a1a14b-8d7f-70f3-a4c6-cf30b5cff860."
+    "approved_at": "2026-11-04",
+    "approved_statement": "Peter authorized the clean-main API production deployment on November 4, 2026.",
+    "authority_record": "Core release coordination: Peter requested API production and all deployments from clean main."
   },
   "repositories": [
     {
       "repository": "pcvantol/djconnect-api",
-      "source_sha": "4dc3f0d92ed4a995103a08f5a36c517ff0103e89",
-      "tree": "9a2ebaec64e463e8a97f411d36af92a8b5b1506c",
+      "source_sha": "7006293faedf1e48cfee0aabefe2dc9afd5e0cf0",
+      "tree": "6366c67a5069a4e38b7cfa21a8f7eafd88a3b11b",
       "version": "4.0.0-rc.2",
-      "validate_run": "41632579165",
-      "artifact_run": "41633344796"
+      "validate_run": "41788236637",
+      "artifact_run": "41788726244"
     }
   ],
   "required_targets": [
@@ -33,9 +33,9 @@
     {
       "owner": "pcvantol/djconnect-api",
       "target": "cloudflare_workers_production",
-      "artifact_id": "13228139420",
-      "artifact_sha256": "c629b50e67b0258ea6f5e760fe46c2cc99860e69df797be3163a9830aa312c9f",
-      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/41633344796"
+      "artifact_id": "13302296908",
+      "artifact_sha256": "04ff639fdcbf4a20cdaf42f90e89d2af540f9dc54b2d27787a342848f5abb043",
+      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/41788726244"
     }
   ],
   "migration_boundary": {
@@ -45,9 +45,9 @@
     "application_dml": false
   },
   "rollback": {
-    "source_sha": "176d71afe111a70028fef0d7ed2c28f41f66aaab",
-    "deployment_id": "fb8c7302-6380-4069-b9b6-6242108acf73",
-    "worker_version_id": "a7191e2b-1c25-4c4f-8266-c8f5e6c501bb"
+    "source_sha": "4dc3f0d92ed4a995103a08f5a36c517ff0103e89",
+    "deployment_id": "4cd633e6-4997-440e-bc76-f51bca23425a",
+    "worker_version_id": "ef896ea0-0fa8-421c-be01-3fe361827617"
   },
   "separate_finalization": {
     "state": "PENDING",
@@ -70,7 +70,7 @@
     "compatibility_date": "2026-06-20"
   },
   "worker_payload": {
-    "sha256": "0041c3a5ea2b572c052ab517d1cbf92f0f2ad4e3771a1efd7d3866bd22dd0817",
+    "sha256": "235beae5addb22ebf97ba4e86114a6707fe4fa2645addc81ba58bd79c0f70900",
     "bytes": 1468718
   }
 }

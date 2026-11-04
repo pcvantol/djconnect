@@ -5,7 +5,7 @@ import unittest
 from tests import test_bulletin_runtime as runtime_fixture
 from tests.test_bulletin_builder import Store
 from tests.test_bulletin_intake import HTTP, Response, rss
-from custom_components.djconnect.bulletin_intake import SOURCES
+from custom_components.djconnect.bulletin_intake import PRIVATE_SOURCES, SOURCES
 from custom_components.djconnect.bulletin_service import BulletinService
 
 
@@ -53,10 +53,12 @@ class BulletinServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(self.service.ready(self.fixture.work.owner, self.fixture.sid))
 
     async def test_single_poll_owner_prepares_without_publishing_or_duplicate_background_work(self):
-        await self.service.start()
-        self.service.tick()
-        self.service.tick()
-        await self.service._task
+        with self.assertLogs(BulletinService.__module__, level="DEBUG") as logs:
+            await self.service.start()
+            self.service.tick()
+            self.service.tick()
+            await self.service._task
+        self.assertIn("candidate prepared, awaiting Planner", logs.output[0])
         self.assertEqual(len(self.tasks), 1)
         self.assertEqual(len(self.http.calls), 5)
         self.assertEqual(len(self.fixture.calls), 2)
@@ -68,6 +70,38 @@ class BulletinServiceTests(unittest.IsolatedAsyncioTestCase):
         await self.service.poll()
         self.assertEqual(len(self.http.calls), 5)
         self.assertEqual(len(self.fixture.calls), 2)
+
+    async def test_private_feeds_publish_headlines_only_to_owner_without_model(self):
+        from datetime import datetime, timezone
+        from email.utils import format_datetime
+        from custom_components.djconnect.session_speech import moment_projection
+
+        self.service.collector.sources = PRIVATE_SOURCES
+        notices = ("Copyright 1998 - 2026 DPG Media B.V.", "Copyright © 2026, NU")
+        titles = ("Tech publisher announces new processor", "Parliament discusses transport funding")
+        date = format_datetime(datetime.fromtimestamp(self.fixture.items[0].published_at, timezone.utc))
+
+        def reply(source):
+            index = PRIVATE_SOURCES.index(source)
+            body = rss(source, date=date, title=titles[index], description="Must never leave intake")
+            body = body.replace(b"<item>", f"<copyright>{notices[index]}</copyright><item>".encode())
+            if index == 1:
+                body = body.replace(b"</item>", b'<dc:rights xmlns:dc="http://purl.org/dc/elements/1.1/">'
+                    b'copyright photo: ANP</dc:rights></item>')
+            return Response(200, body)
+
+        self.http.reply = reply
+        await self.start_ready()
+        self.assertEqual(len(self.http.calls), 2)
+        self.assertEqual(self.fixture.calls, [])
+        moment = await self.fixture.publish()
+        self.assertIsNotNone(moment)
+        self.assertEqual(moment.content, f"Tweakers: {titles[0]}\n\nNU.nl: {titles[1]}")
+        self.assertEqual(moment.presentation_intent.visibility.value, "owner_only")
+        broadcast = self.fixture.active.broadcast
+        self.assertIn(titles[0], str(broadcast.as_dict()))
+        self.assertNotIn(titles[0], str(broadcast.as_dict(include_owner_only=False)))
+        self.assertEqual(moment_projection(broadcast, moment)["processors"], ["local_on_device"])
 
     async def test_existing_planner_consumes_ready_service_once_and_stop_withdraws_further_access(self):
         await self.start_ready()
@@ -115,7 +149,10 @@ class BulletinServiceTests(unittest.IsolatedAsyncioTestCase):
         async def unavailable(**kwargs):
             raise ValueError("synthetic-clock-failure")
         self.service.collector.collect = unavailable
-        await self.service.poll()
+        with self.assertLogs(BulletinService.__module__, level="DEBUG") as logs:
+            await self.service.poll()
+        self.assertIn("DJ Bulletin poll: technical failure", logs.output[0])
+        self.assertNotIn("synthetic-clock-failure", "".join(logs.output))
         self.assertIsNone(self.service.builder._candidate)
         self.assertIsNone(self.service._work)
         self.fixture.revision[0] += 1

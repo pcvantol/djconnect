@@ -42,6 +42,11 @@ jobs:
         run: python3 tools/verification/askdj_release_inventory.py
       - name: Verify renderer runtime before paid access
         run: node --version
+      - name: Install pinned dependencies for host contract tests
+        run: |
+          python3 -m venv "$RUNNER_TEMP/askdj-golden-venv"
+          "$RUNNER_TEMP/askdj-golden-venv/bin/python" -m pip install -r requirements-dev.txt
+          printf '%s\n' "$RUNNER_TEMP/askdj-golden-venv/bin" >> "$GITHUB_PATH"
       - name: Run real paired HA and real bounded model calls
         env:
           DJCONNECT_GOLDEN_OPENAI_API_KEY: ${{ secrets.DJCONNECT_GOLDEN_OPENAI_API_KEY }}

@@ -15,7 +15,7 @@ import re
 import time
 
 from .bulletin_intake import WINDOW_SECONDS, NewsItem, SOURCES
-from .bulletin_source_policy import admitted_text, qualified_item, source_notice
+from .bulletin_source_policy import admitted_text, private_headlines, qualified_item, source_notice
 from .narration_style import instructions
 
 MAX_RESERVATIONS = 256
@@ -161,6 +161,11 @@ class BulletinBuilder:
             raise BuilderError("bulletin_context_expired")
         return now
 
+    @staticmethod
+    def _candidate_identity(session, items):
+        return hashlib.sha256(json.dumps([session.session_id,
+            *(item.fingerprint for item in items)], separators=(",", ":")).encode()).hexdigest()
+
     async def prepare(self, items, *, session, guard):
         """Make at most one short assessed candidate; caller decides NO publication."""
         if self._failed or self._state is None:
@@ -192,14 +197,16 @@ class BulletinBuilder:
                 if a.source_id != b.source_id), None)
             if selected is None:
                 return None
-            try:
-                notice = source_notice(selected, session.locale)
-            except ValueError:
-                return None
-            minimum_words = max(1, 60 - len(notice.split()))
-            maximum_words = 110 - len(notice.split())
-            if maximum_words < minimum_words:
-                return None
+            headline_text = private_headlines(selected)
+            if headline_text is None:
+                try:
+                    notice = source_notice(selected, session.locale)
+                except ValueError:
+                    return None
+                minimum_words = max(1, 60 - len(notice.split()))
+                maximum_words = 110 - len(notice.split())
+                if maximum_words < minimum_words:
+                    return None
             if len(self._state["reservations"]) + 4 > MAX_RESERVATIONS:
                 return None  # Never evict unexpired dedup evidence to grant work.
             expires = min(i.published_at + WINDOW_SECONDS for i in selected)
@@ -215,6 +222,10 @@ class BulletinBuilder:
                 self._current(session, guard, selected, deadline)
             except BuilderError:
                 return None
+            if headline_text is not None:
+                identity = self._candidate_identity(session, selected)
+                self._candidate = BulletinCandidate(identity, session, headline_text, selected, expires, deadline)
+                return self._candidate
             facts = [{"id": i.fingerprint, "source": i.source_title, "url": i.source_url,
                 "published_at": i.published_at, "title": i.title, "snippet": i.description,
                 "metadata_license": i.license}
@@ -261,8 +272,7 @@ class BulletinBuilder:
                         return None
             except Exception:  # noqa: BLE001 - silence on provider failure; cancellation propagates.
                 return None
-            identity = hashlib.sha256(json.dumps([session.session_id,
-                *(i.fingerprint for i in selected)], separators=(",", ":")).encode()).hexdigest()
+            identity = self._candidate_identity(session, selected)
             self._candidate = BulletinCandidate(identity, session, text, selected,
                 expires, deadline)
             return self._candidate
