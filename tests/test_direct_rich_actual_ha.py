@@ -9,7 +9,7 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
     def test_actual_host_wake_HTTP_Broadcast_SQL_originals_bind_current_source(self):
         root = Path(__file__).resolve().parents[1]
         value = json.loads((root / 'examples/client_contracts/direct_rich_v1/actual-ha-host-wake-runtime.json').read_bytes())
-        receipt = json.loads((root / 'examples/client_contracts/direct_rich_v1/actual-ha-host-wake-runtime-watch-signer-ipc.json').read_bytes())
+        receipt = json.loads((root / 'examples/client_contracts/direct_rich_v1/actual-ha-host-wake-runtime-private-bulletin.json').read_bytes())
         self.assertEqual(receipt['status'], 'PASS')
         self.assertEqual(receipt['schema_version'], 21)
         self.assertFalse(receipt['actual_operator_enrollment_native_clock_or_APNs_GO'])
@@ -32,7 +32,7 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
     def test_original_actual_HTTP_SQL_and_asset_proof_matches_entire_current_product(self):
         root = Path(__file__).resolve().parents[1]
         value = json.loads((root / 'examples/client_contracts/direct_rich_v1/actual-ha-original-purpose-and-assets.json').read_bytes())
-        receipt = json.loads((root / 'examples/client_contracts/direct_rich_v1/actual-ha-host-wake-management-watch-signer-ipc.json').read_bytes())
+        receipt = json.loads((root / 'examples/client_contracts/direct_rich_v1/actual-ha-host-wake-management-private-bulletin.json').read_bytes())
         self.assertEqual(value['classification'], 'ACTUAL_ISOLATED_HA_DIRECT_RICH_SOURCE_ONLY')
         self.assertEqual(receipt['classification'], 'DIRECT_RICH_ACTUAL_ISOLATED_HA_SOURCE_ONLY')
         self.assertEqual(receipt['status'], 'PASS')

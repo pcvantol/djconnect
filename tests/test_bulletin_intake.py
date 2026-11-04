@@ -213,7 +213,7 @@ class HTTP:
 
     def get(self, url, **kwargs):
         self.calls.append((url, kwargs))
-        source = next(s for s in intake.SOURCES if s.url == url)
+        source = next(s for s in (*intake.SOURCES, *intake.PRIVATE_SOURCES) if s.url == url)
         return self.reply(source)
 
 

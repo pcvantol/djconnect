@@ -1462,6 +1462,11 @@ def _connect_session_narration(hass, runtime, context, session, identity, header
         return _speech_from_response((result or {}).get("response") or {})
 
     def capture_bulletin_authority():
+        from .bulletin_intake import PRIVATE_SOURCES
+
+        service = session_runtime_manager(hass)._bulletin_service
+        if service is not None and service.collector.sources == PRIVATE_SOURCES:
+            return capture_authority()
         from .pipeline import _assist_context
         from .ask_dj.dialogue import qualify_agent
         try:

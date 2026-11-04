@@ -375,11 +375,15 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
               if admission["active_flow_display_allowed"] else admission["display_expires_at"])
     if not expiry or datetime.fromisoformat(expiry).timestamp() <= time.time():
         return unavailable(reference, "original_source_expired")
-    return _contribution_descriptor(reference, text=moment.content, locale=broadcast.state.locale,
+    descriptor = _contribution_descriptor(reference, text=moment.content, locale=broadcast.state.locale,
         persona=moment.presentation_intent.dj_persona.value, persona_revision=boundary.persona_revision,
         mood=moment.presentation_intent.source_session_mood,
         expires_at=expiry, source_kind="published_dj_moment",
         attribution=moment.as_dict().get('sources') or ([dict(moment.source_attribution)] if moment.source_attribution else []), autoplay=autoplay)
+    from .bulletin_runtime import private_bulletin
+    if descriptor["manual_allowed"] and private_bulletin(moment):
+        descriptor["processors"] = ["local_on_device"]
+    return descriptor
 
 
 async def resolve_moment(hass, profile_id, reference):
@@ -622,7 +626,9 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
         if shared_settings:
             descriptor = {**descriptor, 'settings_contract_version': snapshot['contract_version'],
                           'settings_revision': settings_token}
-        if data["processor"] == "ha_configured":
+        if data["processor"] == "ha_configured" and "ha_configured" not in descriptor.get("processors", ()):
+            descriptor = unavailable(data["reference"], "source_processor_not_qualified")
+        elif data["processor"] == "ha_configured":
             descriptor = await prepare_ha(hass, runtime, context.profile_id, data,
                                           descriptor, guard, expected_provider=(
                                               selected.voice.provider_id if selected is not None
