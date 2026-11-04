@@ -8,9 +8,11 @@ from __future__ import annotations
 
 import asyncio
 import base64
+from contextlib import suppress
 from dataclasses import dataclass
 import hashlib
 import json
+from pathlib import Path
 import re
 import struct
 import time
@@ -214,6 +216,52 @@ async def retire_watch_receiver(
         return "discarded"
     except (OSError, TimeoutError):
         return "unknown"
+
+
+def watch_signer_unix_socket(path: Path, receiver: EnrolledWatchReceiver, public_spki: bytes):
+    """Bind an operator-provisioned Unix socket to the enrolled public key.
+
+    The separate broker owns authorization. A valid reply only proves that
+    the enrolled key signed these bytes.
+    """
+    if not isinstance(path, Path) or not path.is_absolute():
+        raise ValueError("invalid_watch_signer_path")
+    if (type(public_spki) is not bytes or len(public_spki) != 91
+            or hashlib.sha256(public_spki).hexdigest() != receiver.key_fingerprint):
+        raise ValueError("invalid_watch_signer_key")
+
+    from cryptography.exceptions import InvalidSignature
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import ec, utils
+
+    public = serialization.load_der_public_key(public_spki)
+    if not isinstance(public, ec.EllipticCurvePublicKey) or not isinstance(public.curve, ec.SECP256R1):
+        raise ValueError("invalid_watch_signer_key")
+
+    async def sign_frame(frame: bytes) -> bytes:
+        if (type(frame) is not bytes or not frame.startswith(_DOMAIN)
+                or not len(_DOMAIN) < len(frame) <= 4096):
+            raise PermissionError("watch_signer_frame_rejected")
+        async with asyncio.timeout(3):
+            reader, writer = await asyncio.open_unix_connection(path)
+            try:
+                writer.write(frame)
+                await writer.drain()
+                writer.write_eof()
+                signature = await reader.readexactly(64)
+                if await reader.read(1):
+                    raise PermissionError("watch_signer_invalid_reply")
+                der = utils.encode_dss_signature(int.from_bytes(signature[:32]), int.from_bytes(signature[32:]))
+                public.verify(der, frame, ec.ECDSA(hashes.SHA256()))
+                return signature
+            except (asyncio.IncompleteReadError, InvalidSignature):
+                raise PermissionError("watch_signer_invalid_reply") from None
+            finally:
+                writer.close()
+                with suppress(OSError):
+                    await writer.wait_closed()
+
+    return sign_frame
 
 
 def _watch_lifecycle_https(endpoint: str, *, accepted_statuses: tuple[int, ...]):
