@@ -70,17 +70,14 @@ def _validate(receiver: EnrolledWatchReceiver, intent: WatchPreferenceIntent) ->
         raise ValueError("invalid_watch_preference_binding")
 
 
-def _request(receiver: EnrolledWatchReceiver, intent: WatchPreferenceIntent, *, read: bool):
-    action = "preference-read" if read else "preference-write"
-    operation = uuid4().hex if read else intent.operation
+def _request(receiver: EnrolledWatchReceiver, intent: WatchPreferenceIntent):
     claims = {
-        "audience": receiver.audience, "action": action,
+        "audience": receiver.audience, "action": "preference-write",
         "installation": receiver.installation, "receiver": receiver.receiver,
         "epoch": receiver.epoch, "key_fingerprint": receiver.key_fingerprint,
-        "expiry": intent.expiry, "operation": operation, "incarnation": receiver.incarnation,
+        "expiry": intent.expiry, "operation": intent.operation, "incarnation": receiver.incarnation,
+        "expected_version": intent.expected_version, "enabled": intent.enabled,
     }
-    if not read:
-        claims.update(expected_version=intent.expected_version, enabled=intent.enabled)
     return _frame(claims)
 
 
@@ -122,11 +119,11 @@ async def update_watch_preference(
     receiver: EnrolledWatchReceiver, intent: WatchPreferenceIntent, *,
     require_current, sign_frame, post_signed, wall=time.time,
 ) -> PreferenceOutcome:
-    """Submit once and reconcile uncertainty with at most one signed read.
+    """Submit a signed intent and replay its exact bytes at most once after uncertainty.
 
     `require_current` must synchronously validate the original binding and
     local intent or raise PermissionError. Both async ports are called inside
-    the original expiry, with no intent rebase or write retry.
+    the original expiry, with no intent rebase or second signature.
     """
     _validate(receiver, intent)
 
@@ -138,27 +135,27 @@ async def update_watch_preference(
             raise TimeoutError
         return remaining
 
-    async def attempt(*, read: bool):
+    async def send(body, signature):
         guard()
-        body, frame = _request(receiver, intent, read=read)
-        raw = await sign_frame(frame)
-        guard()
-        if type(raw) is not bytes or len(raw) != 64:
-            raise PermissionError("watch_preference_signer_unavailable")
-        signature = base64.urlsafe_b64encode(raw).decode().rstrip("=")
-        reply = await post_signed(body, signature)
+        try:
+            reply = await post_signed(body, signature)
+        except PermissionError:
+            raise
+        except OSError:
+            reply = None
         guard()
         return _outcome(reply, receiver, intent)
 
     try:
         async with asyncio.timeout(guard()):
-            try:
-                result = await attempt(read=False)
-            except PermissionError:
-                raise
-            except OSError:
-                result = "unknown"
-            return await attempt(read=True) if result == "unknown" else result
+            guard()
+            body, frame = _request(receiver, intent)
+            raw = await sign_frame(frame)
+            if type(raw) is not bytes or len(raw) != 64:
+                raise PermissionError("watch_preference_signer_unavailable")
+            signature = base64.urlsafe_b64encode(raw).decode().rstrip("=")
+            result = await send(body, signature)
+            return await send(body, signature) if result == "unknown" else result
     except PermissionError:
         return "discarded"
     except (OSError, TimeoutError):

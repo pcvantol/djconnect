@@ -43,19 +43,22 @@ class WatchPreferenceClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(signature, "A" * 86)
         self.assertTrue(self.sign.await_args.args[0].startswith(b"DJC-WATCH-LIFECYCLE-V1\x00"))
 
-    async def test_unknown_write_reconciles_only_by_signed_read(self):
+    async def test_unknown_write_replays_original_bytes_once(self):
         for uncertain in (TimeoutError(), {"error": "watch_preference_outcome_unknown"}):
             with self.subTest(uncertain=uncertain):
                 self.post.reset_mock(side_effect=True)
+                self.sign.reset_mock()
                 self.post.side_effect = [uncertain, self.receipt]
                 self.assertEqual(await self.update(), "confirmed")
-                write, read = [json.loads(call.args[0]) for call in self.post.await_args_list]
-                self.assertEqual([write["action"], read["action"]], ["preference-write", "preference-read"])
-                self.assertEqual(read["expiry"], write["expiry"])
-                self.assertEqual(read["incarnation"], write["incarnation"])
-                self.assertNotEqual(read["operation"], write["operation"])
-                self.assertNotIn("expected_version", read)
-                self.assertNotIn("enabled", read)
+                first, replay = self.post.await_args_list
+                self.assertEqual(first, replay)
+                self.sign.assert_awaited_once()
+
+    async def test_unknown_write_cannot_replay_after_new_intent(self):
+        self.post.return_value = None
+        self.guard.side_effect = [None, None, None, None, PermissionError()]
+        self.assertEqual(await self.update(), "discarded")
+        self.post.assert_awaited_once()
 
     async def test_stale_authority_during_signing_does_not_send(self):
         self.guard.side_effect = [None, None, PermissionError(), None]
