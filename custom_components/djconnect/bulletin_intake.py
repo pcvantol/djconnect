@@ -58,6 +58,20 @@ SOURCES = (
 )
 
 
+# Private feed headlines only. The marker is a use boundary, not a publisher licence.
+PRIVATE_SOURCES = (
+    FeedSource("tweakers", "Tweakers", "https://tweakers.net/feeds/nieuws.xml",
+        ("tweakers.net",), "private_feed_headlines_v1", "https://tweakers.net/info/auteursrecht/"),
+    FeedSource("nu", "NU.nl", "https://www.nu.nl/rss/Algemeen",
+        ("www.nu.nl",), "private_feed_headlines_v1",
+        "https://privacy.dpgmedia.nl/nl/document/terms-of-use"),
+)
+_PRIVATE_OWNER_NOTICES = {
+    "tweakers": r"Copyright 1998 - 20[0-9]{2} DPG Media B\.V\.",
+    "nu": r"Copyright © 20[0-9]{2}, NU",
+}
+
+
 class IntakeError(ValueError):
     """Static content-free rejection; never log a feed body."""
 
@@ -205,6 +219,13 @@ def _feed_rights_admitted(source, container, entries):
         for element in child.iter():
             if not _explicit_rights((element,)):
                 continue
+            private_notice = _PRIVATE_OWNER_NOTICES.get(source.source_id)
+            if (private_notice and element is child and element.tag == "copyright"
+                    and not element.attrib and not list(element)
+                    and re.fullmatch(private_notice, element.text or "")):
+                known_owner_notices += 1
+                if known_owner_notices == 1:
+                    continue
             if (source.source_id == "knmi" and element is child
                     and element.tag == "copyright" and not element.attrib
                     and not list(element)
@@ -216,13 +237,25 @@ def _feed_rights_admitted(source, container, entries):
     return True
 
 
+def _item_rights_restricted(source, entry):
+    if source.source_id != "nu":
+        return _explicit_rights(entry.iter())
+    # The official NU.nl feed credits photographs in a direct dc:rights
+    # element. The private headline path never consumes those photographs.
+    photo_credits = {child for child in entry
+        if child.tag == "{http://purl.org/dc/elements/1.1/}rights"
+        and not child.attrib and not list(child)
+        and re.fullmatch(r"copyright photo: [^\r\n]{1,120}", child.text or "")}
+    return _explicit_rights(element for element in entry.iter() if element not in photo_credits)
+
+
 def parse_feed(source, body, *, now, monotonic=None):
     """Parse a fixed publisher's metadata, rejecting unknown XML and dates."""
     _clock(now)
     anchor = time.monotonic() if monotonic is None else monotonic
     if type(anchor) not in (int, float) or not math.isfinite(anchor) or anchor < 0:
         raise IntakeError("invalid_bulletin_clock")
-    if source not in SOURCES or type(body) is not bytes or len(body) > MAX_BYTES:
+    if source not in (*SOURCES, *PRIVATE_SOURCES) or type(body) is not bytes or len(body) > MAX_BYTES:
         raise IntakeError("invalid_bulletin_feed")
     try:
         parser = DefusedXMLParser(target=_SafeTree(), forbid_dtd=True,
@@ -246,11 +279,12 @@ def parse_feed(source, body, *, now, monotonic=None):
     result, seen = [], set()
     for entry in entries[:MAX_ITEMS]:
         try:
-            if _explicit_rights(entry.iter()):
+            if _item_rights_restricted(source, entry):
                 continue
             prefix = ATOM if atom else ""
             title = plain(entry.findtext(prefix + "title"), 240)
-            description = plain(entry.findtext(prefix + ("summary" if atom else "description")) or "", 640)
+            description = "" if source in PRIVATE_SOURCES else plain(
+                entry.findtext(prefix + ("summary" if atom else "description")) or "", 640)
             date = publication_time(entry.findtext(prefix + ("published" if atom else "pubDate")))
             if not date <= now < date + WINDOW_SECONDS or len(title.split()) < 3:
                 continue
@@ -286,9 +320,10 @@ class FeedCollector:
     that boundary. Redirects are denied; the fixed KNMI URL is its verified CDN.
     """
 
-    def __init__(self, http, *, monotonic=time.monotonic):
+    def __init__(self, http, *, monotonic=time.monotonic, sources=SOURCES):
         self.http = http
         self.monotonic = monotonic
+        self.sources = sources
         self._state = {}
         self._lock = asyncio.Lock()
 
@@ -296,7 +331,7 @@ class FeedCollector:
         _clock(now)
         original_monotonic = self.monotonic()
         async with self._lock:
-            for source in SOURCES:
+            for source in self.sources:
                 state = self._state.setdefault(source.source_id,
                     {"next": 0, "failures": 0, "etag": "", "modified": "", "items": ()})
                 state["items"] = tuple(i for i in state["items"] if i.fresh(now, monotonic=self.monotonic()))

@@ -8,7 +8,7 @@ import logging
 import time
 
 from .bulletin_builder import BulletinBuilder
-from .bulletin_intake import FeedCollector, POLL_SECONDS
+from .bulletin_intake import FeedCollector, POLL_SECONDS, PRIVATE_SOURCES, SOURCES
 from .bulletin_runtime import capture_work
 
 _LOGGER = logging.getLogger(__name__)
@@ -16,11 +16,11 @@ _LOGGER = logging.getLogger(__name__)
 
 class BulletinService:
     def __init__(self, manager, store, http, *, create_task, subscribe,
-                 wall=time.time, monotonic=time.monotonic):
+                 wall=time.time, monotonic=time.monotonic, sources=SOURCES):
         self.manager, self.http = manager, http
         self.create_task, self.subscribe = create_task, subscribe
         self.wall, self.monotonic = wall, monotonic
-        self.collector = FeedCollector(http, monotonic=monotonic)
+        self.collector = FeedCollector(http, monotonic=monotonic, sources=sources)
         self.builder = BulletinBuilder(store, self._generate, wall=wall, monotonic=monotonic)
         self.closed = False
         self._task = None
@@ -153,7 +153,7 @@ async def async_start_bulletin_service(hass):
     http = ClientSession(cookie_jar=DummyCookieJar(), trust_env=False,
         timeout=ClientTimeout(total=8), headers={"User-Agent": "DJConnect-Bulletin/1"})
     service = BulletinService(session_runtime_manager(hass),
-        store, http,
+        store, http, sources=PRIVATE_SOURCES,
         create_task=lambda coro: hass.async_create_background_task(coro, "djconnect-bulletin-intake"),
         subscribe=subscribe)
     data["bulletin_service"] = service  # Before first await: parallel entry setup cannot duplicate owners.
