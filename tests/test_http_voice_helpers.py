@@ -2534,7 +2534,6 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(response["status_code"], 200)
         self.assertIs(calls[0][1], runtime)
         self.assertEqual(calls[0][2]["payload"]["client_type"], "watchos")
-        self.assertTrue(calls[0][2]["paired_watch"])
 
     def test_push_register_accepts_macos_identity_from_headers(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")

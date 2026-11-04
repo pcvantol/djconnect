@@ -4229,7 +4229,6 @@ class DJConnectPushRegisterView(HomeAssistantView):
             runtime,
             user_id=_request_user_id(request),
             payload=payload,
-            paired_watch=client_type == CLIENT_TYPE_WATCHOS,
         )
         status = 200 if result.get("success") else 400
         return self.json(result, status_code=status)

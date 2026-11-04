@@ -463,7 +463,7 @@ class PushTest(unittest.TestCase):
                 self.assertEqual(call["json"]["app_bundle_id"], bundle_id)
                 self.assertEqual(call["json"]["categories"], ["ask_dj"])
 
-    def test_watch_moment_preference_is_explicit_and_scoped_to_paired_registration(self) -> None:
+    def test_watch_moment_preference_cannot_be_written_by_token_registration(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())
         runtime = self._runtime()
         watch = {
@@ -474,24 +474,22 @@ class PushTest(unittest.TestCase):
             "app_bundle_id": "dev.djconnect.ios.watch",
             "notification_categories": ["dj_moments_v1"],
         }
-        for paired_watch, overrides, expected in (
-            (True, {}, ["ask_dj", "dj_moments_v1"]),
-            (True, {"categories": []}, ["ask_dj"]),
-            (False, {}, ["ask_dj"]),
-            (True, {"app_bundle_id": "dev.djconnect.watchkitapp"}, ["ask_dj"]),
-            (True, {"client_type": "ios", "device_id": "djconnect-ios-ABCDEFGHIJKL"}, ["ask_dj"]),
+        for overrides in (
+            {},
+            {"categories": []},
+            {"categories": ["dj_moments_v1"]},
         ):
-            with self.subTest(paired_watch=paired_watch, overrides=overrides):
+            with self.subTest(overrides=overrides):
                 result = asyncio.run(self.push.async_register(
                     hass, runtime, user_id="user-1",
-                    payload={**watch, **overrides}, paired_watch=paired_watch,
+                    payload={**watch, **overrides},
                 ))
                 self.assertTrue(result["success"])
                 outbound = hass.session.calls[-1]["json"]
                 self.assertEqual(outbound["ha_install_id"], "ha-install-1")
                 self.assertEqual(outbound["apns_token"], watch["push_token"])
                 self.assertEqual(outbound["device_id"], overrides.get("device_id", watch["device_id"]))
-                self.assertEqual(outbound["categories"], expected)
+                self.assertEqual(outbound["categories"], ["ask_dj"])
 
     def test_watch_moment_registration_timeout_is_not_acknowledged(self) -> None:
         class TimeoutSession(FakeSession):
@@ -501,7 +499,7 @@ class PushTest(unittest.TestCase):
 
         hass = types.SimpleNamespace(session=TimeoutSession())
         result = asyncio.run(self.push.async_register(
-            hass, self._runtime(), user_id="user-1", paired_watch=True,
+            hass, self._runtime(), user_id="user-1",
             payload={
                 "device_id": "djconnect-watchos-ABCDEFGHIJKL",
                 "client_type": "watchos",

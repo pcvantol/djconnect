@@ -56,10 +56,9 @@ async def async_register(
     *,
     user_id: str | None,
     payload: dict[str, Any],
-    paired_watch: bool = False,
 ) -> dict[str, Any]:
     """Forward an Apple push token registration to the central DJConnect relay."""
-    cleaned = _registration_payload(runtime, user_id=user_id, payload=payload, paired_watch=paired_watch)
+    cleaned = _registration_payload(runtime, user_id=user_id, payload=payload)
     if not cleaned:
         _log_registration_failure(runtime, payload, "invalid_push_registration")
         return {"success": False, "error": "invalid_push_registration"}
@@ -495,7 +494,7 @@ async def _post_relay(
 
 
 def _registration_payload(
-    runtime: Any, *, user_id: str | None, payload: dict[str, Any], paired_watch: bool = False
+    runtime: Any, *, user_id: str | None, payload: dict[str, Any]
 ) -> dict[str, Any]:
     # Native WidgetKit/ActivityKit tokens have distinct topic/lifecycle owners.
     # Silently accepting their metadata here would overwrite the app alert row.
@@ -512,16 +511,6 @@ def _registration_payload(
     ):
         return {}
     bundle_id = _clean_text(payload.get("app_bundle_id"), 200)
-    requested = payload.get("categories", payload.get("notification_categories"))
-    categories = ["ask_dj"]
-    if (
-        paired_watch
-        and client_type == CLIENT_TYPE_WATCHOS
-        and bundle_id == "dev.djconnect.ios.watch"
-        and isinstance(requested, list)
-        and "dj_moments_v1" in requested
-    ):
-        categories.append("dj_moments_v1")
     return {
         "ha_install_id": ensure_ha_install_id(runtime),
         "ha_user_hash": _hash_value(user_id),
@@ -532,7 +521,8 @@ def _registration_payload(
         "app_bundle_id": bundle_id,
         "app_version": _clean_text(payload.get("app_version"), 64),
         "locale": _clean_text(payload.get("locale"), 32),
-        "categories": categories,
+        # Moment preferences require a separately signed, versioned operation.
+        "categories": ["ask_dj"],
     }
 
 
