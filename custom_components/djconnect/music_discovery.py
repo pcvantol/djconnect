@@ -19,9 +19,11 @@ from .request_auth import (
 )
 from .use_cases import run_music_command
 
-DISCOVERY_TTL_SECONDS = 24 * 60 * 60
+DISCOVERY_TTL_SECONDS = 30 * 60
 DISCOVERY_REFRESH_MIN_SECONDS = 5 * 60
-DISCOVERY_RECENTLY_PLAYED_REFRESH_SECONDS = 60 * 60
+DISCOVERY_RECENTLY_PLAYED_REFRESH_SECONDS = 15 * 60
+DISCOVERY_SECTION_LIMIT = 12
+DISCOVERY_PROVIDER_CANDIDATE_LIMIT = 24
 DISCOVERY_ITEM_KINDS = {"track", "album", "artist", "playlist"}
 DISCOVERY_NEGATIVE_ACTIONS = {"not_for_me", "less_like_this", "hide_artist"}
 DISCOVERY_MAX_ITEMS_PER_ARTIST = 2
@@ -682,7 +684,7 @@ def _sections_from_profile(profile: dict[str, Any]) -> list[dict[str, Any]]:
         {
             "id": "accepted_recommendations",
             "title": "Meer zoals je eerdere keuzes",
-            "items": _items_from_recommendations(profile.get("recommendation_plays") or [], limit=6),
+            "items": _items_from_recommendations(profile.get("recommendation_plays") or [], limit=DISCOVERY_SECTION_LIMIT),
         },
     ]
 
@@ -702,7 +704,7 @@ def _rediscover_section(profile: dict[str, Any]) -> dict[str, Any]:
             excluded_uris=set(),
             blocked_item_names=_blocked_item_names(profile),
             blocked_artists=_blocked_artist_names(profile),
-            limit=6,
+            limit=DISCOVERY_SECTION_LIMIT,
         ),
     }
 
@@ -721,7 +723,7 @@ def _artist_spotlight_section(profile: dict[str, Any]) -> dict[str, Any]:
         "items": _items_from_profile_artists(
             artists,
             blocked_artists=_blocked_artist_names(profile),
-            limit=6,
+            limit=DISCOVERY_SECTION_LIMIT,
         ),
     }
 
@@ -737,11 +739,11 @@ async def _new_music_section(hass: Any, runtime: Any, profile: dict[str, Any]) -
             hass,
             runtime,
             "artist_recommendations",
-            {**seeds, "limit": 12},
+            {**seeds, "limit": DISCOVERY_PROVIDER_CANDIDATE_LIMIT},
         )
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect Music Discovery recommendations unavailable: %s", exc.__class__.__name__)
-        return {"id": "new_for_you", "title": "Nieuw voor jou", "items": []}
+        result = None
     tracks = result.get("recommended_tracks") or result.get("tracks") if isinstance(result, dict) else []
     items = _items_from_recommended_tracks(
         tracks if isinstance(tracks, list) else [],
@@ -750,8 +752,10 @@ async def _new_music_section(hass: Any, runtime: Any, profile: dict[str, Any]) -
         blocked_item_names=_blocked_item_names(profile),
         blocked_artists=_blocked_artist_names(profile),
         reason=_recommendation_reason(profile),
-        limit=6,
+        limit=DISCOVERY_SECTION_LIMIT,
     )
+    if not items:
+        items = await _catalog_discovery_items(hass, runtime, profile, seeds["artists"])
     return {
         "id": "new_for_you",
         "title": "Nieuw voor jou",
@@ -759,15 +763,61 @@ async def _new_music_section(hass: Any, runtime: Any, profile: dict[str, Any]) -
     }
 
 
+async def _catalog_discovery_items(
+    hass: Any, runtime: Any, profile: dict[str, Any], artist_seeds: list[str]
+) -> list[dict[str, Any]]:
+    recent_artists = [
+        _first_text(item, "artist", "artist_name", "subtitle")
+        for item in profile.get("recent_tracks") or []
+        if isinstance(item, dict)
+    ]
+    blocked_artists = _blocked_artist_names(profile)
+    artists = [
+        artist for artist in _unique_text_values([*recent_artists, *artist_seeds])
+        if artist.casefold() not in blocked_artists
+    ]
+    candidates = []
+    for artist in artists[:4]:
+        query_artist = artist.replace('"', "").strip()
+        if not query_artist:
+            continue
+        try:
+            result = await run_music_command(hass, runtime, "search_tracks", {
+                "query": f'artist:"{query_artist}"', "limit": 10,
+            })
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect Music Discovery catalog search unavailable: %s", exc.__class__.__name__)
+            break
+        tracks = result.get("tracks") if isinstance(result, dict) else None
+        if isinstance(tracks, list):
+            candidates.extend(
+                track for track in tracks if isinstance(track, dict)
+                and _first_text(track, "artist", "artist_name").casefold() == artist.casefold()
+            )
+    return _items_from_profile_tracks(
+        candidates,
+        reason="Een ander nummer van een artiest uit je luisterprofiel.",
+        reason_sources=["spotify_catalog", "djconnect_music_dna"],
+        excluded_uris=_known_track_uris(profile),
+        blocked_item_names=_blocked_item_names(profile),
+        blocked_artists=blocked_artists,
+        limit=DISCOVERY_SECTION_LIMIT,
+    )
+
+
 def _recommendation_seeds(profile: dict[str, Any]) -> dict[str, list[str]]:
     tracks: list[str] = []
-    for source in (
-        profile.get("recent_favorite_tracks") or [],
-        profile.get("recommendation_plays") or [],
-        _range_items(profile.get("top_tracks_by_range")),
-        profile.get("recent_tracks") or [],
+    recent = profile.get("recent_tracks") or []
+    for source, max_tracks in (
+        (recent, 2),
+        (profile.get("recent_favorite_tracks") or [], 3),
+        (profile.get("recommendation_plays") or [], 3),
+        (_range_items(profile.get("top_tracks_by_range")), 3),
+        (recent, 3),
     ):
         for item in source if isinstance(source, list) else []:
+            if len(tracks) >= max_tracks:
+                break
             if not isinstance(item, dict):
                 continue
             uri = _first_text(item, "uri", "context_uri")
@@ -776,8 +826,6 @@ def _recommendation_seeds(profile: dict[str, Any]) -> dict[str, list[str]]:
             value = uri if uri.startswith("spotify:track:") else " ".join(part for part in (title, artist) if part)
             if value and value not in tracks:
                 tracks.append(value)
-            if len(tracks) >= 3:
-                break
         if len(tracks) >= 3:
             break
     artists = _unique_text_values(

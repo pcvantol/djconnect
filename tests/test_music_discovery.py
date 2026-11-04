@@ -294,6 +294,60 @@ class MusicDiscoveryTests(unittest.TestCase):
         ]
         self.assertNotIn("spotify:track:strobe-radio-edit", uris)
 
+    def test_recommendation_seeds_combine_recent_plays_with_a_favorite(self) -> None:
+        profile = {
+            "recent_tracks": [
+                {"uri": "spotify:track:recent-one"},
+                {"uri": "spotify:track:recent-one"},
+                {"uri": "spotify:track:recent-two"},
+                {"uri": "spotify:track:recent-three"},
+            ],
+            "recent_favorite_tracks": [{"uri": "spotify:track:favorite"}],
+        }
+        self.assertEqual(
+            music_discovery._recommendation_seeds(profile)["tracks"],
+            ["spotify:track:recent-one", "spotify:track:recent-two", "spotify:track:favorite"],
+        )
+
+    def test_new_for_you_returns_more_than_six_ranked_items(self) -> None:
+        self._original_run_music_command = music_discovery.run_music_command
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            self.assertEqual(command_name, "artist_recommendations")
+            self.assertEqual(value["limit"], 24)
+            return {"tracks": [
+                {"title": f"Track {index}", "artist": f"Artist {index}", "uri": f"spotify:track:new-{index}"}
+                for index in range(24)
+            ]}
+
+        music_discovery.run_music_command = command
+        result = asyncio.run(music_discovery._new_music_section(
+            self.hass, self.runtime, {"favorite_artists": ["Seed Artist"]}
+        ))
+        self.assertEqual(len(result["items"]), 12)
+
+    def test_new_for_you_falls_back_to_catalog_without_returning_known_tracks(self) -> None:
+        self._original_run_music_command = music_discovery.run_music_command
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            if command_name == "artist_recommendations":
+                raise RuntimeError("Recommendations unavailable")
+            self.assertEqual(command_name, "search_tracks")
+            self.assertEqual(value["query"], 'artist:"Recent Artist"')
+            return {"tracks": [
+                {"artist": "Recent Artist", "title": "Known", "uri": "spotify:track:known"},
+                {"artist": "Recent Artist", "title": "New", "uri": "spotify:track:new"},
+                {"artist": "Other Artist", "title": "Unrelated", "uri": "spotify:track:unrelated"},
+            ]}
+
+        music_discovery.run_music_command = command
+        profile = {"recent_tracks": [
+            {"artist": "Recent Artist", "title": "Known", "uri": "spotify:track:known"},
+        ]}
+        result = asyncio.run(music_discovery._new_music_section(self.hass, self.runtime, profile))
+        self.assertEqual([item["uri"] for item in result["items"]], ["spotify:track:new"])
+        self.assertIn("spotify_catalog", result["items"][0]["reason_sources"])
+
     def test_feed_refreshes_stale_recently_played_from_backend_history(self) -> None:
         calls = []
         self.runtime.memory.listening_profile_fresh = False
@@ -348,7 +402,7 @@ class MusicDiscoveryTests(unittest.TestCase):
             self.runtime.memory.listening_profile_ttl_seconds,
             music_discovery.DISCOVERY_RECENTLY_PLAYED_REFRESH_SECONDS,
         )
-        self.assertEqual(self.runtime.memory.listening_profile_ttl_seconds, 60 * 60)
+        self.assertEqual(self.runtime.memory.listening_profile_ttl_seconds, 15 * 60)
         self.assertEqual(self.runtime.memory.updated_profiles[0]["sources"], ["spotify_recently_played"])
         section = next(section for section in result["sections"] if section["id"] == "new_for_you")
         self.assertEqual(section["items"][0]["uri"], "spotify:track:fresh-discovery")
