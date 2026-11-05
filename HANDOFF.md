@@ -1,3 +1,14 @@
+## 2026-11-05 — Music announcement clock source merged
+
+PR [#1467](https://github.com/pcvantol/djconnect/pull/1467) merged as
+`8f84cea951c501b05f88898ddf1ee34cc296df8e`. Fresh exact-head Owner
+Authorization42089998254 and technical checks PASS. This restores original UTC
+expiry after slow realization without extending the12s start window, changing
+history time, renewing on reads or changing legacy Moment clocks.
+Separate Finalization changes only documentary records. No install, paid rerun,
+new authority or timer. Model/audio/native/APNs and shared Play Now remain open.
+Earlier Source1465/Final1466 records retain their original measured scope.
+
 ## 2026-11-05 — Music announcement source merged
 
 PR [#1465](https://github.com/pcvantol/djconnect/pull/1465) merged as
