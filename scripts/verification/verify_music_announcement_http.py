@@ -8,6 +8,8 @@ import os
 from pathlib import Path
 import sys
 import uuid
+import time
+from datetime import datetime, UTC, timedelta
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -45,12 +47,15 @@ async def qualify(hass, manager, history, request, client):
     if active:
         await manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
     cases, examples, calls = {}, [], []
+    slow_clock = None
     async def wire(hass, data, **kwargs):
         assert data.get('agent_id') == 'history-fixture-agent'
         assert kwargs.get('allow_agent_fallback') is False
         text = data['text']
         assert 'Synthetic recording' not in text and 'Synthetic performer' not in text
         review = text.startswith('Review this proposed')
+        if slow_clock is not None and not review:
+            slow_clock[0] += 6
         calls.append('review' if review else 'realize')
         answer = json.dumps({'supported':True, 'language_ok':True, 'style_ok':True}) if review else json.dumps(
             {'text':'{artist} — {track}. Geef dit moment even alle ruimte.'})
@@ -128,6 +133,53 @@ async def qualify(hass, manager, history, request, client):
                                   {'history_contract_version':2}, authorized=False)
         assert status == 401
         cases['unpaired_history_denied'] = 'PASS'
+        # Controlled generation latency, not a changed event-loop/auth clock.
+        # Only the producer/brief clocks move; the actual SDK/HTTP/SQLite owners
+        # and original twelve-second automatic deadline remain in place.
+        from custom_components.djconnect import session_runtime, narration_brief
+        started, status = await request('POST', '/api/djconnect/v1/session/start', {'language':'nl'})
+        assert status == 201, started
+        active = manager.current_active('profile-a')
+        origin_mono, origin_utc = time.monotonic(), datetime.now(UTC)
+        slow_clock = [origin_mono]
+        source_clock = SimpleNamespace(monotonic=lambda:slow_clock[0], time=time.time)
+        with (patch.object(session_runtime, 'time', source_clock),
+              patch.object(narration_brief, 'time', source_clock),
+              patch.object(session_runtime, '_timestamp', side_effect=lambda:
+                  (origin_utc+timedelta(seconds=slow_clock[0]-origin_mono)).isoformat())):
+            observed = SimpleNamespace(state='playing', media_identity='spotify:track:'+'U'*22,
+                title='Synthetic clock recording', artist='Synthetic performer', position_ms=0,
+                duration_ms=180000, catalog={'album_uri':'spotify:album:'+'Z'*22}, target_id='fixture-output')
+            await manager.async_update_playback_projection(owner_profile_id='profile-a', session_id=active.session_id,
+                state='playing', media_identity=observed.media_identity, title=observed.title,
+                artist=observed.artist, position_ms=0, duration_ms=180000)
+            occurrence = intro.capture(manager, owner_profile_id='profile-a', session_id=active.session_id,
+                observed=observed, authorize=valid)
+            moment = await intro.publish(manager, owner_profile_id='profile-a', session_id=active.session_id,
+                occurrence=occurrence, authorize=valid)
+            assert moment is not None and intro.retained(moment)
+            active = manager.current_active('profile-a')
+            original = active.broadcast._moment_delivery_boundaries[moment.moment_id]
+            admission = next(a for a in active.broadcast.native_delivery()['admissions'] if a['moment_id']==moment.moment_id)
+            expected = (origin_utc+timedelta(seconds=12)).isoformat()
+            assert admission['display_expires_at'] == expected and admission['current_display_allowed']
+            assert original.published_at == (origin_utc+timedelta(seconds=6)).isoformat()
+            slow_clock[0] += 2
+            active.broadcast.prepare_moment_delivery(moment)
+            assert active.broadcast._moment_delivery_boundaries[moment.moment_id] is original
+            assert next(a for a in active.broadcast.native_delivery()['admissions']
+                if a['moment_id']==moment.moment_id)['display_expires_at'] == expected
+            slow_clock[0] += 5
+            assert not next(a for a in active.broadcast.native_delivery()['admissions']
+                if a['moment_id']==moment.moment_id)['current_display_allowed']
+            from custom_components.djconnect.session_speech import moment_projection
+            assert moment_projection(active.broadcast, moment)['manual_allowed']
+            await manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
+        slow_clock = None
+        assert len(calls) == 42
+        cases['six_second_generation_preserves_original_UTC_deadline'] = 'PASS'
+        cases['repeated_projection_never_renews_original_clock_boundary'] = 'PASS'
+        cases['original_start_expiry_preserves_only_authorized_manual_replay'] = 'PASS'
     return {'qualification':'ACTUAL_ISOLATED_HA_PAIRED_HTTP_SQLITE_MUSIC_ANNOUNCEMENT',
         'cases':cases, 'examples':examples, 'synthetic_model_response_calls':len(calls),
         'real_model_provider_calls':0, 'real_spotify_calls':0, 'music_or_audio_effects':0,

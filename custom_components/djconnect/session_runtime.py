@@ -4054,8 +4054,12 @@ class DJSessionBroadcastEngine:
         """Bind original clocks and visibility before its Flow label is sent."""
         if moment.session_id != self.state.session_id:
             return
+        # A music-announcement seed predates its asynchronous realization. Pair
+        # publication UTC with publication monotonic, not with seed creation;
+        # translating its original start deadline must not subtract latency twice.
+        published_at = _timestamp() if moment.moment_type is DJMomentType.MUSIC_ANNOUNCEMENT else moment.created_at
         self._moment_delivery_boundaries.setdefault(moment.moment_id, MomentDeliveryBoundary(
-            time.monotonic(), moment.created_at, self.state.playback.item_id,
+            time.monotonic(), published_at, self.state.playback.item_id,
             tuple((key, getattr(self.state.playback,key)) for key in ("title","artist","album","duration_ms")),
             self.state.persona_revision))
         if moment.presentation_intent.visibility is DJMomentVisibility.OWNER_ONLY:

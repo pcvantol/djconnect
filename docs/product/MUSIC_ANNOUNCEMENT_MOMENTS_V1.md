@@ -1,5 +1,19 @@
 # Music announcement Moments v1
 
+## Publication-clock correction
+
+A six-second fixture realization exposed a UTC translation defect in the first
+source delivery: the creation timestamp of the unaccepted seed was paired with
+the later publication-monotonic timestamp. That subtracted generation latency
+twice, incorrectly moving the twelve-second automatic display deadline six
+seconds earlier. Music announcements now pair publication UTC and monotonic
+clocks at the existing one-time boundary. Original Moment/history creation
+identity and the original occurrence deadline are unchanged. Repeated reads
+cannot renew the boundary; legacy Moment families keep their existing contract.
+The real-HA fixture advances producer/brief clocks without changing the SDK,
+event-loop or authentication clock. This is deadline causality, not real model
+latency or audible acceptance. The earlier source receipt retains its scope.
+
 Owner scope: Core #1101 comments6654758444,6654941875,6655032217 and Apple #87
 counterparts. Source candidate; no installed/native/audible acceptance.
 
@@ -100,7 +114,7 @@ SQLite history and explicit local replay at text-only after Session end. Model
 response wires are declared fixtures; real model/Spotify/audio effects are zero.
 
 25 isolated actual-HA groups qualify the unchanged final product source. All307
-product files are pinned; historical receipts are preserved. 4573 repository
+product files are pinned; historical receipts are preserved. 4575 repository
 tests pass with11 existing skips;172 verification-framework tests, Ruff, DAG
 validation and Bandit medium/high checks pass. This is source validation only;
 shared Play Now, real generated variety/audible timing, independent review,

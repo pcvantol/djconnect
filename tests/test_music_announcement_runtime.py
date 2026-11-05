@@ -5,6 +5,7 @@ No claim about a real model, speech synthesis, provider playback or Apple UI.
 import importlib
 import json
 import time
+from datetime import datetime, UTC, timedelta
 from types import SimpleNamespace
 import unittest
 
@@ -214,6 +215,57 @@ class AnnouncementRuntimeTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaises(PermissionError):
                 await resolve_moment(SimpleNamespace(data={}), 'profile-a',
                     {'session_id':self.active.session_id, 'moment_id':moment.moment_id}, history=object())
+
+    async def test_slow_realization_uses_paired_publication_clocks_without_renewal(self):
+        from unittest.mock import patch
+        clock = [100.0]
+        wall = datetime.now(UTC)
+        self.manager._monotonic_source = lambda: clock[0]
+        self.manager.current_active('profile-a').presence_ledger.clock = lambda: clock[0]
+        registration = self.manager._narration_providers['profile-a']
+        async def slow(brief, guard):
+            guard()
+            clock[0] += 6
+            guard()
+            frame = '{artist} — {track}. Geef dit moment even alle ruimte.'
+            return self.briefs.NarratedText(brief.render(frame), frame)
+        self.manager.connect_narration('profile-a', self.active.session_id, slow,
+            self.authorize, archive_admission=registration[4])
+        source_clock = SimpleNamespace(monotonic=lambda: clock[0], time=time.time)
+        with (patch.object(self.runtime, 'time', source_clock),
+              patch.object(self.briefs, 'time', source_clock),
+              patch.object(self.runtime, '_timestamp', side_effect=lambda:
+                  (wall+timedelta(seconds=clock[0]-100)).isoformat())):
+            occurrence = await self.sample()
+            moment = await self.publish(occurrence)
+            active = self.manager.current_active('profile-a')
+            boundary = active.broadcast._moment_delivery_boundaries[moment.moment_id]
+            admission = next(x for x in active.broadcast.native_delivery()['admissions']
+                             if x['moment_id'] == moment.moment_id)
+            expected = (wall+timedelta(seconds=12)).isoformat()
+            self.assertEqual(admission['display_expires_at'], expected)
+            self.assertEqual(boundary.published_at, (wall+timedelta(seconds=6)).isoformat())
+            self.assertEqual(moment.created_at, wall.isoformat())
+            self.assertTrue(admission['current_display_allowed'])
+            clock[0] = 108
+            active.broadcast.prepare_moment_delivery(moment)
+            self.assertIs(active.broadcast._moment_delivery_boundaries[moment.moment_id], boundary)
+            self.assertEqual(next(x for x in active.broadcast.native_delivery()['admissions']
+                if x['moment_id'] == moment.moment_id)['display_expires_at'], expected)
+            clock[0] = 113
+            self.assertFalse(next(x for x in active.broadcast.native_delivery()['admissions']
+                if x['moment_id'] == moment.moment_id)['current_display_allowed'])
+
+    async def test_legacy_moment_publication_clock_contract_is_unchanged(self):
+        from dataclasses import replace
+        occurrence = await self.sample()
+        moment = await self.publish(occurrence)
+        legacy = replace(moment, moment_id='legacy-clock-test', moment_type=self.runtime.DJMomentType.TRACK,
+                         track_announcement=None, created_at='2026-10-01T12:00:00+00:00')
+        active = self.manager.current_active('profile-a')
+        active.broadcast.prepare_moment_delivery(legacy)
+        self.assertEqual(active.broadcast._moment_delivery_boundaries[legacy.moment_id].published_at,
+                         legacy.created_at)
 
     async def test_short_tracks_and_long_original_names_keep_text_without_automatic_speech(self):
         from dataclasses import replace
