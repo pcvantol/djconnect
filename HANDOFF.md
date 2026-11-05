@@ -1,3 +1,16 @@
+## 2026-11-05 — Music announcement source merged
+
+PR [#1465](https://github.com/pcvantol/djconnect/pull/1465) merged as
+`69ff2206d1e8d6dd4e9a96e2bad97b627d16be6f`; all technical checks and exact
+Owner Authorization42084165302 passed. Separate documentary Finalization
+reconciles this bounded source result. Original text/history/album references
+and local manual text-only replay are source-qualified; shared Play Now,
+real model/audio quality and Apple/native/physical adoption remain open.
+No dependency/tool upgrade is needed for this existing-mechanism increment;
+upgrades are excluded from this bounded source scope. No install or timer.
+[Contract](docs/product/MUSIC_ANNOUNCEMENT_MOMENTS_V1.md).
+Earlier handoffs below retain their historical scope.
+
 ## 2026-11-05 — Voor jou source merged
 
 PR [#1463](https://github.com/pcvantol/djconnect/pull/1463) merged as
