@@ -3610,6 +3610,10 @@ class DJSessionBroadcastEngine:
     # Unknown/recovered engines never infer a fresh start from an idle snapshot.
     first_play_state: str = field(default="unknown", init=False, repr=False)
     first_play_observed: bool = field(default=False, init=False, repr=False)
+    first_play_offer: Any = field(default=None, init=False, repr=False)
+    first_play_preparation: Any = field(default=None, init=False, repr=False)
+    first_play_pending: Any = field(default=None, init=False, repr=False)
+    first_play_dismissed_devices: set[str] = field(default_factory=set, init=False, repr=False)
     passive_state_observed: tuple = field(default_factory=lambda: (time.monotonic(), time.time()), repr=False)
     _media_revision: str = field(default="", init=False, repr=False)
     pending_events: tuple[BroadcastEventType, ...] = ()
@@ -5025,10 +5029,14 @@ class SessionRuntimeManager:
                 return False
             old_playback = active.broadcast.state.playback
             if projection.state == "playing":
-                # Close in-flight startup work before the first persistence
-                # await; stopping/clearing history cannot reopen this latch.
-                active.broadcast.first_play_observed = True
-                active.broadcast.first_play_state = "closed"
+                # Ordinary playback is neither dismissal nor acceptance of the
+                # Session's personal offer. Only its exact pending mix can close it.
+                pending = active.broadcast.first_play_pending
+                if (pending is not None and pending.play_dispatched
+                        and pending.authority()
+                        and media_identity == pending.selected_media[0]
+                        and getattr(original_status, "target_id", None) == pending.output_id):
+                    active.broadcast.first_play_state = "confirmed"
             if (self._historical_projections is not None and projection.state == "playing"
                 and projection.item_id and projection.item_id != old_playback.item_id):
                 from .session_history_projection import new_observation_reference
@@ -8078,7 +8086,7 @@ def _payload_contains_owner_only_moment(payload: dict[str, Any]) -> bool:
 
 
 def capture_first_play_retirement(hass, owner_profile_id):
-    """Capture a negative-only original Session latch; never create or rebind."""
+    """Compatibility hook: ordinary playback no longer retires a personal offer."""
     domain = getattr(hass, "data", {}).get("djconnect", {})
     manager = domain.get("session_runtime_manager")
     active = manager.current_active(owner_profile_id) if manager is not None else None
@@ -8089,7 +8097,6 @@ def capture_first_play_retirement(hass, owner_profile_id):
         if getattr(hass, "data", {}).get("djconnect", {}).get("session_runtime_manager") is not manager:
             return
         current = manager.current_active(owner_profile_id)
-        if (current is not None and current.session_id == session_id and current.broadcast is broadcast
-                and broadcast.first_play_state in {"ready", "attempted"}):
-            broadcast.first_play_state = "closed"
+        if current is None or current.session_id != session_id or current.broadcast is not broadcast:
+            return
     return retire

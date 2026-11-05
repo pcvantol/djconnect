@@ -10473,7 +10473,7 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
     if shown.get("first_play_admission") is not None:
         # This genre selection grants play directly, but explicit negation or
         # an informational question must never be promoted into that grant.
-        if _nonexecuting_speech_act(text) or (not output and no_play):
+        if _nonexecuting_speech_act(text) or no_play:
             raise DialogueError("playback_effect_not_authorized", 403)
         from ..mood_music_steering import first_play_choose
         return await first_play_choose(hass, runtime, action, shown, turn)

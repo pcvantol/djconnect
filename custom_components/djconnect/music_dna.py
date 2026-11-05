@@ -37,8 +37,9 @@ SECRET_KEY_FRAGMENTS = ("token", "password", "secret", "authorization")
 class _LoadedGenreSeeds:
     """An original local read snapshot, never a transport/playback grant."""
 
-    def __init__(self, manager, owner, signature):
+    def __init__(self, manager, owner, signature, limit=3):
         self.manager, self.owner, self.signature = manager, owner, signature
+        self.limit = limit
         self.withdrawn = False
 
     @property
@@ -46,7 +47,7 @@ class _LoadedGenreSeeds:
         return self.signature[-1]
 
     def valid(self):
-        current = self.manager._loaded_genre_signature(self.owner)
+        current = self.manager._loaded_genre_signature(self.owner, self.limit)
         if (self.withdrawn or current is None
                 or any(a is not b for a, b in zip(self.signature[:6], current[:6]))
                 or self.signature[6:] != current[6:]):
@@ -74,12 +75,14 @@ class MusicDNAManager:
         """Return the in-memory persistent data cache."""
         return self._data
 
-    def loaded_genre_seed_snapshot(self, profile_id: str):
+    def loaded_genre_seed_snapshot(self, profile_id: str, *, limit=3):
         """Read three already-loaded Profile genres without loading or writing."""
-        signature = self._loaded_genre_signature(profile_id)
-        return _LoadedGenreSeeds(self, profile_id, signature) if signature else None
+        if type(limit) is not int or not 3 <= limit <= 20:
+            return None
+        signature = self._loaded_genre_signature(profile_id, limit)
+        return _LoadedGenreSeeds(self, profile_id, signature, limit) if signature else None
 
-    def _loaded_genre_signature(self, profile_id):
+    def _loaded_genre_signature(self, profile_id, limit=3):
         if (not self._loaded or self._genre_save_failed or self._save_lock.locked()
                 or not isinstance(profile_id, str) or not profile_id):
             return None
@@ -104,14 +107,43 @@ class MusicDNAManager:
                     or genre in genres):
                 continue
             genres.append(genre)
-            if len(genres) == 3:
+            if len(genres) == limit:
                 break
-        if len(genres) != 3:
+        if len(genres) < 3:
             return None
         # Normal genre publications replace these containers without changing
         # generation. Their original identities also fence unobserved A-B-A.
         return (self._data, memories, row, favorite, listening, inferred,
                 generation, self._genre_safety_epoch, tuple(genres))
+
+    def loaded_for_you_choices(self, profile_id):
+        """Only confirmed, deduplicated choices from this owner's existing store."""
+        if self._loaded_genre_signature(profile_id) is None:
+            return ()
+        row = self._data['memories'][f'profile:{profile_id}']
+        choices = row.get('for_you_choices')
+        return tuple((c['operation_id'], c['genre']) for c in choices[:MAX_CHAT_FACTS]
+                     if isinstance(c, dict) and isinstance(c.get('operation_id'), str)
+                     and 1 <= len(c['operation_id']) <= 128
+                     and isinstance(c.get('genre'), str) and 2 <= len(c['genre']) <= 64
+                     and re.fullmatch(r"[\w &'\-]+", c['genre'])) if isinstance(choices, list) else ()
+
+    async def async_record_for_you_choice(self, profile_id, operation_id, genre, *, authorize):
+        """Save a confirmed choice, never a preview, dismissal or uncertain ACK."""
+        if (not callable(authorize) or authorize() is not True
+                or self._loaded_genre_signature(profile_id) is None
+                or not isinstance(operation_id, str) or not 1 <= len(operation_id) <= 128
+                or not isinstance(genre, str) or not 2 <= len(genre) <= 64
+                or not re.fullmatch(r"[\w &'\-]+", genre)):
+            return False
+        row = self._data['memories'][f'profile:{profile_id}']
+        choices = row.get('for_you_choices')
+        choices = choices if isinstance(choices, list) else []
+        if any(isinstance(c, dict) and c.get('operation_id') == operation_id for c in choices):
+            return False
+        row['for_you_choices'] = [{'operation_id': operation_id, 'genre': genre}, *choices][:MAX_CHAT_FACTS]
+        await self.async_save()
+        return True
 
     async def async_load(self) -> dict[str, Any]:
         """Load persistent Music DNA from Home Assistant Store."""
@@ -1043,6 +1075,7 @@ class MusicDNAManager:
             "listening_time_patterns",
             "last_profile_refresh",
             "recommendation_plays",
+            "for_you_choices",
             "discovery_plays",
             "last_played_recommendation",
             "last_playback_track_identity",
@@ -1302,7 +1335,12 @@ def _compact_store_data(data: dict[str, Any]) -> dict[str, Any]:
     if isinstance(memories, dict):
         for key, memory in memories.items():
             if isinstance(memory, dict):
-                compact[_safe_music_dna_key(key)] = _prompt_safe_memory(memory)
+                row = _prompt_safe_memory(memory)
+                # Durable dedupe identities belong to storage, never generic model context.
+                choices = memory.get('for_you_choices')
+                if isinstance(choices, list):
+                    row['for_you_choices'] = _sanitize_value(choices[:MAX_CHAT_FACTS])
+                compact[_safe_music_dna_key(key)] = row
     return {"version": STORE_VERSION, "memories": compact}
 
 

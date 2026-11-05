@@ -139,6 +139,7 @@ class PublicQueryReference:
 class DialogueFrame:
     touched: float
     generation: str
+    for_you_session_id: str = ""
     messages: list[dict] = field(default_factory=list)
     local_turns: list[dict] = field(default_factory=list)
     speech_references: dict[str, dict] = field(default_factory=dict)
@@ -228,6 +229,8 @@ class DialogueTurn:
     music_steering_offer: dict | None = None
     first_play_admission: Any = None  # Original RAM-only first-play owner, never caller data.
     first_play_request: bool = False  # Local control reply; no narration/TTS dependency.
+    startup_preparation: bool = False  # Server-owned read, not a synthetic conversation turn.
+    client_device_id: str = ""  # Resolved paired identity, supplied by the application boundary.
     retire_startup_after_play: Any = None  # Original server Session, negative-only fence.
     provider_display_source: dict | None = None  # Original archive binding, never model input.
     reply_source_context: dict | None = None
@@ -586,7 +589,8 @@ class DialogueState:
         from ..ask_dj_history import _request_hash
         frame.response_dependencies[turn.client_id] = frozenset({
             _request_hash(turn.scope, turn.client_id), *getattr(turn, 'source_request_hashes', ())})
-        frame.archiveable = frame.archiveable and turn.archiveable
+        if not turn.startup_preparation:
+            frame.archiveable = frame.archiveable and turn.archiveable
         pending_original = (frame.pending is turn.pending_at_start
                             and frame.pending_revision == turn.pending_revision_at_start)
         if turn.consume_production_pending and not pending_original:
@@ -618,7 +622,7 @@ class DialogueState:
         if turn.clear_result_set:
             frame.result_set = None
             frame.chosen_action_id = ""
-        if not turn.fast_control:
+        if not turn.fast_control and not turn.startup_preparation:
             # Only independently marked agent prose is reusable as model input.
             question = result.get("_dialogue_question", "")
             if question:

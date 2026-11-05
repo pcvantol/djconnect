@@ -1,3 +1,12 @@
+## 2026-11-05 — Voor jou replaces the Session surprise launcher
+
+Owner-selected source candidate: one compact iPhone/iPad/Mac card immediately
+shows three real personalized genre mixes below the Session mode bar. Apple owns
+three distinct local landscape illustrations with honest procedural fallback;
+Core owns genre evidence, narration, lifecycle and existing command authority.
+See [scope](docs/product/SESSION_FOR_YOU_V1.md). This is not shipped/native/HA-dev
+acceptance and adds no Watch feature. Earlier Verras me planning below is historical.
+
 <!-- ASK_DJ_BAND_STORY_20261102 -->
 ## Current rich band-membership batch — 2 November2026
 

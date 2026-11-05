@@ -1,5 +1,7 @@
 # Session startup choices and Music DNA surprise mix v2
 
+> Historical contract. The owner-selected replacement is [Session For you v1](SESSION_FOR_YOU_V1.md). Original qualification receipts remain historical.
+
 The owner-selected startup flow has exactly two separate choices after Session
 start, until that Session has actually played music or a deliberate play attempt
 has reached the normal send boundary. It is not a fourth Ask DJ suggestion.

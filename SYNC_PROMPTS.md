@@ -1,3 +1,13 @@
+## 2026-11-05 — Voor jou Core to Apple contract handoff
+
+Require session_start_actions2 / session_first_play_surprise_mix3 and
+for_you schema1. Adopt [SESSION_FOR_YOU_V1](docs/product/SESSION_FOR_YOU_V1.md),
+including immediate three options, stable art recipes, normal Flow speaker
+continuation, client dismissal and exact mix confirmation. Only the bounded
+visual_recipe may enter the local visual model. Watch never prepares or displays
+this card. Older v1/v2 startup semantics below remain historical. Core source
+work does not authorize deployment or certify Apple rendering/local AI.
+
 <!-- ASK_DJ_BAND_STORY_20261102 -->
 ## Current rich band-membership batch — 2 November2026
 

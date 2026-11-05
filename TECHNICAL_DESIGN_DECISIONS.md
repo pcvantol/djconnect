@@ -1,3 +1,15 @@
+## 2026-11-05 — For-you reuses existing Session/dialogue/effect ownership
+
+Prepare one bounded nonarchival dialogue result at genuine Session start; no
+synthetic user turn or effect grant. Cache its public projection on the existing
+Broadcast, keep original lease/source/privacy guards and reuse opaque normal
+Ask DJ choices plus durable effect reservation. Separate client dismissal from
+matching-mix confirmation and retain only confirmed compact owner DNA signals.
+Expired idle preparation frames from ended Sessions may be released; ordinary or
+executing threads are never evicted. Native visual generation consumes only a
+bounded symbolic recipe, outside all playback authority. No dependency upgrade,
+new provider or extra playback engine. [Contract](docs/product/SESSION_FOR_YOU_V1.md).
+
 ## 2026-11-03 — Source-reviewed membership and original public photo continuation
 
 Use the existing artist corpus/draft/word-ID reviewer for clear band-membership
