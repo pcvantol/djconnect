@@ -201,6 +201,14 @@ class RuntimeNarrationBrief(NarrationBrief):
     """Existing Runtime proofs, with catalog values bound only after review."""
     kind: str = ''
 
+    def render(self, frame):
+        if self.kind == 'music_announcement':
+            bindings = dict(self.bindings)
+            # Substitution is one pass: source titles containing literal braces
+            # must never become a second template or alter original metadata.
+            return re.sub(r'\{(?:track|artist)\}', lambda m: bindings[m[0]], frame)
+        return super().render(frame)
+
     def public_context(self):
         return None
 
@@ -214,11 +222,23 @@ class RuntimeNarrationBrief(NarrationBrief):
                 'all three confirmed start choices, and wish them enjoyable listening. This replaces '
                 'the general instruction to omit greetings and setting names for this family only. '
                 'Mood describes your delivery, not a promise to change or select music. '
-                'Music-only means no automatic DJ contributions after this informative welcome; '
-                'the listener can still ask questions. Do not assume the listener’s gender or that you met before.')
+                'Music-only leaves out extra DJ stories; baseline track introductions remain as text '
+                'and automatic speech follows the independent audio setting. The listener can still ask questions. '
+                'Do not assume the listener’s gender or that you met before.')
         return base
 
     def prompt(self):
+        if self.kind == 'music_announcement':
+            return self.style_instructions() + (
+                ' Give this actual track start a brief personal DJ introduction, about six to ten seconds. '
+                'Use the exact {track} and {artist} placeholders once each and one fresh subjective thought. '
+                'Usually two short sentences; no fixed opener, catchphrase, lyrics, sonic analysis, '
+                'biography, DJ selection claim or invented memory. Avoid the recent value-free frames '
+                'in meaning as well as wording. Do not explain metadata, policy or your process. '
+                'Return only {"text":"..."}, at most320characters excluding real title/artist values. Data:\n'
+            ) + json.dumps({'family': self.kind, 'meaning': self.semantics,
+                'reference': self.reference, 'required_placeholders': self.anchors,
+                'avoid_repeating_frames': self.recent_frames}, ensure_ascii=False)
         if self.kind != 'session_opening':
             return super().prompt()
         return self.style_instructions() + (
@@ -246,12 +266,13 @@ class RuntimeNarrationBrief(NarrationBrief):
                 'successive definitions, even if all labels are correct. The DJ must speak directly '
                 'in the chosen Persona, with the requested Mood in the phrasing itself. '
                 'Require a welcome, understandable meanings of all three choices and a listening wish. '
-                'No promised publication time; Music-only excludes all automatic DJ contributions '
-                'after the informative welcome, not merely spoken ones. Do not require a joke.')
+                'No promised publication time; Music-only excludes extra stories, while baseline track '
+                'introductions remain as text and speech follows the independent audio setting. Do not require a joke.')
         return prompt
 
     def narrative_focus(self):
         return {
+            'music_announcement': 'One fresh short subjective thought with the exact track and artist placeholders; no research or extra facts.',
             'observed_playback': 'Introduce the exact recording actually observed playing, as this listener’s DJ. No claim that you selected or started it, or know how it sounds.',
             'genre_transition': 'Connect the earlier published artist-genre contribution to a different current track by the same exact artist; the genre is artist metadata, not measured recording sound.',
             'session_direction': 'Express the current confirmed Session direction as the DJ’s present intention, naturally and personally. No promise of future tracks, effects or a change in playback.',
@@ -259,8 +280,27 @@ class RuntimeNarrationBrief(NarrationBrief):
         }[self.kind]
 
     def current(self):
+        if self.kind == 'music_announcement':
+            from .track_start_announcement import contribution
+            value = contribution(self.fact)
+            return value is not None and value.occurrence.current(time.monotonic())
         proof = self.fact.observed_playback or self.fact.genre_transition
         return proof.eligible(time.monotonic()) if proof is not None else self.kind in {'session_direction', 'session_opening'}
+
+
+@dataclass(frozen=True)
+class PreparedNarrationBrief(RuntimeNarrationBrief):
+    """Private real queue hint, with no playing-recording or Moment proof."""
+    preparation_guard: object = None
+
+    def current(self):
+        try:
+            if not callable(self.preparation_guard):
+                return False
+            self.preparation_guard()
+            return True
+        except PermissionError:
+            return False
 
 
 def qualify_runtime_moment(moment, *, locale=None):
@@ -270,7 +310,16 @@ def qualify_runtime_moment(moment, *, locale=None):
         return None
     bindings = {}
     observed, relation = moment.observed_playback, moment.genre_transition
-    if moment.session_opening is not None:
+    from .track_start_announcement import contribution
+    announcement = contribution(moment)
+    if announcement is not None:
+        if not announcement.occurrence.current(time.monotonic()):
+            return None
+        kind = 'music_announcement'
+        bindings = {'{track}': announcement.occurrence.title, '{artist}': announcement.occurrence.artist}
+        reference = 'The exact placeholders identify the recording actually observed playing. The DJ did not select it.'
+        semantics = 'A short subjective listening invitation only; no musical fact, lyric, measured sound, biography or remembered listener preference. Catalog values stay local.'
+    elif moment.session_opening is not None:
         from .session_opening import opening_context
         opening = opening_context(moment)
         if opening is None:
@@ -410,6 +459,8 @@ def candidate(brief, response):
             or any(ord(c) < 32 and c not in "\n" for c in text)
             or any(text.count(anchor) != 1 for anchor in brief.anchors)
             or re.search(r"https?://|spotify:|\{\{|\{%|<[^>]+>|```", text, re.I)):
+        return None
+    if getattr(brief, 'kind', '') == 'music_announcement' and len(text) > 320:
         return None
     # Dates/counts outside qualified anchors are not a free creative field.
     residue = text

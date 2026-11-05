@@ -89,7 +89,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md](../../../docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md) | `0f0cd6b9ee9ec6be7d4f7ea15c073101501beddc26ccf8c4b3101865c957e518` |
 | [docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md](../../../docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md) | `b7d62c93f26b4883c993f89f7a929c57ba6be8c082bb6ed7c220e60c5045aac6` |
 | [docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md](../../../docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md) | `4bb082dd358cc9594240868cb163133be0320729b2d5687a337bcba2b5feeda3` |
-| [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `a342eda7b169f9da5f4296297aae796554dbf6bc2286c28820182e6f3b1d9bf2` |
+| [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `141d2033f489a118dd72f0071ae2ef03bf9339689d9d28877aedcb0dc022a950` |
 | [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `3684f697946eea3bc348bad90390b3407c1154cb26c7d8ab50951dff93e0a131` |
 | [docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md](../../../docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md) | `88d1f61b742c7b5e9258f7cd96ae35c691a3ea952ee98e345b8ffc9f1720dd38` |
 | [docs/history/prompts/2026-10-16-session-speech-persona-finalization.md](../../../docs/history/prompts/2026-10-16-session-speech-persona-finalization.md) | `08bfdd2e39d730e38d6a76b7cf8ffd8d1463781c59e52fa4aab8f3df0de16732` |
@@ -130,7 +130,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/ASK_DJ_SEMANTIC_READS_20261017.md](../../../docs/verification/ASK_DJ_SEMANTIC_READS_20261017.md) | `57cf14b42e750fe6e997b3cbe432cb7880b938705f4067cc374b15f959167c46` |
 | [docs/verification/ASK_DJ_ARTIST_HITS_20261017.md](../../../docs/verification/ASK_DJ_ARTIST_HITS_20261017.md) | `f500cc5ed691125d97384c4c32af7c3ad43e0334fd72fb567a3e2119db34fcc5` |
 | [docs/verification/PUBLIC_ARTIST_NARRATION_20261017.md](../../../docs/verification/PUBLIC_ARTIST_NARRATION_20261017.md) | `da929cac8b88345a3567b0d0da5b1ba2e445ea68c4a531db93133fa8438db306` |
-| [docs/product/DJ_PRESENCE_FOUR_LEVELS_V2.md](../../../docs/product/DJ_PRESENCE_FOUR_LEVELS_V2.md) | `c2a8f97f60683e0a87fcbdbf80ec1bba73cc65b1978d6951e801f0341453d127` |
+| [docs/product/DJ_PRESENCE_FOUR_LEVELS_V2.md](../../../docs/product/DJ_PRESENCE_FOUR_LEVELS_V2.md) | `c35f7137b3c2d5866a1c58a4339d6d1341fd422ccc88752c2d7e770a2ac0ef21` |
 | [docs/product/SESSION_ON_DEVICE_SPEECH_SETTINGS_V1.md](../../../docs/product/SESSION_ON_DEVICE_SPEECH_SETTINGS_V1.md) | `5535adf154f2acb2880513e03442771df13b176d42a130810f3b78c4b2087c45` |
 | [docs/verification/ACTIVE_SESSION_HISTORY_PASSIVE_READBACK_20261018.md](../../../docs/verification/ACTIVE_SESSION_HISTORY_PASSIVE_READBACK_20261018.md) | `385386db0d955f4aad2ccf03ccc5de92713e187a611d27f1556b89830c3cce29` |
 | [docs/product/SESSION_OPENING_MOMENT_V1.md](../../../docs/product/SESSION_OPENING_MOMENT_V1.md) | `21da333d08dee7020d7e4a277cf1671059739252f21d6b0907bd3b4f002f69c4` |

@@ -14,7 +14,7 @@ class BulletinWireContractTests(unittest.TestCase):
         self.assertEqual(wire["ha_sdk_version"], "2026.10.0")
         current = json.loads((ROOT / 'examples/client_contracts/dj_bulletin_v1/news_bulletin_http-requalification-bulletin-diagnostics-current.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
-        self.assertEqual(len(current['source_pins']), 306)
+        self.assertEqual(len(current['source_pins']), 307)
         self.assertEqual(hashlib.sha256((ROOT / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
         extension = current['receipt']['extension']
         self.assertEqual(extension['state'], 'PASS')

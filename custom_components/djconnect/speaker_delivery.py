@@ -25,9 +25,11 @@ def connect_automatic(hass, runtime, session, identity, headers):
     def publication(moment):
         from .settings_confirmation import context as settings_context
         confirmation = settings_context(moment)
+        from .track_start_announcement import accepted as announcement_accepted
+        announcement = announcement_accepted(moment)
         current = manager.current_active(session.owner_profile_id)
         if (current is None or current.session_id != session.session_id
-                or (current.selected_presence == 'music_only' and confirmation is None)
+                or (current.selected_presence == 'music_only' and confirmation is None and not announcement)
                 or (getattr(moment, 'session_opening', None) is not None
                     and moment.session_opening.presence == 'music_only')
                 or current.selected_announcement_output not in {'ha_speaker', 'both'}):
@@ -43,6 +45,11 @@ def connect_automatic(hass, runtime, session, identity, headers):
                     or manager.dj_settings_fence_token(session.owner_profile_id) != captured
                     or output_policy(hass, runtime).revision != target.revision):
                 raise PermissionError('speech_publication_changed')
+            if announcement:
+                item = next((a for a in live.broadcast.native_delivery()['admissions']
+                             if a['moment_id'] == moment.moment_id), {})
+                if not item.get('current_display_allowed'):
+                    raise PermissionError('automatic_announcement_start_window_elapsed')
         async def deliver():
             from .hybrid_service import PairedAuthority, operations
             marker = _automatic_publication.set((reference, admission))
