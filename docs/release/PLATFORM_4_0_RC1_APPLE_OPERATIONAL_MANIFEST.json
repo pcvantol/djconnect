@@ -4,8 +4,8 @@
   "approval": {
     "state": "APPROVED",
     "approved_at": "2026-11-05",
-    "approved_statement": "Peter authorized merging Apple PR #316, fresh Release build 40475 and internal installation on his devices. He subsequently deferred the physical Watch installation. The qualified iPhone route requires its paired Watch, so iPhone and Watch remain pending together; only iPad and both Macs may be dispatched now.",
-    "effect": "Exact source and three SHA-256-bound artifacts only, through existing Apple Secure Distribution Relay and local Apple Development provisioning. Keep paired_watch_validation=required. No iPhone-only bypass, public publication or Core #1439/APNs acceptance."
+    "approved_statement": "Peter explicitly authorized the merged Apple PR #316, fresh Release build 40475 and internal installation on iPhone, paired Watch, iPad, Mac mini and MacBook. He has confirmed iPhone and Watch are available again, lifting the temporary Watch deferral. All existing release and physical target checks remain required.",
+    "effect": "Exact source and three SHA-256-bound artifacts only, through existing Apple Secure Distribution Relay and local Apple Development provisioning. Keep paired_watch_validation=required and the combined iPhone/Watch route. No iPhone-only bypass, public publication or Core #1439/APNs acceptance."
   },
   "release_profile": "INTERNAL_RELEASE",
   "repositories": [
@@ -53,10 +53,11 @@
   "release_version": "4.0.0",
   "deployment_constraints": {
     "dispatch_now": [
+      "iphone",
       "ipad",
       "macbook"
     ],
-    "iphone_and_watch": "PENDING_OWNER_DEFERRED_WATCH",
+    "iphone_and_watch": "COMBINED_ROUTE_REQUIRED_TARGET_PREFLIGHT_REQUIRED",
     "paired_watch_validation": "required",
     "iphone_only_route": "NOT_QUALIFIED",
     "for_you_feature": "NOT_INCLUDED_IN_THIS_RELEASE"
