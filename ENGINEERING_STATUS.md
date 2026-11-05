@@ -1,3 +1,29 @@
+## 2026-11-05 — Voor jou source Finalization
+
+PR [#1463](https://github.com/pcvantol/djconnect/pull/1463) merged as
+`b8c07abd434abb06bed8fbedd1a7a3a10f3c32b5`, from approved exact head
+`81bbab2471211b8bbcdc78cc77a5316719fd57a5`.
+Repository State: `MERGED_RECONCILED` for this source increment; this separate
+documentary Finalization still requires its own protected merge. The completed
+source increment is excluded from the unchanged canonical Execution Horizon;
+no new backlog selection, writer or product acceptance is created.
+
+Voor jou replaces the Session surprise launcher through the existing dialogue
+and command owner. Source:4556 repository tests (11 existing skips),172 framework
+tests and24 original isolated HA producer groups, including11 new paired HTTP
+cases. Exact-head technical GitHub checks and Owner Authorization run42068472148
+succeeded before merge. All306 product artifacts and release inputs remain
+unchanged in this documentary reconciliation.
+
+HA-dev installation, real Spotify, native Apple rendering/local-model execution,
+physical acceptance and APNs delivery remain separate and unclaimed. The Apple
+lane has the exact contract; its app regression repair precedes native adoption.
+The timer stays stopped. Existing frozen histories,24 requests/nine acceptance
+gates, unrelated WIP and original evidence retain their own scope.
+See [the source contract](docs/product/SESSION_FOR_YOU_V1.md) and
+[Finalization history](docs/history/2026-11-05-session-for-you-source-finalization.md).
+Earlier candidate headers below are preserved freeze-point context.
+
 <!-- ASK_DJ_QUESTION_QUALITY_20261102 -->
 ## Current Ask DJ quality batch — 2 November 2026
 
