@@ -34,7 +34,7 @@ class RecentDisplayHistoryTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(current['source_before_after_equal'])
         self.assertEqual(current['harness'], fixture['harness'])
         self.assertEqual(current['harness_sha256'], fixture['harness_sha256'])
-        self.assertEqual(len(current['source_pins']), 306)
+        self.assertEqual(len(current['source_pins']), 307)
         for name, digest in current['source_pins'].items():
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root/fixture['harness']).read_bytes()).hexdigest(), fixture['harness_sha256'])

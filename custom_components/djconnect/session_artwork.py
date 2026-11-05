@@ -367,6 +367,10 @@ async def resolve_target(hass, runtime, context, session_id, target, *, contract
         admission = next((a for a in active.broadcast.native_delivery()['admissions'] if a['moment_id'] == moment_id), {})
         fact = getattr(moment, 'source_fact', None)
         uri = subject_for_fact(fact,contract_version=contract_version)
+        from .track_start_announcement import contribution, accepted
+        announcement = contribution(moment)
+        if announcement is not None and accepted(moment):
+            uri = announcement.occurrence.media_uri
         if not uri or not (admission.get('current_display_allowed') or admission.get('active_flow_display_allowed')):
             return None
         def delivery_scope():
@@ -382,7 +386,8 @@ async def resolve_target(hass, runtime, context, session_id, target, *, contract
             return delivery_scope() is not None
         values=(uri, manager._history_source_contexts.get(session_id, {}), allowed,
                 bool(admission.get('current_display_allowed')), False,
-                getattr(fact, 'artwork_album_uri', '') if ':track:' in uri else '',
+                (announcement.occurrence.album_uri if announcement is not None else
+                 getattr(fact, 'artwork_album_uri', '')) if ':track:' in uri else '',
                 'contextual_artist' if ':artist:' in uri else 'cover', delivery_scope)
         from .session_facts import ArtistImageIdentity
         identity=getattr(fact,'artwork_artist_identity',None)

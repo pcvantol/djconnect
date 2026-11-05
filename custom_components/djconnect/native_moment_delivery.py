@@ -81,6 +81,26 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
         return result
     source = getattr(moment, 'source_fact', None)
     history_allowed = False
+    from .track_start_announcement import contribution, accepted, retained
+    announcement = contribution(moment)
+    if announcement is not None:
+        if not accepted(moment) or boundary.playback_item_id != announcement.occurrence.item_id:
+            return result
+        result['qualification'] = 'qualified'
+        result['requires_spotify_attribution'] = True
+        result['source_expires_at'] = (announcement.retained_until if retained(moment)
+                                     else boundary.utc_at(announcement.occurrence.deadline))
+        result['display_expires_at'] = boundary.utc_at(min(deadline, announcement.occurrence.deadline))
+        occurrence = announcement.occurrence
+        from .track_start_announcement import START_WINDOW_SECONDS
+        initial_position = START_WINDOW_SECONDS-(occurrence.deadline-occurrence.observed_at)
+        remaining = (occurrence.duration_ms/1000-initial_position-(now-occurrence.observed_at)
+                     if occurrence.duration_ms is not None else 0)
+        result['current_display_allowed'] = bool(playing and playback_item_id == boundary.playback_item_id
+            and duration <= 10 and remaining >= duration
+            and now < min(deadline, occurrence.deadline))
+        result['active_flow_display_allowed'] = moment.moment_id in flow_ids and retained(moment)
+        return result
     if getattr(moment, 'bulletin', None) is not None:
         from .bulletin_runtime import BulletinProof, admitted as bulletin_admitted
         if not bulletin_admitted(moment, monotonic=now):

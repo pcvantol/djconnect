@@ -543,7 +543,7 @@ class FirstPlayWireEvidenceTests(IsolatedAsyncioTestCase):
         fixture = json.loads((root/'examples/client_contracts/session_first_play_v2/actual-ha-wire.json').read_text())
         current = json.loads((root / 'examples/client_contracts/session_for_you_v1/actual-ha-wire.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
-        self.assertEqual(len(current['source_pins']), 306)
+        self.assertEqual(len(current['source_pins']), 307)
         self.assertEqual(hashlib.sha256((root / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
         extension = current['receipt']['extension']
         self.assertEqual(extension['model_provider_calls'], 0)

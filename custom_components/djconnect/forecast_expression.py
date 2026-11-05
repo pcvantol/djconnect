@@ -4,7 +4,7 @@ from __future__ import annotations
 COPY = {'en': {'titles': ('Now', 'The coming minutes', 'What I am aiming for'),
         'current': 'Now playing: {title} — {artist}.',
         'empty': 'There is not enough current musical context for a grounded preview yet.',
-        'quiet': 'I will leave room for the music. The direction remains visible here while unsolicited DJ '
+        'quiet': 'I will leave room for the music. The direction remains visible here while extra DJ '
                  'contributions stay quiet.',
         'chill': 'The aim is breathing room and a gentler pace, with room for the current music to unfold.',
         'groove': 'The aim is a steady flow that can carry the current musical thread without rushing it.',
@@ -13,7 +13,7 @@ COPY = {'en': {'titles': ('Now', 'The coming minutes', 'What I am aiming for'),
  'nl': {'titles': ('Nu', 'De komende minuten', 'Waar ik op mik'),
         'current': 'Nu speelt: {title} — {artist}.',
         'empty': 'Er is nog te weinig actuele muziekcontext voor een onderbouwde vooruitblik.',
-        'quiet': 'Ik geef de muziek de ruimte. De richting blijft hier zichtbaar terwijl ongevraagde DJ-bijdragen '
+        'quiet': 'Ik geef de muziek de ruimte. De richting blijft hier zichtbaar terwijl extra DJ-verhalen '
                  'stil blijven.',
         'chill': 'Het doel is meer ademruimte en een rustiger tempo, zodat de huidige muziek zich kan ontvouwen.',
         'groove': 'Het doel is een gelijkmatige flow die de huidige muzikale draad zonder haast kan dragen.',
@@ -22,7 +22,7 @@ COPY = {'en': {'titles': ('Now', 'The coming minutes', 'What I am aiming for'),
  'de': {'titles': ('Jetzt', 'Die nächsten Minuten', 'Worauf ich abziele'),
         'current': 'Jetzt spielt: {title} — {artist}.',
         'empty': 'Für einen fundierten Ausblick fehlt noch genügend aktueller Musikkontext.',
-        'quiet': 'Ich lasse der Musik Raum. Die Richtung bleibt hier sichtbar, während ungefragte DJ-Beiträge '
+        'quiet': 'Ich lasse der Musik Raum. Die Richtung bleibt hier sichtbar, während zusätzliche DJ-Geschichten '
                  'ausbleiben.',
         'chill': 'Das Ziel ist mehr Freiraum und ein sanfteres Tempo, damit sich die aktuelle Musik entfalten '
                  'kann.',
@@ -33,7 +33,7 @@ COPY = {'en': {'titles': ('Now', 'The coming minutes', 'What I am aiming for'),
         'current': 'En ce moment : {title} — {artist}.',
         'empty': 'Le contexte musical actuel est encore trop limité pour un aperçu étayé.',
         'quiet': 'Je laisse de la place à la musique. La direction reste visible ici, tandis que les '
-                 'interventions spontanées du DJ restent silencieuses.',
+                 'récits supplémentaires du DJ restent silencieux.',
         'chill': 'L’objectif est de laisser respirer la musique et d’adopter un rythme plus doux.',
         'groove': 'L’objectif est un mouvement régulier qui prolonge le fil musical actuel sans le presser.',
         'energy': 'L’objectif est une ambiance plus vive, avec la musique actuelle comme point de départ.',
@@ -41,8 +41,8 @@ COPY = {'en': {'titles': ('Now', 'The coming minutes', 'What I am aiming for'),
  'es': {'titles': ('Ahora', 'Los próximos minutos', 'Lo que busco'),
         'current': 'Ahora suena: {title} — {artist}.',
         'empty': 'Todavía falta contexto musical actual para ofrecer un avance fundamentado.',
-        'quiet': 'Dejo espacio a la música. La dirección sigue visible aquí, mientras las intervenciones '
-                 'espontáneas del DJ permanecen en silencio.',
+        'quiet': 'Dejo espacio a la música. La dirección sigue visible aquí, mientras las historias '
+                 'adicionales del DJ permanecen en silencio.',
         'chill': 'El objetivo es dar más espacio y un ritmo más suave para que la música actual se desarrolle.',
         'groove': 'El objetivo es un flujo constante que sostenga el hilo musical actual sin apresurarlo.',
         'energy': 'El objetivo es un ambiente más vivo, con la música actual como punto de partida.',
