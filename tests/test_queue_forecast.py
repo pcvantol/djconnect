@@ -144,7 +144,7 @@ class QueueProjectionTests(unittest.TestCase):
         self.assertTrue(all(r['late_queue_discarded'] for r in fixture['stale_results']))
         self.assertFalse(fixture['HA_dev_writes'])
         self.assertEqual(fixture['native_acceptance'], 'NOT_RUN')
-        self.assertEqual(len(fixture['source_sha256']), 307)
+        self.assertEqual(len(fixture['source_sha256']), 308)
         for path, sha in fixture['source_sha256'].items():
             self.assertEqual(hashlib.sha256((root/path).read_bytes()).hexdigest(), sha, path)
 

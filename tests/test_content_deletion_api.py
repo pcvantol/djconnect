@@ -354,7 +354,7 @@ class PairedContentDeleteTests(unittest.IsolatedAsyncioTestCase):
         fixture = json.loads((root/'examples/client_contracts/session_conversation_history/content-deletion-v1-core-consolidation-20261022.json').read_text())
         current = json.loads((root / 'examples/client_contracts/session_conversation_history/content_deletion_http-requalification-bulletin-diagnostics-current.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
-        self.assertEqual(len(current['source_pins']), 307)
+        self.assertEqual(len(current['source_pins']), 308)
         self.assertEqual(hashlib.sha256((root / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
         extension = current['receipt']['extension']
         self.assertEqual(extension['model_provider_calls'], 0)
