@@ -1,3 +1,33 @@
+## 2026-11-05 — Music announcement publication-clock Finalization
+
+PR [#1467](https://github.com/pcvantol/djconnect/pull/1467) merged as
+`8f84cea951c501b05f88898ddf1ee34cc296df8e`, from exact authorized head
+`1624b8b6bb862e0a38e903eb36901859be2cb646`.
+Repository State: `MERGED_RECONCILED` for this bounded source correction when
+this separate documentary Finalization has passed its protected merge.
+Until then the implementation remains `MERGED_UNRECONCILED`.
+The same canonical five-item Execution Horizon remains unchanged; no new
+capability, priority, native writer or paid-model scope is selected.
+
+A six-second fixture realization causally exposed an early UTC expiry. The
+music_announcement boundary now pairs publication UTC with publication-monotonic
+instead of the earlier seed timestamp. Original12s start deadline, Moment/history
+creation identity, no-renewal behavior and all legacy families remain unchanged.
+Source QA:4575 repository cases/11 existing skips,172 framework,25 actual
+isolated HA groups, static/security and diff checks PASS. Exact technical
+GitHub checks and Owner Authorization
+[42089998254](https://github.com/pcvantol/djconnect/actions/runs/42089998254) passed.
+This separate Finalization changes no product byte, fixture, contract or release
+input; all307 product files and original negative/positive evidence are preserved.
+
+Shared best-effort Play Now, real model variety/latency, audible quality,
+independent editorial review, native/HA installation and physical/APNs
+acceptance remain separate and open. No releasegate bypass, new paid probe,
+consumer dispatch or timer restart. The Apple lane keeps its owner-prioritized
+Voor jou work. See [contract](docs/product/MUSIC_ANNOUNCEMENT_MOMENTS_V1.md) and
+[history](docs/history/2026-11-05-music-announcement-clock-finalization.md).
+Earlier rolling records retain their historical freeze-point scope.
+
 ## 2026-11-05 — Music announcement source Finalization
 
 PR [#1465](https://github.com/pcvantol/djconnect/pull/1465) merged as
