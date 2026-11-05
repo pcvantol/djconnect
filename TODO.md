@@ -1,3 +1,12 @@
+## 2026-11-05 — Voor jou source candidate
+
+Core replaces the surprise launcher through the existing Session/Ask DJ route;
+[contract and boundaries](docs/product/SESSION_FOR_YOU_V1.md). Pending delivery
+includes protected source review/CI and merge, separate Finalization, qualified
+HA-dev installation and Apple native/local-model/device acceptance. Apple regression
+repair precedes its separate UI adoption. No new issue or blocker is inferred
+from source tests, and historical first-play evidence remains historical.
+
 <!-- ASK_DJ_BAND_STORY_20261102 -->
 ## Current rich band-membership batch — 2 November2026
 

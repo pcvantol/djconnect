@@ -1,4 +1,6 @@
 > Historical version1: fixed-Mood startup semantics. The explicit updated owner
+
+> Historical contract. The owner-selected replacement is [Session For you v1](SESSION_FOR_YOU_V1.md). Original qualification receipts remain historical.
 > scope is Music DNA version2 plus playlist navigation, described in
 > [SESSION_START_ACTIONS_DNA_V2](SESSION_START_ACTIONS_DNA_V2.md). Original v1
 > schema, RAW and protected receipts retain their own scope.

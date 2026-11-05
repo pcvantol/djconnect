@@ -76,7 +76,8 @@ async def _live_reference(manager, profile, target):
 
 
 async def async_exchange(hass, runtime, payload, *, profile_id, history_manager, delegate,
-                         validate_owner, persist_history=True, profile=None, validate_immediate=None):
+                         validate_owner, persist_history=True, profile=None, validate_immediate=None,
+                         client_device_id=""):
     """Reserve a bounded turn, execute without broad locks, commit through existing owners."""
     client_id = payload.get("client_message_id")
     if not _identifier(client_id):
@@ -369,7 +370,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                             captured_playback_item_id=captured if track_bound and intent.intent in {"current_artist_information", "current_release_information", "album_tracks_information"} else "",
                             source_context=model_source(selected), selected_read_context=selected,
                             dependencies=dependencies, fast_control=fast, reset_topic=reset_topic,
-                            archiveable=persist_history)
+                            archiveable=persist_history, client_device_id=client_device_id)
         from ..session_runtime import capture_first_play_retirement
         turn.retire_startup_after_play = capture_first_play_retirement(hass, profile_id)
         turn.source_request_hashes = source_request_hashes
@@ -556,6 +557,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                 frame.retry = {"text":text,"uncertain":turn.effect_started}
             result.pop("_dialogue_question", None)
             result.pop("_consume_pending", None)
+            if (turn.first_play_request and result.get('first_play', {}).get('state') == 'genres'
+                    and active is not None and active.session_id == turn.session_id):
+                active.broadcast.first_play_offer = _for_you_offer_projection(active, thread, result)
         catalogue_caption = result.pop("_catalogue_history_caption", None)
         if saved and not result.get("deduplicated"):
             # Preserve the existing live bubble contract without turning transient
@@ -651,3 +655,79 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
         if reserved:
             frame.inflight.pop(client_id, None)
         history_manager.unregister_session_request(scope, client_id)
+
+
+async def async_prepare_session_for_you(hass, runtime, context, active, history_manager, validate_immediate):
+    """One genuine Session-start preparation in the existing dialogue/result owner.
+
+    There is no user message, archive, speech, learned preference or playback grant.
+    The opaque choices subsequently use ordinary authenticated Ask DJ selection.
+    """
+    from ..mood_music_steering import first_play_response
+    from ..reply_artwork import source_admission
+    scope = 'profile:' + context.profile_id
+    thread = 'for-you-' + active.session_id
+    await history_manager.async_load()
+    validate_immediate()
+    revision = await history_manager.async_scope_revision(scope)
+    grant = await async_history_grant_revision(hass, context.profile_id)
+    generation = (revision + ':' + grant + ':'
+                  + hashlib.sha256(json.dumps(source_scope(context.profile)).encode()).hexdigest() + ':default')
+    # Ended preparations must not exhaust the ordinary owner's bounded dialogue
+    # budget. Never evict an ordinary thread or an executing request.
+    threads = history_manager.dialogue.owners.get(scope, {})
+    for key, old in list(threads.items()):
+        if old.for_you_session_id and old.for_you_session_id != active.session_id and not old.inflight:
+            old.reset('ended-for-you-session')
+            del threads[key]
+    frame = history_manager.dialogue.frame(scope, thread, generation)
+    frame.for_you_session_id = active.session_id
+    async def guard():
+        validate_immediate()
+        if (history_manager.scope_revision(scope) != revision
+                or history_grant_revision(hass, context.profile_id) != grant
+                or frame.generation != generation):
+            raise SessionConversationError('conversation_context_changed')
+    turn = DialogueTurn(frame, scope, thread, 'prepare-' + active.session_id,
+                        hashlib.sha256(active.session_id.encode()).hexdigest(), generation,
+                        guard, history_manager, style=style_projection({}, active, context.profile),
+                        session_id=active.session_id, startup_preparation=True, archiveable=False,
+                        client_device_id=getattr(context, 'device_id', ''))
+    turn.reply_source_context, turn.reply_source_authority = source_admission(hass, runtime, context.profile_id)
+    token = current_turn.set(turn)
+    try:
+        await guard()
+        response = await first_play_response(hass, runtime)
+        await turn.guard()
+        history_manager.dialogue.complete(turn, response)
+        return _for_you_offer_projection(active, thread, response)
+    finally:
+        current_turn.reset(token)
+
+
+def _for_you_offer_projection(active, thread, response):
+    from ..current_track_insight import session_scope
+    result_set = response.get('result_set')
+    options = []
+    for index, action in enumerate(response.get('playback_actions', [])):
+        art_id = hashlib.sha256((active.session_id + ':' + action['action_id']).encode()).hexdigest()
+        options.append({'option_id': action['action_id'], 'genre': action['genre'],
+            'label': action['label'], 'action_id': action['action_id'],
+            'visual_recipe': {'schema_version': 1, 'revision': 1, 'variation_id': art_id,
+                'genre': action['genre'], 'mood': active.selected_mood,
+                'persona': active.dj_persona.value,
+                'artistic_direction': ('layered_dunes', 'misty_valley', 'mountain_horizon')[index],
+                'illustrative_not_audio_analysis': True}})
+    expires = response.get('first_play', {}).get('expires_in', 0)
+    turn = current_turn.get()
+    return {'schema_version': 1, 'offer_id': (result_set or {}).get('result_set_id', active.session_id),
+            'state': 'available' if options else 'unavailable',
+            'intro': response.get('text', ''), 'intro_source': response.get('text_source'),
+            'options': options, 'result_set': result_set,
+            'conversation_context': {'session_id': active.session_id, 'thread_id': thread},
+            'automatic_playback': False, 'queue_effect': 'replace_on_explicit_selection',
+            'reason': response.get('first_play', {}).get('reason'),
+            '_session_scope': session_scope(active),
+            '_admission': turn.first_play_admission if turn is not None else None,
+            '_action_wall_deadline': time.time() + expires,
+            '_action_monotonic_deadline': time.monotonic() + expires}

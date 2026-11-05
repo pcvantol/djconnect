@@ -1,3 +1,15 @@
+## 2026-11-05 — Voor jou, source candidate on its own branch
+
+The owner reconfirmed **Voor jou**. This replaces the Verras me launcher with
+three immediate real owner-DNA/Mood choices through the existing dialogue and
+playback owner. See [contract](docs/product/SESSION_FOR_YOU_V1.md). No Watch card,
+no automatic playback or synthetic chat. Apple owns the later native landscapes;
+its current regression repair precedes adoption. Source qualification, protected
+CI/review, merge, HA-dev install and native/local-model acceptance stay separate.
+No dependency/version change is needed for this bounded existing-mechanism change;
+package upgrades are deliberately excluded to keep qualification reviewable.
+Historical first-play receipts remain unchanged as historical evidence.
+
 <!-- ASK_DJ_BAND_STORY_20261102 -->
 ## Current rich band-membership batch — 2 November2026
 
