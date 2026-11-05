@@ -1,3 +1,36 @@
+## 2026-11-05 — Orphaned Spotify connection repair Finalization
+
+Source PR [#1469](https://github.com/pcvantol/djconnect/pull/1469) merged as
+`1a12dcbb10e41feb0debc14d594f184cc63ebc7d`, from exact authorized head
+`d2d99e17c5d5bc63a761c7092480cf0fe26eb9da`.
+The bounded source repair is `MERGED_UNRECONCILED` until this separate documentary
+Finalization passes protected merge; then `MERGED_RECONCILED`. No product bytes,
+fixture, release input or execution authority change in this Finalization.
+
+The existing options/PKCE route can recover an orphaned shared Spotify owner
+through fresh operator consent for the same current Profile/account/app binding.
+A surviving/disabled owner, changed device binding generation, changed Profile/
+account, new owner or disabled client prevents acceptance. No donor, backup or
+other Profile credential is copied. Fresh grant persistence uses HA's existing
+entry manager and reloads only the repaired client. No new pairing or playback.
+Source QA:4585 repository cases (11 existing skips),172 framework tests,26 isolated
+actual-HA groups, Ruff/diff, Bandit medium/high zero findings and zero-call Help
+container preflight PASS. Exact Owner Authorization
+[42099590192](https://github.com/pcvantol/djconnect/actions/runs/42099590192) PASS.
+All308 integration files remain byte-equal to Source1469 in this Finalization.
+
+The canonical Execution Horizon remains SETTINGS::APPLE::EDITOR,
+SETTINGS::PI::ADOPTION, SETTINGS::ESP32::ADOPTION, SETTINGS::VIBECAST::COMPAT,
+SETTINGS::JOINT::ACCEPTANCE; all Planned/NOT_ISSUED with unchanged prerequisites.
+This completed owner-selected operational repair selects no new roadmap work.
+Real OAuth consent, HA-dev installation/runtime readback, provider inventory and
+Speaker in schuur playback remain separately observable; none follows from CI.
+Shared best-effort Play Now remains incomplete. Apple keeps its Voor jou work;
+no competing native writer, paid probe or timer restart.
+See [contract](docs/product/SPOTIFY_ORPHAN_CONNECTION_REPAIR_V1.md) and
+[history](docs/history/2026-11-05-default-spotify-connection-repair-finalization.md).
+Older rolling records retain their original freeze-point scope.
+
 ## 2026-11-05 — Music announcement publication-clock Finalization
 
 PR [#1467](https://github.com/pcvantol/djconnect/pull/1467) merged as

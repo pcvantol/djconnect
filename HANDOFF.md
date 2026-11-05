@@ -1,3 +1,15 @@
+## Current — DEFAULT Spotify connection repair
+
+Source [#1469](https://github.com/pcvantol/djconnect/pull/1469) merged as
+`1a12dcbb10e41feb0debc14d594f184cc63ebc7d` from authorized
+`d2d99e17c5d5bc63a761c7092480cf0fe26eb9da`; Owner Authorization42099590192 PASS.
+4585 repository cases/11 existing skips,172 framework,26 actual-HA groups PASS.
+Separate documentary Finalization changes none of the308 product bytes.
+Operational target remains owner-selected DEFAULT on local HA-dev and Speaker
+in schuur. Actual OAuth/provider/install/readback remains separate; do not use
+old cached/donor credentials. Shared Play Now remains open; timer stays stopped.
+[Repair contract](docs/product/SPOTIFY_ORPHAN_CONNECTION_REPAIR_V1.md).
+
 ## 2026-11-05 — Music announcement clock source merged
 
 PR [#1467](https://github.com/pcvantol/djconnect/pull/1467) merged as
