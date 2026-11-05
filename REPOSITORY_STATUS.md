@@ -1,3 +1,34 @@
+## 2026-11-05 — Music announcement source Finalization
+
+PR [#1465](https://github.com/pcvantol/djconnect/pull/1465) merged as
+`69ff2206d1e8d6dd4e9a96e2bad97b627d16be6f`, from exact authorized head
+`2e9a8a75f2599007c15e1ec46fa08007c5c19f62`.
+Repository State: `MERGED_RECONCILED` for this bounded source increment when
+this separate documentary Finalization has passed its own protected merge.
+Until then the merged implementation remains `MERGED_UNRECONCILED`.
+The canonical five-item Execution Horizon remains unchanged: this completed
+owner-selected source increment is excluded; no new capability is selected.
+
+Typed Music announcement Moments reuse the existing observer, HA realization/
+review, Planner, history and speech/media owners. Baseline text survives Music-only;
+manual local replay survives text-only under current original history/source
+rights. Original text, occurrence and album edition remain bound after archive.
+Source validation:4573 repository cases (11 existing skips),172 framework tests,
+25 actual isolated HA groups, Ruff, DAG and Bandit medium/high checks PASS.
+All technical GitHub gates and exact Owner Authorization
+[42084165302](https://github.com/pcvantol/djconnect/actions/runs/42084165302) passed.
+All307 product files, producer receipts and release inputs remain unchanged
+by this Finalization; immutable historical receipts and other WIP are retained.
+
+Shared best-effort Play Now, real generated-text variety/audible timing,
+independent editorial review, Apple adoption, HA-dev/native installation and
+physical/APNs acceptance remain open and separate. No broad paid rerun, release,
+installation, new authority or timer is created. The Apple lane retains its
+owner-prioritized Voor jou work; a source handoff does not dispatch that writer.
+See [contract](docs/product/MUSIC_ANNOUNCEMENT_MOMENTS_V1.md) and
+[Finalization history](docs/history/2026-11-05-music-announcement-source-finalization.md).
+Earlier rolling bodies below retain their historical freeze-point scope.
+
 ## 2026-11-05 — Voor jou source Finalization
 
 PR [#1463](https://github.com/pcvantol/djconnect/pull/1463) merged as
