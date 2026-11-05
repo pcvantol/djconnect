@@ -1,3 +1,13 @@
+## 2026-11-05 — Voor jou source merged
+
+PR [#1463](https://github.com/pcvantol/djconnect/pull/1463) merged as
+`b8c07abd434abb06bed8fbedd1a7a3a10f3c32b5`; exact-head checks and owner
+permission passed. Source and contract are delivered; the separate documentary
+Finalization reconciles this result. HA-dev/native/local-model/device acceptance
+is still open, with Apple regression repair preceding adoption. No new release,
+APNs claim or timer. Earlier candidate descriptions below are historical freeze
+points. [Current source contract](docs/product/SESSION_FOR_YOU_V1.md).
+
 ## 2026-11-05 — Voor jou Core to Apple contract handoff
 
 Require session_start_actions2 / session_first_play_surprise_mix3 and
