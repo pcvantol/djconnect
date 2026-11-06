@@ -614,7 +614,9 @@ async def realize(brief, *, ask, admission, debug=None):
            "over another bare work credit when the evidence provides it. A lone encounter, invitation "
            "or occupation is insufficient. Do not manufacture depth or add praise as a substitute. "
            "Recording anchor: use a separate compact sentence naming selected_contributor by the complete "
-           "resolved name and " + ("their original composer credit on the work behind this recording. " if composer else
+           "resolved name and " + ("their composer credit for the underlying musical work behind this recording. "
+           "Explicitly say work behind this recording in the requested language. Never shorten this to composer on this recording: "
+           "a recording credit and authorship of its underlying work are different claims. " if composer else
            "their credited producer role on this recording. ") +
            "The complete resolved name must appear inside the credit sentence itself, even when already "
            "named in the episode; a surname or pronoun in that clause does not qualify. "
