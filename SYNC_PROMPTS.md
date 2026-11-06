@@ -1,3 +1,13 @@
+## 2026-11-06 — Explicit minimal Watch Smart Stack purpose
+
+The human narrows Watch Smart Stack to track name + cover in confirmed Session
+Mood color, no DJ contribution/progress/artist/album display. Select a separate
+optional paired_watch_widget_v1 surface scope in the existing passive family;
+never replicate iPhone grants or borrow private foreground/Flow rights. Own
+watchos identity + enabled/cache/locked-display consent and original source/
+expiry fences are mandatory. See docs/product/WATCH_SMART_STACK_PASSIVE_SCOPE_V1.md.
+No live pairing/runtime/native/background/APNs admission is granted by source work.
+
 ## 2026-11-06 — Passive widget original playback progress
 
 The owner requests current track/artist/album, progress, qualified cover, confirmed

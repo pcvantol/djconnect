@@ -12,6 +12,8 @@ contract_version remains1. Capability projection_versions includes1,2,3 and the
 default remains1. authorize/read must both explicitly select projection_version3
 for a v3 grant. Existing v1/v2 resources and closed Direct-rich-v1 codecs remain
 unchanged. Projection version is distinct from surface context/register v3.
+The image GET must also supply projection_version=3 with its original surface/
+grant; omission or a different version cannot fetch the v3 grant's pixels.
 No read reauthorizes, creates a grant or upgrades an existing grant's version.
 
 V3 retains v2 independent contribution/now_playing/artwork statuses and source
@@ -68,3 +70,21 @@ Actual isolated HA/HTTP source proof stays separate from live provider action,
 Mac WidgetCenter detection, shared App Group cache, physical/native display and
 background/APNs acceptance. This source extension alone cannot fix an unconfigured
 native widget or grant authority to another host.
+
+## Live Activity, lockscreen and Dynamic Island
+
+The same v3 source resource can be explicitly authorized for live_activity.
+Besides enabled and os_snapshot_cache, locked_display:true is mandatory; widget
+consent alone is insufficient. Its track/cover/Mood/progress are subject to the
+same original owner/source/observation/field deadlines. Native layout owns which
+fields fit each Activity/Dynamic Island/lockscreen presentation.
+
+This foreground paired-read capability continues to advertise
+background_delivery:false. It does not enroll an issuer, create a background-read
+credential, register APNs, wake iOS or guarantee updates while suspended. Existing
+source/codec/isolated HA qualification is not installed native or real delivery
+acceptance. The independently qualified background context/issuer/purpose/lease,
+API and OS/native path is still required for any such claim. No old cache or
+purpose deadline is extended locally to conceal a120-second freshness gap.
+New genuinely accepted provider observations may provide new original data;
+reads/redraws cannot rejuvenate an older observation, cover or contribution.
