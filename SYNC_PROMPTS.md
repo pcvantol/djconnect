@@ -1,3 +1,15 @@
+## 2026-11-06 — Native client Golden consumer contract, source protocol increment
+
+The human requests integral Core Golden behavior through iPhone/iPad/Mac/Watch,
+Session contributions and Ask DJ Q/A, including14Help/suggestion entries and
+music announcements. Slow/expensive native/provider runs are manual or explicitly
+release-relevant, never routine per-PR work. This increment defines a pinned
+consumer inventory, closed draft-plan/evidence grammar and public-safe reconciliation
+through the existing ordinary product routes. It creates no live fixture, grant,
+provider client/hook, alternate execution path or qualification from synthetic data.
+See docs/verification/NATIVE_CLIENT_GOLDEN_CONTRACT_V1.md. Existing matrix IDs and
+locale/model policies are preserved; missing native mapping remains BLOCKED.
+
 ## 2026-11-06 — For-you original output readback repair
 
 See docs/product/SESSION_FOR_YOU_V1.md: an exact private post-transfer player
