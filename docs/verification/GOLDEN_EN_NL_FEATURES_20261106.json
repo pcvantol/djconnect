@@ -4,7 +4,7 @@
     "en",
     "nl"
   ],
-  "source_commit": "8fc170213f1dcb84d928a439051f5ef088c4dd7a",
+  "source_commit": "92fdf215c50adec175f14bac294942539044e778",
   "source_unchanged": true,
   "results": [
     {
@@ -358,12 +358,15 @@
     "tests/test_ask_dj_band_story.py": "336f82adc75d61ed55623990804301effb7920b85d71b16fa3b97437c1e44070",
     "tests/test_ask_dj_contextual_dialogue.py": "981d108d0e0445f44b96584c226d121a6ab04486fbe91d4d134e6931efeb017a",
     "tests/test_ask_dj_exploration.py": "b09fe9c65fbc3bcb56e6fae9cf48873449c93eed78d166ad94e564e753d620a4",
-    "tools/verification/run_golden_en_nl_features.py": "a8df6f559b9674c110bfd7002cfd6dc041b0f0b1502624334ebe9793fd1b2938"
+    "tests/test_golden_en_nl_features.py": "c8f56697d85933e2ac7c8beb3380ef0192a610432a182a6adc2a513297d942e3",
+    "tools/verification/run_golden_en_nl_features.py": "5c31f5931f260695240a25f28420fb3965f1f7c0d37a79be989f4e55d0c17d95"
   },
-  "raw_report_sha256": "ed8dd8257ebbdccd11ff62ce0593eeae55639003baa88f897781d4980f32ece7",
-  "post_run_lint_annotation": {
-    "path": "tools/verification/run_golden_en_nl_features.py",
-    "current_sha256": "5c31f5931f260695240a25f28420fb3965f1f7c0d37a79be989f4e55d0c17d95",
-    "change": "Import-path E402 annotation only; functional implementation unchanged."
-  }
+  "raw_report_sha256": "74d4ba7ad77833b253bf545253adcbe8034dd32f31e36d199fcf33cd8dcb043d",
+  "related_unit_tests": {
+    "tests_run": 337,
+    "failures": 0,
+    "errors": 0
+  },
+  "ruff": "PASS",
+  "planning_snapshot": "PASS_INCLUDED_SNAPSHOT_ONLY"
 }
