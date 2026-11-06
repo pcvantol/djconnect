@@ -1135,7 +1135,7 @@ def for_you_projection(hass, runtime, profile_id, active, *, client_device_id=""
     # A locale change is a pure projection: preserve action identity and leases.
     if isinstance(offer, dict):
         original_locale = offer.get('language') or getattr(offer.get('_admission'), 'locale', active.locale)
-        if original_locale != locale:
+        if original_locale != locale and len(result.get('options', [])) == 3 and result.get('state') != 'unavailable':
             result.update(intro=FOR_YOU_INTRO.get(locale, FOR_YOU_INTRO['en']),
                           intro_source='runtime_acknowledgement')
         for option in result.get('options', []):
@@ -1143,8 +1143,10 @@ def for_you_projection(hass, runtime, profile_id, active, *, client_device_id=""
         for item in (result.get('result_set') or {}).get('items', []):
             if item.get('kind') == 'track_mix':
                 label = for_you_genre_label(item.get('genre', ''), locale)
-                item.update(title=label, label=label, button_label=label)
+                item.update(title=label, label=label, button_label=label,
+                    subtitle=MIX_PRESENTATION[locale][1].format(count=len(item.get('uris') or ())))
     result['language'] = locale
+    result['mood_revision'] = active.mood_revision
     refresh = active.broadcast.first_play_refresh
     if refresh is not None:
         result['refresh_policy'] = {k:v for k,v in refresh.items() if not k.startswith('_')}
@@ -1155,7 +1157,10 @@ def for_you_projection(hass, runtime, profile_id, active, *, client_device_id=""
         pending = active.broadcast.first_play_pending
         remaining = (max(0, min(pending.deadline-pending.clock(), pending.wall_deadline-time.time()))
                      if type(pending) is FirstPlayAdmission else 0)
-        result['continuation'].update(expires_in=remaining, mood_revision=active.mood_revision)
+        result['continuation']['expires_in'] = remaining
+        if isinstance(result['continuation'].get('result_set'), dict):
+            result['continuation']['result_set']['expires_in'] = min(
+                result['continuation']['result_set'].get('expires_in', remaining), remaining)
         if (continuation.get('_session_scope') != session_scope(active) or remaining <= 0
                 or (pending is not None and pending.withdrawn)):
             result['continuation'].pop('result_set', None)

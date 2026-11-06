@@ -78,7 +78,9 @@ async def qualify(hass, manager, history, request, client):
                 'choice_action':{'operation':'select', 'result_set_id':offer['offer_id'], 'action_id':item['action_id']}})
             assert status == 200 and selected['first_play']['state']=='output', selected
             continuation = selected['for_you']['continuation']
-            assert continuation['result_set'] == selected['result_set'] and continuation['expires_in'] > 0
+            assert continuation['result_set']['items'] == selected['result_set']['items']
+            assert continuation['result_set']['result_set_id'] == selected['result_set']['result_set_id']
+            assert 0 < continuation['result_set']['expires_in'] <= continuation['expires_in']
             assert not state['effects']
             poll, status = await request('GET', '/api/djconnect/v1/session/active', {'language':locale})
             assert poll['for_you']['continuation']['result_set']['result_set_id'] == selected['result_set']['result_set_id']

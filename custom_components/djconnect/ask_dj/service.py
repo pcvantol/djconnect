@@ -561,12 +561,15 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             if (turn.first_play_request and result.get('first_play', {}).get('state') == 'genres'
                     and active is not None and active.session_id == turn.session_id):
                 active.broadcast.first_play_offer = _for_you_offer_projection(active, thread, result)
-        if active is not None and active.session_id == turn.session_id and 'first_play' in result:
+                active.broadcast.first_play_continuation = None
+        if (active is not None and active.session_id == turn.session_id and 'first_play' in result
+                and result['first_play'].get('state') != 'genres'):
             active.broadcast.first_play_continuation = {
                 key: deepcopy(result[key]) for key in ('first_play', 'result_set', 'playback_actions',
                     'action_outcome', 'selected_action_id') if key in result}
             from ..current_track_insight import session_scope
             active.broadcast.first_play_continuation['_session_scope'] = session_scope(active)
+            active.broadcast.first_play_continuation['mood_revision'] = active.mood_revision
             active.broadcast.first_play_continuation['conversation_context'] = {
                 'session_id':active.session_id, 'thread_id':thread}
             from ..mood_music_steering import for_you_projection
@@ -733,7 +736,8 @@ def _for_you_offer_projection(active, thread, response):
     expires = response.get('first_play', {}).get('expires_in', 0)
     turn = current_turn.get()
     return {'schema_version': 1, 'offer_id': (result_set or {}).get('result_set_id', active.session_id),
-            'state': 'available' if options else 'unavailable', 'language':active.locale,
+            'state': 'available' if options else 'unavailable',
+            'language':turn.style.get('language',active.locale) if turn is not None else active.locale,
             'intro': response.get('text', ''), 'intro_source': response.get('text_source'),
             'options': options, 'result_set': result_set,
             'conversation_context': {'session_id': active.session_id, 'thread_id': thread},

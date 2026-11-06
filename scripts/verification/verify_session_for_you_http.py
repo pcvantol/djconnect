@@ -232,6 +232,7 @@ async def qualify(hass, manager, history, request, client, *, after=None):
             'client_message_id': 'explicit-same-session-refresh', 'text': first.FIRST_PLAY_COPY[locale][1],
             'language': locale, 'audio_response': 'never', 'conversation_context': offer['conversation_context']})
         assert status == 200 and refreshed['success'] and not state['effects'], refreshed
+        assert refreshed['for_you']['state'] == 'available', refreshed['for_you']
         active, status = await request('GET', '/api/djconnect/v1/session/active')
         assert active['for_you']['offer_id'] == refreshed['result_set']['result_set_id'] != before_offer
         offer = active['for_you']
