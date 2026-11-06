@@ -167,9 +167,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             except (PermissionError, SessionConversationError):
                 # An independent explicit topic must not be held hostage by an expired chip.
                 selected_preview = None
-            from .public_research import resolve_partial_name
+            from .public_research import resolve_partial_name, selected_playback_lookup_subjects
             _, references_selected_subject, ambiguous_selected_subject = resolve_partial_name(
-                new_subject, model_source(selected_preview).get("subjects", []))
+                new_subject, model_source(selected_preview).get("subjects", [])
+                + selected_playback_lookup_subjects(selected_preview))
             references_selected_subject = references_selected_subject or ambiguous_selected_subject
         if (new_subject and not safe_subject(new_subject) and not references_selected_subject
                 and selected_preview is not None):

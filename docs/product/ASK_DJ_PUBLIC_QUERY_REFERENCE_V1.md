@@ -75,3 +75,20 @@ still decides whether the whole actual answer is supported.
 No public API operation, client gesture, catalogue publication leaf, playback
 grant, deployment or native/provider admission follows from this internal
 reference mechanism.
+
+## Frozen selected-performer lookup identity
+
+An explicit partial name may match the single artist label of the original,
+server-resolved selected playback entry. Core preserves that same selection and
+uses the full label only as a local public-lookup identity, through the existing
+public research owner. A cached, withdrawn, expired, combined or otherwise
+unidentified playback label does not qualify this expansion. The original entry,
+owner/session and lookup expiry remain fenced across source and answer waits; no
+current/latest recording is substituted and no deadline is renewed.
+
+The label supplies no biographical fact, role or model-processing permission.
+Private recording/edition text and Spotify URIs stay outside model context. Only
+independently fetched and qualified public evidence can support an answer. A
+different explicitly named subject still detaches from the selected recording.
+This internal lookup does not make a partial name into a user-explicit full-name
+PublicQueryReference or alter the CC0 model_source admission.

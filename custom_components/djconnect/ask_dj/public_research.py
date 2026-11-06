@@ -1159,6 +1159,21 @@ def safe_subject(subject, *, qualified=False):
     return name
 
 
+def selected_playback_lookup_subjects(entry):
+    """Resolve a private selection locally; it grants no fact or model-input rights."""
+    from .observations import _identified_playback
+    if not isinstance(entry, dict) or entry.get('kind') != 'playback_observed':
+        return []
+    identified = _identified_playback(entry.get('playback'))
+    if identified is None:
+        return []
+    name = safe_subject(identified[1], qualified=True)
+    # A combined artist label cannot identify one participant from a partial name.
+    if not name or re.search(r'[,;/|]', name):
+        return []
+    return [{'name': name, 'role': 'artist_lookup'}]
+
+
 def resolve_partial_name(subject, subjects):
     """A unique qualified subject can expand a first/surname; never infer identity."""
     names = list(
@@ -1283,7 +1298,18 @@ def subject_for_question(text, turn):
     if named:
         # An existing qualified name is the first authority, not arbitrary
         # trailing prose. Partial matching requires every supplied name token.
-        resolved, referenced, ambiguous = resolve_partial_name(named, subjects)
+        selected_lookup = getattr(turn, 'selected_read_context', None)
+        lookup_subjects = selected_playback_lookup_subjects(selected_lookup)
+        resolved, referenced, ambiguous = resolve_partial_name(named, subjects + lookup_subjects)
+        if referenced and lookup_subjects:
+            def validate_lookup():
+                from .dialogue import DialogueError
+                if (turn.selected_read_context is not selected_lookup
+                        or selected_playback_lookup_subjects(selected_lookup) != lookup_subjects):
+                    raise DialogueError('conversation_context_changed', 409)
+            # Public source/answer waits cannot extend the original private lookup identity.
+            turn.delivery_validators.append(validate_lookup)
+            turn.effect_validators.append(validate_lookup)
         if ambiguous:
             return "", False, True
         if referenced:

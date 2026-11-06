@@ -1886,6 +1886,102 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("untrusted_excerpt", json.dumps(result))
         self.assertEqual(result["conversation"]["metrics"]["agent_calls"], 2)
 
+    async def test_partial_name_on_selected_playback_keeps_reference_and_researches_full_artist(self):
+        from custom_components.djconnect.session_conversation import query_service
+        from urllib.parse import parse_qs, urlsplit
+        session = await self.fixture.observed_session()
+        await self.fixture.manager.async_update_playback_projection(owner_profile_id='profile-a',
+            session_id=session.session_id, state='playing', media_identity='spotify:track:' + 'P' * 22,
+            title='Private fixture recording', artist='Peter Luts', album='Private fixture edition',
+            duration_ms=300000, position_ms=1000)
+        page = await query_service(self.hass, self.history).async_timeline_page('profile-a', session.session_id)
+        entry = next(row for row in page['entries'] if row['kind'] == 'playback_observed'
+                     and (row.get('playback') or {}).get('artist') == 'Peter Luts')
+        reference = {'session_id': session.session_id, 'entry_id': entry['entry_id']}
+        self.reply = 'Peter Luts is a Belgian music producer and composer.'
+        for locale, question in [('en', 'Who is Peter?'), ('nl', 'Wie is Peter?'),
+                ('de', 'Wer ist Peter?'), ('fr', 'Qui est Peter ?'), ('es', '¿Quién es Peter?')]:
+            before = len(self.web_calls)
+            with self.research_http(), self.grounding_agent():
+                result, status = await self.request(question, language=locale,
+                    context={'session_id': session.session_id, 'selected_entry': reference},
+                    identifier='selected-playback-person-' + locale)
+            self.assertEqual(status, 200, result)
+            self.assertEqual(result['conversation']['context'].get('selected_entry'), reference)
+            self.assertEqual(parse_qs(urlsplit(self.web_calls[before]).query).get('titles'), ['Peter Luts'])
+            self.assertEqual(result['knowledge_basis'], 'fetched_public_music_research_v1')
+            self.assertIsNone(result['conversation']['model_source_basis'])
+            for projection in self.prompts:
+                self.assertNotIn('Private fixture recording', json.dumps(projection))
+                self.assertNotIn('Private fixture edition', json.dumps(projection))
+                self.assertNotIn('spotify:track:', json.dumps(projection))
+        self.assertEqual(self.effects, [])
+
+    def test_private_playback_lookup_subjects_never_admit_stale_combined_or_other_sources(self):
+        from custom_components.djconnect.ask_dj.public_research import selected_playback_lookup_subjects
+        from datetime import datetime, UTC, timedelta
+        entry = {'kind': 'playback_observed', 'playback': {'uri': 'spotify:track:' + 'P' * 22,
+            'title': 'Private fixture recording', 'artist': 'Peter Luts', 'state': 'playing'}}
+        self.assertEqual(selected_playback_lookup_subjects(entry), [{'name': 'Peter Luts', 'role': 'artist_lookup'}])
+        self.assertEqual(selected_playback_lookup_subjects(None), [])
+        self.assertEqual(selected_playback_lookup_subjects({**entry, 'kind': 'dj_moment'}), [])
+        changes = [{'cached': True}, {'stale': True}, {'withdrawn': True}, {'state': 'idle'},
+            {'uri': ''}, {'title': ''}, {'artist': 'Peter Luts, Peter Gabriel'},
+            {'artist': 'Peter Luts / Peter Gabriel'},
+            {'valid_until': (datetime.now(UTC) - timedelta(seconds=1)).isoformat()}]
+        for changed in changes:
+            with self.subTest(changed=changed):
+                self.assertEqual(selected_playback_lookup_subjects({**entry,
+                    'playback': {**entry['playback'], **changed}}), [])
+
+    def test_selected_playback_lookup_expiry_remains_fenced_after_subject_resolution(self):
+        from types import SimpleNamespace
+        from datetime import datetime, UTC, timedelta
+        from custom_components.djconnect.ask_dj import public_research, observations
+        from custom_components.djconnect.ask_dj.dialogue import DialogueError
+        now = datetime.now(UTC)
+        entry = {'kind': 'playback_observed', 'playback': {'uri': 'spotify:track:' + 'P' * 22,
+            'title': 'Private fixture recording', 'artist': 'Peter Luts', 'state': 'playing',
+            'valid_until': (now + timedelta(seconds=1)).isoformat()}}
+        turn = SimpleNamespace(source_context={}, reset_topic=True,
+            frame=SimpleNamespace(subjects=[]), selected_read_context=entry,
+            delivery_validators=[], effect_validators=[])
+        self.assertEqual(public_research.subject_for_question('Who is Peter?', turn), ('Peter Luts', True, False))
+        class Later(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return now + timedelta(seconds=2)
+        with patch.object(observations, 'datetime', Later):
+            for guard in turn.delivery_validators + turn.effect_validators:
+                with self.assertRaises(DialogueError):
+                    guard()
+
+    async def test_selected_playback_artist_lookup_keeps_original_session_fence_during_fetch(self):
+        from custom_components.djconnect.session_conversation import query_service
+        from custom_components.djconnect.ask_dj import public_research
+        session = await self.fixture.observed_session()
+        await self.fixture.manager.async_update_playback_projection(owner_profile_id='profile-a',
+            session_id=session.session_id, state='playing', media_identity='spotify:track:' + 'P' * 22,
+            title='Private fixture recording', artist='Peter Luts', album='Private fixture edition',
+            duration_ms=300000, position_ms=1000)
+        page = await query_service(self.hass, self.history).async_timeline_page('profile-a', session.session_id)
+        entry = next(row for row in page['entries'] if row['kind'] == 'playback_observed'
+                     and (row.get('playback') or {}).get('artist') == 'Peter Luts')
+        calls = []
+        async def withdrawn(boundary, url, **kwargs):
+            calls.append(url)
+            await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=session.session_id)
+            await boundary.guard()
+            self.fail('Original session withdrawal must reject the fetch result')
+        with patch.object(public_research.PublicFetch, 'request', withdrawn):
+            result, status = await self.request('Who is Peter?', identifier='withdraw-playback-lookup',
+                context={'session_id': session.session_id, 'selected_entry': {
+                    'session_id': session.session_id, 'entry_id': entry['entry_id']}})
+        self.assertEqual(status, 409, result)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(self.prompts, [])
+        self.assertEqual(self.effects, [])
+
     async def test_public_research_rejects_unsupported_answer_without_false_sources(self):
         for index, answer in enumerate((
             'Peter Luts invented every synthesizer.',
