@@ -54,6 +54,34 @@
     "golden_nl_speech_unavailable": {
       "file": "tests/test_ask_dj_contextual_dialogue.py",
       "method": "test_dutch_unavailable_provider_keeps_text_and_does_not_repeat"
+    },
+    "for_you_session_locale": {
+      "file": "tests/test_session_for_you.py",
+      "method": "test_session_locale_drives_intro_despite_default_english_profile"
+    },
+    "for_you_read_locale_no_generation": {
+      "file": "tests/test_session_for_you.py",
+      "method": "test_locale_projection_never_regenerates_renews_or_changes_mix_ids"
+    },
+    "for_you_one_confirmed_mood_preparation": {
+      "file": "tests/test_session_for_you.py",
+      "method": "test_one_preparation_per_confirmed_revision_and_poll_never_retries"
+    },
+    "for_you_latest_mood_response_wins": {
+      "file": "tests/test_session_for_you.py",
+      "method": "test_late_mood_result_cannot_replace_newer_offer"
+    },
+    "for_you_failed_mood_preparation_no_retry": {
+      "file": "tests/test_session_for_you.py",
+      "method": "test_failed_refresh_is_not_restarted_by_same_revision"
+    },
+    "for_you_welcome_mood_session_only": {
+      "file": "tests/test_profile_settings_owner.py",
+      "method": "test_explicit_welcome_mood_is_session_only_and_preserves_stored_defaults"
+    },
+    "for_you_actual_refresh_and_speaker_wire": {
+      "file": "tests/test_for_you_refresh_contract.py",
+      "method": "test_original_ha_fixture_matches_the_current_producer_and_harness"
     }
   },
   "families": [
