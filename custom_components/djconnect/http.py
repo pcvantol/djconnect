@@ -5020,15 +5020,8 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
                     code_verifier=ctx["code_verifier"],
                     redirect_uri=ctx["redirect_uri"],
                 )
-                runtime = _runtime(hass)
-                entry = getattr(runtime, "entry", None)
-                if entry is not None:
-                    _store_rotated_spotify_refresh_token(
-                        hass,
-                        entry,
-                        runtime,
-                        token.get("refresh_token"),
-                    )
+                # Initial setup has no credential owner yet. Keep this grant
+                # solely in its original pending flow, never a global runtime.
                 results = hass.data.setdefault(DOMAIN, {}).setdefault("config_flow_oauth_results", {})
                 results[state] = {
                     CONF_SPOTIFY_CLIENT_ID: ctx["client_id"],
@@ -5070,6 +5063,16 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
 
         try:
             repair = ctx.get('profile_connection_repair')
+            connection = ctx.get("profile_reauthorization")
+            bound_entry = hass.config_entries.async_get_entry(ctx["entry_id"])
+            if bound_entry is None:
+                raise ValueError("profile_connection_unavailable")
+            if connection:
+                from .spotify_connection_repair import reauthorization_entries
+
+                requester, owner = reauthorization_entries(hass, connection, ctx["client_id"])
+                if owner is not bound_entry:
+                    raise ValueError("profile_connection_unavailable")
             if repair:
                 from .spotify_connection_repair import repaired_config
 
@@ -5085,13 +5088,23 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
                 redirect_uri=ctx["redirect_uri"],
             )
             entry = hass.config_entries.async_get_entry(ctx["entry_id"])
-            if entry is None:
-                raise RuntimeError("DJConnect config entry no longer exists")
+            if entry is not bound_entry or getattr(entry, "disabled_by", None) is not None:
+                raise ValueError("profile_connection_unavailable")
+            if connection:
+                same_requester, owner = reauthorization_entries(hass, connection, ctx["client_id"])
+                if same_requester is not requester or owner is not bound_entry:
+                    raise ValueError("profile_connection_unavailable")
             new_options = None
             if repair:
                 new_data, new_options = repaired_config(hass, entry, repair, ctx['client_id'])
             else:
                 new_data = dict(entry.data)
+                # Credential overrides may not shadow the fresh owner grant.
+                if connection:
+                    new_options = dict(entry.options)
+                    for key in (CONF_SPOTIFY_CLIENT_ID, CONF_SPOTIFY_REFRESH_TOKEN,
+                                CONF_SPOTIFY_MARKET, CONF_SPOTIFY_SCOPES, SCOPE_EVIDENCE_KEY):
+                        new_options.pop(key, None)
             new_data[CONF_SPOTIFY_CLIENT_ID] = ctx["client_id"]
             new_data[CONF_SPOTIFY_REFRESH_TOKEN] = token["refresh_token"]
             new_data[CONF_SPOTIFY_MARKET] = ctx.get("market", DEFAULT_SPOTIFY_MARKET)
@@ -5102,8 +5115,19 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
                 new_data[CONF_HA_EXTERNAL_URL] = ctx['redirect_uri'].removesuffix(API_SPOTIFY_CALLBACK)
             hass.config_entries.async_update_entry(entry, data=new_data,
                 **({'options': new_options} if new_options is not None else {}))
-            runtime = (hass.data.get(DOMAIN, {}).get(entry.entry_id) if repair else _runtime(hass))
-            if runtime is not None:
+            if connection and requester is not entry:
+                # Only this explicitly selected alias may be reconciled after
+                # the fresh grant; never copy the credential owner into it.
+                options = dict(requester.options)
+                options.update(profile_backend_entry_id=entry.entry_id,
+                               profile_id=connection["profile_id"],
+                               music_account_id=connection["account_id"],
+                               music_backend_id=connection["backend_id"],
+                               music_backend=connection["backend_id"])
+                if options != dict(requester.options):
+                    hass.config_entries.async_update_entry(requester, options=options)
+            runtime = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+            if runtime is not None and getattr(runtime, "entry", entry) is entry:
                 runtime.update_spotify_refresh_token(token.get("refresh_token"))
                 _LOGGER.debug("DJConnect Spotify refresh_token=rotated/present")
             _delete_spotify_reauth_issues(hass, entry.entry_id)
@@ -5116,10 +5140,9 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
             flow_id = ctx.get("flow_id")
             if flow_id:
                 try:
-                    await hass.config_entries.flow.async_configure(
-                        flow_id,
-                        {"state": state},
-                    )
+                    manager = (hass.config_entries.options if ctx.get("flow_kind") == "options"
+                               else hass.config_entries.flow)
+                    await manager.async_configure(flow_id, {"state": state})
                 except Exception:  # noqa: BLE001
                     _LOGGER.debug(
                         "DJConnect OAuth options flow was already closed before callback completion",

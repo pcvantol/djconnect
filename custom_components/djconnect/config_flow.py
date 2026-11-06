@@ -274,11 +274,14 @@ def _options_actions_for_status(hass: Any, defaults: dict[str, Any]) -> dict[str
     """Return visible options actions for the current pairing state."""
     actions = dict(_options_action_names(hass))
     if defaults.get("profile_backend_entry_id"):
-        from .spotify_connection_repair import for_config
+        from .spotify_connection_repair import for_config, reauthorization_binding
 
-        # A surviving owner keeps its own reauthorization flow. An orphan may
-        # obtain a new explicit OAuth grant for its current, unchanged Profile.
-        if for_config(hass, defaults) is None:
+        # Every linked device can reconnect its current Profile's owner.
+        # Only a truly orphaned connection may obtain a replacement owner.
+        entries = getattr(getattr(hass, "config_entries", None), "async_entries", lambda _: [])(DOMAIN)
+        matches = [e for e in entries if e.data.get("device_id") == defaults.get("device_id")]
+        shared = reauthorization_binding(hass, matches[0]) if len(matches) == 1 else None
+        if shared is None and for_config(hass, defaults) is None:
             actions.pop(OPTIONS_ACTION_SPOTIFY_REAUTH, None)
     if defaults.get(CONF_MUSIC_BACKEND) == MUSIC_BACKEND_MUSIC_ASSISTANT:
         actions.pop(OPTIONS_ACTION_SPOTIFY_REAUTH, None)
@@ -3044,6 +3047,14 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                     }
                     return await self.async_step_music_assistant_player()
             elif selected_backend == MUSIC_BACKEND_SPOTIFY_DIRECT:
+                from .spotify_connection_repair import reauthorization_binding, reconnect_reference
+
+                connection = reauthorization_binding(self.hass, self._config_entry)
+                if connection is not None:
+                    # The selected Profile already owns this backend. Reuse it;
+                    # a linked device must not acquire its own credentials.
+                    options = reconnect_reference(self.hass, connection, connection["client_id"])
+                    return self.async_create_entry(title="", data=options)
                 merged = self._backend_switch_options(
                     {
                         CONF_MUSIC_BACKEND: selected_backend,
@@ -3310,8 +3321,15 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             return self.async_external_step_done(next_step_id="spotify_reauth_done")
         current = {**self._config_entry.data, **self._config_entry.options}
         client_id = str(current.get(CONF_SPOTIFY_CLIENT_ID) or "").strip()
+        from .spotify_connection_repair import reauthorization_binding, reauthorization_entries
+
+        connection = reauthorization_binding(self.hass, self._config_entry)
+        owner = self.hass.config_entries.async_get_entry(connection["owner_entry_id"]) if connection else None
+        if owner is not None:
+            current = {**owner.data, **owner.options}
+            client_id = connection["client_id"]
         repair = None
-        if current.get('profile_backend_entry_id'):
+        if connection is None and current.get('profile_backend_entry_id'):
             from .spotify_connection_repair import binding
 
             repair = binding(self.hass, self._config_entry)
@@ -3320,11 +3338,27 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
                     data_schema=await _voice_schema(self.hass, current, include_options_action=True),
                     errors={'base': 'profile_connection_unavailable'})
             client_id = repair['client_id']
+        manager = self.hass.data.get(DOMAIN, {}).get(PROFILE_PLATFORM_STORE_KEY)
+        if (connection is None and repair is None
+                and isinstance(manager, ProfilePlatformStorage)
+                and self._config_entry.data.get(CONF_DEVICE_ID) in manager.household.devices):
+            return self.async_show_form(step_id="init",
+                data_schema=await _voice_schema(self.hass, current, include_options_action=True),
+                errors={"base": "profile_connection_unavailable"})
         external_url = str(
             current.get(CONF_HA_EXTERNAL_URL)
             or await _async_default_external_url(self.hass)
             or ""
         ).strip().rstrip("/")
+        if connection is not None:
+            try:
+                _, current_owner = reauthorization_entries(self.hass, connection, client_id)
+                if current_owner is not owner:
+                    raise ValueError("profile_connection_unavailable")
+            except ValueError:
+                return self.async_show_form(step_id="init",
+                    data_schema=await _voice_schema(self.hass, current, include_options_action=True),
+                    errors={"base": "profile_connection_unavailable"})
         if repair is not None and binding(self.hass, self._config_entry) != repair:
             return self.async_show_form(step_id='init',
                 data_schema=await _voice_schema(self.hass, current, include_options_action=True),
@@ -3355,6 +3389,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
             "state": state,
             "redirect_uri": redirect_uri,
             **({'profile_connection_repair': True} if repair else {}),
+            **({'profile_reauthorization': connection} if connection else {}),
             "authorize_url": build_authorize_url(
                 client_id,
                 redirect_uri,
@@ -3369,13 +3404,15 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
         )
         pending[state] = {
             "flow_id": self.flow_id,
-            "entry_id": self._config_entry.entry_id,
+            "entry_id": owner.entry_id if owner is not None else self._config_entry.entry_id,
+            "flow_kind": "options",
             "client_id": client_id,
             "code_verifier": code_verifier,
             "redirect_uri": redirect_uri,
             "market": current.get(CONF_SPOTIFY_MARKET, DEFAULT_SPOTIFY_MARKET),
             "scopes": DEFAULT_SPOTIFY_SCOPES,
             **({'profile_connection_repair': repair} if repair else {}),
+            **({'profile_reauthorization': connection} if connection else {}),
         }
         result = self.async_external_step(
             step_id="spotify_reauth",
@@ -3396,7 +3433,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
     ) -> FlowResult:
         """Show a translated completion step after Spotify OAuth reauthorization."""
         if user_input is not None:
-            if self._oauth.get('profile_connection_repair'):
+            if self._oauth.get('profile_connection_repair') or self._oauth.get('profile_reauthorization'):
                 # The callback already committed this unchanged Profile/backend
                 # identity. Do not run a second Profile switch after fresh OAuth.
                 self._pending_backend_switch = None

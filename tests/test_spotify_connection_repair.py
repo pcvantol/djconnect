@@ -171,3 +171,100 @@ class SpotifyConnectionRepairTest(unittest.IsolatedAsyncioTestCase):
         )
         with self.assertRaises(ValueError):
             self.repair.repaired_config(self.hass, self.entry, expected, "a" * 32)
+
+
+class ProfileSpotifyReconnectTest(unittest.IsolatedAsyncioTestCase):
+    setUpClass = SpotifyConnectionRepairTest.__dict__["setUpClass"]
+    asyncSetUp = SpotifyConnectionRepairTest.asyncSetUp
+
+    async def owner(self):
+        self.owner_entry = types.SimpleNamespace(
+            entry_id="profile-owner", disabled_by=None, state="loaded",
+            data={"profile_id": self.profile, "music_account_id": "account-default",
+                  "music_backend": "spotify_direct", "spotify_client_id": "a" * 32,
+                  "spotify_refresh_token": "owner-only", "ha_external_url": "https://ha.example"},
+            options={})
+        self.entries.append(self.owner_entry)
+        self.entry.data["profile_backend_entry_id"] = self.owner_entry.entry_id
+        self.entry.data.pop("spotify_refresh_token")
+
+    async def test_linked_device_exposes_profile_reconnect_and_targets_owner(self):
+        await self.owner()
+        self.assertIn("spotify_reauthorize", self.flow._options_actions_for_status(self.hass, self.entry.data))
+        flow = self.flow.DJConnectOptionsFlow(self.entry)
+        flow.hass, flow.flow_id = self.hass, "shared-options"
+        result = await flow.async_step_spotify_reauth()
+        self.assertEqual(result["type"], "external")
+        pending = self.hass.data["djconnect"]["spotify_oauth_pending"][flow._oauth["state"]]
+        self.assertEqual(pending["entry_id"], self.owner_entry.entry_id)
+        self.assertEqual(pending["flow_kind"], "options")
+        self.assertEqual(pending["profile_reauthorization"]["requester_entry_id"], self.entry.entry_id)
+        self.assertNotIn("owner-only", repr(pending))
+        self.assertNotIn("spotify_refresh_token", self.entry.data)
+
+    async def test_pending_identity_cannot_survive_profile_or_owner_change(self):
+        await self.owner()
+        expected = self.repair.reauthorization_binding(self.hass, self.entry)
+        self.assertIsNotNone(expected)
+        self.owner_entry.data["spotify_client_id"] = "b" * 32
+        self.assertIsNone(self.repair.reauthorization_binding(self.hass, self.entry))
+        with self.assertRaises(ValueError):
+            self.repair.reauthorization_entries(self.hass, expected, "a" * 32)
+
+    async def test_same_spotify_selection_reuses_profile_without_oauth(self):
+        await self.owner()
+        flow = self.flow.DJConnectOptionsFlow(self.entry)
+        flow.hass = self.hass
+        result = await flow.async_step_music_backend({"music_backend": "spotify_direct"})
+        self.assertEqual(result["type"], "create_entry")
+        self.assertNotIn("spotify_oauth_pending", self.hass.data["djconnect"])
+        self.assertNotIn("spotify_refresh_token", result["data"])
+        self.assertEqual(result["data"]["profile_backend_entry_id"], self.owner_entry.entry_id)
+
+    async def test_supported_devices_share_one_connection_without_credential_copies(self):
+        await self.owner()
+        for client_type, prefix in (("ios", "ios"), ("macos", "macos"), ("watchos", "watchos"),
+                                    ("raspberry_pi", "raspberry-pi"), ("esp32", "lilygo-t-embed-s3")):
+            with self.subTest(client_type=client_type):
+                device_id = "djconnect-" + prefix + "-ABCDEF123456"
+                await self.manager.async_upsert_device(device_id, client_type, linked_profile_id=self.profile)
+                self.entry.data.update(device_id=device_id, client_type=client_type)
+                expected = self.repair.reauthorization_binding(self.hass, self.entry)
+                self.assertEqual(expected["owner_entry_id"], self.owner_entry.entry_id)
+                self.assertIn("spotify_reauthorize", self.flow._options_actions_for_status(self.hass, self.entry.data))
+                self.assertNotIn("spotify_refresh_token", self.entry.data)
+
+    async def test_changed_or_ambiguous_current_owner_never_receives_pending_grant(self):
+        for change in ("disabled", "unloaded", "ambiguous", "requester_disabled", "binding_generation"):
+            await self.asyncSetUp()
+            await self.owner()
+            expected = self.repair.reauthorization_binding(self.hass, self.entry)
+            with self.subTest(change=change):
+                if change == "disabled":
+                    self.owner_entry.disabled_by = "user"
+                elif change == "unloaded":
+                    self.owner_entry.state = "not_loaded"
+                elif change == "ambiguous":
+                    self.entries.append(types.SimpleNamespace(entry_id="other-owner", disabled_by=None,
+                        state="loaded", data=dict(self.owner_entry.data), options={}))
+                elif change == "requester_disabled":
+                    self.entry.disabled_by = "user"
+                else:
+                    household = self.manager.household
+                    device = household.devices[self.device]
+                    self.manager._household = replace(household, devices={self.device: replace(device, binding_generation="f" * 32)})
+                with self.assertRaises(ValueError):
+                    self.repair.reauthorization_entries(self.hass, expected, "a" * 32)
+
+    async def test_profile_owned_entry_cannot_fall_back_to_unfenced_oauth(self):
+        await self.owner()
+        # A credential-owning paired device whose Profile connection has gone
+        # away must not use a legacy local-credential fallback to mint a flow.
+        self.entry.data.pop("profile_backend_entry_id")
+        self.entry.data.update(spotify_client_id="a"*32, spotify_refresh_token="legacy-local")
+        flow = self.flow.DJConnectOptionsFlow(self.entry)
+        flow.hass, flow.flow_id = self.hass, "must-not-open"
+        result = await flow.async_step_spotify_reauth()
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["errors"]["base"], "profile_connection_unavailable")
+        self.assertNotIn("spotify_oauth_pending", self.hass.data["djconnect"])

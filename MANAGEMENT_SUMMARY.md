@@ -1,3 +1,101 @@
+## 2026-11-06 — Profile-owned Spotify reconnect repair
+
+### Repository Status
+
+Authorized repair on `codex/profile-spotify-reconnect-20261106`, based on
+qualified main `b5f06bb6ec29b7d2a5f2ca464550b269def8976d`. Predecessor #1490
+Finalization and independent main run42277371292 passed. Its identical clean
+worktree was bundled, verified and removed; other lanes and WIP are preserved.
+Current host verify exited0 with all required desired-state rows MATCH.
+Local source qualification passes all4700 canonical tests (11 existing skips),
+all34 actual-HA groups,178 focused tests and8 lifecycle/roadmap checks.
+Protected source PR qualification and exact Owner Authorization follow.
+
+### Management Summary
+
+Spotify belongs to the Profile/account. Any currently linked supported device
+can open normal PKCE reconnect for that same current HA credential owner.
+The device title that originally stored the grant is never a user prerequisite.
+Source resolves and fences the current device binding generation, Profile,
+account, backend, client ID and exact existing owner across OAuth awaits.
+Credentials remain only in that owner; original orphan recovery stays separate
+and cannot elect over an existing, disabled or unloaded owner.
+Selecting the already selected Spotify backend reuses the connection without
+requiring local client credentials or starting another grant. A stale deleted
+owner reference may be reconciled only for the explicitly selected requester.
+
+Initial setup no longer changes a global existing runtime. Reauthorization
+updates only its exact current owner and completes the HA options manager.
+A changed/replaced requester or owner, ambiguous ownership and old local
+credential fallback cannot bypass current Profile admission. New options error
+rendering is present in all five supported languages.
+
+Scope-observation metadata persists without full integration reloads; meaningful
+client-ID/backend/Profile configuration still reloads. The related read-only
+Discovery command validates its registered caller while retaining the canonical
+view's original provider and complete scope, including stale-pairing rejection.
+
+All34 maintained isolated actual-HA protocol groups pass on the same308 product
+files. Ten new callback/Store cases pass; the separate real paired canonical-view
+probe succeeds and denies a changed pairing. Existing fixtures, historical
+failures and actual rerun receipts are retained. Full repository test and static
+results are recorded in `docs/verification/PROFILE_SPOTIFY_RECONNECT_20261106.md`.
+Real OAuth, installed/native, audible playback and APNs acceptance are separate.
+
+### Roadmap Position
+
+Generation2 Product Development, Phase1 Platform Qualification stays unchanged.
+This increment reconciles source1489 only. Settings producer/dependencies and
+planned consumer horizon were reread; no new consumer prompt is issued.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+### Blocked Items
+
+Current-source GitHub checks and exact Owner Authorization are required before
+merge; mandatory separate Finalization follows. HA-dev source-only recovery
+remains debug1e990d979d55b5e54f58f3e90f9a65ec03c92516 with the original #1439
+patch. Do not reinstall the known-failing scope observer before this repair is
+qualified. Installation after merge requires independent composite qualification,
+all installed hashes and runtime readback, preserving current credentials.
+#1439 live signer/restore/physical Apple/APNs gates remain open. HAEVN discovery
+and the native uncertain ForYou presentation remain separately correlated work;
+no provider rejection or fabricated catalogue rows are inferred from absent logs.
+
+### Deferred Items
+
+Retained-latest draft #1486, historical paid Golden findings and physical/native
+acceptance are unchanged. No model or provider calls were used for this source
+qualification; Golden998 case policies/locales and execute:false are preserved.
+The Help EN/NL textual publication boundary and all five-language UI data remain.
+
+### Repository State
+
+REVIEWABLE_FROZEN — one coherent Profile reconnect/reload regression repair.
+See `docs/product/PROFILE_SPOTIFY_RECONNECT_V1.md` and the dated verification
+report. Normal protected Source and separate Finalization remain mandatory.
+
+### Workspace State
+
+Own isolated source branch only. All previous product/debug/overlay worktrees,
+private recovery snapshots, original receipts and WIP remain. Prior #1490
+Finalization cleanup is proven; global WORKSPACE_READY is not claimed for other
+active lanes. Timer remains stopped.
+
 ## 2026-11-06 — Discovery source1489 Finalization
 
 ### Repository Status
