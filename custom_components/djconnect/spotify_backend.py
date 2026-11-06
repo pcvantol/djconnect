@@ -290,6 +290,8 @@ async def handle_spotify_command(
             "success": True,
             **await backend.related_artists(_artist_album_query(value)),
         }
+    if normalized == "artist_collections":
+        return {"success": True, **await backend.artist_collections(_artist_album_query(value))}
     if normalized == "artist_profile":
         return {
             "success": True,
@@ -1469,6 +1471,86 @@ class SpotifyBackend:
             }
 
         return await self._cached(f"related_artists:{query.lower()}", load, ttl=LISTENING_PROFILE_CACHE_TTL_SECONDS)
+
+    async def artist_collections(self, query: str) -> dict[str, Any]:
+        """Bounded read-only artist albums and credited playlist candidates."""
+        from aiohttp import ClientError
+
+        result = {"artist": {}, "albums": [], "playlists": [],
+                  "availability": {"albums": "unavailable", "playlists": "unavailable"}}
+        deadline = asyncio.get_running_loop().time() + 10
+        async def bounded(awaitable, seconds):
+            remaining = deadline - asyncio.get_running_loop().time()
+            if remaining <= 0:
+                awaitable.close()
+                raise TimeoutError
+            return await asyncio.wait_for(awaitable, min(seconds, remaining))
+        failures = (SpotifyBackendError, ClientError, OSError, TimeoutError)
+        try:
+            artist = await bounded(self.artist_profile(query), 3)
+        except failures:
+            return result
+        artist_id = str(artist.get("id") or "")
+        if (not re.fullmatch(r"[A-Za-z0-9]{22}", artist_id)
+                or artist.get("uri") != "spotify:artist:" + artist_id
+                or not artist.get("name")):
+            return result
+        result["artist"] = artist
+        try:
+            params = urlencode({"include_groups": "album", "limit": 20,
+                                "market": self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET})
+            page = await bounded(self._request("GET", f"/artists/{artist_id}/albums?{params}"), 2.5)
+            items = page.get("items") if isinstance(page, dict) else None
+            if not isinstance(items, list):
+                raise ValueError("invalid_catalog_page")
+            seen = set()
+            for item in items[:20]:
+                if not isinstance(item, dict):
+                    continue
+                uri = str(item.get("uri") or "")
+                credits = item.get("artists")
+                if (not re.fullmatch(r"spotify:album:[A-Za-z0-9]{22}", uri)
+                        or item.get("id") != uri.rsplit(":", 1)[1]
+                        or item.get("album_type") != "album"
+                        or not item.get("name") or uri in seen
+                        or not isinstance(credits, list)
+                        or not any(isinstance(a, dict) and a.get("id") == artist_id for a in credits)):
+                    continue
+                seen.add(uri)
+                result["albums"].append(_normalize_album_item(item))
+            result["albums"] = _dedupe_albums(result["albums"])[:5]
+            result["availability"]["albums"] = "available"
+        except (*failures, ValueError):
+            pass
+        try:
+            params = urlencode({"q": str(artist["name"]), "type": "playlist", "limit": 10,
+                                "market": self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET})
+            page = await bounded(self._request("GET", f"/search?{params}"), 2.5)
+            candidates = (page.get("playlists") or {}).get("items") if isinstance(page, dict) else None
+            if not isinstance(candidates, list):
+                raise ValueError("invalid_catalog_page")
+            seen = set()
+            failed_checks = False
+            for item in candidates[:10]:
+                uri = str(item.get("uri") or "") if isinstance(item, dict) else ""
+                if (not re.fullmatch(r"spotify:playlist:[A-Za-z0-9]{22}", uri)
+                        or uri in seen or item.get("id") != uri.rsplit(":", 1)[1]
+                        or not item.get("name")):
+                    continue
+                seen.add(uri)
+                try:
+                    credited = await bounded(self.playlist_contains_artist(uri, artist_id), 1)
+                except failures:
+                    failed_checks = True
+                    continue
+                if credited:
+                    result["playlists"].append(_normalize_playlist(item))
+                    if len(result["playlists"]) == 5:
+                        break
+            result["availability"]["playlists"] = "partial" if failed_checks else "available"
+        except (*failures, ValueError):
+            pass
+        return result
 
     async def artist_profile(self, query: str) -> dict[str, Any]:
         """Fetch compact Spotify artist profile metadata for Ask DJ style questions."""
