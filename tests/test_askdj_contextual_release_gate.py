@@ -17,6 +17,34 @@ RUNNER = load('contextual_gate', 'tools/verification/run_askdj_contextual_releas
 
 
 class ContextualReleaseGateTest(unittest.TestCase):
+    def test_external_fact_fixture_accepts_and_obeys_current_resolver_authority(self):
+        # Reproduce the actual pre-model setup failure without paying for a run.
+        import ast
+        import asyncio
+        import os
+        from unittest.mock import patch
+        source = ROOT / 'scripts/verification/verify_ask_dj_contextual_dialogue_http.py'
+        function = next(node for node in ast.walk(ast.parse(source.read_text()))
+                        if isinstance(node, ast.AsyncFunctionDef) and node.name == 'source_fixture')
+        observations = []
+        namespace = {'os': os, 'external_facts': observations, 'state': {'index': 0},
+                     'tracks': [{'name': 'Fixture recording', 'artists': [{'name': 'Peter Luts'}]}]}
+        exec(compile(ast.Module(body=[function], type_ignores=[]), str(source), 'exec'), namespace)
+        checks = []
+        def authorize():
+            checks.append('authorized')
+        with patch.dict(os.environ, {'DJC_SAFETY_PROBE': 'contextual_golden'}):
+            result = asyncio.run(namespace['source_fixture'](object(), 'isrc/NLABC2600001',
+                                                            authorize=authorize))
+        self.assertEqual(result['recordings'][0]['artist-credit'][0]['artist']['name'], 'Peter Luts')
+        self.assertTrue(checks)
+        self.assertEqual(len(observations), 1)
+        def withdrawn():
+            raise PermissionError('source_authority_withdrawn')
+        with self.assertRaises(PermissionError):
+            asyncio.run(namespace['source_fixture'](object(), 'recording/fixture', authorize=withdrawn))
+        self.assertEqual(len(observations), 1, 'Denied authority must not reach external fixture I/O')
+
     def test_publication_only_probe_never_submits_followup_or_qualifies_complete_case(self):
         import asyncio
         from types import SimpleNamespace
