@@ -973,7 +973,11 @@ async def main(*, qualification_profile='legacy_low'):
 
         external_facts = []
 
-        async def source_fixture(self, path, params=None, *, wikidata=False):
+        async def source_fixture(self, path, params=None, *, wikidata=False, authorize=None):
+            # The real resolver revalidates source authority around external reads.
+            # Keep its current signature and denial in the provider-I/O fixture.
+            if authorize is not None:
+                authorize()
             external_facts.append({"path": path, "wikidata": wikidata})
             recording = {
                 "id": "11111111-1111-1111-1111-111111111111",
