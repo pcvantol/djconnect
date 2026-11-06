@@ -63,10 +63,34 @@ All11 actual Spotify grants were already known from the ordinary #1487 refresh;
 no PKCE, credential export, broader rights, model call or playback write was used
 for this diagnosis. It does not supply a runtime artist-card URI fallback.
 
-After this docs-only merge, rebind identical product provenance and independently
-read runtime again without another restart. Operator-specific receipts remain
-private; source proof, installation, provider access and native/audible outcomes
-are distinct claims.
+Subsequent live investigation established an independent operational regression:
+spotify_scope_evidence changes observed_at on refresh, but the entry reload
+signature does not exclude that metadata. Since18:47:53Z, safe log counters showed
+536 repeated setup lines and470 profile_connection_unavailable events, with no
+invalid_grant. Ordinary DEFAULT-owner status was200 while both Macs returned400
+profile_connection_unavailable. No missing Spotify rights or revoked grant was
+established. The read-only diagnostic's local fence denial is therefore not a
+provider access outcome; canonical view handling also remains a separate check.
+
+To restore service, only source was returned to the intact previously qualified
+debug1e990d979d55b5e54f58f3e90f9a65ec03c92516 (main_dacf9cd0 plus original1439).
+All308 recovery hashes, configuration check0, DBquick_check and unchanged Profile
+defaults passed. Fresh ordinary status reads from DEFAULT and both actual Macs
+now return200/success/backend_available:true. Current credentials and Profile
+storage were not restored or rewritten from backup. The newer source and a fresh
+private recovery snapshot remain retained. #1489 and scope observer changes are
+temporarily absent from HA-dev; original source/CI/merge evidence remains true.
+
+Do not relabel this older installed product as the latest main or reinstall the
+known failing observer solely for this documentary PR. The recovery manifest
+remains authoritative. The next source repair must exclude observation-only
+receipts from reload identity, retain all original pairing/Profile/source fences
+and route reconnect from any client to the existing Profile credential owner,
+without copying credentials or requiring a device-named configuration choice.
+The human explicitly confirmed Profile->Spotify, devices->Profile ownership.
+Operator-specific receipts remain private; source, installation, provider access
+and native/audible outcomes stay distinct. No real playback or new OAuth grant
+was used to diagnose or restore service.
 
 #### Roadmap Position
 
