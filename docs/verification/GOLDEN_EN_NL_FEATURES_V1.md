@@ -35,3 +35,14 @@ installation, audible playback, Apple devices or APNs. Existing live Golden and
 editorial evidence remain separate, including their historical failures and the
 owner-deferred German/French/Spanish remediation. The original 68-item inventory
 is not automatically closed by this addendum.
+
+## Original-output readback regression (2026-11-06)
+
+The cost-free functional job also runs `verify_for_you_output_readback_http` for
+EN/NL. It exercises the real paired HA/adapters with declared synthetic Spotify
+responses: an exact post-transfer player readback with a lagging device inventory
+starts the original frozen mix once; a paused old track is not mix confirmation;
+an unconfirmed/wrong output never starts the mix or retries its transfer. The
+original native13:46 response was unavailable, so this reproduced negative case
+is not asserted to identify that particular native failure. Original paid
+release qualification and all five UI language families remain unchanged.

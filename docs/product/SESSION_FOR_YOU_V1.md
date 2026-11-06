@@ -166,3 +166,20 @@ unknown/late acknowledgement, cancellation, client dismissal and recipe isolatio
 These are source/runtime-transport proofs, not installed HA-dev, real Spotify,
 Apple rendering, local-model, physical-device or APNs acceptance. Normal protected
 Source review/CI, separate Finalization and installed/native release gates remain.
+
+### Original output confirmation after speaker selection
+
+For the admitted genre-to-speaker continuation, the normal output adapter may
+confirm the exact selected output through its fresh post-transfer player readback
+(`action_outcome.state=dispatched`, `readback_confirmed=true`, and the exact
+`selected_output_id`). This private adapter receipt must also agree with the
+returned playback device ID. A separately lagging devices inventory cannot revoke
+that already confirmed transfer. This is output confirmation only: an old paused
+track is not proof that the selected mix started. The same frozen mix still requires
+its own exact output/first-track/playing readback to close the card.
+
+Without that exact output confirmation, the existing guarded fresh inventory
+check remains mandatory. A transfer acknowledgement alone, a wrong output ID or
+an uncertain response does not grant playback. Neither path repeats a transfer,
+retries a start or renews the original Session/context/choice lease. External
+provider responses remain distinct from native/audible acceptance.

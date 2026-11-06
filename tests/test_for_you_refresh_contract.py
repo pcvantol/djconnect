@@ -36,3 +36,24 @@ class ForYouRefreshContractTests(unittest.TestCase):
             played = rows['exact_mix_confirmed_once']
             self.assertTrue(played['action_outcome']['readback_confirmed'])
             self.assertFalse(played['for_you']['visible'])
+
+    def test_output_readback_proof_is_exact_and_keeps_unconfirmed_effects_closed(self):
+        record = json.loads((ROOT/'examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json').read_text())
+        self.assertTrue(record['source_unchanged'])
+        for name, digest in record['source_pins'].items():
+            self.assertEqual(hashlib.sha256((ROOT/name).read_bytes()).hexdigest(), digest, name)
+        self.assertEqual(hashlib.sha256((ROOT/record['harness']).read_bytes()).hexdigest(), record['harness_sha256'])
+        self.assertEqual(len(record['cases']), 6)
+        self.assertEqual(set(record['cases'].values()), {'PASS'})
+        self.assertEqual((record['real_provider_calls'], record['real_model_calls']), (0, 0))
+        self.assertEqual(record['installed_native_audible_apns'], 'NOT_RUN')
+        for example in record['examples']:
+            effects = example['synthetic_effects']
+            if example['case'] == 'confirmed':
+                self.assertEqual(example['status'], 200)
+                self.assertEqual([effect['kind'] for effect in effects], ['output', 'play'])
+                self.assertTrue(example['body']['action_outcome']['readback_confirmed'])
+            else:
+                self.assertEqual(example['status'], 409)
+                self.assertEqual([effect['kind'] for effect in effects], ['output'])
+                self.assertEqual(example['body']['error'], 'first_play_output_changed')
