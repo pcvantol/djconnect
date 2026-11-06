@@ -15,6 +15,9 @@ sys.path[:0] = [str(ROOT), str(ROOT/"scripts/verification")]
 
 
 async def qualify(hass, manager, history, request, client, *, after=None):
+    locale = os.environ.get("DJC_GOLDEN_LOCALE", "nl")
+    if locale not in {"en", "nl"}:
+        raise ValueError("unsupported_golden_locale")
     from custom_components.djconnect import mood_music_steering as first
     from custom_components.djconnect import spotify_backend
     from custom_components.djconnect.profile_context import profile_storage
@@ -139,7 +142,7 @@ async def qualify(hass, manager, history, request, client, *, after=None):
         return None
     async def fallback_intro(hass, runtime, admission, directions):
         return first.FOR_YOU_INTRO[admission.locale], False
-    async def start(locale="nl"):
+    async def start(locale=locale):
         previous = manager.current_active("profile-a")
         if previous:
             await manager.async_end(owner_profile_id="profile-a", session_id=previous.session_id)
@@ -155,7 +158,7 @@ async def qualify(hass, manager, history, request, client, *, after=None):
     async def select(offer, index, identifier):
         item = offer["result_set"]["items"][index]
         result, status = await request("POST", "/api/djconnect/v1/ask_dj/message", {
-            "client_message_id": identifier, "text": item["title"], "language": "nl", "audio_response": "never",
+            "client_message_id": identifier, "text": item["title"], "language": locale, "audio_response": "never",
             "conversation_context": offer["conversation_context"],
             "choice_action": {"result_set_id": offer["result_set"]["result_set_id"],
                               "action_id": item["action_id"], "operation": "select"}})
@@ -170,7 +173,7 @@ async def qualify(hass, manager, history, request, client, *, after=None):
             patch("custom_components.djconnect.speaker_delivery.connect_automatic"), \
             patch.object(api_handlers, "playback_observation_manager") as observations:
         observations.return_value.async_start_spotify = no_background
-        for locale in first.FOR_YOU_LABELS:
+        for locale in ((locale,) if "DJC_GOLDEN_LOCALE" in os.environ else first.FOR_YOU_LABELS):
             result, offer = await start(locale)
             assert offer["title"] == first.FOR_YOU_LABELS[locale]
             assert result["session_start_actions"]["schema_version"] == 2
@@ -184,6 +187,7 @@ async def qualify(hass, manager, history, request, client, *, after=None):
                 assert status == 200 and active["for_you"]["options"] == offer["options"], active
             assert state["reads"] == reads and not state["effects"]
             cases[locale+"_genuine_start_prepares_three_genres_polling_no_provider_or_effects"] = "PASS"
+        locale = os.environ.get("DJC_GOLDEN_LOCALE", "nl")
         from types import SimpleNamespace
         watch = api_handlers._session_offer_fields(hass, owner_runtime,
             SimpleNamespace(client_type='watchos', profile_id='profile-a', device_id='synthetic-watch'),
@@ -194,6 +198,11 @@ async def qualify(hass, manager, history, request, client, *, after=None):
         chosen = offer["result_set"]["items"][1]
         played = await select(offer, 1, "for-you-known-output")
         assert played["action_outcome"]["readback_confirmed"], played
+        original_effects = list(state["effects"])
+        repeated = await select(offer, 1, "for-you-known-output")
+        assert repeated["assistant_message"]["id"] == played["assistant_message"]["id"]
+        assert state["effects"] == original_effects
+        cases["duplicate_original_turn_never_starts_twice"] = "PASS"
         assert state["effects"] == [{"kind": "play", "uris": chosen["uris"], "output": "synthetic-first-play-output"}]
         active, status = await request("GET", "/api/djconnect/v1/session/active")
         assert status == 200 and not active["for_you"]["visible"]
@@ -213,15 +222,15 @@ async def qualify(hass, manager, history, request, client, *, after=None):
         result, offer = await start()
         before_offer = offer['offer_id']
         stale, status = await request('POST', '/api/djconnect/v1/ask_dj/message', {
-            'client_message_id': 'stale-old-session-refresh', 'text': first.FIRST_PLAY_COPY['nl'][1],
-            'language': 'nl', 'audio_response': 'never', 'conversation_context': old_context})
+            'client_message_id': 'stale-old-session-refresh', 'text': first.FIRST_PLAY_COPY[locale][1],
+            'language': locale, 'audio_response': 'never', 'conversation_context': old_context})
         assert status == 409, stale
         active, status = await request('GET', '/api/djconnect/v1/session/active')
         assert status == 200 and active['for_you']['offer_id'] == before_offer
         cases['old_session_refresh_cannot_rebind_or_replace_new_offer'] = 'PASS'
         refreshed, status = await request('POST', '/api/djconnect/v1/ask_dj/message', {
-            'client_message_id': 'explicit-same-session-refresh', 'text': first.FIRST_PLAY_COPY['nl'][1],
-            'language': 'nl', 'audio_response': 'never', 'conversation_context': offer['conversation_context']})
+            'client_message_id': 'explicit-same-session-refresh', 'text': first.FIRST_PLAY_COPY[locale][1],
+            'language': locale, 'audio_response': 'never', 'conversation_context': offer['conversation_context']})
         assert status == 200 and refreshed['success'] and not state['effects'], refreshed
         active, status = await request('GET', '/api/djconnect/v1/session/active')
         assert active['for_you']['offer_id'] == refreshed['result_set']['result_set_id'] != before_offer
@@ -234,10 +243,23 @@ async def qualify(hass, manager, history, request, client, *, after=None):
         active, status = await request("GET", "/api/djconnect/v1/session/active")
         assert status == 200 and not active["for_you"]["visible"] and not state["effects"]
         cases["authenticated_dismissal_no_effects_polls_remain_hidden"] = "PASS"
+        # Expire only the choice owner's clock; no real sleep or HA auth clock change.
+        result, offer = await start()
+        original_clock = history.dialogue.clock
+        with patch.object(history.dialogue, "clock", lambda: original_clock() + 3600):
+            item = offer["result_set"]["items"][0]
+            expired, status = await request("POST", "/api/djconnect/v1/ask_dj/message", {
+                "client_message_id": "expired-for-you-choice", "text": item["title"],
+                "language": locale, "audio_response": "never",
+                "conversation_context": offer["conversation_context"],
+                "choice_action": {"result_set_id": offer["offer_id"],
+                    "action_id": item["action_id"], "operation": "select"}})
+            assert status == 409 and not state["effects"], expired
+        cases["expired_choice_cannot_start_or_transfer_output"] = "PASS"
         if after is not None:
             cases.update(await after(hass, manager, history, request, state))
     return {"qualification": "ACTUAL_ISOLATED_HA_PAIRED_HTTP_STORE_FOR_YOU_SYNTHETIC_PROVIDER_ONLY",
-        "cases": cases, "examples": examples, "real_provider_calls": 0, "model_provider_calls": 0,
+        "language": locale, "cases": cases, "examples": examples, "real_provider_calls": 0, "model_provider_calls": 0,
         "native_installed_acceptance": "NOT_RUN", "paid_dependency": False,
         "harness_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
 
