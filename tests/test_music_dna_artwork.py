@@ -78,9 +78,16 @@ class MusicDNAArtworkTest(unittest.IsolatedAsyncioTestCase):
         await self.manager.async_clear("profile:one")
         self.assertTrue(all(not grant["guard"].valid() for grant in grants.values()))
 
-    async def test_same_name_aggregates_and_snapshots_do_not_gain_current_images(self):
+    async def test_favorites_project_exact_spotify_artist_without_enriching_label_only_rows(self):
+        self.record["artist_play_counts"] = {"Artist": 3, "Local Artist": 2}
         result = await self.response()
-        for row in result["profile"]["favorite_artists"]:
+        favorite, *others = result["profile"]["favorite_artists"]
+        self.assertEqual(favorite["uri"], ARTIST_URI)
+        self.assertEqual(favorite["image_subject_uri"], ARTIST_URI)
+        self.assertEqual(favorite["image_url"], self.media_items(result)[2]["image_url"])
+        self.assertNotIn("play_count", favorite)
+        self.assertIn({"name": "Local Artist", "play_count": 2}, others)
+        for row in others:
             self.assertNotIn("image_url", row)
             self.assertNotIn("uri", row)
         self.assertNotIn("image_url", json.dumps(result["profile"].get("snapshot_history", [])))
@@ -265,7 +272,7 @@ class MusicDNAArtworkTest(unittest.IsolatedAsyncioTestCase):
         path = root / "examples/client_contracts/music_dna_artwork_v1/profile-and-legacy-core-consolidation-20261022.json"
         original = json.loads(path.read_text())
         fixture = json.loads(path.with_name("profile-and-legacy-actual-ha-bulletin-diagnostics-current.json").read_text())
-        self.assertEqual(len(fixture["integration_source_hashes"]), 306)
+        self.assertEqual(len(fixture["integration_source_hashes"]), 308)
         for relative, expected in fixture["integration_source_hashes"].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), expected, relative)
         self.assertEqual(hashlib.sha256((root / original["harness"]).read_bytes()).hexdigest(), original["harness_sha256"])

@@ -39,6 +39,9 @@ class PresenceLedger:
     last_read_seconds: int = 0
     suppression_reason: str = ""
     total_published: int = 0
+    announcements_published: int = 0
+    last_announcement_at: float | None = None
+    announcement_read_seconds: int = 0
     persona_revision: int = 0
 
     @staticmethod
@@ -48,6 +51,9 @@ class PresenceLedger:
     def reason(self, mode: str, track_id: str) -> str:
         now = self.clock()
         self.publications = tuple(t for t in self.publications if now - t < 600)
+        if (self.last_announcement_at is not None
+                and now-self.last_announcement_at < self.announcement_read_seconds):
+            return 'announcement_readable_interval'
         gap, track_cap, window_cap = POLICIES[canonical_presence(mode)]
         if not track_cap:
             return "presence_music_only"
@@ -71,3 +77,9 @@ class PresenceLedger:
         bucket = self.bucket(track_id)
         self.track_counts[bucket] = min(6, self.track_counts[bucket] + 1)
         self.total_published += 1
+
+    def commit_announcement(self, read_seconds):
+        """One baseline intro; never spend/reset an auxiliary story allowance."""
+        self.announcements_published += 1
+        self.last_announcement_at = self.clock()
+        self.announcement_read_seconds = max(1, min(30, read_seconds))

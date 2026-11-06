@@ -161,3 +161,11 @@ frontend results and boundaries. Separate eight-document Finalization requires
 its own exact review/checks/publication authorization; its final receipt and
 cleanup remain external. No installation, native or live-provider acceptance is
 implied by this software/browser delivery.
+
+## Orphaned Spotify owner recovery
+
+When the referenced provider entry has been removed, existing paired clients may
+use explicit fresh OAuth recovery under
+[SPOTIFY_ORPHAN_CONNECTION_REPAIR_V1](SPOTIFY_ORPHAN_CONNECTION_REPAIR_V1.md).
+A surviving owner is never replaced merely because it is unavailable. Normal
+Profile reuse still copies no provider credentials.

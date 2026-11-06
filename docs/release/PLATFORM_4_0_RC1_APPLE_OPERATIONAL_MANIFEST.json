@@ -1,19 +1,19 @@
 {
-  "manifest_id": "release-apple-internal-4.0.0-40473",
+  "manifest_id": "release-apple-internal-4.0.0-40475",
   "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
   "approval": {
     "state": "APPROVED",
-    "approved_at": "2026-11-04",
-    "approved_statement": "The maintainer authorized installation of the exact DJConnect 4.0.0 build 40473 artifacts below on the Mac mini, MacBook, iPhone with its paired Watch, and iPad once the release gates pass, followed by physical Watch registration and development APNs verification.",
-    "effect": "This approval covers the exact source and three SHA-256-bound artifacts below on the specified devices using the Apple Secure Distribution Relay and local Apple Development provisioning."
+    "approved_at": "2026-11-05",
+    "approved_statement": "Peter explicitly authorized the merged Apple PR #316, fresh Release build 40475 and internal installation on iPhone, paired Watch, iPad, Mac mini and MacBook. He has confirmed iPhone and Watch are available again, lifting the temporary Watch deferral. All existing release and physical target checks remain required.",
+    "effect": "Exact source and three SHA-256-bound artifacts only, through existing Apple Secure Distribution Relay and local Apple Development provisioning. Keep paired_watch_validation=required and the combined iPhone/Watch route. No iPhone-only bypass, public publication or Core #1439/APNs acceptance."
   },
   "release_profile": "INTERNAL_RELEASE",
   "repositories": [
     {
       "repository": "pcvantol/djconnect-app",
-      "source_sha": "84ce2ab2184eb769e982824d979fbcc24d5279ca",
+      "source_sha": "3fde5ed34a1b2b787ad2f56a868f0ce55f8c3fd5",
       "version": "4.0.0",
-      "build_number": "40473"
+      "build_number": "40475"
     }
   ],
   "artifact_bindings": [
@@ -21,34 +21,45 @@
       "target": "apple_private_device",
       "target_device": "iphone",
       "github_repository_id": 1444773078,
-      "github_release_asset_id": 709389764,
-      "artifact_sha256": "a5f18b8112a08ccdb2d990a2f83901f11a6ace0329423ea7abd3aef04ae41dd0",
+      "github_release_asset_id": 713874952,
+      "artifact_sha256": "01cfb75d9d906721aae10a3a55c7d6adce3c25e6d9b35bc81f512baf933ce707",
       "signing": "local_developer_provisioning_required",
       "paired_watch_validation": "required",
-      "artifact_id": "709389764"
+      "artifact_id": "713874952"
     },
     {
       "target": "apple_private_device",
       "target_device": "ipad",
       "github_repository_id": 1444773078,
-      "github_release_asset_id": 709389760,
-      "artifact_sha256": "e25276a532f9f807d7f274500d5099acc36e9a7fb86019672cdcaa31bfb9947e",
+      "github_release_asset_id": 713874941,
+      "artifact_sha256": "c9dfbb3293d5500c923053e2ddbba9401dec751bb6f00885914c1bcb79ccbbab",
       "signing": "local_developer_provisioning_required",
-      "artifact_id": "709389760"
+      "artifact_id": "713874941"
     },
     {
       "target": "apple_private_device",
       "target_device": "macbook",
       "github_repository_id": 1444773078,
-      "github_release_asset_id": 709389762,
-      "artifact_sha256": "f8580cd3c8387e3fc06758b5ba17a1a12f1c855bfa19eae272de46589ab9271b",
+      "github_release_asset_id": 713874942,
+      "artifact_sha256": "48cac7dbcec4bdecdd97ba20b1cfbda63ba6c05a98b3a1ba62d65a70df0a661c",
       "signing": "local_developer_provisioning_required",
       "paired_watch_validation": "disabled",
-      "artifact_id": "709389762"
+      "artifact_id": "713874942"
     }
   ],
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
   "platform_version": "4.0",
-  "release_version": "4.0.0"
+  "release_version": "4.0.0",
+  "deployment_constraints": {
+    "dispatch_now": [
+      "iphone",
+      "ipad",
+      "macbook"
+    ],
+    "iphone_and_watch": "COMBINED_ROUTE_REQUIRED_TARGET_PREFLIGHT_REQUIRED",
+    "paired_watch_validation": "required",
+    "iphone_only_route": "NOT_QUALIFIED",
+    "for_you_feature": "NOT_INCLUDED_IN_THIS_RELEASE"
+  }
 }

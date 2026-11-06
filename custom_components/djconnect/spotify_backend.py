@@ -685,6 +685,7 @@ class SpotifyBackend:
                         'artwork_url':str(upcoming.get('image_url') or '')}
                        if upcoming and upcoming.get('title') and upcoming.get('artist') else {})
             items = []
+            announcement_candidates = []
             duration = 0
             for track in raw["queue"][:5]:
                 if not isinstance(track, dict) or track.get("type") != "track":
@@ -695,6 +696,8 @@ class SpotifyBackend:
                 item = _normalize_queue_item(track)
                 if not item or not safe_text(item.get("title")) or not safe_text(item.get("artist")):
                     break
+                if len(announcement_candidates) < 3:
+                    announcement_candidates.append({'uri': uri})
                 artist_ids = [a["id"] for a in (track.get("artists") or [])[:4]
                               if isinstance(a, dict) and _looks_like_spotify_id(a.get("id", ""))]
                 items.append({"title": item["title"], "artist": item["artist"],
@@ -705,6 +708,7 @@ class SpotifyBackend:
                 if len(items) >= 3 and duration >= 900000:
                     break
             return {"current_uri": current.get("uri"), "items": items,
+                    "_announcement_candidates": announcement_candidates,
                     "wall_deadline": observed_wall + 30, "up_next": up_next}
         try:
             data = await self._cached(cache_key, load, ttl=30)
@@ -748,6 +752,7 @@ class SpotifyBackend:
         if remaining <= 0 or scope != (runtime_scope(self.runtime), credential_cache_scope(self.runtime)):
             return {}
         return {"items": [{k: i[k] for k in ("title", "artist", "genres")} for i in items],
+                "_announcement_candidates": data.get('_announcement_candidates', []),
                 "deadline": deadline, "wall_deadline": data['wall_deadline'],
                 "up_next": {**data["up_next"],
                             "expires_at": datetime.fromtimestamp(time.time() + remaining, UTC).isoformat()}}

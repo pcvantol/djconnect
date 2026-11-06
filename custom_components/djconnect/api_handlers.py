@@ -361,10 +361,12 @@ async def async_handle_session_start_payload(
             raise PermissionError("session_result_withdrawn")
     from .transport_delivery import register_delivery_admission
     register_delivery_admission(delivery_guard)
-    from .mood_music_steering import first_play_catalogue, session_start_catalogue
+    if context.client_type in {"ios", "macos"}:
+        from .mood_music_steering import prepare_for_you_once
+        await prepare_for_you_once(hass, runtime, context, active or session,
+                                  _history_manager(hass, runtime), delivery_guard)
     return {"success": True, "session": (active or session).as_dict(),
-            "first_play_action": first_play_catalogue(hass, runtime, context.profile_id, active or session),
-            "session_start_actions": session_start_catalogue(hass, runtime, context.profile_id, active or session)}, 201
+            **_session_offer_fields(hass, runtime, context, active or session)}, 201
 
 
 async def _async_generate_initial_session_moment(
@@ -501,10 +503,14 @@ async def async_handle_active_session_payload(
     if error is not None:
         return error, int(status or 400)
     session = await session_runtime_manager(hass).async_get_active(context.profile_id)
-    from .mood_music_steering import first_play_catalogue, session_start_catalogue
+    if (session is not None and context.client_type in {"ios", "macos"}
+            and session.broadcast.first_play_state == 'confirmed'
+            and session.broadcast.first_play_pending is not None):
+        from .mood_music_steering import _record_for_you_confirmation
+        await _record_for_you_confirmation(_runtime, session.broadcast.first_play_pending)
+        _conversation_profile_fence(hass, _runtime, identity_payload(data), headers or {}, context)
     return {"success": True, "session": session.as_dict() if session else None,
-            "first_play_action": first_play_catalogue(hass, _runtime, context.profile_id, session),
-            "session_start_actions": session_start_catalogue(hass, _runtime, context.profile_id, session)}, 200
+            **_session_offer_fields(hass, _runtime, context, session)}, 200
 
 
 async def _async_owner_broadcast_session_context(
@@ -1609,6 +1615,15 @@ async def async_handle_ask_dj_message_payload(
 
     # Profile authorization also owns the Music DNA namespace; client hints do not.
     payload["music_dna_key"] = context.music_dna_key
+    from .mood_music_steering import first_play_requested
+    if first_play_requested(payload.get('text')):
+        active_offer_session = session_runtime_manager(hass).current_active(context.profile_id)
+        supplied_context = payload.get('conversation_context')
+        supplied_session = supplied_context.get('session_id') if isinstance(supplied_context, dict) else None
+        if (active_offer_session is not None and isinstance(supplied_context, (dict, type(None)))
+                and (not supplied_session or supplied_session == active_offer_session.session_id)):
+            payload['conversation_context'] = {'session_id': active_offer_session.session_id,
+                'thread_id': 'for-you-' + active_offer_session.session_id}
 
     async def delegate(confirmed_payload, scope_key, selected_entry, playback_result):
         if _mood_transition is not None:
@@ -1667,6 +1682,15 @@ async def async_handle_ask_dj_message_payload(
                                     _ha_service_runtime=_ha_service_runtime)
 
     try:
+        choice = payload.get('choice_action')
+        if isinstance(choice, dict) and choice.get('operation') == 'dismiss':
+            from .ask_dj.service import _context
+            from .mood_music_steering import dismiss_for_you
+            history = _history_manager(hass, bound_runtime)
+            await history.async_load()
+            validate_immediate()
+            return dismiss_for_you(hass, context.profile_id, context.device_id,
+                                   _context(payload), choice, history), 200
         result = await async_exchange(
             hass,
             bound_runtime,
@@ -1676,6 +1700,7 @@ async def async_handle_ask_dj_message_payload(
             delegate=delegate,
             validate_owner=validate_owner,
             validate_immediate=validate_immediate,
+            client_device_id=context.device_id,
             profile=context.profile,
             persist_history=persist_history and context.privacy_policy.allow_history_persistence
             and resolve_profile_privacy_policy(context.profile, {}).allow_history_persistence,
@@ -3577,3 +3602,11 @@ def _int_or_none(value: Any) -> int | None:
         return int(value) if value is not None else None
     except (TypeError, ValueError):
         return None
+
+
+def _session_offer_fields(hass, runtime, context, active):
+    from .mood_music_steering import first_play_catalogue, session_start_catalogue, for_you_projection
+    allowed = context.client_type in {"ios", "macos"}
+    return {"first_play_action": first_play_catalogue(hass, runtime, context.profile_id, active if allowed else None, client_device_id=context.device_id),
+            "session_start_actions": session_start_catalogue(hass, runtime, context.profile_id, active if allowed else None, client_device_id=context.device_id),
+            "for_you": for_you_projection(hass, runtime, context.profile_id, active, client_device_id=context.device_id) if allowed else None}

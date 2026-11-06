@@ -41816,7 +41816,7 @@
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "6c4e3406a04bd0d6e7b35564d5f04e36a40bab0ea23034f198be9d647f0a86aa"
+        "sha256": "67d5787fb17d6764b4a3e2c9c5db5119801d030a049f3e8e52764b3ffdce5a6c"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
@@ -41856,7 +41856,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "8f23a4944b336c75e309b5514dfb221c649377c51bdafb2473e96576ec4d17e5"
+        "sha256": "e1e2f49c0162e132ae856ddee1c249799f0bb32ad7397424a4b30b2f10ef7a5f"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -42068,7 +42068,7 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_PERSONA_V1.md",
-        "sha256": "a342eda7b169f9da5f4296297aae796554dbf6bc2286c28820182e6f3b1d9bf2"
+        "sha256": "141d2033f489a118dd72f0071ae2ef03bf9339689d9d28877aedcb0dc022a950"
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
@@ -42172,7 +42172,7 @@
       },
       {
         "path": "docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md",
-        "sha256": "2f140634e04300d5bd0e04a194e5b0c54ed3a22bcedbffe83b933a2dc7184cf8"
+        "sha256": "554a0702ec56a4295be7cef1d8280df2a160f7d0e52d162609e7a3b2bfb8e189"
       },
       {
         "path": "docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md",
@@ -42232,7 +42232,7 @@
       },
       {
         "path": "docs/product/DJ_PRESENCE_FOUR_LEVELS_V2.md",
-        "sha256": "c2a8f97f60683e0a87fcbdbf80ec1bba73cc65b1978d6951e801f0341453d127"
+        "sha256": "c35f7137b3c2d5866a1c58a4339d6d1341fd422ccc88752c2d7e770a2ac0ef21"
       },
       {
         "path": "docs/product/SESSION_ON_DEVICE_SPEECH_SETTINGS_V1.md",

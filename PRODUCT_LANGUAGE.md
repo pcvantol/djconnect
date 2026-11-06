@@ -124,6 +124,11 @@ each locale, not direct word-for-word translation from English.
 
 ## Feature naming rules
 
+The typed `music_announcement` Moment category uses Music announcement (en),
+Muziek aankondiging (nl), Musikankündigung (de), Annonce musicale (fr),
+Anuncio musical (es). Never infer this category from prose or relabel historical
+Track stories. See [the producer contract](docs/product/MUSIC_ANNOUNCEMENT_MOMENTS_V1.md).
+
 Good names should:
 
 - describe the experience, not the implementation;

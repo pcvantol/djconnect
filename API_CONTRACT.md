@@ -1,3 +1,14 @@
+## Session For you v1 — replacement source contract
+
+Session start/active expose an iOS/macOS-only cached for_you schema1 with three
+backed genre options and symbolic native visual_recipe. session_start_actions
+is schema2, first_play_action schema3 (same compatibility IDs). Selection and
+negative-only client dismissal use the existing Ask DJ message route; no endpoint
+or second playback engine is added. Polls never generate, expired actions require
+explicit renewal, unknown ACK never retries, and only chosen-mix confirmation
+closes the card. [Complete request/lifecycle contract](docs/product/SESSION_FOR_YOU_V1.md).
+Prior v1/v2 text below is historical and does not define the replacement UI.
+
 <!-- ASK_DJ_BAND_STORY_20261102 -->
 ## Current rich band-membership batch — 2 November2026
 

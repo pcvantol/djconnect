@@ -7,6 +7,11 @@ DJ_PRESENCE_OWNER_CONTRACT_V1.md. Historical delivery receipts remain unchanged.
 
 ## Canonical selection and real server policy
 
+Owner delta [Music announcement Moments v1](MUSIC_ANNOUNCEMENT_MOMENTS_V1.md)
+separates baseline introductions from the auxiliary story ledger below.
+`music_only` retains baseline text; speech follows its independent setting.
+Historical0/2/4/8 receipts qualify auxiliary stories and remain unchanged.
+
 Exactly four selectable/written canonical codes, in this order:
 `music_only`, `occasional`, `balanced`, `presenter`. Default `balanced`.
 Persona controls the host, Mood its expression; Presence controls frequency.

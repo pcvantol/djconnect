@@ -14,6 +14,12 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         await runtime_fixture.CurrentRuntimeValueTests.asyncSetUp(self)
         self.steering = importlib.import_module("custom_components.djconnect.mood_music_steering")
+        self.original_for_you_intro = self.steering._for_you_intro
+        async def intro(hass, runtime, admission, directions):
+            return self.steering.FOR_YOU_INTRO[admission.locale], False
+        narration = patch.object(self.steering, "_for_you_intro", intro)
+        narration.start()
+        self.addCleanup(narration.stop)
         self.dialogue = importlib.import_module("custom_components.djconnect.ask_dj.dialogue")
         self.spotify = importlib.import_module("custom_components.djconnect.spotify_backend")
         self.use_cases = importlib.import_module("custom_components.djconnect.use_cases")
@@ -136,10 +142,10 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
                     result = await self.offer()
                     self.assertEqual(result["first_play"]["state"], "genres")
                     actions = result["result_set"]["items"]
-                    self.assertEqual(tuple(a["genre"] for a in actions), self.owned_genres)
+                    self.assertEqual(set(a["genre"] for a in actions), set(self.owned_genres))
                     self.assertEqual(len({a["action_id"] for a in actions}), 3)
                     self.assertTrue(all(len(a["uris"]) >= 2 for a in actions))
-                    self.assertEqual(result["text"], self.steering.FIRST_PLAY_COPY[locale][3])
+                    self.assertEqual(result["text"], self.steering.FOR_YOU_INTRO[locale])
                     self.assertEqual(self.effects, [])
                     self.assertEqual(self.reservations, [])
 
@@ -151,28 +157,26 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
         self.assertEqual(len(self.reservations), 1)
         self.assertTrue(result["action_outcome"]["readback_confirmed"])
         self.assertFalse(result["playback_actions"])
-        self.assertEqual(self.active.broadcast.first_play_state, "closed")
-        self.assertTrue(self.active.broadcast.first_play_observed)
+        self.assertEqual(self.active.broadcast.first_play_state, "confirmed")
+        self.assertFalse(self.active.broadcast.first_play_observed)
         with self.assertRaises(self.dialogue.DialogueError):
             await self.choose(1, "new-id-cannot-repeat")
         self.assertEqual(len(self.effects), 1)
 
-    async def test_output_choice_resumes_original_three_genres_and_never_autoplays(self):
+    async def test_genre_choice_precedes_output_and_same_mix_resumes(self):
         self.devices[0]["is_active"] = False
-        output = await self.offer()
-        self.assertEqual(output["first_play"]["state"], "output")
+        genres = await self.offer()
+        exact = genres["result_set"]["items"][0]["uris"]
         admission = self.turn.first_play_admission
         original_deadline = admission.deadline
-        self.assertFalse(any(path.startswith("/search") for path in self.reads))
-        genres = await self.choose()
-        self.assertEqual(self.effects, [("set_output", "synthetic-output", False)])
-        self.assertEqual(genres["first_play"]["state"], "genres")
-        self.assertEqual(len(genres["result_set"]["items"]), 3)
+        output = await self.choose()
+        self.assertEqual(output["first_play"]["state"], "output")
+        self.assertFalse(self.effects)
         self.assertIs(self.frame.result_set["first_play_admission"], admission)
+        result = await self.choose(0, "output-after-genre")
+        self.assertTrue(result["action_outcome"]["readback_confirmed"])
         self.assertEqual(admission.deadline, original_deadline)
-        self.assertNotIn("selected_action_id", genres)
-        await self.choose(0, "genre-after-output")
-        self.assertEqual([effect[0] for effect in self.effects], ["set_output", "play_uris"])
+        self.assertEqual(self.effects, [("set_output", "synthetic-output", False), ("play_uris", exact, True)])
 
     async def test_fewer_than_three_mix_sources_produces_no_genre_button(self):
         self.unavailable_genre = self.owned_genres[0]
@@ -225,14 +229,14 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
                 admission.guard()
         self.assertFalse(self.effects)
 
-    async def test_silence_after_playback_does_not_restore_first_play(self):
+    async def test_ordinary_playback_and_silence_do_not_dismiss_personal_offer(self):
         await self.manager.async_update_playback_projection(owner_profile_id="synthetic-owner",
             session_id=self.active.session_id, state="playing", media_identity="spotify:track:"+"A"*22)
         await self.manager.async_update_playback_projection(owner_profile_id="synthetic-owner",
             session_id=self.active.session_id, state="idle")
-        self.assertFalse(self.steering._first_play_empty(self.active))
+        self.assertTrue(self.steering._first_play_empty(self.active))
         result = await self.offer()
-        self.assertFalse(result["success"])
+        self.assertTrue(result["success"])
         self.assertFalse(self.effects)
 
     async def test_explicit_no_play_and_questions_cannot_start_offered_genre(self):
@@ -251,6 +255,7 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
         self.devices = [{"id": "synthetic-output", "name": "First", "is_active": False},
                         {"id": "second-output", "name": "Second", "is_active": False}]
         await self.offer()
+        await self.choose(0, "genre-before-held-output")
         shown = self.frame.result_set
         entered, release = asyncio.Event(), asyncio.Event()
         async def reserve(*args):
@@ -272,8 +277,8 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
         finally:
             release.set()
         result = await asyncio.wait_for(first, 1)
-        self.assertEqual(result["first_play"]["state"], "genres")
-        self.assertEqual([effect[1] for effect in self.effects], ["synthetic-output"])
+        self.assertEqual(result["first_play"]["state"], "confirmed")
+        self.assertEqual([effect[0] for effect in self.effects], ["set_output", "play_uris"])
 
     async def test_unknown_engine_and_no_original_source_remain_unavailable(self):
         self.active.broadcast.first_play_state = "unknown"
@@ -319,15 +324,16 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
             await self.choose()
         self.assertFalse(self.effects)
 
-    async def test_cached_restricted_and_zero_outputs_have_no_genre_offer(self):
+    async def test_unavailable_outputs_do_not_block_genres_or_allow_effects(self):
         for value in ([], [{"id": "old", "name": "Old", "cached": True}],
                       [{"id": "restricted", "name": "Other", "is_restricted": True}]):
             self.devices = value
             self.new_turn("empty-output-"+str(len(self.reads)))
             result = await self.offer()
-            self.assertFalse(result["success"])
-            self.assertFalse(result["playback_actions"])
-        self.assertFalse(any(path.startswith("/search") for path in self.reads))
+            self.assertTrue(result["success"])
+            self.assertEqual(len(result["playback_actions"]), 3)
+            unavailable = await self.choose(0, "unavailable-"+str(len(self.reads)))
+            self.assertEqual(unavailable["first_play"]["state"], "unavailable")
         self.assertFalse(self.effects)
 
     async def test_starting_a_new_mix_does_not_claim_queue_preservation(self):
@@ -406,14 +412,15 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
             pass
         self.assertFalse(self.effects)
 
-    async def test_explicit_speaker_selection_without_playing_stays_output_only(self):
+    async def test_negated_play_is_not_promoted_to_original_mix_request(self):
         self.devices[0]["is_active"] = False
         await self.offer()
+        await self.choose()
         self.new_turn("speaker-without-play")
         core = importlib.import_module("custom_components.djconnect.ask_dj")
-        result = await core._dialogue_choice_response(self.hass, self.runtime, {}, "Activate the first without playing", index=0)
-        self.assertEqual(result["first_play"]["state"], "genres")
-        self.assertEqual(self.effects, [("set_output", "synthetic-output", False)])
+        with self.assertRaises(self.dialogue.DialogueError):
+            await core._dialogue_choice_response(self.hass, self.runtime, {}, "Activate the first without playing", index=0)
+        self.assertFalse(self.effects)
 
     async def test_genre_activate_operation_is_not_a_play_grant(self):
         await self.offer()
@@ -459,7 +466,7 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
                 menu = self.steering.session_start_catalogue(self.hass, self.runtime, "synthetic-owner", self.active)
             self.assertEqual(len(menu["items"]), 2)
             surprise, playlists = menu["items"]
-            self.assertEqual(surprise["schema_version"], 2)
+            self.assertEqual(surprise["schema_version"], 3)
             self.assertEqual(surprise["genre_basis"], "music_dna")
             self.assertTrue(surprise["available"])
             self.assertEqual(playlists["label"], self.steering.FIRST_PLAY_PLAYLIST_LABELS[locale])
@@ -502,7 +509,7 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
             await self.choose()
         self.assertFalse(self.effects)
 
-    async def test_ordinary_play_dispatch_unknown_ack_retires_startup(self):
+    async def test_ordinary_play_dispatch_unknown_ack_leaves_personal_offer_available(self):
         uri = "spotify:track:"+"A"*22
         self.new_turn("ordinary-play-unknown")
         self.turn.effect_grants = (self.dialogue.EffectGrant(frozenset({"play"}), "ordinary_explicit_play", media=(uri,)),)
@@ -514,12 +521,12 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
         finally:
             self.dialogue.current_effect.reset(token)
         self.assertTrue(self.turn.effect_started)
-        self.assertEqual(self.active.broadcast.first_play_state, "closed")
+        self.assertEqual(self.active.broadcast.first_play_state, "ready")
         self.assertFalse(self.active.broadcast.first_play_observed)
         self.new_turn("new-surprise-after-unknown")
         result = await self.offer()
-        self.assertEqual(result["first_play"]["state"], "unavailable")
-        self.assertFalse(self.reads)
+        self.assertEqual(result["first_play"]["state"], "genres")
+        self.assertEqual(len([p for p in self.reads if p.startswith("/search")]), 3)
 
     async def test_retained_plain_play_retirement_never_rebinds_to_replacement_session(self):
         retire = self.core.capture_first_play_retirement(self.hass, "synthetic-owner")
@@ -534,9 +541,9 @@ class FirstPlayWireEvidenceTests(IsolatedAsyncioTestCase):
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
         fixture = json.loads((root/'examples/client_contracts/session_first_play_v2/actual-ha-wire.json').read_text())
-        current = json.loads((root / 'examples/client_contracts/session_first_play_v2/session_first_play_http-requalification-bulletin-diagnostics-current.json').read_text())
+        current = json.loads((root / 'examples/client_contracts/session_for_you_v1/actual-ha-wire.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
-        self.assertEqual(len(current['source_pins']), 306)
+        self.assertEqual(len(current['source_pins']), 308)
         self.assertEqual(hashlib.sha256((root / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
         extension = current['receipt']['extension']
         self.assertEqual(extension['model_provider_calls'], 0)

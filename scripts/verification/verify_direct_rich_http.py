@@ -57,9 +57,9 @@ async def qualify(self, client, identity, headers):
     paired = {**headers, "X-DJConnect-Client-Type": "ios"}
     # Preparation is an explicit ordinary owning action, before pure reads.
     history_response = await client.get("/api/djconnect/v1/session/history/" + active.session_id,
-        params=identity, headers=paired)
+        params={**identity, 'history_contract_version':2}, headers=paired)
     history = await history_response.json()
-    assert history_response.status == 200
+    assert history_response.status == 200, (history_response.status, history.get('error'))
     playback_entry = next(item for item in history["entries"] if item["kind"] == "playback_observed")
     prepared = await client.post("/api/djconnect/v1/session/media/prepare", headers=paired,
         json={**identity, "contract_version": 1, "session_id": active.session_id,

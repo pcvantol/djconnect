@@ -1,3 +1,22 @@
+## 2026-11-05 — Voor jou source merged
+
+PR [#1463](https://github.com/pcvantol/djconnect/pull/1463) merged as
+`b8c07abd434abb06bed8fbedd1a7a3a10f3c32b5`; exact-head checks and owner
+permission passed. Source and contract are delivered; the separate documentary
+Finalization reconciles this result. HA-dev/native/local-model/device acceptance
+is still open, with Apple regression repair preceding adoption. No new release,
+APNs claim or timer. Earlier candidate descriptions below are historical freeze
+points. [Current source contract](docs/product/SESSION_FOR_YOU_V1.md).
+
+## 2026-11-05 — Voor jou source candidate
+
+Core replaces the surprise launcher through the existing Session/Ask DJ route;
+[contract and boundaries](docs/product/SESSION_FOR_YOU_V1.md). Pending delivery
+includes protected source review/CI and merge, separate Finalization, qualified
+HA-dev installation and Apple native/local-model/device acceptance. Apple regression
+repair precedes its separate UI adoption. No new issue or blocker is inferred
+from source tests, and historical first-play evidence remains historical.
+
 <!-- ASK_DJ_BAND_STORY_20261102 -->
 ## Current rich band-membership batch — 2 November2026
 

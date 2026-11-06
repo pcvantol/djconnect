@@ -17,7 +17,7 @@ COPY = {
          'your concise host with a dry sense of humour', 'your playful, welcoming host'),
         ('unhurried and spacious', 'relaxed and flowing', 'bright and brisk', 'lively and playful'),
         ('Music only', 'Occasional', 'Balanced', 'Presenter'),
-        ('apart from this welcome, this setting leaves out automatic DJ contributions; your questions are still welcome',
+        ('track introductions remain as text, without extra DJ stories; speaking follows your audio setting and your questions remain welcome',
          'I’ll join you with a contribution now and then',
          'I’ll balance contributions with space for the music', 'there is more room for me to join in')),
     'nl': (
@@ -27,7 +27,7 @@ COPY = {
          'je bondige gastheer met droge humor', 'je speelse en gastvrije gastheer'),
         ('rustig, met ruimte om te landen', 'ontspannen en vloeiend', 'levendig en vlot', 'energiek en speels'),
         ('Alleen muziek', 'Af en toe', 'Gebalanceerd', 'Presentator'),
-        ('buiten dit welkom voeg ik bij deze instelling geen automatische DJ-bijdragen toe; jouw vragen blijven welkom',
+        ('nummerintroducties blijven als tekst zichtbaar, zonder extra DJ-verhalen; uitspreken volgt je audio-instelling en jouw vragen blijven welkom',
          'ik schuif zo nu en dan aan met een bijdrage', 'ik wissel bijdragen af met ruimte voor de muziek',
          'er is wat meer ruimte voor mij om aan te schuiven')),
     'de': (
@@ -37,7 +37,7 @@ COPY = {
          'dein knapper Gastgeber mit trockenem Humor', 'dein verspielter, einladender Gastgeber'),
         ('ruhig und mit Raum zum Nachklingen', 'entspannt und fließend', 'lebhaft und zügig', 'schwungvoll und verspielt'),
         ('Nur Musik', 'Gelegentlich', 'Ausgewogen', 'Moderator'),
-        ('außer dieser Begrüßung gibt es bei dieser Einstellung keine automatischen DJ-Beiträge; deine Fragen bleiben willkommen',
+        ('Titelansagen bleiben als Text sichtbar, ohne zusätzliche DJ-Geschichten; die Sprachausgabe folgt deiner Audioeinstellung und deine Fragen bleiben willkommen',
          'ich melde mich ab und zu mit einem Beitrag', 'ich halte Beiträge und Raum für die Musik in Balance',
          'es gibt mehr Raum für meine Begleitung')),
     'fr': (
@@ -47,7 +47,7 @@ COPY = {
          'ton hôte concis à l’humour discret', 'ton hôte enjoué et accueillant'),
         ('calme, avec de l’espace pour respirer', 'détendu et fluide', 'vif et alerte', 'dynamique et joueur'),
         ('Musique seule', 'De temps en temps', 'Équilibré', 'Animateur'),
-        ('hormis cet accueil, ce réglage exclut les contributions DJ automatiques ; tes questions restent les bienvenues',
+        ('les présentations des titres restent visibles en texte, sans récits DJ supplémentaires ; la parole suit ton réglage audio et tes questions restent les bienvenues',
          'j’interviens de temps en temps', 'je partage des récits en laissant de la place à la musique',
          'il y a davantage de place pour mon accompagnement')),
     'es': (
@@ -57,7 +57,7 @@ COPY = {
          'tu anfitrión conciso y de humor seco', 'tu anfitrión alegre y acogedor'),
         ('tranquila y con espacio para respirar', 'relajada y fluida', 'viva y ágil', 'enérgica y juguetona'),
         ('Solo música', 'De vez en cuando', 'Equilibrado', 'Presentador'),
-        ('salvo esta bienvenida, esta opción excluye las aportaciones automáticas del DJ; tus preguntas siguen siendo bienvenidas',
+        ('las presentaciones de canciones siguen visibles en texto, sin historias adicionales del DJ; la voz sigue tu ajuste de audio y tus preguntas siguen siendo bienvenidas',
          'comparto una aportación de vez en cuando', 'combino historias con espacio para la música',
          'hay más espacio para mi compañía')),
 }

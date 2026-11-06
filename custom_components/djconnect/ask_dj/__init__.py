@@ -3235,7 +3235,7 @@ async def _informational_assist_response(
             else:
                 grounding_context = {"public_music_research": turn.public_research,
                                      "qualified_context": turn.source_context}
-                grounding_context = public_research.selected_credit_context(grounding_context, turn)
+                grounding_context = public_research.selected_credit_context(grounding_context, turn, allow_opened_credit=True)
                 from .dialogue import selected_public_focus
                 if focus := selected_public_focus(turn):
                     grounding_context['selected_contribution'] = focus
@@ -3243,8 +3243,11 @@ async def _informational_assist_response(
                 or turn.membership_research)
                 and turn.public_research.get('schema_version') == 3)
             from ..public_artist_narration import complete_review_projection, resolve_review_quotes
+            # Both review wires need the original selected-credit span ID. The
+            # projection grants no authority: factual checks retain the typed,
+            # original grounding_context after the model returns.
             review_context = complete_review_projection(grounding_context,
-                preserve_nonparagraph_sources=artist_corpus is not None) if id_review else grounding_context
+                preserve_nonparagraph_sources=artist_corpus is not None or not id_review)
             review_prompt = public_research.assessment_prompt(
                 message, review_context, language, text, allow_prefix=not id_review, quote_by_id=id_review,
                 closed_negative=artist_corpus is not None, answer_word_ids=word_review is not None)
@@ -10473,7 +10476,7 @@ async def _dialogue_choice_response(hass, runtime, payload, text, *, index=None)
     if shown.get("first_play_admission") is not None:
         # This genre selection grants play directly, but explicit negation or
         # an informational question must never be promoted into that grant.
-        if _nonexecuting_speech_act(text) or (not output and no_play):
+        if _nonexecuting_speech_act(text) or no_play:
             raise DialogueError("playback_effect_not_authorized", 403)
         from ..mood_music_steering import first_play_choose
         return await first_play_choose(hass, runtime, action, shown, turn)

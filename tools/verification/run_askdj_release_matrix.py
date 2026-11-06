@@ -472,6 +472,9 @@ def run(candidate, output):
                 return 1
             flags = ['-e','DJC_SAFETY_PROBE='+mode]
             payload = {'api_key':key,'model':'gpt-6-luna','max_tokens':700}
+            if mode == 'contextual_golden':
+                from scripts.verification.askdj_contextual_golden import MAX_OUTPUT_TOKENS
+                payload['max_tokens'] = MAX_OUTPUT_TOKENS
             if mode in {'catalogue_golden','catalogue_variations'}:
                 from scripts.verification.askdj_example_catalogue_golden import MAX_OUTPUT_TOKENS
                 payload['max_tokens'] = MAX_OUTPUT_TOKENS

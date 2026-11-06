@@ -139,6 +139,7 @@ class PublicQueryReference:
 class DialogueFrame:
     touched: float
     generation: str
+    for_you_session_id: str = ""
     messages: list[dict] = field(default_factory=list)
     local_turns: list[dict] = field(default_factory=list)
     speech_references: dict[str, dict] = field(default_factory=dict)
@@ -228,6 +229,8 @@ class DialogueTurn:
     music_steering_offer: dict | None = None
     first_play_admission: Any = None  # Original RAM-only first-play owner, never caller data.
     first_play_request: bool = False  # Local control reply; no narration/TTS dependency.
+    startup_preparation: bool = False  # Server-owned read, not a synthetic conversation turn.
+    client_device_id: str = ""  # Resolved paired identity, supplied by the application boundary.
     retire_startup_after_play: Any = None  # Original server Session, negative-only fence.
     provider_display_source: dict | None = None  # Original archive binding, never model input.
     reply_source_context: dict | None = None
@@ -586,7 +589,8 @@ class DialogueState:
         from ..ask_dj_history import _request_hash
         frame.response_dependencies[turn.client_id] = frozenset({
             _request_hash(turn.scope, turn.client_id), *getattr(turn, 'source_request_hashes', ())})
-        frame.archiveable = frame.archiveable and turn.archiveable
+        if not turn.startup_preparation:
+            frame.archiveable = frame.archiveable and turn.archiveable
         pending_original = (frame.pending is turn.pending_at_start
                             and frame.pending_revision == turn.pending_revision_at_start)
         if turn.consume_production_pending and not pending_original:
@@ -618,7 +622,7 @@ class DialogueState:
         if turn.clear_result_set:
             frame.result_set = None
             frame.chosen_action_id = ""
-        if not turn.fast_control:
+        if not turn.fast_control and not turn.startup_preparation:
             # Only independently marked agent prose is reusable as model input.
             question = result.get("_dialogue_question", "")
             if question:
@@ -1139,12 +1143,22 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
             "Keep source names in the source links; don't narrate your research process. "
             "Translate English prose naturally into the selected language, preserving people's names and work titles. "
             "A broad occupation must not become a narrower role; an activity is not an extra job. "
+            "One selected work credit does not establish a general occupation: identify its composer as composer of that work, not as an extra biography job. "
+            "When mentioning a selected composer credit, explicitly retain the underlying work behind this recording. "
+            "Never shorten it to the recording's composer credit or composer on this recording; those change its scope. "
+            "You may omit an unneeded credit rather than add a redundant or ambiguous credit sentence. "
             "Keep performer, composer and producer credits distinct. A collaboration proves only that collaboration. "
+            "Band membership or a work credit does not establish fame: do not say best known for or rose to fame unless the original passage explicitly states that reputation. "
             "Don't invent causal, genre, sonic, chronological or career connections between separately supported facts. "
             "Founders are not necessarily the complete original lineup; do not turn a founder count into a duo/trio claim. "
             "Keep projects, demos and actual work titles distinct: a demo associated with a project does not acquire its name as a title. "
             "Your present interest or appreciation may colour the telling, without asserting artist psychology or listener feelings. "
             "Use a concrete work, collaboration or activity from the evidence to answer a general introduction. "
+            "For a short who-is identity question use at most TWO short sentences: concise identification and one useful literal public biographical fact. "
+            "Do not expand that short identity answer into a work example, career account, sonic description, date or concluding appreciation. "
+            "When selected credits supply the name, do not stop at repeating that credit; use the fetched biography to introduce the person. "
+            "Keep different source passages and different works in separate complete sentences. Do not join unrelated roles or works with a semicolon or an and. "
+            "For that short introduction do not add a career arc, a significance recap or relative chronology; answer the question and stop. "
             "Leave dates out unless needed to answer this question; when needed bind each absolute year to its exact source-marked work and event. "
             "Band founding/member dates instead require an exact supplied biographical_date_events proof: name its group and actor explicitly, "
             "in a separate simple sentence containing ONLY the named group/actor, founding/joining action and year. "

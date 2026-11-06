@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from datetime import datetime, UTC
 from contextvars import ContextVar
 from urllib.parse import urlsplit
 
@@ -15,8 +16,9 @@ LANGUAGES = {
     "es": ("¿Quién es Peter?", "¿Quién es el compositor?", "¿Quién es Miles Davis?"),
 }
 ACTIVE_CASE = ContextVar("askdj_golden_case", default=None)
-MAX_MODEL_CALLS = 40
-MAX_OUTPUT_TOKENS = 700
+MAX_MODEL_CALLS = 42  # 20 question cases × 2, plus 2 bound publication-setup calls.
+MAX_OUTPUT_TOKENS = 3000
+SETUP_CASE = "ASKDJ-GOLDEN-SETUP-published-credit"
 
 
 def cases():
@@ -58,29 +60,45 @@ def check_response(case, response, selection):
         failures.append("unexpected_action")
     fact_terms = {
         "Peter Luts": r"\b(?:dj|producer|producent|produzent|producteur|productor)\b",
-        "Miles Davis": r"\b(?:trumpet(?:er)?|trompettist|trompeter|trompettiste|trompetista|trompette|trompeta)\b",
+        "Miles Davis": r"\b(?:trumpet(?:er)?|(?:jazz[- ]?)?trompettist|(?:jazz[- ]?)?trompeter|trompettiste|trompetista|trompette|trompeta)\b",
     }
     if not re.search(fact_terms[case["expected_person"]], text):
         failures.append("expected_public_fact_missing")
-    if re.search(r"\b(?:not|geen|kein|keine|pas|no)\s+(?:(?:a|een|un|une|ein)\s+)?(?:musician|muzikant|musiker|musicien|músico|producer|dj|trumpeter)\b", text):
+    if re.search(r"\b(?:not|geen|kein|keine|pas|no)\s+(?:(?:a|een|un|une|ein)\s+)?(?:musician|muzikant|musiker|musicien|músico|producer|dj|trumpeter|(?:jazz[- ]?)?trompeter|(?:jazz[- ]?)?trompettist)\b", text):
         failures.append("contradictory_biography")
     if case["require_biography_source"]:
         # Existing selected-credit attribution explicitly qualifies credits only.
         # Neither general knowledge nor a test-side Wikipedia fetch is biography evidence.
         supported = {"en.wikipedia.org", "nl.wikipedia.org", "de.wikipedia.org",
                      "fr.wikipedia.org", "es.wikipedia.org", "www.wikidata.org",
-                     "wikidata.org", "musicbrainz.org"}
+                     "wikidata.org"}
         qualified = False
         for source in response.get("sources") or []:
             if not isinstance(source, dict):
                 continue
             url = urlsplit(str(source.get("url") or ""))
+            expected_qid = {"Peter Luts": "Q3376733", "Miles Davis": "Q93341"}[case["expected_person"]]
+            try:
+                fetched = datetime.fromisoformat(source.get('fetched_at', ''))
+                expires = datetime.fromisoformat(source.get('expires_at', ''))
+                current = fetched.tzinfo is not None and expires.tzinfo is not None and fetched <= datetime.now(UTC) < expires
+            except (TypeError, ValueError):
+                current = False
             qualified |= (url.scheme == "https" and url.hostname in supported
                           and url.username is None and url.password is None
-                          and source.get("claim_scope") == "person_biography"
-                          and source.get("subject") == {"kind": "person", "name": case["expected_person"]}
+                          and source.get("claim_scope") == "fetched_public_music_reference"
+                          and ((source.get('provider') == 'Wikipedia' and url.hostname.endswith('.wikipedia.org')
+                                and source.get('license') == 'CC-BY-SA-4.0')
+                               or (source.get('provider') == 'Wikidata' and url.hostname in {'wikidata.org', 'www.wikidata.org'}
+                                   and source.get('license') == 'CC0-1.0'))
+                          and source.get('wikidata_id') == expected_qid
+                          and isinstance(source.get('content_hash'), str)
+                          and re.fullmatch('[0-9a-f]{64}', source['content_hash']) is not None
+                          and current
+                          and response.get('knowledge_basis') == 'fetched_public_music_research_v1'
+                          and response.get('is_generated_text') is True
                           and url.path in {"/wiki/" + case["expected_person"].replace(" ", "_"),
-                                           "/wiki/" + {"Peter Luts": "Q3376733", "Miles Davis": "Q93341"}[case["expected_person"]]})
+                                           "/wiki/" + expected_qid})
         if not qualified:
             failures.append("qualified_biography_source_missing")
     return failures
@@ -88,10 +106,34 @@ def check_response(case, response, selection):
 
 async def run(*, ask, call, start, end, playback_reference, mutations, model_receipts):
     """Hook into the existing isolated HA harness after ordinary pairing."""
-    active, moment, _ = await start("contextual-golden")
+    setup_start = len(model_receipts)
+    rows = []
+    setup_findings = []
+    def report():
+        setup = [r for r in model_receipts if r.get("case_id") == SETUP_CASE]
+        return {"schema_version": 1, "suite": "askdj_contextual_golden_v1",
+                "manifest_sha256": manifest_digest(), "cases": rows,
+                "setup_paid_model_calls": len(setup), "setup_findings": setup_findings,
+                "paid_model_calls": len(model_receipts),
+                "usage": [{k: r.get(k) for k in ("case_id", "model", "attempted", "completed", "input_tokens", "output_tokens",
+                                                     "maximum_output_tokens", "terminal_event", "incomplete_reason")}
+                          for r in model_receipts],
+                "status": "PASS" if not setup_findings and len(rows) == len(cases())
+                          and all(r["status"] == "PASS" for r in rows)
+                          and 0 < len(model_receipts) <= MAX_MODEL_CALLS else "FAIL",
+                "native_installed_hardware": "NOT_RUN"}
+    try:
+        active, moment, _ = await start("contextual-golden")
+    except Exception as exc:
+        setup_findings.append("selected_publication_unavailable:" + type(exc).__name__)
+        return report()
+    setup = model_receipts[setup_start:]
+    if (len(setup) > 2 or any(r.get("case_id") != SETUP_CASE or not r.get("completed") for r in setup)):
+        setup_findings.append("setup_attempt_binding_or_completion")
+        await end(active, "contextual-golden-failed-setup")
+        return report()
     selection = {"session_id": active.session_id, "moment_id": moment.moment_id}
     playback = await playback_reference(active)
-    rows = []
     try:
         for case in cases():
             await call("ask_dj/history/clear", {}, label=case["id"] + "-clear")
@@ -120,12 +162,4 @@ async def run(*, ask, call, start, end, playback_reference, mutations, model_rec
                          "findings": findings, "paid_attempts": len(case_models)})
     finally:
         await end(active, "contextual-golden")
-    return {"schema_version": 1, "suite": "askdj_contextual_golden_v1",
-            "manifest_sha256": manifest_digest(), "cases": rows,
-            "paid_model_calls": len(model_receipts),
-            "usage": [{k: r.get(k) for k in ("case_id", "model", "attempted", "completed", "input_tokens", "output_tokens")}
-                      for r in model_receipts],
-            "status": "PASS" if len(rows) == len(cases())
-                      and all(r["status"] == "PASS" for r in rows)
-                      and 0 < len(model_receipts) <= MAX_MODEL_CALLS else "FAIL",
-            "native_installed_hardware": "NOT_RUN"}
+    return report()

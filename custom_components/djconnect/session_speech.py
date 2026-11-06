@@ -70,6 +70,11 @@ def capability():
     # unambiguously version1-only. Consumers negotiating prepare2 must use its
     # descriptor; old top-level fields never grant a shared-settings override.
     result['legacy_voice_option_prepare_versions'] = [1]
+    result['music_announcement'] = {
+        'version': 1, 'moment_type': 'music_announcement',
+        'text_at_every_presence': True, 'manual_after_text_only': True,
+        'manual_text_only_target': 'local', 'automatic_start_window_seconds': 12,
+        'manual_retention': 'original_committed_entry', 'new_publication_on_replay': False}
     result['prepare_contracts'] = {
         '1': {key: result[key] for key in (
             'processors', 'voice_preference_context', 'session_voice_selection',
@@ -353,16 +358,22 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
     opening = opening_context(moment)
     from .settings_confirmation import context as settings_context
     confirmation = settings_context(moment)
-    if confirmation is None and (broadcast.state.selected_presence == 'music_only'
+    from .track_start_announcement import accepted as announcement_accepted
+    announcement = announcement_accepted(moment)
+    if not announcement and confirmation is None and (broadcast.state.selected_presence == 'music_only'
             or (opening is not None and opening.presence == 'music_only')):
         autoplay = False
     output = getattr(broadcast, 'owner_speech_output', None)
     if callable(output) and output() == 'text_only':
-        return unavailable(reference, 'announcement_text_only')
+        if not announcement:
+            return unavailable(reference, 'announcement_text_only')
+        autoplay = False
     if admission is None:
         admission = next((a for a in broadcast.native_delivery()["admissions"]
                           if a["moment_id"] == moment.moment_id), None)
     boundary = broadcast._moment_delivery_boundaries.get(moment.moment_id)
+    if announcement and (not admission or not admission['current_display_allowed']):
+        autoplay = False
     if confirmation is not None and (not admission or not admission['current_display_allowed']):
         return unavailable(reference, 'original_source_unavailable')
     if (boundary is None or not admission or admission["qualification"] != "qualified"
@@ -383,10 +394,12 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
     from .bulletin_runtime import private_bulletin
     if descriptor["manual_allowed"] and private_bulletin(moment):
         descriptor["processors"] = ["local_on_device"]
+    if announcement:
+        descriptor['moment_type'] = 'music_announcement'
     return descriptor
 
 
-async def resolve_moment(hass, profile_id, reference):
+async def resolve_moment(hass, profile_id, reference, *, history=None):
     from .session_runtime import session_runtime_manager
     from .dj_response import PrivateSpeechSource, invalidate_private_speech_sources, collect_private_speech_sources
     manager = session_runtime_manager(hass)
@@ -399,12 +412,32 @@ async def resolve_moment(hass, profile_id, reference):
     moment = next((m for m in broadcast.state.dj_moments if m.moment_id == reference["moment_id"]), None)
     if moment is None:
         raise PermissionError("speech_reference_unavailable")
+    from .track_start_announcement import retained as retained_announcement
+    archive_guard = None
+    archive_expiry = None
+    if retained_announcement(moment):
+        # A RAM seal must not outlive the actual retained row's current
+        # deletion/retention/source rights. Reuse the existing archive owner.
+        if history is None or manager._historical_projections is None:
+            raise PermissionError('speech_reference_unavailable')
+        row = await manager._historical_projections.async_entry_record(
+            profile_id, active.session_id, '', moment_id=moment.moment_id)
+        if row is None:
+            raise PermissionError('speech_reference_unavailable')
+        retained_descriptor, archive_guard = await resolve_retained(hass, history, profile_id,
+            {'session_id':active.session_id, 'entry_id':row['entry_id']}, moment_only=True)
+        if not retained_descriptor['manual_allowed']:
+            raise PermissionError('speech_reference_unavailable')
+        archive_expiry = datetime.fromisoformat(retained_descriptor['expires_at']).timestamp()
     descriptor = moment_projection(broadcast, moment)
     if not descriptor["manual_allowed"]:
         raise PermissionError("speech_reference_unavailable")
     descriptor["expires_at"] = datetime.fromtimestamp(min(time.time()+TTL,
-        datetime.fromisoformat(descriptor["source_expires_at"]).timestamp()), UTC).isoformat()
+        datetime.fromisoformat(descriptor["source_expires_at"]).timestamp(),
+        archive_expiry if archive_expiry is not None else float('inf')), UTC).isoformat()
     def validate():
+        if archive_guard is not None:
+            archive_guard()
         current = manager.current_active(profile_id)
         if (current is None or current.broadcast is not broadcast
                 or moment.moment_id in broadcast.content_pending_moment_ids
@@ -420,7 +453,7 @@ async def resolve_moment(hass, profile_id, reference):
     guard.processor_basis = ("public_news_bulletin_v1" if bulletin_admitted(moment)
         else "runtime_accepted_settings_v1" if settings_context(moment) is not None
         else "qualified_dialogue_v1" if type(moment.narration_acceptance) is ResearchMomentAcceptance
-        else "spotify_owner_local_read_v1" if (source is not None and source.provider == "Spotify") or moment.observed_playback is not None or moment.genre_transition is not None
+        else "spotify_owner_local_read_v1" if (source is not None and source.provider == "Spotify") or moment.observed_playback is not None or moment.genre_transition is not None or getattr(moment, 'track_announcement', None) is not None
         else "cc0_normalized_fields_v1" if source is not None else "runtime_authored_direction_v1")
     broadcast.speech_cleanup = lambda: invalidate_private_speech_sources(hass, session_id=active.session_id)
     broadcast.speech_refresh = lambda: collect_private_speech_sources(hass, session_id=active.session_id)
@@ -444,10 +477,14 @@ def retained_projection(entry):
         attribution = entry.get("sources") or []
     else:
         return unavailable(reference, "original_source_unqualified")
-    return _contribution_descriptor(reference, text=entry.get("text"), locale=style.get("language"),
+    descriptor = _contribution_descriptor(reference, text=entry.get("text"), locale=style.get("language"),
         persona=style.get("persona"), persona_revision=style.get("persona_revision"),
         mood=style.get("mood"),
         expires_at=entry["retained_until"], source_kind="retained_dj_contribution", attribution=attribution)
+    if (entry.get('moment_type') == 'music_announcement'
+            and entry.get('archive_basis') == 'owner_metadata_narration_v1'):
+        descriptor['moment_type'] = 'music_announcement'
+    return descriptor
 
 
 async def resolve_retained(hass, history, profile_id, reference, *, moment_only=False):
@@ -561,12 +598,14 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
                     return {'success': True, 'session_speech': unavailable(
                         data['reference'], 'settings_migration_choice_required')}, 200
                 selected = DJSettings.from_dict(snapshot['session']['settings'] if snapshot['session'] else snapshot['defaults'])
-                if selected.announcement_output == 'text_only':
+                manual_text_only = (target_aware and data['intent'] == 'manual'
+                                    and data['target'] == 'local')
+                if selected.announcement_output == 'text_only' and not manual_text_only:
                     return {'success': True, 'session_speech': unavailable(data['reference'], 'announcement_text_only')}, 200
                 if target_aware:
                     allowed = ({'client_device': {'local'}, 'both': {'local', 'ha_speaker', 'both'},
                                 'ha_speaker': {'ha_speaker'}} if data['intent'] == 'automatic' else
-                               {'client_device': {'local'}, 'both': {'local', 'ha_speaker', 'both'},
+                               {'text_only': {'local'}, 'client_device': {'local'}, 'both': {'local', 'ha_speaker', 'both'},
                                 'ha_speaker': {'local', 'ha_speaker', 'both'}})
                     if data['target'] not in allowed[selected.announcement_output]:
                         return {'success': True, 'session_speech': unavailable(
@@ -590,14 +629,29 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
         history = _history_manager(hass, runtime)
         reference = data["reference"]
         if "moment_id" in reference:
-            descriptor, source_guard = await resolve_moment(hass, context.profile_id, reference)
+            descriptor, source_guard = await resolve_moment(hass, context.profile_id, reference, history=history)
         elif "entry_id" in reference:
             descriptor, source_guard = await resolve_retained(hass, history, context.profile_id,
                 reference, moment_only=_speaker_operation)
         else:
             descriptor, source_guard = await resolve_dialogue(hass, history,
                 context.profile_id, reference, profile_source=source_scope(context.profile))
+        if (selected is not None and selected.announcement_output == 'text_only'
+                and descriptor.get('moment_type') != 'music_announcement'):
+            return {'success': True, 'session_speech': unavailable(
+                reference, 'announcement_text_only')}, 200
         grant_deadline = None
+        automatic_announcement_deadline = None
+        if (target_aware and data['intent'] == 'automatic'
+                and descriptor.get('moment_type') == 'music_announcement'):
+            active = manager.current_active(context.profile_id)
+            if 'moment_id' not in reference or active is None or active.session_id != reference.get('session_id'):
+                raise PermissionError('automatic_announcement_requires_live_publication')
+            admitted = next((item for item in active.broadcast.native_delivery()['admissions']
+                             if item['moment_id'] == reference['moment_id']), {})
+            if not admitted.get('current_display_allowed'):
+                raise PermissionError('automatic_announcement_start_window_elapsed')
+            automatic_announcement_deadline = datetime.fromisoformat(admitted['display_expires_at']).timestamp()
         if descriptor['manual_allowed']:
             try:
                 grant_deadline = datetime.fromisoformat(descriptor['expires_at']).timestamp()
@@ -607,6 +661,13 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
             _conversation_profile_fence(hass, runtime, identity, headers, context)
             if grant_deadline is not None and time.time() >= grant_deadline:
                 raise PermissionError('speech_reference_expired')
+            if automatic_announcement_deadline is not None:
+                live = manager.current_active(context.profile_id)
+                admission = next((a for a in live.broadcast.native_delivery()['admissions']
+                                  if a['moment_id'] == reference['moment_id']), {}) if live is not None else {}
+                if (time.time() >= automatic_announcement_deadline
+                        or not admission.get('current_display_allowed')):
+                    raise PermissionError('automatic_announcement_start_window_elapsed')
             if settings_token is not None and manager.dj_settings_fence_token(context.profile_id) != settings_token:
                 raise PermissionError('speech_settings_changed')
             if migration_acceptance is not None and assessment(

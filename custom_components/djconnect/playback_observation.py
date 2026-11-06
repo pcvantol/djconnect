@@ -20,7 +20,7 @@ from .session_runtime import DJSessionRuntime, session_runtime_manager
 from .spotify_backend import SpotifyBackend, SpotifyBackendError
 
 _LOGGER = logging.getLogger(__name__)
-SPOTIFY_OBSERVATION_INTERVAL = timedelta(seconds=15)
+SPOTIFY_OBSERVATION_INTERVAL = timedelta(seconds=3)
 PLAYBACK_PROGRESS_INTERVAL = timedelta(seconds=1)
 
 InsightProvider = Callable[[], Awaitable[dict[str, Any]]]
@@ -421,6 +421,10 @@ class PlaybackObservationManager:
                 original_status=original_status,
             )
             accept_observation(self._hass, observed, result, visual_admission)
+            from .track_start_announcement import capture as capture_announcement
+            announcement = capture_announcement(session_runtime_manager(self._hass),
+                owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                observed=result, authorize=queue_authority)
             catalog = getattr(result, "catalog", {})
             if (result.is_playing and result.media_identity and forecast_authority()
                     and isinstance(catalog, dict) and catalog.get("artist_ids")
@@ -474,6 +478,7 @@ class PlaybackObservationManager:
 
         if (
             previous_media_identity == result.media_identity
+            and announcement is None
             and (observed.enrichment_task is None or observed.enrichment_task.done())
         ):
             await session_runtime_manager(self._hass).async_maybe_publish_intra_track_moment(
@@ -481,6 +486,18 @@ class PlaybackObservationManager:
                 session_id=observed.session_id,
                 media_identity=result.media_identity,
             )
+            from .track_start_announcement import prepare_next
+            preparation_task = asyncio.current_task()
+            observed.enrichment_task = preparation_task
+            observed.enrichment_media_identity = result.media_identity
+            try:
+                await prepare_next(session_runtime_manager(self._hass),
+                    owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                    observed=result, preview=preview, authorize=source_authority)
+            finally:
+                if observed.enrichment_task is preparation_task:
+                    observed.enrichment_task = None
+                    observed.enrichment_media_identity = ''
             return
 
         current_task = asyncio.current_task()
@@ -497,6 +514,10 @@ class PlaybackObservationManager:
         observed.enrichment_task = current_task
         observed.enrichment_media_identity = result.media_identity
         try:
+            from .track_start_announcement import publish as publish_announcement
+            await publish_announcement(session_runtime_manager(self._hass),
+                owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                occurrence=announcement, authorize=queue_authority)
             def source_authorize():
                 return False
             async def qualified_insight(*, facts_only: bool = False) -> dict[str, Any]:

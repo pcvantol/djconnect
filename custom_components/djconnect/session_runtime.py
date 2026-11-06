@@ -271,6 +271,7 @@ class DJMomentType(StrEnum):
     """Bounded first-production catalogue of immutable Moments."""
 
     TRACK = "track"
+    MUSIC_ANNOUNCEMENT = "music_announcement"
     ARTIST = "artist"
     ALBUM = "album"
     GENRE = "genre"
@@ -479,6 +480,7 @@ class DJMoment:
     session_opening: SessionOpeningContext | None = field(default=None, repr=False)
     settings_confirmation: Any = field(default=None, repr=False)
     bulletin: Any = field(default=None, repr=False)
+    track_announcement: Any = field(default=None, repr=False)
 
     def as_dict(self) -> dict[str, Any]:
         from .public_artist_narration import sources_for
@@ -494,6 +496,8 @@ class DJMoment:
             "session_id": self.session_id,
             "created_at": self.created_at,
             "type": self.moment_type.value,
+            **({"music_announcement": self.track_announcement.data()}
+               if self.track_announcement is not None else {}),
             "knowledge_intent": self.knowledge_intent.as_dict(),
             "presentation_intent": self.presentation_intent.as_dict(),
             "title": self.title,
@@ -3610,6 +3614,11 @@ class DJSessionBroadcastEngine:
     # Unknown/recovered engines never infer a fresh start from an idle snapshot.
     first_play_state: str = field(default="unknown", init=False, repr=False)
     first_play_observed: bool = field(default=False, init=False, repr=False)
+    first_play_offer: Any = field(default=None, init=False, repr=False)
+    track_announcements: Any = field(default=None, init=False, repr=False)
+    first_play_preparation: Any = field(default=None, init=False, repr=False)
+    first_play_pending: Any = field(default=None, init=False, repr=False)
+    first_play_dismissed_devices: set[str] = field(default_factory=set, init=False, repr=False)
     passive_state_observed: tuple = field(default_factory=lambda: (time.monotonic(), time.time()), repr=False)
     _media_revision: str = field(default="", init=False, repr=False)
     pending_events: tuple[BroadcastEventType, ...] = ()
@@ -4045,8 +4054,12 @@ class DJSessionBroadcastEngine:
         """Bind original clocks and visibility before its Flow label is sent."""
         if moment.session_id != self.state.session_id:
             return
+        # A music-announcement seed predates its asynchronous realization. Pair
+        # publication UTC with publication monotonic, not with seed creation;
+        # translating its original start deadline must not subtract latency twice.
+        published_at = _timestamp() if moment.moment_type is DJMomentType.MUSIC_ANNOUNCEMENT else moment.created_at
         self._moment_delivery_boundaries.setdefault(moment.moment_id, MomentDeliveryBoundary(
-            time.monotonic(), moment.created_at, self.state.playback.item_id,
+            time.monotonic(), published_at, self.state.playback.item_id,
             tuple((key, getattr(self.state.playback,key)) for key in ("title","artist","album","duration_ms")),
             self.state.persona_revision))
         if moment.presentation_intent.visibility is DJMomentVisibility.OWNER_ONLY:
@@ -4391,7 +4404,11 @@ class DJSessionRuntime:
 
     def allows_proactive(self) -> bool:
         """One authoritative shared admission across all proactive Moment families."""
-        return (not getattr(self.broadcast, 'opening_pending', False)
+        announcement = getattr(self.broadcast, 'track_announcements', None)
+        pending_intro = bool(announcement is not None and announcement.current_occurrence is not None
+            and announcement.current_occurrence.current(self.presence_ledger.clock())
+            and announcement.published_id != announcement.current_occurrence.occurrence_id)
+        return (not getattr(self.broadcast, 'opening_pending', False) and not pending_intro
                 and self.publication_context_is_current()
                 and self.presence_ledger.admits(self.broadcast.state.selected_presence,
                                                self.broadcast.state.playback.item_id))
@@ -4407,6 +4424,15 @@ class DJSessionRuntime:
         from .content_deletion_runtime import moment_dependencies
         if moment_dependencies(moment) & self.deleted_moment_ids:
             return False
+        from .track_start_announcement import contribution
+        announcement = contribution(moment)
+        if announcement is not None:
+            from .current_track_insight import session_scope
+            return (self.publication_context_is_current()
+                and announcement.settings_context == session_scope(self)
+                and self.broadcast.state.playback.state == 'playing'
+                and self.broadcast.state.playback.item_id == announcement.occurrence.item_id
+                and announcement.occurrence.current(self.presence_ledger.clock()))
         opening = opening_context(moment)
         if opening is not None and opening == self.opening_context:
             return self.publication_context_is_current()
@@ -4460,18 +4486,22 @@ class DJSessionRuntime:
         accepted_semantic_commit = composition is not None
         from .settings_confirmation import context as settings_context
         explicit_confirmation = settings_context(moment) is not None
+        from .track_start_announcement import contribution
+        announcement = contribution(moment)
         if composition is None:
             composition = self.compose_moment(moment)
         if (accepted_semantic_commit and moment.moment_type is not DJMomentType.SILENCE
-                and self.selected_presence != 'music_only' and not explicit_confirmation):
+                and self.selected_presence != 'music_only' and not explicit_confirmation and announcement is None):
             self.presence_ledger.commit(self.broadcast.state.playback.item_id, moment.presentation_intent.maximum_duration_seconds)
         self.presentation_diagnostics.record(composition.outcomes)
         self.broadcast.prepare_moment_delivery(moment)
         self.broadcast.publish_session_flow(self.planner.append_moment(moment, placement))
         self.broadcast.publish_moment(moment)
         self.broadcast.publish_presentation(composition.presentation.to_projection())
-        if not accepted_semantic_commit and moment.moment_type is not DJMomentType.SILENCE and not explicit_confirmation:
+        if not accepted_semantic_commit and moment.moment_type is not DJMomentType.SILENCE and not explicit_confirmation and announcement is None:
             self.presence_ledger.commit(self.broadcast.state.playback.item_id, moment.presentation_intent.maximum_duration_seconds)
+        if announcement is not None:
+            self.presence_ledger.commit_announcement(moment.presentation_intent.maximum_duration_seconds)
         if commit_expression:
             self.moment_engine.commit_expression(moment, self.planner.output.session_flow)
 
@@ -5025,10 +5055,14 @@ class SessionRuntimeManager:
                 return False
             old_playback = active.broadcast.state.playback
             if projection.state == "playing":
-                # Close in-flight startup work before the first persistence
-                # await; stopping/clearing history cannot reopen this latch.
-                active.broadcast.first_play_observed = True
-                active.broadcast.first_play_state = "closed"
+                # Ordinary playback is neither dismissal nor acceptance of the
+                # Session's personal offer. Only its exact pending mix can close it.
+                pending = active.broadcast.first_play_pending
+                if (pending is not None and pending.play_dispatched
+                        and pending.authority()
+                        and media_identity == pending.selected_media[0]
+                        and getattr(original_status, "target_id", None) == pending.output_id):
+                    active.broadcast.first_play_state = "confirmed"
             if (self._historical_projections is not None and projection.state == "playing"
                 and projection.item_id and projection.item_id != old_playback.item_id):
                 from .session_history_projection import new_observation_reference
@@ -5915,6 +5949,10 @@ class SessionRuntimeManager:
                 playback = active.broadcast.state.playback
                 if (require_current_playback and opportunity is not None
                         and analysis.get("basis") == "unmeasured_metadata_only_v1"
+                        and not (active.broadcast.track_announcements is not None
+                            and active.broadcast.track_announcements.current_occurrence is not None
+                            and active.broadcast.track_announcements.published_id ==
+                                active.broadcast.track_announcements.current_occurrence.occurrence_id)
                         and playback.state == "playing"
                         and playback.item_id == hashlib.sha256(media_identity.encode()).hexdigest()[:24]
                         and track.get("title") == playback.title and track.get("artist") == playback.artist):
@@ -6934,19 +6972,27 @@ class SessionRuntimeManager:
         if brief is None:
             return moment
         authority = registration[3]() if registration[3] is not None else registration[2]
-        opportunity = self._intra_track_opportunities.get(active.owner_profile_id)
+        opportunity = (None if moment.moment_type is DJMomentType.MUSIC_ANNOUNCEMENT else
+                       self._intra_track_opportunities.get(active.owner_profile_id))
         generation = opportunity.generation if opportunity is not None else None
+        from .current_track_insight import session_scope
+        announcement_scope = session_scope(active) if moment.moment_type is DJMomentType.MUSIC_ANNOUNCEMENT else None
         def guard():
             authority()
+            current = self._active_by_profile.get(active.owner_profile_id)
             if (self._narration_providers.get(active.owner_profile_id) is not registration
-                    or self._active_by_profile.get(active.owner_profile_id) is not active
-                    or not active.allows_moment(moment) or not brief.current()
+                    or (current is not active if announcement_scope is None else
+                        current is None or current.broadcast is not active.broadcast or session_scope(current) != announcement_scope)
+                    or not current.allows_moment(moment) or not brief.current()
                     or (opportunity is not None and (
                         self._intra_track_opportunities.get(active.owner_profile_id) is not opportunity
                         or opportunity.generation != generation or opportunity.blocked))):
                 raise PermissionError('narration_context_changed')
         guard()
-        brief = replace(brief, recent_frames=recent_frames(active.moment_engine._expression_forms))
+        recent = (active.broadcast.track_announcements.recent_frames
+                  if moment.moment_type is DJMomentType.MUSIC_ANNOUNCEMENT else
+                  recent_frames(active.moment_engine._expression_forms))
+        brief = replace(brief, recent_frames=recent)
         text = await registration[1](brief, guard)
         guard()
         if type(text) is not NarratedText or not 20 <= len(text) <= 700 or text == moment.content:
@@ -6956,7 +7002,8 @@ class SessionRuntimeManager:
             return moment
         intent = _presentation_intent(moment.presentation_intent.source_session_mood,
             moment.presentation_intent.dj_persona,
-            reading_characters=len(moment.summary)+len(text), minimum_duration_seconds=1)
+            reading_characters=(len(text) if announcement_scope is not None else len(moment.summary)+len(text)),
+            minimum_duration_seconds=6 if announcement_scope is not None else 1)
         proof = moment.observed_playback or (moment.genre_transition.current if moment.genre_transition else None)
         if proof is not None and time.monotonic()+intent.maximum_duration_seconds+2 >= proof.observed_at+30:
             return moment
@@ -7050,7 +7097,7 @@ class SessionRuntimeManager:
             if relation is not None and (not relation.eligible(self._monotonic_source())
                     or active.broadcast.state.playback.item_id != relation.current.item_id):
                 return False
-            if opportunity is not None and moment.moment_type is not DJMomentType.SESSION:
+            if opportunity is not None and moment.moment_type not in {DJMomentType.SESSION, DJMomentType.MUSIC_ANNOUNCEMENT}:
                 playback = active.broadcast.state.playback
                 age = self._monotonic_source() - opportunity.last_observed_monotonic
                 if (self._intra_track_opportunities.get(active.owner_profile_id) is not opportunity
@@ -7070,6 +7117,8 @@ class SessionRuntimeManager:
 
         source = getattr(moment, "source_fact", None)
         metadata = dict(moment.generation_metadata)
+        from .track_start_announcement import contribution
+        announcement = contribution(moment)
         basis = ""
         from .public_artist_narration import ResearchMomentAcceptance, admitted, BASIS, sources_for
         if type(moment.narration_acceptance) is ResearchMomentAcceptance:
@@ -7105,8 +7154,9 @@ class SessionRuntimeManager:
                 isinstance(source, QualifiedSessionFact) and source.provider == 'Spotify'
                 and source.key in {'album_release','genre_context','album_continuity'}
                 and source.eligible(source.media_identity, time.monotonic()))
-            observed_source = (moment.observed_playback is not None
+            observed_source = ((moment.observed_playback is not None
                 and moment.observed_playback.eligible(self._monotonic_source()))
+                or (announcement is not None and announcement.occurrence.current(self._monotonic_source())))
             transition_source = (moment.genre_transition is not None
                 and moment.genre_transition.eligible(self._monotonic_source()))
             if ((metadata_source or observed_source or transition_source)
@@ -7157,6 +7207,13 @@ class SessionRuntimeManager:
                 entry['body']['session_media_reference'] = {
                     'version':1, 'subject_uri':subject,
                     'album_uri':getattr(source,'artwork_album_uri','') if ':track:' in subject else '',
+                    'source_context':dict(captured_source)}
+            if announcement is not None:
+                entry['body']['music_announcement'] = announcement.data()
+                entry['body']['generation_metadata'] = dict(moment.generation_metadata)
+                entry['body']['session_media_reference'] = {'version':1,
+                    'subject_uri':announcement.occurrence.media_uri,
+                    'album_uri':announcement.occurrence.album_uri,
                     'source_context':dict(captured_source)}
             artist_image=getattr(source,'artwork_artist_identity',None)
             from .session_facts import ArtistImageIdentity
@@ -7211,8 +7268,11 @@ class SessionRuntimeManager:
                     opportunity.fact_count += 1
                     opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
                     opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
-                active.presence_ledger.commit(active.broadcast.state.playback.item_id,
-                    moment.presentation_intent.maximum_duration_seconds)
+                if moment.moment_type is DJMomentType.MUSIC_ANNOUNCEMENT:
+                    active.presence_ledger.commit_announcement(moment.presentation_intent.maximum_duration_seconds)
+                else:
+                    active.presence_ledger.commit(active.broadcast.state.playback.item_id,
+                        moment.presentation_intent.maximum_duration_seconds)
                 return False
             active.prepared_presentations.clear()
             active.prepared_presentations[moment.moment_id] = prepared
@@ -8078,7 +8138,7 @@ def _payload_contains_owner_only_moment(payload: dict[str, Any]) -> bool:
 
 
 def capture_first_play_retirement(hass, owner_profile_id):
-    """Capture a negative-only original Session latch; never create or rebind."""
+    """Compatibility hook: ordinary playback no longer retires a personal offer."""
     domain = getattr(hass, "data", {}).get("djconnect", {})
     manager = domain.get("session_runtime_manager")
     active = manager.current_active(owner_profile_id) if manager is not None else None
@@ -8089,7 +8149,6 @@ def capture_first_play_retirement(hass, owner_profile_id):
         if getattr(hass, "data", {}).get("djconnect", {}).get("session_runtime_manager") is not manager:
             return
         current = manager.current_active(owner_profile_id)
-        if (current is not None and current.session_id == session_id and current.broadcast is broadcast
-                and broadcast.first_play_state in {"ready", "attempted"}):
-            broadcast.first_play_state = "closed"
+        if current is None or current.session_id != session_id or current.broadcast is not broadcast:
+            return
     return retire

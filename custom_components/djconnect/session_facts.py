@@ -27,6 +27,15 @@ CREDIT_ROLES = {
 }
 
 
+def composer_fact_bodies(names: str) -> tuple[str, ...]:
+    """Canonical normalized composer credit, shared by rendering and source projection."""
+    return (f"Composers of the work behind this recording: {names}.",
+            f"Componisten van het werk achter deze opname: {names}.",
+            f"Komponisten des Werks hinter dieser Aufnahme: {names}.",
+            f"Compositeurs de l’œuvre de cet enregistrement : {names}.",
+            f"Compositores de la obra de esta grabación: {names}.")
+
+
 @dataclass(frozen=True)
 class DisplayFactCore:
     """Normalized immutable display anchors; no raw payload or generated fact."""
@@ -82,11 +91,7 @@ class DisplayFactCore:
             if len(self.roles) != 1 or self.roles[0][0] != "composer" or not self.roles[0][1]:
                 return False
             names = ", ".join(self.roles[0][1])
-            bodies = (f"Composers of the work behind this recording: {names}.",
-                f"Componisten van het werk achter deze opname: {names}.",
-                f"Komponisten des Werks hinter dieser Aufnahme: {names}.",
-                f"Compositeurs de l’œuvre de cet enregistrement : {names}.",
-                f"Compositores de la obra de esta grabación: {names}.")
+            bodies = composer_fact_bodies(names)
             return all(label(n,160) for n in self.roles[0][1]) and tuple(zip(LANGUAGES,bodies)) == fact.contents
         return False
 
@@ -1139,13 +1144,7 @@ def work_facts(catalog: dict[str, Any], recording: dict[str, Any]) -> list[Quali
                 "Derrière la composition",
                 "Detrás de la composición",
             ],
-            [
-                f"Composers of the work behind this recording: {names}.",
-                f"Componisten van het werk achter deze opname: {names}.",
-                f"Komponisten des Werks hinter dieser Aufnahme: {names}.",
-                f"Compositeurs de l’œuvre de cet enregistrement : {names}.",
-                f"Compositores de la obra de esta grabación: {names}.",
-            ],
+            composer_fact_bodies(names),
             "MusicBrainz",
             "https://musicbrainz.org/work/" + work_id,
             DisplayFactCore("work_composers", roles=(("composer",tuple(composers)),)),

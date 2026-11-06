@@ -1,3 +1,61 @@
+## Current — DEFAULT Spotify connection repair
+
+Source [#1469](https://github.com/pcvantol/djconnect/pull/1469) merged as
+`1a12dcbb10e41feb0debc14d594f184cc63ebc7d` from authorized
+`d2d99e17c5d5bc63a761c7092480cf0fe26eb9da`; Owner Authorization42099590192 PASS.
+4585 repository cases/11 existing skips,172 framework,26 actual-HA groups PASS.
+Separate documentary Finalization changes none of the308 product bytes.
+Operational target remains owner-selected DEFAULT on local HA-dev and Speaker
+in schuur. Actual OAuth/provider/install/readback remains separate; do not use
+old cached/donor credentials. Shared Play Now remains open; timer stays stopped.
+[Repair contract](docs/product/SPOTIFY_ORPHAN_CONNECTION_REPAIR_V1.md).
+
+## 2026-11-05 — Music announcement clock source merged
+
+PR [#1467](https://github.com/pcvantol/djconnect/pull/1467) merged as
+`8f84cea951c501b05f88898ddf1ee34cc296df8e`. Fresh exact-head Owner
+Authorization42089998254 and technical checks PASS. This restores original UTC
+expiry after slow realization without extending the12s start window, changing
+history time, renewing on reads or changing legacy Moment clocks.
+Separate Finalization changes only documentary records. No install, paid rerun,
+new authority or timer. Model/audio/native/APNs and shared Play Now remain open.
+Earlier Source1465/Final1466 records retain their original measured scope.
+
+## 2026-11-05 — Music announcement source merged
+
+PR [#1465](https://github.com/pcvantol/djconnect/pull/1465) merged as
+`69ff2206d1e8d6dd4e9a96e2bad97b627d16be6f`; all technical checks and exact
+Owner Authorization42084165302 passed. Separate documentary Finalization
+reconciles this bounded source result. Original text/history/album references
+and local manual text-only replay are source-qualified; shared Play Now,
+real model/audio quality and Apple/native/physical adoption remain open.
+No dependency/tool upgrade is needed for this existing-mechanism increment;
+upgrades are excluded from this bounded source scope. No install or timer.
+[Contract](docs/product/MUSIC_ANNOUNCEMENT_MOMENTS_V1.md).
+Earlier handoffs below retain their historical scope.
+
+## 2026-11-05 — Voor jou source merged
+
+PR [#1463](https://github.com/pcvantol/djconnect/pull/1463) merged as
+`b8c07abd434abb06bed8fbedd1a7a3a10f3c32b5`; exact-head checks and owner
+permission passed. Source and contract are delivered; the separate documentary
+Finalization reconciles this result. HA-dev/native/local-model/device acceptance
+is still open, with Apple regression repair preceding adoption. No new release,
+APNs claim or timer. Earlier candidate descriptions below are historical freeze
+points. [Current source contract](docs/product/SESSION_FOR_YOU_V1.md).
+
+## 2026-11-05 — Voor jou, source candidate on its own branch
+
+The owner reconfirmed **Voor jou**. This replaces the Verras me launcher with
+three immediate real owner-DNA/Mood choices through the existing dialogue and
+playback owner. See [contract](docs/product/SESSION_FOR_YOU_V1.md). No Watch card,
+no automatic playback or synthetic chat. Apple owns the later native landscapes;
+its current regression repair precedes adoption. Source qualification, protected
+CI/review, merge, HA-dev install and native/local-model acceptance stay separate.
+No dependency/version change is needed for this bounded existing-mechanism change;
+package upgrades are deliberately excluded to keep qualification reviewable.
+Historical first-play receipts remain unchanged as historical evidence.
+
 <!-- ASK_DJ_BAND_STORY_20261102 -->
 ## Current rich band-membership batch — 2 November2026
 

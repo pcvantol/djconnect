@@ -5075,6 +5075,14 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
             )
 
         try:
+            repair = ctx.get('profile_connection_repair')
+            if repair:
+                from .spotify_connection_repair import repaired_config
+
+                repair_entry = hass.config_entries.async_get_entry(ctx['entry_id'])
+                if repair_entry is None:
+                    raise ValueError('profile_connection_unavailable')
+                repaired_config(hass, repair_entry, repair, ctx['client_id'])
             token = await exchange_code_for_refresh_token(
                 hass,
                 client_id=ctx["client_id"],
@@ -5085,13 +5093,20 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
             entry = hass.config_entries.async_get_entry(ctx["entry_id"])
             if entry is None:
                 raise RuntimeError("DJConnect config entry no longer exists")
-            new_data = dict(entry.data)
+            new_options = None
+            if repair:
+                new_data, new_options = repaired_config(hass, entry, repair, ctx['client_id'])
+            else:
+                new_data = dict(entry.data)
             new_data[CONF_SPOTIFY_CLIENT_ID] = ctx["client_id"]
             new_data[CONF_SPOTIFY_REFRESH_TOKEN] = token["refresh_token"]
             new_data[CONF_SPOTIFY_MARKET] = ctx.get("market", DEFAULT_SPOTIFY_MARKET)
             new_data[CONF_SPOTIFY_SCOPES] = ctx.get("scopes", DEFAULT_SPOTIFY_SCOPES)
-            hass.config_entries.async_update_entry(entry, data=new_data)
-            runtime = _runtime(hass)
+            if repair:
+                new_data[CONF_HA_EXTERNAL_URL] = ctx['redirect_uri'].removesuffix(API_SPOTIFY_CALLBACK)
+            hass.config_entries.async_update_entry(entry, data=new_data,
+                **({'options': new_options} if new_options is not None else {}))
+            runtime = (hass.data.get(DOMAIN, {}).get(entry.entry_id) if repair else _runtime(hass))
             if runtime is not None:
                 runtime.update_spotify_refresh_token(token.get("refresh_token"))
                 _LOGGER.debug("DJConnect Spotify refresh_token=rotated/present")

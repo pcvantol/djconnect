@@ -1,3 +1,192 @@
+## 2026-11-06 — Golden source1472 Finalization
+
+#### Repository Status
+
+PR [#1472](https://github.com/pcvantol/djconnect/pull/1472) merged as
+`5becc026f4931ccbf758e10c307bbee5a8a7522d`, from exact Owner-authorized
+`a04e424509437cc8c310f0c17b5a9282d586c214`. Source CI/HACS/security passed;
+4598 tests accounted,54 skipped;26 actual-HA groups and26 receipt checks pass.
+Post-merge product tests/HACS/security/coverage pass; the housekeeping HTTP502
+was recovered by its isolated job retry. All308 product files equal the merged source.
+
+#### Management Summary
+
+Selected-context source binding, original composer proof, short-title admission,
+concise identity answers and actual producer evidence are repaired. The owner
+limited failing-item remediation to EN/NL:8/8 cases pass in the last full run.
+The other12 language cases retain their original results and are deferred.
+This is not full20-case, robustness, official release or installed acceptance.
+
+#### Roadmap Position
+
+Generation2 Product Development, Phase1 Platform Qualification is unchanged.
+This is the separate documentary reconciliation of the owner-selected repair.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+The same existing settings plan was reread from
+`docs/roadmap/v1/djconnect-platform-v1.json` and its maintained `CATALOGUE.md`.
+These entries grant no new writer, dispatch or change of execution order.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+5. **SETTINGS::JOINT::ACCEPTANCE — Cross-device six-field effects, persistence and cleanup acceptance**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::MIGRATION In progress. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+#### Blocked Items
+
+Publication reliability and independent real-quality/native/provider/audible/APNs
+acceptance remain open.39 Core findings and29 quality steps are unchanged.1439
+is not merged by this increment. This Finalization's
+own protected merge must complete before documentary completion.
+
+#### Deferred Items
+
+DE/FR/ES failing-item remediation is deferred by the owner's explicit instruction;
+all five UI/localization families and the existing EN/NL28-leaf Help boundary
+with42 unchanged pending leaves remain preserved. All prior WIP/evidence is kept.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for the bounded1472 source increment once
+this separate Finalization has passed its protected merge. Before that merge,
+the source remains `MERGED_UNRECONCILED`.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until canonical-main synchronization and conforming
+local cleanup after Finalization. The timer stays stopped. See the
+[scope/evidence projection](docs/verification/GOLDEN_1472_FINALIZATION_20261106.json)
+and [immutable history](docs/history/2026-11-06-golden-source-1472-finalization.md).
+Earlier records below retain their historical freeze-point scopes.
+
+<!-- golden-1472-finalization-end -->
+
+## 2026-11-05 — Orphaned Spotify connection repair Finalization
+
+Source PR [#1469](https://github.com/pcvantol/djconnect/pull/1469) merged as
+`1a12dcbb10e41feb0debc14d594f184cc63ebc7d`, from exact authorized head
+`d2d99e17c5d5bc63a761c7092480cf0fe26eb9da`.
+The bounded source repair is `MERGED_UNRECONCILED` until this separate documentary
+Finalization passes protected merge; then `MERGED_RECONCILED`. No product bytes,
+fixture, release input or execution authority change in this Finalization.
+
+The existing options/PKCE route can recover an orphaned shared Spotify owner
+through fresh operator consent for the same current Profile/account/app binding.
+A surviving/disabled owner, changed device binding generation, changed Profile/
+account, new owner or disabled client prevents acceptance. No donor, backup or
+other Profile credential is copied. Fresh grant persistence uses HA's existing
+entry manager and reloads only the repaired client. No new pairing or playback.
+Source QA:4585 repository cases (11 existing skips),172 framework tests,26 isolated
+actual-HA groups, Ruff/diff, Bandit medium/high zero findings and zero-call Help
+container preflight PASS. Exact Owner Authorization
+[42099590192](https://github.com/pcvantol/djconnect/actions/runs/42099590192) PASS.
+All308 integration files remain byte-equal to Source1469 in this Finalization.
+
+The canonical Execution Horizon remains SETTINGS::APPLE::EDITOR,
+SETTINGS::PI::ADOPTION, SETTINGS::ESP32::ADOPTION, SETTINGS::VIBECAST::COMPAT,
+SETTINGS::JOINT::ACCEPTANCE; all Planned/NOT_ISSUED with unchanged prerequisites.
+This completed owner-selected operational repair selects no new roadmap work.
+Real OAuth consent, HA-dev installation/runtime readback, provider inventory and
+Speaker in schuur playback remain separately observable; none follows from CI.
+Shared best-effort Play Now remains incomplete. Apple keeps its Voor jou work;
+no competing native writer, paid probe or timer restart.
+See [contract](docs/product/SPOTIFY_ORPHAN_CONNECTION_REPAIR_V1.md) and
+[history](docs/history/2026-11-05-default-spotify-connection-repair-finalization.md).
+Older rolling records retain their original freeze-point scope.
+
+## 2026-11-05 — Music announcement publication-clock Finalization
+
+PR [#1467](https://github.com/pcvantol/djconnect/pull/1467) merged as
+`8f84cea951c501b05f88898ddf1ee34cc296df8e`, from exact authorized head
+`1624b8b6bb862e0a38e903eb36901859be2cb646`.
+Repository State: `MERGED_RECONCILED` for this bounded source correction when
+this separate documentary Finalization has passed its protected merge.
+Until then the implementation remains `MERGED_UNRECONCILED`.
+The same canonical five-item Execution Horizon remains unchanged; no new
+capability, priority, native writer or paid-model scope is selected.
+
+A six-second fixture realization causally exposed an early UTC expiry. The
+music_announcement boundary now pairs publication UTC with publication-monotonic
+instead of the earlier seed timestamp. Original12s start deadline, Moment/history
+creation identity, no-renewal behavior and all legacy families remain unchanged.
+Source QA:4575 repository cases/11 existing skips,172 framework,25 actual
+isolated HA groups, static/security and diff checks PASS. Exact technical
+GitHub checks and Owner Authorization
+[42089998254](https://github.com/pcvantol/djconnect/actions/runs/42089998254) passed.
+This separate Finalization changes no product byte, fixture, contract or release
+input; all307 product files and original negative/positive evidence are preserved.
+
+Shared best-effort Play Now, real model variety/latency, audible quality,
+independent editorial review, native/HA installation and physical/APNs
+acceptance remain separate and open. No releasegate bypass, new paid probe,
+consumer dispatch or timer restart. The Apple lane keeps its owner-prioritized
+Voor jou work. See [contract](docs/product/MUSIC_ANNOUNCEMENT_MOMENTS_V1.md) and
+[history](docs/history/2026-11-05-music-announcement-clock-finalization.md).
+Earlier rolling records retain their historical freeze-point scope.
+
+## 2026-11-05 — Music announcement source Finalization
+
+PR [#1465](https://github.com/pcvantol/djconnect/pull/1465) merged as
+`69ff2206d1e8d6dd4e9a96e2bad97b627d16be6f`, from exact authorized head
+`2e9a8a75f2599007c15e1ec46fa08007c5c19f62`.
+Repository State: `MERGED_RECONCILED` for this bounded source increment when
+this separate documentary Finalization has passed its own protected merge.
+Until then the merged implementation remains `MERGED_UNRECONCILED`.
+The canonical five-item Execution Horizon remains unchanged: this completed
+owner-selected source increment is excluded; no new capability is selected.
+
+Typed Music announcement Moments reuse the existing observer, HA realization/
+review, Planner, history and speech/media owners. Baseline text survives Music-only;
+manual local replay survives text-only under current original history/source
+rights. Original text, occurrence and album edition remain bound after archive.
+Source validation:4573 repository cases (11 existing skips),172 framework tests,
+25 actual isolated HA groups, Ruff, DAG and Bandit medium/high checks PASS.
+All technical GitHub gates and exact Owner Authorization
+[42084165302](https://github.com/pcvantol/djconnect/actions/runs/42084165302) passed.
+All307 product files, producer receipts and release inputs remain unchanged
+by this Finalization; immutable historical receipts and other WIP are retained.
+
+Shared best-effort Play Now, real generated-text variety/audible timing,
+independent editorial review, Apple adoption, HA-dev/native installation and
+physical/APNs acceptance remain open and separate. No broad paid rerun, release,
+installation, new authority or timer is created. The Apple lane retains its
+owner-prioritized Voor jou work; a source handoff does not dispatch that writer.
+See [contract](docs/product/MUSIC_ANNOUNCEMENT_MOMENTS_V1.md) and
+[Finalization history](docs/history/2026-11-05-music-announcement-source-finalization.md).
+Earlier rolling bodies below retain their historical freeze-point scope.
+
+## 2026-11-05 — Voor jou source Finalization
+
+PR [#1463](https://github.com/pcvantol/djconnect/pull/1463) merged as
+`b8c07abd434abb06bed8fbedd1a7a3a10f3c32b5`, from approved exact head
+`81bbab2471211b8bbcdc78cc77a5316719fd57a5`.
+Repository State: `MERGED_RECONCILED` for this source increment; this separate
+documentary Finalization still requires its own protected merge. The completed
+source increment is excluded from the unchanged canonical Execution Horizon;
+no new backlog selection, writer or product acceptance is created.
+
+Voor jou replaces the Session surprise launcher through the existing dialogue
+and command owner. Source:4556 repository tests (11 existing skips),172 framework
+tests and24 original isolated HA producer groups, including11 new paired HTTP
+cases. Exact-head technical GitHub checks and Owner Authorization run42068472148
+succeeded before merge. All306 product artifacts and release inputs remain
+unchanged in this documentary reconciliation.
+
+HA-dev installation, real Spotify, native Apple rendering/local-model execution,
+physical acceptance and APNs delivery remain separate and unclaimed. The Apple
+lane has the exact contract; its app regression repair precedes native adoption.
+The timer stays stopped. Existing frozen histories,24 requests/nine acceptance
+gates, unrelated WIP and original evidence retain their own scope.
+See [the source contract](docs/product/SESSION_FOR_YOU_V1.md) and
+[Finalization history](docs/history/2026-11-05-session-for-you-source-finalization.md).
+Earlier candidate headers below are preserved freeze-point context.
+
 <!-- ASK_DJ_QUESTION_QUALITY_20261102 -->
 ## Current Ask DJ quality batch — 2 November 2026
 
