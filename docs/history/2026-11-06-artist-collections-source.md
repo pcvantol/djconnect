@@ -94,4 +94,3 @@ See [contract](docs/product/ARTIST_COLLECTION_OFFERS_V1.md) and
 [qualification](docs/verification/ARTIST_COLLECTION_OFFERS_20261106.md).
 
 <!-- artist-collections-source-20261106-end -->
-
