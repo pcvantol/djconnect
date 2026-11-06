@@ -959,7 +959,12 @@ async def _dispatch_special_command(
         result, debug_command = ask_result
         return _finalize_special_command(hass, runtime, result, music_dna_key, debug_command), command_value
     if normalized_command == "volume_delta":
-        result = await _handle_volume_delta_command(hass, runtime, command_value)
+        try:
+            result = await _handle_volume_delta_command(hass, runtime, command_value)
+        except Exception as exc:  # noqa: BLE001
+            return _volume_command_error_result(runtime, data, command, normalized_command, exc=exc), command_value
+        if result.get("success") is False and result.get("error") != "invalid_volume_delta":
+            return _volume_command_error_result(runtime, data, command, normalized_command, result=result), command_value
         return _finalize_special_command(hass, runtime, result, music_dna_key, normalized_command), command_value
     return None, command_value
 
@@ -1172,6 +1177,8 @@ async def _run_backend_command(
         result = await http_helpers.run_music_command(
             hass, runtime, command, command_value, play=bool(data.get("play", False))
         )
+        if normalized_command == "set_volume" and result.get("success") is False:
+            return _volume_command_error_result(runtime, data, command, normalized_command, result=result)
         runtime.update(last_error=None)
         if result.get("success"):
             result.setdefault("backend_available", True)
@@ -1184,10 +1191,34 @@ async def _run_backend_command(
     except ValueError as exc:
         return _backend_error_result(runtime, data, command, normalized_command, _error_payload("invalid_command", str(exc)), 400)
     except MusicBackendCapabilityError as exc:
+        if normalized_command == "set_volume":
+            return _volume_command_error_result(runtime, data, command, normalized_command, exc=exc)
         runtime.update(last_error=_safe_backend_error_message(exc))
         return _backend_error_result(runtime, data, command, normalized_command, _unsupported_backend_capability_payload(hass, runtime, exc), 400)
     except Exception as exc:  # noqa: BLE001
         return _unexpected_backend_error_result(hass, runtime, data, command, normalized_command, exc)
+
+
+def _volume_command_error_result(
+    runtime: Any, data: dict[str, Any], command: str, normalized_command: str,
+    *, exc: Exception | None = None, result: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], int]:
+    """A failed volume action supplies no new independent global health state."""
+    original = result or {}
+    unsupported = (
+        exc is not None and _looks_like_backend_capability_error(exc)
+        and getattr(exc, "capability", None) == "supports_volume"
+    ) or (original.get("error") == "unsupported_backend_capability"
+          and original.get("capability") == "supports_volume")
+    code = "unsupported_backend_capability" if unsupported else "volume_command_failed"
+    payload = {"success": False, "error": code, "message": code,
+               "command": normalized_command, "error_scope": "command", "retry_automatically": False}
+    if unsupported:
+        payload.update(capability="supports_volume", backend_available=True,
+                       backend=getattr(exc, "backend", None) or original.get("backend") or "unknown")
+    # No last_error, DJ/voice state, cached playback or capability/health write.
+    # Do not decorate from provider metadata: a scoped error must not rebind it.
+    return _backend_error_result(runtime, data, command, normalized_command, payload, 200)
 
 
 def _finalize_backend_success(
@@ -1234,6 +1265,8 @@ def _unexpected_backend_error_result(
     """Map expected and unexpected backend exceptions to legacy responses."""
     from .spotify_backend import SpotifyOutputError
     from .domain.storage import ProfileStorageValidationError
+    if normalized_command in {"set_volume", "volume_delta"}:
+        return _volume_command_error_result(runtime, data, command, normalized_command, exc=exc)
     if isinstance(exc, SpotifyOutputError):
         from .playback_request import failure
         from .ask_dj import _response_language

@@ -1,3 +1,17 @@
+## 2026-11-06 — Spotify volume action-error source increment
+
+Current branch: `codex/spotify-volume-action-error-20261106`, from main b9cc7a50.
+Source/offline validation is PASS; reviewable PR and exact protected merge remain
+separate. See [qualification](docs/verification/SPOTIFY_VOLUME_ACTION_ERRORS_20261106.md)
+and [contract](docs/product/SPOTIFY_VOLUME_ACTION_ERRORS_V1.md). Preserve explicit
+Spotify volume capability and isolate command failures from global backend/DJ/
+voice/Session state. 257 related pinned-HA tests and 29 isolated HA protocol suites
+pass with synthetic provider replies and zero real provider/model calls. Original
+failures and historical receipts remain. No HA-dev or native install in this step;
+after an approved merge, apply the user's main-debug update/readback policy with
+#1439 preserved. Generation 2 / Phase 1 Platform Qualification and canonical roadmap
+order stay unchanged. Native/client/audio and #1439 release gates remain OPEN.
+
 ## 2026-11-06 — Native Golden source1480 Finalization
 
 #### Repository Status

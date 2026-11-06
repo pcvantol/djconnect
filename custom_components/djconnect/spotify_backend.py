@@ -1801,11 +1801,18 @@ class SpotifyBackend:
             volume = max(0, min(100, int(float(value))))
         except (TypeError, ValueError) as exc:
             raise ValueError("set_volume value must be 0-100") from exc
-        await self._request(
-            "PUT",
-            f"/me/player/volume?volume_percent={volume}",
-            expected_empty=True,
-        )
+        try:
+            await self._request(
+                "PUT",
+                f"/me/player/volume?volume_percent={volume}",
+                expected_empty=True,
+            )
+        except SpotifyBackendError as exc:
+            if exc.http_status == 403 and "cannot control device volume" in str(exc).casefold():
+                from .use_cases import MusicBackendCapabilityError
+
+                raise MusicBackendCapabilityError("set_volume", "supports_volume", "spotify_direct") from exc
+            raise
 
     async def save_current_track(self) -> dict[str, Any]:
         return await self.set_current_track_favorite(True)
@@ -2265,7 +2272,7 @@ def _normalize_device(device: dict[str, Any]) -> dict[str, Any]:
         "type": device.get("type") or "",
         "active": bool(device.get("is_active")),
         "is_restricted": bool(device.get("is_restricted")),
-        "supports_volume": not bool(device.get("is_restricted")),
+        "supports_volume": device.get("supports_volume") if type(device.get("supports_volume")) is bool else None,
         "volume_percent": device.get("volume_percent"),
     }
 
