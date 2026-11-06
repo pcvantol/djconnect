@@ -675,11 +675,19 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(len(self.prompts), 1)
 
     async def test_unavailable_provider_after_preparation_returns_instruction_not_old_bytes(self):
+        await self._check_unavailable_speech_keeps_text('en')
+
+    async def test_dutch_unavailable_provider_keeps_text_and_does_not_repeat(self):
+        await self._check_unavailable_speech_keeps_text('nl')
+
+    async def _check_unavailable_speech_keeps_text(self, language):
         from custom_components.djconnect import session_speech
-        answer, _ = await self.request("What is an ostinato?", identifier="tts-disconnect")
+        answer, _ = await self.request("Wat is een ostinato?" if language == "nl" else "What is an ostinato?", identifier="tts-disconnect", language=language)
         payload = {**self.identity, "contract_version": 1, "reference": answer["session_speech"]["reference"],
                    "processor": "ha_configured", "voice_preference": "default"}
         stack, entity, pipeline, calls, processor = self.generic_tts()
+        pipeline.tts_language = "nl-NL" if language == "nl" else "en-US"
+        before_history = await self.history.async_history("profile:profile-a")
         with stack:
             result, _ = await session_speech.async_handle_prepare(self.hass, payload, headers=self.headers)
             asset = result["session_speech"]["audio_reference"]["asset_id"]
@@ -695,6 +703,8 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(status, 404)
             self.assertEqual(len(calls), 1)
             self.assertEqual(len(self.prompts), 1)
+            self.assertEqual((await self.history.async_history("profile:profile-a"))["messages"], before_history["messages"])
+            self.assertEqual(self.effects, [])
 
     async def test_functional_tts_notices_are_five_language_and_never_source_or_auth_claims(self):
         from custom_components.djconnect.speech_feedback import notification
@@ -3085,9 +3095,33 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Who is Brian Eno?", json.dumps(self.prompts[-1]))
 
     async def test_new_topic_detaches_prior_source_dependencies(self):
+        await self._check_recent_topic_switch('en')
+
+    async def test_dutch_new_topic_detaches_prior_source_dependencies(self):
+        await self._check_recent_topic_switch('nl')
+
+    async def test_english_selected_composer_keeps_role(self):
+        await self._check_selected_composer_role('en')
+
+    async def test_dutch_selected_composer_keeps_role(self):
+        await self._check_selected_composer_role('nl')
+
+    async def _check_selected_composer_role(self, language):
+        session, moment, target = await self.selected_credit()
+        question = 'Wie is die componist?' if language == 'nl' else 'Who is that composer?'
+        result, status = await self.request(question, identifier='composer-role-'+language,
+            language=language, context={'session_id':session.session_id, 'selected_entry':target})
+        self.assertEqual(status, 200, result)
+        frame = self.history.dialogue.owners['profile:profile-a']['default']
+        self.assertTrue(any(subject['name']=='Brian Eno' and subject['role']=='composer'
+                            for subject in frame.subjects), frame.subjects)
+        self.assertFalse(any(subject['role'] in {'performer', 'producer'} for subject in frame.subjects))
+        self.assertEqual(self.effects, [])
+
+    async def _check_recent_topic_switch(self, language):
         session, _moment, target = await self.selected_credit()
-        await self.request("Who is that?", context={"selected_entry": target})
-        _, status = await self.request("Who is Miles Davis?", identifier="new-topic")
+        await self.request("Wie is dat?" if language == "nl" else "Who is that?", language=language, context={"selected_entry": target})
+        _, status = await self.request("Wie is Miles Davis?" if language == "nl" else "Who is Miles Davis?", identifier="new-topic", language=language)
         self.assertEqual(status, 200)
         self.assertEqual(self.prompts[-1]["recent_turns"], [])
         frame = self.history.dialogue.owners["profile:profile-a"]["default"]
@@ -3095,7 +3129,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([subject["name"] for subject in frame.subjects], ["Miles Davis"])
         self.assertTrue(all(subject["role"] == "user_named_subject" for subject in frame.subjects))
         await self.fixture.repo.async_remove_entry_records("profile-a", [target["entry_id"]])
-        _, status = await self.request("What influence did he have?", identifier="new-followup")
+        _, status = await self.request("Welke invloed had hij?" if language == "nl" else "What influence did he have?", identifier="new-followup", language=language)
         self.assertEqual(status, 200)
         self.assertIn("Miles Davis", json.dumps(self.prompts[-1]))
         self.assertNotIn("Brian Eno", json.dumps(self.prompts[-1]))

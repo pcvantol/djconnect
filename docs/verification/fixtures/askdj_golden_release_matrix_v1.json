@@ -34,6 +34,26 @@
     "album_tracks_information": {
       "file": "tests/test_ask_dj_album_tracks.py",
       "method": "test_current_album_other_tracks_in_five_languages_are_informational_and_not_promoted_to_model_or_archive"
+    },
+    "golden_en_membership": {
+      "file": "tests/test_ask_dj_band_story.py",
+      "method": "test_english_membership_uses_complete_artist_route"
+    },
+    "golden_nl_topic_switch": {
+      "file": "tests/test_ask_dj_contextual_dialogue.py",
+      "method": "test_dutch_new_topic_detaches_prior_source_dependencies"
+    },
+    "golden_en_composer_role": {
+      "file": "tests/test_ask_dj_contextual_dialogue.py",
+      "method": "test_english_selected_composer_keeps_role"
+    },
+    "golden_nl_composer_role": {
+      "file": "tests/test_ask_dj_contextual_dialogue.py",
+      "method": "test_dutch_selected_composer_keeps_role"
+    },
+    "golden_nl_speech_unavailable": {
+      "file": "tests/test_ask_dj_contextual_dialogue.py",
+      "method": "test_dutch_unavailable_provider_keeps_text_and_does_not_repeat"
     }
   },
   "families": [

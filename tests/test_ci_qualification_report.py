@@ -119,6 +119,7 @@ class CIQualificationReportTest(unittest.TestCase):
 
     def test_workflow_is_advisory_and_cleans_up_on_pass_and_fail(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "golden-qualification-ci.yml").read_text()
+        workflow, functional = workflow.split("\n  golden-en-nl-functional:", 1)
 
         self.assertIn("continue-on-error: true", workflow)
         self.assertIn("github.event_name == 'pull_request'", workflow)
@@ -126,6 +127,11 @@ class CIQualificationReportTest(unittest.TestCase):
         self.assertEqual(workflow.count("if: ${{ always() }}"), 2)
         self.assertEqual(workflow.count("rm -f"), 2)
         self.assertNotIn("upload-artifact", workflow)
+        self.assertIn("continue-on-error: true", functional)
+        self.assertIn("run_golden_en_nl_features.py", functional)
+        self.assertIn("if: ${{ always() }}", functional)
+        self.assertIn("golden-en-nl-${{ github.run_id }}-${{ github.run_attempt }}", functional)
+        self.assertNotIn("--observe-browser-e2e", functional)
 
     def test_ci_runner_executes_the_existing_smoke_and_regression_profiles(self) -> None:
         runner = _load_runner()
@@ -157,6 +163,7 @@ class CIQualificationReportTest(unittest.TestCase):
 
     def test_workflow_observes_profiles_without_publishing_browser_evidence(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "golden-qualification-ci.yml").read_text()
+        workflow, functional = workflow.split("\n  golden-en-nl-functional:", 1)
 
         self.assertEqual(workflow.count("--observe-browser-e2e"), 2)
         self.assertNotIn("browser report", workflow.lower())
