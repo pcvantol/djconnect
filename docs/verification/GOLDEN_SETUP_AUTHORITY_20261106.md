@@ -68,3 +68,54 @@ changes and does not modify the HA-dev installation, still the separately
 installed debug composition69dcfe05. No official release, merge, physical Apple,
 audible playback, announcement or APNs acceptance follows from these results.
 Protected current-head checks and separate Finalization remain mandatory.
+
+## Subsequent source iteration and current proof
+
+The later repairs distinguish an underlying-work composer credit from a recording
+credit in both ordinary chat and proactive narration. The composer writing task
+now has one concise source-bound telling instruction using the shared Persona
+and Mood owner; independent factual, work-focus, episode and style checks remain
+mandatory. Failed publication still withholds the contribution rather than
+publishing an unqualified fallback. Short identity answers are limited to two
+short sentences, without an unrequested career arc or chronology. Independent
+biography occupations retain their own source scope and faithful translation;
+a selected work credit does not become a general occupation.
+
+Actual full20-case results progressed from5/20 on78de5fce (`full-context-r11`)
+to13/20 onf54a2edb (`identity-full-r16`) and14/20 on95f90f86
+(`concise-full-r19`). The latest run used42 calls; all English and Dutch cases
+passed. Six German, French and Spanish cases remain failed. Every earlier failed
+setup and suite is preserved separately. These are individual observations, not
+a robustness qualification, and the canonical suite verdict remains FAIL.
+
+Two causal test-side defects were reproduced before correction: legitimate
+German `Jazztrompeter` and Dutch `jazztrompettist` were treated as missing public
+facts. Both compound forms now qualify; their negations remain contradictory,
+and an answer omitting the actual trumpet fact still fails. The historical
+reports are not retroactively changed to PASS.
+
+The latest related unit run passed374 tests in the pinned offline HA image.
+All26 actual-HA protocol harnesses then passed on the exact95f90f86 product
+bytes (`actual-ha-95f90f86/results.json`), with matching before/after hashes.
+Their25 current receipt projections bind all308 tracked product files; historical
+originals and raw earlier failures remain preserved. The26 exact CI receipt
+checks also passed after binding. These protocol fixtures use no real model,
+Spotify, speech or hardware provider and do not establish product acceptance.
+
+The HA adapter's default reasoning setting is low. A separate external medium
+comparison is diagnostic only: it preserves the same model, destination,
+synthetic/public context and3000-token ceiling, records the effective setting
+per ledger reservation, and cannot report full-manifest qualification. It neither
+changes the installed HA settings nor extends the canonical catalogue-only
+nonlegacy qualification profiles. See the official
+[reasoning parameter documentation](https://developers.openai.com/api/docs/guides/reasoning).
+The first218 cumulative reservations are retained before that comparison.
+
+All39 Core findings and29 real-quality steps still remain OPEN. No release or
+installed/native/audible/APNs completion is inferred from this source increment.
+
+The first medium diagnostic (`medium-failed-six-r20`) reserved2 further calls,
+both completed within3000 tokens. Its generated announcement passed the external
+style check but failed Core's independent public-work episode coverage. No
+question ran, and no comparative quality improvement is established. Both calls
+remain consumed in the cumulative ledger (220 through this diagnostic).
