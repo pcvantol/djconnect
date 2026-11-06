@@ -84,3 +84,46 @@ async def collection_response(hass, runtime, kind, artist, *, turn):
                    else f"I couldn't verify any Spotify {noun} for this request.")
     return {"success": True, "text": message, "dj_text": message, "action": "none",
             "images": [], "items": actions, "playback_actions": actions}
+
+
+async def artist_collections_read(hass, runtime, artist, *, turn):
+    """One interpreted name, Core/provider-owned rows, no playback mutation."""
+    from aiohttp import ClientError
+    from . import run_music_command, _album_search_playback_actions, _playlist_search_playback_actions
+    from .dialogue import catalogue_result_text, DialogueError
+    from ..spotify_backend import SpotifyBackendError
+    from ..use_cases import MusicBackendCapabilityError
+
+    await turn.guard()
+    if turn.lookup_calls + 1 > 2:
+        raise DialogueError("conversation_lookup_budget", 503)
+    turn.lookup_calls += 1
+    try:
+        result = await asyncio.wait_for(run_music_command(hass, runtime, "artist_collections", {"artist": artist}), 12)
+    except (SpotifyBackendError, MusicBackendCapabilityError, ClientError, OSError, TimeoutError):
+        result = {}
+    await turn.guard()
+    if not isinstance(result, dict) or result.get("success") is False:
+        result = {}
+    albums = _album_search_playback_actions(hass, result.get("albums") or [], limit=5)
+    playlists = _playlist_search_playback_actions(hass, result.get("playlists") or [], limit=5)
+    actions = albums + playlists
+    canonical = (result.get("artist") or {}).get("name") or artist
+    language = turn.style.get("language", "en")
+    copy = {
+        "en": ("I found {a} albums and {p} playlists with music by {artist}. Pick one to play.", "I cannot verify albums or playlists by {artist} right now.", "Play"),
+        "nl": ("Ik vond {a} albums en {p} playlists met muziek van {artist}. Kies wat je wilt horen.", "Ik kan nu geen albums of playlists van {artist} controleren.", "Afspelen"),
+        "de": ("Ich habe {a} Alben und {p} Playlists mit Musik von {artist} gefunden. Wähle etwas zum Abspielen.", "Ich kann gerade keine Alben oder Playlists von {artist} bestätigen.", "Abspielen"),
+        "fr": ("J’ai trouvé {a} albums et {p} playlists avec de la musique de {artist}. Choisissez quoi écouter.", "Je ne peux pas vérifier d’albums ou de playlists de {artist} pour le moment.", "Lire"),
+        "es": ("Encontré {a} álbumes y {p} playlists con música de {artist}. Elige qué escuchar.", "Ahora no puedo verificar álbumes o playlists de {artist}.", "Reproducir"),
+    }
+    caption = copy[language][0 if actions else 1].format(a=len(albums), p=len(playlists), artist=canonical)
+    for action in actions:
+        action.update(label=copy[language][2], button_label=copy[language][2], reason=caption)
+    text = catalogue_result_text(actions, language, caption=caption) if actions else caption
+    return {"success": True, "text": text, "dj_text": text, "action": "none", "images": [],
+            "items": actions, "playback_actions": actions,
+            "text_source": "qualified_catalog_result", "is_generated_text": False,
+            "knowledge_basis": "qualified_provider_result_fields", "_private_current_context": True,
+            "intent": {"category":"informational", "intent":"artist_collections_information"},
+            "sources": [{"source":"spotify_artist_collections", "title":"Spotify", "kind":"source"}] if actions else []}

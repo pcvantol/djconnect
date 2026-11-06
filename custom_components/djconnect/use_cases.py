@@ -578,6 +578,7 @@ class DJConnectUseCases:
 
 
 _CAPABILITY_BY_COMMAND = {
+    "artist_collections": "supports_search",
     "discovery_playlist_identity": "supports_search",
     "resolve_discovery_artist": "supports_search",
     "play_discovery_context": "supports_playlists",
