@@ -1445,6 +1445,8 @@ async def _handle_volume_delta_command(hass: Any, runtime: Any, value: Any) -> d
             "sources": [],
         }
     status = await run_music_command(hass, runtime, "status")
+    if isinstance(status, dict) and status.get("success") is False:
+        return status
     playback = status.get("playback") if isinstance(status, dict) else {}
     current = _playback_volume_percent(playback, runtime)
     if current is None:
@@ -1458,6 +1460,8 @@ async def _handle_volume_delta_command(hass: Any, runtime: Any, value: Any) -> d
         }
     target = max(0, min(60, current + delta))
     result = await run_music_command(hass, runtime, "set_volume", target)
+    if isinstance(result, dict) and result.get("success") is False:
+        return result
     return {
         "success": True,
         "text": "Ik heb het volume aangepast.",
