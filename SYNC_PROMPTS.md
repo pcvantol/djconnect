@@ -7895,3 +7895,9 @@ is the Apple Watch handoff. Send it on every Watch Mood write and require the
 same scope in the acknowledgement. Keep the original paired Watch identity,
 active Session ID and expected Mood revision. An older Core rejects the extra
 field. Preserve that denial and never retry using Profile settings.
+
+Discovery artist Play Now repair: docs/product/DISCOVERY_ARTIST_THIS_IS_PLAYBACK_V1.md.
+Resolve only server-cached exact artist to real qualified This Is playlist;
+context-start replaces selection, never offset-only command or URI guess.
+Provider limits/output-required/stale authority/failure must cause no dispatch,
+feedback or false played:true; no replay, transfer or client-side resolution.
