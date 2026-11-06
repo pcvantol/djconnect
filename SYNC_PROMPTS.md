@@ -1,3 +1,16 @@
+## 2026-11-06 — Action-scoped Spotify volume refusal
+
+Fix the reported iPhone output volume failure as one Core increment. Preserve
+Spotify's exact boolean supports_volume (missing/invalid remains unknown), with
+no device-name/type heuristic. A proven volume capability refusal uses the
+existing unsupported_backend_capability / supports_volume contract; other
+volume failures use volume_command_failed without inventing global health.
+Both set_volume and volume_delta preserve independent status/cache, DJ/voice and
+Session state on failure. No raw provider exception, retry, model/TTS, credential,
+live provider/volume request or HA-dev installation in this preparation step.
+See docs/product/SPOTIFY_VOLUME_ACTION_ERRORS_V1.md. Protected merge and runtime
+installation remain separate after an exact reviewable PR.
+
 ## 2026-11-06 — Native client Golden consumer contract, source protocol increment
 
 The human requests integral Core Golden behavior through iPhone/iPad/Mac/Watch,
