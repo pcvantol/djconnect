@@ -3617,6 +3617,8 @@ class DJSessionBroadcastEngine:
     first_play_offer: Any = field(default=None, init=False, repr=False)
     track_announcements: Any = field(default=None, init=False, repr=False)
     first_play_preparation: Any = field(default=None, init=False, repr=False)
+    first_play_refresh: Any = field(default=None, init=False, repr=False)
+    first_play_continuation: Any = field(default=None, init=False, repr=False)
     first_play_pending: Any = field(default=None, init=False, repr=False)
     first_play_dismissed_devices: set[str] = field(default_factory=set, init=False, repr=False)
     passive_state_observed: tuple = field(default_factory=lambda: (time.monotonic(), time.time()), repr=False)
@@ -4817,6 +4819,7 @@ class SessionRuntimeManager:
         history_enabled: bool = True,
         history_source_context: dict[str, str] | None = None,
         inherit_settings: bool = False,
+        explicit_mood_choice: bool = False,
         source_adoption=None,
     ) -> DJSessionRuntime:
         """Create the one active Runtime allowed for a Profile."""
@@ -4831,7 +4834,8 @@ class SessionRuntimeManager:
                 if defaults['activated'] or inherit_settings:
                     inherited = DJSettings.from_dict(defaults['defaults'])
                     defaults_revision = defaults['defaults_revision']
-                    selected_mood = inherited.mood
+                    if not (explicit_mood_choice and selected_mood in {'chill', 'groove', 'energy', 'party'}):
+                        selected_mood = inherited.mood
                     dj_persona = DJPersona(inherited.persona)
             now = _timestamp()
             session_id = f"session-{uuid4().hex}"

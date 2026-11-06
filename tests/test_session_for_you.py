@@ -291,3 +291,113 @@ class ForYouTests(IsolatedAsyncioTestCase):
         with self.assertRaises(self.dialogue.DialogueError):
             await task
         self.assertEqual(self.effects, [])
+
+    async def prepare_current(self, *, locale='nl'):
+        from tests.test_music_dna import FakeStore
+        from custom_components.djconnect.ask_dj_history import AskDJHistoryManager
+        from custom_components.djconnect.domain.storage import STORE_KEY
+        self.preparation_history = AskDJHistoryManager(store=FakeStore())
+        storage = self.hass.data['djconnect'][STORE_KEY]
+        self.preparation_context = SimpleNamespace(profile_id='synthetic-owner',
+            profile=storage.household.profiles['synthetic-owner'], client_type='ios', device_id='phone')
+        source = patch('custom_components.djconnect.reply_artwork.source_admission',
+                      return_value=(self.source, lambda: self.allowed))
+        source.start()
+        self.addCleanup(source.stop)
+        await self.new_session(locale=locale)
+        await self.steering.prepare_for_you_once(self.hass, self.runtime, self.preparation_context,
+            self.active, self.preparation_history, self.preparation_guard)
+        return self.steering.for_you_projection(self.hass, self.runtime, 'synthetic-owner', self.active)
+
+    def preparation_guard(self):
+        if not self.allowed:
+            raise PermissionError('synthetic-owner-withdrawn')
+
+    async def refresh_mood(self, mood):
+        previous = self.manager.current_active('synthetic-owner')
+        self.active = await self.manager.async_update_mood(owner_profile_id='synthetic-owner',
+            session_id=previous.session_id, selected_mood=mood, expected_revision=previous.mood_revision)
+        status = self.steering.schedule_for_you_refresh(self.hass, self.runtime, self.preparation_context,
+            previous, self.preparation_history, self.preparation_guard)
+        return previous, status
+
+    async def wait_refresh(self, status):
+        import asyncio
+        async with asyncio.timeout(2):
+            while status['state'] == 'pending':
+                await asyncio.sleep(.001)
+
+    async def test_session_locale_drives_intro_despite_default_english_profile(self):
+        offer = await self.prepare_current(locale='nl')
+        self.assertEqual(offer['intro'], self.steering.FOR_YOU_INTRO['nl'])
+        self.assertEqual(offer['language'], 'nl')
+        self.assertEqual([o['label'] for o in offer['options'] if o['genre']=='indie rock'], ['indierock'])
+        self.assertEqual(set(o['genre'] for o in offer['options']), set(self.owned_genres))
+        self.assertEqual(self.effects, [])
+
+    async def test_locale_projection_never_regenerates_renews_or_changes_mix_ids(self):
+        english = await self.prepare_current(locale='en')
+        reads = list(self.reads)
+        dutch = self.steering.for_you_projection(self.hass, self.runtime, 'synthetic-owner', self.active, locale='nl')
+        self.assertEqual(dutch['intro'], self.steering.FOR_YOU_INTRO['nl'])
+        self.assertEqual([o['option_id'] for o in english['options']], [o['option_id'] for o in dutch['options']])
+        self.assertLessEqual(dutch['expires_in'], english['expires_in'])
+        self.assertEqual(self.active.locale, 'en')
+        self.assertEqual(self.reads, reads)
+        self.assertEqual(self.effects, [])
+
+    async def test_one_preparation_per_confirmed_revision_and_poll_never_retries(self):
+        original = await self.prepare_current()
+        previous, status = await self.refresh_mood('party')
+        same = self.steering.schedule_for_you_refresh(self.hass, self.runtime, self.preparation_context,
+            previous, self.preparation_history, self.preparation_guard)
+        self.assertIs(same, status)
+        await self.wait_refresh(status)
+        self.assertEqual(status['state'], 'available')
+        current = self.manager.current_active('synthetic-owner')
+        offer = self.steering.for_you_projection(self.hass, self.runtime, 'synthetic-owner', current)
+        self.assertNotEqual(original['offer_id'], offer['offer_id'])
+        self.assertEqual(offer['refresh_policy']['mood_revision'], current.mood_revision)
+        self.assertTrue(all(o['visual_recipe']['mood']=='party' for o in offer['options']))
+        reads = list(self.reads)
+        for _ in range(3):
+            self.steering.for_you_projection(self.hass, self.runtime, 'synthetic-owner', current)
+            self.steering.schedule_for_you_refresh(self.hass, self.runtime, self.preparation_context,
+                previous, self.preparation_history, self.preparation_guard)
+        self.assertEqual(self.reads, reads)
+        self.assertEqual(self.effects, [])
+
+    async def test_late_mood_result_cannot_replace_newer_offer(self):
+        import asyncio
+        await self.prepare_current()
+        entered, release = asyncio.Event(), asyncio.Event()
+        async def delayed(hass, runtime, admission, directions):
+            if admission.active.selected_mood == 'chill':
+                entered.set()
+                await release.wait()
+            return self.steering.FOR_YOU_INTRO[admission.locale], False
+        with patch.object(self.steering, '_for_you_intro', delayed):
+            _, old = await self.refresh_mood('chill')
+            await asyncio.wait_for(entered.wait(), 2)
+            _, latest = await self.refresh_mood('energy')
+            await self.wait_refresh(latest)
+            winner = self.active.broadcast.first_play_offer
+            release.set()
+            await self.wait_refresh(old)
+        self.assertIs(self.active.broadcast.first_play_offer, winner)
+        self.assertEqual(latest['state'], 'available')
+        self.assertEqual(self.effects, [])
+
+    async def test_failed_refresh_is_not_restarted_by_same_revision(self):
+        await self.prepare_current()
+        async def unavailable(*args):
+            raise TimeoutError
+        with patch.object(self.steering, '_for_you_intro', unavailable):
+            previous, status = await self.refresh_mood('chill')
+            await self.wait_refresh(status)
+        self.assertEqual(status['state'], 'unavailable')
+        reads = list(self.reads)
+        self.assertIs(self.steering.schedule_for_you_refresh(self.hass, self.runtime,
+            self.preparation_context, previous, self.preparation_history, self.preparation_guard), status)
+        self.assertEqual(self.reads, reads)
+        self.assertEqual(self.effects, [])

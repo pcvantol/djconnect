@@ -14,7 +14,7 @@ ROOT = Path(os.environ.get("DJC_SOURCE_ROOT", Path(__file__).resolve().parents[2
 sys.path[:0] = [str(ROOT), str(ROOT/"scripts/verification")]
 
 
-async def qualify(hass, manager, history, request, client):
+async def qualify(hass, manager, history, request, client, *, after=None):
     locale = os.environ.get("DJC_GOLDEN_LOCALE", "nl")
     if locale not in {"en", "nl"}:
         raise ValueError("unsupported_golden_locale")
@@ -232,6 +232,7 @@ async def qualify(hass, manager, history, request, client):
             'client_message_id': 'explicit-same-session-refresh', 'text': first.FIRST_PLAY_COPY[locale][1],
             'language': locale, 'audio_response': 'never', 'conversation_context': offer['conversation_context']})
         assert status == 200 and refreshed['success'] and not state['effects'], refreshed
+        assert refreshed['for_you']['state'] == 'available', refreshed['for_you']
         active, status = await request('GET', '/api/djconnect/v1/session/active')
         assert active['for_you']['offer_id'] == refreshed['result_set']['result_set_id'] != before_offer
         offer = active['for_you']
@@ -256,6 +257,8 @@ async def qualify(hass, manager, history, request, client):
                     "action_id": item["action_id"], "operation": "select"}})
             assert status == 409 and not state["effects"], expired
         cases["expired_choice_cannot_start_or_transfer_output"] = "PASS"
+        if after is not None:
+            cases.update(await after(hass, manager, history, request, state))
     return {"qualification": "ACTUAL_ISOLATED_HA_PAIRED_HTTP_STORE_FOR_YOU_SYNTHETIC_PROVIDER_ONLY",
         "language": locale, "cases": cases, "examples": examples, "real_provider_calls": 0, "model_provider_calls": 0,
         "native_installed_acceptance": "NOT_RUN", "paid_dependency": False,

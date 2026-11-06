@@ -66,11 +66,59 @@ keys, action grants or track URIs enter that narration prompt.
 
 The exact original owner/source/Session/Broadcast/settings/DNA/history grant and
 both wall/monotonic60-second deadline fence every awaited continuation and final
-dispatch. A cached card survives lease expiry, with disabled actions and an
-explicit refresh_request (automatic:false); polling never renews it. Settings
-changes disable the old choices. Explicit refresh sends the supplied compatibility
-prompt through the ordinary Ask DJ route and updates the same cached offer;
-it never silently changes or plays a mix. Historical receipts are not rebound.
+dispatch. A cached card survives lease expiry, with disabled actions and an explicit
+refresh_request (automatic:false); polling never renews it. That compatibility
+request remains manual. The additive server-owned refresh policy below is not a
+client request to synthesize or replay an Ask DJ prompt.
+
+### Confirmed Mood refresh and locale (6 November 2026)
+
+The explicit existing session/start mood field is a Session-only welcome choice:
+a valid supplied mood wins for that newly created Session without changing any
+Profile default or defaults_revision. Missing mood inherits canonical defaults.
+The initial runtime, opening context, first offer and returned selected_mood must
+all agree. The server performs no corrective write after responding; clients
+must not persist welcome previews or silently mutate Profile defaults.
+
+Owner-selected repair scope is English/Dutch. Genuine preparation must use the
+original accepted Session locale, even when the Profile/Assist default is English.
+Visible genre labels are localized presentation; the owned canonical genre,
+Spotify search query, frozen track mix and opaque action IDs remain unchanged.
+Unknown genre names remain original taxonomy, never fabricated translations.
+An explicitly supplied current app locale on an authenticated active read may
+localize labels and the authored intro fallback without provider I/O, renewal or
+changing Session state. A generated intro is used only for its accepted locale.
+
+One successfully committed, non-replayed Settings3 Mood revision may schedule one new
+server-owned offer for that same Session. It clears stale genre choices, never
+starts/transfers music, never writes taste/history, and never retries uncertain
+work. Reads, reconnect, same-revision writes and expiry alone spend no calls.
+The original Session/owner/source/pairing/settings/DNA/history guards and original
+bounded preparation deadline apply after every await and at publication. Late
+results cannot overwrite a newer Mood revision, a dismissed client or another
+Session. A failed attempt remains unavailable for that revision; polling cannot
+restart it. An in-flight or uncertain explicit playback action blocks automatic
+replacement rather than creating a second effect opportunity.
+
+Additive for_you.refresh_policy schema1 describes execution:server,
+trigger:confirmed_mood_revision, mood_revision, state (pending/available/unavailable),
+automatic_playback:false and retry_automatically:false. It is freshness/status,
+not an action grant. Native clients adopt the current server offer from the
+normal active response; they never generate a refresh from a GET or replay an
+uncertain selection. refresh_request.automatic stays false for compatibility.
+
+A selection response and active projection may include for_you.continuation with
+the originally accepted first_play state, result_set, playback_actions,
+conversation_context and action_outcome. Continuation expires_in is recomputed
+from the original wall/monotonic deadline, never renewed; mood_revision binds
+its accepted Session context. Active reads accept language=nl/en in GET query
+or the ordinary djconnect/read payload.language, plus existing language headers. Only an actually admitted output result
+set may supply speaker buttons. An awaiting_output state must expose that exact
+continuation, not the old genre IDs. Uncertain/attempted playback stays visibly
+uncertain with retry_automatically:false; it cannot be silently retried or upgraded
+to confirmed. Exact original explicit choices continue through the existing
+normal command adapter and readback.
+
 
 ## Selection and dismissal
 
