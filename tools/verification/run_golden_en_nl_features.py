@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from scripts.verification.golden_en_nl_features import HTTP_CASES, LOCALES, REGRESSIONS, findings  # noqa: E402
 
-IMAGE = 'sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4'
+IMAGE = 'ghcr.io/home-assistant/home-assistant@sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4'
 
 
 def source_pins():
