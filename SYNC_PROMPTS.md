@@ -1,3 +1,15 @@
+## 2026-11-06 — Passive widget original playback progress
+
+The owner requests current track/artist/album, progress, qualified cover, confirmed
+Mood colors and current/latest public DJ contribution in the Mac widget. Native
+configuration/cache diagnosis stays with Apple; never bypass explicit surface
+consent or borrow private foreground data to fill an empty cache. Core adds only
+opt-in passive projection_version3 original progress, retaining v1/v2 wire bytes,
+current/latest contribution qualification and original cache/authority deadlines.
+See docs/product/PASSIVE_SESSION_PROGRESS_V3.md. No provider action, model call,
+new observation/grant on read, APNs claim or separate intelligence. Apple owns
+size-specific line truncation and expiry-aware deterministic rendering.
+
 ## 2026-11-06 — Action-scoped Spotify volume refusal
 
 Fix the reported iPhone output volume failure as one Core increment. Preserve

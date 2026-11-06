@@ -1,3 +1,10 @@
+## 2026-11-06 extension
+
+The explicitly negotiated [original progress projection v3](PASSIVE_SESSION_PROGRESS_V3.md)
+adds only original observed playback progress to the existing passive purpose.
+Versions1/2 and the default remain unchanged. It grants no private foreground,
+background, provider or native/widget installation authority.
+
 # Passive Session projection v1
 
 Status: selected design and implementation, not delivered or consumer-qualified.
