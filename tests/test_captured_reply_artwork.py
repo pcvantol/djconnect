@@ -95,7 +95,7 @@ class CapturedReplyArtworkTests(unittest.IsolatedAsyncioTestCase):
         self.current_photo_fetch = fetch
         return result,status,reads
 
-    async def test_current_identification_returns_exact_artist_photo_without_archiving(self):
+    async def test_current_identification_retains_literal_text_without_archiving_photo(self):
         result,status,reads=await self.current_identification()
         self.assertEqual(status,200,result)
         self.assertEqual(result['text'],'Dit is Synthetic original artist, met Synthetic original recording.')
@@ -112,7 +112,12 @@ class CapturedReplyArtworkTests(unittest.IsolatedAsyncioTestCase):
         self.assertLessEqual(remaining,60)
         self.current_photo_fetch.assert_awaited_once()
         self.assertNotIn('i.scdn.co',json.dumps(result))
-        self.assertFalse(result['history_persisted'])
+        self.assertEqual(result['conversation']['history_scope'], 'profile')
+        stored = await self.app.history.async_history('profile:profile-a')
+        answer = next(m for m in stored['messages'] if m.get('id') == result['assistant_message']['id'])
+        self.assertEqual(answer['images'], [])
+        self.assertFalse(answer.get('audio_url'))
+        self.assertNotIn('reply_media_reference', json.dumps(answer))
         self.assertEqual(result['playback_actions'],[])
         self.assertNotIn('reply_media_reference',json.dumps(result))
 
@@ -142,7 +147,8 @@ class CapturedReplyArtworkTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(reads, ["status", "status"])
                 self.assertEqual(result["images"], [])
                 self.current_photo_fetch.assert_not_awaited()
-                self.assertFalse(result["history_persisted"])
+                self.assertEqual(result["conversation"]["history_scope"], "profile")
+                self.assertEqual(result["assistant_message"]["images"], [])
 
     async def test_current_identification_omits_photo_with_mismatched_artist_label(self):
         result, status, _ = await self.current_identification(photo_name="Another artist")

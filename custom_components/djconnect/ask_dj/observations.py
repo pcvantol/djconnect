@@ -1,8 +1,10 @@
 """Private read/presentation lens over existing queue, Forecast and history owners.
 
 No Planner, cache, model input, playback mutation or independent conversation.
+A typed literal-metadata candidate may qualify through the existing archive owner.
 """
 from __future__ import annotations
+from dataclasses import dataclass
 
 from datetime import UTC, datetime, timedelta
 import re
@@ -215,6 +217,47 @@ def current_artist_question(text: str) -> bool:
     }
 
 
+@dataclass(frozen=True)
+class CurrentMetadataHistory:
+    """One fresh literal metadata answer, distinct from its transient image."""
+    uri: str
+    text: str
+    source_binding: tuple[tuple[str, str], ...]
+
+
+async def current_metadata_archive(hass, turn, result, query, profile_id, session_id, implicit):
+    """Reuse the original metadata source's archive admission, never its pixels."""
+    import hashlib
+    import json
+    from ..reply_artwork import SOURCE_FIELDS
+    from ..session_conversation import async_metadata_archive_admission
+    candidate = turn.current_metadata_history
+    if (type(candidate) is not CurrentMetadataHistory or not session_id or not implicit
+            or candidate.text != result.get("text") or not callable(turn.reply_source_authority)
+            or hashlib.sha256(candidate.uri.encode()).hexdigest()[:24] != turn.captured_playback_item_id
+            or not isinstance(turn.reply_source_context, dict)
+            or candidate.source_binding != tuple((k, str(turn.reply_source_context.get(k, ""))) for k in SOURCE_FIELDS)):
+        return None
+    original = await query._repository.async_entry_record(profile_id, session_id, implicit["entry_id"])
+    await turn.guard()
+    if not original or original["kind"] != "playback_observed":
+        return None
+    body = json.loads(original["body"])
+    if (body.get("item_id") != turn.captured_playback_item_id
+            or body.get("source_context") != turn.reply_source_context):
+        return None
+    original_authority = turn.reply_source_authority
+    def require_original_source():
+        if original_authority() is not True:
+            raise PermissionError("current_metadata_source_withdrawn")
+    guard = await async_metadata_archive_admission(
+        hass, profile_id, turn.reply_source_context, require_original_source)
+    await turn.guard()
+    if guard is not None:
+        guard()
+    return guard
+
+
 async def current_artist_read(hass, runtime, selected=None, *, require_recording=False):
     """Present qualified metadata locally; never treat catalog rights as model rights."""
     import asyncio
@@ -348,6 +391,12 @@ async def current_artist_read(hass, runtime, selected=None, *, require_recording
             images = [image]
     if turn:
         await turn.guard()
+        if (answer and target and selected is None and turn.session_id
+                and turn.reply_source_context is not None
+                and callable(turn.reply_source_authority) and turn.reply_source_authority() is True):
+            from ..reply_artwork import SOURCE_FIELDS
+            turn.current_metadata_history = CurrentMetadataHistory(
+                target[0], answer, tuple((k, str(turn.reply_source_context.get(k, ""))) for k in SOURCE_FIELDS))
     return {"success": True, "text": answer or unavailable[locale], "dj_text": answer or unavailable[locale],
             "action": "none", "intent": {"category": "informational", "intent": "current_artist_information"},
             "images": images, "links": [dict(source) for source in sources if source.get("url")], "sources": sources,
