@@ -25,7 +25,7 @@ from .const import (
 )
 from .music_dna import resolve_music_dna_key
 from .discovery_artwork import capture_artwork, runtime_scope, credential_cache_scope
-from .spotify_oauth import SpotifyTokenRefreshError, refresh_access_token
+from .spotify_oauth import SpotifyTokenRefreshError, refresh_access_token, store_spotify_scope_evidence
 
 SPOTIFY_API_BASE = "https://api.spotify.com/v1"
 CACHE_TTL_SECONDS = 30
@@ -446,6 +446,13 @@ class SpotifyBackend:
         access_token = str(token.get("access_token") or "").strip()
         if not access_token:
             raise SpotifyBackendError("Spotify OAuth refresh did not return an access token")
+        scope_changed = store_spotify_scope_evidence(self.hass, getattr(self.runtime, "entry", None), token, client_id=client_id)
+        if scope_changed:
+            try:
+                from .repairs import async_create_fixable_issues
+                await async_create_fixable_issues(self.hass, self.runtime.entry)
+            except Exception:  # noqa: BLE001
+                _LOGGER.debug("DJConnect could not synchronize scope Repair", exc_info=True)
         _delete_spotify_reauth_issue(
             self.hass,
             getattr(self.runtime, "entry", None),

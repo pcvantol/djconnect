@@ -137,7 +137,7 @@ from .use_cases import (
     run_text_command,
 )
 from .voice_profiles import normalize_voice_profile, voice_profile_for_mood_or_config
-from .spotify_oauth import exchange_code_for_refresh_token
+from .spotify_oauth import exchange_code_for_refresh_token, spotify_scope_evidence, SCOPE_EVIDENCE_KEY
 from .transport_capabilities import session_broadcast_transport_capabilities
 
 _LOGGER = logging.getLogger(__name__)
@@ -5035,6 +5035,8 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
                     CONF_SPOTIFY_REFRESH_TOKEN: token["refresh_token"],
                     CONF_SPOTIFY_MARKET: ctx.get("market", DEFAULT_SPOTIFY_MARKET),
                     CONF_SPOTIFY_SCOPES: ctx.get("scopes", DEFAULT_SPOTIFY_SCOPES),
+                    SCOPE_EVIDENCE_KEY: spotify_scope_evidence(token, requested=ctx.get("scopes"),
+                        client_id=ctx["client_id"], source="authorization_code"),
                 }
                 flow_id = ctx.get("flow_id")
                 if flow_id:
@@ -5094,6 +5096,8 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
             new_data[CONF_SPOTIFY_REFRESH_TOKEN] = token["refresh_token"]
             new_data[CONF_SPOTIFY_MARKET] = ctx.get("market", DEFAULT_SPOTIFY_MARKET)
             new_data[CONF_SPOTIFY_SCOPES] = ctx.get("scopes", DEFAULT_SPOTIFY_SCOPES)
+            new_data[SCOPE_EVIDENCE_KEY] = spotify_scope_evidence(token, requested=ctx.get("scopes"),
+                client_id=ctx["client_id"], source="authorization_code")
             if repair:
                 new_data[CONF_HA_EXTERNAL_URL] = ctx['redirect_uri'].removesuffix(API_SPOTIFY_CALLBACK)
             hass.config_entries.async_update_entry(entry, data=new_data,
@@ -5103,6 +5107,11 @@ class DJConnectSpotifyCallbackView(HomeAssistantView):
                 runtime.update_spotify_refresh_token(token.get("refresh_token"))
                 _LOGGER.debug("DJConnect Spotify refresh_token=rotated/present")
             _delete_spotify_reauth_issues(hass, entry.entry_id)
+            try:
+                from .repairs import async_create_fixable_issues
+                await async_create_fixable_issues(hass, entry)
+            except Exception:  # noqa: BLE001
+                _LOGGER.debug("DJConnect could not synchronize scope Repair", exc_info=True)
             await hass.config_entries.async_reload(entry.entry_id)
             flow_id = ctx.get("flow_id")
             if flow_id:

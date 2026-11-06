@@ -102,6 +102,6 @@ def repaired_config(hass, entry, expected, client_id):
     # or another Profile. The entry manager remains the sole persistence writer.
     for key in ("profile_id", "music_account_id", "music_backend_id", "music_backend"):
         options.pop(key, None)
-    for key in ("spotify_client_id", "spotify_refresh_token", "spotify_market", "spotify_scopes"):
+    for key in ("spotify_client_id", "spotify_refresh_token", "spotify_market", "spotify_scopes", "spotify_scope_evidence"):
         options.pop(key, None)
     return data, options

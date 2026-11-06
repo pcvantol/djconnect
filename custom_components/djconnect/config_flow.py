@@ -120,7 +120,7 @@ from .pairing_defaults import (
     valid_pair_code as _valid_pair_code,
 )
 from .ha_urls import async_ha_local_url
-from .spotify_oauth import build_authorize_url, build_redirect_uri, create_code_verifier
+from .spotify_oauth import build_authorize_url, build_redirect_uri, create_code_verifier, SCOPE_EVIDENCE_KEY
 from .flow_labels import flow_label
 
 _LOGGER = logging.getLogger(__name__)
@@ -2682,6 +2682,8 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_SPOTIFY_SCOPES,
                 DEFAULT_SPOTIFY_SCOPES,
             )
+            if SCOPE_EVIDENCE_KEY in result:
+                self._spotify[SCOPE_EVIDENCE_KEY] = result[SCOPE_EVIDENCE_KEY]
             return {}
         except Exception:  # noqa: BLE001
             _LOGGER.exception("Spotify OAuth failed")
