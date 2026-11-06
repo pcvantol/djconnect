@@ -56,7 +56,7 @@ pixels; Watch grants cannot fetch phone/contextual-contribution pixels.
 
 At most120 seconds from the relevant original observation/snapshot, shortened by
 original cover/source deadlines. Read/redraw/Mood/cache writes cannot refresh old
-track/cover evidence. Neutral on expiry/uncertainty; native supplies the small
+track/cover evidence. Neutral on expiry/uncertainty, including removal of the old Mood color; native supplies the small
 rounded glass layout and confirmed Mood palette, with no DJ-text fallback.
 Background delivery remains false. Real Watch widget entitlements/shared-store,
 explicit own consent, paired identity, physical Smart Stack display and any

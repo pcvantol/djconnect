@@ -199,12 +199,14 @@ def _watch_projection(active, grant, *, registry=None, owner=''):
             or active.runtime_state.value != 'active'
             or broadcast.state.runtime_state.value != 'active'):
         result['state'], reason = 'withdrawn', 'authority_withdrawn'
+        result['mood'] = {'value': None, 'revision': 0}
         result['expires_at'] = stamp(wall)
         result['now_playing_status'] = status(reason, 'withdrawn')
         result['artwork_status'] = status(reason, 'withdrawn')
     elif (not 0 <= now - broadcast.passive_state_observed[0] < 120
             or not 0 < broadcast.passive_state_observed[1] <= wall < broadcast.passive_state_observed[1] + 120):
         result['state'] = 'stale'
+        result['mood'] = {'value': None, 'revision': 0}
         result['now_playing_status'] = status('original_snapshot_expired', 'stale')
         result['artwork_status'] = status('original_snapshot_expired', 'stale')
     else:

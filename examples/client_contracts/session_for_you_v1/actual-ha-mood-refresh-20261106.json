@@ -51,21 +51,21 @@
           "actions_available": true,
           "automatic_playback": false,
           "conversation_context": {
-            "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-            "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+            "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+            "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
           },
-          "expires_in": 59.990420335001545,
+          "expires_in": 59.99196696281433,
           "intro": "I've picked three mixes with your taste in mind. Which shall we play?",
           "intro_source": "runtime_acknowledgement",
           "language": "en",
           "mood_revision": 1,
-          "offer_id": "choices-a26edb80725d49c19276f104422972d9",
+          "offer_id": "choices-71a0736e5343431c855955c490413a74",
           "options": [
             {
-              "action_id": "6c06be6a26bce9eeebed6cf2a6b09894",
+              "action_id": "5a471f4da4f0e3dfa22502a026515ae4",
               "genre": "neo soul",
               "label": "neo soul",
-              "option_id": "6c06be6a26bce9eeebed6cf2a6b09894",
+              "option_id": "5a471f4da4f0e3dfa22502a026515ae4",
               "visual_recipe": {
                 "artistic_direction": "layered_dunes",
                 "genre": "neo soul",
@@ -74,14 +74,14 @@
                 "persona": "home_dj",
                 "revision": 1,
                 "schema_version": 1,
-                "variation_id": "539ce11a1b9e334f7e9ff93b31df8930dda9b22791fd067e3bb24edbbf8a4e6f"
+                "variation_id": "67440c31e40eda0fb902ef21a76c1b2dad314150ddf12780c1a7821881f891d6"
               }
             },
             {
-              "action_id": "93479d7900e32884aab8786667fcea81",
+              "action_id": "8e4759abacfe10d3f7db0005a0c304c0",
               "genre": "r&b",
               "label": "r&b",
-              "option_id": "93479d7900e32884aab8786667fcea81",
+              "option_id": "8e4759abacfe10d3f7db0005a0c304c0",
               "visual_recipe": {
                 "artistic_direction": "misty_valley",
                 "genre": "r&b",
@@ -90,14 +90,14 @@
                 "persona": "home_dj",
                 "revision": 1,
                 "schema_version": 1,
-                "variation_id": "708533602aa2b9fec2298512c5e4bb4af01a3758aa7dbc33f7df8a546790cce4"
+                "variation_id": "e92e64286c0938ba607cbf506b5101e8b14a225cd7b87c8bb96d20d4f214f55d"
               }
             },
             {
-              "action_id": "cf3d4aaf52c43226b6b4eecabf855ead",
+              "action_id": "f375bb5f6641b1602887a08a404e843d",
               "genre": "indie rock",
               "label": "indie rock",
-              "option_id": "cf3d4aaf52c43226b6b4eecabf855ead",
+              "option_id": "f375bb5f6641b1602887a08a404e843d",
               "visual_recipe": {
                 "artistic_direction": "mountain_horizon",
                 "genre": "indie rock",
@@ -106,7 +106,7 @@
                 "persona": "home_dj",
                 "revision": 1,
                 "schema_version": 1,
-                "variation_id": "500da06bbbd4ddeac6160dc336b1b6b0c9d65193c3c12b0e3e55e1ea1872f3b3"
+                "variation_id": "f8aff76ed40710218523b54acd94f85a536085b581919e897a06d2edf6a8c8a2"
               }
             }
           ],
@@ -127,10 +127,10 @@
             "prompt": "Surprise me with a mix for this session"
           },
           "result_set": {
-            "expires_in": 59.990420335001545,
+            "expires_in": 59.99196696281433,
             "items": [
               {
-                "action_id": "6c06be6a26bce9eeebed6cf2a6b09894",
+                "action_id": "5a471f4da4f0e3dfa22502a026515ae4",
                 "backend": "source-spotify",
                 "button_label": "neo soul",
                 "fit_basis": "catalog_genre_query",
@@ -140,7 +140,7 @@
                 "kind": "track_mix",
                 "label": "neo soul",
                 "queue_effect": "start_context_now",
-                "result_set_id": "choices-a26edb80725d49c19276f104422972d9",
+                "result_set_id": "choices-71a0736e5343431c855955c490413a74",
                 "selection_source": "spotify_genre_search",
                 "subtitle": "3 Spotify tracks",
                 "title": "neo soul",
@@ -152,7 +152,7 @@
                 ]
               },
               {
-                "action_id": "93479d7900e32884aab8786667fcea81",
+                "action_id": "8e4759abacfe10d3f7db0005a0c304c0",
                 "backend": "source-spotify",
                 "button_label": "r&b",
                 "fit_basis": "catalog_genre_query",
@@ -162,7 +162,7 @@
                 "kind": "track_mix",
                 "label": "r&b",
                 "queue_effect": "start_context_now",
-                "result_set_id": "choices-a26edb80725d49c19276f104422972d9",
+                "result_set_id": "choices-71a0736e5343431c855955c490413a74",
                 "selection_source": "spotify_genre_search",
                 "subtitle": "3 Spotify tracks",
                 "title": "r&b",
@@ -174,7 +174,7 @@
                 ]
               },
               {
-                "action_id": "cf3d4aaf52c43226b6b4eecabf855ead",
+                "action_id": "f375bb5f6641b1602887a08a404e843d",
                 "backend": "source-spotify",
                 "button_label": "indie rock",
                 "fit_basis": "catalog_genre_query",
@@ -184,7 +184,7 @@
                 "kind": "track_mix",
                 "label": "indie rock",
                 "queue_effect": "start_context_now",
-                "result_set_id": "choices-a26edb80725d49c19276f104422972d9",
+                "result_set_id": "choices-71a0736e5343431c855955c490413a74",
                 "selection_source": "spotify_genre_search",
                 "subtitle": "3 Spotify tracks",
                 "title": "indie rock",
@@ -196,11 +196,11 @@
                 ]
               }
             ],
-            "result_set_id": "choices-a26edb80725d49c19276f104422972d9",
+            "result_set_id": "choices-71a0736e5343431c855955c490413a74",
             "schema_version": 1
           },
           "schema_version": 1,
-          "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+          "session_id": "session-2aab429f110a4f70827dc9cae121635f",
           "state": "available",
           "title": "For you",
           "visible": true
@@ -213,14 +213,14 @@
             },
             "broadcast": {
               "snapshot_watermark": 7,
-              "started_at": "2026-11-06T15:58:08.616399+00:00"
+              "started_at": "2026-11-06T16:02:44.630818+00:00"
             },
             "dj_moments": [
               {
                 "actions": [],
                 "artwork": null,
                 "content": "I\u2019m with you: your Mood is now Party. My way of telling will be lively and playful.",
-                "created_at": "2026-11-06T15:58:08.620000+00:00",
+                "created_at": "2026-11-06T16:02:44.635000+00:00",
                 "delivery_channels": [
                   "owner"
                 ],
@@ -233,7 +233,7 @@
                   "goal": "Confirm accepted user settings.",
                   "type": "session_direction"
                 },
-                "moment_id": "moment-3f96194b71bd78cb0563b03fe7f6588f",
+                "moment_id": "moment-259fa10cf1c5e3e62047976e40a61cbb",
                 "presentation_intent": {
                   "delivery_channels": [
                     "owner"
@@ -249,13 +249,13 @@
                   "visual_theme": "music-context",
                   "voice_style": "persona-guided"
                 },
-                "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+                "session_id": "session-2aab429f110a4f70827dc9cae121635f",
                 "settings_confirmation": {
-                  "accepted_at": "2026-11-06T15:58:08.620000+00:00",
+                  "accepted_at": "2026-11-06T16:02:44.635000+00:00",
                   "changed_fields": [
                     "mood"
                   ],
-                  "confirmation_id": "settings-3f96194b71bd78cb0563b03fe7f6588f",
+                  "confirmation_id": "settings-259fa10cf1c5e3e62047976e40a61cbb",
                   "schema_version": 1
                 },
                 "source_references": [
@@ -269,31 +269,31 @@
             ],
             "native_delivery": {
               "active_flow_moment_ids": [
-                "moment-3f96194b71bd78cb0563b03fe7f6588f"
+                "moment-259fa10cf1c5e3e62047976e40a61cbb"
               ],
               "admissions": [
                 {
                   "active_flow_display_allowed": true,
                   "current_display_allowed": true,
-                  "display_expires_at": "2026-11-06T15:58:23.620000+00:00",
+                  "display_expires_at": "2026-11-06T16:02:59.635000+00:00",
                   "executable_actions": [],
-                  "moment_id": "moment-3f96194b71bd78cb0563b03fe7f6588f",
+                  "moment_id": "moment-259fa10cf1c5e3e62047976e40a61cbb",
                   "qualification": "qualified",
                   "requires_spotify_attribution": false,
                   "source_expires_at": null
                 }
               ],
-              "current_moment_id": "moment-3f96194b71bd78cb0563b03fe7f6588f",
+              "current_moment_id": "moment-259fa10cf1c5e3e62047976e40a61cbb",
               "current_silence_moment_id": null,
-              "revision": "7e2a07059018087e27ec9b1e",
+              "revision": "6bf014b830231e969bf13883",
               "revocation_scope": "session",
               "schema_version": 1,
-              "session_id": "session-71e1483eae3548aabfe799cedfe615bc"
+              "session_id": "session-2aab429f110a4f70827dc9cae121635f"
             },
             "passive_surface": {
               "delivery_sequence": 7,
               "invalidation_only": true,
-              "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+              "session_id": "session-2aab429f110a4f70827dc9cae121635f",
               "version": 1
             },
             "planner": {
@@ -302,9 +302,9 @@
               "planning_state": "ready",
               "session_direction": {
                 "direction": "maintaining_energy",
-                "initialized_at": "2026-11-06T15:58:08.616399+00:00",
+                "initialized_at": "2026-11-06T16:02:44.630818+00:00",
                 "start_strategy": "manual",
-                "updated_at": "2026-11-06T15:58:08.616399+00:00"
+                "updated_at": "2026-11-06T16:02:44.630818+00:00"
               }
             },
             "playback": {
@@ -312,8 +312,8 @@
             },
             "presentations": [
               {
-                "presentation_id": "presentation-moment-3f96194b71bd78cb0563b03fe7f6588f",
-                "source_moment_id": "moment-3f96194b71bd78cb0563b03fe7f6588f",
+                "presentation_id": "presentation-moment-259fa10cf1c5e3e62047976e40a61cbb",
+                "source_moment_id": "moment-259fa10cf1c5e3e62047976e40a61cbb",
                 "source_moment_type": "session",
                 "speech": {
                   "mode": "primary_only",
@@ -337,11 +337,11 @@
               "runtime_state": "active",
               "selected_mood": "party",
               "selected_presence": "balanced",
-              "session_id": "session-71e1483eae3548aabfe799cedfe615bc"
+              "session_id": "session-2aab429f110a4f70827dc9cae121635f"
             },
             "session_flow": {
-              "created_at": "2026-11-06T15:58:08.621642+00:00",
-              "flow_id": "flow-session-71e1483eae3548aabfe799cedfe615bc",
+              "created_at": "2026-11-06T16:02:44.636196+00:00",
+              "flow_id": "flow-session-2aab429f110a4f70827dc9cae121635f",
               "flow_revision": 1,
               "items": [
                 {
@@ -375,10 +375,10 @@
                   "position": "later"
                 },
                 {
-                  "item_id": "moment-moment-3f96194b71bd78cb0563b03fe7f6588f",
+                  "item_id": "moment-moment-259fa10cf1c5e3e62047976e40a61cbb",
                   "item_type": "dj_moment",
                   "label": "A little change of direction",
-                  "moment_id": "moment-3f96194b71bd78cb0563b03fe7f6588f",
+                  "moment_id": "moment-259fa10cf1c5e3e62047976e40a61cbb",
                   "moment_type": "session",
                   "position": "now"
                 }
@@ -392,7 +392,7 @@
               "nominal_window_seconds": 900,
               "revision": 0,
               "sections": [],
-              "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+              "session_id": "session-2aab429f110a4f70827dc9cae121635f",
               "state": "empty",
               "summary": "",
               "supported_window_seconds": 0
@@ -403,13 +403,13 @@
                   "attribution": [],
                   "autoplay_eligible": false,
                   "cache_policy": "private,no-store",
-                  "expires_at": "2026-11-06T15:58:23.620000+00:00",
+                  "expires_at": "2026-11-06T16:02:59.635000+00:00",
                   "locale": "en",
                   "manual_allowed": true,
                   "mood": "party",
                   "persona": "home_dj",
                   "persona_revision": 0,
-                  "presentation_revision": "533f045e3fa0b4c462ef46b4",
+                  "presentation_revision": "b1c57a1117dc3c1896891cd4",
                   "processor_qualification_required": true,
                   "processors": [
                     "local_on_device",
@@ -417,8 +417,8 @@
                   ],
                   "reason": null,
                   "reference": {
-                    "moment_id": "moment-3f96194b71bd78cb0563b03fe7f6588f",
-                    "session_id": "session-71e1483eae3548aabfe799cedfe615bc"
+                    "moment_id": "moment-259fa10cf1c5e3e62047976e40a61cbb",
+                    "session_id": "session-2aab429f110a4f70827dc9cae121635f"
                   },
                   "schema_version": 1,
                   "segments": [
@@ -428,9 +428,9 @@
                       "text": "I\u2019m with you: your Mood is now Party. My way of telling will be lively and playful."
                     }
                   ],
-                  "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-                  "source_expires_at": "2026-11-06T15:58:23.620000+00:00",
-                  "source_id": "moment-3f96194b71bd78cb0563b03fe7f6588f",
+                  "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+                  "source_expires_at": "2026-11-06T16:02:59.635000+00:00",
+                  "source_id": "moment-259fa10cf1c5e3e62047976e40a61cbb",
                   "source_kind": "published_dj_moment",
                   "state": "available",
                   "style_basis": "accepted_contribution",
@@ -440,7 +440,7 @@
               "schema_version": 1
             }
           },
-          "created_at": "2026-11-06T15:58:08.616399+00:00",
+          "created_at": "2026-11-06T16:02:44.630818+00:00",
           "discover_personalization_available": false,
           "dj_persona": "home_dj",
           "initial_session_mood": "chill",
@@ -458,7 +458,7 @@
             "recent_recommendations": [],
             "recent_session_directions": [],
             "recent_silence_count": 0,
-            "source_flow_id": "flow-session-71e1483eae3548aabfe799cedfe615bc"
+            "source_flow_id": "flow-session-2aab429f110a4f70827dc9cae121635f"
           },
           "persona_revision": 0,
           "planner": {
@@ -471,13 +471,13 @@
               "minimum_time_between_moments_seconds": 60.0,
               "recommendation_preference": "balanced"
             },
-            "created_at": "2026-11-06T15:58:08.616399+00:00",
+            "created_at": "2026-11-06T16:02:44.630818+00:00",
             "current_goal": "",
-            "last_replan_at": "2026-11-06T15:58:08.621642+00:00",
+            "last_replan_at": "2026-11-06T16:02:44.636196+00:00",
             "output": {
               "session_flow": {
-                "created_at": "2026-11-06T15:58:08.621642+00:00",
-                "flow_id": "flow-session-71e1483eae3548aabfe799cedfe615bc",
+                "created_at": "2026-11-06T16:02:44.636196+00:00",
+                "flow_id": "flow-session-2aab429f110a4f70827dc9cae121635f",
                 "flow_revision": 1,
                 "items": [
                   {
@@ -511,10 +511,10 @@
                     "position": "later"
                   },
                   {
-                    "item_id": "moment-moment-3f96194b71bd78cb0563b03fe7f6588f",
+                    "item_id": "moment-moment-259fa10cf1c5e3e62047976e40a61cbb",
                     "item_type": "dj_moment",
                     "label": "A little change of direction",
-                    "moment_id": "moment-3f96194b71bd78cb0563b03fe7f6588f",
+                    "moment_id": "moment-259fa10cf1c5e3e62047976e40a61cbb",
                     "moment_type": "session",
                     "position": "now"
                   }
@@ -533,13 +533,13 @@
           "selected_presence": "balanced",
           "session_direction": {
             "direction": "maintaining_energy",
-            "initialized_at": "2026-11-06T15:58:08.616399+00:00",
+            "initialized_at": "2026-11-06T16:02:44.630818+00:00",
             "start_strategy": "manual",
-            "updated_at": "2026-11-06T15:58:08.616399+00:00"
+            "updated_at": "2026-11-06T16:02:44.630818+00:00"
           },
-          "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+          "session_id": "session-2aab429f110a4f70827dc9cae121635f",
           "session_start_strategy": "manual",
-          "started_at": "2026-11-06T15:58:08.617001+00:00"
+          "started_at": "2026-11-06T16:02:44.631512+00:00"
         },
         "session_start_actions": {
           "automatic_playback": false,
@@ -579,21 +579,21 @@
                 "actions_available": true,
                 "automatic_playback": false,
                 "conversation_context": {
-                  "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-                  "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+                  "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+                  "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
                 },
-                "expires_in": 59.990420335001545,
+                "expires_in": 59.99196696281433,
                 "intro": "I've picked three mixes with your taste in mind. Which shall we play?",
                 "intro_source": "runtime_acknowledgement",
                 "language": "en",
                 "mood_revision": 1,
-                "offer_id": "choices-a26edb80725d49c19276f104422972d9",
+                "offer_id": "choices-71a0736e5343431c855955c490413a74",
                 "options": [
                   {
-                    "action_id": "6c06be6a26bce9eeebed6cf2a6b09894",
+                    "action_id": "5a471f4da4f0e3dfa22502a026515ae4",
                     "genre": "neo soul",
                     "label": "neo soul",
-                    "option_id": "6c06be6a26bce9eeebed6cf2a6b09894",
+                    "option_id": "5a471f4da4f0e3dfa22502a026515ae4",
                     "visual_recipe": {
                       "artistic_direction": "layered_dunes",
                       "genre": "neo soul",
@@ -602,14 +602,14 @@
                       "persona": "home_dj",
                       "revision": 1,
                       "schema_version": 1,
-                      "variation_id": "539ce11a1b9e334f7e9ff93b31df8930dda9b22791fd067e3bb24edbbf8a4e6f"
+                      "variation_id": "67440c31e40eda0fb902ef21a76c1b2dad314150ddf12780c1a7821881f891d6"
                     }
                   },
                   {
-                    "action_id": "93479d7900e32884aab8786667fcea81",
+                    "action_id": "8e4759abacfe10d3f7db0005a0c304c0",
                     "genre": "r&b",
                     "label": "r&b",
-                    "option_id": "93479d7900e32884aab8786667fcea81",
+                    "option_id": "8e4759abacfe10d3f7db0005a0c304c0",
                     "visual_recipe": {
                       "artistic_direction": "misty_valley",
                       "genre": "r&b",
@@ -618,14 +618,14 @@
                       "persona": "home_dj",
                       "revision": 1,
                       "schema_version": 1,
-                      "variation_id": "708533602aa2b9fec2298512c5e4bb4af01a3758aa7dbc33f7df8a546790cce4"
+                      "variation_id": "e92e64286c0938ba607cbf506b5101e8b14a225cd7b87c8bb96d20d4f214f55d"
                     }
                   },
                   {
-                    "action_id": "cf3d4aaf52c43226b6b4eecabf855ead",
+                    "action_id": "f375bb5f6641b1602887a08a404e843d",
                     "genre": "indie rock",
                     "label": "indie rock",
-                    "option_id": "cf3d4aaf52c43226b6b4eecabf855ead",
+                    "option_id": "f375bb5f6641b1602887a08a404e843d",
                     "visual_recipe": {
                       "artistic_direction": "mountain_horizon",
                       "genre": "indie rock",
@@ -634,7 +634,7 @@
                       "persona": "home_dj",
                       "revision": 1,
                       "schema_version": 1,
-                      "variation_id": "500da06bbbd4ddeac6160dc336b1b6b0c9d65193c3c12b0e3e55e1ea1872f3b3"
+                      "variation_id": "f8aff76ed40710218523b54acd94f85a536085b581919e897a06d2edf6a8c8a2"
                     }
                   }
                 ],
@@ -655,10 +655,10 @@
                   "prompt": "Surprise me with a mix for this session"
                 },
                 "result_set": {
-                  "expires_in": 59.990420335001545,
+                  "expires_in": 59.99196696281433,
                   "items": [
                     {
-                      "action_id": "6c06be6a26bce9eeebed6cf2a6b09894",
+                      "action_id": "5a471f4da4f0e3dfa22502a026515ae4",
                       "backend": "source-spotify",
                       "button_label": "neo soul",
                       "fit_basis": "catalog_genre_query",
@@ -668,7 +668,7 @@
                       "kind": "track_mix",
                       "label": "neo soul",
                       "queue_effect": "start_context_now",
-                      "result_set_id": "choices-a26edb80725d49c19276f104422972d9",
+                      "result_set_id": "choices-71a0736e5343431c855955c490413a74",
                       "selection_source": "spotify_genre_search",
                       "subtitle": "3 Spotify tracks",
                       "title": "neo soul",
@@ -680,7 +680,7 @@
                       ]
                     },
                     {
-                      "action_id": "93479d7900e32884aab8786667fcea81",
+                      "action_id": "8e4759abacfe10d3f7db0005a0c304c0",
                       "backend": "source-spotify",
                       "button_label": "r&b",
                       "fit_basis": "catalog_genre_query",
@@ -690,7 +690,7 @@
                       "kind": "track_mix",
                       "label": "r&b",
                       "queue_effect": "start_context_now",
-                      "result_set_id": "choices-a26edb80725d49c19276f104422972d9",
+                      "result_set_id": "choices-71a0736e5343431c855955c490413a74",
                       "selection_source": "spotify_genre_search",
                       "subtitle": "3 Spotify tracks",
                       "title": "r&b",
@@ -702,7 +702,7 @@
                       ]
                     },
                     {
-                      "action_id": "cf3d4aaf52c43226b6b4eecabf855ead",
+                      "action_id": "f375bb5f6641b1602887a08a404e843d",
                       "backend": "source-spotify",
                       "button_label": "indie rock",
                       "fit_basis": "catalog_genre_query",
@@ -712,7 +712,7 @@
                       "kind": "track_mix",
                       "label": "indie rock",
                       "queue_effect": "start_context_now",
-                      "result_set_id": "choices-a26edb80725d49c19276f104422972d9",
+                      "result_set_id": "choices-71a0736e5343431c855955c490413a74",
                       "selection_source": "spotify_genre_search",
                       "subtitle": "3 Spotify tracks",
                       "title": "indie rock",
@@ -724,11 +724,11 @@
                       ]
                     }
                   ],
-                  "result_set_id": "choices-a26edb80725d49c19276f104422972d9",
+                  "result_set_id": "choices-71a0736e5343431c855955c490413a74",
                   "schema_version": 1
                 },
                 "schema_version": 1,
-                "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+                "session_id": "session-2aab429f110a4f70827dc9cae121635f",
                 "state": "available",
                 "title": "For you",
                 "visible": true
@@ -788,11 +788,11 @@
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_message_id": "refresh-choice-en",
           "client_type": "ios",
-          "created_at": "2026-11-06T15:58:08.636355Z",
+          "created_at": "2026-11-06T16:02:44.649433Z",
           "exchange_id": "refresh-choice-en",
           "exchange_order": 1,
           "historical_entry_references": [],
-          "id": "server-db84e95c-e74b-44bf-8142-26c1ac9932cf",
+          "id": "server-e029012e-075c-4790-a1c9-e3a24e13f679",
           "images": [],
           "is_generated_text": false,
           "links": [],
@@ -800,7 +800,7 @@
           "origin": "session_first_play",
           "playback_actions": [
             {
-              "action_id": "2236e0a78cb519db4da1a854bb6cf070",
+              "action_id": "0fd0dddafcdd6325345ee7dcefb71e54",
               "active": false,
               "backend": "spotify",
               "command": "set_output",
@@ -810,7 +810,7 @@
               "kind": "output",
               "label": "Activate",
               "provider": "spotify",
-              "result_set_id": "choices-20a3e9fd48954ddeb2dc362f3cbc25f6",
+              "result_set_id": "choices-072e8387618742f59ac6401e123581e6",
               "subtitle": "Speaker",
               "title": "Synthetic speaker",
               "value": "synthetic-first-play-output"
@@ -821,7 +821,7 @@
             "attribution": [],
             "autoplay_eligible": false,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-06T15:59:08.622933+00:00",
+            "expires_at": "2026-11-06T16:03:44.637326+00:00",
             "locale": "en",
             "manual_allowed": true,
             "persona": "home_dj",
@@ -844,7 +844,7 @@
                 "text": "Choose a speaker first."
               }
             ],
-            "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+            "session_id": "session-2aab429f110a4f70827dc9cae121635f",
             "source_id": "turn-9f9957096b7c572d8e5f32c16bb51c6b",
             "source_kind": "accepted_ask_dj",
             "state": "available",
@@ -853,8 +853,8 @@
           "session_turn": {
             "captured_playback_item_id": "",
             "context": {
-              "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-              "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+              "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+              "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
             },
             "dependency_entries": [],
             "dependency_moments": [],
@@ -870,7 +870,7 @@
             "implicit_playback_entry": null,
             "input_type": "text",
             "profile_id": "profile-a",
-            "request_digest": "483e937795eef786b0f7b2d9c42d591e1412276acb42b6a9311830311db04b0a",
+            "request_digest": "e0877608290245f8bd1f1d15754bf9974db198797a2d7a84eeb67b411abca2c4",
             "turn_id": "turn-9f9957096b7c572d8e5f32c16bb51c6b"
           },
           "sources": [],
@@ -889,12 +889,12 @@
         "client_message_id": "refresh-choice-en",
         "conversation": {
           "context": {
-            "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-            "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+            "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+            "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
           },
           "entry_ids": [
-            "entry-548526668e3559559aef02ece8e867e6",
-            "entry-f2f44abb0e0850c9be0d38b21cd25546"
+            "entry-a9e5c0f1cce8517fa5b615ad7af08437",
+            "entry-7518a5ff0acc5585a09f6acb5a461f40"
           ],
           "history_scope": "profile",
           "input_type": "text",
@@ -913,12 +913,12 @@
             "persona_revision": 0
           },
           "style_basis": "accepted_turn",
-          "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc",
+          "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f",
           "turn_id": "turn-9f9957096b7c572d8e5f32c16bb51c6b"
         },
         "dj_text": "Choose a speaker first.",
         "first_play": {
-          "expires_in": 59.98676220799098,
+          "expires_in": 59.988080978393555,
           "genre_basis": "music_dna",
           "reason": null,
           "schema_version": 2,
@@ -930,12 +930,12 @@
           "automatic_playback": false,
           "continuation": {
             "conversation_context": {
-              "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-              "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+              "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+              "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
             },
-            "expires_in": 59.98501443862915,
+            "expires_in": 59.985578536987305,
             "first_play": {
-              "expires_in": 59.98676220799098,
+              "expires_in": 59.988080978393555,
               "genre_basis": "music_dna",
               "reason": null,
               "schema_version": 2,
@@ -945,7 +945,7 @@
             "mood_revision": 1,
             "playback_actions": [
               {
-                "action_id": "2236e0a78cb519db4da1a854bb6cf070",
+                "action_id": "0fd0dddafcdd6325345ee7dcefb71e54",
                 "active": false,
                 "backend": "spotify",
                 "command": "set_output",
@@ -955,17 +955,17 @@
                 "kind": "output",
                 "label": "Activate",
                 "provider": "spotify",
-                "result_set_id": "choices-20a3e9fd48954ddeb2dc362f3cbc25f6",
+                "result_set_id": "choices-072e8387618742f59ac6401e123581e6",
                 "subtitle": "Speaker",
                 "title": "Synthetic speaker",
                 "value": "synthetic-first-play-output"
               }
             ],
             "result_set": {
-              "expires_in": 59.98501443862915,
+              "expires_in": 59.985578536987305,
               "items": [
                 {
-                  "action_id": "2236e0a78cb519db4da1a854bb6cf070",
+                  "action_id": "0fd0dddafcdd6325345ee7dcefb71e54",
                   "active": false,
                   "backend": "spotify",
                   "command": "set_output",
@@ -975,32 +975,32 @@
                   "kind": "output",
                   "label": "Activate",
                   "provider": "spotify",
-                  "result_set_id": "choices-20a3e9fd48954ddeb2dc362f3cbc25f6",
+                  "result_set_id": "choices-072e8387618742f59ac6401e123581e6",
                   "subtitle": "Speaker",
                   "title": "Synthetic speaker",
                   "value": "synthetic-first-play-output"
                 }
               ],
-              "result_set_id": "choices-20a3e9fd48954ddeb2dc362f3cbc25f6",
+              "result_set_id": "choices-072e8387618742f59ac6401e123581e6",
               "schema_version": 1
             }
           },
           "conversation_context": {
-            "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-            "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+            "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+            "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
           },
-          "expires_in": 59.98518416899606,
+          "expires_in": 59.98577616701368,
           "intro": "I've picked three mixes with your taste in mind. Which shall we play?",
           "intro_source": "runtime_acknowledgement",
           "language": "en",
           "mood_revision": 1,
-          "offer_id": "choices-a26edb80725d49c19276f104422972d9",
+          "offer_id": "choices-71a0736e5343431c855955c490413a74",
           "options": [
             {
-              "action_id": "6c06be6a26bce9eeebed6cf2a6b09894",
+              "action_id": "5a471f4da4f0e3dfa22502a026515ae4",
               "genre": "neo soul",
               "label": "neo soul",
-              "option_id": "6c06be6a26bce9eeebed6cf2a6b09894",
+              "option_id": "5a471f4da4f0e3dfa22502a026515ae4",
               "visual_recipe": {
                 "artistic_direction": "layered_dunes",
                 "genre": "neo soul",
@@ -1009,14 +1009,14 @@
                 "persona": "home_dj",
                 "revision": 1,
                 "schema_version": 1,
-                "variation_id": "539ce11a1b9e334f7e9ff93b31df8930dda9b22791fd067e3bb24edbbf8a4e6f"
+                "variation_id": "67440c31e40eda0fb902ef21a76c1b2dad314150ddf12780c1a7821881f891d6"
               }
             },
             {
-              "action_id": "93479d7900e32884aab8786667fcea81",
+              "action_id": "8e4759abacfe10d3f7db0005a0c304c0",
               "genre": "r&b",
               "label": "r&b",
-              "option_id": "93479d7900e32884aab8786667fcea81",
+              "option_id": "8e4759abacfe10d3f7db0005a0c304c0",
               "visual_recipe": {
                 "artistic_direction": "misty_valley",
                 "genre": "r&b",
@@ -1025,14 +1025,14 @@
                 "persona": "home_dj",
                 "revision": 1,
                 "schema_version": 1,
-                "variation_id": "708533602aa2b9fec2298512c5e4bb4af01a3758aa7dbc33f7df8a546790cce4"
+                "variation_id": "e92e64286c0938ba607cbf506b5101e8b14a225cd7b87c8bb96d20d4f214f55d"
               }
             },
             {
-              "action_id": "cf3d4aaf52c43226b6b4eecabf855ead",
+              "action_id": "f375bb5f6641b1602887a08a404e843d",
               "genre": "indie rock",
               "label": "indie rock",
-              "option_id": "cf3d4aaf52c43226b6b4eecabf855ead",
+              "option_id": "f375bb5f6641b1602887a08a404e843d",
               "visual_recipe": {
                 "artistic_direction": "mountain_horizon",
                 "genre": "indie rock",
@@ -1041,7 +1041,7 @@
                 "persona": "home_dj",
                 "revision": 1,
                 "schema_version": 1,
-                "variation_id": "500da06bbbd4ddeac6160dc336b1b6b0c9d65193c3c12b0e3e55e1ea1872f3b3"
+                "variation_id": "f8aff76ed40710218523b54acd94f85a536085b581919e897a06d2edf6a8c8a2"
               }
             }
           ],
@@ -1062,10 +1062,10 @@
             "prompt": "Surprise me with a mix for this session"
           },
           "result_set": {
-            "expires_in": 59.98518416899606,
+            "expires_in": 59.98577616701368,
             "items": [
               {
-                "action_id": "6c06be6a26bce9eeebed6cf2a6b09894",
+                "action_id": "5a471f4da4f0e3dfa22502a026515ae4",
                 "backend": "source-spotify",
                 "button_label": "neo soul",
                 "fit_basis": "catalog_genre_query",
@@ -1075,7 +1075,7 @@
                 "kind": "track_mix",
                 "label": "neo soul",
                 "queue_effect": "start_context_now",
-                "result_set_id": "choices-a26edb80725d49c19276f104422972d9",
+                "result_set_id": "choices-71a0736e5343431c855955c490413a74",
                 "selection_source": "spotify_genre_search",
                 "subtitle": "3 Spotify tracks",
                 "title": "neo soul",
@@ -1087,7 +1087,7 @@
                 ]
               },
               {
-                "action_id": "93479d7900e32884aab8786667fcea81",
+                "action_id": "8e4759abacfe10d3f7db0005a0c304c0",
                 "backend": "source-spotify",
                 "button_label": "r&b",
                 "fit_basis": "catalog_genre_query",
@@ -1097,7 +1097,7 @@
                 "kind": "track_mix",
                 "label": "r&b",
                 "queue_effect": "start_context_now",
-                "result_set_id": "choices-a26edb80725d49c19276f104422972d9",
+                "result_set_id": "choices-71a0736e5343431c855955c490413a74",
                 "selection_source": "spotify_genre_search",
                 "subtitle": "3 Spotify tracks",
                 "title": "r&b",
@@ -1109,7 +1109,7 @@
                 ]
               },
               {
-                "action_id": "cf3d4aaf52c43226b6b4eecabf855ead",
+                "action_id": "f375bb5f6641b1602887a08a404e843d",
                 "backend": "source-spotify",
                 "button_label": "indie rock",
                 "fit_basis": "catalog_genre_query",
@@ -1119,7 +1119,7 @@
                 "kind": "track_mix",
                 "label": "indie rock",
                 "queue_effect": "start_context_now",
-                "result_set_id": "choices-a26edb80725d49c19276f104422972d9",
+                "result_set_id": "choices-71a0736e5343431c855955c490413a74",
                 "selection_source": "spotify_genre_search",
                 "subtitle": "3 Spotify tracks",
                 "title": "indie rock",
@@ -1131,11 +1131,11 @@
                 ]
               }
             ],
-            "result_set_id": "choices-a26edb80725d49c19276f104422972d9",
+            "result_set_id": "choices-71a0736e5343431c855955c490413a74",
             "schema_version": 1
           },
           "schema_version": 1,
-          "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+          "session_id": "session-2aab429f110a4f70827dc9cae121635f",
           "state": "awaiting_output",
           "title": "For you",
           "visible": true
@@ -1152,11 +1152,11 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "refresh-choice-en",
             "client_type": "ios",
-            "created_at": "2026-11-06T15:58:08.636343Z",
+            "created_at": "2026-11-06T16:02:44.649418Z",
             "exchange_id": "refresh-choice-en",
             "exchange_order": 0,
             "historical_entry_references": [],
-            "id": "server-66775cb5-da28-4740-92b2-911385c9804f",
+            "id": "server-aeffbc86-46fc-439a-9530-631f92f4956b",
             "images": [],
             "links": [],
             "playback_actions": [],
@@ -1164,8 +1164,8 @@
             "session_turn": {
               "captured_playback_item_id": "",
               "context": {
-                "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-                "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+                "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+                "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
               },
               "dependency_entries": [],
               "dependency_moments": [],
@@ -1181,7 +1181,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "483e937795eef786b0f7b2d9c42d591e1412276acb42b6a9311830311db04b0a",
+              "request_digest": "e0877608290245f8bd1f1d15754bf9974db198797a2d7a84eeb67b411abca2c4",
               "turn_id": "turn-9f9957096b7c572d8e5f32c16bb51c6b"
             },
             "sources": [],
@@ -1200,11 +1200,11 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "refresh-choice-en",
             "client_type": "ios",
-            "created_at": "2026-11-06T15:58:08.636355Z",
+            "created_at": "2026-11-06T16:02:44.649433Z",
             "exchange_id": "refresh-choice-en",
             "exchange_order": 1,
             "historical_entry_references": [],
-            "id": "server-db84e95c-e74b-44bf-8142-26c1ac9932cf",
+            "id": "server-e029012e-075c-4790-a1c9-e3a24e13f679",
             "images": [],
             "is_generated_text": false,
             "links": [],
@@ -1212,7 +1212,7 @@
             "origin": "session_first_play",
             "playback_actions": [
               {
-                "action_id": "2236e0a78cb519db4da1a854bb6cf070",
+                "action_id": "0fd0dddafcdd6325345ee7dcefb71e54",
                 "active": false,
                 "backend": "spotify",
                 "command": "set_output",
@@ -1222,7 +1222,7 @@
                 "kind": "output",
                 "label": "Activate",
                 "provider": "spotify",
-                "result_set_id": "choices-20a3e9fd48954ddeb2dc362f3cbc25f6",
+                "result_set_id": "choices-072e8387618742f59ac6401e123581e6",
                 "subtitle": "Speaker",
                 "title": "Synthetic speaker",
                 "value": "synthetic-first-play-output"
@@ -1233,7 +1233,7 @@
               "attribution": [],
               "autoplay_eligible": false,
               "cache_policy": "private,no-store",
-              "expires_at": "2026-11-06T15:59:08.622933+00:00",
+              "expires_at": "2026-11-06T16:03:44.637326+00:00",
               "locale": "en",
               "manual_allowed": true,
               "persona": "home_dj",
@@ -1256,7 +1256,7 @@
                   "text": "Choose a speaker first."
                 }
               ],
-              "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+              "session_id": "session-2aab429f110a4f70827dc9cae121635f",
               "source_id": "turn-9f9957096b7c572d8e5f32c16bb51c6b",
               "source_kind": "accepted_ask_dj",
               "state": "available",
@@ -1265,8 +1265,8 @@
             "session_turn": {
               "captured_playback_item_id": "",
               "context": {
-                "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-                "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+                "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+                "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
               },
               "dependency_entries": [],
               "dependency_moments": [],
@@ -1282,7 +1282,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "483e937795eef786b0f7b2d9c42d591e1412276acb42b6a9311830311db04b0a",
+              "request_digest": "e0877608290245f8bd1f1d15754bf9974db198797a2d7a84eeb67b411abca2c4",
               "turn_id": "turn-9f9957096b7c572d8e5f32c16bb51c6b"
             },
             "sources": [],
@@ -1296,7 +1296,7 @@
         "owner_profile_id": "profile-a",
         "playback_actions": [
           {
-            "action_id": "2236e0a78cb519db4da1a854bb6cf070",
+            "action_id": "0fd0dddafcdd6325345ee7dcefb71e54",
             "active": false,
             "backend": "spotify",
             "command": "set_output",
@@ -1306,17 +1306,17 @@
             "kind": "output",
             "label": "Activate",
             "provider": "spotify",
-            "result_set_id": "choices-20a3e9fd48954ddeb2dc362f3cbc25f6",
+            "result_set_id": "choices-072e8387618742f59ac6401e123581e6",
             "subtitle": "Speaker",
             "title": "Synthetic speaker",
             "value": "synthetic-first-play-output"
           }
         ],
         "result_set": {
-          "expires_in": 59.985102791993995,
+          "expires_in": 59.98569529200904,
           "items": [
             {
-              "action_id": "2236e0a78cb519db4da1a854bb6cf070",
+              "action_id": "0fd0dddafcdd6325345ee7dcefb71e54",
               "active": false,
               "backend": "spotify",
               "command": "set_output",
@@ -1326,21 +1326,21 @@
               "kind": "output",
               "label": "Activate",
               "provider": "spotify",
-              "result_set_id": "choices-20a3e9fd48954ddeb2dc362f3cbc25f6",
+              "result_set_id": "choices-072e8387618742f59ac6401e123581e6",
               "subtitle": "Speaker",
               "title": "Synthetic speaker",
               "value": "synthetic-first-play-output"
             }
           ],
-          "result_set_id": "choices-20a3e9fd48954ddeb2dc362f3cbc25f6",
+          "result_set_id": "choices-072e8387618742f59ac6401e123581e6",
           "schema_version": 1
         },
-        "server_time": "2026-11-06T15:58:08.637219Z",
+        "server_time": "2026-11-06T16:02:44.650493Z",
         "session_speech": {
           "attribution": [],
           "autoplay_eligible": false,
           "cache_policy": "private,no-store",
-          "expires_at": "2026-11-06T15:59:08.622933+00:00",
+          "expires_at": "2026-11-06T16:03:44.637326+00:00",
           "locale": "en",
           "manual_allowed": true,
           "persona": "home_dj",
@@ -1363,7 +1363,7 @@
               "text": "Choose a speaker first."
             }
           ],
-          "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+          "session_id": "session-2aab429f110a4f70827dc9cae121635f",
           "source_id": "turn-9f9957096b7c572d8e5f32c16bb51c6b",
           "source_kind": "accepted_ask_dj",
           "state": "available",
@@ -1378,11 +1378,11 @@
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_message_id": "refresh-choice-en",
           "client_type": "ios",
-          "created_at": "2026-11-06T15:58:08.636343Z",
+          "created_at": "2026-11-06T16:02:44.649418Z",
           "exchange_id": "refresh-choice-en",
           "exchange_order": 0,
           "historical_entry_references": [],
-          "id": "server-66775cb5-da28-4740-92b2-911385c9804f",
+          "id": "server-aeffbc86-46fc-439a-9530-631f92f4956b",
           "images": [],
           "links": [],
           "playback_actions": [],
@@ -1390,8 +1390,8 @@
           "session_turn": {
             "captured_playback_item_id": "",
             "context": {
-              "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-              "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+              "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+              "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
             },
             "dependency_entries": [],
             "dependency_moments": [],
@@ -1407,7 +1407,7 @@
             "implicit_playback_entry": null,
             "input_type": "text",
             "profile_id": "profile-a",
-            "request_digest": "483e937795eef786b0f7b2d9c42d591e1412276acb42b6a9311830311db04b0a",
+            "request_digest": "e0877608290245f8bd1f1d15754bf9974db198797a2d7a84eeb67b411abca2c4",
             "turn_id": "turn-9f9957096b7c572d8e5f32c16bb51c6b"
           },
           "sources": [],
@@ -1443,11 +1443,11 @@
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_message_id": "refresh-output-en",
           "client_type": "ios",
-          "created_at": "2026-11-06T15:58:08.644638Z",
+          "created_at": "2026-11-06T16:02:44.660016Z",
           "exchange_id": "refresh-output-en",
           "exchange_order": 1,
           "historical_entry_references": [],
-          "id": "server-7ac302d6-21ff-453c-9434-3be908f12b6f",
+          "id": "server-0852b759-699a-4f65-85d4-048ea5fde676",
           "images": [],
           "is_generated_text": false,
           "links": [],
@@ -1459,7 +1459,7 @@
             "attribution": [],
             "autoplay_eligible": false,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-06T15:59:08.622948+00:00",
+            "expires_at": "2026-11-06T16:03:44.637334+00:00",
             "locale": "en",
             "manual_allowed": true,
             "persona": "home_dj",
@@ -1482,7 +1482,7 @@
                 "text": "The mix was requested."
               }
             ],
-            "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+            "session_id": "session-2aab429f110a4f70827dc9cae121635f",
             "source_id": "turn-fafad69714555f14bf0c69acb8348fe5",
             "source_kind": "accepted_ask_dj",
             "state": "available",
@@ -1491,8 +1491,8 @@
           "session_turn": {
             "captured_playback_item_id": "",
             "context": {
-              "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-              "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+              "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+              "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
             },
             "dependency_entries": [],
             "dependency_moments": [],
@@ -1510,7 +1510,7 @@
             "implicit_playback_entry": null,
             "input_type": "text",
             "profile_id": "profile-a",
-            "request_digest": "f289b962595f64d660c764f00148a6e27ad40693be4b0d801390ad2bf7b8585a",
+            "request_digest": "bee34b0e425203156197de1260271d9ca1509f541b24190ce0db1f446816b8c9",
             "turn_id": "turn-fafad69714555f14bf0c69acb8348fe5"
           },
           "sources": [],
@@ -1529,12 +1529,12 @@
         "client_message_id": "refresh-output-en",
         "conversation": {
           "context": {
-            "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-            "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+            "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+            "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
           },
           "entry_ids": [
-            "entry-1257e7d5a7945c16aea8bac6767c86ad",
-            "entry-2d4195ee183b59c294033267123de57c"
+            "entry-3e429c5848f45142834268e2b7be9d6c",
+            "entry-5142c7125a1958fa98d6294384f2a0da"
           ],
           "history_scope": "profile",
           "input_type": "text",
@@ -1553,12 +1553,12 @@
             "persona_revision": 0
           },
           "style_basis": "accepted_turn",
-          "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc",
+          "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f",
           "turn_id": "turn-fafad69714555f14bf0c69acb8348fe5"
         },
         "dj_text": "The mix was requested.",
         "first_play": {
-          "expires_in": 59.97857945799478,
+          "expires_in": 59.977556228637695,
           "genre_basis": "music_dna",
           "reason": null,
           "schema_version": 2,
@@ -1569,15 +1569,15 @@
           "actions_available": false,
           "automatic_playback": false,
           "conversation_context": {
-            "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-            "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+            "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+            "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
           },
-          "expires_in": 59.976922035217285,
+          "expires_in": 59.976118087768555,
           "intro": "I've picked three mixes with your taste in mind. Which shall we play?",
           "intro_source": "runtime_acknowledgement",
           "language": "en",
           "mood_revision": 1,
-          "offer_id": "choices-a26edb80725d49c19276f104422972d9",
+          "offer_id": "choices-71a0736e5343431c855955c490413a74",
           "options": [],
           "queue_effect": "replace_on_explicit_selection",
           "reason": null,
@@ -1592,7 +1592,7 @@
             "trigger": "confirmed_mood_revision"
           },
           "schema_version": 1,
-          "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+          "session_id": "session-2aab429f110a4f70827dc9cae121635f",
           "state": "confirmed",
           "title": "For you",
           "visible": false
@@ -1609,11 +1609,11 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "refresh-output-en",
             "client_type": "ios",
-            "created_at": "2026-11-06T15:58:08.644616Z",
+            "created_at": "2026-11-06T16:02:44.659996Z",
             "exchange_id": "refresh-output-en",
             "exchange_order": 0,
             "historical_entry_references": [],
-            "id": "server-2afde861-a5e6-4483-948c-9cd5032814f5",
+            "id": "server-e95c5f4e-d03a-405f-8843-7ae083d0bfed",
             "images": [],
             "links": [],
             "playback_actions": [],
@@ -1621,8 +1621,8 @@
             "session_turn": {
               "captured_playback_item_id": "",
               "context": {
-                "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-                "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+                "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+                "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
               },
               "dependency_entries": [],
               "dependency_moments": [],
@@ -1640,7 +1640,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "f289b962595f64d660c764f00148a6e27ad40693be4b0d801390ad2bf7b8585a",
+              "request_digest": "bee34b0e425203156197de1260271d9ca1509f541b24190ce0db1f446816b8c9",
               "turn_id": "turn-fafad69714555f14bf0c69acb8348fe5"
             },
             "sources": [],
@@ -1664,11 +1664,11 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "refresh-output-en",
             "client_type": "ios",
-            "created_at": "2026-11-06T15:58:08.644638Z",
+            "created_at": "2026-11-06T16:02:44.660016Z",
             "exchange_id": "refresh-output-en",
             "exchange_order": 1,
             "historical_entry_references": [],
-            "id": "server-7ac302d6-21ff-453c-9434-3be908f12b6f",
+            "id": "server-0852b759-699a-4f65-85d4-048ea5fde676",
             "images": [],
             "is_generated_text": false,
             "links": [],
@@ -1680,7 +1680,7 @@
               "attribution": [],
               "autoplay_eligible": false,
               "cache_policy": "private,no-store",
-              "expires_at": "2026-11-06T15:59:08.622948+00:00",
+              "expires_at": "2026-11-06T16:03:44.637334+00:00",
               "locale": "en",
               "manual_allowed": true,
               "persona": "home_dj",
@@ -1703,7 +1703,7 @@
                   "text": "The mix was requested."
                 }
               ],
-              "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+              "session_id": "session-2aab429f110a4f70827dc9cae121635f",
               "source_id": "turn-fafad69714555f14bf0c69acb8348fe5",
               "source_kind": "accepted_ask_dj",
               "state": "available",
@@ -1712,8 +1712,8 @@
             "session_turn": {
               "captured_playback_item_id": "",
               "context": {
-                "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-                "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+                "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+                "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
               },
               "dependency_entries": [],
               "dependency_moments": [],
@@ -1731,7 +1731,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "f289b962595f64d660c764f00148a6e27ad40693be4b0d801390ad2bf7b8585a",
+              "request_digest": "bee34b0e425203156197de1260271d9ca1509f541b24190ce0db1f446816b8c9",
               "turn_id": "turn-fafad69714555f14bf0c69acb8348fe5"
             },
             "sources": [],
@@ -1787,13 +1787,13 @@
           "volume_percent": null
         },
         "playback_actions": [],
-        "selected_action_id": "6c06be6a26bce9eeebed6cf2a6b09894",
-        "server_time": "2026-11-06T15:58:08.645472Z",
+        "selected_action_id": "5a471f4da4f0e3dfa22502a026515ae4",
+        "server_time": "2026-11-06T16:02:44.660739Z",
         "session_speech": {
           "attribution": [],
           "autoplay_eligible": false,
           "cache_policy": "private,no-store",
-          "expires_at": "2026-11-06T15:59:08.622948+00:00",
+          "expires_at": "2026-11-06T16:03:44.637334+00:00",
           "locale": "en",
           "manual_allowed": true,
           "persona": "home_dj",
@@ -1816,7 +1816,7 @@
               "text": "The mix was requested."
             }
           ],
-          "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
+          "session_id": "session-2aab429f110a4f70827dc9cae121635f",
           "source_id": "turn-fafad69714555f14bf0c69acb8348fe5",
           "source_kind": "accepted_ask_dj",
           "state": "available",
@@ -1831,11 +1831,11 @@
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_message_id": "refresh-output-en",
           "client_type": "ios",
-          "created_at": "2026-11-06T15:58:08.644616Z",
+          "created_at": "2026-11-06T16:02:44.659996Z",
           "exchange_id": "refresh-output-en",
           "exchange_order": 0,
           "historical_entry_references": [],
-          "id": "server-2afde861-a5e6-4483-948c-9cd5032814f5",
+          "id": "server-e95c5f4e-d03a-405f-8843-7ae083d0bfed",
           "images": [],
           "links": [],
           "playback_actions": [],
@@ -1843,8 +1843,8 @@
           "session_turn": {
             "captured_playback_item_id": "",
             "context": {
-              "session_id": "session-71e1483eae3548aabfe799cedfe615bc",
-              "thread_id": "for-you-session-71e1483eae3548aabfe799cedfe615bc"
+              "session_id": "session-2aab429f110a4f70827dc9cae121635f",
+              "thread_id": "for-you-session-2aab429f110a4f70827dc9cae121635f"
             },
             "dependency_entries": [],
             "dependency_moments": [],
@@ -1862,7 +1862,7 @@
             "implicit_playback_entry": null,
             "input_type": "text",
             "profile_id": "profile-a",
-            "request_digest": "f289b962595f64d660c764f00148a6e27ad40693be4b0d801390ad2bf7b8585a",
+            "request_digest": "bee34b0e425203156197de1260271d9ca1509f541b24190ce0db1f446816b8c9",
             "turn_id": "turn-fafad69714555f14bf0c69acb8348fe5"
           },
           "sources": [],
@@ -1914,21 +1914,21 @@
           "actions_available": true,
           "automatic_playback": false,
           "conversation_context": {
-            "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-            "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+            "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+            "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
           },
-          "expires_in": 59.99267520799185,
+          "expires_in": 59.99191384023288,
           "intro": "Ik heb drie mixen voor je uitgezocht, met jouw smaak als vertrekpunt. Welke zetten we op?",
           "intro_source": "runtime_acknowledgement",
           "language": "nl",
           "mood_revision": 1,
-          "offer_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+          "offer_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
           "options": [
             {
-              "action_id": "7fc330701ed154ae70e5b5f6048448ab",
+              "action_id": "628752a88d2dfb6c280c658ee4426109",
               "genre": "neo soul",
               "label": "neo soul",
-              "option_id": "7fc330701ed154ae70e5b5f6048448ab",
+              "option_id": "628752a88d2dfb6c280c658ee4426109",
               "visual_recipe": {
                 "artistic_direction": "layered_dunes",
                 "genre": "neo soul",
@@ -1937,14 +1937,14 @@
                 "persona": "home_dj",
                 "revision": 1,
                 "schema_version": 1,
-                "variation_id": "cbf7b2677199264e09f2daf94acc98e8fcc6bd0d4c3884bcbbf97c39ff494684"
+                "variation_id": "edef45872a0c5d3454f762f863bb90fd8b1f3432408d59d978863ff99c6500a2"
               }
             },
             {
-              "action_id": "4e4ca3e21d38af9e728747aaa16d14d1",
+              "action_id": "0ca5b532bd56fcb21bc2e09c2fbddbe0",
               "genre": "r&b",
               "label": "r&b",
-              "option_id": "4e4ca3e21d38af9e728747aaa16d14d1",
+              "option_id": "0ca5b532bd56fcb21bc2e09c2fbddbe0",
               "visual_recipe": {
                 "artistic_direction": "misty_valley",
                 "genre": "r&b",
@@ -1953,14 +1953,14 @@
                 "persona": "home_dj",
                 "revision": 1,
                 "schema_version": 1,
-                "variation_id": "8f92edb1e22311649850dc74ba2b8dd23a8ce4e306a74febaa54ebaeebc13c82"
+                "variation_id": "77956ce0c5cbde4ed7698eb3869433a081adf923edc6f25d03a7016a2beaf1c6"
               }
             },
             {
-              "action_id": "c8f0812e0b3197ac98abcc7f942a7ded",
+              "action_id": "0ab42eb9aecb444ae4cb43bae8d19568",
               "genre": "indie rock",
               "label": "indierock",
-              "option_id": "c8f0812e0b3197ac98abcc7f942a7ded",
+              "option_id": "0ab42eb9aecb444ae4cb43bae8d19568",
               "visual_recipe": {
                 "artistic_direction": "mountain_horizon",
                 "genre": "indie rock",
@@ -1969,7 +1969,7 @@
                 "persona": "home_dj",
                 "revision": 1,
                 "schema_version": 1,
-                "variation_id": "2d91b2805143dc320aa6e83854be2d83b8e68043d2ecd043b9740ef230cff126"
+                "variation_id": "3880666dad3bd8b7dd1976220179e17e483eb9bd7cd27e7a5d746e1fb2c0be75"
               }
             }
           ],
@@ -1990,10 +1990,10 @@
             "prompt": "Verras me met een mix voor deze sessie"
           },
           "result_set": {
-            "expires_in": 59.99267520799185,
+            "expires_in": 59.99191384023288,
             "items": [
               {
-                "action_id": "7fc330701ed154ae70e5b5f6048448ab",
+                "action_id": "628752a88d2dfb6c280c658ee4426109",
                 "backend": "source-spotify",
                 "button_label": "neo soul",
                 "fit_basis": "catalog_genre_query",
@@ -2003,7 +2003,7 @@
                 "kind": "track_mix",
                 "label": "neo soul",
                 "queue_effect": "start_context_now",
-                "result_set_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+                "result_set_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
                 "selection_source": "spotify_genre_search",
                 "subtitle": "3 Spotify-nummers",
                 "title": "neo soul",
@@ -2015,7 +2015,7 @@
                 ]
               },
               {
-                "action_id": "4e4ca3e21d38af9e728747aaa16d14d1",
+                "action_id": "0ca5b532bd56fcb21bc2e09c2fbddbe0",
                 "backend": "source-spotify",
                 "button_label": "r&b",
                 "fit_basis": "catalog_genre_query",
@@ -2025,7 +2025,7 @@
                 "kind": "track_mix",
                 "label": "r&b",
                 "queue_effect": "start_context_now",
-                "result_set_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+                "result_set_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
                 "selection_source": "spotify_genre_search",
                 "subtitle": "3 Spotify-nummers",
                 "title": "r&b",
@@ -2037,7 +2037,7 @@
                 ]
               },
               {
-                "action_id": "c8f0812e0b3197ac98abcc7f942a7ded",
+                "action_id": "0ab42eb9aecb444ae4cb43bae8d19568",
                 "backend": "source-spotify",
                 "button_label": "indierock",
                 "fit_basis": "catalog_genre_query",
@@ -2047,7 +2047,7 @@
                 "kind": "track_mix",
                 "label": "indierock",
                 "queue_effect": "start_context_now",
-                "result_set_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+                "result_set_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
                 "selection_source": "spotify_genre_search",
                 "subtitle": "3 Spotify-nummers",
                 "title": "indierock",
@@ -2059,11 +2059,11 @@
                 ]
               }
             ],
-            "result_set_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+            "result_set_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
             "schema_version": 1
           },
           "schema_version": 1,
-          "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+          "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
           "state": "available",
           "title": "Voor jou",
           "visible": true
@@ -2076,14 +2076,14 @@
             },
             "broadcast": {
               "snapshot_watermark": 7,
-              "started_at": "2026-11-06T15:58:08.651942+00:00"
+              "started_at": "2026-11-06T16:02:44.666573+00:00"
             },
             "dj_moments": [
               {
                 "actions": [],
                 "artwork": null,
                 "content": "Ik ga met je mee: je mood is nu Party. Mijn manier van vertellen wordt energiek en speels.",
-                "created_at": "2026-11-06T15:58:08.656000+00:00",
+                "created_at": "2026-11-06T16:02:44.670000+00:00",
                 "delivery_channels": [
                   "owner"
                 ],
@@ -2096,7 +2096,7 @@
                   "goal": "Confirm accepted user settings.",
                   "type": "session_direction"
                 },
-                "moment_id": "moment-2f939ef92296e87a9a60ad3fa25d0f3f",
+                "moment_id": "moment-294a983b7edeeb0f62672093d8e28a97",
                 "presentation_intent": {
                   "delivery_channels": [
                     "owner"
@@ -2112,13 +2112,13 @@
                   "visual_theme": "music-context",
                   "voice_style": "persona-guided"
                 },
-                "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+                "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
                 "settings_confirmation": {
-                  "accepted_at": "2026-11-06T15:58:08.656000+00:00",
+                  "accepted_at": "2026-11-06T16:02:44.670000+00:00",
                   "changed_fields": [
                     "mood"
                   ],
-                  "confirmation_id": "settings-2f939ef92296e87a9a60ad3fa25d0f3f",
+                  "confirmation_id": "settings-294a983b7edeeb0f62672093d8e28a97",
                   "schema_version": 1
                 },
                 "source_references": [
@@ -2132,31 +2132,31 @@
             ],
             "native_delivery": {
               "active_flow_moment_ids": [
-                "moment-2f939ef92296e87a9a60ad3fa25d0f3f"
+                "moment-294a983b7edeeb0f62672093d8e28a97"
               ],
               "admissions": [
                 {
                   "active_flow_display_allowed": true,
                   "current_display_allowed": true,
-                  "display_expires_at": "2026-11-06T15:58:23.656000+00:00",
+                  "display_expires_at": "2026-11-06T16:02:59.670000+00:00",
                   "executable_actions": [],
-                  "moment_id": "moment-2f939ef92296e87a9a60ad3fa25d0f3f",
+                  "moment_id": "moment-294a983b7edeeb0f62672093d8e28a97",
                   "qualification": "qualified",
                   "requires_spotify_attribution": false,
                   "source_expires_at": null
                 }
               ],
-              "current_moment_id": "moment-2f939ef92296e87a9a60ad3fa25d0f3f",
+              "current_moment_id": "moment-294a983b7edeeb0f62672093d8e28a97",
               "current_silence_moment_id": null,
-              "revision": "230c1ebdbb2a35ed6c72b584",
+              "revision": "88b23ae7fb452a1bd1030514",
               "revocation_scope": "session",
               "schema_version": 1,
-              "session_id": "session-3516705eb05e461c96a12a40fa3b45f8"
+              "session_id": "session-73293dd1f57c4982a91dfc69b825a81b"
             },
             "passive_surface": {
               "delivery_sequence": 7,
               "invalidation_only": true,
-              "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+              "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
               "version": 1
             },
             "planner": {
@@ -2165,9 +2165,9 @@
               "planning_state": "ready",
               "session_direction": {
                 "direction": "maintaining_energy",
-                "initialized_at": "2026-11-06T15:58:08.651942+00:00",
+                "initialized_at": "2026-11-06T16:02:44.666573+00:00",
                 "start_strategy": "manual",
-                "updated_at": "2026-11-06T15:58:08.651942+00:00"
+                "updated_at": "2026-11-06T16:02:44.666573+00:00"
               }
             },
             "playback": {
@@ -2175,8 +2175,8 @@
             },
             "presentations": [
               {
-                "presentation_id": "presentation-moment-2f939ef92296e87a9a60ad3fa25d0f3f",
-                "source_moment_id": "moment-2f939ef92296e87a9a60ad3fa25d0f3f",
+                "presentation_id": "presentation-moment-294a983b7edeeb0f62672093d8e28a97",
+                "source_moment_id": "moment-294a983b7edeeb0f62672093d8e28a97",
                 "source_moment_type": "session",
                 "speech": {
                   "mode": "primary_only",
@@ -2200,11 +2200,11 @@
               "runtime_state": "active",
               "selected_mood": "party",
               "selected_presence": "balanced",
-              "session_id": "session-3516705eb05e461c96a12a40fa3b45f8"
+              "session_id": "session-73293dd1f57c4982a91dfc69b825a81b"
             },
             "session_flow": {
-              "created_at": "2026-11-06T15:58:08.657496+00:00",
-              "flow_id": "flow-session-3516705eb05e461c96a12a40fa3b45f8",
+              "created_at": "2026-11-06T16:02:44.672048+00:00",
+              "flow_id": "flow-session-73293dd1f57c4982a91dfc69b825a81b",
               "flow_revision": 1,
               "items": [
                 {
@@ -2238,10 +2238,10 @@
                   "position": "later"
                 },
                 {
-                  "item_id": "moment-moment-2f939ef92296e87a9a60ad3fa25d0f3f",
+                  "item_id": "moment-moment-294a983b7edeeb0f62672093d8e28a97",
                   "item_type": "dj_moment",
                   "label": "Even afstemmen",
-                  "moment_id": "moment-2f939ef92296e87a9a60ad3fa25d0f3f",
+                  "moment_id": "moment-294a983b7edeeb0f62672093d8e28a97",
                   "moment_type": "session",
                   "position": "now"
                 }
@@ -2255,7 +2255,7 @@
               "nominal_window_seconds": 900,
               "revision": 0,
               "sections": [],
-              "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+              "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
               "state": "empty",
               "summary": "",
               "supported_window_seconds": 0
@@ -2266,13 +2266,13 @@
                   "attribution": [],
                   "autoplay_eligible": false,
                   "cache_policy": "private,no-store",
-                  "expires_at": "2026-11-06T15:58:23.656000+00:00",
+                  "expires_at": "2026-11-06T16:02:59.670000+00:00",
                   "locale": "nl",
                   "manual_allowed": true,
                   "mood": "party",
                   "persona": "home_dj",
                   "persona_revision": 0,
-                  "presentation_revision": "113677dd595cd52b4a0dfc03",
+                  "presentation_revision": "f92b6d0cf78bb5356d9b70a2",
                   "processor_qualification_required": true,
                   "processors": [
                     "local_on_device",
@@ -2280,8 +2280,8 @@
                   ],
                   "reason": null,
                   "reference": {
-                    "moment_id": "moment-2f939ef92296e87a9a60ad3fa25d0f3f",
-                    "session_id": "session-3516705eb05e461c96a12a40fa3b45f8"
+                    "moment_id": "moment-294a983b7edeeb0f62672093d8e28a97",
+                    "session_id": "session-73293dd1f57c4982a91dfc69b825a81b"
                   },
                   "schema_version": 1,
                   "segments": [
@@ -2291,9 +2291,9 @@
                       "text": "Ik ga met je mee: je mood is nu Party. Mijn manier van vertellen wordt energiek en speels."
                     }
                   ],
-                  "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-                  "source_expires_at": "2026-11-06T15:58:23.656000+00:00",
-                  "source_id": "moment-2f939ef92296e87a9a60ad3fa25d0f3f",
+                  "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+                  "source_expires_at": "2026-11-06T16:02:59.670000+00:00",
+                  "source_id": "moment-294a983b7edeeb0f62672093d8e28a97",
                   "source_kind": "published_dj_moment",
                   "state": "available",
                   "style_basis": "accepted_contribution",
@@ -2303,7 +2303,7 @@
               "schema_version": 1
             }
           },
-          "created_at": "2026-11-06T15:58:08.651942+00:00",
+          "created_at": "2026-11-06T16:02:44.666573+00:00",
           "discover_personalization_available": false,
           "dj_persona": "home_dj",
           "initial_session_mood": "chill",
@@ -2321,7 +2321,7 @@
             "recent_recommendations": [],
             "recent_session_directions": [],
             "recent_silence_count": 0,
-            "source_flow_id": "flow-session-3516705eb05e461c96a12a40fa3b45f8"
+            "source_flow_id": "flow-session-73293dd1f57c4982a91dfc69b825a81b"
           },
           "persona_revision": 0,
           "planner": {
@@ -2334,13 +2334,13 @@
               "minimum_time_between_moments_seconds": 60.0,
               "recommendation_preference": "balanced"
             },
-            "created_at": "2026-11-06T15:58:08.651942+00:00",
+            "created_at": "2026-11-06T16:02:44.666573+00:00",
             "current_goal": "",
-            "last_replan_at": "2026-11-06T15:58:08.657496+00:00",
+            "last_replan_at": "2026-11-06T16:02:44.672048+00:00",
             "output": {
               "session_flow": {
-                "created_at": "2026-11-06T15:58:08.657496+00:00",
-                "flow_id": "flow-session-3516705eb05e461c96a12a40fa3b45f8",
+                "created_at": "2026-11-06T16:02:44.672048+00:00",
+                "flow_id": "flow-session-73293dd1f57c4982a91dfc69b825a81b",
                 "flow_revision": 1,
                 "items": [
                   {
@@ -2374,10 +2374,10 @@
                     "position": "later"
                   },
                   {
-                    "item_id": "moment-moment-2f939ef92296e87a9a60ad3fa25d0f3f",
+                    "item_id": "moment-moment-294a983b7edeeb0f62672093d8e28a97",
                     "item_type": "dj_moment",
                     "label": "Even afstemmen",
-                    "moment_id": "moment-2f939ef92296e87a9a60ad3fa25d0f3f",
+                    "moment_id": "moment-294a983b7edeeb0f62672093d8e28a97",
                     "moment_type": "session",
                     "position": "now"
                   }
@@ -2396,13 +2396,13 @@
           "selected_presence": "balanced",
           "session_direction": {
             "direction": "maintaining_energy",
-            "initialized_at": "2026-11-06T15:58:08.651942+00:00",
+            "initialized_at": "2026-11-06T16:02:44.666573+00:00",
             "start_strategy": "manual",
-            "updated_at": "2026-11-06T15:58:08.651942+00:00"
+            "updated_at": "2026-11-06T16:02:44.666573+00:00"
           },
-          "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+          "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
           "session_start_strategy": "manual",
-          "started_at": "2026-11-06T15:58:08.652500+00:00"
+          "started_at": "2026-11-06T16:02:44.667081+00:00"
         },
         "session_start_actions": {
           "automatic_playback": false,
@@ -2442,21 +2442,21 @@
                 "actions_available": true,
                 "automatic_playback": false,
                 "conversation_context": {
-                  "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-                  "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+                  "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+                  "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
                 },
-                "expires_in": 59.99267520799185,
+                "expires_in": 59.99191384023288,
                 "intro": "Ik heb drie mixen voor je uitgezocht, met jouw smaak als vertrekpunt. Welke zetten we op?",
                 "intro_source": "runtime_acknowledgement",
                 "language": "nl",
                 "mood_revision": 1,
-                "offer_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+                "offer_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
                 "options": [
                   {
-                    "action_id": "7fc330701ed154ae70e5b5f6048448ab",
+                    "action_id": "628752a88d2dfb6c280c658ee4426109",
                     "genre": "neo soul",
                     "label": "neo soul",
-                    "option_id": "7fc330701ed154ae70e5b5f6048448ab",
+                    "option_id": "628752a88d2dfb6c280c658ee4426109",
                     "visual_recipe": {
                       "artistic_direction": "layered_dunes",
                       "genre": "neo soul",
@@ -2465,14 +2465,14 @@
                       "persona": "home_dj",
                       "revision": 1,
                       "schema_version": 1,
-                      "variation_id": "cbf7b2677199264e09f2daf94acc98e8fcc6bd0d4c3884bcbbf97c39ff494684"
+                      "variation_id": "edef45872a0c5d3454f762f863bb90fd8b1f3432408d59d978863ff99c6500a2"
                     }
                   },
                   {
-                    "action_id": "4e4ca3e21d38af9e728747aaa16d14d1",
+                    "action_id": "0ca5b532bd56fcb21bc2e09c2fbddbe0",
                     "genre": "r&b",
                     "label": "r&b",
-                    "option_id": "4e4ca3e21d38af9e728747aaa16d14d1",
+                    "option_id": "0ca5b532bd56fcb21bc2e09c2fbddbe0",
                     "visual_recipe": {
                       "artistic_direction": "misty_valley",
                       "genre": "r&b",
@@ -2481,14 +2481,14 @@
                       "persona": "home_dj",
                       "revision": 1,
                       "schema_version": 1,
-                      "variation_id": "8f92edb1e22311649850dc74ba2b8dd23a8ce4e306a74febaa54ebaeebc13c82"
+                      "variation_id": "77956ce0c5cbde4ed7698eb3869433a081adf923edc6f25d03a7016a2beaf1c6"
                     }
                   },
                   {
-                    "action_id": "c8f0812e0b3197ac98abcc7f942a7ded",
+                    "action_id": "0ab42eb9aecb444ae4cb43bae8d19568",
                     "genre": "indie rock",
                     "label": "indierock",
-                    "option_id": "c8f0812e0b3197ac98abcc7f942a7ded",
+                    "option_id": "0ab42eb9aecb444ae4cb43bae8d19568",
                     "visual_recipe": {
                       "artistic_direction": "mountain_horizon",
                       "genre": "indie rock",
@@ -2497,7 +2497,7 @@
                       "persona": "home_dj",
                       "revision": 1,
                       "schema_version": 1,
-                      "variation_id": "2d91b2805143dc320aa6e83854be2d83b8e68043d2ecd043b9740ef230cff126"
+                      "variation_id": "3880666dad3bd8b7dd1976220179e17e483eb9bd7cd27e7a5d746e1fb2c0be75"
                     }
                   }
                 ],
@@ -2518,10 +2518,10 @@
                   "prompt": "Verras me met een mix voor deze sessie"
                 },
                 "result_set": {
-                  "expires_in": 59.99267520799185,
+                  "expires_in": 59.99191384023288,
                   "items": [
                     {
-                      "action_id": "7fc330701ed154ae70e5b5f6048448ab",
+                      "action_id": "628752a88d2dfb6c280c658ee4426109",
                       "backend": "source-spotify",
                       "button_label": "neo soul",
                       "fit_basis": "catalog_genre_query",
@@ -2531,7 +2531,7 @@
                       "kind": "track_mix",
                       "label": "neo soul",
                       "queue_effect": "start_context_now",
-                      "result_set_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+                      "result_set_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
                       "selection_source": "spotify_genre_search",
                       "subtitle": "3 Spotify-nummers",
                       "title": "neo soul",
@@ -2543,7 +2543,7 @@
                       ]
                     },
                     {
-                      "action_id": "4e4ca3e21d38af9e728747aaa16d14d1",
+                      "action_id": "0ca5b532bd56fcb21bc2e09c2fbddbe0",
                       "backend": "source-spotify",
                       "button_label": "r&b",
                       "fit_basis": "catalog_genre_query",
@@ -2553,7 +2553,7 @@
                       "kind": "track_mix",
                       "label": "r&b",
                       "queue_effect": "start_context_now",
-                      "result_set_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+                      "result_set_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
                       "selection_source": "spotify_genre_search",
                       "subtitle": "3 Spotify-nummers",
                       "title": "r&b",
@@ -2565,7 +2565,7 @@
                       ]
                     },
                     {
-                      "action_id": "c8f0812e0b3197ac98abcc7f942a7ded",
+                      "action_id": "0ab42eb9aecb444ae4cb43bae8d19568",
                       "backend": "source-spotify",
                       "button_label": "indierock",
                       "fit_basis": "catalog_genre_query",
@@ -2575,7 +2575,7 @@
                       "kind": "track_mix",
                       "label": "indierock",
                       "queue_effect": "start_context_now",
-                      "result_set_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+                      "result_set_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
                       "selection_source": "spotify_genre_search",
                       "subtitle": "3 Spotify-nummers",
                       "title": "indierock",
@@ -2587,11 +2587,11 @@
                       ]
                     }
                   ],
-                  "result_set_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+                  "result_set_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
                   "schema_version": 1
                 },
                 "schema_version": 1,
-                "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+                "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
                 "state": "available",
                 "title": "Voor jou",
                 "visible": true
@@ -2651,11 +2651,11 @@
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_message_id": "refresh-choice-nl",
           "client_type": "ios",
-          "created_at": "2026-11-06T15:58:08.669981Z",
+          "created_at": "2026-11-06T16:02:44.685283Z",
           "exchange_id": "refresh-choice-nl",
           "exchange_order": 1,
           "historical_entry_references": [],
-          "id": "server-43da4f5b-dbb4-487c-9db4-df7698129480",
+          "id": "server-7284e49f-6550-4cd0-9497-4f33cc03e009",
           "images": [],
           "is_generated_text": false,
           "links": [],
@@ -2663,7 +2663,7 @@
           "origin": "session_first_play",
           "playback_actions": [
             {
-              "action_id": "cd3c1115e9dfdb6ede5b1c69540dff7f",
+              "action_id": "84f96f99da3973158ba3a8348d7302aa",
               "active": false,
               "backend": "spotify",
               "command": "set_output",
@@ -2673,7 +2673,7 @@
               "kind": "output",
               "label": "Activeer",
               "provider": "spotify",
-              "result_set_id": "choices-a236f4ee50fd4360988451a0cffa3e59",
+              "result_set_id": "choices-cf1bafac9182483295957923de9943b1",
               "subtitle": "Speaker",
               "title": "Synthetic speaker",
               "value": "synthetic-first-play-output"
@@ -2684,7 +2684,7 @@
             "attribution": [],
             "autoplay_eligible": false,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-06T15:59:08.658490+00:00",
+            "expires_at": "2026-11-06T16:03:44.673123+00:00",
             "locale": "nl",
             "manual_allowed": true,
             "persona": "home_dj",
@@ -2707,7 +2707,7 @@
                 "text": "Kies eerst een speaker."
               }
             ],
-            "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+            "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
             "source_id": "turn-f2d5e484ca6e50f88ad9e42aece78a6b",
             "source_kind": "accepted_ask_dj",
             "state": "available",
@@ -2716,8 +2716,8 @@
           "session_turn": {
             "captured_playback_item_id": "",
             "context": {
-              "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-              "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+              "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+              "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
             },
             "dependency_entries": [],
             "dependency_moments": [],
@@ -2733,7 +2733,7 @@
             "implicit_playback_entry": null,
             "input_type": "text",
             "profile_id": "profile-a",
-            "request_digest": "313f7633e25d0d24baadf34bd85d24f79d76909b628e53e0c9779ed326b4f966",
+            "request_digest": "5fec4f7b1220513e29ecba1c5a011ad5af496afcbf9fbf54de9d66828ca6501f",
             "turn_id": "turn-f2d5e484ca6e50f88ad9e42aece78a6b"
           },
           "sources": [],
@@ -2752,12 +2752,12 @@
         "client_message_id": "refresh-choice-nl",
         "conversation": {
           "context": {
-            "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-            "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+            "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+            "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
           },
           "entry_ids": [
-            "entry-12f2aeddaaca5b829c2012ace96e0687",
-            "entry-fa3cf3b1b2175ed5af3b4a0249a1e797"
+            "entry-d3c1ea9275b0501da0b54e18279c9778",
+            "entry-002b99600edc572aa1d8c3214ef5ae42"
           ],
           "history_scope": "profile",
           "input_type": "text",
@@ -2776,12 +2776,12 @@
             "persona_revision": 0
           },
           "style_basis": "accepted_turn",
-          "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8",
+          "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b",
           "turn_id": "turn-f2d5e484ca6e50f88ad9e42aece78a6b"
         },
         "dj_text": "Kies eerst een speaker.",
         "first_play": {
-          "expires_in": 59.98873472213745,
+          "expires_in": 59.988059249997605,
           "genre_basis": "music_dna",
           "reason": null,
           "schema_version": 2,
@@ -2793,12 +2793,12 @@
           "automatic_playback": false,
           "continuation": {
             "conversation_context": {
-              "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-              "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+              "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+              "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
             },
-            "expires_in": 59.98681163787842,
+            "expires_in": 59.98575258255005,
             "first_play": {
-              "expires_in": 59.98873472213745,
+              "expires_in": 59.988059249997605,
               "genre_basis": "music_dna",
               "reason": null,
               "schema_version": 2,
@@ -2808,7 +2808,7 @@
             "mood_revision": 1,
             "playback_actions": [
               {
-                "action_id": "cd3c1115e9dfdb6ede5b1c69540dff7f",
+                "action_id": "84f96f99da3973158ba3a8348d7302aa",
                 "active": false,
                 "backend": "spotify",
                 "command": "set_output",
@@ -2818,17 +2818,17 @@
                 "kind": "output",
                 "label": "Activeer",
                 "provider": "spotify",
-                "result_set_id": "choices-a236f4ee50fd4360988451a0cffa3e59",
+                "result_set_id": "choices-cf1bafac9182483295957923de9943b1",
                 "subtitle": "Speaker",
                 "title": "Synthetic speaker",
                 "value": "synthetic-first-play-output"
               }
             ],
             "result_set": {
-              "expires_in": 59.98681163787842,
+              "expires_in": 59.98575258255005,
               "items": [
                 {
-                  "action_id": "cd3c1115e9dfdb6ede5b1c69540dff7f",
+                  "action_id": "84f96f99da3973158ba3a8348d7302aa",
                   "active": false,
                   "backend": "spotify",
                   "command": "set_output",
@@ -2838,32 +2838,32 @@
                   "kind": "output",
                   "label": "Activeer",
                   "provider": "spotify",
-                  "result_set_id": "choices-a236f4ee50fd4360988451a0cffa3e59",
+                  "result_set_id": "choices-cf1bafac9182483295957923de9943b1",
                   "subtitle": "Speaker",
                   "title": "Synthetic speaker",
                   "value": "synthetic-first-play-output"
                 }
               ],
-              "result_set_id": "choices-a236f4ee50fd4360988451a0cffa3e59",
+              "result_set_id": "choices-cf1bafac9182483295957923de9943b1",
               "schema_version": 1
             }
           },
           "conversation_context": {
-            "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-            "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+            "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+            "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
           },
-          "expires_in": 59.98705504098325,
+          "expires_in": 59.98593634023564,
           "intro": "Ik heb drie mixen voor je uitgezocht, met jouw smaak als vertrekpunt. Welke zetten we op?",
           "intro_source": "runtime_acknowledgement",
           "language": "nl",
           "mood_revision": 1,
-          "offer_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+          "offer_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
           "options": [
             {
-              "action_id": "7fc330701ed154ae70e5b5f6048448ab",
+              "action_id": "628752a88d2dfb6c280c658ee4426109",
               "genre": "neo soul",
               "label": "neo soul",
-              "option_id": "7fc330701ed154ae70e5b5f6048448ab",
+              "option_id": "628752a88d2dfb6c280c658ee4426109",
               "visual_recipe": {
                 "artistic_direction": "layered_dunes",
                 "genre": "neo soul",
@@ -2872,14 +2872,14 @@
                 "persona": "home_dj",
                 "revision": 1,
                 "schema_version": 1,
-                "variation_id": "cbf7b2677199264e09f2daf94acc98e8fcc6bd0d4c3884bcbbf97c39ff494684"
+                "variation_id": "edef45872a0c5d3454f762f863bb90fd8b1f3432408d59d978863ff99c6500a2"
               }
             },
             {
-              "action_id": "4e4ca3e21d38af9e728747aaa16d14d1",
+              "action_id": "0ca5b532bd56fcb21bc2e09c2fbddbe0",
               "genre": "r&b",
               "label": "r&b",
-              "option_id": "4e4ca3e21d38af9e728747aaa16d14d1",
+              "option_id": "0ca5b532bd56fcb21bc2e09c2fbddbe0",
               "visual_recipe": {
                 "artistic_direction": "misty_valley",
                 "genre": "r&b",
@@ -2888,14 +2888,14 @@
                 "persona": "home_dj",
                 "revision": 1,
                 "schema_version": 1,
-                "variation_id": "8f92edb1e22311649850dc74ba2b8dd23a8ce4e306a74febaa54ebaeebc13c82"
+                "variation_id": "77956ce0c5cbde4ed7698eb3869433a081adf923edc6f25d03a7016a2beaf1c6"
               }
             },
             {
-              "action_id": "c8f0812e0b3197ac98abcc7f942a7ded",
+              "action_id": "0ab42eb9aecb444ae4cb43bae8d19568",
               "genre": "indie rock",
               "label": "indierock",
-              "option_id": "c8f0812e0b3197ac98abcc7f942a7ded",
+              "option_id": "0ab42eb9aecb444ae4cb43bae8d19568",
               "visual_recipe": {
                 "artistic_direction": "mountain_horizon",
                 "genre": "indie rock",
@@ -2904,7 +2904,7 @@
                 "persona": "home_dj",
                 "revision": 1,
                 "schema_version": 1,
-                "variation_id": "2d91b2805143dc320aa6e83854be2d83b8e68043d2ecd043b9740ef230cff126"
+                "variation_id": "3880666dad3bd8b7dd1976220179e17e483eb9bd7cd27e7a5d746e1fb2c0be75"
               }
             }
           ],
@@ -2925,10 +2925,10 @@
             "prompt": "Verras me met een mix voor deze sessie"
           },
           "result_set": {
-            "expires_in": 59.98705504098325,
+            "expires_in": 59.98593634023564,
             "items": [
               {
-                "action_id": "7fc330701ed154ae70e5b5f6048448ab",
+                "action_id": "628752a88d2dfb6c280c658ee4426109",
                 "backend": "source-spotify",
                 "button_label": "neo soul",
                 "fit_basis": "catalog_genre_query",
@@ -2938,7 +2938,7 @@
                 "kind": "track_mix",
                 "label": "neo soul",
                 "queue_effect": "start_context_now",
-                "result_set_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+                "result_set_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
                 "selection_source": "spotify_genre_search",
                 "subtitle": "3 Spotify-nummers",
                 "title": "neo soul",
@@ -2950,7 +2950,7 @@
                 ]
               },
               {
-                "action_id": "4e4ca3e21d38af9e728747aaa16d14d1",
+                "action_id": "0ca5b532bd56fcb21bc2e09c2fbddbe0",
                 "backend": "source-spotify",
                 "button_label": "r&b",
                 "fit_basis": "catalog_genre_query",
@@ -2960,7 +2960,7 @@
                 "kind": "track_mix",
                 "label": "r&b",
                 "queue_effect": "start_context_now",
-                "result_set_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+                "result_set_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
                 "selection_source": "spotify_genre_search",
                 "subtitle": "3 Spotify-nummers",
                 "title": "r&b",
@@ -2972,7 +2972,7 @@
                 ]
               },
               {
-                "action_id": "c8f0812e0b3197ac98abcc7f942a7ded",
+                "action_id": "0ab42eb9aecb444ae4cb43bae8d19568",
                 "backend": "source-spotify",
                 "button_label": "indierock",
                 "fit_basis": "catalog_genre_query",
@@ -2982,7 +2982,7 @@
                 "kind": "track_mix",
                 "label": "indierock",
                 "queue_effect": "start_context_now",
-                "result_set_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+                "result_set_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
                 "selection_source": "spotify_genre_search",
                 "subtitle": "3 Spotify-nummers",
                 "title": "indierock",
@@ -2994,11 +2994,11 @@
                 ]
               }
             ],
-            "result_set_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+            "result_set_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
             "schema_version": 1
           },
           "schema_version": 1,
-          "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+          "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
           "state": "awaiting_output",
           "title": "Voor jou",
           "visible": true
@@ -3015,11 +3015,11 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "refresh-choice-nl",
             "client_type": "ios",
-            "created_at": "2026-11-06T15:58:08.669964Z",
+            "created_at": "2026-11-06T16:02:44.685266Z",
             "exchange_id": "refresh-choice-nl",
             "exchange_order": 0,
             "historical_entry_references": [],
-            "id": "server-e988316e-79cf-4bdd-b7f3-6d3ad5986185",
+            "id": "server-e2d2547a-954b-45ae-9d76-fc1ef1d472f6",
             "images": [],
             "links": [],
             "playback_actions": [],
@@ -3027,8 +3027,8 @@
             "session_turn": {
               "captured_playback_item_id": "",
               "context": {
-                "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-                "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+                "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+                "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
               },
               "dependency_entries": [],
               "dependency_moments": [],
@@ -3044,7 +3044,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "313f7633e25d0d24baadf34bd85d24f79d76909b628e53e0c9779ed326b4f966",
+              "request_digest": "5fec4f7b1220513e29ecba1c5a011ad5af496afcbf9fbf54de9d66828ca6501f",
               "turn_id": "turn-f2d5e484ca6e50f88ad9e42aece78a6b"
             },
             "sources": [],
@@ -3063,11 +3063,11 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "refresh-choice-nl",
             "client_type": "ios",
-            "created_at": "2026-11-06T15:58:08.669981Z",
+            "created_at": "2026-11-06T16:02:44.685283Z",
             "exchange_id": "refresh-choice-nl",
             "exchange_order": 1,
             "historical_entry_references": [],
-            "id": "server-43da4f5b-dbb4-487c-9db4-df7698129480",
+            "id": "server-7284e49f-6550-4cd0-9497-4f33cc03e009",
             "images": [],
             "is_generated_text": false,
             "links": [],
@@ -3075,7 +3075,7 @@
             "origin": "session_first_play",
             "playback_actions": [
               {
-                "action_id": "cd3c1115e9dfdb6ede5b1c69540dff7f",
+                "action_id": "84f96f99da3973158ba3a8348d7302aa",
                 "active": false,
                 "backend": "spotify",
                 "command": "set_output",
@@ -3085,7 +3085,7 @@
                 "kind": "output",
                 "label": "Activeer",
                 "provider": "spotify",
-                "result_set_id": "choices-a236f4ee50fd4360988451a0cffa3e59",
+                "result_set_id": "choices-cf1bafac9182483295957923de9943b1",
                 "subtitle": "Speaker",
                 "title": "Synthetic speaker",
                 "value": "synthetic-first-play-output"
@@ -3096,7 +3096,7 @@
               "attribution": [],
               "autoplay_eligible": false,
               "cache_policy": "private,no-store",
-              "expires_at": "2026-11-06T15:59:08.658490+00:00",
+              "expires_at": "2026-11-06T16:03:44.673123+00:00",
               "locale": "nl",
               "manual_allowed": true,
               "persona": "home_dj",
@@ -3119,7 +3119,7 @@
                   "text": "Kies eerst een speaker."
                 }
               ],
-              "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+              "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
               "source_id": "turn-f2d5e484ca6e50f88ad9e42aece78a6b",
               "source_kind": "accepted_ask_dj",
               "state": "available",
@@ -3128,8 +3128,8 @@
             "session_turn": {
               "captured_playback_item_id": "",
               "context": {
-                "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-                "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+                "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+                "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
               },
               "dependency_entries": [],
               "dependency_moments": [],
@@ -3145,7 +3145,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "313f7633e25d0d24baadf34bd85d24f79d76909b628e53e0c9779ed326b4f966",
+              "request_digest": "5fec4f7b1220513e29ecba1c5a011ad5af496afcbf9fbf54de9d66828ca6501f",
               "turn_id": "turn-f2d5e484ca6e50f88ad9e42aece78a6b"
             },
             "sources": [],
@@ -3159,7 +3159,7 @@
         "owner_profile_id": "profile-a",
         "playback_actions": [
           {
-            "action_id": "cd3c1115e9dfdb6ede5b1c69540dff7f",
+            "action_id": "84f96f99da3973158ba3a8348d7302aa",
             "active": false,
             "backend": "spotify",
             "command": "set_output",
@@ -3169,17 +3169,17 @@
             "kind": "output",
             "label": "Activeer",
             "provider": "spotify",
-            "result_set_id": "choices-a236f4ee50fd4360988451a0cffa3e59",
+            "result_set_id": "choices-cf1bafac9182483295957923de9943b1",
             "subtitle": "Speaker",
             "title": "Synthetic speaker",
             "value": "synthetic-first-play-output"
           }
         ],
         "result_set": {
-          "expires_in": 59.98691104099271,
+          "expires_in": 59.98586129100295,
           "items": [
             {
-              "action_id": "cd3c1115e9dfdb6ede5b1c69540dff7f",
+              "action_id": "84f96f99da3973158ba3a8348d7302aa",
               "active": false,
               "backend": "spotify",
               "command": "set_output",
@@ -3189,21 +3189,21 @@
               "kind": "output",
               "label": "Activeer",
               "provider": "spotify",
-              "result_set_id": "choices-a236f4ee50fd4360988451a0cffa3e59",
+              "result_set_id": "choices-cf1bafac9182483295957923de9943b1",
               "subtitle": "Speaker",
               "title": "Synthetic speaker",
               "value": "synthetic-first-play-output"
             }
           ],
-          "result_set_id": "choices-a236f4ee50fd4360988451a0cffa3e59",
+          "result_set_id": "choices-cf1bafac9182483295957923de9943b1",
           "schema_version": 1
         },
-        "server_time": "2026-11-06T15:58:08.670995Z",
+        "server_time": "2026-11-06T16:02:44.686341Z",
         "session_speech": {
           "attribution": [],
           "autoplay_eligible": false,
           "cache_policy": "private,no-store",
-          "expires_at": "2026-11-06T15:59:08.658490+00:00",
+          "expires_at": "2026-11-06T16:03:44.673123+00:00",
           "locale": "nl",
           "manual_allowed": true,
           "persona": "home_dj",
@@ -3226,7 +3226,7 @@
               "text": "Kies eerst een speaker."
             }
           ],
-          "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+          "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
           "source_id": "turn-f2d5e484ca6e50f88ad9e42aece78a6b",
           "source_kind": "accepted_ask_dj",
           "state": "available",
@@ -3241,11 +3241,11 @@
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_message_id": "refresh-choice-nl",
           "client_type": "ios",
-          "created_at": "2026-11-06T15:58:08.669964Z",
+          "created_at": "2026-11-06T16:02:44.685266Z",
           "exchange_id": "refresh-choice-nl",
           "exchange_order": 0,
           "historical_entry_references": [],
-          "id": "server-e988316e-79cf-4bdd-b7f3-6d3ad5986185",
+          "id": "server-e2d2547a-954b-45ae-9d76-fc1ef1d472f6",
           "images": [],
           "links": [],
           "playback_actions": [],
@@ -3253,8 +3253,8 @@
           "session_turn": {
             "captured_playback_item_id": "",
             "context": {
-              "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-              "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+              "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+              "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
             },
             "dependency_entries": [],
             "dependency_moments": [],
@@ -3270,7 +3270,7 @@
             "implicit_playback_entry": null,
             "input_type": "text",
             "profile_id": "profile-a",
-            "request_digest": "313f7633e25d0d24baadf34bd85d24f79d76909b628e53e0c9779ed326b4f966",
+            "request_digest": "5fec4f7b1220513e29ecba1c5a011ad5af496afcbf9fbf54de9d66828ca6501f",
             "turn_id": "turn-f2d5e484ca6e50f88ad9e42aece78a6b"
           },
           "sources": [],
@@ -3306,11 +3306,11 @@
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_message_id": "refresh-output-nl",
           "client_type": "ios",
-          "created_at": "2026-11-06T15:58:08.679288Z",
+          "created_at": "2026-11-06T16:02:44.695387Z",
           "exchange_id": "refresh-output-nl",
           "exchange_order": 1,
           "historical_entry_references": [],
-          "id": "server-e885cf5c-8760-42d6-9c3b-d5c952715467",
+          "id": "server-f078a5c4-673b-4685-9925-e1182f087fbb",
           "images": [],
           "is_generated_text": false,
           "links": [],
@@ -3322,7 +3322,7 @@
             "attribution": [],
             "autoplay_eligible": false,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-06T15:59:08.658504+00:00",
+            "expires_at": "2026-11-06T16:03:44.673132+00:00",
             "locale": "nl",
             "manual_allowed": true,
             "persona": "home_dj",
@@ -3345,7 +3345,7 @@
                 "text": "De mix is aangevraagd."
               }
             ],
-            "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+            "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
             "source_id": "turn-5722d2987cd35b25bb16047f587cb41f",
             "source_kind": "accepted_ask_dj",
             "state": "available",
@@ -3354,8 +3354,8 @@
           "session_turn": {
             "captured_playback_item_id": "",
             "context": {
-              "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-              "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+              "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+              "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
             },
             "dependency_entries": [],
             "dependency_moments": [],
@@ -3373,7 +3373,7 @@
             "implicit_playback_entry": null,
             "input_type": "text",
             "profile_id": "profile-a",
-            "request_digest": "2ce89d64da70200ff74e13af0b6a8669df7eae345c9b0c2ea2538df922921e80",
+            "request_digest": "5b7f6c2a9160cc79a82b9c445d03f99bf36d38a0f0c40468929b0ad6ff4a6680",
             "turn_id": "turn-5722d2987cd35b25bb16047f587cb41f"
           },
           "sources": [],
@@ -3392,12 +3392,12 @@
         "client_message_id": "refresh-output-nl",
         "conversation": {
           "context": {
-            "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-            "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+            "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+            "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
           },
           "entry_ids": [
-            "entry-ac5f5d216de25309b33b6de5f3c8df26",
-            "entry-c30d884a8bbf539fa14ab41b4474cdd8"
+            "entry-b6a1f06784095939ab2be2da661857fb",
+            "entry-314ecc607c575d40a2a120bc0f810095"
           ],
           "history_scope": "profile",
           "input_type": "text",
@@ -3416,12 +3416,12 @@
             "persona_revision": 0
           },
           "style_basis": "accepted_turn",
-          "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8",
+          "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b",
           "turn_id": "turn-5722d2987cd35b25bb16047f587cb41f"
         },
         "dj_text": "De mix is aangevraagd.",
         "first_play": {
-          "expires_in": 59.97946649999358,
+          "expires_in": 59.97805881500244,
           "genre_basis": "music_dna",
           "reason": null,
           "schema_version": 2,
@@ -3432,15 +3432,15 @@
           "actions_available": false,
           "automatic_playback": false,
           "conversation_context": {
-            "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-            "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+            "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+            "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
           },
-          "expires_in": 59.977452165985596,
+          "expires_in": 59.97648371523246,
           "intro": "Ik heb drie mixen voor je uitgezocht, met jouw smaak als vertrekpunt. Welke zetten we op?",
           "intro_source": "runtime_acknowledgement",
           "language": "nl",
           "mood_revision": 1,
-          "offer_id": "choices-fe7c048d01ac40f2b64c7c5c9ff11883",
+          "offer_id": "choices-90445c95f48c4bb8b93b6a54beba7b3d",
           "options": [],
           "queue_effect": "replace_on_explicit_selection",
           "reason": null,
@@ -3455,7 +3455,7 @@
             "trigger": "confirmed_mood_revision"
           },
           "schema_version": 1,
-          "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+          "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
           "state": "confirmed",
           "title": "Voor jou",
           "visible": false
@@ -3472,11 +3472,11 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "refresh-output-nl",
             "client_type": "ios",
-            "created_at": "2026-11-06T15:58:08.679272Z",
+            "created_at": "2026-11-06T16:02:44.695368Z",
             "exchange_id": "refresh-output-nl",
             "exchange_order": 0,
             "historical_entry_references": [],
-            "id": "server-3445b54b-dff3-4260-adb0-a829ac64f1d2",
+            "id": "server-13281dd6-0741-455e-bed6-9fd98e07b450",
             "images": [],
             "links": [],
             "playback_actions": [],
@@ -3484,8 +3484,8 @@
             "session_turn": {
               "captured_playback_item_id": "",
               "context": {
-                "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-                "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+                "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+                "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
               },
               "dependency_entries": [],
               "dependency_moments": [],
@@ -3503,7 +3503,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "2ce89d64da70200ff74e13af0b6a8669df7eae345c9b0c2ea2538df922921e80",
+              "request_digest": "5b7f6c2a9160cc79a82b9c445d03f99bf36d38a0f0c40468929b0ad6ff4a6680",
               "turn_id": "turn-5722d2987cd35b25bb16047f587cb41f"
             },
             "sources": [],
@@ -3527,11 +3527,11 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "refresh-output-nl",
             "client_type": "ios",
-            "created_at": "2026-11-06T15:58:08.679288Z",
+            "created_at": "2026-11-06T16:02:44.695387Z",
             "exchange_id": "refresh-output-nl",
             "exchange_order": 1,
             "historical_entry_references": [],
-            "id": "server-e885cf5c-8760-42d6-9c3b-d5c952715467",
+            "id": "server-f078a5c4-673b-4685-9925-e1182f087fbb",
             "images": [],
             "is_generated_text": false,
             "links": [],
@@ -3543,7 +3543,7 @@
               "attribution": [],
               "autoplay_eligible": false,
               "cache_policy": "private,no-store",
-              "expires_at": "2026-11-06T15:59:08.658504+00:00",
+              "expires_at": "2026-11-06T16:03:44.673132+00:00",
               "locale": "nl",
               "manual_allowed": true,
               "persona": "home_dj",
@@ -3566,7 +3566,7 @@
                   "text": "De mix is aangevraagd."
                 }
               ],
-              "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+              "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
               "source_id": "turn-5722d2987cd35b25bb16047f587cb41f",
               "source_kind": "accepted_ask_dj",
               "state": "available",
@@ -3575,8 +3575,8 @@
             "session_turn": {
               "captured_playback_item_id": "",
               "context": {
-                "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-                "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+                "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+                "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
               },
               "dependency_entries": [],
               "dependency_moments": [],
@@ -3594,7 +3594,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "2ce89d64da70200ff74e13af0b6a8669df7eae345c9b0c2ea2538df922921e80",
+              "request_digest": "5b7f6c2a9160cc79a82b9c445d03f99bf36d38a0f0c40468929b0ad6ff4a6680",
               "turn_id": "turn-5722d2987cd35b25bb16047f587cb41f"
             },
             "sources": [],
@@ -3650,13 +3650,13 @@
           "volume_percent": null
         },
         "playback_actions": [],
-        "selected_action_id": "7fc330701ed154ae70e5b5f6048448ab",
-        "server_time": "2026-11-06T15:58:08.680111Z",
+        "selected_action_id": "628752a88d2dfb6c280c658ee4426109",
+        "server_time": "2026-11-06T16:02:44.696162Z",
         "session_speech": {
           "attribution": [],
           "autoplay_eligible": false,
           "cache_policy": "private,no-store",
-          "expires_at": "2026-11-06T15:59:08.658504+00:00",
+          "expires_at": "2026-11-06T16:03:44.673132+00:00",
           "locale": "nl",
           "manual_allowed": true,
           "persona": "home_dj",
@@ -3679,7 +3679,7 @@
               "text": "De mix is aangevraagd."
             }
           ],
-          "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
+          "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
           "source_id": "turn-5722d2987cd35b25bb16047f587cb41f",
           "source_kind": "accepted_ask_dj",
           "state": "available",
@@ -3694,11 +3694,11 @@
           "client_id": "djconnect-ios-ABCDEF123456",
           "client_message_id": "refresh-output-nl",
           "client_type": "ios",
-          "created_at": "2026-11-06T15:58:08.679272Z",
+          "created_at": "2026-11-06T16:02:44.695368Z",
           "exchange_id": "refresh-output-nl",
           "exchange_order": 0,
           "historical_entry_references": [],
-          "id": "server-3445b54b-dff3-4260-adb0-a829ac64f1d2",
+          "id": "server-13281dd6-0741-455e-bed6-9fd98e07b450",
           "images": [],
           "links": [],
           "playback_actions": [],
@@ -3706,8 +3706,8 @@
           "session_turn": {
             "captured_playback_item_id": "",
             "context": {
-              "session_id": "session-3516705eb05e461c96a12a40fa3b45f8",
-              "thread_id": "for-you-session-3516705eb05e461c96a12a40fa3b45f8"
+              "session_id": "session-73293dd1f57c4982a91dfc69b825a81b",
+              "thread_id": "for-you-session-73293dd1f57c4982a91dfc69b825a81b"
             },
             "dependency_entries": [],
             "dependency_moments": [],
@@ -3725,7 +3725,7 @@
             "implicit_playback_entry": null,
             "input_type": "text",
             "profile_id": "profile-a",
-            "request_digest": "2ce89d64da70200ff74e13af0b6a8669df7eae345c9b0c2ea2538df922921e80",
+            "request_digest": "5b7f6c2a9160cc79a82b9c445d03f99bf36d38a0f0c40468929b0ad6ff4a6680",
             "turn_id": "turn-5722d2987cd35b25bb16047f587cb41f"
           },
           "sources": [],
@@ -3741,7 +3741,7 @@
   "harness": "scripts/verification/verify_for_you_refresh_http.py",
   "harness_sha256": "4237862169ebd5b763c85f9da870949a501b8bed76c8558562d6d1f962d407f4",
   "installed_native_audible_apns": "NOT_RUN",
-  "raw_receipt_sha256": "797b07318b688003af3bd9951bf18791b2821cb8dda1e510eb3b2f0273f2659c",
+  "raw_receipt_sha256": "2621b14074650c6717229f814dd21e47b92c1d265b81efeb33dc10e1aa1d31e1",
   "real_model_calls": 0,
   "real_provider_calls": 0,
   "source_pins": {
@@ -3924,7 +3924,7 @@
     "custom_components/djconnect/paired_live_contract.py": "fb4485b6acd9d548c17953edf64af4c4c4aa98c93cb325721acc033ff787f736",
     "custom_components/djconnect/pairing_defaults.py": "d65b049671f2c594edadfeed12a8a5b0da4d1c3a4f33aaa77b0a7e35aae243b7",
     "custom_components/djconnect/passive_contribution.py": "6cf021d669065f84bd80fde291ef5265e960bac5b84c01f313fe7adf0c05899f",
-    "custom_components/djconnect/passive_session.py": "e4523eea060f5178af9a0a111dd9001e141ee00205c132c9a5a2d59a3ea43efd",
+    "custom_components/djconnect/passive_session.py": "659e4d321753ff0dd52be1c2eb20e7de5c86ac9943125448141f0527cc572c9f",
     "custom_components/djconnect/persistence/README.md": "c305e30879e4a3006a72fcf44487408ec7afba4caff509503d2b603c6ecf927f",
     "custom_components/djconnect/persistence/__init__.py": "8dc97e8769e396ad480a8a5db345974f63b7ff334020980a3d15921e898c8b97",
     "custom_components/djconnect/persistence/bootstrap.py": "cb239bd1fb477800436baee9a7496e5af48429f890dcdb5e1fa1ce01cad1b27d",

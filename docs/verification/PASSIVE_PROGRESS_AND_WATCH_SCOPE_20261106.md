@@ -86,3 +86,15 @@ After actual receipt rebinding,95 related unit/contract/provenance tests pass
 against the pinned HA image, including all41 passive tests. Current main at
 submission is76806588eb657544590e7e136a29bc62fd9da498. No source overlay or HA-dev
 installation has been performed for this increment before review/authorization.
+
+Final review additionally requires stale/withdrawn Watch views to clear the old
+Mood value as well as track/cover.41 passive tests cover that explicit neutral
+state. The first full qualification remains retained; the final product bytes
+are independently rerun through all30 HA protocols before new current binding.
+
+The initial GitHub aggregate test exposed one current documentation checksum in
+the federated roadmap: PASSIVE_SESSION_PROJECTION_V1.md now links its additive
+v3 successor. Only that current document-reference SHA is refreshed to actual
+bytes; frozen historical receipts, status, acceptance, nodes and edges are not
+changed. Original CI logs remain in the run evidence. This is documentation
+provenance maintenance, not a weakened validator or product acceptance claim.

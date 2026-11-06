@@ -50,12 +50,14 @@ class WatchWidgetProjectionTests(unittest.TestCase):
         self.assertEqual(first['revision'], second['revision'])
         self.assertIs(b.passive_observation, original)
         self.assertIsNone(self.watch_frame(121)['now_playing'])
+        self.assertIsNone(self.watch_frame(121)['mood']['value'])
 
     def test_watch_authority_withdrawal_has_no_phone_or_contribution_fallback(self):
         self.sample()
         self.grant = replace(self.grant, authority=lambda: False)
         frame = self.watch_frame()
         self.assertEqual(frame['state'], 'withdrawn')
+        self.assertIsNone(frame['mood']['value'])
         self.assertIsNone(frame.get('now_playing'))
         self.assertEqual(frame['artwork'], [])
         self.assertNotIn('contribution', frame)
