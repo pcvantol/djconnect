@@ -472,7 +472,8 @@
       "backend_switch_failed": "DJConnect kon de muziekbackend niet wijzigen. Controleer de gekozen backend en probeer opnieuw.",
       "profile_platform_failed": "Het gekoppelde profiel kon niet worden bijgewerkt. Controleer de apparaatkoppeling en probeer opnieuw.",
       "profile_shared_backend_change": "Dit profiel is gekoppeld aan meerdere apparaten. Koppel dit apparaat aan een eigen profiel voordat je de muziekbackend wijzigt.",
-      "shared_dj_settings_required": "This old form has saved nothing. Use a DJConnect client that supports shared Profile settings to change your DJ preferences."
+      "shared_dj_settings_required": "This old form has saved nothing. Use a DJConnect client that supports shared Profile settings to change your DJ preferences.",
+      "profile_connection_unavailable": "The existing music connection is unavailable or ambiguous. Restore that connection, or choose another profile."
     },
     "abort": {
       "client_retired": "Deze client wordt niet meer ondersteund. Kies een ondersteunde client."

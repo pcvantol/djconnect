@@ -2816,6 +2816,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             )
         entry = types.SimpleNamespace(
             entry_id="entry-1",
+            disabled_by=None,
             data={
                 self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS,
                 self.const.CONF_DEVICE_ID: device_id,
@@ -2828,6 +2829,10 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT,
                 self.const.CONF_MUSIC_BACKEND_REVISION: 2,
             },
+        )
+        hass.config_entries = types.SimpleNamespace(
+            async_get_entry=lambda key: entry if key == entry.entry_id else None,
+            async_entries=lambda domain: [entry],
         )
         flow = self.config_flow.DJConnectOptionsFlow(entry)
         flow.hass = hass

@@ -78,6 +78,7 @@ def install_integration_stubs() -> None:
             self.headers = headers or {}
 
     sys.modules.setdefault("homeassistant", types.ModuleType("homeassistant"))
+    aiohttp.ClientError = getattr(aiohttp, "ClientError", type("ClientError", (Exception,), {}))
     aiohttp.ClientTimeout = ClientTimeout
     aiohttp.web = getattr(aiohttp, "web", types.SimpleNamespace())
     voluptuous.Schema = lambda schema: schema
@@ -988,6 +989,16 @@ class TtsHelperTest(unittest.TestCase):
         self.assertEqual(reloads, [])
         self.assertEqual(runtime.latest_spotify_refresh_token, "new-token")
         self.assertEqual(runtime.config[self.const.CONF_SPOTIFY_REFRESH_TOKEN], "new-token")
+
+    def test_scope_observation_does_not_restart_provider_runtime(self):
+        entry = types.SimpleNamespace(entry_id="entry-1", data={
+            "spotify_client_id": "same-app", "spotify_scope_evidence": {"observed_at": "old"}}, options={})
+        signature = self.integration._entry_reload_signature(entry)
+        entry.data = {**entry.data, "spotify_refresh_token": "rotated",
+                      "spotify_scope_evidence": {"observed_at": "new", "granted_scopes": ["scope"]}}
+        self.assertEqual(signature, self.integration._entry_reload_signature(entry))
+        entry.data["spotify_client_id"] = "different-app"
+        self.assertNotEqual(signature, self.integration._entry_reload_signature(entry))
 
     def test_update_listener_skips_reload_for_status_cache_update(self) -> None:
         entry = types.SimpleNamespace(

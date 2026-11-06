@@ -472,7 +472,8 @@
       "backend_switch_failed": "DJConnect konnte das Musik-Backend nicht wechseln. Prüfe das ausgewählte Backend und versuche es erneut.",
       "profile_platform_failed": "Das verknüpfte Profil konnte nicht aktualisiert werden. Prüfe die Gerätekopplung und versuche es erneut.",
       "profile_shared_backend_change": "Dieses Profil ist mit mehreren Geräten verknüpft. Verknüpfe dieses Gerät mit einem eigenen Profil, bevor du das Musik-Backend änderst.",
-      "shared_dj_settings_required": "Dieses alte Formular hat nichts gespeichert. Ändere deine DJ-Vorlieben in einem DJConnect-Client, der gemeinsame Profileinstellungen unterstützt."
+      "shared_dj_settings_required": "Dieses alte Formular hat nichts gespeichert. Ändere deine DJ-Vorlieben in einem DJConnect-Client, der gemeinsame Profileinstellungen unterstützt.",
+      "profile_connection_unavailable": "Die bestehende Musikverbindung ist nicht verfügbar oder nicht eindeutig. Stelle sie wieder her oder wähle ein anderes Profil."
     },
     "abort": {
       "client_retired": "Dieser Client wird nicht mehr unterstützt. Wähle einen unterstützten Client."

@@ -15,7 +15,8 @@ No new scope or consent is inferred from the old empty account-scopes metadata;
 the ordinary requested Spotify permissions are presented for fresh consent.
 
 Admission requires that the original provider entry is absent, not merely
-unloaded or disabled. A surviving owner keeps its own reauthorization route.
+unloaded or disabled. A surviving owner retains credential custody; all linked devices reach its
+reauthorization route as specified in `PROFILE_SPOTIFY_RECONNECT_V1.md`.
 Another same-Profile provider entry, including a disabled entry, prevents a
 second owner. A missing or ambiguous device/Profile/account/app binding also
 prevents recovery. The existing persisted device binding generation and exact

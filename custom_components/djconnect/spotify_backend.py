@@ -159,10 +159,13 @@ async def handle_spotify_command(
     if normalized == "discovery_playlist_identity":
         value = value if isinstance(value, dict) else {}
         try:
+            from .profile_backend import ProfileBackendView
+
+            subject = runtime.caller if isinstance(runtime, ProfileBackendView) else runtime
             original = runtime_scope(runtime)
             def deny_write():
                 raise SpotifyDiscoveryError("music_discovery_effect_not_authorized")
-            with discovery_dispatch(lambda: runtime_scope(runtime) == original and authority_valid(runtime), deny_write) as read_scope:
+            with discovery_dispatch(lambda: runtime_scope(runtime) == original and authority_valid(subject), deny_write) as read_scope:
                 item = await backend.discovery_playlist_identity(value.get("artist_uri"), value.get("playlist_uri"))
                 read_scope.require_current()
                 return {"success": True, "read_only": True, "dispatch_authority": False, "item": item}
