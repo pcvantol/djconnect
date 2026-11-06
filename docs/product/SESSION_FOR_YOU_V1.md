@@ -73,6 +73,13 @@ client request to synthesize or replay an Ask DJ prompt.
 
 ### Confirmed Mood refresh and locale (6 November 2026)
 
+The explicit existing session/start mood field is a Session-only welcome choice:
+a valid supplied mood wins for that newly created Session without changing any
+Profile default or defaults_revision. Missing mood inherits canonical defaults.
+The initial runtime, opening context, first offer and returned selected_mood must
+all agree. The server performs no corrective write after responding; clients
+must not persist welcome previews or silently mutate Profile defaults.
+
 Owner-selected repair scope is English/Dutch. Genuine preparation must use the
 original accepted Session locale, even when the Profile/Assist default is English.
 Visible genre labels are localized presentation; the owned canonical genre,
@@ -102,7 +109,10 @@ uncertain selection. refresh_request.automatic stays false for compatibility.
 
 A selection response and active projection may include for_you.continuation with
 the originally accepted first_play state, result_set, playback_actions,
-conversation_context and action_outcome. Only an actually admitted output result
+conversation_context and action_outcome. Continuation expires_in is recomputed
+from the original wall/monotonic deadline, never renewed; mood_revision binds
+its accepted Session context. Active reads accept language=nl/en in GET query
+or the ordinary djconnect/read payload.language, plus existing language headers. Only an actually admitted output result
 set may supply speaker buttons. An awaiting_output state must expose that exact
 continuation, not the old genre IDs. Uncertain/attempted playback stays visibly
 uncertain with retry_automatically:false; it cannot be silently retried or upgraded

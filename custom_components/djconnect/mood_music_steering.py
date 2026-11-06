@@ -1163,6 +1163,8 @@ def for_you_projection(hass, runtime, profile_id, active, *, client_device_id=""
             if not (pending is not None and pending.play_attempted):
                 result.update(state='unavailable', reason='choice_expired_or_changed', actions_available=False)
         if state == 'attempted':
+            result['continuation'].pop('result_set', None)
+            result['continuation'].pop('playback_actions', None)
             result.update(state='uncertain', actions_available=False)
             result['continuation'].setdefault('action_outcome', {
                 'state':'uncertain', 'retry_automatically':False})
@@ -1172,6 +1174,8 @@ def for_you_projection(hass, runtime, profile_id, active, *, client_device_id=""
         result.update(state='unavailable', reason='music_dna_unavailable', options=[], actions_available=False)
         result.pop('result_set', None)
         result['intro'] = ''
+    if result.get('state') == 'unavailable' or not result['visible']:
+        result.pop('continuation', None)
     if not result['visible']:
         result['options'] = []
         result.pop('result_set', None)

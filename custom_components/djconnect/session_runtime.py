@@ -4819,6 +4819,7 @@ class SessionRuntimeManager:
         history_enabled: bool = True,
         history_source_context: dict[str, str] | None = None,
         inherit_settings: bool = False,
+        explicit_mood_choice: bool = False,
         source_adoption=None,
     ) -> DJSessionRuntime:
         """Create the one active Runtime allowed for a Profile."""
@@ -4833,7 +4834,8 @@ class SessionRuntimeManager:
                 if defaults['activated'] or inherit_settings:
                     inherited = DJSettings.from_dict(defaults['defaults'])
                     defaults_revision = defaults['defaults_revision']
-                    selected_mood = inherited.mood
+                    if not (explicit_mood_choice and selected_mood in {'chill', 'groove', 'energy', 'party'}):
+                        selected_mood = inherited.mood
                     dj_persona = DJPersona(inherited.persona)
             now = _timestamp()
             session_id = f"session-{uuid4().hex}"

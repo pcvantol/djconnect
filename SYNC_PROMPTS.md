@@ -11,8 +11,9 @@ refresh_request.automatic remains false. Additive continuation retains the actua
 ordinary speaker result set and action outcome; Apple renders those original
 opaque choices and does not reconstruct a play request. Exact source, CI,
 protected merge, install and native/provider acceptance remain separate.
-The welcome-screen selection/response adoption report belongs to the Apple lane;
-this increment does not invent a corrective Mood write after Session start.
+The welcome-screen UI/adoption stays with Apple. Core honors the existing explicit
+start mood as Session-only while absent mood inherits defaults; no preview/Profile
+write and no corrective Mood write after Session start.
 
 ## 2026-11-05 — Voor jou source merged
 

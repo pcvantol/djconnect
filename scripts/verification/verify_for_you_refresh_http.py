@@ -39,12 +39,16 @@ async def qualify(hass, manager, history, request, client):
                 await manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
             state.update(active=True, playing=False, track=None, effects=[], reads=[], tracks={})
             # Current Settings3 defaults are the canonical Session-start source.
-            await change({**DJSettings().as_dict(), 'mood':'chill'})
+            await change({**DJSettings().as_dict(), 'mood':'energy'})
             started, status = await request('POST', '/api/djconnect/v1/session/start', {'mood':'chill','language':locale})
             assert status == 201, started
             assert started['session']['selected_mood'] == 'chill'
             assert started['for_you']['intro'] == steering.FOR_YOU_INTRO[locale], started['for_you']
             assert started['for_you']['language'] == locale
+            defaults_after, status = await request('GET', path, {'contract_version':3})
+            assert status == 200 and defaults_after['snapshot']['defaults']['mood']=='energy'
+            assert defaults_after['snapshot']['session']['settings']['mood']=='chill'
+            cases[locale+'_explicit_welcome_mood_session_only_not_stored_default'] = 'PASS'
             payload, result = await change({'mood':'party'})
             async with asyncio.timeout(5):
                 while True:

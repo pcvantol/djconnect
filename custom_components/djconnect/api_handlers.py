@@ -313,6 +313,7 @@ async def async_handle_session_start_payload(
             owner_profile_id=context.profile_id,
             room=str(data.get("room") or context.room_id or "").strip(),
             selected_mood=str(data.get("mood") or "").strip(),
+            explicit_mood_choice=str(data.get("mood") or "").strip() in {"chill", "groove", "energy", "party"},
             music_backend=context.backend_id,
             dj_persona=_dj_persona(data.get("dj_persona")),
             locale=_session_locale(hass, runtime, data),
