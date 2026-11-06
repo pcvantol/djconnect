@@ -12,6 +12,11 @@ HTTP_CASES = {
         'expired_choice_cannot_start_or_transfer_output',
         'old_session_refresh_cannot_rebind_or_replace_new_offer',
     ),
+    'verify_for_you_output_readback_http': (
+        '{locale}_confirmed_original_output_beats_lagging_inventory_same_mix_once',
+        '{locale}_old_paused_track_is_not_mix_confirmation',
+        '{locale}_unconfirmed_output_no_mix_no_transfer_retry',
+    ),
     'verify_music_announcement_http': (
         'twenty_music_only_starts_one_original_text_and_independent_review_each',
         'same_track_occurrence_never_generates_or_publishes_twice',
