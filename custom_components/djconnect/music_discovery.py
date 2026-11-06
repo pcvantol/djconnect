@@ -8,6 +8,8 @@ import logging
 import re
 from typing import Any
 
+from aiohttp import ClientError
+
 from .discovery_artwork import capture_refresh_guard, compact_artwork, artwork_url, artwork_owner, privacy_scope, project_discovery_images
 
 from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID
@@ -18,7 +20,7 @@ from .request_auth import (
     runtime_client_type,
     validate_required_client_type,
 )
-from .use_cases import run_music_command
+from .use_cases import run_music_command, MusicBackendCapabilityError
 
 DISCOVERY_TTL_SECONDS = 30 * 60
 DISCOVERY_REFRESH_MIN_SECONDS = 5 * 60
@@ -304,8 +306,12 @@ async def async_handle_music_discovery_play_payload(
             except SpotifyBackendError:
                 return failure("music_discovery_provider_request_failed" if current()
                                else "music_discovery_context_changed", scope)
-            except (TimeoutError, OSError):
-                return failure("music_discovery_provider_request_failed", scope)
+            except (MusicBackendCapabilityError, ValueError, TypeError):
+                return failure("music_discovery_backend_unsupported" if current()
+                               else "music_discovery_context_changed", scope)
+            except (TimeoutError, OSError, ClientError):
+                return failure("music_discovery_provider_request_failed" if current()
+                               else "music_discovery_context_changed", scope)
 
 
 async def async_handle_music_discovery_feedback_payload(

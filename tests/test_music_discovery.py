@@ -9,6 +9,13 @@ from tests.test_http_voice_helpers import install_http_stubs
 
 install_http_stubs()
 
+# The lightweight HA fixture supplies aiohttp transport types, without a network.
+import aiohttp  # noqa: E402
+if not hasattr(aiohttp, "ClientError"):
+    class FixtureClientError(Exception):
+        pass
+    aiohttp.ClientError = FixtureClientError
+
 from custom_components.djconnect import music_discovery  # noqa: E402
 from custom_components.djconnect.const import CONF_CLIENT_TYPE, CONF_DEVICE_ID  # noqa: E402
 
@@ -521,6 +528,32 @@ class MusicDiscoveryTests(unittest.TestCase):
         self.assertFalse(result["music_dna_feedback_recorded"])
         self.assertEqual(self.runtime.memory.discovery_plays, [])
         self.assertEqual(result["error_scope"], "command")
+
+    @patch.object(music_discovery, "capture_refresh_guard", _explicit_discovery_guard)
+    def test_unsupported_backend_and_disconnected_transport_are_scoped_failures(self) -> None:
+        class Disconnected(aiohttp.ClientError):
+            pass
+        self._original_run_music_command = music_discovery.run_music_command
+        async def reads(hass, runtime, command_name, value=None, *, play=None):
+            return {"success": True, "tracks": []}
+        music_discovery.run_music_command = reads
+        feed, _ = asyncio.run(music_discovery.async_handle_music_discovery_feed_payload(
+            self.hass, _payload(), headers=self.headers, user_id="ha-user-1"))
+        section = feed["sections"][0]
+        payload = {**_payload(), "section_id": section["id"], "discovery_item_id": section["items"][0]["id"]}
+        for exc, code in [(ValueError("unsupported synthetic adapter"), "music_discovery_backend_unsupported"),
+                          (Disconnected(), "music_discovery_provider_request_failed")]:
+            async def failed(hass, runtime, command_name, value=None, *, play=None):
+                raise exc
+            music_discovery.run_music_command = failed
+            result, status = asyncio.run(music_discovery.async_handle_music_discovery_play_payload(
+                self.hass, payload, headers=self.headers, user_id="ha-user-1"))
+            self.assertEqual(status, 200)
+            self.assertEqual(result["error"], code)
+            self.assertFalse(result["played"])
+            self.assertFalse(result["retry_automatically"])
+            self.assertNotIn("message", result)
+            self.assertEqual(self.runtime.memory.discovery_plays, [])
 
     def test_negative_feedback_records_signal_and_removes_cached_item(self) -> None:
         self._original_run_music_command = music_discovery.run_music_command

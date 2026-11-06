@@ -19,10 +19,11 @@ class DiscoveryContextQualificationTests(unittest.TestCase):
         self.assertTrue(r["source_unchanged"])
         self.assertTrue(r["actual_home_assistant"])
         self.assertTrue(r["ordinary_pairing"])
+        self.assertTrue(r["aiohttp_default_retry_client"])
         self.assertEqual(len(p["source_pins"]), 308)
         for name, expected in {**p["source_pins"], **p["harness_pins"]}.items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
-        self.assertEqual(len(r["cases"]), 13)
+        self.assertEqual(len(r["cases"]), 14)
         self.assertEqual(set(r["cases"].values()), {"PASS"})
         self.assertEqual(
             (r["real_provider_calls"], r["real_model_calls"], r["installed_mutations"]), (0, 0, 0)
@@ -32,5 +33,8 @@ class DiscoveryContextQualificationTests(unittest.TestCase):
         self.assertTrue(wires["artist_success"]["played"])
         self.assertFalse(wires["artist_success"]["action_outcome"]["retry_automatically"])
         self.assertFalse(wires["artist_success"]["action_outcome"]["queue_replacement_verified"])
+        self.assertEqual(wires["connection_lost_after_write"]["action_outcome"]["state"], "unknown")
+        self.assertFalse(wires["connection_lost_after_write"]["retry_automatically"])
+        self.assertEqual(wires["output_required"]["error"], "music_discovery_output_required")
         self.assertFalse(wires["direct_candidate_read"]["dispatch_authority"])
         self.assertEqual(wires["direct_candidate_denied"]["provider_http_status"], 403)

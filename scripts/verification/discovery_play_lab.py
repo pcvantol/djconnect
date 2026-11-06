@@ -17,6 +17,7 @@ STATE = {
     "no_output": False,
     "context": "spotify:playlist:" + "O" * 22,
     "writes": 0,
+    "disconnect_write": False,
     "block_search": False,
     "block_token": False,
 }
@@ -88,6 +89,8 @@ async def provider_reply(req):
         if STATE["denied"]:
             return web.json_response({"error": {"message": "Synthetic play denial"}}, status=403)
         STATE["context"] = body.get("context_uri", "")
+        if STATE["disconnect_write"]:
+            req.transport.close()
         return web.Response(status=204)
     return None
 
@@ -140,6 +143,7 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
         and duplicate["error"] == "music_discovery_already_attempted"
         and STATE["writes"] == 1
     )
+    wires["duplicate_original_card"] = duplicate
     cases["duplicate_original_card_no_second_write"] = "PASS"
     payload = await card("track")
     before_writes = STATE["writes"]
@@ -191,6 +195,7 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
     assert not result["played"] and not result["music_dna_feedback_recorded"], result
     assert feedback_count() == before_feedback and STATE["writes"] == before_writes + 1
     before_writes = STATE["writes"]
+    wires["rejected_transport"] = result
     cases["rejected_transport_never_claims_played_or_positive_feedback"] = "PASS"
     STATE["denied"] = False
     STATE["no_output"] = True
@@ -199,6 +204,7 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
     result = await post("/music_discovery/play", payload)
     assert not result["played"] and result["error"] == "music_discovery_output_required", result
     assert STATE["writes"] == before_writes
+    wires["output_required"] = result
     cases["missing_output_no_transfer_or_automatic_retry"] = "PASS"
     STATE["no_output"] = False
     for expired in [True, False]:
@@ -215,6 +221,17 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
     )
     assert sum(bool(x["played"]) for x in replies) == 1 and STATE["writes"] == before_writes + 1
     cases["concurrent_same_card_single_write"] = "PASS"
+    payload = await card("track")
+    STATE["disconnect_write"] = True
+    before_writes, before_feedback = STATE["writes"], feedback_count()
+    result = await post("/music_discovery/play", payload)
+    STATE["disconnect_write"] = False
+    assert not result["played"] and result["action_outcome"]["state"] == "unknown", result
+    assert result["error"] == "music_discovery_write_outcome_unknown", result
+    assert not result["retry_automatically"] and STATE["writes"] == before_writes + 1
+    assert feedback_count() == before_feedback
+    wires["connection_lost_after_write"] = result
+    cases["actual_aiohttp_disconnect_no_implicit_second_put"] = "PASS"
     for wait in ["search", "token"]:
         payload = await card()
         STATE["block_" + wait] = True
@@ -250,6 +267,7 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
         "real_model_calls": 0,
         "installed_mutations": 0,
         "dispatches_are_synthetic": True,
+        "aiohttp_default_retry_client": True,
         "native_acceptance": "NOT_RUN",
         "provider_calls": network.calls,
         "source_unchanged": True,
@@ -258,9 +276,7 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
         str(p.relative_to(Path(__file__).resolve().parents[2])): hashlib.sha256(
             p.read_bytes()
         ).hexdigest()
-        for p in (
-            Path(__file__).resolve().parents[2] / "custom_components/djconnect"
-        ).rglob("*")
+        for p in (Path(__file__).resolve().parents[2] / "custom_components/djconnect").rglob("*")
         if p.is_file() and "__pycache__" not in p.parts
     }
     assert current == source_hashes

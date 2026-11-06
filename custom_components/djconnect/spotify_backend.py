@@ -587,12 +587,27 @@ class SpotifyBackend:
         scope = _discovery_dispatch.get()
         if scope is not None and method.upper() == "GET":
             scope.require_current()
+        request_options = {}
+        if scope is not None and method.upper() != "GET":
+            transport_attempts = 0
+            async def one_transport_attempt(request, handler):
+                nonlocal transport_attempts
+                scope.require_current()
+                if transport_attempts:
+                    raise SpotifyDiscoveryError("music_discovery_write_outcome_unknown", dispatch_state="unknown")
+                transport_attempts += 1
+                return await handler(request)
+            # aiohttp can internally retry PUT after a disconnected pooled socket.
+            # Public per-request middleware runs on every attempt and blocks that
+            # second transport without touching the shared session's retry flags.
+            request_options = {"middlewares": (one_transport_attempt,), "allow_redirects": False}
         async with self.session.request(
             method,
             SPOTIFY_API_BASE + path,
             json=json,
             headers={"Authorization": f"Bearer {token}"},
             timeout=ClientTimeout(total=12),
+            **request_options,
         ) as resp:
             if resp.status == 401 and retry_on_unauthorized and not (scope is not None and scope.attempted):
                 await _consume_spotify_response(resp)

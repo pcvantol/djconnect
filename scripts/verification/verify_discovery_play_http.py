@@ -11,7 +11,7 @@ import sys
 import time
 from dataclasses import replace
 from urllib.parse import urlsplit
-from aiohttp import web
+from aiohttp import ClientSession, web
 from aiohttp.test_utils import TestClient, TestServer
 from homeassistant import auth
 from homeassistant.components.http import HomeAssistantHTTP
@@ -34,13 +34,16 @@ from discovery_play_lab import provider_reply, run, ARTIST, TRACK
 class Network:
     def __init__(self, client):
         self.client = client
+        # TestClient disables pooled retries; qualify the default production client.
+        self.wire_session = ClientSession()
         self.calls = []
 
     def request(self, method, url, **kwargs):
         u = urlsplit(url)
         assert u.scheme == "https" and u.hostname in {"api.spotify.com", "accounts.spotify.com"}
         self.calls.append({"method": method, "path": u.path, "provider_fixture": True})
-        return self.client.request(method, u.path + ("?" + u.query if u.query else ""), **kwargs)
+        target = self.client.make_url(u.path + ("?" + u.query if u.query else ""))
+        return self.wire_session.request(method, target, **kwargs)
 
     def get(self, url, **kwargs):
         return self.request("GET", url, **kwargs)
@@ -229,6 +232,7 @@ async def main():
             source_hashes=source_hashes,
         )
         cache.pop(key)
+        await network.wire_session.close()
     await hass.async_stop()
 
 

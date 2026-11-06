@@ -63,9 +63,9 @@ physical Apple UI acceptance, #1439 signing/restore or APNs delivery.
 ## Current source-bound qualification
 
 All32 maintained actual isolated HA protocol suites pass on the same308 product
-files. The final standalone Discovery proof covers13 cases; the earlier integrated
+files. The final standalone Discovery proof covers14 cases; the earlier integrated
 12/13-case proofs and both race-error failures remain as original evidence.
-37 focused resolver/transport/rendering tests pass. 408 broader regression/current-receipt/roadmap/lifecycle checks pass in the
+38 focused resolver/transport/rendering tests pass. 409 broader regression/current-receipt/roadmap/lifecycle checks pass in the
 pinned HA2026.10.0 environment. Ruff and diff checks pass.
 The standalone verifier preserves the historical artwork verifier byte-for-byte;
 its original assertions and immutable receipt are not weakened or rewritten.
@@ -73,9 +73,40 @@ All current receipt rebinding comes from real reruns. Golden catalogue998 cases,
 EN/NL native selection, all five UI languages and execute:false are unchanged.
 
 Relationship to Golden: existing Discover playback/feedback/profile-separation
-scenarios remain the product obligations. The13-case disposable producer proof
+scenarios remain the product obligations. The14-case disposable producer proof
 adds exact server-card/provider/effect fencing beneath those scenarios; it is
 not a paid language/model run or native execution/admission receipt. No model
 calls, operator budget or release qualification is silently authorized by this
 fixture. Apple must independently consume current typed wires and verify native
 queue refresh and audible output after the separately admitted source/install.
+
+
+Final review also fences unsupported adapters and aiohttp disconnections into
+scoped, no-replay failures. The rendering fixture explicitly supplies the missing
+aiohttp exception base in its lightweight stub; the production dependency remains
+unchanged. Both subcases retain played:false, no raw message and no DNA feedback.
+The full actual HA qualification is rerun on this final product change, not carried
+forward from the earlier source head.
+
+
+## Actual HTTP-client replay boundary
+
+Inspection of the pinned aiohttp3.14.4 implementation established an internal
+idempotent-method retry loop, which includes PUT. Official public client middleware
+runs on each retry, so the effect now has its own one-attempt middleware and no
+redirects, without modifying the shared session. The real isolated HTTP provider
+accepts the first write then closes the socket before its reply; the resulting
+unknown outcome emits no positive signal, and exactly one PUT reaches the server.
+This14th case is an actual aiohttp transport proof, not a mocked method counter.
+The new bound wire includes unknown, output-required, duplicate and denied cases
+for independent five-language Apple rendering. Unsupported older middleware
+runtimes fail closed rather than silently losing the no-replay guarantee.
+Primary implementation contract: https://docs.aiohttp.org/en/stable/client_advanced.html#middleware-chaining.
+
+
+The initial connection-close fixture used aiohttp TestClient, which disables the
+internal retry being investigated. That earlier observation was not promoted as
+proof of the retry fence. The final standalone fixture uses an ordinary unmodified
+ClientSession with production-default retry behavior; the exact typed second-
+attempt denial and one received PUT are both asserted. The current bound proof
+records aiohttp_default_retry_client:true and retains the original fixture runs.

@@ -1,15 +1,17 @@
 {
   "harness_pins": {
-    "scripts/verification/discovery_play_lab.py": "bf3b7f9d0722ffbf06278476616c9083af35b8d54bf847f7b427c92d38b52d68",
-    "scripts/verification/verify_discovery_play_http.py": "9ae748f30ade343b88e81a502922904e22e20825c1baec07f16026077189fba1",
+    "scripts/verification/discovery_play_lab.py": "db08a5bbea2c4f8912a4f247800c5d1a30810ecd7582d4354c57ea19bde48c34",
+    "scripts/verification/verify_discovery_play_http.py": "87f2c09d40b0bf7e207ae16b7a8fd710874ae3c90ea6b9bd6e04933c724b580f",
     "scripts/verification/verify_session_conversation_history_http.py": "f05595c35ab21a2a87c5210ad4ec2d19cec341a7192827bdc7873a064727b068"
   },
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "889db8ba452f95a797a363837f3b96bc12dfd86a2807e3cf9e1f6b680daf5dee",
+  "raw_receipt_sha256": "634664e2f5c7e22d3c57cb881fbf425848864144b76f0925647f50af77562a52",
   "receipt": {
     "actual_home_assistant": true,
+    "aiohttp_default_retry_client": true,
     "cases": {
       "actual_403_distinguished_from_search_miss": "PASS",
+      "actual_aiohttp_disconnect_no_implicit_second_put": "PASS",
       "artist_real_cached_card_official_playlist_one_context_write": "PASS",
       "concurrent_same_card_single_write": "PASS",
       "denied_artist_resolution_no_play_or_positive_feedback": "PASS",
@@ -366,6 +368,31 @@
       },
       {
         "method": "GET",
+        "path": "/v1/me/player",
+        "provider_fixture": true
+      },
+      {
+        "method": "PUT",
+        "path": "/v1/me/player/play",
+        "provider_fixture": true
+      },
+      {
+        "method": "GET",
+        "path": "/v1/search",
+        "provider_fixture": true
+      },
+      {
+        "method": "GET",
+        "path": "/v1/recommendations",
+        "provider_fixture": true
+      },
+      {
+        "method": "GET",
+        "path": "/v1/search",
+        "provider_fixture": true
+      },
+      {
+        "method": "GET",
         "path": "/v1/artists/CCCCCCCCCCCCCCCCCCCCCC",
         "provider_fixture": true
       },
@@ -564,7 +591,7 @@
       "custom_components/djconnect/moment_navigation.py": "7c4d94c6d4ebe947abf083818a2264c28e9d2ae3b577b45c2009e72712412af6",
       "custom_components/djconnect/mood.py": "84aefec705178fe6b32f601771d6280e5eb788f161c8cff1fd106a061d792e8c",
       "custom_components/djconnect/mood_music_steering.py": "f5b6511f200c71d1611cd70ac498200cf2854b807b88b75eb012ca37ed254a4f",
-      "custom_components/djconnect/music_discovery.py": "a96b1a7a49c7aac842b42e21860d0d44ea56eea0c40d2ab4b55cb9dcfab091e8",
+      "custom_components/djconnect/music_discovery.py": "0dc9f91cfafa73d04fc523f38c12191c2a5ea7f60ba78ff672ab321473e4b054",
       "custom_components/djconnect/music_dna.py": "4233406464d0f7a3d9e1e4479fea4641446675807faf705e337f0f3bf6a1114c",
       "custom_components/djconnect/music_intent.py": "1c23fbc72358fefa64c409d5334bddb97230216fac1943233a10fec0c333e7f1",
       "custom_components/djconnect/musicbrainz_rate.py": "6e40f3c605fbd73dc246630cd4a1b60d7fb89b03344663d6102007d63846453a",
@@ -638,7 +665,7 @@
       "custom_components/djconnect/speech_feedback.py": "d5ced0209a34324cc98adab1bfee5663cfce9e45c720b673ef06ef41b95df671",
       "custom_components/djconnect/speech_processor.py": "0c347f8049b1586a15d0386d08ab4719cbdfd19c33ec4aa1f81d61369da1790c",
       "custom_components/djconnect/spotify.py": "9b3678ed3cba8d29bdfc11f7f06cf42b7ba7cc7aa46e8d0032305c46cba4129d",
-      "custom_components/djconnect/spotify_backend.py": "b11a3fa22f98d77ed90e8d7cd208941f2666b057f1ed5dab1c9f083b56fb0b98",
+      "custom_components/djconnect/spotify_backend.py": "4e0a177d2314e51d91efa7b669d8afcb86c58c6e09b3577250c2f13f1287d24a",
       "custom_components/djconnect/spotify_connection_repair.py": "cca23002a74772ce96589dba2f2f5b47da29372fba6c7fb1fd74ecba2f8c6b66",
       "custom_components/djconnect/spotify_oauth.py": "38a28235e9bff336fb5ae3406ed591cd742a699c65673017ca5aaeb01f1db3ff",
       "custom_components/djconnect/strings.json": "74d9935b4c2a554500090d8e1424aacfa0abbe96c8742578b2ce7130c8f921ff",
@@ -740,6 +767,18 @@
         "played": true,
         "success": true
       },
+      "connection_lost_after_write": {
+        "action_outcome": {
+          "retry_automatically": false,
+          "state": "unknown"
+        },
+        "error": "music_discovery_write_outcome_unknown",
+        "error_scope": "command",
+        "music_dna_feedback_recorded": false,
+        "played": false,
+        "retry_automatically": false,
+        "success": false
+      },
       "direct_candidate_denied": {
         "dispatch_authority": false,
         "error": "music_discovery_playlist_access_denied",
@@ -772,6 +811,42 @@
         "read_only": true,
         "source": "spotify_direct",
         "success": true
+      },
+      "duplicate_original_card": {
+        "action_outcome": {
+          "retry_automatically": false,
+          "state": "not_dispatched"
+        },
+        "error": "music_discovery_already_attempted",
+        "error_scope": "command",
+        "music_dna_feedback_recorded": false,
+        "played": false,
+        "retry_automatically": false,
+        "success": false
+      },
+      "output_required": {
+        "action_outcome": {
+          "retry_automatically": false,
+          "state": "not_dispatched"
+        },
+        "error": "music_discovery_output_required",
+        "error_scope": "command",
+        "music_dna_feedback_recorded": false,
+        "played": false,
+        "retry_automatically": false,
+        "success": false
+      },
+      "rejected_transport": {
+        "action_outcome": {
+          "retry_automatically": false,
+          "state": "unknown"
+        },
+        "error": "music_discovery_provider_request_failed",
+        "error_scope": "command",
+        "music_dna_feedback_recorded": false,
+        "played": false,
+        "retry_automatically": false,
+        "success": false
       }
     }
   },
@@ -943,7 +1018,7 @@
     "custom_components/djconnect/moment_navigation.py": "7c4d94c6d4ebe947abf083818a2264c28e9d2ae3b577b45c2009e72712412af6",
     "custom_components/djconnect/mood.py": "84aefec705178fe6b32f601771d6280e5eb788f161c8cff1fd106a061d792e8c",
     "custom_components/djconnect/mood_music_steering.py": "f5b6511f200c71d1611cd70ac498200cf2854b807b88b75eb012ca37ed254a4f",
-    "custom_components/djconnect/music_discovery.py": "a96b1a7a49c7aac842b42e21860d0d44ea56eea0c40d2ab4b55cb9dcfab091e8",
+    "custom_components/djconnect/music_discovery.py": "0dc9f91cfafa73d04fc523f38c12191c2a5ea7f60ba78ff672ab321473e4b054",
     "custom_components/djconnect/music_dna.py": "4233406464d0f7a3d9e1e4479fea4641446675807faf705e337f0f3bf6a1114c",
     "custom_components/djconnect/music_intent.py": "1c23fbc72358fefa64c409d5334bddb97230216fac1943233a10fec0c333e7f1",
     "custom_components/djconnect/musicbrainz_rate.py": "6e40f3c605fbd73dc246630cd4a1b60d7fb89b03344663d6102007d63846453a",
@@ -1017,7 +1092,7 @@
     "custom_components/djconnect/speech_feedback.py": "d5ced0209a34324cc98adab1bfee5663cfce9e45c720b673ef06ef41b95df671",
     "custom_components/djconnect/speech_processor.py": "0c347f8049b1586a15d0386d08ab4719cbdfd19c33ec4aa1f81d61369da1790c",
     "custom_components/djconnect/spotify.py": "9b3678ed3cba8d29bdfc11f7f06cf42b7ba7cc7aa46e8d0032305c46cba4129d",
-    "custom_components/djconnect/spotify_backend.py": "b11a3fa22f98d77ed90e8d7cd208941f2666b057f1ed5dab1c9f083b56fb0b98",
+    "custom_components/djconnect/spotify_backend.py": "4e0a177d2314e51d91efa7b669d8afcb86c58c6e09b3577250c2f13f1287d24a",
     "custom_components/djconnect/spotify_connection_repair.py": "cca23002a74772ce96589dba2f2f5b47da29372fba6c7fb1fd74ecba2f8c6b66",
     "custom_components/djconnect/spotify_oauth.py": "38a28235e9bff336fb5ae3406ed591cd742a699c65673017ca5aaeb01f1db3ff",
     "custom_components/djconnect/strings.json": "74d9935b4c2a554500090d8e1424aacfa0abbe96c8742578b2ce7130c8f921ff",

@@ -116,7 +116,9 @@ An acknowledged effect is not undone or silently repeated after a readback error
 | `music_discovery_output_required` | No qualified active unrestricted output; no automatic transfer or synthetic continuation. |
 | `music_discovery_context_changed` | Original pairing/Profile/source/consent/item/lease changed; refresh through the normal flow. |
 | `music_discovery_already_attempted` | Same original cached card has already reserved a write; no automatic replay. |
+| `music_discovery_write_outcome_unknown` | HTTP client attempted to repeat a write after connection loss; second transport blocked, no replay. |
 | `music_discovery_start_failed` | No qualified successful acknowledgement; no positive signal. |
+| `music_discovery_backend_unsupported` | Selected backend cannot perform this Spotify Discovery operation; no client/provider substitution. |
 | `music_discovery_provider_request_failed` | Other scoped provider failure; retain absence of success, no global outage inference. |
 | `music_discovery_artist_invalid` / `music_discovery_playlist_invalid` / `music_discovery_item_not_playable` | Invalid or inconsistent provider identity; no URI repair in the client. |
 | `music_discovery_effect_not_authorized` | Private original-task effect scope is absent or does not match the exact selected URI/output. |
@@ -133,3 +135,12 @@ owner fence, post-token-wait transport check, same-card serialization/deduplicat
 and guarded positive feedback into the already resolved original record. A child
 task or JSON payload cannot mint or retain this capability. A fresh explicit feed
 can offer a new choice; an uncertain old write is never automatically retried.
+
+
+The private write also uses the public aiohttp per-request middleware boundary to
+allow only one actual transport attempt. aiohttp may otherwise retry idempotent
+PUTs after a pooled connection disconnect; a method-level one-call counter is
+insufficient. This middleware rejects a second attempt without changing shared
+session flags and disables redirects for the effect. An unsupported middleware
+runtime fails closed as backend_unsupported; qualification pins the actual HA
+runtime. See https://docs.aiohttp.org/en/stable/client_advanced.html#middleware-chaining.
