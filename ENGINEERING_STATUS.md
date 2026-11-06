@@ -1,3 +1,74 @@
+## 2026-11-06 — Golden source1474 Finalization
+
+#### Repository Status
+
+Source PR [#1474](https://github.com/pcvantol/djconnect/pull/1474) merged as
+`1dbfb37a1c0b940aeda530999dbb5eb014023da7`, from exact Owner-authorized
+`1fca98ca61ce21fc03df64ae38641b8b64590157`.
+All Source technical checks passed; Owner Authorization run42206002884 passed.
+The new functional Golden job passed four actual isolated HA HTTP/Store runs
+and nine causal regressions. Its original Linux artifact was read back and
+matched the candidate source pins.337 related tests passed locally.
+
+#### Management Summary
+
+The existing Advisory Golden workflow now executes EN/NL For-you, music
+announcement, unavailable-speech, band/performance, composer-role and topic-change
+coverage. Original negative cases and CI portability failures remain preserved.
+All308 product files equal the predecessor main. Synthetic external transports
+prove functional behavior only; no live prose/provider/native/audible/APNs claim.
+
+#### Roadmap Position
+
+Generation2 Product Development, Phase1 Platform Qualification is unchanged.
+This is the separate documentary reconciliation of the merged verification source.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+The same existing settings plan was reread from
+`docs/roadmap/v1/djconnect-platform-v1.json` and its maintained `CATALOGUE.md`.
+These entries grant no new writer, dispatch or change of execution order.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+5. **SETTINGS::JOINT::ACCEPTANCE — Cross-device six-field effects, persistence and cleanup acceptance**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::MIGRATION In progress. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+#### Blocked Items
+
+Full real-answer quality and native/provider/audible/APNs acceptance remain open.
+Post-merge release run42206941134 failed its separate blocking paid contextual
+Golden gate; packaging was skipped. This is not a qualified release.
+The39 Core findings and29 quality steps remain unchanged.1439 is conflict-free
+but remains a separate unmerged draft with its existing live-authority gates.
+This Finalization needs its own protected merge; other active Core/Apple repair
+work is not declared delivered by this documentary change.
+
+#### Deferred Items
+
+DE/FR/ES failing-item remediation remains owner-deferred. All five UI/localization
+families and the Help EN/NL28-leaf boundary with42 unchanged pending leaves remain.
+No installation, release, model call, cleanup of unique WIP or timer restart.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for source1474 only after this separate
+Finalization passes its protected merge; until then `MERGED_UNRECONCILED`.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until canonical-main synchronization and conforming
+local cleanup. Active WIP and original evidence remain retained.
+See [immutable history](docs/history/2026-11-06-golden-source-1474-finalization.md)
+and [functional scope](docs/verification/GOLDEN_EN_NL_FEATURES_V1.md).
+
+<!-- golden-1474-finalization-end -->
+
 ## 2026-11-06 — Golden source1472 Finalization
 
 #### Repository Status
