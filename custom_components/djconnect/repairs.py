@@ -32,7 +32,7 @@ from .spotify_oauth import (
     build_authorize_url,
     build_redirect_uri,
     create_code_verifier,
-    missing_spotify_scopes,
+    spotify_scope_status,
 )
 
 FIXABLE_SPOTIFY_ISSUES = {
@@ -117,7 +117,12 @@ async def async_create_fixable_issues(hass: HomeAssistant, entry: ConfigEntry) -
     else:
         _delete_issue_best_effort(hass, "missing_spotify_refresh_token")
         _delete_issue_best_effort(hass, f"{entry.entry_id}_missing_spotify_refresh_token")
-    if missing_spotify_scopes(_entry_value(entry, CONF_SPOTIFY_SCOPES)):
+    scope_status = spotify_scope_status({**entry.data, **getattr(entry, 'options', {}),
+        'spotify_scope_evidence': entry.data.get('spotify_scope_evidence')})
+    missing_scopes = scope_status['missing_granted_scopes']
+    if missing_scopes is None:
+        missing_scopes = scope_status['missing_requested_scopes']
+    if missing_scopes:
         ir.async_create_issue(
             hass,
             DOMAIN,
