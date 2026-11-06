@@ -562,16 +562,16 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                     and active is not None and active.session_id == turn.session_id):
                 active.broadcast.first_play_offer = _for_you_offer_projection(active, thread, result)
                 active.broadcast.first_play_continuation = None
-        if (active is not None and active.session_id == turn.session_id and 'first_play' in result
-                and result['first_play'].get('state') != 'genres'):
-            active.broadcast.first_play_continuation = {
-                key: deepcopy(result[key]) for key in ('first_play', 'result_set', 'playback_actions',
-                    'action_outcome', 'selected_action_id') if key in result}
-            from ..current_track_insight import session_scope
-            active.broadcast.first_play_continuation['_session_scope'] = session_scope(active)
-            active.broadcast.first_play_continuation['mood_revision'] = active.mood_revision
-            active.broadcast.first_play_continuation['conversation_context'] = {
-                'session_id':active.session_id, 'thread_id':thread}
+        if active is not None and active.session_id == turn.session_id and 'first_play' in result:
+            if result['first_play'].get('state') != 'genres':
+                active.broadcast.first_play_continuation = {
+                    key: deepcopy(result[key]) for key in ('first_play', 'result_set', 'playback_actions',
+                        'action_outcome', 'selected_action_id') if key in result}
+                from ..current_track_insight import session_scope
+                active.broadcast.first_play_continuation['_session_scope'] = session_scope(active)
+                active.broadcast.first_play_continuation['mood_revision'] = active.mood_revision
+                active.broadcast.first_play_continuation['conversation_context'] = {
+                    'session_id':active.session_id, 'thread_id':thread}
             from ..mood_music_steering import for_you_projection
             result['for_you'] = for_you_projection(hass, runtime, profile_id, active,
                 client_device_id=turn.client_device_id)
