@@ -1,3 +1,39 @@
+## 2026-11-07 — Explicit private ephemeral paired response shape
+
+A paired Ask DJ response with `success:true`, `history_persisted:false` and
+`conversation.schema_version:1` / `history_scope:"private_ephemeral"` is a
+current-response presentation, not a canonical stored exchange. Core preserves
+its genuine accepted `owner_profile_id`, original `client_message_id` and
+`conversation` confirmation: real `turn_id`, `thread_id`, exact original context,
+`entry_ids:[]`, `input_type`, style and original source/turn metrics. No context,
+owner or accepted-turn identity is synthesized by a client.
+
+The accepted fresh text/media/catalogue projection stays at the root: `text`,
+`dj_text`, `items`, `playback_actions`, `result_set`, sources/links/images and
+any independently admitted current speech fields. A partial history-shaped
+`assistant_message` without a real history message identity is not emitted.
+Nonpersisted responses omit `user_message`, `assistant_message`, `messages` and
+Store `history_revision`/`clear_revision` fields. No new server message/history ID,
+Store write, Session SQL row, clear/default revision or archival grant is created.
+Canonical persisted exchanges retain their existing complete messages and revisions.
+
+Consumers use the existing explicit private-ephemeral root presentation in memory,
+with the original request epoch, owner, Session/context, client message and source/
+result lease fences. A local display UUID is not a server/history identity and
+must never become original authority, durable history, a playback grant or a
+reopened canonical entry. Session/owner/source withdrawal and expiry remove the
+presentation; a later history read neither renews it nor grants persistence.
+Only original server result-set/action IDs can request explicit later selection.
+Strict canonical history decoding remains unchanged.
+
+The actual Macmini40497 HAEVN request returned server200/success and nine real
+catalogue actions, but native strict decoding failed at `assistant_message.id`.
+An independent isolated HA fresh-Session/history2/speech3 reproduction confirms
+the same malformed partial object and genuine original context. Earlier generic
+route success was not native acceptance. This correction has been synchronized
+with the Apple lane before implementation; source, CI, merge, install/runtime
+and native rendering remain separate qualification gates.
+
 ## Qualified literal current metadata correction — 6 November 2026
 
 A current-track/artist identification in an explicitly identified active Session

@@ -230,3 +230,24 @@ class ArtistCollectionsTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(code, 409, answer)
         self.assertFalse(answer.get("items"))
         self.assertFalse(self.f.effects)
+
+    async def test_private_catalogue_root_projection_does_not_impersonate_stored_history(self):
+        answer, code = await self.f.request(
+            "Heb je iets van de artiest HAEVN?", language="nl", identifier="private-catalogue-wire"
+        )
+        self.assertEqual(code, 200, answer)
+        self.assertTrue(answer["success"])
+        self.assertFalse(answer["history_persisted"])
+        self.assertEqual(answer["conversation"]["history_scope"], "private_ephemeral")
+        self.assertEqual(answer["conversation"]["entry_ids"], [])
+        self.assertTrue(answer["conversation"]["turn_id"])
+        self.assertTrue(answer["owner_profile_id"])
+        self.assertEqual(answer["client_message_id"], "private-catalogue-wire")
+        for key in ("assistant_message", "user_message", "messages", "history_revision", "clear_revision"):
+            self.assertNotIn(key, answer, "Nonstored replies cannot impersonate canonical history rows")
+        self.assertTrue(answer["text"])
+        self.assertEqual(len(answer["items"]), 10)
+        self.assertEqual(len(answer["playback_actions"]), 10)
+        self.assertTrue(answer["result_set"]["result_set_id"])
+        self.assertTrue(all(row.get("action_id") for row in answer["playback_actions"]))
+        self.assertFalse(self.f.effects)

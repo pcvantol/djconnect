@@ -61,7 +61,7 @@
       "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",
       "custom_components/djconnect/ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
       "custom_components/djconnect/ask_dj/semantic_reads.py": "bfc7a1d19e78774d39a7be776352662c9ecc34e561260bc475066b9530e15341",
-      "custom_components/djconnect/ask_dj/service.py": "7ecf5d4a970c7779ffedbb7b1233a0bcf83204c1c3996824dbc33bd23bf81228",
+      "custom_components/djconnect/ask_dj/service.py": "53904ac81e1ff1f2c37ff0dd434f3d15b91244245cfabe77426e9889d0606386",
       "custom_components/djconnect/ask_dj/spotify_collection_offers.py": "676f7f7531ca0350cd788bcc398df74d8928f4cc1b6d43a6832013a0ab6fd7b8",
       "custom_components/djconnect/ask_dj_history.py": "9754714514f8f8741d3886b924fc38571865750775bb6a316b5e2917549222e5",
       "custom_components/djconnect/assist_stt.py": "609b5a7ec4c40eda3d87a84d9391256bd930c1dd1c80a5171b03df79c68aa6e5",
@@ -337,13 +337,13 @@
       "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
     }
   },
-  "canonical_view_raw_sha256": "f1a60b2adb1e02f24513375c7ed7cec16c31c855bac745b7e609741b1904e40f",
+  "canonical_view_raw_sha256": "896cfbc5710bf718a42657f7de71fb8872ba232bef3a0b695ab2884d2288e57e",
   "harness_pins": {
     "scripts/verification/verify_profile_spotify_discovery_http.py": "c2c0e05b8380d034c4e19c5686498ca7bf7363fe0a5a809511f6a86d3d23dca7",
     "scripts/verification/verify_profile_spotify_reconnect_http.py": "e352ec366654b36135e2118824fc47229a5b03ff172545e09b083bf88832397c"
   },
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "a6b64013a4888871865cf8248a6184019bd82f88665042725fad4f11fccb4460",
+  "raw_receipt_sha256": "a53c9695d132e209368e60043f94d75e01447b92874d6f5c1acbfc4fe7b1c03b",
   "receipt": {
     "actual_ha_store_readback": true,
     "cases": {
@@ -394,7 +394,7 @@
       "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",
       "custom_components/djconnect/ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
       "custom_components/djconnect/ask_dj/semantic_reads.py": "bfc7a1d19e78774d39a7be776352662c9ecc34e561260bc475066b9530e15341",
-      "custom_components/djconnect/ask_dj/service.py": "7ecf5d4a970c7779ffedbb7b1233a0bcf83204c1c3996824dbc33bd23bf81228",
+      "custom_components/djconnect/ask_dj/service.py": "53904ac81e1ff1f2c37ff0dd434f3d15b91244245cfabe77426e9889d0606386",
       "custom_components/djconnect/ask_dj/spotify_collection_offers.py": "676f7f7531ca0350cd788bcc398df74d8928f4cc1b6d43a6832013a0ab6fd7b8",
       "custom_components/djconnect/ask_dj_history.py": "9754714514f8f8741d3886b924fc38571865750775bb6a316b5e2917549222e5",
       "custom_components/djconnect/assist_stt.py": "609b5a7ec4c40eda3d87a84d9391256bd930c1dd1c80a5171b03df79c68aa6e5",
@@ -688,7 +688,7 @@
     "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",
     "custom_components/djconnect/ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
     "custom_components/djconnect/ask_dj/semantic_reads.py": "bfc7a1d19e78774d39a7be776352662c9ecc34e561260bc475066b9530e15341",
-    "custom_components/djconnect/ask_dj/service.py": "7ecf5d4a970c7779ffedbb7b1233a0bcf83204c1c3996824dbc33bd23bf81228",
+    "custom_components/djconnect/ask_dj/service.py": "53904ac81e1ff1f2c37ff0dd434f3d15b91244245cfabe77426e9889d0606386",
     "custom_components/djconnect/ask_dj/spotify_collection_offers.py": "676f7f7531ca0350cd788bcc398df74d8928f4cc1b6d43a6832013a0ab6fd7b8",
     "custom_components/djconnect/ask_dj_history.py": "9754714514f8f8741d3886b924fc38571865750775bb6a316b5e2917549222e5",
     "custom_components/djconnect/assist_stt.py": "609b5a7ec4c40eda3d87a84d9391256bd930c1dd1c80a5171b03df79c68aa6e5",

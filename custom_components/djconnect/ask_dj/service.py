@@ -659,6 +659,12 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             if isinstance(response.get("messages"), list):
                 response["messages"] = [live_assistant if message.get("id") == live_assistant.get("id") else message
                                         for message in response["messages"]]
+        if not persist_history:
+            # The accepted current projection already lives at the root. Domain
+            # presenters can supply a partial assistant object without a history
+            # identity; never expose it as a canonical row or invent an ID.
+            for key in ("user_message", "assistant_message", "messages", "history_revision", "clear_revision"):
+                response.pop(key, None)
         # RAM-only admission travels with this bounded in-flight future. Each
         # waiter rechecks the original evidence with its own caller authority.
         from ..reply_artwork import public as public_reply_media
