@@ -64,3 +64,25 @@ jobs:
       - name: Remove temporary qualification report
         if: ${{ always() }}
         run: rm -f "${{ steps.qualification.outputs.report_path }}"
+
+  golden-en-nl-functional:
+    name: Advisory Golden EN/NL feature regressions
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: "3.11"
+      - name: Run isolated EN/NL feature and recent-regression scenarios
+        run: |
+          python tools/verification/run_golden_en_nl_features.py \
+            --output "${RUNNER_TEMP}/golden-en-nl-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+      - name: Preserve original functional evidence, including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: golden-en-nl-functional-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/golden-en-nl-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: error

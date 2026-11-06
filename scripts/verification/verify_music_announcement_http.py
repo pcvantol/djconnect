@@ -18,6 +18,11 @@ sys.path[:0] = [str(ROOT), str(ROOT/'scripts/verification')]
 
 
 async def qualify(hass, manager, history, request, client):
+    locale = os.environ.get('DJC_GOLDEN_LOCALE', 'nl')
+    if locale not in {'en', 'nl'}:
+        raise ValueError('unsupported_golden_locale')
+    expression = {'nl': '{artist} — {track}. Geef dit moment even alle ruimte.',
+                  'en': '{artist} — {track}. Give this moment a little room.'}[locale]
     from custom_components.djconnect import DJConnectRuntime, pipeline, track_start_announcement as intro
     from custom_components.djconnect.profile_context import profile_storage
     from custom_components.djconnect.domain.music_account import MusicAccountKind
@@ -58,7 +63,7 @@ async def qualify(hass, manager, history, request, client):
             slow_clock[0] += 6
         calls.append('review' if review else 'realize')
         answer = json.dumps({'supported':True, 'language_ok':True, 'style_ok':True}) if review else json.dumps(
-            {'text':'{artist} — {track}. Geef dit moment even alle ruimte.'})
+            {'text':expression})
         return {'response':{'speech':{'plain':{'speech':answer}}}}
     # Connect through the actual paired Session start, not a fabricated
     # registration or direct archive-guard override. No observer/provider effects.
@@ -68,7 +73,7 @@ async def qualify(hass, manager, history, request, client):
     with (patch.object(pipeline, '_call_conversation_process_transport', wire),
           patch.object(PlaybackObservationManager, 'async_start_spotify', no_background),
           patch.object(api_handlers, '_async_generate_initial_session_moment', no_background)):
-        body, status = await request('POST', '/api/djconnect/v1/session/start', {'mood':'energy', 'language':'nl'})
+        body, status = await request('POST', '/api/djconnect/v1/session/start', {'mood':'energy', 'language':locale})
         assert status == 201, status
         active = manager.current_active('profile-a')
         active = await manager.async_update_presence(owner_profile_id='profile-a',
@@ -86,6 +91,11 @@ async def qualify(hass, manager, history, request, client):
             moment = await intro.publish(manager, owner_profile_id='profile-a', session_id=active.session_id,
                 occurrence=occurrence, authorize=valid)
             assert moment is not None and intro.retained(moment), index
+            before_calls = len(calls)
+            assert await intro.publish(manager, owner_profile_id='profile-a', session_id=active.session_id,
+                occurrence=occurrence, authorize=valid) is None
+            assert len(calls) == before_calls, 'Same occurrence must never generate or publish twice'
+            assert observed.title in moment.content and observed.artist in moment.content
             assert moment.as_dict()['type'] == 'music_announcement'
             assert moment.as_dict()['music_announcement']['realization'] == 'generated'
             body, status = await request('GET', '/api/djconnect/v1/session/active')
@@ -96,6 +106,7 @@ async def qualify(hass, manager, history, request, client):
         assert active.presence_ledger.total_published == 0
         cases['twenty_music_only_starts_one_original_text_and_independent_review_each'] = 'PASS'
         cases['placeholder_only_generation_no_music_or_audio_effect'] = 'PASS'
+        cases['same_track_occurrence_never_generates_or_publishes_twice'] = 'PASS'
         cases['separate_baseline_and_auxiliary_story_budgets'] = 'PASS'
         await manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
         body, status = await request('GET', '/api/djconnect/v1/session/history/'+active.session_id,
@@ -137,7 +148,7 @@ async def qualify(hass, manager, history, request, client):
         # Only the producer/brief clocks move; the actual SDK/HTTP/SQLite owners
         # and original twelve-second automatic deadline remain in place.
         from custom_components.djconnect import session_runtime, narration_brief
-        started, status = await request('POST', '/api/djconnect/v1/session/start', {'language':'nl'})
+        started, status = await request('POST', '/api/djconnect/v1/session/start', {'language':locale})
         assert status == 201, started
         active = manager.current_active('profile-a')
         origin_mono, origin_utc = time.monotonic(), datetime.now(UTC)
@@ -181,7 +192,7 @@ async def qualify(hass, manager, history, request, client):
         cases['repeated_projection_never_renews_original_clock_boundary'] = 'PASS'
         cases['original_start_expiry_preserves_only_authorized_manual_replay'] = 'PASS'
     return {'qualification':'ACTUAL_ISOLATED_HA_PAIRED_HTTP_SQLITE_MUSIC_ANNOUNCEMENT',
-        'cases':cases, 'examples':examples, 'synthetic_model_response_calls':len(calls),
+        'language':locale, 'cases':cases, 'examples':examples, 'synthetic_model_response_calls':len(calls),
         'real_model_provider_calls':0, 'real_spotify_calls':0, 'music_or_audio_effects':0,
         'native_installed_audible_acceptance':'NOT_RUN',
         'harness_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
