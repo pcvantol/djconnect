@@ -60,11 +60,11 @@ def check_response(case, response, selection):
         failures.append("unexpected_action")
     fact_terms = {
         "Peter Luts": r"\b(?:dj|producer|producent|produzent|producteur|productor)\b",
-        "Miles Davis": r"\b(?:trumpet(?:er)?|trompettist|trompeter|trompettiste|trompetista|trompette|trompeta)\b",
+        "Miles Davis": r"\b(?:trumpet(?:er)?|trompettist|(?:jazz[- ]?)?trompeter|trompettiste|trompetista|trompette|trompeta)\b",
     }
     if not re.search(fact_terms[case["expected_person"]], text):
         failures.append("expected_public_fact_missing")
-    if re.search(r"\b(?:not|geen|kein|keine|pas|no)\s+(?:(?:a|een|un|une|ein)\s+)?(?:musician|muzikant|musiker|musicien|músico|producer|dj|trumpeter)\b", text):
+    if re.search(r"\b(?:not|geen|kein|keine|pas|no)\s+(?:(?:a|een|un|une|ein)\s+)?(?:musician|muzikant|musiker|musicien|músico|producer|dj|trumpeter|(?:jazz[- ]?)?trompeter)\b", text):
         failures.append("contradictory_biography")
     if case["require_biography_source"]:
         # Existing selected-credit attribution explicitly qualifies credits only.

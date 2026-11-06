@@ -384,6 +384,17 @@ class ContextualReleaseGateTest(unittest.TestCase):
                              'license': 'CC-BY-SA-4.0', 'wikidata_id': 'Q3376733', 'content_hash': 'a' * 64,
                              'fetched_at': now.isoformat(), 'expires_at': (now + timedelta(hours=1)).isoformat()}]}
 
+    def test_german_jazz_trumpeter_compound_preserves_actual_public_fact(self):
+        row = next(row for row in GOLDEN.cases() if row['id'] == 'ASKDJ-GOLDEN-001-de-new-topic')
+        response = self.response()
+        response['conversation']['context'] = {}
+        response['text'] = 'Miles Davis war ein US-amerikanischer Jazztrompeter, Komponist und Bandleader.'
+        self.assertEqual(GOLDEN.check_response(row, response, {}), [])
+        response['text'] = 'Miles Davis war kein Jazztrompeter.'
+        self.assertIn('contradictory_biography', GOLDEN.check_response(row, response, {}))
+        response['text'] = 'Miles Davis war ein Komponist.'
+        self.assertIn('expected_public_fact_missing', GOLDEN.check_response(row, response, {}))
+
     def test_lost_selection_credit_only_fake_source_zero_agent_and_actions_rejected(self):
         row = GOLDEN.cases()[0]
         selection = {'session_id': 's', 'moment_id': 'm'}
