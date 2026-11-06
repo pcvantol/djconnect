@@ -1982,6 +1982,54 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.prompts, [])
         self.assertEqual(self.effects, [])
 
+    async def test_legacy_selected_credit_review_exposes_original_span_without_granting_positive_truth(self):
+        from custom_components.djconnect import public_artist_narration
+        from custom_components.djconnect.ask_dj import public_research
+        _, _, target = await self.selected_credit(name='Peter Luts')
+        first = 'Peter Luts is a Belgian music producer and composer.'
+        second = 'Peter Luts is a composer of the work behind this recording.'
+        answer = first + ' ' + second
+        seen = []
+        async def agent(hass, data, **kwargs):
+            header, raw = data['text'].split('\nData:\n', 1)
+            projection = json.loads(raw)
+            self.prompts.append(projection)
+            if 'evidence' not in projection:
+                output = answer
+            else:
+                # The existing conversation wire must receive both original
+                # evidence addresses; a boolean alone cannot qualify this claim.
+                self.assertIn('Required top-level keys:', header)
+                self.assertIn('claim_checks', header.split('Data:', 1)[0])
+                evidence = projection['evidence']
+                credits = evidence.get('qualified_context', {}).get('evidence_spans', [])
+                seen.append(credits)
+                if not credits:
+                    output = json.dumps({'supported': True, 'unsupported_claims': []})
+                else:
+                    self.assertEqual(len(credits), 1)
+                    self.assertTrue(credits[0]['id'].startswith('selected-credit:'))
+                    self.assertIn('Peter Luts', credits[0]['text'])
+                    wiki = public_research.evidence_spans(evidence['public_music_research']['sources'][0])[0]
+                    output = json.dumps({'supported': True, 'unsupported_claims': [], 'temporal_claims': [],
+                        'claim_checks': [{'text': first, 'kind': 'fact', 'evidence_ids': [wiki['id']], 'quote': wiki['text']},
+                            {'text': second, 'kind': 'relationship', 'evidence_ids': [credits[0]['id']], 'quote': credits[0]['text']}]})
+            return {'response': {'speech': {'plain': {'speech': output}}}}
+        with self.research_http(), patch.object(self.pipeline, '_call_conversation_process_transport', agent):
+            accepted, status = await self.request('Who is Peter?', language='en',
+                context={'selected_entry': target}, identifier='legacy-credit-proof')
+            self.assertEqual(status, 200, accepted)
+            self.assertEqual(accepted['knowledge_basis'], 'fetched_public_music_research_v1')
+            self.assertEqual(accepted['text'], answer)
+            with patch.object(public_artist_narration, 'complete_review_projection', side_effect=lambda value, **kwargs: value):
+                rejected, status = await self.request('Who is Peter?', language='en',
+                    context={'selected_entry': target}, identifier='legacy-credit-missing-proof')
+            self.assertEqual(status, 200, rejected)
+            self.assertEqual(rejected['knowledge_basis'], 'public_research_unqualified')
+        self.assertTrue(seen[0])
+        self.assertEqual(seen[1], [])
+        self.assertEqual(self.effects, [])
+
     async def test_public_research_rejects_unsupported_answer_without_false_sources(self):
         for index, answer in enumerate((
             'Peter Luts invented every synthesizer.',

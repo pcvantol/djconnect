@@ -1484,7 +1484,13 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         "and claim_checks (the complete ordered checks described below). Also include every additional "
         "quality/focus boolean explicitly requested. Never omit review_schema: a missing wire marker is invalid. "
         if quote_by_id else
-        "Return only JSON with supported (boolean) and unsupported_claims (an array of at most three short verbatim unsupported claims, empty when supported). "
+        "Return exactly one JSON object. Required top-level keys: supported (boolean), unsupported_claims "
+        "(an array of at most three short verbatim unsupported claims, empty when supported), claim_checks "
+        "(complete ordered literal evidence for every accepted factual segment) and temporal_claims "
+        "(all explicit years, or an empty array when there are none). Never return only a supported:true "
+        "verdict: positive source-schema2/3 proof requires the actual claim_checks, including selected "
+        "credit facts. Use the original supplied evidence_spans IDs and unchanged literal quotes. "
+        "When a supported_prefix qualifies, provide complete proof for that exact prefix as well. "
     )
     recovery = (
         "If supported is false only because of later unsupported text, you may additionally return supported_prefix, prefix_supported:true, prefix_answers_question:true. "
@@ -1752,7 +1758,7 @@ class SelectedCreditResearchContext(dict):
         self.credit = credit
 
 
-def selected_credit_context(context, turn):
+def selected_credit_context(context, turn, *, allow_opened_credit=False):
     """Address the exact original credit already admitted by the shared owner.
 
     No new lookup, refreshed expiry, generated body, or biography-derived credit.
@@ -1762,11 +1768,21 @@ def selected_credit_context(context, turn):
 
     entry = turn.selected_read_context
     source = turn.source_context
-    if (not turn.interpreted_context_research or not isinstance(entry, dict)
+    original_credit = entry.get('qualified_fact_text') if isinstance(entry, dict) else None
+    if (not original_credit and allow_opened_credit and isinstance(entry, dict)
+            and entry.get('archive_basis') == 'cc0_normalized_fields_v1'):
+        # Only the canonical already-normalized composer literal can take
+        # this legacy path; a generated body or copied CC0 label is insufficient.
+        from ..session_facts import composer_fact_bodies
+        names = [row.get('name') for row in source.get('subjects', [])
+                 if isinstance(row, dict) and row.get('role') == 'composer']
+        if names and all(isinstance(name, str) and name.strip() for name in names):
+            if entry.get('text') in composer_fact_bodies(', '.join(names)):
+                original_credit = entry['text']
+    if (not (turn.interpreted_context_research or allow_opened_credit) or not isinstance(entry, dict)
             or model_source(entry) != source or context.get('qualified_context') != source
             or source.get('basis') != 'cc0_normalized_fields_v1'
-            or not entry.get('qualified_fact_text')
-            or entry['qualified_fact_text'] != source.get('qualified_excerpt')):
+            or not original_credit or original_credit != source.get('qualified_excerpt')):
         return context
     subject = context['public_music_research'].get('resolved_public_subject')
     roles = {s.get('role') for s in source.get('subjects', [])

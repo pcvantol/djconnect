@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from datetime import datetime, UTC
 from contextvars import ContextVar
 from urllib.parse import urlsplit
 
@@ -70,18 +71,34 @@ def check_response(case, response, selection):
         # Neither general knowledge nor a test-side Wikipedia fetch is biography evidence.
         supported = {"en.wikipedia.org", "nl.wikipedia.org", "de.wikipedia.org",
                      "fr.wikipedia.org", "es.wikipedia.org", "www.wikidata.org",
-                     "wikidata.org", "musicbrainz.org"}
+                     "wikidata.org"}
         qualified = False
         for source in response.get("sources") or []:
             if not isinstance(source, dict):
                 continue
             url = urlsplit(str(source.get("url") or ""))
+            expected_qid = {"Peter Luts": "Q3376733", "Miles Davis": "Q93341"}[case["expected_person"]]
+            try:
+                fetched = datetime.fromisoformat(source.get('fetched_at', ''))
+                expires = datetime.fromisoformat(source.get('expires_at', ''))
+                current = fetched.tzinfo is not None and expires.tzinfo is not None and fetched <= datetime.now(UTC) < expires
+            except (TypeError, ValueError):
+                current = False
             qualified |= (url.scheme == "https" and url.hostname in supported
                           and url.username is None and url.password is None
-                          and source.get("claim_scope") == "person_biography"
-                          and source.get("subject") == {"kind": "person", "name": case["expected_person"]}
+                          and source.get("claim_scope") == "fetched_public_music_reference"
+                          and ((source.get('provider') == 'Wikipedia' and url.hostname.endswith('.wikipedia.org')
+                                and source.get('license') == 'CC-BY-SA-4.0')
+                               or (source.get('provider') == 'Wikidata' and url.hostname in {'wikidata.org', 'www.wikidata.org'}
+                                   and source.get('license') == 'CC0-1.0'))
+                          and source.get('wikidata_id') == expected_qid
+                          and isinstance(source.get('content_hash'), str)
+                          and re.fullmatch('[0-9a-f]{64}', source['content_hash']) is not None
+                          and current
+                          and response.get('knowledge_basis') == 'fetched_public_music_research_v1'
+                          and response.get('is_generated_text') is True
                           and url.path in {"/wiki/" + case["expected_person"].replace(" ", "_"),
-                                           "/wiki/" + {"Peter Luts": "Q3376733", "Miles Davis": "Q93341"}[case["expected_person"]]})
+                                           "/wiki/" + expected_qid})
         if not qualified:
             failures.append("qualified_biography_source_missing")
     return failures

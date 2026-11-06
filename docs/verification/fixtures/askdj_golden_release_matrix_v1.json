@@ -4964,6 +4964,10 @@
         {
           "file": "tests/test_ask_dj_contextual_dialogue.py",
           "method": "test_selected_playback_lookup_expiry_remains_fenced_after_subject_resolution"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_legacy_selected_credit_review_exposes_original_span_without_granting_positive_truth"
         }
       ],
       "fixture_boundary": "External model responses only for owner contracts; semantic_reads runs 45 held-out inputs through actual HA/qualified model and provider I/O fixtures."

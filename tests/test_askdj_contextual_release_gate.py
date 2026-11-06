@@ -373,11 +373,16 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual({r['language'] for r in rows}, {'en', 'nl', 'de', 'fr', 'es'})
 
     def response(self):
+        from datetime import datetime, UTC, timedelta
+        now = datetime.now(UTC)
         return {'success': True, 'text': 'Peter Luts is a Belgian producer.', 'action': 'none',
+                'knowledge_basis': 'fetched_public_music_research_v1', 'is_generated_text': True,
                 'conversation': {'context': {'selected_moment': {'session_id': 's', 'moment_id': 'm'}},
                                  'metrics': {'agent_calls': 1}},
-                'sources': [{'url': 'https://en.wikipedia.org/wiki/Peter_Luts', 'claim_scope': 'person_biography',
-                             'subject': {'kind': 'person', 'name': 'Peter Luts'}}]}
+                'sources': [{'url': 'https://en.wikipedia.org/wiki/Peter_Luts',
+                             'claim_scope': 'fetched_public_music_reference', 'provider': 'Wikipedia',
+                             'license': 'CC-BY-SA-4.0', 'wikidata_id': 'Q3376733', 'content_hash': 'a' * 64,
+                             'fetched_at': now.isoformat(), 'expires_at': (now + timedelta(hours=1)).isoformat()}]}
 
     def test_lost_selection_credit_only_fake_source_zero_agent_and_actions_rejected(self):
         row = GOLDEN.cases()[0]
@@ -391,7 +396,12 @@ class ContextualReleaseGateTest(unittest.TestCase):
             (lambda r: r.update(text='Which Peter do you mean?'), 'wrong_or_missing_person'),
             (lambda r: r.update(text='Peter Luts is not a musician.'), 'contradictory_biography'),
             (lambda r: r['sources'][0].update(url='https://en.wikipedia.org/wiki/Miles_Davis'), 'qualified_biography_source_missing'),
-            (lambda r: r['sources'][0].update(subject={'kind': 'person', 'name': 'Someone Else'}), 'qualified_biography_source_missing'),
+            (lambda r: r['sources'][0].update(wikidata_id='Q93341'), 'qualified_biography_source_missing'),
+            (lambda r: r['sources'][0].update(claim_scope='qualified_credit_only'), 'qualified_biography_source_missing'),
+            (lambda r: r['sources'][0].update(content_hash='unbound'), 'qualified_biography_source_missing'),
+            (lambda r: r['sources'][0].update(expires_at='2000-01-01T00:00:00+00:00'), 'qualified_biography_source_missing'),
+            (lambda r: r['sources'][0].update(fetched_at='2999-01-01T00:00:00+00:00'), 'qualified_biography_source_missing'),
+            (lambda r: r.update(is_generated_text=False), 'qualified_biography_source_missing'),
             (lambda r: r.update(playback_actions=[{'command': 'play'}]), 'unexpected_action'),
         ):
             response = self.response()
