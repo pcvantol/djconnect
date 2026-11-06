@@ -63,6 +63,15 @@ class SpotifyOutputError(SpotifyBackendError):
         self.uncertain = uncertain
 
 
+class SpotifyDiscoveryError(SpotifyBackendError):
+    """One Discovery operation failed; never a global playback/voice outage."""
+
+    def __init__(self, code, *, http_status=None, dispatch_state='not_dispatched'):
+        super().__init__(code, http_status=http_status)
+        self.code = code
+        self.dispatch_state = dispatch_state
+
+
 class SpotifyReauthRequiredError(SpotifyBackendError):
     """Raised when Spotify revoked the stored OAuth refresh token."""
 
@@ -1485,6 +1494,81 @@ class SpotifyBackend:
                 raise
             await self._request("PUT", "/me/player/play", json=body, expected_empty=True)
         return selection
+
+    async def resolve_discovery_artist(self, artist_uri):
+        """Bounded real This Is resolution, never artist-name/URI reconstruction."""
+        match = re.fullmatch(r'spotify:artist:([A-Za-z0-9]{22})', str(artist_uri))
+        if not match:
+            raise SpotifyDiscoveryError('music_discovery_artist_invalid')
+        artist_id = match[1]
+        artist = await self._request('GET', '/artists/' + artist_id)
+        if (not isinstance(artist, dict) or artist.get('id') != artist_id
+                or artist.get('uri') != artist_uri or artist.get('type') != 'artist'
+                or not isinstance(artist.get('name'), str) or not 0 < len(artist['name']) <= 256):
+            raise SpotifyDiscoveryError('music_discovery_artist_invalid')
+        title = 'This Is ' + artist['name'].strip()
+        query = urlencode({'q': title, 'type': 'playlist', 'limit': 10,
+                           'market': str(self.conf.get('spotify_market') or DEFAULT_SPOTIFY_MARKET)})
+        result = await self._request('GET', '/search?' + query)
+        section = result.get('playlists') if isinstance(result, dict) else None
+        items = section.get('items') if isinstance(section, dict) else None
+        candidates = {}
+        normalized_title = ' '.join(title.split()).casefold()
+        for item in items[:10] if isinstance(items, list) else []:
+            if not isinstance(item, dict):
+                continue
+            playlist_id = item.get('id')
+            if (isinstance(playlist_id, str) and re.fullmatch(r'[A-Za-z0-9]{22}', playlist_id)
+                    and item.get('uri') == 'spotify:playlist:' + playlist_id
+                    and item.get('type') == 'playlist'
+                    and isinstance(item.get('name'), str)
+                    and ' '.join(item['name'].split()).casefold() == normalized_title
+                    and isinstance(item.get('owner'), dict) and item['owner'].get('id') == 'spotify'):
+                candidates[playlist_id] = item
+        if not candidates:
+            raise SpotifyDiscoveryError('music_discovery_this_is_unavailable')
+        if len(candidates) > 3:
+            raise SpotifyDiscoveryError('music_discovery_this_is_ambiguous')
+        qualified = []
+        for playlist_id in candidates:
+            try:
+                details = await self._request('GET', '/playlists/' + playlist_id)
+                if (not isinstance(details, dict) or details.get('id') != playlist_id
+                        or details.get('uri') != 'spotify:playlist:' + playlist_id
+                        or details.get('type') != 'playlist'
+                        or not isinstance(details.get('name'), str)
+                        or ' '.join(details['name'].split()).casefold() != normalized_title
+                        or not isinstance(details.get('owner'), dict)
+                        or details['owner'].get('id') != 'spotify'):
+                    continue
+                page = details.get('items') if isinstance(details.get('items'), dict) else details.get('tracks')
+                tracks = page.get('items') if isinstance(page, dict) else None
+                if not isinstance(tracks, list):
+                    page = await self._request('GET', '/playlists/' + playlist_id + '/items?limit=5&offset=0')
+                    tracks = page.get('items') if isinstance(page, dict) else None
+            except SpotifyBackendError as exc:
+                raise SpotifyDiscoveryError('music_discovery_this_is_unavailable', http_status=exc.http_status) from exc
+            if not isinstance(tracks, list) or not tracks:
+                continue
+            for row in tracks[:5]:
+                track = (row.get('item') if isinstance(row.get('item'), dict) else row.get('track')) if isinstance(row, dict) else None
+                if (not isinstance(track, dict) or track.get('type') != 'track'
+                        or not isinstance(track.get('id'), str)
+                        or not re.fullmatch(r'[A-Za-z0-9]{22}', track['id'])
+                        or track.get('uri') != 'spotify:track:' + track['id']
+                        or not isinstance(track.get('artists'), list)
+                        or not any(isinstance(a, dict) and a.get('id') == artist_id
+                            and a.get('uri', artist_uri) == artist_uri for a in track['artists'])):
+                    break
+            else:
+                url = 'https://open.spotify.com/playlist/' + playlist_id
+                qualified.append({'id': playlist_id, 'uri': details['uri'], 'kind': 'playlist',
+                    'title': details['name'], 'artist_uri': artist_uri, 'source_url': url,
+                    'attribution': {'provider': 'Spotify', 'mark': 'spotify', 'url': url},
+                    'identity_basis': 'spotify_owned_exact_title_and_credited_artist_ids'})
+        if len(qualified) != 1:
+            raise SpotifyDiscoveryError('music_discovery_this_is_ambiguous' if qualified else 'music_discovery_this_is_unavailable')
+        return qualified[0]
 
     async def play_context_at(self, value: Any) -> None:
         if not isinstance(value, dict):
