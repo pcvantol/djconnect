@@ -381,7 +381,21 @@ class PassiveOwnerGrantTests(unittest.IsolatedAsyncioTestCase):
                 valid, code = await passive.handle(hass, {**read, 'projection_version': 2}, headers=headers)
                 self.assertEqual(code, 200)
                 self.assertEqual(valid['passive_session']['cache_policy']['locked_display'], False)
-                for version in (True, '2', 0, 3):
+                observation = session.broadcast.passive_observation
+                v3, code = await passive.handle(hass, {**consent, 'projection_version': 3},
+                                                headers=headers, authorize=True)
+                self.assertEqual(code, 200)
+                self.assertEqual(v3['passive_session']['schema_version'], 3)
+                self.assertIs(session.broadcast.passive_observation, observation)
+                read3 = {**base, 'grant_id': v3['grant_id'], 'projection_version': 3}
+                valid3, code = await passive.handle(hass, read3, headers=headers)
+                self.assertEqual(code, 200)
+                self.assertEqual(valid3['passive_session']['revision'], v3['passive_session']['revision'])
+                denied3, code = await passive.handle(hass, {**read3, 'projection_version': 2}, headers=headers)
+                self.assertEqual((code, denied3['error']), (403, 'surface_grant_invalid'))
+                old3, code = await passive.handle(hass, {**read, 'projection_version': 3}, headers=headers)
+                self.assertEqual((code, old3['error']), (403, 'surface_grant_invalid'))
+                for version in (True, '2', 0, 4):
                     _, code = await passive.handle(hass, {**read, 'projection_version': version}, headers=headers)
                     self.assertEqual(code, 400)
                 _, code = await passive.handle(hass, {**consent, 'surface': 'live_activity',

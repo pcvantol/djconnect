@@ -122,7 +122,7 @@ def contribution(broadcast, now, *, projection_version=1):
                 'usage_basis': ('public_artist_narration_v1' if sources else
                     'cc0_facts_authored_expression' if cc0 else 'runtime_authored_direction'),
                 'expires_at': deadline.isoformat()}
-        if projection_version == 2:
+        if projection_version in (2, 3):
             body['rights'] = {'passive_cache': True, 'os_snapshot': True,
                               'external_relay': False, 'watch_replication': False}
         if sources:
