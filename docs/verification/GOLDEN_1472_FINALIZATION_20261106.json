@@ -264,5 +264,7 @@
   "native_audible_apns_acceptance": "NOT_PROVEN",
   "source_owner_evidence_sha256": "250d8854f86a966a7d31a06bb2aa3a943552330061ca0d44c766e4877cbde79d",
   "source_ci_log_sha256": "eb293ac8814809fb75cb8a6803b5e15ae75ed753b410fcfa98ee90cde8889cd4",
-  "original_main_failure_log_sha256": "d96722bdb58c70d2f21c1f557d5d6a5aaf22f2e37264d8d6ac5bad34902cc4b8"
+  "original_main_failure_log_sha256": "d96722bdb58c70d2f21c1f557d5d6a5aaf22f2e37264d8d6ac5bad34902cc4b8",
+  "state_at_review_freeze": "MERGED_UNRECONCILED",
+  "state_after_finalization_merge": "MERGED_RECONCILED"
 }

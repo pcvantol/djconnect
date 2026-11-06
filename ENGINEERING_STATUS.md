@@ -53,8 +53,9 @@ with42 unchanged pending leaves remain preserved. All prior WIP/evidence is kept
 
 #### Repository State
 
-Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges;
-then `MERGED_RECONCILED` for the bounded1472 source increment only.
+Repository State: `MERGED_RECONCILED` for the bounded1472 source increment once
+this separate Finalization has passed its protected merge. Before that merge,
+the source remains `MERGED_UNRECONCILED`.
 
 #### Workspace State
 
