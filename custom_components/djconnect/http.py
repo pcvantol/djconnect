@@ -589,9 +589,13 @@ def _bootstrap_metadata(
     runtime: Any | None,
     *,
     pairing_session_id: Any = None,
+    pending_install_id: str | None = None,
 ) -> dict[str, str]:
     """Return non-secret HA metadata Apple clients need for bootstrap proofs."""
-    install_id = ensure_ha_install_id(runtime, hass) if runtime is not None else _pending_ha_install_id(hass)
+    install_id = (
+        ensure_ha_install_id(runtime, hass) if runtime is not None
+        else pending_install_id or _pending_ha_install_id(hass)
+    )
     metadata = {
         "ha_install_id": install_id,
         "integration_version": VERSION,
@@ -2566,7 +2570,15 @@ async def _handle_pending_config_flow_app_pairing(
         "status_path": API_STATUS,
         "event_path": API_EVENT,
     }
-    response.update(_bootstrap_metadata(hass, None, pairing_session_id=context.get("flow_id")))
+    if client_type == CLIENT_TYPE_WATCHOS:
+        if CONF_HA_INSTALL_ID not in context:
+            context[CONF_HA_INSTALL_ID] = f"ha_{secrets.token_urlsafe(24)}"
+    response.update(_bootstrap_metadata(
+        hass,
+        None,
+        pairing_session_id=context.get("flow_id"),
+        pending_install_id=context.get(CONF_HA_INSTALL_ID) if client_type == CLIENT_TYPE_WATCHOS else None,
+    ))
     response.update(_ask_dj_capabilities())
     response.update(await async_ha_url_payload(hass, conf, client_type=client_type))
     _LOGGER.info("DJConnect app paired with pending config-flow code %s", pair_code)
