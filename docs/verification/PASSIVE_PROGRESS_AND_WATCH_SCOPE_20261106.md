@@ -98,3 +98,11 @@ v3 successor. Only that current document-reference SHA is refreshed to actual
 bytes; frozen historical receipts, status, acceptance, nodes and edges are not
 changed. Original CI logs remain in the run evidence. This is documentation
 provenance maintenance, not a weakened validator or product acceptance claim.
+
+After regenerating the single affected SOURCES.md view, the roadmap validator's
+aggregate test passes, including its negative fixtures.44 focused current-receipt
+and native-protocol checks also pass. An intermediate external binder used its
+new lab directory name in two generated output filenames; these were corrected
+to the existing canonical actual-ha-wire.json destinations, and the intermediate
+copies were preserved externally. No new canonical receipt family or product
+change resulted. The final inventory is regenerated from those actual inputs.

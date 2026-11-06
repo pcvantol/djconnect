@@ -101,7 +101,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_20261016.md) | `ab02670e4c5b33433be036ac8165c9f123df238afa759c45a52c1951ddba41db` |
 | [docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md](../../../docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md) | `15062c222152e2fd58810f4d9f92b74225d2beecca7ee1c1d78382fc4309c9f8` |
 | [docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md](../../../docs/history/prompts/2026-10-16-provider-voice-gender-finalization.md) | `ee784e85d90f928df38d43cd1bba17b2c912c60ff8c9d06d8d2f060f62ce822f` |
-| [docs/product/PASSIVE_SESSION_PROJECTION_V1.md](../../../docs/product/PASSIVE_SESSION_PROJECTION_V1.md) | `b3ad2fcb5d42ef72a6d6c71c976627ee371fe7ee9e574fcf9af8db1f6d4e5829` |
+| [docs/product/PASSIVE_SESSION_PROJECTION_V1.md](../../../docs/product/PASSIVE_SESSION_PROJECTION_V1.md) | `0c101e1a9c76b405c9edf02fcf3303b8c80f72e3d410f763aa392fe3f1d5e378` |
 | [docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md](../../../docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_20261016.md) | `02b7c65903667a42522272823c6711d9b6ffcd1c049c21efb64c5c1dfb3b0fa2` |
 | [docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md](../../../docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md) | `7a4aefd96d3880fe5b28763744ba6cc25c9a55eca506dab8b0c5fe9543e16527` |
 | [docs/history/prompts/2026-10-16-passive-session-projection-finalization.md](../../../docs/history/prompts/2026-10-16-passive-session-projection-finalization.md) | `6c57169ad3728f4a12597d7f034fb2a9600870e45cf37666407a3c932f4c2d82` |
