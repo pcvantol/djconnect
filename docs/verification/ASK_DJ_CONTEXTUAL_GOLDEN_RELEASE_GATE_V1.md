@@ -97,12 +97,29 @@ Until that production defect and the qualified source-lookup path are fixed,
 the affected paid Golden cases must remain RED. A working workflow is not a
 claim that the product passed. CI credential admission is separately required.
 
-A qualified fetched biography uses `sources[].claim_scope: person_biography`
-with an allowed public source URL. Existing `qualified_credit_only` attribution
-does not qualify a biography. This additive evidence requirement is deliberately
-not fabricated by the lab; current producer absence fails the release case.
-Maximum40real model attempts,700output tokens each,600s wall-clock limit;
-model fallback/retries beyond the existing two-attempt Core bound are forbidden.
+Source1472 reconciles the early `person_biography` proposal with the actual
+producer wire: a qualified fetched biography uses
+`sources[].claim_scope: fetched_public_music_reference`, exact public-person
+Wikidata identity, content hash, fresh original fetch/expiry timestamps and an
+allowed HTTPS provider/host/license. The response must identify generated
+`fetched_public_music_research_v1` evidence. Existing `qualified_credit_only`
+attribution alone never qualifies a biography; the lab cannot fabricate source
+proof. See [Source evidence](GOLDEN_SETUP_AUTHORITY_20261106.md).
+
+The current full contextual run permits42 attempts:20 questions times2 plus2
+bound publication-setup calls,3000output tokens each,600s formal wall-clock limit.
+The owner separately authorized unrestricted development iterations; every failed
+attempt remains counted and preserved. Formal CI has no automatic model retry
+loop or fallback model, and existing per-answer Core bounds remain unchanged.
+
+On2026-11-06 the owner limited remediation of failing items to English and Dutch.
+The last original full run contains8/8 passing EN/NL cases;12 DE/FR/ES cases are
+deferred from that remediation scope with original outcomes retained. The full
+20-case manifest and release-blocker policy remain unchanged. Five-language UI
+support, the separate EN/NL28-leaf Help publication boundary, publication
+reliability, native/audible/APNs gates and the remaining39/29 quality statuses are
+not waived. The [Finalization projection](GOLDEN_1472_FINALIZATION_20261106.json)
+records scoped observations rather than a full release PASS.
 
 
 ## Expanded release matrix (user refinement)
