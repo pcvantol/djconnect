@@ -98,7 +98,8 @@ async def run(*, ask, call, start, end, playback_reference, mutations, model_rec
                 "manifest_sha256": manifest_digest(), "cases": rows,
                 "setup_paid_model_calls": len(setup), "setup_findings": setup_findings,
                 "paid_model_calls": len(model_receipts),
-                "usage": [{k: r.get(k) for k in ("case_id", "model", "attempted", "completed", "input_tokens", "output_tokens")}
+                "usage": [{k: r.get(k) for k in ("case_id", "model", "attempted", "completed", "input_tokens", "output_tokens",
+                                                     "maximum_output_tokens", "terminal_event", "incomplete_reason")}
                           for r in model_receipts],
                 "status": "PASS" if not setup_findings and len(rows) == len(cases())
                           and all(r["status"] == "PASS" for r in rows)
