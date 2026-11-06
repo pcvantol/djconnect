@@ -15,7 +15,7 @@ class BandStoryTests(unittest.IsolatedAsyncioTestCase):
     def tearDownClass(cls):
         shared.SharedDialogueTest.tearDownClass()
 
-    async def check_membership_route(self, question, *, explicit_task=None, task_failure=False):
+    async def check_membership_route(self, question, *, explicit_task=None, task_failure=False, language="nl"):
         f = shared.SharedDialogueTest()
         await f.asyncSetUp()
         try:
@@ -31,6 +31,8 @@ class BandStoryTests(unittest.IsolatedAsyncioTestCase):
                 self.assertTrue(kwargs.get("original_paragraphs"), "membership needs original paragraphs on both paths")
                 return [source], {"state": "available", "declared_synthetic_sources": True}
             answer = "Example Band bestaat uit Ava Example en Bo Sample. Ava Example zingt en Bo Sample speelt gitaar."
+            if language == "en":
+                answer = "Example Band consists of Ava Example and Bo Sample. Ava Example sings and Bo Sample plays guitar."
             projections = []
             typed_calls = []
             from custom_components.djconnect.structured_playback import TASK_CONFIG
@@ -62,7 +64,7 @@ class BandStoryTests(unittest.IsolatedAsyncioTestCase):
             with patch.object(r, "research", research), patch.object(f.pipeline, "_call_conversation_process_transport", agent), \
                  (patch.object(f.core, "_assist_context", assist_without_task) if task_failure else nullcontext()), \
                  (patch.object(f.pipeline, "call_structured_artist", rejected_task) if task_failure else nullcontext()):
-                result, status = await f.request(question, identifier="members-" + str(question.islower()), language="nl")
+                result, status = await f.request(question, identifier="members-" + str(question.islower()), language=language)
             if task_failure:
                 self.assertEqual(typed_calls, [None], "explicit configured Task cannot disappear into ordinary generation")
                 self.assertEqual(projections, [], "a failed explicit Task cannot buy another provider path")
@@ -79,6 +81,9 @@ class BandStoryTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_explicit_membership_uses_complete_artist_route(self):
         await self.check_membership_route("Uit welke bandleden bestaat Example Band?")
+
+    async def test_english_membership_uses_complete_artist_route(self):
+        await self.check_membership_route("Who are the members of Example Band?", language="en")
 
     async def test_interpreted_membership_uses_complete_artist_route(self):
         await self.check_membership_route("uit welke bandleden bestaat example band?")
