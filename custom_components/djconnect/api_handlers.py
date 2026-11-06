@@ -921,6 +921,9 @@ async def async_handle_command_payload(
         command,
     )
     normalized_command = command.lower()
+    if normalized_command == "discovery_playlist_identity" and not authorize_runtime_device_request(
+            runtime, headers, data.get("device_id"), client_type):
+        return _error_payload("unauthorized"), 401
     _debug_playback_request(runtime, data, command=normalized_command)
     if normalized_command == "queue":
         _debug_queue_request(runtime, data)
@@ -1179,6 +1182,8 @@ async def _run_backend_command(
         )
         if normalized_command == "set_volume" and result.get("success") is False:
             return _volume_command_error_result(runtime, data, command, normalized_command, result=result)
+        if normalized_command == "discovery_playlist_identity":
+            return result, 200  # Pure provider diagnosis does not rewrite global health/DJ state.
         runtime.update(last_error=None)
         if result.get("success"):
             result.setdefault("backend_available", True)

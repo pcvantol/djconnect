@@ -7896,8 +7896,21 @@ same scope in the acknowledgement. Keep the original paired Watch identity,
 active Session ID and expected Mood revision. An older Core rejects the extra
 field. Preserve that denial and never retry using Profile settings.
 
+Discovery artist Play Now repair: docs/product/DISCOVERY_ARTIST_THIS_IS_PLAYBACK_V1.md.
+Resolve only server-cached exact artist to real qualified This Is playlist;
+context-start replaces selection, never offset-only command or URI guess.
+Provider limits/output-required/stale authority/failure must cause no dispatch,
+feedback or false played:true; no replay, transfer or client-side resolution.
+
 Spotify scope evidence repair: docs/product/SPOTIFY_GRANTED_SCOPE_EVIDENCE_V1.md.
 Requested11 are unchanged and are not granted evidence. Persist token.scope
 metadata through ordinary callback/refresh custody; missing/malformed is unknown,
 new grant cannot inherit old evidence. Only after protected install use the
 human-authorized same11-scope PKCE flow for DEFAULT; no playback scope test.
+
+Discovery read-only diagnosis and typed errors are specified in
+`DISCOVERY_ARTIST_THIS_IS_PLAYBACK_V1.md#explicit-candidate-read-only-diagnosis`.
+No new discovery/play request fields. New machine error codes carry no raw English
+provider message; clients render them in five UI languages, never replay an
+uncertain write or invent an output continuation. The explicit candidate read
+command grants no old-card playback authority and is not a runtime URI fallback.
