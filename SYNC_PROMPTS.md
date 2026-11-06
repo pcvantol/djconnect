@@ -1,3 +1,17 @@
+## 2026-11-07 — Private ephemeral Session catalogue reply correction
+
+Apple/Core synchronization before implementation: preserve the actual original
+accepted owner, turn, request and Session/context confirmation. Private ephemeral
+catalogue answers use root text/media/result-set actions; no partial `assistant_message`
+without a history identity, fake message ID, Store/SQL entry or revision is added.
+Use the existing explicit private-ephemeral in-memory root presentation and all
+original epoch/owner/Session/result-lease guards. Canonical history parsing remains
+strict. Qualify the actual fresh-Session/history2/speech3 producer wire and native
+Session-composer path independently; general Ask DJ success is not integral acceptance.
+See [canonical shape](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md).
+No source/model/image/retention permission, new endpoint, background processing,
+playback execution or device installation is granted by this synchronization note.
+
 ## 2026-11-06 — Explicit minimal Watch Smart Stack purpose
 
 The human narrows Watch Smart Stack to track name + cover in confirmed Session

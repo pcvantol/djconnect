@@ -1,3 +1,14 @@
+## 2026-11-07 — Paired private ephemeral catalogue responses
+
+For nonpersisted paired Ask DJ/Session replies, retain the accepted root projection
+and genuine original `conversation` / owner / client-message confirmation, with
+`history_scope:private_ephemeral`, `history_persisted:false` and no stored entry IDs.
+Omit partial history message objects and Store revision fields; never mint history
+IDs to make a nonstored response appear canonical. Persisted exchange schemas and
+strict history decoding stay unchanged. See the exact
+[private response contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md).
+This is a source qualification increment, not native or release acceptance.
+
 ## Session For you v1 — replacement source contract
 
 Session start/active expose an iOS/macOS-only cached for_you schema1 with three
