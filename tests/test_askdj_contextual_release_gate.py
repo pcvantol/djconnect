@@ -17,6 +17,34 @@ RUNNER = load('contextual_gate', 'tools/verification/run_askdj_contextual_releas
 
 
 class ContextualReleaseGateTest(unittest.TestCase):
+    def test_external_fact_fixture_accepts_and_obeys_current_resolver_authority(self):
+        # Reproduce the actual pre-model setup failure without paying for a run.
+        import ast
+        import asyncio
+        import os
+        from unittest.mock import patch
+        source = ROOT / 'scripts/verification/verify_ask_dj_contextual_dialogue_http.py'
+        function = next(node for node in ast.walk(ast.parse(source.read_text()))
+                        if isinstance(node, ast.AsyncFunctionDef) and node.name == 'source_fixture')
+        observations = []
+        namespace = {'os': os, 'external_facts': observations, 'state': {'index': 0},
+                     'tracks': [{'name': 'Fixture recording', 'artists': [{'name': 'Peter Luts'}]}]}
+        exec(compile(ast.Module(body=[function], type_ignores=[]), str(source), 'exec'), namespace)
+        checks = []
+        def authorize():
+            checks.append('authorized')
+        with patch.dict(os.environ, {'DJC_SAFETY_PROBE': 'contextual_golden'}):
+            result = asyncio.run(namespace['source_fixture'](object(), 'isrc/NLABC2600001',
+                                                            authorize=authorize))
+        self.assertEqual(result['recordings'][0]['artist-credit'][0]['artist']['name'], 'Peter Luts')
+        self.assertTrue(checks)
+        self.assertEqual(len(observations), 1)
+        def withdrawn():
+            raise PermissionError('source_authority_withdrawn')
+        with self.assertRaises(PermissionError):
+            asyncio.run(namespace['source_fixture'](object(), 'recording/fixture', authorize=withdrawn))
+        self.assertEqual(len(observations), 1, 'Denied authority must not reach external fixture I/O')
+
     def test_publication_only_probe_never_submits_followup_or_qualifies_complete_case(self):
         import asyncio
         from types import SimpleNamespace
@@ -345,11 +373,40 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual({r['language'] for r in rows}, {'en', 'nl', 'de', 'fr', 'es'})
 
     def response(self):
+        from datetime import datetime, UTC, timedelta
+        now = datetime.now(UTC)
         return {'success': True, 'text': 'Peter Luts is a Belgian producer.', 'action': 'none',
+                'knowledge_basis': 'fetched_public_music_research_v1', 'is_generated_text': True,
                 'conversation': {'context': {'selected_moment': {'session_id': 's', 'moment_id': 'm'}},
                                  'metrics': {'agent_calls': 1}},
-                'sources': [{'url': 'https://en.wikipedia.org/wiki/Peter_Luts', 'claim_scope': 'person_biography',
-                             'subject': {'kind': 'person', 'name': 'Peter Luts'}}]}
+                'sources': [{'url': 'https://en.wikipedia.org/wiki/Peter_Luts',
+                             'claim_scope': 'fetched_public_music_reference', 'provider': 'Wikipedia',
+                             'license': 'CC-BY-SA-4.0', 'wikidata_id': 'Q3376733', 'content_hash': 'a' * 64,
+                             'fetched_at': now.isoformat(), 'expires_at': (now + timedelta(hours=1)).isoformat()}]}
+
+    def test_dutch_jazz_trumpeter_compound_preserves_actual_public_fact(self):
+        row = next(row for row in GOLDEN.cases() if row['id'] == 'ASKDJ-GOLDEN-001-nl-new-topic')
+        response = self.response()
+        response['conversation']['context'] = {}
+        response['sources'][0].update(url='https://en.wikipedia.org/wiki/Miles_Davis', wikidata_id='Q93341')
+        response['text'] = 'Miles Davis was een Amerikaanse jazztrompettist, bandleider, componist en schilder.'
+        self.assertEqual(GOLDEN.check_response(row, response, {}), [])
+        response['text'] = 'Miles Davis was geen jazztrompettist.'
+        self.assertIn('contradictory_biography', GOLDEN.check_response(row, response, {}))
+        response['text'] = 'Miles Davis was een componist.'
+        self.assertIn('expected_public_fact_missing', GOLDEN.check_response(row, response, {}))
+
+    def test_german_jazz_trumpeter_compound_preserves_actual_public_fact(self):
+        row = next(row for row in GOLDEN.cases() if row['id'] == 'ASKDJ-GOLDEN-001-de-new-topic')
+        response = self.response()
+        response['conversation']['context'] = {}
+        response['sources'][0].update(url='https://en.wikipedia.org/wiki/Miles_Davis', wikidata_id='Q93341')
+        response['text'] = 'Miles Davis war ein US-amerikanischer Jazztrompeter, Komponist und Bandleader.'
+        self.assertEqual(GOLDEN.check_response(row, response, {}), [])
+        response['text'] = 'Miles Davis war kein Jazztrompeter.'
+        self.assertIn('contradictory_biography', GOLDEN.check_response(row, response, {}))
+        response['text'] = 'Miles Davis war ein Komponist.'
+        self.assertIn('expected_public_fact_missing', GOLDEN.check_response(row, response, {}))
 
     def test_lost_selection_credit_only_fake_source_zero_agent_and_actions_rejected(self):
         row = GOLDEN.cases()[0]
@@ -363,7 +420,12 @@ class ContextualReleaseGateTest(unittest.TestCase):
             (lambda r: r.update(text='Which Peter do you mean?'), 'wrong_or_missing_person'),
             (lambda r: r.update(text='Peter Luts is not a musician.'), 'contradictory_biography'),
             (lambda r: r['sources'][0].update(url='https://en.wikipedia.org/wiki/Miles_Davis'), 'qualified_biography_source_missing'),
-            (lambda r: r['sources'][0].update(subject={'kind': 'person', 'name': 'Someone Else'}), 'qualified_biography_source_missing'),
+            (lambda r: r['sources'][0].update(wikidata_id='Q93341'), 'qualified_biography_source_missing'),
+            (lambda r: r['sources'][0].update(claim_scope='qualified_credit_only'), 'qualified_biography_source_missing'),
+            (lambda r: r['sources'][0].update(content_hash='unbound'), 'qualified_biography_source_missing'),
+            (lambda r: r['sources'][0].update(expires_at='2000-01-01T00:00:00+00:00'), 'qualified_biography_source_missing'),
+            (lambda r: r['sources'][0].update(fetched_at='2999-01-01T00:00:00+00:00'), 'qualified_biography_source_missing'),
+            (lambda r: r.update(is_generated_text=False), 'qualified_biography_source_missing'),
             (lambda r: r.update(playback_actions=[{'command': 'play'}]), 'unexpected_action'),
         ):
             response = self.response()
@@ -377,6 +439,64 @@ class ContextualReleaseGateTest(unittest.TestCase):
                 'paid_model_calls': 20,
                 'usage': [{'case_id': c['id'], 'model': 'gpt-6-luna', 'attempted': True, 'completed': True,
                            'input_tokens': 200, 'output_tokens': 50} for c in GOLDEN.cases()]}
+
+    def test_setup_calls_are_bound_counted_and_cannot_replace_any_question(self):
+        good = self.report()
+        setup = {**good['usage'][0], 'case_id': GOLDEN.SETUP_CASE}
+        good.update(setup_paid_model_calls=2, setup_findings=[], paid_model_calls=22)
+        good['usage'].extend([deepcopy(setup), deepcopy(setup)])
+        self.assertTrue(RUNNER.validate_report(good, 'a' * 40))
+        for mutate in (
+            lambda r: r.update(setup_paid_model_calls=3),
+            lambda r: r.update(setup_findings=['selected_publication_unavailable']),
+            lambda r: r['usage'][-1].update(case_id='unbound-setup'),
+            lambda r: r['usage'][-1].update(completed=False),
+            lambda r: r['cases'].pop(),
+            lambda r: r.update(paid_model_calls=41),
+        ):
+            changed = deepcopy(good)
+            mutate(changed)
+            self.assertFalse(RUNNER.validate_report(changed, 'a' * 40))
+
+    def test_all_question_attempts_and_setup_have_one_bounded_total(self):
+        good = self.report()
+        for row in good['cases']:
+            row['paid_attempts'] = 2
+        good['usage'] = [deepcopy(row) for row in good['usage'] for _ in range(2)]
+        good['usage'].extend([{**good['usage'][0], 'case_id': GOLDEN.SETUP_CASE} for _ in range(2)])
+        good.update(setup_paid_model_calls=2, setup_findings=[], paid_model_calls=42)
+        self.assertEqual(GOLDEN.MAX_MODEL_CALLS, 42)
+        self.assertEqual(GOLDEN.MAX_OUTPUT_TOKENS, 3000)
+        self.assertTrue(RUNNER.validate_report(good, 'a' * 40))
+        self.assertFalse(RUNNER.validate_report({**good, 'paid_model_calls': 43}, 'a' * 40))
+
+    def test_failed_setup_keeps_a_failed_receipt_without_submitting_questions(self):
+        import asyncio
+        async def start(*args, **kwargs):
+            raise AssertionError('missing-qualified-credit')
+        async def forbidden(*args, **kwargs):
+            self.fail('Failed setup must not submit a question')
+        report = asyncio.run(GOLDEN.run(ask=forbidden, call=forbidden, start=start,
+            end=forbidden, playback_reference=forbidden, mutations=[], model_receipts=[]))
+        self.assertEqual(report['status'], 'FAIL')
+        self.assertEqual(report['setup_findings'], ['selected_publication_unavailable:AssertionError'])
+        self.assertEqual(report['cases'], [])
+        self.assertEqual(report['paid_model_calls'], 0)
+        self.assertFalse(RUNNER.validate_report({**report, 'candidate_sha': 'a' * 40}, 'a' * 40))
+        receipts = []
+        async def truncated_setup(*args, **kwargs):
+            receipts.append({'case_id': GOLDEN.SETUP_CASE, 'model': 'gpt-6-luna',
+                'attempted': True, 'completed': False, 'input_tokens': 3899, 'output_tokens': 700,
+                'maximum_output_tokens': 700, 'terminal_event': 'response.incomplete',
+                'incomplete_reason': 'max_output_tokens'})
+            raise ValueError('incomplete JSON is not an accepted publication')
+        failed = asyncio.run(GOLDEN.run(ask=forbidden, call=forbidden, start=truncated_setup,
+            end=forbidden, playback_reference=forbidden, mutations=[], model_receipts=receipts))
+        self.assertEqual(failed['status'], 'FAIL')
+        self.assertEqual(failed['paid_model_calls'], 1)
+        self.assertEqual(failed['usage'][0]['incomplete_reason'], 'max_output_tokens')
+        self.assertEqual(failed['usage'][0]['maximum_output_tokens'], 700)
+        self.assertFalse(RUNNER.validate_report({**failed, 'candidate_sha': 'a' * 40}, 'a' * 40))
 
     def test_incomplete_stale_zero_paid_and_failed_evidence_never_pass(self):
         good = self.report()

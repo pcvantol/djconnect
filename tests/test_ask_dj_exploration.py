@@ -411,7 +411,7 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
                  'dialogue_subjects':[{'name':'Brian Eno', 'role':'composer'}],
                  'source_attribution':{'provider':'MusicBrainz', 'license':'CC0-1.0',
                     'url':'https://musicbrainz.org/work/11111111-1111-1111-1111-111111111111'}}
-        def build(candidate, *, interpreted=True, subject='Brian Eno', change_source=False):
+        def build(candidate, *, interpreted=True, subject='Brian Eno', change_source=False, allow_opened=False):
             source = model_source(candidate)
             if change_source:
                 source['qualified_excerpt'] = 'A forged credit.'
@@ -419,7 +419,7 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
                        'qualified_context':source}
             turn = SimpleNamespace(selected_read_context=candidate, source_context=source,
                                    interpreted_context_research=interpreted)
-            return context, research.selected_credit_context(context, turn)
+            return context, research.selected_credit_context(context, turn, allow_opened_credit=allow_opened)
         _, bound = build(entry)
         span = research.selected_credit_spans(bound)[0]
         review = {'review_schema':'source_id_review_v1', 'claim_checks':[
@@ -449,6 +449,17 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
         for kwargs in ({'interpreted':False}, {'subject':'Different artist'}, {'change_source':True}):
             original, result = build(entry, **kwargs)
             self.assertIs(result, original)
+        raw = deepcopy(entry)
+        raw.pop('qualified_fact_text')
+        # The new ordinary-question projection still cannot promote a generated
+        # body under a copied CC0 label, even when the caller opts in.
+        original, result = build(raw, interpreted=False, allow_opened=True)
+        self.assertIs(result, original)
+        raw['text'] = entry['qualified_fact_text']
+        original, result = build(raw, interpreted=False, allow_opened=True)
+        self.assertNotEqual(research.selected_credit_spans(result), [])
+        self.assertEqual(research.selected_credit_spans(result)[0]['text'], raw['text'])
+        self.assertEqual(research.selected_credit_spans(dict(result)), [])
 
     def test_dutch_production_activity_inflections_preserve_independent_role_and_claim_guards(self):
         from custom_components.djconnect.ask_dj import public_research as research

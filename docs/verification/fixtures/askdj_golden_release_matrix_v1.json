@@ -3195,6 +3195,10 @@
         {
           "file": "tests/test_ask_dj_exploration.py",
           "method": "test_more_on_reopened_older_contribution_uses_original_subject_and_current_style"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_temporal_receipts_admit_literal_short_titles_but_not_ordinary_words"
         }
       ],
       "real_ha_profile": "full_golden",
@@ -4944,6 +4948,26 @@
         {
           "file": "tests/test_ask_dj_semantic_reads.py",
           "method": "test_actual_artist_route_brief_focus_preserves_broader_scope_and_private_boundary"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_partial_name_on_selected_playback_keeps_reference_and_researches_full_artist"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_private_playback_lookup_subjects_never_admit_stale_combined_or_other_sources"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_selected_playback_artist_lookup_keeps_original_session_fence_during_fetch"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_selected_playback_lookup_expiry_remains_fenced_after_subject_resolution"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_legacy_selected_credit_review_exposes_original_span_without_granting_positive_truth"
         }
       ],
       "fixture_boundary": "External model responses only for owner contracts; semantic_reads runs 45 held-out inputs through actual HA/qualified model and provider I/O fixtures."
