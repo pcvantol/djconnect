@@ -435,12 +435,15 @@ async def main(*, qualification_profile='legacy_low'):
             from custom_components.djconnect.ask_dj.dialogue import current_turn
             owner_turn = current_turn.get()
             case_id = ACTIVE_CASE.get() or (owner_turn.client_id if owner_turn else None)
-            if (case_id is None and os.environ.get('DJC_SAFETY_PROBE')=='contextual_quality'
+            if (case_id is None and os.environ.get('DJC_SAFETY_PROBE') in {'contextual_quality', 'contextual_golden'}
                     and quality_seed_in_progress):
                 # Client-side ContextVars do not cross the actual HTTP server.
                 # Bind only the explicitly running post-start publication seed;
                 # all attempts still reserve the same durable global budget.
-                case_id='quality-selected-seed'
+                from scripts.verification.askdj_contextual_golden import SETUP_CASE
+                case_id = SETUP_CASE if os.environ.get('DJC_SAFETY_PROBE') == 'contextual_golden' else 'quality-selected-seed'
+                if case_id == SETUP_CASE and sum(r.get('case_id') == SETUP_CASE for r in model_receipts) >= 2:
+                    raise RuntimeError('golden_setup_model_call_budget_exhausted')
             if case_id is None and os.environ.get("DJC_SAFETY_PROBE") in {"narration_golden", "opening_golden", "album_golden"}:
                 case_id = "proactive-owner-publication"
             from scripts.verification.askdj_semantic_read_golden import cases as semantic_cases
@@ -1053,7 +1056,7 @@ async def main(*, qualification_profile='legacy_low'):
         original_narration=narration_pipeline.realize_session_narration
         narration_diagnostics=[]
         async def observed_narration(hass,**kwargs):
-            if os.environ.get('DJC_SAFETY_PROBE')!='contextual_quality':
+            if os.environ.get('DJC_SAFETY_PROBE') not in {'contextual_quality', 'contextual_golden'}:
                 return await original_narration(hass,**kwargs)
             from custom_components.djconnect.public_artist_narration import can_research
             brief=kwargs['narration']
@@ -1711,8 +1714,9 @@ async def main(*, qualification_profile='legacy_low'):
                                 setattr(observed, field, None)
                         return await manager.async_get_active('profile-a'), None, None
                     # Honour the real balanced presence interval after any opening contribution.
-                    quality_seed_in_progress=(os.environ.get('DJC_SAFETY_PROBE')=='contextual_quality'
-                                              and label=='quality-selected')
+                    quality_seed_in_progress=(
+                        (os.environ.get('DJC_SAFETY_PROBE')=='contextual_quality' and label=='quality-selected')
+                        or (os.environ.get('DJC_SAFETY_PROBE')=='contextual_golden' and label=='contextual-golden'))
                     # Re-observation uses the normal coordinator; no ledger reset or Core mocking.
                     ledger = active.presence_ledger
                     from custom_components.djconnect.presence_policy import POLICIES

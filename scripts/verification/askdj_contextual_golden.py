@@ -17,6 +17,7 @@ LANGUAGES = {
 ACTIVE_CASE = ContextVar("askdj_golden_case", default=None)
 MAX_MODEL_CALLS = 40
 MAX_OUTPUT_TOKENS = 700
+SETUP_CASE = "ASKDJ-GOLDEN-SETUP-published-credit"
 
 
 def cases():
@@ -88,10 +89,33 @@ def check_response(case, response, selection):
 
 async def run(*, ask, call, start, end, playback_reference, mutations, model_receipts):
     """Hook into the existing isolated HA harness after ordinary pairing."""
-    active, moment, _ = await start("contextual-golden")
+    setup_start = len(model_receipts)
+    rows = []
+    setup_findings = []
+    def report():
+        setup = [r for r in model_receipts if r.get("case_id") == SETUP_CASE]
+        return {"schema_version": 1, "suite": "askdj_contextual_golden_v1",
+                "manifest_sha256": manifest_digest(), "cases": rows,
+                "setup_paid_model_calls": len(setup), "setup_findings": setup_findings,
+                "paid_model_calls": len(model_receipts),
+                "usage": [{k: r.get(k) for k in ("case_id", "model", "attempted", "completed", "input_tokens", "output_tokens")}
+                          for r in model_receipts],
+                "status": "PASS" if not setup_findings and len(rows) == len(cases())
+                          and all(r["status"] == "PASS" for r in rows)
+                          and 0 < len(model_receipts) <= MAX_MODEL_CALLS else "FAIL",
+                "native_installed_hardware": "NOT_RUN"}
+    try:
+        active, moment, _ = await start("contextual-golden")
+    except Exception as exc:
+        setup_findings.append("selected_publication_unavailable:" + type(exc).__name__)
+        return report()
+    setup = model_receipts[setup_start:]
+    if (len(setup) > 2 or any(r.get("case_id") != SETUP_CASE or not r.get("completed") for r in setup)):
+        setup_findings.append("setup_attempt_binding_or_completion")
+        await end(active, "contextual-golden-failed-setup")
+        return report()
     selection = {"session_id": active.session_id, "moment_id": moment.moment_id}
     playback = await playback_reference(active)
-    rows = []
     try:
         for case in cases():
             await call("ask_dj/history/clear", {}, label=case["id"] + "-clear")
@@ -120,12 +144,4 @@ async def run(*, ask, call, start, end, playback_reference, mutations, model_rec
                          "findings": findings, "paid_attempts": len(case_models)})
     finally:
         await end(active, "contextual-golden")
-    return {"schema_version": 1, "suite": "askdj_contextual_golden_v1",
-            "manifest_sha256": manifest_digest(), "cases": rows,
-            "paid_model_calls": len(model_receipts),
-            "usage": [{k: r.get(k) for k in ("case_id", "model", "attempted", "completed", "input_tokens", "output_tokens")}
-                      for r in model_receipts],
-            "status": "PASS" if len(rows) == len(cases())
-                      and all(r["status"] == "PASS" for r in rows)
-                      and 0 < len(model_receipts) <= MAX_MODEL_CALLS else "FAIL",
-            "native_installed_hardware": "NOT_RUN"}
+    return report()

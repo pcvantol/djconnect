@@ -406,6 +406,38 @@ class ContextualReleaseGateTest(unittest.TestCase):
                 'usage': [{'case_id': c['id'], 'model': 'gpt-6-luna', 'attempted': True, 'completed': True,
                            'input_tokens': 200, 'output_tokens': 50} for c in GOLDEN.cases()]}
 
+    def test_setup_calls_are_bound_counted_and_cannot_replace_any_question(self):
+        good = self.report()
+        setup = {**good['usage'][0], 'case_id': GOLDEN.SETUP_CASE}
+        good.update(setup_paid_model_calls=2, setup_findings=[], paid_model_calls=22)
+        good['usage'].extend([deepcopy(setup), deepcopy(setup)])
+        self.assertTrue(RUNNER.validate_report(good, 'a' * 40))
+        for mutate in (
+            lambda r: r.update(setup_paid_model_calls=3),
+            lambda r: r.update(setup_findings=['selected_publication_unavailable']),
+            lambda r: r['usage'][-1].update(case_id='unbound-setup'),
+            lambda r: r['usage'][-1].update(completed=False),
+            lambda r: r['cases'].pop(),
+            lambda r: r.update(paid_model_calls=41),
+        ):
+            changed = deepcopy(good)
+            mutate(changed)
+            self.assertFalse(RUNNER.validate_report(changed, 'a' * 40))
+
+    def test_failed_setup_keeps_a_failed_receipt_without_submitting_questions(self):
+        import asyncio
+        async def start(*args, **kwargs):
+            raise AssertionError('missing-qualified-credit')
+        async def forbidden(*args, **kwargs):
+            self.fail('Failed setup must not submit a question')
+        report = asyncio.run(GOLDEN.run(ask=forbidden, call=forbidden, start=start,
+            end=forbidden, playback_reference=forbidden, mutations=[], model_receipts=[]))
+        self.assertEqual(report['status'], 'FAIL')
+        self.assertEqual(report['setup_findings'], ['selected_publication_unavailable:AssertionError'])
+        self.assertEqual(report['cases'], [])
+        self.assertEqual(report['paid_model_calls'], 0)
+        self.assertFalse(RUNNER.validate_report({**report, 'candidate_sha': 'a' * 40}, 'a' * 40))
+
     def test_incomplete_stale_zero_paid_and_failed_evidence_never_pass(self):
         good = self.report()
         self.assertTrue(RUNNER.validate_report(good, 'a'*40))
