@@ -121,14 +121,22 @@ async def main():
     )
     hass.http.register_view(http.DJConnectSpotifyCallbackView(hass))
     cases = {}
+    scope_examples = []
+    scope_probe = os.environ.get('DJC_SCOPE_EVIDENCE_PROBE') == '1'
+    from custom_components.djconnect.spotify_oauth import SCOPE_EVIDENCE_KEY, spotify_scope_status
+    from custom_components.djconnect.const import SPOTIFY_SCOPES
     async with TestClient(TestServer(hass.http.app)) as client:
-        for scenario in [
+        scenarios = [
             "success",
             "profile_changed",
             "account_changed",
             "duplicate_callback",
             "entry_disabled",
-        ]:
+        ]
+        if scope_probe:
+            scenarios = ['grant_full', 'grant_partial', 'grant_missing', 'grant_malformed',
+                         'grant_empty', 'profile_changed', 'account_changed', 'duplicate_callback']
+        for scenario in scenarios:
             manager._household = original_household
             hass.config_entries.async_update_entry(
                 entry, data=dict(data), options={"spotify_refresh_token": "SYNTHETIC-OLD"}
@@ -142,7 +150,7 @@ async def main():
                     "client_id": "a" * 32,
                     "code_verifier": "SYNTHETIC-PKCE",
                     "redirect_uri": "https://fixture.invalid/api/djconnect/v1/spotify/callback",
-                    "scopes": "user-read-playback-state user-modify-playback-state",
+                    "scopes": " ".join(SPOTIFY_SCOPES) if scope_probe else "user-read-playback-state user-modify-playback-state",
                     "market": "NL",
                     "profile_connection_repair": expected,
                 }
@@ -165,7 +173,17 @@ async def main():
                     await hass.config_entries.async_set_disabled_by(
                         entry.entry_id, ConfigEntryDisabler.USER
                     )
-                return {"refresh_token": "SYNTHETIC-NEW"}
+                result = {"refresh_token": "SYNTHETIC-NEW"}
+                if scope_probe:
+                    if scenario == 'grant_full':
+                        result['scope'] = ' '.join(SPOTIFY_SCOPES)
+                    elif scenario == 'grant_partial':
+                        result['scope'] = 'user-read-playback-state'
+                    elif scenario == 'grant_malformed':
+                        result['scope'] = {'access_token': 'SYNTHETIC-NOT-FOR-RECEIPT'}
+                    elif scenario == 'grant_empty':
+                        result['scope'] = ''
+                return result
 
             async def reload(entry_id):
                 reloads.append(entry_id)
@@ -181,7 +199,7 @@ async def main():
                 )
                 text = await response.text()
                 assert "SYNTHETIC-NEW" not in text
-                if scenario in {"success", "duplicate_callback"}:
+                if scenario in {"success", "duplicate_callback"} or scenario.startswith('grant_'):
                     assert response.status == 200, (scenario, response.status, text[:200])
                     assert entry.data["profile_id"] == profile.profile_id
                     assert entry.data["music_account_id"] == account.account_id
@@ -195,6 +213,17 @@ async def main():
                     ][0]
                     assert saved["data"]["spotify_refresh_token"] == "SYNTHETIC-NEW"
                     assert "profile_backend_entry_id" not in saved["data"]
+                    if scope_probe:
+                        evidence = saved['data'][SCOPE_EVIDENCE_KEY]
+                        expected_known = scenario in {'grant_full', 'grant_partial', 'grant_empty'}
+                        assert (evidence['status'] == 'known') == expected_known
+                        if scenario == 'grant_full':
+                            assert evidence['granted_scopes'] == SPOTIFY_SCOPES
+                        if scenario == 'grant_partial':
+                            assert evidence['granted_scopes'] == ['user-read-playback-state']
+                        assert saved['data']['spotify_scopes'] == ' '.join(SPOTIFY_SCOPES)
+                        assert 'SYNTHETIC' not in json.dumps(evidence)
+                        scope_examples.append({'case': scenario, 'scope_status': spotify_scope_status(saved['data'])})
                     if scenario == "duplicate_callback":
                         count = len(exchanges)
                         again = await client.get(
@@ -206,6 +235,66 @@ async def main():
                     assert response.status == 500
                     assert entry.data == data and len(runtime_tokens) == before_tokens
             cases[scenario] = "PASS"
+        if scope_probe:
+            from custom_components.djconnect import spotify_backend
+            from custom_components.djconnect.config_flow import DJConnectConfigFlow
+            from custom_components.djconnect.spotify_oauth import store_spotify_scope_evidence
+            # Initial callback + actual ConfigFlow result-consumption path.
+            for label, provider_scope in [('full', ' '.join(SPOTIFY_SCOPES)), ('missing', None)]:
+                state = 'initial-scope-'+label
+                hass.data['djconnect']['config_flow_oauth_pending'] = {state: {
+                    'client_id':'a'*32, 'redirect_uri':'https://fixture.invalid/api/djconnect/v1/spotify/callback',
+                    'code_verifier':'SYNTHETIC-PKCE', 'scopes':' '.join(SPOTIFY_SCOPES)}}
+                async def initial_exchange(*args, **kwargs):
+                    return {'refresh_token':'SYNTHETIC-INITIAL', **({'scope':provider_scope} if provider_scope is not None else {})}
+                with patch.object(http, 'exchange_code_for_refresh_token', initial_exchange):
+                    initial = await client.get('/api/djconnect/v1/spotify/callback', params={'state':state,'code':'synthetic-code'})
+                    assert initial.status == 200 and 'SYNTHETIC-INITIAL' not in await initial.text()
+                flow = DJConnectConfigFlow()
+                flow.hass = hass
+                assert flow._handle_spotify_oauth_result({'state':state}) == {}
+                evidence = flow._spotify[SCOPE_EVIDENCE_KEY]
+                assert evidence['status'] == ('known' if label == 'full' else 'unknown')
+                assert flow._spotify['spotify_scopes'] == ' '.join(SPOTIFY_SCOPES)
+                scope_examples.append({'case':'initial_'+label,'scope_status':spotify_scope_status({**flow._spotify,'spotify_client_id':'a'*32})})
+                cases['initial_configflow_'+label] = 'PASS'
+            # Ordinary backend refresh uses actual ConfigEntry persistence,
+            # with only token exchange substituted. It never performs playback.
+            hass.config_entries.async_update_entry(entry, data={**entry.data,'spotify_client_id':'a'*32,
+                'spotify_scopes':' '.join(SPOTIFY_SCOPES),'spotify_refresh_token':'SYNTHETIC-REFRESH'})
+            backend = object.__new__(spotify_backend.SpotifyBackend)
+            backend.hass = hass
+            backend.runtime = SimpleNamespace(entry=entry,config=entry.data,
+                update_spotify_refresh_token=lambda _:None)
+            prior = None
+            for label, provider_scope in [('partial','user-read-playback-state'),('missing',None),('full',' '.join(SPOTIFY_SCOPES))]:
+                async def refresh(*args, **kwargs):
+                    return {'access_token':'SYNTHETIC-ACCESS', 'expires_in':3600,
+                            **({'scope':provider_scope} if provider_scope is not None else {})}
+                with patch.object(spotify_backend, 'refresh_access_token', refresh):
+                    assert await backend._refresh_access_token_locked(client_id='a'*32,refresh_token='SYNTHETIC-REFRESH') == 'SYNTHETIC-ACCESS'
+                evidence = entry.data[SCOPE_EVIDENCE_KEY]
+                from homeassistant.helpers import issue_registry as ir
+                missing_issue = ir.async_get(hass).async_get_issue('djconnect','missing_spotify_oauth_scopes')
+                assert (missing_issue is not None) == (label != 'full')
+                if label == 'missing':
+                    assert evidence == prior
+                elif label == 'full':
+                    assert evidence['granted_scopes'] == SPOTIFY_SCOPES
+                else:
+                    assert evidence['granted_scopes'] == ['user-read-playback-state']
+                await _save_verified(hass)
+                saved = json.loads(Path(hass.config_entries._store.path).read_text())['data']['entries'][0]
+                assert saved['data'][SCOPE_EVIDENCE_KEY] == evidence
+                assert 'SYNTHETIC' not in json.dumps(evidence)
+                scope_examples.append({'case':'refresh_'+label,'scope_status':spotify_scope_status(entry.data)})
+                cases['ordinary_refresh_'+label] = 'PASS'
+                prior = dict(evidence)
+            original_entry_data = dict(entry.data)
+            await hass.config_entries.async_remove(entry.entry_id)
+            store_spotify_scope_evidence(hass,entry,{'scope':''},client_id='a'*32)
+            assert entry.data == original_entry_data and hass.config_entries.async_get_entry(entry.entry_id) is None
+            cases['removed_owner_cannot_receive_new_scope_evidence'] = 'PASS'
     assert pins() == original
     (lab / "receipt.json").write_text(
         json.dumps(
@@ -217,6 +306,10 @@ async def main():
                 "installed_mutations": 0,
                 "reload_is_fixture": True,
                 "actual_ha_store_readback": True,
+                **({'scope_examples': scope_examples, 'scope_probe': True,
+                    'harness_pins': {name: hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in [
+                        'scripts/verification/verify_spotify_connection_repair_http.py',
+                        'scripts/verification/verify_spotify_scope_evidence_http.py']}} if scope_probe else {}),
             },
             indent=2,
         )
