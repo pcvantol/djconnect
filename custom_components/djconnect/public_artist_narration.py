@@ -634,6 +634,8 @@ async def realize(brief, *, ask, admission, debug=None):
            "When an occasion or pronoun is ambiguous, omit that detail and tell only the directly evidenced joint musical activity. "
            "Delivery: the shared Persona/Mood instructions above are the sole voice owner. "
            "Let those shape the telling's perspective, order and rhythm, without an additional sentence recipe. "
+           "Weave the host's present interest into the documented musical activity itself; a neutral metadata list with a warm sentence added later is insufficient. "
+           "Present interest is the host's viewpoint, never a claim about the artist's feelings or the listener's taste. "
            if credit else "")
         + ("For this Album contribution, make the named album the heart of the story. Include at least "
            "one substantive documented album detail from its work-marked original paragraph, such as "
@@ -645,6 +647,8 @@ async def realize(brief, *, ask, admission, debug=None):
            "cadence rather than just adding an adjective or a closing slogan. " if album else "")
         +
         ("" if credit else "Core-owned telling action: " + persona_answer_form(brief.persona, include_identity=False))
+        + ("Final writing check: no calendar years or relative sequence; tell the documented musical activity without adding an event location. "
+           "Keep the original exact role and credit scope explicit, and let Persona/Mood shape the activity clause itself. " if credit else "")
         + "\nData:\n" + json.dumps({"public_music_research":research.generation_projection(projection, question)}, ensure_ascii=False))
     if album:
         from .album_narration import expression_prompt
