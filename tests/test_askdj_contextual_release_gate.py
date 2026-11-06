@@ -437,6 +437,20 @@ class ContextualReleaseGateTest(unittest.TestCase):
         self.assertEqual(report['cases'], [])
         self.assertEqual(report['paid_model_calls'], 0)
         self.assertFalse(RUNNER.validate_report({**report, 'candidate_sha': 'a' * 40}, 'a' * 40))
+        receipts = []
+        async def truncated_setup(*args, **kwargs):
+            receipts.append({'case_id': GOLDEN.SETUP_CASE, 'model': 'gpt-6-luna',
+                'attempted': True, 'completed': False, 'input_tokens': 3899, 'output_tokens': 700,
+                'maximum_output_tokens': 700, 'terminal_event': 'response.incomplete',
+                'incomplete_reason': 'max_output_tokens'})
+            raise ValueError('incomplete JSON is not an accepted publication')
+        failed = asyncio.run(GOLDEN.run(ask=forbidden, call=forbidden, start=truncated_setup,
+            end=forbidden, playback_reference=forbidden, mutations=[], model_receipts=receipts))
+        self.assertEqual(failed['status'], 'FAIL')
+        self.assertEqual(failed['paid_model_calls'], 1)
+        self.assertEqual(failed['usage'][0]['incomplete_reason'], 'max_output_tokens')
+        self.assertEqual(failed['usage'][0]['maximum_output_tokens'], 700)
+        self.assertFalse(RUNNER.validate_report({**failed, 'candidate_sha': 'a' * 40}, 'a' * 40))
 
     def test_incomplete_stale_zero_paid_and_failed_evidence_never_pass(self):
         good = self.report()
