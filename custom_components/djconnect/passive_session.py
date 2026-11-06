@@ -19,7 +19,7 @@ from .passive_contribution import contribution, status
 
 VERSION = 1
 MAX_GRANTS = 32
-SURFACES = {'widget', 'live_activity'}
+SURFACES = {'widget', 'live_activity', 'watch_widget'}
 TRACK = re.compile(r'https://open\.spotify\.com/track/([A-Za-z0-9]{22})\Z')
 BASE = '/api/djconnect/v1/session/surface'
 
@@ -38,8 +38,12 @@ def capability():
             'surfaces': sorted(SURFACES), 'explicit_consent_required': True,
             'max_cache_seconds': 120, 'read_side_effects': False,
             'live_invalidation': 'existing_owner_broadcast_events',
-            'projection_versions': [1, 2], 'default_projection_version': 1,
-            'background_delivery': False, 'watch_replication': False}
+            'projection_versions': [1, 2, 3], 'default_projection_version': 1,
+            'background_delivery': False, 'watch_replication': False,
+            'watch_widget': {'scope': 'paired_watch_widget_v1', 'surface': 'watch_widget',
+                'client_type': 'watchos', 'contract_version': 1, 'projection_version': 1,
+                'explicit_consent_required': True, 'locked_display_required': True,
+                'background_delivery': False}}
 
 
 @dataclass(frozen=True)
@@ -59,7 +63,7 @@ def _text(broadcast, now):
     return contribution(broadcast, now, projection_version=1)[0]
 
 
-def _music(broadcast, now):
+def _music(broadcast, now, *, projection_version=1):
     observed = broadcast.passive_observation
     if not observed:
         return None, status('no_observation')
@@ -74,12 +78,44 @@ def _music(broadcast, now):
         return None, status('subject_changed')
     if current.state not in {'playing', 'paused'}:
         return None, status('playback_inactive')
-    return {'item_id': original.item_id, 'subject_uri': 'spotify:track:' + match[1],
+    music = {'item_id': original.item_id, 'subject_uri': 'spotify:track:' + match[1],
             'track': original.title, 'artist': original.artist, 'album': original.album,
             'observed_at': stamp(wall), 'expires_at': stamp(wall + 120),
             'source_url': original.source_url,
             'attribution': {'provider': 'Spotify', 'mark': 'spotify', 'url': original.source_url},
-            'usage_basis': 'spotify_temporary_passive_metadata'}, status('qualified', 'available')
+            'usage_basis': 'spotify_temporary_passive_metadata'}
+    if projection_version == 3:
+        progress = _progress(broadcast, now)
+        if progress is not None:
+            music['progress'] = progress
+    return music, status('qualified', 'available')
+
+
+def _progress(broadcast, now):
+    """Original accepted data only; never the renderer's extrapolated position."""
+    observed_mono, observed_wall, original = broadcast.passive_observation
+    snapshot_mono, snapshot_wall = broadcast.passive_state_observed
+    current = broadcast.state.playback
+    position, duration = original.position_ms, original.duration_ms
+    wall = time.time()
+    if (original.state not in {'playing', 'paused'} or current.state != original.state
+            or current.item_id != original.item_id
+            or type(position) is not int or type(duration) is not int
+            or not 0 <= position <= duration <= 9007199254740991 or duration == 0):
+        return None
+    clocks = (now, wall, observed_mono, observed_wall, snapshot_mono, snapshot_wall)
+    if (not all(type(v) in (int, float) and math.isfinite(v) for v in clocks)
+            or not observed_mono <= now < observed_mono + 120
+            or not snapshot_mono <= now < snapshot_mono + 120
+            or not 0 < observed_wall <= wall < observed_wall + 120
+            or not 0 < snapshot_wall <= wall < snapshot_wall + 120):
+        return None
+    try:
+        return {'schema_version': 1, 'position_ms': position, 'duration_ms': duration,
+                'playback_state': original.state, 'observed_at': stamp(observed_wall),
+                'expires_at': stamp(min(observed_wall + 120, snapshot_wall + 120))}
+    except (ValueError, OverflowError, OSError):
+        return None
 
 
 def digest_identity(uri):
@@ -142,8 +178,55 @@ def _covers(registry, owner, session_id, contribution, music, now):
     return slots, status('qualified', 'available') if slots else status(reason)
 
 
+def _watch_projection(active, grant, *, registry=None, owner=''):
+    """Own paired Watch consent and minimal DTO; never a replicated phone view."""
+    broadcast = active.broadcast
+    now, wall = time.monotonic(), time.time()
+    result = {'schema_version': 1, 'scope': 'paired_watch_widget_v1',
+              'surface': 'watch_widget', 'binding_id': grant.binding_id,
+              'generation': grant.generation, 'session_id': active.session_id,
+              'delivery_sequence': broadcast.delivery_sequence, 'as_of': stamp(wall),
+              'observed_at': stamp(broadcast.passive_state_observed[1]),
+              'expires_at': stamp(broadcast.passive_state_observed[1] + 120),
+              'state': 'active',
+              'cache_policy': {'scope': 'current_watch_widget_only', 'maximum_seconds': 120,
+                  'renew_on_read': False, 'locked_display': grant.locked_display,
+                  'os_pixel_erasure': 'best_effort_when_learned'},
+              'mood': {'value': active.selected_mood if active.selected_mood in
+                  {'chill', 'groove', 'energy', 'party'} else None, 'revision': active.mood_revision},
+              'now_playing': None, 'artwork': []}
+    if (not grant.authority() or not grant.locked_display
+            or active.runtime_state.value != 'active'
+            or broadcast.state.runtime_state.value != 'active'):
+        result['state'], reason = 'withdrawn', 'authority_withdrawn'
+        result['mood'] = {'value': None, 'revision': 0}
+        result['expires_at'] = stamp(wall)
+        result['now_playing_status'] = status(reason, 'withdrawn')
+        result['artwork_status'] = status(reason, 'withdrawn')
+    elif (not 0 <= now - broadcast.passive_state_observed[0] < 120
+            or not 0 < broadcast.passive_state_observed[1] <= wall < broadcast.passive_state_observed[1] + 120):
+        result['state'] = 'stale'
+        result['mood'] = {'value': None, 'revision': 0}
+        result['now_playing_status'] = status('original_snapshot_expired', 'stale')
+        result['artwork_status'] = status('original_snapshot_expired', 'stale')
+    else:
+        music, result['now_playing_status'] = _music(broadcast, now)
+        if music is not None:
+            allowed = {'item_id', 'subject_uri', 'track', 'observed_at', 'expires_at',
+                       'source_url', 'attribution', 'usage_basis'}
+            result['now_playing'] = {key: value for key, value in music.items() if key in allowed}
+        covers, result['artwork_status'] = _covers(registry, owner, active.session_id, None, music, now)
+        result['artwork'] = covers[:1]
+        for cover in result['artwork']:
+            cover['rights']['paired_watch_cache'] = True
+    result['revision'] = digest({k: v for k, v in result.items() if k != 'as_of'})
+    return result
+
+
 def projection(active, grant, *, registry=None, owner=''):
     """Pure projection over accepted state; grant authority is checked by caller."""
+    if grant.surface == 'watch_widget':
+        return _watch_projection(active, grant, registry=registry, owner=owner)
     broadcast = active.broadcast
     now, wall = time.monotonic(), time.time()
     result = {'schema_version': grant.projection_version, 'surface': grant.surface,
@@ -167,12 +250,12 @@ def projection(active, grant, *, registry=None, owner=''):
                 'as_of': stamp(wall), 'expires_at': stamp(wall), 'artwork': [],
                 **({name: status('authority_withdrawn', 'withdrawn')
                     for name in ('contribution_status', 'now_playing_status', 'artwork_status')}
-                   if grant.projection_version == 2 else {})}
+                   if grant.projection_version in (2, 3) else {})}
     text, text_status = contribution(broadcast, now, projection_version=grant.projection_version)
-    music, music_status = _music(broadcast, now)
+    music, music_status = _music(broadcast, now, projection_version=grant.projection_version)
     result['contribution'], result['now_playing'] = text, music
     result['artwork'], artwork_status = _covers(registry, owner, active.session_id, text, music, now)
-    if grant.projection_version == 2:
+    if grant.projection_version in (2, 3):
         result['contribution_status'] = text_status
         result['now_playing_status'] = music_status
         result['artwork_status'] = artwork_status
@@ -180,7 +263,7 @@ def projection(active, grant, *, registry=None, owner=''):
             or wall >= broadcast.passive_state_observed[1] + 120):
         result['state'] = 'stale'
         result['contribution'], result['now_playing'], result['artwork'] = None, None, []
-        if grant.projection_version == 2:
+        if grant.projection_version in (2, 3):
             for name in ('contribution_status', 'now_playing_status', 'artwork_status'):
                 result[name] = status('original_snapshot_expired', 'stale')
     result['revision'] = digest({k: v for k, v in result.items() if k != 'as_of'})
@@ -206,8 +289,11 @@ async def handle(hass, payload, *, headers=None, authorize=False):
             or type(payload.get('contract_version')) is not int or payload['contract_version'] != VERSION
             or any(type(payload[k]) is not str or not 0 < len(payload[k]) <= 128
                    for k in fields - {'contract_version', 'projection_version', 'enabled', 'os_snapshot_cache', 'locked_display'})
-            or type(payload.get('projection_version', 1)) is not int or payload.get('projection_version', 1) not in (1, 2)
-            or payload['surface'] not in SURFACES or payload['client_type'] not in {'ios', 'macos'}):
+            or type(payload.get('projection_version', 1)) is not int or payload.get('projection_version', 1) not in (1, 2, 3)
+            or payload['surface'] not in SURFACES
+            or (payload['surface'] == 'watch_widget' and
+                (payload['client_type'] != 'watchos' or payload.get('projection_version', 1) != 1))
+            or (payload['surface'] != 'watch_widget' and payload['client_type'] not in {'ios', 'macos'})):
         return error('invalid_request', 400)
     if authorize and any(type(payload[k]) is not bool for k in ('enabled', 'os_snapshot_cache', 'locked_display')):
         return error('invalid_request', 400)
@@ -255,7 +341,7 @@ async def handle(hass, payload, *, headers=None, authorize=False):
         if not payload['enabled']:
             grants.pop(key, None)
             return {'success': True, 'contract_version': VERSION, 'state': 'disabled'}, 200
-        if not payload['os_snapshot_cache'] or (payload['surface'] == 'live_activity' and not payload['locked_display']):
+        if not payload['os_snapshot_cache'] or (payload['surface'] in {'live_activity', 'watch_widget'} and not payload['locked_display']):
             return error('surface_consent_required', 403)
         if key not in grants and len(grants) >= MAX_GRANTS:
             return error('surface_capacity', 409)

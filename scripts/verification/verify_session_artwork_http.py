@@ -98,8 +98,12 @@ async def main():
             "spotify_refresh_token": "fixture-provider-only",
         },
     )
+    watch_identity = {"device_id": "djconnect-watchos-ABCDEF123458", "client_type": "watchos"}
+    watch_slot = entry("watch-owner", {**watch_identity, "profile_backend_entry_id":"owner-entry",
+        "pair_code":"345678", "music_backend":"spotify_direct", "profile_id":"profile-a",
+        "music_account_id":"fixture-account"}) if os.environ.get('DJC_PASSIVE_PROGRESS_PROBE') == '1' else None
     store = ConfigEntryStore(hass)
-    await store.async_save({"entries": [slot.as_storage_fragment, second_slot.as_storage_fragment]})
+    await store.async_save({"entries": [slot.as_storage_fragment, second_slot.as_storage_fragment] + ([watch_slot.as_storage_fragment] if watch_slot else [])})
     hass.config_entries = ConfigEntries(hass, {})
     await hass.config_entries.async_initialize()
     slot = hass.config_entries.async_get_entry("owner-entry")
@@ -115,6 +119,12 @@ async def main():
         "second-owner": second_runtime,
         "runtime": runtime,
     }
+    watch_runtime = None
+    if watch_slot is not None:
+        watch_slot = hass.config_entries.async_get_entry("watch-owner")
+        watch_slot._async_set_state(hass, ConfigEntryState.LOADED, None)
+        watch_runtime = DJConnectRuntime(watch_slot)
+        hass.data['djconnect']['watch-owner'] = watch_runtime
     storage = ProfilePlatformStorage(hass)
     hass.data["djconnect"]["djconnect_profile_platform"] = storage
     await storage.async_upsert_music_backend(
@@ -141,6 +151,8 @@ async def main():
         preferences=replace(profile.preferences, default_music_account_id="fixture-account"),
     )
     await storage.async_upsert_device(identity["device_id"], "ios", linked_profile_id="profile-a")
+    if watch_runtime is not None:
+        await storage.async_upsert_device(watch_identity['device_id'], 'watchos', linked_profile_id='profile-a')
     await storage.async_upsert_device(
         second_identity["device_id"], "macos", linked_profile_id="profile-a"
     )
@@ -270,6 +282,29 @@ async def main():
         paired = await pair.json()
         assert pair.status == 200 and paired['success']
         headers = {'Authorization': 'Bearer '+paired['device_token'], 'X-DJConnect-Device-ID': identity['device_id']}
+        progress_headers = watch_headers = None
+        if os.environ.get('DJC_PASSIVE_PROGRESS_PROBE') == '1':
+            hass.data['djconnect']['runtime'] = second_runtime
+            try:
+                second_pair = await client.post('/api/djconnect/v1/pair',
+                    json={**second_identity, 'pair_code':'234567'})
+            finally:
+                hass.data['djconnect']['runtime'] = runtime
+            second_paired = await second_pair.json()
+            assert second_pair.status == 200 and second_paired['success'], (second_pair.status, second_paired.get('error'))
+            progress_headers = {'Authorization':'Bearer '+second_paired['device_token'],
+                                'X-DJConnect-Device-ID':second_identity['device_id']}
+        if watch_runtime is not None:
+            hass.data['djconnect']['runtime'] = watch_runtime
+            try:
+                watch_pair = await client.post('/api/djconnect/v1/pair',
+                    json={**watch_identity, 'pair_code':'345678'})
+            finally:
+                hass.data['djconnect']['runtime'] = runtime
+            watch_paired = await watch_pair.json()
+            assert watch_pair.status == 200 and watch_paired['success'], (watch_pair.status, watch_paired.get('error'))
+            watch_headers = {'Authorization':'Bearer '+watch_paired['device_token'],
+                             'X-DJConnect-Device-ID':watch_identity['device_id']}
         async def post(path, payload):
             response = await client.post('/api/djconnect/v1'+path, json=payload, headers=headers)
             body = await response.json()
@@ -324,6 +359,19 @@ async def main():
         assert r.status==200 and await r.read()==pixels['a'*40]
         first_image_latency=time.monotonic()-image_clock
         cases['playback_cover']={'projection':cover,'bytes_sha256':hashlib.sha256(pixels['a'*40]).hexdigest()}
+        if os.environ.get('DJC_PASSIVE_PROGRESS_PROBE') == '1':
+            from passive_progress_lab import run
+            await run(hass=hass, runtime=runtime, client=client, headers=headers,
+                      identity=identity, manager=manager, storage=storage, sid=sid,
+                      calls=calls, output=directory, source_hashes=source_hashes,
+                      second_identity=second_identity, selected=selected,
+                      second_headers=progress_headers, watch_identity=watch_identity, watch_headers=watch_headers)
+            hass.data[aiohttp_client.DATA_CLIENTSESSION][cache_key] = provider_session
+            await image_client.close()
+            await provider_session.close()
+            await async_shutdown_persistence(hass)
+            await hass.async_stop()
+            return
         for _ in range(24):
             active = await manager.async_get_active('profile-a')
             moments = [m for m in active.broadcast.state.dj_moments if getattr(m,'source_fact',None)]

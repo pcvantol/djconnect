@@ -1,3 +1,25 @@
+## 2026-11-06 — Explicit minimal Watch Smart Stack purpose
+
+The human narrows Watch Smart Stack to track name + cover in confirmed Session
+Mood color, no DJ contribution/progress/artist/album display. Select a separate
+optional paired_watch_widget_v1 surface scope in the existing passive family;
+never replicate iPhone grants or borrow private foreground/Flow rights. Own
+watchos identity + enabled/cache/locked-display consent and original source/
+expiry fences are mandatory. See docs/product/WATCH_SMART_STACK_PASSIVE_SCOPE_V1.md.
+No live pairing/runtime/native/background/APNs admission is granted by source work.
+
+## 2026-11-06 — Passive widget original playback progress
+
+The owner requests current track/artist/album, progress, qualified cover, confirmed
+Mood colors and current/latest public DJ contribution in the Mac widget. Native
+configuration/cache diagnosis stays with Apple; never bypass explicit surface
+consent or borrow private foreground data to fill an empty cache. Core adds only
+opt-in passive projection_version3 original progress, retaining v1/v2 wire bytes,
+current/latest contribution qualification and original cache/authority deadlines.
+See docs/product/PASSIVE_SESSION_PROGRESS_V3.md. No provider action, model call,
+new observation/grant on read, APNs claim or separate intelligence. Apple owns
+size-specific line truncation and expiry-aware deterministic rendering.
+
 ## 2026-11-06 — Action-scoped Spotify volume refusal
 
 Fix the reported iPhone output volume failure as one Core increment. Preserve
