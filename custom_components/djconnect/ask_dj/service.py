@@ -152,6 +152,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             stored = await query()._repository.async_session_record(session_id)
             if stored is None or not stored["history_enabled"]:
                 persist_history = False
+        metadata_history_allowed = bool(persist_history and session_id
+            and payload.get("privacy_mode") in (None, "default"))
+        metadata_archive = None
         target, live = context.get("selected_entry"), context.get("selected_moment")
         # Explicit subjects come from the current question. A stale chip cannot block them.
         from .public_research import explicit_public_subject, safe_subject
@@ -419,7 +422,16 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             await turn.guard()
             if turn.explicit_research_subject:
                 context = {k:v for k,v in context.items() if k not in {"selected_entry","selected_moment"}}
-            if result.pop("_private_current_context", False):
+            if metadata_history_allowed:
+                from .observations import current_metadata_archive
+                metadata_archive = await current_metadata_archive(
+                    hass, turn, result, query(), profile_id, session_id, implicit)
+                if metadata_archive is not None:
+                    persist_history = turn.archiveable = True
+                    turn.delivery_validators.append(metadata_archive)
+                    turn.provider_display_source = {"provider": "Spotify",
+                        "source_context": deepcopy(turn.reply_source_context)}
+            if result.pop("_private_current_context", False) and metadata_archive is None:
                 # Live mutable intent and unqualified catalog retention are not
                 # promoted into the permanent conversation/Session archive.
                 persist_history = False
@@ -470,7 +482,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             turn_record["provider_display_source"] = deepcopy(turn.provider_display_source)
         from ..reply_artwork import accepted as accepted_reply_media, KEY as REPLY_MEDIA_KEY
         reply_media = accepted_reply_media(turn, result)
-        if persist_history and reply_media is not None:
+        if persist_history and reply_media is not None and metadata_archive is None:
             from ..session_conversation import async_metadata_archive_admission
             reply_archive = await async_metadata_archive_admission(
                 hass, profile_id, reply_media['source_context'], turn.reply_source_authority)
@@ -484,9 +496,13 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             new = saved is None
             async def persistence_guard():
                 # SessionRuntimeManager owns its short lock here; never reacquire it.
+                if metadata_archive is not None:
+                    metadata_archive()
                 if recent_archive is not None:
                     recent_archive()
                 await guard(check_runtime=not (bool(style_session) or settings_token is not None))
+                if metadata_archive is not None:
+                    metadata_archive()
                 if recent_archive is not None:
                     recent_archive()
 
@@ -496,6 +512,12 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                     archival_result = {k: v for k, v in result.items() if k != RECENT_KEY}
                     if retained_recent is not None:
                         archival_result[RECENT_KEY] = retained_recent
+                    if metadata_archive is not None:
+                        metadata_archive()
+                        archival_result = {k: deepcopy(result[k]) for k in (
+                            "success", "text", "dj_text", "intent", "action", "sources", "links",
+                            "speech_processing_basis") if k in result}
+                        archival_result.update(images=[], playback_actions=[], audio_url=None)
                     catalogue_caption = result.get("_catalogue_history_caption")
                     if (result.get("text_source") == "qualified_catalog_result"
                             and isinstance(catalogue_caption, str)):
@@ -521,6 +543,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                     # All authority/storage/source awaits precede this synchronous acceptance fence.
                     validate_content_dependencies()
                     validate_retained_deadline()
+                    if metadata_archive is not None:
+                        metadata_archive()
                     if history_manager.scope_revision(scope) != expected or history_grant_revision(hass, profile_id) != grant:
                         raise SessionConversationError("conversation_context_changed")
                     if session_id:

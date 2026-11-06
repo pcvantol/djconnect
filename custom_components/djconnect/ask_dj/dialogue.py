@@ -234,6 +234,7 @@ class DialogueTurn:
     retire_startup_after_play: Any = None  # Original server Session, negative-only fence.
     provider_display_source: dict | None = None  # Original archive binding, never model input.
     reply_source_context: dict | None = None
+    current_metadata_history: Any = None  # Typed local literal read; never a wire/model grant.
     reply_source_authority: Any = None
     reply_media_candidate: Any = None  # Exact image/subject from this response only.
     historical_playback_admission: Any = None  # RAM-only original-source validator.

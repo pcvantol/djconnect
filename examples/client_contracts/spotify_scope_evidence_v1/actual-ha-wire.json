@@ -1,6 +1,6 @@
 {
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "e6901c02cbeb2af4d87d3fc6dd6afc608d410d0c1a04cf0118dd01ef3215f568",
+  "raw_receipt_sha256": "1ba772b31bc536368fc426f2a9a91d13b4f2c1a4bc8a16bb3c90af3138384193",
   "receipt": {
     "actual_ha_store_readback": true,
     "cases": {
@@ -45,7 +45,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-06T20:43:15.876151+00:00",
+            "observed_at": "2026-11-06T21:43:19.336823+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -89,7 +89,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-06T20:43:15.878667+00:00",
+            "observed_at": "2026-11-06T21:43:19.340104+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -132,7 +132,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-06T20:43:15.880186+00:00",
+            "observed_at": "2026-11-06T21:43:19.342999+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -162,7 +162,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-06T20:43:15.881610+00:00",
+            "observed_at": "2026-11-06T21:43:19.345419+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -192,7 +192,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": [],
-            "observed_at": "2026-11-06T20:43:15.883339+00:00",
+            "observed_at": "2026-11-06T21:43:19.347638+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -234,7 +234,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-06T20:43:15.889279+00:00",
+            "observed_at": "2026-11-06T21:43:19.352728+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -276,7 +276,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-06T20:43:15.931463+00:00",
+            "observed_at": "2026-11-06T21:43:19.388952+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -318,7 +318,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-06T20:43:15.932065+00:00",
+            "observed_at": "2026-11-06T21:43:19.389771+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -350,7 +350,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-06T20:43:15.932579+00:00",
+            "observed_at": "2026-11-06T21:43:19.390379+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -395,7 +395,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-06T20:43:15.932579+00:00",
+            "observed_at": "2026-11-06T21:43:19.390379+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -450,7 +450,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-06T20:43:15.937840+00:00",
+            "observed_at": "2026-11-06T21:43:19.392738+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -505,7 +505,7 @@
       "custom_components/djconnect/ask_dj/artist_tracks.py": "45047d54f079952d6486fded5b1eae7dbce5cfc41a9cef4f0acf3bf39695cdf4",
       "custom_components/djconnect/ask_dj/band_story.py": "070589b2eed6311843f91a0aff993eb02faea74b37e69a46169f2f7c59226433",
       "custom_components/djconnect/ask_dj/biographical_dates.py": "70584e2a80bf8e14eb7d31728959e143d02d22743833bd7090ae2202d7eb299c",
-      "custom_components/djconnect/ask_dj/dialogue.py": "9b6160ed559f8634f89ad49b9c2073f57870c4d65d652dcb1a69745db1938f68",
+      "custom_components/djconnect/ask_dj/dialogue.py": "9723eaab82a70cb3c700365589862ee0d80ce4845849a5412d51fa5f60b2b2fd",
       "custom_components/djconnect/ask_dj/example_catalogue.py": "1cf64d63736bdf859ee2bb11323830c983412db41a1f198941532d9e885b6cc7",
       "custom_components/djconnect/ask_dj/example_catalogue_data.py": "2686951e64ee5cff59f5e188f753165def71eb4d244574bb2e07cf3a3a4fe85f",
       "custom_components/djconnect/ask_dj/examples_v1.json": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
@@ -513,7 +513,7 @@
       "custom_components/djconnect/ask_dj/help_configuration.py": "f098ead71160b0bd90580a72db8fff9828c5069e5f7dd3e35bb29c700b27476c",
       "custom_components/djconnect/ask_dj/help_observation.py": "c309e27ce1f71acabead4122397d526952799dfc0efddfc5fd9240af4d513f7e",
       "custom_components/djconnect/ask_dj/intents.py": "545c7cf45bc5a66719d66bed5ef2633a4e01343645080af733a11869f1c01032",
-      "custom_components/djconnect/ask_dj/observations.py": "c94e0559729c8acda99a01f4ee11daf3f8083a0b767064d9147670a23386e8b3",
+      "custom_components/djconnect/ask_dj/observations.py": "79c45e4a6fb17a6d818adf3ef3948c743ec926af68a5f0429e032b089310747c",
       "custom_components/djconnect/ask_dj/person_age.py": "20b3018c2c7b46935dfabc46c1b9d307d14f1dab777ace9e8327a367ed00b139",
       "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
       "custom_components/djconnect/ask_dj/public_research.py": "d710d2f6c5699be8918694d2003ebd77941851c51c7da0a9c909071ee53c6811",
@@ -522,7 +522,7 @@
       "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",
       "custom_components/djconnect/ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
       "custom_components/djconnect/ask_dj/semantic_reads.py": "5539c97335dbc983e8b96b1c1236d1398364d122c5a1689d632f8c2cedaa1e24",
-      "custom_components/djconnect/ask_dj/service.py": "98da37bede7b2cf8367992992a82fb89b22167872a974cffeda652b23af1eef1",
+      "custom_components/djconnect/ask_dj/service.py": "7ecf5d4a970c7779ffedbb7b1233a0bcf83204c1c3996824dbc33bd23bf81228",
       "custom_components/djconnect/ask_dj/spotify_collection_offers.py": "e5280e80a06c3b635050f886d6e39234c7918cc4d23e393adaddfeebb2b89247",
       "custom_components/djconnect/ask_dj_history.py": "9754714514f8f8741d3886b924fc38571865750775bb6a316b5e2917549222e5",
       "custom_components/djconnect/assist_stt.py": "609b5a7ec4c40eda3d87a84d9391256bd930c1dd1c80a5171b03df79c68aa6e5",
@@ -798,7 +798,7 @@
     "custom_components/djconnect/ask_dj/artist_tracks.py": "45047d54f079952d6486fded5b1eae7dbce5cfc41a9cef4f0acf3bf39695cdf4",
     "custom_components/djconnect/ask_dj/band_story.py": "070589b2eed6311843f91a0aff993eb02faea74b37e69a46169f2f7c59226433",
     "custom_components/djconnect/ask_dj/biographical_dates.py": "70584e2a80bf8e14eb7d31728959e143d02d22743833bd7090ae2202d7eb299c",
-    "custom_components/djconnect/ask_dj/dialogue.py": "9b6160ed559f8634f89ad49b9c2073f57870c4d65d652dcb1a69745db1938f68",
+    "custom_components/djconnect/ask_dj/dialogue.py": "9723eaab82a70cb3c700365589862ee0d80ce4845849a5412d51fa5f60b2b2fd",
     "custom_components/djconnect/ask_dj/example_catalogue.py": "1cf64d63736bdf859ee2bb11323830c983412db41a1f198941532d9e885b6cc7",
     "custom_components/djconnect/ask_dj/example_catalogue_data.py": "2686951e64ee5cff59f5e188f753165def71eb4d244574bb2e07cf3a3a4fe85f",
     "custom_components/djconnect/ask_dj/examples_v1.json": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
@@ -806,7 +806,7 @@
     "custom_components/djconnect/ask_dj/help_configuration.py": "f098ead71160b0bd90580a72db8fff9828c5069e5f7dd3e35bb29c700b27476c",
     "custom_components/djconnect/ask_dj/help_observation.py": "c309e27ce1f71acabead4122397d526952799dfc0efddfc5fd9240af4d513f7e",
     "custom_components/djconnect/ask_dj/intents.py": "545c7cf45bc5a66719d66bed5ef2633a4e01343645080af733a11869f1c01032",
-    "custom_components/djconnect/ask_dj/observations.py": "c94e0559729c8acda99a01f4ee11daf3f8083a0b767064d9147670a23386e8b3",
+    "custom_components/djconnect/ask_dj/observations.py": "79c45e4a6fb17a6d818adf3ef3948c743ec926af68a5f0429e032b089310747c",
     "custom_components/djconnect/ask_dj/person_age.py": "20b3018c2c7b46935dfabc46c1b9d307d14f1dab777ace9e8327a367ed00b139",
     "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
     "custom_components/djconnect/ask_dj/public_research.py": "d710d2f6c5699be8918694d2003ebd77941851c51c7da0a9c909071ee53c6811",
@@ -815,7 +815,7 @@
     "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",
     "custom_components/djconnect/ask_dj/responses.py": "66364a9e6cc0de37581adfbee882413a83f5cd5ef01f84fddf6bc4fff3c9df92",
     "custom_components/djconnect/ask_dj/semantic_reads.py": "5539c97335dbc983e8b96b1c1236d1398364d122c5a1689d632f8c2cedaa1e24",
-    "custom_components/djconnect/ask_dj/service.py": "98da37bede7b2cf8367992992a82fb89b22167872a974cffeda652b23af1eef1",
+    "custom_components/djconnect/ask_dj/service.py": "7ecf5d4a970c7779ffedbb7b1233a0bcf83204c1c3996824dbc33bd23bf81228",
     "custom_components/djconnect/ask_dj/spotify_collection_offers.py": "e5280e80a06c3b635050f886d6e39234c7918cc4d23e393adaddfeebb2b89247",
     "custom_components/djconnect/ask_dj_history.py": "9754714514f8f8741d3886b924fc38571865750775bb6a316b5e2917549222e5",
     "custom_components/djconnect/assist_stt.py": "609b5a7ec4c40eda3d87a84d9391256bd930c1dd1c80a5171b03df79c68aa6e5",
