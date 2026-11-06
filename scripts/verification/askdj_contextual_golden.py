@@ -15,8 +15,8 @@ LANGUAGES = {
     "es": ("¿Quién es Peter?", "¿Quién es el compositor?", "¿Quién es Miles Davis?"),
 }
 ACTIVE_CASE = ContextVar("askdj_golden_case", default=None)
-MAX_MODEL_CALLS = 40
-MAX_OUTPUT_TOKENS = 700
+MAX_MODEL_CALLS = 42  # 20 question cases × 2, plus 2 bound publication-setup calls.
+MAX_OUTPUT_TOKENS = 3000
 SETUP_CASE = "ASKDJ-GOLDEN-SETUP-published-credit"
 
 

@@ -3195,6 +3195,10 @@
         {
           "file": "tests/test_ask_dj_exploration.py",
           "method": "test_more_on_reopened_older_contribution_uses_original_subject_and_current_style"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_temporal_receipts_admit_literal_short_titles_but_not_ordinary_words"
         }
       ],
       "real_ha_profile": "full_golden",

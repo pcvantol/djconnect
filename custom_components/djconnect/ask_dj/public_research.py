@@ -1984,12 +1984,13 @@ def temporal_evidence_ok(answer, data, context):
         sentence, anchor, year, source_id, quote = (claim[k] for k in ('claim', 'event_anchor', 'year', 'source_id', 'quote'))
         source = sources.get(source_id, {})
         excerpt = source.get('untrusted_excerpt', '')
-        if (not 4 <= len(anchor) <= 120 or not 1 <= len(sentence) <= 1200 or not 1 <= len(quote) <= 1200
+        if (not 1 <= len(anchor) <= 120 or not 1 <= len(sentence) <= 1200 or not 1 <= len(quote) <= 1200
                 or not re.fullmatch(r'[0-9a-f]{64}', source_id) or not _YEAR.fullmatch(year)
                 or anchor not in source.get('source_anchors', [])
                 or sentence not in _sentences(answer) or quote not in _sentences(excerpt)
                 or quote[-1] not in '.!?' or set(_YEAR.findall(quote)) != {year}
                 or not _answer_mentions_anchor(sentence, anchor, anchors)
+                or (len(anchor) < 4 and not _answer_mentions_anchor(quote, anchor, anchors))
                 or not _year_end_bounds_fit(sentence, quote)
                 or not re.search(r'(?<!\w)' + re.escape(anchor) + r'(?!\w)', quote, re.I)
                 or any(pattern.search(sentence) and not pattern.search(quote) for pattern in _EVENT_ACTIONS)

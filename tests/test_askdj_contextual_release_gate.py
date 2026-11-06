@@ -424,6 +424,18 @@ class ContextualReleaseGateTest(unittest.TestCase):
             mutate(changed)
             self.assertFalse(RUNNER.validate_report(changed, 'a' * 40))
 
+    def test_all_question_attempts_and_setup_have_one_bounded_total(self):
+        good = self.report()
+        for row in good['cases']:
+            row['paid_attempts'] = 2
+        good['usage'] = [deepcopy(row) for row in good['usage'] for _ in range(2)]
+        good['usage'].extend([{**good['usage'][0], 'case_id': GOLDEN.SETUP_CASE} for _ in range(2)])
+        good.update(setup_paid_model_calls=2, setup_findings=[], paid_model_calls=42)
+        self.assertEqual(GOLDEN.MAX_MODEL_CALLS, 42)
+        self.assertEqual(GOLDEN.MAX_OUTPUT_TOKENS, 3000)
+        self.assertTrue(RUNNER.validate_report(good, 'a' * 40))
+        self.assertFalse(RUNNER.validate_report({**good, 'paid_model_calls': 43}, 'a' * 40))
+
     def test_failed_setup_keeps_a_failed_receipt_without_submitting_questions(self):
         import asyncio
         async def start(*args, **kwargs):

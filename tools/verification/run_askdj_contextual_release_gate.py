@@ -13,7 +13,7 @@ from tempfile import TemporaryDirectory
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-from scripts.verification.askdj_contextual_golden import MAX_MODEL_CALLS, SETUP_CASE, cases, manifest_digest  # noqa: E402
+from scripts.verification.askdj_contextual_golden import MAX_MODEL_CALLS, MAX_OUTPUT_TOKENS, SETUP_CASE, cases, manifest_digest  # noqa: E402
 
 IMAGE = "ghcr.io/home-assistant/home-assistant@sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4"
 MAX_SECONDS = 600
@@ -82,7 +82,7 @@ def main():
                "/candidate/scripts/verification/verify_ask_dj_contextual_dialogue_http.py"]
         try:
             with (temp / "private-run.log").open("w") as log:
-                result = subprocess.run(cmd, input=json.dumps({"api_key": key, "model": "gpt-6-luna", "max_tokens": 700}),
+                result = subprocess.run(cmd, input=json.dumps({"api_key": key, "model": "gpt-6-luna", "max_tokens": MAX_OUTPUT_TOKENS}),
                                         text=True, stdout=log, stderr=subprocess.STDOUT, timeout=MAX_SECONDS,
                                         check=False)
         except subprocess.TimeoutExpired:

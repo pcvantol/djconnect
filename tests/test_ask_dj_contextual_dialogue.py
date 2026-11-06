@@ -1472,6 +1472,38 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                     self.assertFalse(research.supported(json.dumps(receipt(rejected)),rejected,context))
             self.assertEqual(source['untrusted_excerpt'],quote)
 
+    def test_temporal_receipts_admit_literal_short_titles_but_not_ordinary_words(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        faithful = [
+            '{title} was released by the end of 2007.',
+            '{title} werd uiterlijk eind 2007 uitgebracht.',
+            '{title} erschien spätestens Ende 2007.',
+            '{title} est paru au plus tard fin 2007.',
+            '{title} se publicó a más tardar a finales de 2007.',
+        ]
+        for title in ('One', 'Up', 'I'):
+            for template in faithful:
+                quote = template.format(title='"' + title + '"')
+                source = research._source('Wikipedia', 'Ada Reed',
+                    'https://en.wikipedia.org/wiki/Ada_Reed', quote, 'en',
+                    source_anchors=[title]).model_data()
+                context = {'public_music_research': {'schema_version': 2, 'sources': [source]}}
+                def receipt(answer, evidence=quote):
+                    return {'temporal_claims': [{'claim': answer, 'event_anchor': title,
+                        'year': '2007', 'source_id': source['content_hash'], 'quote': evidence}]}
+                for answer_template in faithful:
+                    answer = answer_template.format(title='“' + title + '”')
+                    with self.subTest(title=title, answer=answer, quote=quote):
+                        self.assertTrue(research.temporal_evidence_ok(answer, receipt(answer), context))
+                        unquoted = answer_template.format(title=title)
+                        self.assertFalse(research.temporal_evidence_ok(unquoted, receipt(unquoted), context))
+                        self.assertFalse(research.temporal_evidence_ok(answer,
+                            receipt(answer, quote.replace('"' + title + '"', title)), context))
+                        wrong_year = answer.replace('2007', '2008')
+                        self.assertFalse(research.temporal_evidence_ok(wrong_year, receipt(wrong_year), context))
+                narrowed = '“' + title + '” was released at the end of 2007.'
+                self.assertFalse(research.temporal_evidence_ok(narrowed, receipt(narrowed), context))
+
     def test_year_end_bound_does_not_transfer_from_another_work_in_the_paragraph(self):
         from custom_components.djconnect.ask_dj import public_research as research
         first = 'Paper Lanterns was released in 2007.'
