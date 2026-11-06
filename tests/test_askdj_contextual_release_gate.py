@@ -384,10 +384,23 @@ class ContextualReleaseGateTest(unittest.TestCase):
                              'license': 'CC-BY-SA-4.0', 'wikidata_id': 'Q3376733', 'content_hash': 'a' * 64,
                              'fetched_at': now.isoformat(), 'expires_at': (now + timedelta(hours=1)).isoformat()}]}
 
+    def test_dutch_jazz_trumpeter_compound_preserves_actual_public_fact(self):
+        row = next(row for row in GOLDEN.cases() if row['id'] == 'ASKDJ-GOLDEN-001-nl-new-topic')
+        response = self.response()
+        response['conversation']['context'] = {}
+        response['sources'][0].update(url='https://en.wikipedia.org/wiki/Miles_Davis', wikidata_id='Q93341')
+        response['text'] = 'Miles Davis was een Amerikaanse jazztrompettist, bandleider, componist en schilder.'
+        self.assertEqual(GOLDEN.check_response(row, response, {}), [])
+        response['text'] = 'Miles Davis was geen jazztrompettist.'
+        self.assertIn('contradictory_biography', GOLDEN.check_response(row, response, {}))
+        response['text'] = 'Miles Davis was een componist.'
+        self.assertIn('expected_public_fact_missing', GOLDEN.check_response(row, response, {}))
+
     def test_german_jazz_trumpeter_compound_preserves_actual_public_fact(self):
         row = next(row for row in GOLDEN.cases() if row['id'] == 'ASKDJ-GOLDEN-001-de-new-topic')
         response = self.response()
         response['conversation']['context'] = {}
+        response['sources'][0].update(url='https://en.wikipedia.org/wiki/Miles_Davis', wikidata_id='Q93341')
         response['text'] = 'Miles Davis war ein US-amerikanischer Jazztrompeter, Komponist und Bandleader.'
         self.assertEqual(GOLDEN.check_response(row, response, {}), [])
         response['text'] = 'Miles Davis war kein Jazztrompeter.'
