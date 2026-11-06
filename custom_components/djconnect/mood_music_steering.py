@@ -960,9 +960,13 @@ async def first_play_choose(hass, runtime, action, shown, turn):
         await turn.guard()
         if result.get("success") is False:
             raise DialogueError("first_play_output_unavailable", 409)
-        devices = await admission.outputs(backend)
-        if [d["id"] for d in devices if d.get("is_active") or d.get("active")] != [output_id]:
-            raise DialogueError("first_play_output_changed", 409)
+        # The normal adapter already performs a fresh player read after the
+        # transfer. Its exact output receipt is stronger than an independently
+        # lagging devices list, and does not confirm the mix or grant a retry.
+        if not _confirmed_first_play_output(result, output_id):
+            devices = await admission.outputs(backend)
+            if [d["id"] for d in devices if d.get("is_active") or d.get("active")] != [output_id]:
+                raise DialogueError("first_play_output_changed", 409)
         return await _for_you_dispatch(hass, runtime, admission, admission.chosen_action, turn)
     if action.get("kind") != "track_mix" or admission.phase != "genres":
         raise DialogueError("choice_unavailable", 409)
@@ -982,6 +986,18 @@ async def first_play_choose(hass, runtime, action, shown, turn):
                                  reason=None if actions else "no_available_output")
     admission.output_id = active_ids[0]
     return await _for_you_dispatch(hass, runtime, admission, action, turn)
+
+
+def _confirmed_first_play_output(result, output_id):
+    """Consume only the private normal adapter's matching post-transfer receipt."""
+    receipt = result.get("action_outcome")
+    playback = result.get("playback")
+    return (result.get("success") is not False and isinstance(receipt, dict)
+            and isinstance(playback, dict) and isinstance(playback.get("device"), dict)
+            and receipt.get("state") == "dispatched"
+            and receipt.get("readback_confirmed") is True
+            and receipt.get("selected_output_id") == output_id
+            and playback["device"].get("id") == output_id)
 
 
 FOR_YOU_LABELS = dict(zip(COPY, ("For you", "Voor jou", "Für dich", "Pour toi", "Para ti")))

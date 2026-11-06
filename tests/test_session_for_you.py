@@ -34,6 +34,26 @@ class ForYouTests(IsolatedAsyncioTestCase):
                 self.assertEqual(self.reservations, [])
                 self.assertEqual(self.active.broadcast.first_play_state, 'ready')
 
+    async def test_output_confirmation_needs_matching_private_receipt_and_player(self):
+        from copy import deepcopy
+        valid = {'success': True, 'action_outcome': {'state': 'dispatched',
+            'readback_confirmed': True, 'selected_output_id': 'synthetic-output'},
+            'playback': {'device': {'id': 'synthetic-output'}, 'is_playing': False}}
+        self.assertTrue(self.steering._confirmed_first_play_output(valid, 'synthetic-output'))
+        for key, value in [('state', 'uncertain'), ('readback_confirmed', False),
+                           ('readback_confirmed', 1), ('selected_output_id', 'other-output')]:
+            changed = deepcopy(valid)
+            changed['action_outcome'][key] = value
+            self.assertFalse(self.steering._confirmed_first_play_output(changed, 'synthetic-output'))
+        for playback in ({}, {'device': None}, {'device': {'id': 'other-output'}}):
+            self.assertFalse(self.steering._confirmed_first_play_output(
+                {**valid, 'playback': playback}, 'synthetic-output'))
+        for receipt in (None, {}, {'readback_confirmed': True}):
+            self.assertFalse(self.steering._confirmed_first_play_output(
+                {**valid, 'action_outcome': receipt}, 'synthetic-output'))
+        self.assertFalse(self.steering._confirmed_first_play_output(
+            {**valid, 'success': False}, 'synthetic-output'))
+
     async def test_genre_then_output_finishes_same_mix(self):
         self.devices[0]['is_active'] = False
         genres = await self.offer()

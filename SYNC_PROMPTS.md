@@ -1,3 +1,14 @@
+## 2026-11-06 — For-you original output readback repair
+
+See docs/product/SESSION_FOR_YOU_V1.md: an exact private post-transfer player
+readback may confirm the originally admitted speaker even while the separate
+device inventory lags. An old paused track is not mix confirmation. No second
+transfer, automatic start retry, new choice/context/lease or Watch authority is
+granted. EN/NL qualification uses real paired HA/adapters with only external
+Spotify response wires synthetic; physical provider/native acceptance remains
+separate. The original native13:46 error response was not retained, so the
+reproduced inventory case is not claimed as its proven cause.
+
 ## 2026-11-06 — Voor jou locale, confirmed Mood refresh and output continuation
 
 Owner-requested Core/Apple repair, coordinated with Apple chat `apple 3`.
