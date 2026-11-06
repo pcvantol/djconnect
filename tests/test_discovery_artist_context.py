@@ -5,6 +5,7 @@ from copy import deepcopy
 import importlib
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 from urllib.parse import urlsplit, parse_qs
 from tests.test_http_voice_helpers import install_http_stubs
 
@@ -170,3 +171,106 @@ class DiscoveryArtistResolverTests(unittest.TestCase):
         self.backend._request = withdrawn
         with self.assertRaisesRegex(self.module.SpotifyDiscoveryError, "context_changed"):
             self.resolve()
+
+
+class DirectDiscoveryArtistCommandTests(unittest.TestCase):
+    """Current artist dispatch resolves identity, never editorial playlists."""
+
+    setUpClass = classmethod(DiscoveryArtistResolverTests.setUpClass.__func__)
+    setUp = DiscoveryArtistResolverTests.setUp
+
+    def test_current_command_uses_original_artist_without_playlist_reads(self):
+        for name, ident in [
+            ("London Grammar", "3Bd1cgCjtCI32PYvDC3ynO"),
+            ("Snow Patrol", "3rIZMv9rysU7JkLzEaC5Jp"),
+            ("Son Mieux", "1BCBAzjX8J0qpvNTPRDCLc"),
+        ]:
+            with self.subTest(artist=name):
+                self.setUp()
+                self.artist = ident
+                self.artist_data.update(id=ident, uri="spotify:artist:" + ident, name=name)
+                self.results = []
+
+                async def exercise():
+                    with patch.object(self.module, "SpotifyBackend", return_value=self.backend):
+                        with self.module.discovery_dispatch(lambda: True, lambda: None):
+                            return await self.module.handle_spotify_command(
+                                None,
+                                self.backend.runtime,
+                                "resolve_discovery_artist",
+                                self.artist_data["uri"],
+                                play=False,
+                            )
+
+                result = asyncio.run(exercise())
+                self.assertTrue(result["success"])
+                self.assertEqual(result["item"]["uri"], self.artist_data["uri"])
+                self.assertEqual(result["item"]["identity_basis"], "spotify_artist_identity")
+                self.assertEqual([(m, p) for m, p, _ in self.calls], [("GET", "/artists/" + ident)])
+
+    def test_current_command_rejects_inconsistent_provider_artist(self):
+        for changed in [
+            {"id": "Z" * 22},
+            {"uri": "spotify:artist:" + "Z" * 22},
+            {"type": "playlist"},
+            {"name": ""},
+        ]:
+            with self.subTest(changed=changed):
+                self.setUp()
+                self.artist_data.update(changed)
+
+                async def exercise():
+                    with patch.object(self.module, "SpotifyBackend", return_value=self.backend):
+                        with self.module.discovery_dispatch(lambda: True, lambda: None):
+                            return await self.module.handle_spotify_command(
+                                None,
+                                self.backend.runtime,
+                                "resolve_discovery_artist",
+                                "spotify:artist:" + self.artist,
+                                play=False,
+                            )
+
+                with self.assertRaisesRegex(self.module.SpotifyDiscoveryError, "artist_invalid"):
+                    asyncio.run(exercise())
+                self.assertTrue(all(m == "GET" for m, _, _ in self.calls))
+
+    def test_current_command_rejects_withdrawal_during_artist_read(self):
+        active = [True]
+        original = self.backend._request
+
+        async def withdraw(*args, **kwargs):
+            result = await original(*args, **kwargs)
+            active[0] = False
+            return result
+
+        self.backend._request = withdraw
+
+        async def exercise():
+            with patch.object(self.module, "SpotifyBackend", return_value=self.backend):
+                with self.module.discovery_dispatch(lambda: active[0], lambda: None):
+                    return await self.module.handle_spotify_command(
+                        None,
+                        self.backend.runtime,
+                        "resolve_discovery_artist",
+                        self.artist_data["uri"],
+                        play=False,
+                    )
+
+        with self.assertRaisesRegex(self.module.SpotifyDiscoveryError, "context_changed"):
+            asyncio.run(exercise())
+        self.assertTrue(all(m == "GET" for m, _, _ in self.calls))
+
+    def test_current_command_cannot_mint_effect_scope(self):
+        async def exercise():
+            with patch.object(self.module, "SpotifyBackend", return_value=self.backend):
+                return await self.module.handle_spotify_command(
+                    None,
+                    self.backend.runtime,
+                    "resolve_discovery_artist",
+                    self.artist_data["uri"],
+                    play=False,
+                )
+
+        with self.assertRaisesRegex(self.module.SpotifyDiscoveryError, "effect_not_authorized"):
+            asyncio.run(exercise())
+        self.assertEqual(self.calls, [])

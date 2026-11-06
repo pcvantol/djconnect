@@ -178,7 +178,11 @@ async def handle_spotify_command(
         if scope is None:
             raise SpotifyDiscoveryError("music_discovery_effect_not_authorized")
         scope.require_current()
-        return {"success": True, "item": await backend.resolve_discovery_artist(str(value or ""))}
+        # Artist cards start the exact cached artist, as explicitly selected by
+        # the owner. Editorial playlist access is not a playback prerequisite.
+        artist = await backend.discovery_artist_identity(str(value or ""))
+        scope.require_current()
+        return {"success": True, "item": {**artist, "identity_basis": "spotify_artist_identity"}}
     if normalized == "play_discovery_context" or (normalized == "play_uris" and scope is not None):
         return await backend.play_discovery_selection(value)
     if normalized == "status":
@@ -1604,7 +1608,7 @@ class SpotifyBackend:
             raise SpotifyDiscoveryError("music_discovery_effect_not_authorized")
         scope.require_current()
         uri = scope.approved_uri
-        if not isinstance(uri, str) or not re.fullmatch(r"spotify:(track|album|playlist):[A-Za-z0-9]{22}", uri):
+        if not isinstance(uri, str) or not re.fullmatch(r"spotify:(track|album|playlist|artist):[A-Za-z0-9]{22}", uri):
             raise SpotifyDiscoveryError("music_discovery_item_not_playable")
         expected = {"uris": [uri]} if uri.startswith("spotify:track:") else {"context_uri": uri}
         if value != expected:

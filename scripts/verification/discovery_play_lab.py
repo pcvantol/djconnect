@@ -18,7 +18,9 @@ STATE = {
     "context": "spotify:playlist:" + "O" * 22,
     "writes": 0,
     "disconnect_write": False,
-    "block_search": False,
+    "block_artist": False,
+    "invalid_artist": False,
+    "denied_artist": False,
     "block_token": False,
 }
 ENTERED = asyncio.Event()
@@ -55,12 +57,16 @@ async def provider_reply(req):
         "owner": {"id": "spotify"},
     }
     if path == "/v1/artists/" + ARTIST:
+        if STATE["block_artist"]:
+            ENTERED.set()
+            await RELEASE.wait()
+        if STATE["denied_artist"]:
+            return web.json_response({"error": {"message": "Synthetic artist denial"}}, status=403)
+        if STATE["invalid_artist"]:
+            artist["id"] = "Z" * 22
         return web.json_response(artist)
     if path == "/v1/search" and req.query.get("type") == "playlist":
         assert req.query.get("limit") == "10"
-        if STATE["block_search"]:
-            ENTERED.set()
-            await RELEASE.wait()
         return web.json_response(
             {"playlists": {"items": [] if STATE["empty_search"] else [playlist]}}
         )
@@ -129,14 +135,21 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
             runtime.memory.data["memories"]["profile:artwork-profile"].get("discovery_plays", [])
         )
 
+    STATE["empty_search"] = True
     payload = await card()
     before = feedback_count()
+    before_calls = len(network.calls)
+    # Untrusted extra URI must never replace the server-cached selection.
+    payload["uri"] = "spotify:artist:" + "Z" * 22
     result = await post("/music_discovery/play", payload)
     assert result["success"] and result["played"] and result["music_dna_feedback_recorded"], result
     assert result["action_outcome"]["readback_confirmed"] and STATE["writes"] == 1
-    assert STATE["context"] == "spotify:playlist:" + PLAYLIST and feedback_count() == before + 1
+    assert STATE["context"] == "spotify:artist:" + ARTIST and feedback_count() == before + 1
+    assert not any(
+        c["path"].startswith(("/v1/search", "/v1/playlists/")) for c in network.calls[before_calls:]
+    )
     wires["artist_success"] = result
-    cases["artist_real_cached_card_official_playlist_one_context_write"] = "PASS"
+    cases["artist_real_cached_card_direct_context_no_editorial_dependency_one_write"] = "PASS"
     duplicate = await post("/music_discovery/play", payload)
     assert (
         not duplicate["played"]
@@ -150,13 +163,14 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
     result = await post("/music_discovery/play", payload)
     assert result["played"] and STATE["writes"] == before_writes + 1, result
     cases["track_uses_single_track_selection"] = "PASS"
-    STATE["empty_search"] = True
+    STATE["invalid_artist"] = True
     payload = await card()
     before_writes, before_feedback = STATE["writes"], feedback_count()
     result = await post("/music_discovery/play", payload)
-    assert not result["played"] and result["error"] == "music_discovery_this_is_not_found", result
+    assert not result["played"] and result["error"] == "music_discovery_artist_invalid", result
     assert STATE["writes"] == before_writes and feedback_count() == before_feedback
-    cases["search_miss_is_not_nonexistence_or_permission_denial"] = "PASS"
+    cases["wrong_provider_artist_identity_no_write_or_feedback"] = "PASS"
+    STATE["invalid_artist"] = False
     probe = {
         **identity,
         "command": "discovery_playlist_identity",
@@ -180,6 +194,7 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
     assert result["provider_http_status"] == 403 and STATE["writes"] == before_writes
     wires["direct_candidate_denied"] = result
     cases["actual_403_distinguished_from_search_miss"] = "PASS"
+    STATE["denied_artist"] = True
     payload = await card()
     before_feedback = feedback_count()
     result = await post("/music_discovery/play", payload)
@@ -188,7 +203,9 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
         and not result["music_dna_feedback_recorded"]
         and feedback_count() == before_feedback
     )
-    cases["denied_artist_resolution_no_play_or_positive_feedback"] = "PASS"
+    assert STATE["writes"] == before_writes
+    cases["denied_artist_identity_no_play_or_positive_feedback"] = "PASS"
+    STATE["denied_artist"] = False
     payload = await card("track")
     before_feedback = feedback_count()
     result = await post("/music_discovery/play", payload)
@@ -232,7 +249,7 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
     assert feedback_count() == before_feedback
     wires["connection_lost_after_write"] = result
     cases["actual_aiohttp_disconnect_no_implicit_second_put"] = "PASS"
-    for wait in ["search", "token"]:
+    for wait in ["artist", "token"]:
         payload = await card()
         STATE["block_" + wait] = True
         ENTERED.clear()
