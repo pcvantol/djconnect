@@ -629,6 +629,9 @@ async def realize(brief, *, ask, admission, debug=None):
            "a contribution to that work. Do not infer collaboration, causation, chronology, exclusivity, "
            "sound or significance, or transfer one contributor's biography to another. Keep details "
            "separate when only separate passages support them. "
+           "A place reference such as there does not bind an encounter to a nearby named award ceremony. "
+           "Do not attach an encounter to that ceremony unless the passage explicitly does so. "
+           "When an occasion or pronoun is ambiguous, omit that detail and tell only the directly evidenced joint musical activity. "
            "Delivery: the shared Persona/Mood instructions above are the sole voice owner. "
            "Let those shape the telling's perspective, order and rhythm, without an additional sentence recipe. "
            if credit else "")
