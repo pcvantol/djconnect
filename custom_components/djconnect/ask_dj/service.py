@@ -562,7 +562,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                     and active is not None and active.session_id == turn.session_id):
                 active.broadcast.first_play_offer = _for_you_offer_projection(active, thread, result)
                 active.broadcast.first_play_continuation = None
-        if active is not None and active.session_id == turn.session_id and 'first_play' in result:
+        from ..request_auth import runtime_client_type
+        if (active is not None and active.session_id == turn.session_id and 'first_play' in result
+                and runtime_client_type(runtime) in {'ios', 'macos'}):
             if result['first_play'].get('state') != 'genres':
                 active.broadcast.first_play_continuation = {
                     key: deepcopy(result[key]) for key in ('first_play', 'result_set', 'playback_actions',

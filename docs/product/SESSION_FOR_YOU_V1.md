@@ -89,7 +89,7 @@ An explicitly supplied current app locale on an authenticated active read may
 localize labels and the authored intro fallback without provider I/O, renewal or
 changing Session state. A generated intro is used only for its accepted locale.
 
-One successfully committed, non-replayed Mood revision may schedule one new
+One successfully committed, non-replayed Settings3 Mood revision may schedule one new
 server-owned offer for that same Session. It clears stale genre choices, never
 starts/transfers music, never writes taste/history, and never retries uncertain
 work. Reads, reconnect, same-revision writes and expiry alone spend no calls.
