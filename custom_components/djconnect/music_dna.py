@@ -877,10 +877,18 @@ class MusicDNAManager:
         payload: dict[str, Any] | None = None,
         *,
         user_id: str | None = None,
+        guard: Any = None,
     ) -> str:
         """Record that the user played a Music Discovery recommendation."""
-        key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
-        memory = self._memory_for_key(key)
+        if guard is not None:
+            # Discovery already resolved metadata before dispatch. Re-resolving it
+            # after a provider await could write feedback into a replacement owner.
+            if not guard.valid() or not guard.persistence_allowed:
+                return guard.key
+            key, memory = guard.key, guard.record
+        else:
+            key = await self.async_update_client_metadata(runtime, payload, user_id=user_id)
+            memory = self._memory_for_key(key)
         if not self._memory_enabled(memory):
             return key
         plays = memory.get("discovery_plays")

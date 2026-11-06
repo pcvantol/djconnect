@@ -74,3 +74,62 @@ No live playback or OAuth change during source qualification. Protected source,
 new exact-head owner authorization, separate Finalization, HA-dev-with1439 install
 and physical/provider/native acceptance remain independent. Retained-widget
 projection4 is not part of this repair and must remain out of the installed main.
+
+## Explicit candidate read-only diagnosis
+
+The existing paired `POST /api/djconnect/v1/command` additionally accepts
+`command:"discovery_playlist_identity"`, `play:false`, and a value containing
+`artist_uri` and `playlist_uri`. These are explicit read candidates, not play
+capabilities. Core validates both URI shapes, retrieves the exact provider artist,
+then the exact playlist metadata and at most five item credits through the same
+HA-owned credential connection. It returns `read_only:true` and
+`dispatch_authority:false`. This route never learns a fallback candidate for a
+cached discovery artist, creates an effect receipt, writes the queue, records DNA
+feedback or rewrites global health/DJ state. Existing normal token refresh custody
+is unchanged. Pairing/Profile/account/source fences still apply across awaits.
+A public Spotify page may establish the input candidate; it does not establish
+this app's Web API access or authorize replay of an old discovery card.
+
+This separates a successful search with no qualifying official result from a
+real direct metadata/items HTTP403 or404. Neither search absence nor an identity
+qualification failure means the playlist does not exist. Runtime resolution does
+not scrape public pages, hardcode artist/playlist IDs, use this diagnostic route
+as an automatic fallback or substitute a fan playlist.
+
+## Typed response and client handoff
+
+The discovery/play body remains unchanged. New failures carry no raw provider or
+English-only `message`; Apple owns localized rendering in all five UI languages
+from the stable `error` code. All effect failures include `played:false`,
+`music_dna_feedback_recorded:false`, `error_scope:"command"` and
+`retry_automatically:false`. `action_outcome.state` distinguishes no dispatch,
+uncertain attempted transport and acknowledged dispatch before later withdrawal.
+An acknowledged effect is not undone or silently repeated after a readback error.
+
+| Machine code | Meaning / required client behavior |
+| --- | --- |
+| `music_discovery_this_is_not_found` | No qualified official result in this connection's bounded search; do not claim nonexistence. |
+| `music_discovery_playlist_access_denied` | Actual provider403 on direct playlist metadata/items. |
+| `music_discovery_playlist_not_found` | Actual provider404; do not fabricate a replacement. |
+| `music_discovery_playlist_identity_unqualified` | Metadata/ownership/title/credited-artist evidence did not qualify. |
+| `music_discovery_this_is_ambiguous` | Multiple/too many candidates; do not choose one locally. |
+| `music_discovery_output_required` | No qualified active unrestricted output; no automatic transfer or synthetic continuation. |
+| `music_discovery_context_changed` | Original pairing/Profile/source/consent/item/lease changed; refresh through the normal flow. |
+| `music_discovery_already_attempted` | Same original cached card has already reserved a write; no automatic replay. |
+| `music_discovery_start_failed` | No qualified successful acknowledgement; no positive signal. |
+| `music_discovery_provider_request_failed` | Other scoped provider failure; retain absence of success, no global outage inference. |
+| `music_discovery_artist_invalid` / `music_discovery_playlist_invalid` / `music_discovery_item_not_playable` | Invalid or inconsistent provider identity; no URI repair in the client. |
+| `music_discovery_effect_not_authorized` | Private original-task effect scope is absent or does not match the exact selected URI/output. |
+
+Successful playback returns `action_outcome.state:"dispatched"`, separate
+`readback_confirmed`, `queue_replacement_verified:false` and no automatic replay.
+The adapter sends one context PUT, not enqueue/transfer/skip/clear operations.
+Actual native queue refresh and audible acceptance must still verify the user's
+requested queue outcome; a successful context acknowledgement alone is not
+proof that manually queued Spotify entries were cleared.
+
+Source includes a task-local one-write scope, original cached feed/item/lease and
+owner fence, post-token-wait transport check, same-card serialization/deduplication
+and guarded positive feedback into the already resolved original record. A child
+task or JSON payload cannot mint or retain this capability. A fresh explicit feed
+can offer a new choice; an uncertain old write is never automatically retried.

@@ -7907,3 +7907,10 @@ Requested11 are unchanged and are not granted evidence. Persist token.scope
 metadata through ordinary callback/refresh custody; missing/malformed is unknown,
 new grant cannot inherit old evidence. Only after protected install use the
 human-authorized same11-scope PKCE flow for DEFAULT; no playback scope test.
+
+Discovery read-only diagnosis and typed errors are specified in
+`DISCOVERY_ARTIST_THIS_IS_PLAYBACK_V1.md#explicit-candidate-read-only-diagnosis`.
+No new discovery/play request fields. New machine error codes carry no raw English
+provider message; clients render them in five UI languages, never replay an
+uncertain write or invent an output continuation. The explicit candidate read
+command grants no old-card playback authority and is not a runtime URI fallback.
