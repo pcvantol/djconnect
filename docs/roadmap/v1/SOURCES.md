@@ -115,7 +115,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md](../../../docs/product/DJ_MOMENT_MOOD_PROSODY_V1.md) | `6144b95a829a9a92bc4225bb599885efdf69dad0b5e17184542637bb4741a0fa` |
 | [docs/product/SESSION_VOICE_PREVIEW_V1.md](../../../docs/product/SESSION_VOICE_PREVIEW_V1.md) | `1c34f2eebad7fd3bbffb6a96a37aa35be3271da86b511cafb76a9e99ced13fd8` |
 | [docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md](../../../docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md) | `01005eb8ec55e996a9c18723dea9aae1c3eb8d43b2b8c9a5fea07a73be26b36f` |
-| [docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md](../../../docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md) | `2f140634e04300d5bd0e04a194e5b0c54ed3a22bcedbffe83b933a2dc7184cf8` |
+| [docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md](../../../docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md) | `554a0702ec56a4295be7cef1d8280df2a160f7d0e52d162609e7a3b2bfb8e189` |
 | [docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md](../../../docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md) | `c014f140421d129abcc9b890bd1bd94fc0f19ebfcad3b3da6d03d413911f8b6e` |
 | [docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md](../../../docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md) | `06cc36df67c9c85d866efc2c8a23d3121ed5fd2d8379ff65944786ad88ef73d8` |
 | [docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md](../../../docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md) | `038d885b93a9f08d3d4a1782ef3f74f4a9f7b53c041b261420dede3bd48bbaee` |
