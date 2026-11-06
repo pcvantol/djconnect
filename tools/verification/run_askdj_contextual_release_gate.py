@@ -13,7 +13,7 @@ from tempfile import TemporaryDirectory
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-from scripts.verification.askdj_contextual_golden import MAX_MODEL_CALLS, cases, manifest_digest  # noqa: E402
+from scripts.verification.askdj_contextual_golden import MAX_MODEL_CALLS, SETUP_CASE, cases, manifest_digest  # noqa: E402
 
 IMAGE = "ghcr.io/home-assistant/home-assistant@sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4"
 MAX_SECONDS = 600
@@ -26,6 +26,7 @@ def validate_report(report, candidate):
     rows = report.get("cases")
     calls = report.get("paid_model_calls")
     usage = report.get("usage")
+    setup = report.get("setup_paid_model_calls", 0)
     return (
         report.get("candidate_sha") == candidate
         and report.get("suite") == "askdj_contextual_golden_v1"
@@ -36,8 +37,12 @@ def validate_report(report, candidate):
         and all(r.get("status") == "PASS" and r.get("findings") == [] for r in rows)
         and type(calls) is int and len(cases()) <= calls <= MAX_MODEL_CALLS
         and all(type(r.get("paid_attempts")) is int and 1 <= r["paid_attempts"] <= 2 for r in rows)
-        and sum(r["paid_attempts"] for r in rows) == calls
+        and type(setup) is int and 0 <= setup <= 2
+        and report.get("setup_findings", []) == []
+        and sum(r["paid_attempts"] for r in rows) + setup == calls
         and isinstance(usage, list) and len(usage) == calls
+        and sum(isinstance(u, dict) and u.get("case_id") == SETUP_CASE for u in usage) == setup
+        and all(isinstance(u, dict) and u.get("case_id") in {SETUP_CASE, *(c["id"] for c in cases())} for u in usage)
         and all(sum(u.get("case_id") == row["id"] for u in usage if isinstance(u, dict)) == row["paid_attempts"] for row in rows)
         and all(isinstance(r, dict) and r.get("model") == "gpt-6-luna"
                 and r.get("attempted") is True and r.get("completed") is True
@@ -92,7 +97,7 @@ def main():
         report = json.loads(raw.read_text())
         # Public evidence allowlist: never publish logs, model text or source bodies.
         report = {k: report.get(k) for k in ("schema_version", "suite", "manifest_sha256", "cases",
-                                            "paid_model_calls", "usage", "status", "native_installed_hardware")}
+                                            "paid_model_calls", "setup_paid_model_calls", "setup_findings", "usage", "status", "native_installed_hardware")}
         report["candidate_sha"] = candidate
         report["harness_sha256"] = hashlib.sha256((ROOT / "scripts/verification/verify_ask_dj_contextual_dialogue_http.py").read_bytes()).hexdigest()
         passed = result is not None and result.returncode == 0 and validate_report(report, candidate)
