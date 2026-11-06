@@ -231,6 +231,7 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
                 return error('settings_binding_changed', 409)
             def migration_requires_review():
                 return migration_state()['requires_review']
+            previous_session = manager.current_active(context.profile_id)
             result = await manager.async_accept_dj_settings(
                 owner_profile_id=context.profile_id, operation_id=data['operation_id'], binding=binding,
                 patch=data['patch'], expected_defaults_revision=data['expected_defaults_revision'],
@@ -241,6 +242,11 @@ async def async_handle_settings(hass, data, *, headers=None, write=False, operat
                     or getattr(getattr(hass, 'config', None), 'language', 'en'))
             snapshot = result['snapshot']
             if not result['replayed']:
+                if 'mood' in data['patch']:
+                    from .mood_music_steering import schedule_for_you_refresh
+                    from .api_handlers import _history_manager
+                    schedule_for_you_refresh(hass, runtime, context, previous_session,
+                        _history_manager(hass, runtime), lambda: _require_authority(authority))
                 bus = getattr(hass, 'bus', None)
                 if bus is not None:
                     try:

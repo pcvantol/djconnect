@@ -848,7 +848,7 @@ async def _first_play_genres(hass, runtime, admission, backend):
                                  state="unavailable", reason="fewer_than_three_playable_mixes")
     actions = []
     for genre, tracks in found:
-        label = genre
+        label = for_you_genre_label(genre, admission.locale)
         actions.append({"kind": "track_mix", "title": label, "label": label, "button_label": label,
             "uri": tracks[0]["uri"], "uris": [track["uri"] for track in tracks],
             "subtitle": MIX_PRESENTATION[admission.locale][1].format(count=len(tracks)),
@@ -999,6 +999,19 @@ FOR_YOU_INTRO = dict(zip(COPY, (
     "He elegido tres mezclas pensando en tus gustos. ¿Cuál ponemos?")))
 
 
+
+def for_you_genre_label(genre, locale):
+    """Presentation only; never change an owned genre, provider query or mix."""
+    value = str(genre)
+    key = value.casefold()
+    if key in GENRE_DIRECTIONS:
+        return GENRE_DIRECTIONS[key].get(locale, value)
+    if locale == 'nl':
+        return {'alternative rock':'alternatieve rock', 'classic rock':'klassieke rock',
+                'indie rock':'indierock', 'progressive rock':'progressieve rock',
+                'electronic rock':'elektronische rock', 'alternative pop':'alternatieve pop'}.get(key, value)
+    return value
+
 def _for_you_genres(runtime, admission):
     """Rank actual owned genres; Mood hints never manufacture a fourth source."""
     hints = {'chill': ('ambient', 'jazz', 'soul'), 'groove': ('soul', 'jazz', 'funk'),
@@ -1080,16 +1093,17 @@ async def _record_for_you_confirmation(runtime, admission):
         return
 
 
-def for_you_projection(hass, runtime, profile_id, active, *, client_device_id=""):
+def for_you_projection(hass, runtime, profile_id, active, *, client_device_id="", locale=None):
     """Read an already-prepared offer; polling never performs generation or effects."""
     if active is None or active.broadcast.first_play_state == 'unknown':
         return None
+    locale = locale if locale in FOR_YOU_LABELS else active.locale
     offer = active.broadcast.first_play_offer
     state = active.broadcast.first_play_state
     result = deepcopy({k: v for k, v in offer.items() if not k.startswith('_')}) if isinstance(offer, dict) else {
         'schema_version': 1, 'offer_id': active.session_id, 'options': [],
         'state': 'unavailable', 'reason': 'not_prepared'}
-    result.update(title=FOR_YOU_LABELS.get(active.locale, FOR_YOU_LABELS['en']),
+    result.update(title=FOR_YOU_LABELS.get(locale, FOR_YOU_LABELS['en']),
                   session_id=active.session_id, visible=(state not in {'confirmed', 'dismissed', 'closed'}
                       and client_device_id not in active.broadcast.first_play_dismissed_devices),
                   state=state if state != 'ready' else result.get('state', 'unavailable'))
@@ -1116,8 +1130,42 @@ def for_you_projection(hass, runtime, profile_id, active, *, client_device_id=""
             result.update(state='unavailable', reason='session_or_source_unavailable', options=[], actions_available=False)
             result.pop('result_set', None)
             result['intro'] = ''
-        result['refresh_request'] = {'prompt': FIRST_PLAY_COPY.get(active.locale, FIRST_PLAY_COPY['en'])[1],
+        result['refresh_request'] = {'prompt': FIRST_PLAY_COPY.get(locale, FIRST_PLAY_COPY['en'])[1],
                                      'automatic': False}
+    # A locale change is a pure projection: preserve action identity and leases.
+    if isinstance(offer, dict):
+        original_locale = offer.get('language') or getattr(offer.get('_admission'), 'locale', active.locale)
+        if original_locale != locale:
+            result.update(intro=FOR_YOU_INTRO.get(locale, FOR_YOU_INTRO['en']),
+                          intro_source='runtime_acknowledgement')
+        for option in result.get('options', []):
+            option['label'] = for_you_genre_label(option.get('genre', ''), locale)
+        for item in (result.get('result_set') or {}).get('items', []):
+            if item.get('kind') == 'track_mix':
+                label = for_you_genre_label(item.get('genre', ''), locale)
+                item.update(title=label, label=label, button_label=label)
+    result['language'] = locale
+    refresh = active.broadcast.first_play_refresh
+    if refresh is not None:
+        result['refresh_policy'] = {k:v for k,v in refresh.items() if not k.startswith('_')}
+    continuation = active.broadcast.first_play_continuation
+    if isinstance(continuation, dict) and result.get('visible'):
+        result['continuation'] = deepcopy({k:v for k,v in continuation.items() if not k.startswith('_')})
+        from .current_track_insight import session_scope
+        pending = active.broadcast.first_play_pending
+        remaining = (max(0, min(pending.deadline-pending.clock(), pending.wall_deadline-time.time()))
+                     if type(pending) is FirstPlayAdmission else 0)
+        result['continuation'].update(expires_in=remaining, mood_revision=active.mood_revision)
+        if (continuation.get('_session_scope') != session_scope(active) or remaining <= 0
+                or (pending is not None and pending.withdrawn)):
+            result['continuation'].pop('result_set', None)
+            result['continuation'].pop('playback_actions', None)
+            if not (pending is not None and pending.play_attempted):
+                result.update(state='unavailable', reason='choice_expired_or_changed', actions_available=False)
+        if state == 'attempted':
+            result.update(state='uncertain', actions_available=False)
+            result['continuation'].setdefault('action_outcome', {
+                'state':'uncertain', 'retry_automatically':False})
     admission = offer.get('_admission') if isinstance(offer, dict) else None
     if result['visible'] and (_first_play_dna(hass, runtime, profile_id) is None
             or (type(admission) is FirstPlayAdmission and (not admission.dna_guard() or not admission.authority()))):
@@ -1131,7 +1179,13 @@ def for_you_projection(hass, runtime, profile_id, active, *, client_device_id=""
 
 
 async def prepare_for_you_once(hass, runtime, context, active, history_manager, validate_immediate):
-    """Only called by an accepted real Session start; reconnect is projection-only."""
+    """Only an accepted start or confirmed Mood commit may call this writer."""
+    from .current_track_insight import session_scope
+    from .session_runtime import session_runtime_manager
+    captured_scope = session_scope(active)
+    def current():
+        now = session_runtime_manager(hass).current_active(context.profile_id)
+        return now is not None and session_scope(now) == captured_scope and now.broadcast is active.broadcast
     if active.broadcast.first_play_preparation is None:
         from .ask_dj.service import async_prepare_session_for_you
         async def prepare():
@@ -1139,13 +1193,70 @@ async def prepare_for_you_once(hass, runtime, context, active, history_manager, 
                 offer = await async_prepare_session_for_you(
                     hass, runtime, context, active, history_manager, validate_immediate)
                 validate_immediate()
-                active.broadcast.first_play_offer = offer
+                if current() and active.broadcast.first_play_preparation is asyncio.current_task():
+                    active.broadcast.first_play_offer = offer
             except (DialogueError, PermissionError, ValueError, OSError, TimeoutError) as exc:
-                # Missing capabilities must not undo a genuinely accepted Session.
-                active.broadcast.first_play_offer = {'schema_version': 1, 'offer_id': active.session_id,
-                    'state': 'unavailable', 'reason': getattr(exc, 'code', 'preparation_unavailable'), 'options': []}
+                if current() and active.broadcast.first_play_preparation is asyncio.current_task():
+                    active.broadcast.first_play_offer = {'schema_version': 1, 'offer_id': active.session_id,
+                        'state': 'unavailable', 'reason': getattr(exc, 'code', 'preparation_unavailable'), 'options': []}
         active.broadcast.first_play_preparation = asyncio.create_task(prepare())
     await asyncio.shield(active.broadcast.first_play_preparation)
+
+
+def schedule_for_you_refresh(hass, runtime, context, previous, history_manager, validate_immediate):
+    """One bounded preparation per confirmed Mood revision; never called from reads."""
+    from .current_track_insight import session_scope
+    from .session_runtime import session_runtime_manager
+    manager = session_runtime_manager(hass)
+    active = manager.current_active(context.profile_id)
+    if (context.client_type not in {'ios', 'macos'} or previous is None or active is None
+            or active.session_id != previous.session_id or active.mood_revision == previous.mood_revision):
+        return None
+    broadcast = active.broadcast
+    prior = broadcast.first_play_refresh
+    if prior is not None and prior['mood_revision'] == active.mood_revision:
+        return prior
+    captured = session_scope(active)
+    status = {'schema_version':1, 'execution':'server', 'trigger':'confirmed_mood_revision',
+              'mood_revision':active.mood_revision, 'state':'pending',
+              'automatic_playback':False, 'retry_automatically':False}
+    broadcast.first_play_refresh = status
+    pending = broadcast.first_play_pending
+    if ((pending is not None and (pending.play_attempted or pending.output_attempted or pending.selection_pending))
+            or broadcast.first_play_state == 'attempted'
+            or context.device_id in broadcast.first_play_dismissed_devices):
+        status.update(state='unavailable', reason='pending_action_or_dismissed')
+        return status
+    if pending is not None:
+        pending.withdrawn = True
+    broadcast.first_play_pending = None
+    broadcast.first_play_continuation = None
+    broadcast.first_play_state = 'ready'
+    broadcast.first_play_preparation = None
+    broadcast.first_play_offer = {'schema_version':1, 'offer_id':active.session_id,
+        'language':active.locale, 'state':'pending', 'reason':'mood_refresh_pending', 'options':[]}
+    def guard():
+        validate_immediate()
+        now = manager.current_active(context.profile_id)
+        if (now is None or session_scope(now) != captured or broadcast.first_play_refresh is not status
+                or context.device_id in broadcast.first_play_dismissed_devices):
+            raise PermissionError('for_you_refresh_withdrawn')
+    async def refresh():
+        try:
+            guard()
+            await prepare_for_you_once(hass, runtime, context, active, history_manager, guard)
+            guard()
+            offer = broadcast.first_play_offer or {}
+            status.update(state='available' if offer.get('state') == 'available' else 'unavailable',
+                          reason=offer.get('reason'))
+        except (DialogueError, PermissionError, ValueError, OSError, TimeoutError):
+            status.update(state='unavailable', reason='context_changed_or_unavailable')
+    task = asyncio.create_task(refresh())
+    def done(completed):
+        if not completed.cancelled() and completed.exception() is not None and broadcast.first_play_refresh is status:
+            status.update(state='unavailable', reason='preparation_failed')
+    task.add_done_callback(done)
+    return status
 
 
 def dismiss_for_you(hass, profile_id, client_device_id, context, choice, history_manager):

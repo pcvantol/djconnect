@@ -1,3 +1,19 @@
+## 2026-11-06 — Voor jou locale, confirmed Mood refresh and output continuation
+
+Owner-requested Core/Apple repair, coordinated with Apple chat `apple 3`.
+English/Dutch intro and display labels follow the accepted Session/app locale;
+canonical genre/query/mix IDs remain original. See
+[SESSION_FOR_YOU_V1](docs/product/SESSION_FOR_YOU_V1.md#confirmed-mood-refresh-and-locale-6-november-2026).
+Core owns one bounded new preparation after a confirmed, non-replayed Mood
+revision. GET/reconnect never generates; uncertain effects never retry. Additive
+refresh_policy schema1 is server-executed status, while existing
+refresh_request.automatic remains false. Additive continuation retains the actual
+ordinary speaker result set and action outcome; Apple renders those original
+opaque choices and does not reconstruct a play request. Exact source, CI,
+protected merge, install and native/provider acceptance remain separate.
+The welcome-screen selection/response adoption report belongs to the Apple lane;
+this increment does not invent a corrective Mood write after Session start.
+
 ## 2026-11-05 — Voor jou source merged
 
 PR [#1463](https://github.com/pcvantol/djconnect/pull/1463) merged as
