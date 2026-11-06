@@ -1555,6 +1555,8 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         "Preserve date precision: by the end of a year is an upper boundary, not evidence that an event occurred at that year end. "
         "Never transfer a nearby event's date. Relative years such as that same year have no executable antecedent binding and must be unsupported. "
         "For each explicit year in the accepted answer or supported prefix, also return temporal_claims, an array of at most8objects, "
+        "Temporal claim is the WHOLE original answer sentence containing that year, including clauses without a year. "
+        "It is never the smaller dated clause copied from claim_checks. Copy the sentence verbatim; do not rewrite or add punctuation. "
         "For a work event each has exactly claim (unchanged complete answer sentence), event_anchor (one exact original source_anchors work name present in the quote and answer), "
         "Only in the answer, a single outer ASCII-parenthesis pair around that work name may be omitted when unambiguous; keep event_anchor itself exact. "
         "year (four-digit string), source_id (the admitted source content_hash) and quote (unchanged complete source sentence containing only that year). "
@@ -1573,6 +1575,8 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         ("Each resolved claim is one unchanged nonempty atomic answer segment. Cover ALL retained text in order, including every modifier/connector and punctuation; only whitespace between segments may be omitted. "
          if answer_word_ids else
          "text is one unchanged nonempty atomic answer segment. Cover ALL retained text in order, including every modifier/connector and punctuation; only whitespace between segments may be omitted. ") +
+        "Before returning positive proof, concatenate the text segments in order and check that they reproduce the original answer exactly, ignoring only whitespace between segments. "
+        "Never insert a full stop to turn a clause into a sentence, replace a comma or drop a connective. "
         "A factual name or work title still needs source evidence inside an expression of DJ appreciation. "
         "Split the present appreciation words from the unchanged source-bound name/title/role, and cite the latter as a fact with its literal evidence ID. "
         "Do not put a named work into an evidence-free appreciation segment merely because the surrounding sentence says I like it. "

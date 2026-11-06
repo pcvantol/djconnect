@@ -1144,6 +1144,7 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
             "Translate English prose naturally into the selected language, preserving people's names and work titles. "
             "A broad occupation must not become a narrower role; an activity is not an extra job. "
             "Keep performer, composer and producer credits distinct. A collaboration proves only that collaboration. "
+            "Band membership or a work credit does not establish fame: do not say best known for or rose to fame unless the original passage explicitly states that reputation. "
             "Don't invent causal, genre, sonic, chronological or career connections between separately supported facts. "
             "Founders are not necessarily the complete original lineup; do not turn a founder count into a duo/trio claim. "
             "Keep projects, demos and actual work titles distinct: a demo associated with a project does not acquire its name as a title. "

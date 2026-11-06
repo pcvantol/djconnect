@@ -1,60 +1,70 @@
-# Golden selected-publication setup repair — 6 November 2026
+# Golden contextual source and review repairs — 6 November 2026
 
-Decision: **SOURCE_REPAIR_TESTED; LIVE_QUALIFICATION_INCOMPLETE**.
+Decision: **SOURCE_REPAIRS_UNDER_LIVE_ITERATION; RELEASE_QUALIFICATION_OPEN**.
 
-The owner requested remediation of the 68 open HA-release Golden findings and
-approved one isolated 20-case contextual probe, at most40 gpt-6-luna attempts and
-700 output tokens per attempt. This increment corrects failures discovered while
-executing that probe. The canonical39 Core findings and29 real-quality steps remain
-OPEN; their matrix and release-blocker policy are unchanged.
+The owner requested remediation of the68 open HA-release Golden findings. The
+original grant was40 gpt-6-luna calls at700 output tokens. The owner subsequently
+approved3000 output tokens and explicitly unrestricted model-call iterations.
+The cumulative external ledger is retained across all attempts; no consumed call
+is reset. Each semantic answer still uses its existing generation/review bound.
+The full contextual probe allows42 calls:20 questions times2, plus2 real
+publication-setup calls. Calls use isolated synthetic/public music context; the
+installed HA configuration is not mounted into the probe.
 
-## Reproductions and correction
+The39 Core findings and29 real-quality steps remain OPEN. Existing five-language
+UI and the EN/NL-only28-leaf Help publication boundary are preserved;42 pending
+DE/FR/ES Help leaves are unchanged.
 
-1. The real SessionFactsResolver passes `authorize` around its external reads.
-   The harness's provider fixture rejected that keyword, so normal exception handling
-   yielded no facts and no selected composer Moment. A causal offline regression
-   first failed with that exact TypeError. The fixture now accepts and invokes the
-   authority callback; withdrawn authority still prevents external fixture I/O.
-2. A current selected Moment requires accepted generation and review. The old
-   contextual runner could not bind those setup attempts to a case, so it blocked
-   them before provider dispatch and could not reach any of the20 questions. Setup
-   attempts now have one explicit identity, maximum2, inside the existing total40
-   budget. Every question must still execute1–2 bound attempts; a setup call cannot
-   replace a question or raise the total limit. Failed setup emits a FAIL receipt
-   rather than leaving the run without a result. Normal source/review admission is
-   retained; no synthetic public telling is inserted as an accepted publication.
-3. Failed model streams were counted but their terminal event and incomplete reason
-   disappeared from the compact contextual report. Those existing metadata fields,
-   and the configured output limit, now remain in the bounded usage projection.
-   Incomplete streams remain rejected; no provider text, prompt or credential is added.
+## Observed defects and repairs
 
-## Validation and bounded live evidence
+- The SessionFactsResolver fixture now accepts and executes the real `authorize`
+  callback. Withdrawal still prevents fixture I/O. Its old signature swallowed a
+  TypeError and yielded no usable selected Moment.
+- Real publication setup attempts have their own identity and count in the probe
+  budget. Failed setup emits a FAIL receipt. Stream terminal events, incomplete
+  reasons and configured output limits remain in compact usage evidence.
+- Literal quoted short work titles such as “One” no longer fail solely because
+  they have fewer than four characters. Short titles must remain quoted in both
+  source and answer; year, event, source and precision checks still apply.
+- An actual fresh selected playback reference can resolve a partial public artist
+  name. Its private track labels and URIs do not become model evidence. Stale,
+  cached, withdrawn, expired and ambiguous multi-artist identities remain denied.
+- Ordinary source-grounded answers expose the exact admitted composer credit to
+  the review with its original ID. Only the canonical normalized credit body can
+  use this projection; generated prose and copied credit-like JSON cannot.
+- Reviews must return complete atomic factual proof instead of a bare positive
+  boolean. Their text segments must reproduce the answer without inserted full
+  stops. Temporal receipts use the complete unchanged answer sentence, separately
+  from its smaller atomic claim segments. Validators remain fail-closed.
+- Generation explicitly distinguishes membership/credits from public fame. A
+  source saying someone is a member cannot justify “best known for”.
+- The contextual Golden source check now verifies the real Core wire contract:
+  provider/host/license, exact public person identity, content hash, original
+  fetch/expiry times and generated research basis. It no longer expects a
+  `person_biography` field that Core never emits. Original credit attribution
+  alone, wrong actors, missing hashes and expired sources remain insufficient.
 
-Thirty gate tests pass, including denied source authority, counted setup attempts,
-unknown/missing/incomplete setup receipts, unchanged whole-manifest coverage,
-failed setup with no submitted questions, and retained output-limit diagnostics.
-Ruff and diff checks pass. The same30 tests execute in the pinned real HA image
-with network none. No product files under custom_components/djconnect change.
+## Evidence and limitations
 
-The original live attempts are preserved externally under
-`/Volumes/Shared Data/tmp/pcvantol/golden-68-remediation-20261106/live-approved-40`.
-They used the previously installed debug product composition69dcfe054e70cbf7bba3a4990d6d27012a712244,
-which contains main98e5c430 plus PR1439 runtime. This source repair branch instead
-starts at main98e5c430 and contains only Golden tooling, tests and this report.
-It neither merges PR1439 nor changes the installed integration.
+External evidence root:
+`/Volumes/Shared Data/tmp/pcvantol/golden-68-remediation-20261106`.
+Original failed runs are preserved. `live-approved-40/budget.json` is the
+cumulative pre-I/O ledger; its historical directory name is not a new limit.
 
-The first two setup runs reserved0 calls. After the setup binding correction,
-the next run reserved2: the first completed with45 output tokens; the second was
-incomplete at the configured700-token limit. Setup therefore failed before any
-contextual question could run. A durable external ledger reserves before I/O,
-across attempts and restarts; it is not reset. Both reservations remain consumed.
-No successful20-case live qualification or editorial/native/audio/APNs acceptance
-is claimed. The other38 calls have not been dispatched.
+On candidate7a803b2d,371 related unit tests passed. The real English diagnostic
+`credit-proof-en-r4` used10 calls and accepted the selected partial-name and
+selected-composer questions with original credit and fresh biography sources.
+The playback and new-topic questions failed their proof contracts; these failures
+motivated the temporal/full-text review instructions above. A subset diagnostic
+always records `full_manifest_qualified:false` and cannot claim full-suite PASS.
+Through that run,62 total calls were reserved, including failed setup calls.
 
-The paid probe is paused. A separate human question requests raising the per-call
-output ceiling to3000 while keeping the same total40-attempt grant. Pending that
-answer, no further paid attempt is authorized by this report. Next: complete the
-bounded live probe under its actual approved parameters, fix observed product
-failures, and independently qualify the remaining real-quality/client gates.
+The most recent26/26 actual-HA protocol run before these later product changes
+qualified c0b956ca only. Those old receipts are not current-head qualification;
+the final product bytes require new protocol runs and receipt binding.
 
-This is a reviewable source repair, not closure of all68 or an HA release approval.
+This source branch starts at Core main98e5c430. It excludes PR1439 runtime
+changes and does not modify the HA-dev installation, still the separately
+installed debug composition69dcfe05. No official release, merge, physical Apple,
+audible playback, announcement or APNs acceptance follows from these results.
+Protected current-head checks and separate Finalization remain mandatory.

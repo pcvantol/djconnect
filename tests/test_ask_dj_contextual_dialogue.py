@@ -1472,6 +1472,25 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
                     self.assertFalse(research.supported(json.dumps(receipt(rejected)),rejected,context))
             self.assertEqual(source['untrusted_excerpt'],quote)
 
+    def test_temporal_atomic_clause_is_not_a_whole_sentence_receipt(self):
+        from custom_components.djconnect.ask_dj import public_research as research
+        quote = 'She wrote "Paper Lanterns", which was released in 2007.'
+        source = research._source('Wikipedia', 'Ada Reed',
+            'https://en.wikipedia.org/wiki/Ada_Reed', quote, 'en',
+            source_anchors=['Paper Lanterns']).model_data()
+        context = {'public_music_research': {'schema_version': 2, 'sources': [source]}}
+        answer = 'She is a musician, and wrote "Paper Lanterns", which was released in 2007.'
+        proof = {'claim': answer, 'event_anchor': 'Paper Lanterns', 'year': '2007',
+                 'source_id': source['content_hash'], 'quote': quote}
+        self.assertTrue(research.temporal_evidence_ok(answer, {'temporal_claims': [proof]}, context))
+        for fragment in (' and wrote "Paper Lanterns", which was released in 2007.',
+                         'She wrote "Paper Lanterns", which was released in 2007.'):
+            self.assertFalse(research.temporal_evidence_ok(answer,
+                {'temporal_claims': [{**proof, 'claim': fragment}]}, context))
+        prompt = research.assessment_prompt(answer, context, 'en', 'Who is Ada Reed?')
+        self.assertIn('WHOLE original answer sentence', prompt)
+        self.assertIn('Never insert a full stop', prompt)
+
     def test_temporal_receipts_admit_literal_short_titles_but_not_ordinary_words(self):
         from custom_components.djconnect.ask_dj import public_research as research
         faithful = [
