@@ -313,6 +313,7 @@ async def async_handle_session_start_payload(
             owner_profile_id=context.profile_id,
             room=str(data.get("room") or context.room_id or "").strip(),
             selected_mood=str(data.get("mood") or "").strip(),
+            explicit_mood_choice=str(data.get("mood") or "").strip() in {"chill", "groove", "energy", "party"},
             music_backend=context.backend_id,
             dj_persona=_dj_persona(data.get("dj_persona")),
             locale=_session_locale(hass, runtime, data),
@@ -510,7 +511,7 @@ async def async_handle_active_session_payload(
         await _record_for_you_confirmation(_runtime, session.broadcast.first_play_pending)
         _conversation_profile_fence(hass, _runtime, identity_payload(data), headers or {}, context)
     return {"success": True, "session": session.as_dict() if session else None,
-            **_session_offer_fields(hass, _runtime, context, session)}, 200
+            **_session_offer_fields(hass, _runtime, context, session, locale=_for_you_request_locale(data, headers, session))}, 200
 
 
 async def _async_owner_broadcast_session_context(
@@ -3604,9 +3605,21 @@ def _int_or_none(value: Any) -> int | None:
         return None
 
 
-def _session_offer_fields(hass, runtime, context, active):
+def _for_you_request_locale(data, headers, active):
+    headers = headers or {}
+    explicit = (data.get('language') or data.get('locale') or headers.get('X-DJConnect-Language')
+                or headers.get('X-DJConnect-Locale') or headers.get('Accept-Language'))
+    return normalize_supported_language(str(explicit).split(',', 1)[0]) if explicit else getattr(active, 'locale', 'en')
+
+
+def _session_offer_fields(hass, runtime, context, active, *, locale=None):
     from .mood_music_steering import first_play_catalogue, session_start_catalogue, for_you_projection
     allowed = context.client_type in {"ios", "macos"}
+    projected = for_you_projection(hass, runtime, context.profile_id, active,
+        client_device_id=context.device_id, locale=locale) if allowed else None
+    start = session_start_catalogue(hass, runtime, context.profile_id, active if allowed else None,
+        client_device_id=context.device_id)
+    if projected is not None and start.get('items'):
+        start['items'][0].update(label=projected['title'], offer=projected)
     return {"first_play_action": first_play_catalogue(hass, runtime, context.profile_id, active if allowed else None, client_device_id=context.device_id),
-            "session_start_actions": session_start_catalogue(hass, runtime, context.profile_id, active if allowed else None, client_device_id=context.device_id),
-            "for_you": for_you_projection(hass, runtime, context.profile_id, active, client_device_id=context.device_id) if allowed else None}
+            "session_start_actions": start, "for_you": projected}

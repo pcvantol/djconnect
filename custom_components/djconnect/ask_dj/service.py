@@ -561,6 +561,22 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             if (turn.first_play_request and result.get('first_play', {}).get('state') == 'genres'
                     and active is not None and active.session_id == turn.session_id):
                 active.broadcast.first_play_offer = _for_you_offer_projection(active, thread, result)
+                active.broadcast.first_play_continuation = None
+        from ..request_auth import runtime_client_type
+        if (active is not None and active.session_id == turn.session_id and 'first_play' in result
+                and runtime_client_type(runtime) in {'ios', 'macos'}):
+            if result['first_play'].get('state') != 'genres':
+                active.broadcast.first_play_continuation = {
+                    key: deepcopy(result[key]) for key in ('first_play', 'result_set', 'playback_actions',
+                        'action_outcome', 'selected_action_id') if key in result}
+                from ..current_track_insight import session_scope
+                active.broadcast.first_play_continuation['_session_scope'] = session_scope(active)
+                active.broadcast.first_play_continuation['mood_revision'] = active.mood_revision
+                active.broadcast.first_play_continuation['conversation_context'] = {
+                    'session_id':active.session_id, 'thread_id':thread}
+            from ..mood_music_steering import for_you_projection
+            result['for_you'] = for_you_projection(hass, runtime, profile_id, active,
+                client_device_id=turn.client_device_id)
         catalogue_caption = result.pop("_catalogue_history_caption", None)
         if saved and not result.get("deduplicated"):
             # Preserve the existing live bubble contract without turning transient
@@ -691,7 +707,7 @@ async def async_prepare_session_for_you(hass, runtime, context, active, history_
             raise SessionConversationError('conversation_context_changed')
     turn = DialogueTurn(frame, scope, thread, 'prepare-' + active.session_id,
                         hashlib.sha256(active.session_id.encode()).hexdigest(), generation,
-                        guard, history_manager, style=style_projection({}, active, context.profile),
+                        guard, history_manager, style=style_projection({'language':active.locale}, active, context.profile),
                         session_id=active.session_id, startup_preparation=True, archiveable=False,
                         client_device_id=getattr(context, 'device_id', ''))
     turn.reply_source_context, turn.reply_source_authority = source_admission(hass, runtime, context.profile_id)
@@ -723,6 +739,7 @@ def _for_you_offer_projection(active, thread, response):
     turn = current_turn.get()
     return {'schema_version': 1, 'offer_id': (result_set or {}).get('result_set_id', active.session_id),
             'state': 'available' if options else 'unavailable',
+            'language':turn.style.get('language',active.locale) if turn is not None else active.locale,
             'intro': response.get('text', ''), 'intro_source': response.get('text_source'),
             'options': options, 'result_set': result_set,
             'conversation_context': {'session_id': active.session_id, 'thread_id': thread},
