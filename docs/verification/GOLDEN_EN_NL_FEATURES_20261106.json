@@ -4,7 +4,7 @@
     "en",
     "nl"
   ],
-  "source_commit": "92fdf215c50adec175f14bac294942539044e778",
+  "source_commit": "b2205af97a7fb9c03bd2a4dbb564a3377c650aa1",
   "source_unchanged": true,
   "results": [
     {
@@ -359,14 +359,25 @@
     "tests/test_ask_dj_contextual_dialogue.py": "981d108d0e0445f44b96584c226d121a6ab04486fbe91d4d134e6931efeb017a",
     "tests/test_ask_dj_exploration.py": "b09fe9c65fbc3bcb56e6fae9cf48873449c93eed78d166ad94e564e753d620a4",
     "tests/test_golden_en_nl_features.py": "c8f56697d85933e2ac7c8beb3380ef0192a610432a182a6adc2a513297d942e3",
-    "tools/verification/run_golden_en_nl_features.py": "5c31f5931f260695240a25f28420fb3965f1f7c0d37a79be989f4e55d0c17d95"
+    "tools/verification/run_golden_en_nl_features.py": "7620287040233f450d5841063bfde81d7f09df4cf0914c137adf86e6a61cb202"
   },
-  "raw_report_sha256": "74d4ba7ad77833b253bf545253adcbe8034dd32f31e36d199fcf33cd8dcb043d",
+  "raw_report_sha256": "13b55dc74e54eff215c77d8347f1a474622a825172a0b58997da044312db4379",
   "related_unit_tests": {
     "tests_run": 337,
     "failures": 0,
     "errors": 0
   },
   "ruff": "PASS",
-  "planning_snapshot": "PASS_INCLUDED_SNAPSHOT_ONLY"
+  "planning_snapshot": "PASS_INCLUDED_SNAPSHOT_ONLY",
+  "execution_identity": "evidence-directory owner UID/GID, no extra container capabilities",
+  "ci_portability_failures_preserved": [
+    {
+      "run": 42202522490,
+      "reason": "local-only image ID; fixed with registry-qualified same digest"
+    },
+    {
+      "run": 42202745936,
+      "reason": "Linux evidence owner mismatch with dropped capabilities; fixed with explicit owner UID/GID"
+    }
+  ]
 }

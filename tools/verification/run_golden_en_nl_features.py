@@ -40,7 +40,8 @@ def main():
         folder = output / (harness + '--' + locale)
         folder.mkdir()
         name = 'djc-en-nl-' + os.urandom(8).hex()
-        cmd = ['docker', 'run', '--rm', '--name', name, '--network', 'none', '--read-only',
+        cmd = ['docker', 'run', '--rm', '--name', name, '--user', f'{os.getuid()}:{os.getgid()}',
+            '--network', 'none', '--read-only',
             '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges', '--tmpfs', '/tmp:rw',
             '-e', 'PYTHONDONTWRITEBYTECODE=1', '-e', 'DJC_SOURCE_ROOT=/candidate',
             '-e', 'DJC_LAB_ROOT=/lab', '-e', 'PYTHONPATH=/candidate:/candidate/scripts/verification',
