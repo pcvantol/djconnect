@@ -279,9 +279,10 @@ async def async_handle_music_discovery_play_payload(
                     resolved = await run_music_command(hass, runtime, "resolve_discovery_artist", uri, play=False)
                     scope.require_current()
                     selected = resolved.get("item") if isinstance(resolved, dict) else None
-                    if (not isinstance(selected, dict) or selected.get("artist_uri") != uri
-                            or selected.get("identity_basis") != "spotify_owned_exact_title_and_credited_artist_ids"):
-                        return failure("music_discovery_this_is_not_found", scope)
+                    if (not isinstance(selected, dict) or selected.get("uri") != uri
+                            or selected.get("type") != "artist"
+                            or selected.get("identity_basis") != "spotify_artist_identity"):
+                        return failure("music_discovery_artist_invalid", scope)
                     selected_uri = selected.get("uri")
                 elif kind not in {"track", "album", "playlist"}:
                     return failure("music_discovery_item_not_playable", scope)

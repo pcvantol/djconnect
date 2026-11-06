@@ -1,11 +1,11 @@
-# Discovery artist This Is playback repair v1
+# Discovery artist playback repair v1
 
-Owner request: Ontdek artist Play Now resolves the real corresponding This Is
-playlist and starts that context in place of the previous selection. This is a
-server-owned resolution from the original cached discovery item/section, never
-a client URI, guessed playlist ID, playlist creation or top-tracks substitution.
-Existing music_discovery/play request shape and ordinary pairing/Profile identity
-remain; Apple refreshes status/queue after one successful request with no replay.
+Owner request, revised 2026-11-06: Ontdek artist Play Now starts the selected
+artist directly through Spotify, without a This Is promise. Resolution remains
+server-owned from the original cached discovery item/section, never a client URI,
+guessed playlist ID, playlist creation or top-tracks substitution. The existing
+music_discovery/play request and ordinary pairing/Profile identity remain; Apple
+refreshes status/queue after one successful request with no replay.
 
 ## Confirmed defect and scope
 
@@ -16,25 +16,30 @@ records positive DNA feedback even when playback reports failure. Correct both.
 Track playback stays an exact one-track selection. Album/playlist context starts
 must not use an offset-only operation. Artist selection is resolved separately.
 
-## Exact artist and playlist resolution
+## Exact direct artist playback (owner decision 2026-11-06)
 
-Use the server-cached Spotify artist URI, then retrieve that exact artist's
-provider identity/name. Bound playlist search to10 results using the canonical
-name. A candidate must be an actual playlist with consistent id/URI, exact
-canonical This Is title and Spotify owner identity. Qualify artist binding from
-provider playlist items' exact credited artist IDs, not display-name similarity.
-Unknown, inaccessible, ambiguous, empty, unrelated or missing items fail closed.
-No fan playlist, fabricated URI, artist-context shuffle or URI fallback.
-Only supported Spotify API routes, no scraped web pages/cookies or credentials.
+The owner explicitly selected direct Spotify artist playback, without promising
+This Is. This supersedes the former official-playlist-only resolution for artist
+cards. All three actual read-only artist probes (London Grammar, Snow Patrol,
+Son Mieux) resolved their artist identities but returned no qualified official
+This Is candidate. Search absence is not playlist nonexistence or proof of the
+app's quota mode. Reauthorization does not grant editorial catalogue access.
 
-Current provider limits matter: Spotify's2024 notice excludes Spotify-owned
-editorial playlists for new/development-mode use cases, with an existing extended
-mode exception. The2026 guide limits search to10 results and playlist-item access
-to owned/collaborative playlists, using items endpoint/fields. Restrictions are
-not repaired by token rotation, broader scopes or a fabricated playlist. Failure
-to qualify must be explicit and must not dispatch or mutate the old queue.
+Resolve only the original server-cached Spotify artist URI through the exact
+provider artist endpoint. Require consistent provider id/URI/type and a nonempty
+name; then dispatch that same artist URI as context_uri on the currently observed
+unrestricted output. Never substitute a playlist, top-tracks list, another artist,
+fan selection or a URI supplied by the client. There is no playlist search or
+playlist-items prerequisite in artist Play Now. Spotify owns the contents and
+ordering of its artist context; DJConnect does not label that context This Is.
+Track, album and playlist handling and original-card effect fences are unchanged.
 
-Primary references checked2026-11-06:
+The existing explicit playlist-identity diagnostic stays read-only and retains
+its exact Spotify owner/title/credited-artist checks. Legacy This Is resolution
+utilities are not called by artist Play Now and grant no alternative playback.
+Only supported Spotify APIs are used, without scraping or hardcoded playlist IDs.
+
+Primary references checked 2026-11-06:
 - https://developer.spotify.com/blog/2024-11-27-changes-to-the-web-api
 - https://developer.spotify.com/documentation/web-api/tutorials/february-2026-migration-guide
 - https://developer.spotify.com/documentation/web-api/reference/start-a-users-playback
@@ -47,7 +52,7 @@ last token/other await immediately before dispatch. Profile/source replacement,
 clear/disable, pairing rotation or stale item aborts without playback or feedback.
 Read-only provider resolution does not authorize a new owner or output transfer.
 
-Use one exact context-start PUT for the qualified playlist, never append/enqueue,
+Use one exact context-start PUT for the qualified artist/album/playlist, never append/enqueue,
 clear/skip loops or client cache replacement as a playback effect. No automatic
 output transfer or replay after uncertainty. No active output returns explicit
 output-required state; selecting output and retrying remains a new user action.
@@ -65,7 +70,7 @@ languages. No raw tokens, search responses or private context in diagnostics.
 ## Required proof and delivery gates
 
 Causal regressions must demonstrate the old missing-offset failure, real provider
-URI/artist/playlist binding, fan/wrong/same-name/ambiguous/missing/restricted cases,
+URI/artist binding, independence from editorial search, retained read-only playlist diagnosis, fan/wrong/same-name/ambiguous/missing/restricted cases,
 legacy/new item envelopes, one context write replacing the selected context,
 no output transfer/replay, failed dispatch without feedback, and stale authority
 through token/provider waits. Actual disposable paired HA proof uses synthetic
@@ -108,7 +113,7 @@ An acknowledged effect is not undone or silently repeated after a readback error
 
 | Machine code | Meaning / required client behavior |
 | --- | --- |
-| `music_discovery_this_is_not_found` | No qualified official result in this connection's bounded search; do not claim nonexistence. |
+| `music_discovery_this_is_not_found` | Legacy official-resolution diagnostic only; artist Play Now no longer depends on this result. |
 | `music_discovery_playlist_access_denied` | Actual provider403 on direct playlist metadata/items. |
 | `music_discovery_playlist_not_found` | Actual provider404; do not fabricate a replacement. |
 | `music_discovery_playlist_identity_unqualified` | Metadata/ownership/title/credited-artist evidence did not qualify. |
