@@ -360,7 +360,10 @@ async def main():
         first_image_latency=time.monotonic()-image_clock
         cases['playback_cover']={'projection':cover,'bytes_sha256':hashlib.sha256(pixels['a'*40]).hexdigest()}
         if os.environ.get('DJC_PASSIVE_PROGRESS_PROBE') == '1':
-            from passive_progress_lab import run
+            if os.environ.get('DJC_PASSIVE_RETAINED_PROBE') == '1':
+                from passive_retained_lab import run
+            else:
+                from passive_progress_lab import run
             await run(hass=hass, runtime=runtime, client=client, headers=headers,
                       identity=identity, manager=manager, storage=storage, sid=sid,
                       calls=calls, output=directory, source_hashes=source_hashes,

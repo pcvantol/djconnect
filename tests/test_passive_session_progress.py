@@ -117,7 +117,7 @@ class PassiveProgressTests(unittest.TestCase):
         with patch('time.time', return_value=self.wall+1):
             music, _ = self.passive._music(b, 101)
         self.assertNotIn('progress', music)
-        self.assertEqual(self.passive.capability()['projection_versions'], [1, 2, 3])
+        self.assertEqual(self.passive.capability()['projection_versions'], [1, 2, 3, 4])
         self.assertEqual(self.passive.capability()['default_projection_version'], 1)
 
     def test_v3_retains_v2_original_contribution_rights_and_private_grant_withdrawal(self):

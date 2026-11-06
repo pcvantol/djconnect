@@ -15,7 +15,7 @@ import secrets
 import time
 from typing import Callable
 
-from .passive_contribution import contribution, status
+from .passive_contribution import contribution, retained_latest, status
 
 VERSION = 1
 MAX_GRANTS = 32
@@ -38,8 +38,10 @@ def capability():
             'surfaces': sorted(SURFACES), 'explicit_consent_required': True,
             'max_cache_seconds': 120, 'read_side_effects': False,
             'live_invalidation': 'existing_owner_broadcast_events',
-            'projection_versions': [1, 2, 3], 'default_projection_version': 1,
+            'projection_versions': [1, 2, 3, 4], 'default_projection_version': 1,
             'background_delivery': False, 'watch_replication': False,
+            'retained_latest': {'surface': 'widget', 'projection_version': 4,
+                'consent_field': 'retained_latest', 'maximum_publication_seconds': 1800},
             'watch_widget': {'scope': 'paired_watch_widget_v1', 'surface': 'watch_widget',
                 'client_type': 'watchos', 'contract_version': 1, 'projection_version': 1,
                 'explicit_consent_required': True, 'locked_display_required': True,
@@ -84,7 +86,7 @@ def _music(broadcast, now, *, projection_version=1):
             'source_url': original.source_url,
             'attribution': {'provider': 'Spotify', 'mark': 'spotify', 'url': original.source_url},
             'usage_basis': 'spotify_temporary_passive_metadata'}
-    if projection_version == 3:
+    if projection_version in (3, 4):
         progress = _progress(broadcast, now)
         if progress is not None:
             music['progress'] = progress
@@ -248,14 +250,18 @@ def projection(active, grant, *, registry=None, owner=''):
                 'binding_id': grant.binding_id, 'generation': grant.generation,
                 'session_id': active.session_id, 'delivery_sequence': broadcast.delivery_sequence,
                 'as_of': stamp(wall), 'expires_at': stamp(wall), 'artwork': [],
+                **({'latest_contribution': None, 'latest_contribution_status': status('authority_withdrawn', 'withdrawn')}
+                   if grant.projection_version == 4 else {}),
                 **({name: status('authority_withdrawn', 'withdrawn')
                     for name in ('contribution_status', 'now_playing_status', 'artwork_status')}
-                   if grant.projection_version in (2, 3) else {})}
-    text, text_status = contribution(broadcast, now, projection_version=grant.projection_version)
+                   if grant.projection_version in (2, 3, 4) else {})}
+    if grant.projection_version == 4:
+        result['latest_contribution'], result['latest_contribution_status'] = retained_latest(broadcast, now)
+    text, text_status = contribution(broadcast, now, projection_version=min(grant.projection_version, 3))
     music, music_status = _music(broadcast, now, projection_version=grant.projection_version)
     result['contribution'], result['now_playing'] = text, music
     result['artwork'], artwork_status = _covers(registry, owner, active.session_id, text, music, now)
-    if grant.projection_version in (2, 3):
+    if grant.projection_version in (2, 3, 4):
         result['contribution_status'] = text_status
         result['now_playing_status'] = music_status
         result['artwork_status'] = artwork_status
@@ -263,7 +269,10 @@ def projection(active, grant, *, registry=None, owner=''):
             or wall >= broadcast.passive_state_observed[1] + 120):
         result['state'] = 'stale'
         result['contribution'], result['now_playing'], result['artwork'] = None, None, []
-        if grant.projection_version in (2, 3):
+        if grant.projection_version == 4:
+            result['latest_contribution'] = None
+            result['latest_contribution_status'] = status('original_snapshot_expired', 'stale')
+        if grant.projection_version in (2, 3, 4):
             for name in ('contribution_status', 'now_playing_status', 'artwork_status'):
                 result[name] = status('original_snapshot_expired', 'stale')
     result['revision'] = digest({k: v for k, v in result.items() if k != 'as_of'})
@@ -285,17 +294,22 @@ async def handle(hass, payload, *, headers=None, authorize=False):
     fields |= {'enabled', 'os_snapshot_cache', 'locked_display'} if authorize else {'grant_id'}
     if isinstance(payload, dict) and 'projection_version' in payload:
         fields.add('projection_version')
+    if authorize and isinstance(payload, dict) and payload.get('projection_version') == 4:
+        fields.add('retained_latest')
     if (not isinstance(payload, dict) or set(payload) != fields
             or type(payload.get('contract_version')) is not int or payload['contract_version'] != VERSION
             or any(type(payload[k]) is not str or not 0 < len(payload[k]) <= 128
-                   for k in fields - {'contract_version', 'projection_version', 'enabled', 'os_snapshot_cache', 'locked_display'})
-            or type(payload.get('projection_version', 1)) is not int or payload.get('projection_version', 1) not in (1, 2, 3)
+                   for k in fields - {'contract_version', 'projection_version', 'enabled', 'os_snapshot_cache', 'locked_display', 'retained_latest'})
+            or type(payload.get('projection_version', 1)) is not int or payload.get('projection_version', 1) not in (1, 2, 3, 4)
             or payload['surface'] not in SURFACES
+            or (payload.get('projection_version', 1) == 4 and payload['surface'] != 'widget')
             or (payload['surface'] == 'watch_widget' and
                 (payload['client_type'] != 'watchos' or payload.get('projection_version', 1) != 1))
             or (payload['surface'] != 'watch_widget' and payload['client_type'] not in {'ios', 'macos'})):
         return error('invalid_request', 400)
     if authorize and any(type(payload[k]) is not bool for k in ('enabled', 'os_snapshot_cache', 'locked_display')):
+        return error('invalid_request', 400)
+    if authorize and payload.get('projection_version') == 4 and type(payload.get('retained_latest')) is not bool:
         return error('invalid_request', 400)
     headers = headers or {}
     if not str(headers.get('Authorization', '')).startswith('Bearer '):
@@ -341,6 +355,8 @@ async def handle(hass, payload, *, headers=None, authorize=False):
         if not payload['enabled']:
             grants.pop(key, None)
             return {'success': True, 'contract_version': VERSION, 'state': 'disabled'}, 200
+        if (payload.get('projection_version') == 4 and not payload['retained_latest']):
+            return error('surface_consent_required', 403)
         if not payload['os_snapshot_cache'] or (payload['surface'] in {'live_activity', 'watch_widget'} and not payload['locked_display']):
             return error('surface_consent_required', 403)
         if key not in grants and len(grants) >= MAX_GRANTS:
