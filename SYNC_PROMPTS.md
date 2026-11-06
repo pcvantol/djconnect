@@ -7895,3 +7895,9 @@ is the Apple Watch handoff. Send it on every Watch Mood write and require the
 same scope in the acknowledgement. Keep the original paired Watch identity,
 active Session ID and expected Mood revision. An older Core rejects the extra
 field. Preserve that denial and never retry using Profile settings.
+
+Spotify scope evidence repair: docs/product/SPOTIFY_GRANTED_SCOPE_EVIDENCE_V1.md.
+Requested11 are unchanged and are not granted evidence. Persist token.scope
+metadata through ordinary callback/refresh custody; missing/malformed is unknown,
+new grant cannot inherit old evidence. Only after protected install use the
+human-authorized same11-scope PKCE flow for DEFAULT; no playback scope test.
