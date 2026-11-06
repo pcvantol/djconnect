@@ -311,3 +311,16 @@ Large architecture changes should be split into:
 8. tests and release notes.
 
 Avoid one giant implementation PR when the change alters platform concepts.
+
+## Native Golden consumer boundary
+
+Client Golden verification observes the same ordinary paired interaction,
+Profile/Session owner, backend, immutable contribution, history and supported
+Watch projection as the product. A version-pinned consumer inventory and offline
+protocol validator are subordinate verification artifacts, not a new Runtime,
+fixture authority, model provider or execution endpoint. Source protocol validity,
+independently admitted disposable fixture/provider budget, installed native
+execution and semantic/effect/audio acceptance are separate gates. The contract
+is docs/verification/NATIVE_CLIENT_GOLDEN_CONTRACT_V1.md. No developer overlay or
+catalogue ID becomes execution authority; expensive native runs remain explicitly
+manual/release-relevant and provider-free protocol regressions may run per PR.
