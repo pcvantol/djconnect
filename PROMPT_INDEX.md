@@ -1,3 +1,17 @@
+## 2026-11-06 — Native client Golden source protocol
+
+Current increment: `codex/native-golden-consumer-contract-20261106`.
+The offline inventory/closed plan/evidence validator is ready for source review;
+protected merge and separate Finalization remain pending. See
+[protocol qualification](docs/verification/NATIVE_CLIENT_GOLDEN_PROTOCOL_20261106.md).
+20 new tests, 29 combined observer/contract tests and 4 offline SDK transport tests
+pass. No product bytes or installed runtime change. The inventory preserves 998
+source references, with explicit remaining mappings; this is not integral native
+acceptance. Real fixture/operator/provider/client evidence remains OPEN. Expensive
+native runs remain manual/release-relevant. After each merged PR, update HA-dev
+main-debug provenance/install and read it back, preserving #1439. Platform
+Qualification and the existing roadmap order remain unchanged.
+
 ## 2026-11-06 — For-you output source1478 Finalization
 
 #### Repository Status

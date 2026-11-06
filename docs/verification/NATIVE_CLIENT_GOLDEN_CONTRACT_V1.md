@@ -81,7 +81,7 @@ no silently skipped client, missing family or old manifest may become integral P
 
 `tools/verification/native_client_golden_contract.py` emits the current pinned
 inventory and validates closed draft/evidence records offline. It deliberately
-returns DRAFT_NOT_ADMITTED / EVIDENCE_PENDING_REVIEW and execute:false. These are
+returns DRAFT_NOT_ADMITTED / EVIDENCE_PENDING_INDEPENDENT_REVIEW and execute:false. These are
 usable schema/coverage outcomes, never a qualified live consumer export. The
 source protocol can be reviewed and adopted by Apple without pretending that
 its still-missing actual fixture/operator/provider/semantic receipts exist.
@@ -92,10 +92,10 @@ The compiler's public inventory has exactly schema_version, contract_id,
 qualification, execute, clients, selected_languages, source_pins, cases and
 coverage. qualification is SOURCE_PROTOCOL_ONLY and execute is false. Stable
 case references are `(source path, original id, explicit language)`; there is no
-new global Golden sequence.40 current EN/NL catalogue questions/chains are bound
-to the ordinary Ask DJ flow and28 catalogue entry-locale rows to pure Help GET.
-Other rows retain explicit locale/driver/owner-mapping gaps. The existing560
-persona/mood/Moment cases and all385 current conversation steps remain enumerated.
+new global Golden sequence. 40 current EN/NL catalogue questions/chains are bound
+to the ordinary Ask DJ flow and 28 catalogue entry-locale rows to pure Help GET.
+Other rows retain explicit locale/driver/owner-mapping gaps. The existing 560
+persona/mood/Moment cases and all 385 current conversation steps remain enumerated.
 No new product scenario or factual expectation is invented by the compiler.
 
 A draft plan has exactly schema_version, contract_id, inventory_sha256, run_id,
@@ -105,7 +105,7 @@ Every selected source case binds source/id/language/client plus the exact
 canonical question_sha256 and model_policy_sha256; changing the question or
 relabeling the locale/model policy is rejected. At least one selected case per
 client is required. Full-suite coverage is a separate requirement, not inferred
-from a selected batch of at most40 case-client rows.
+from a selected batch of at most 40 case-client rows.
 
 receipts has exactly core_install, fixture_owner, provider_coverage,
 owner_authorization and cumulative_budget SHA256 pins; independently supplied

@@ -1,7 +1,7 @@
 ## 2026-11-06 — Native client Golden consumer contract, source protocol increment
 
 The human requests integral Core Golden behavior through iPhone/iPad/Mac/Watch,
-Session contributions and Ask DJ Q/A, including14Help/suggestion entries and
+Session contributions and Ask DJ Q/A, including 14 Help/suggestion entries and
 music announcements. Slow/expensive native/provider runs are manual or explicitly
 release-relevant, never routine per-PR work. This increment defines a pinned
 consumer inventory, closed draft-plan/evidence grammar and public-safe reconciliation
