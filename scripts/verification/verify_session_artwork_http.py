@@ -360,7 +360,9 @@ async def main():
         first_image_latency=time.monotonic()-image_clock
         cases['playback_cover']={'projection':cover,'bytes_sha256':hashlib.sha256(pixels['a'*40]).hexdigest()}
         if os.environ.get('DJC_PASSIVE_PROGRESS_PROBE') == '1':
-            if os.environ.get('DJC_PASSIVE_OBSERVATION_PROBE') == '1':
+            if os.environ.get('DJC_PASSIVE_FIELD_EXPIRY_PROBE') == '1':
+                from passive_field_expiry_lab import run
+            elif os.environ.get('DJC_PASSIVE_OBSERVATION_PROBE') == '1':
                 from passive_observation_sequence_lab import run
             else:
                 from passive_progress_lab import run

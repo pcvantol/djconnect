@@ -65,6 +65,24 @@ class PassiveProjectionTests(unittest.TestCase):
         self.assertEqual(before, self.session.broadcast.state)
         self.assertEqual(sequence, self.session.broadcast.delivery_sequence)
 
+    def test_shorter_field_expiry_keeps_original_rich_frame_revision(self):
+        self.prepare()
+        for version in (1, 2, 3):
+            self.grant = replace(self.grant, projection_version=version)
+            before = self.frame(101)
+            original = deepcopy(self.session.broadcast.state)
+            expired = self.frame(219)
+            self.assertIsNotNone(before['contribution'])
+            self.assertIsNone(expired['contribution'])
+            self.assertEqual(expired['state'], 'active')
+            for field in ('revision', 'delivery_sequence', 'observed_at', 'expires_at',
+                          'binding_id', 'generation'):
+                self.assertEqual(before[field], expired[field], field)
+            self.assertEqual(original, self.session.broadcast.state)
+            if version in (2, 3):
+                self.assertNotEqual(before['contribution_status'], expired['contribution_status'])
+            self.assertEqual(self.frame(221)['state'], 'stale')
+
     def test_expiry_is_not_read_repaint_or_reconnect_renewed(self):
         self.prepare()
         self.assertIsNotNone(self.frame()['contribution'])
@@ -192,7 +210,8 @@ class PassiveProjectionTests(unittest.TestCase):
         second = self.frame(registry=registry, owner='owner')
         self.assertEqual(first['contribution'], second['contribution'])
         self.assertEqual(first['delivery_sequence'], second['delivery_sequence'])
-        self.assertNotEqual(first['revision'], second['revision'])
+        self.assertEqual(first['revision'], second['revision'])
+        self.assertNotEqual(first['artwork'][0]['media_revision'], second['artwork'][0]['media_revision'])
         self.assertNotIn('/session/media/', json.dumps(second))
         art['subject']['type'] = 'artist'
         self.assertEqual(self.frame(registry=registry, owner='owner')['artwork'], [])
