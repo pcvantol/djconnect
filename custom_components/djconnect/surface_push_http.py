@@ -37,6 +37,15 @@ def parse(raw):
 
 
 def validate(kind, data):
+    if kind in {"retained-read", "retained-authorize"}:
+        fields = {"contract_version", "registration_id"}
+        if kind == "retained-authorize":
+            fields |= COMMON | {"grant_id"}
+        require(type(data) is dict and set(data) == fields
+            and type(data["contract_version"]) is int and data["contract_version"] == 1
+            and all(type(data[key]) is str and IDENTIFIER.fullmatch(data[key])
+                for key in fields - {"contract_version"}), "invalid_request")
+        return None
     if kind in {"register", "context"}:
         require(type(data) is dict, "invalid_request")
         require(not (type(data.get("contract_version")) is int and data["contract_version"] in {1, 2}),
@@ -80,11 +89,20 @@ async def handle(hass, kind, data, headers):
         require(type(authorization) is str and re.fullmatch(r"Bearer djcsurface_[A-Za-z0-9_-]{43}",authorization),
             "surface_read_unauthorized",401)
         return service.registry.read(data["registration_id"],authorization[7:]),200
+    if kind == "retained-read":
+        authorization = headers.get("Authorization", "")
+        require(type(authorization) is str
+            and re.fullmatch(r"Bearer djcretained_[A-Za-z0-9_-]{43}", authorization),
+            "surface_read_unauthorized", 401)
+        return service.registry.read_retained(data["registration_id"], authorization[7:]), 200
     if kind == "context":
         return await service.run(service.contexts.acquire(data, headers)), 200
     if kind == "register":
         return await service.run(service.contexts.register(data["context_handle"], intent, headers)), 200
     admission = await service.admission(data, headers)
+    if kind == "retained-authorize":
+        return service.registry.admit_retained_read(admission, data["registration_id"],
+            data["grant_id"], service.capture_retained_widget), 200
     if kind=="revoke":
         result = await service.run(service.registry.revoke(admission,data["expected_registration"],
             operation_id=data["operation_id"],digest=hashlib.sha256(canonical(data).encode()).hexdigest()))
@@ -148,4 +166,5 @@ class SurfacePushView(HomeAssistantView):
 
 
 def surface_views(hass):
-    return [SurfacePushView(hass,kind) for kind in ("context","register","revoke","status","read")]
+    return [SurfacePushView(hass, kind) for kind in (
+        "context", "register", "revoke", "status", "read", "retained-authorize", "retained-read")]

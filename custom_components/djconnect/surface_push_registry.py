@@ -35,6 +35,7 @@ class SurfaceAdmission:
     purpose: object = field(default=None, repr=False)
     runtime: object = field(default=None, repr=False)
     broadcast: object = field(default=None, repr=False)
+    active_session: Callable[[], object] | None = field(default=None, repr=False)
 
     def is_current(self):
         try:
@@ -45,6 +46,14 @@ class SurfaceAdmission:
 
     def validate(self):
         require(self.is_current(), "surface_authority_changed", 403)
+
+
+@dataclass(frozen=True, repr=False)
+class RetainedWidgetRead:
+    coordinate: dict
+    grant: object
+    credential: str
+    project: Callable[[], dict]
 
 
 @dataclass
@@ -61,6 +70,7 @@ class SurfaceRegistration:
     last_error: str | None = None
     mutation_pending: bool = False
     retire_callback: object = field(default=None, repr=False)
+    retained_read: RetainedWidgetRead | None = field(default=None, repr=False)
 
     def coordinate(self):
         return {
@@ -75,6 +85,7 @@ class SurfaceRegistration:
         if not live and self.phase == "registered" and not self.mutation_pending:
             self.phase = "expired" if now_ms >= self.expires_ms else "withdrawn"
             self.read_secret = ""
+            self.retained_read = None
         return live
 
     def receipt(self, now_ms):
@@ -143,6 +154,7 @@ class SurfacePushRegistry:
     def _latch_mutation(row, phase=None):
         row.mutation_pending = True
         row.read_secret = ""
+        row.retained_read = None
         if phase is not None:
             row.phase = phase
         retire,row.retire_callback = row.retire_callback,None
@@ -427,6 +439,42 @@ class SurfacePushRegistry:
             "registration": row.receipt(self.journal.now_ms()),
         }
 
+    def admit_retained_read(self, admission, registration_id, grant_id, capture):
+        """Bind a separate credential to an exact registered widget and v4 grant."""
+        self.status(admission, registration_id)
+        row = self._entries[registration_id]
+        require(row.metadata["token_role"] == "widget"
+            and row.metadata["consent"]["background_read"]
+            and row.metadata["consent"]["os_snapshot_cache"]
+            and row.live(self.journal.now_ms()), "surface_read_withdrawn", 403)
+        grant, project = capture(row, grant_id)
+        current = row.retained_read
+        if current is None or current.coordinate != row.coordinate() or current.grant is not grant:
+            current = RetainedWidgetRead(
+                row.coordinate(), grant, "djcretained_" + secrets.token_urlsafe(32), project)
+            row.retained_read = current
+        return {"success": True, "contract_version": 1, "registration_id": registration_id,
+            "credential": current.credential, "expires_at_ms": row.expires_ms, "projection_version": 4,
+            "cache_policy": "private,no-store"}
+
+    def retained_projection(self, row):
+        current = row.retained_read
+        require(current is not None and current.coordinate == row.coordinate()
+            and row.live(self.journal.now_ms()), "surface_read_withdrawn", 403)
+        frame = current.project()
+        require(row.live(self.journal.now_ms()), "surface_read_withdrawn", 403)
+        return frame
+
+    def read_retained(self, registration_id, credential):
+        self._require_open()
+        row = self._entries.get(registration_id)
+        require(row is not None and row.retained_read is not None
+            and hmac.compare_digest(row.retained_read.credential, credential),
+            "surface_read_unauthorized", 401)
+        return {"success": True, "contract_version": 1,
+            "registration": row.receipt(self.journal.now_ms()),
+            "passive_session": self.retained_projection(row), "cache_policy": "private,no-store"}
+
     async def revoke(self, admission, expected, *, operation_id, digest):
         self._require_open()
         admission.validate()
@@ -620,6 +668,7 @@ class SurfacePushRegistry:
         for row in self._entries.values():
             row.phase = "withdrawn"
             row.read_secret = ""
+            row.retained_read = None
             if type(row.admission.purpose) is SurfacePurposeCredential:
                 row.admission.purpose.withdraw()
         self._entries.clear()

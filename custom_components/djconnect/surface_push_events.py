@@ -19,7 +19,9 @@ ENDED = frozenset({'runtime_ended','broadcast_stopped'})
 
 def fingerprint(frame):
     """Only meaningful display values; observation ticks never create content."""
-    music,contribution = frame.get('now_playing') or {},frame.get('contribution') or {}
+    music = frame.get('now_playing') or {}
+    contribution_key = 'latest_contribution' if frame.get('schema_version') == 4 else 'contribution'
+    contribution = frame.get(contribution_key) or {}
     value = {'state':frame.get('state'),'playback_state':frame.get('playback_state'),
         'mood':frame.get('mood'),
         'presence':frame.get('presence'),'persona':frame.get('persona'),
@@ -38,7 +40,7 @@ class WidgetSignals:
         self.service,self.row,self.broadcast = service,row,broadcast
         self.coordinate = row.coordinate()
         self.closed,self.pending,self.task = False,None,None
-        self.last = fingerprint(row.admission.projection())
+        self.last = fingerprint(service.widget_signal_frame(row))
         self.subscription = broadcast.register_subscription(self.changed)
         row.retire_callback = self.stop
 
@@ -73,7 +75,7 @@ class WidgetSignals:
                 return
             # Build only an already accepted passive projection, synchronously.
             # Never retain the event payload or a new observation lease.
-            signature = fingerprint(self.row.admission.projection())
+            signature = fingerprint(self.service.widget_signal_frame(self.row))
             if signature==self.last:
                 return
             self.last = signature

@@ -55,6 +55,31 @@ Silence is a barrier, never retained prose. Current contribution and current-cov
 logic keep their own original deadlines. Retained latest text grants no new cover
 or artist-image rights and cannot relabel an older image as current playback.
 
+## Candidate background read
+
+The paired app first obtains the ordinary widget v4 grant and completes its
+original WidgetKit registration with background-read and OS-cache consent.
+It then posts to `/api/djconnect/v1/push/surface/retained-authorize` with the
+paired bearer and exactly `contract_version: 1`, `device_id`, `client_type`,
+`session_id`, `registration_id` and the v4 `grant_id`. The response returns a
+separate opaque read credential, its registration ID, projection version 4,
+and the original registration expiry. Repeating the same request preserves
+that credential and expiry.
+
+The widget posts only `contract_version: 1` and `registration_id` to
+`/api/djconnect/v1/push/surface/retained-read` with the separate credential.
+This reads the original owner-authorized Core projection directly. The
+existing background credential remains limited to its original read path.
+Both the original registration and the exact v4 grant must still be current.
+Rotation, withdrawal, Session end and expiry invalidate this access.
+The response contains no image fetch URLs or transferable source grants.
+
+An eligible new publication can cause a content-free WidgetKit reload through
+the existing registration and budget. The reload carries neither text nor
+the read credential. The widget independently retrieves the contribution from
+Home Assistant. The provider can coalesce reloads. Delivery and actual rendering
+require separate device proof.
+
 ## Required proof and boundaries
 
 Before product admission, demonstrate original publication survives its short
