@@ -10,7 +10,7 @@ from typing import Any
 
 from aiohttp import ClientError
 
-from .discovery_artwork import capture_refresh_guard, compact_artwork, artwork_url, artwork_owner, privacy_scope, project_discovery_images
+from .discovery_artwork import DiscoveryCatalogueSearch, capture_refresh_guard, compact_artwork, artwork_url, artwork_owner, privacy_scope, project_discovery_images
 
 from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID
 from .request_auth import (
@@ -846,9 +846,9 @@ async def _catalog_discovery_items(
         if not query_artist:
             continue
         try:
-            result = await run_music_command(hass, runtime, "search_tracks", {
-                "query": f'artist:"{query_artist}"', "limit": 10,
-            })
+            result = await run_music_command(hass, runtime, "search_tracks", DiscoveryCatalogueSearch(
+                query=f'artist:"{query_artist}"', limit=10,
+            ))
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Music Discovery catalog search unavailable: %s", exc.__class__.__name__)
             break

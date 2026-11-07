@@ -26,7 +26,7 @@ from .const import (
     DEFAULT_SPOTIFY_MARKET,
 )
 from .music_dna import resolve_music_dna_key
-from .discovery_artwork import capture_artwork, runtime_scope, credential_cache_scope, authority_valid
+from .discovery_artwork import DiscoveryCatalogueSearch, capture_artwork, runtime_scope, credential_cache_scope, authority_valid
 from .spotify_oauth import SpotifyTokenRefreshError, refresh_access_token, store_spotify_scope_evidence
 
 SPOTIFY_API_BASE = "https://api.spotify.com/v1"
@@ -227,6 +227,7 @@ async def handle_spotify_command(
         tracks = await backend.search_tracks(
             _search_query(value),
             limit=_search_limit(value, default=10, maximum=10),
+            **({"with_discovery_artwork": True} if type(value) is DiscoveryCatalogueSearch else {}),
         )
         return {
             "success": True,
@@ -1102,7 +1103,9 @@ class SpotifyBackend:
                 return True
         return False
 
-    async def search_tracks(self, query: str, *, limit: int = 10) -> list[dict[str, Any]]:
+    async def search_tracks(
+        self, query: str, *, limit: int = 10, with_discovery_artwork: bool = False
+    ) -> list[dict[str, Any]]:
         """Search Spotify tracks and return normalized playable items."""
         query = str(query or "").strip()
         if not query:
@@ -1117,11 +1120,20 @@ class SpotifyBackend:
         items = section.get("items") or []
         if not isinstance(items, list):
             items = []
-        tracks = [
-            _normalize_search_item(item, "track", query)
-            for item in items
-            if isinstance(item, dict)
-        ][:limit]
+        tracks = []
+        for item in (item for item in items if isinstance(item, dict)):
+            track = _normalize_search_item(item, "track", query)
+            if (with_discovery_artwork and item.get("type") == "track"
+                    and not item.get("linked_from") and not item.get("is_local")
+                    and item.get("is_playable") is not False and not item.get("restrictions")):
+                # Preserve only the same response's exact recording, album
+                # edition and CDN asset; no new lookup or public search field.
+                source = _normalize_profile_track(item)
+                if source.get("artwork"):
+                    track.update(artwork=source["artwork"], album_uri=source["album_uri"])
+            tracks.append(track)
+            if len(tracks) >= limit:
+                break
         self.runtime.last_spotify_search = _spotify_search_debug(
             query=query,
             spotify_type="track",
