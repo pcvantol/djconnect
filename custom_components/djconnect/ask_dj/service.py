@@ -583,13 +583,15 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             result.pop("_dialogue_question", None)
             result.pop("_consume_pending", None)
             if (turn.first_play_request and result.get('first_play', {}).get('state') == 'genres'
-                    and active is not None and active.session_id == turn.session_id):
+                    and active is not None and active.session_id == turn.session_id
+                    and not active.broadcast.first_play_dismissed_offer_id):
                 active.broadcast.first_play_offer = _for_you_offer_projection(active, thread, result)
                 active.broadcast.first_play_continuation = None
         from ..request_auth import runtime_client_type
         if (active is not None and active.session_id == turn.session_id and 'first_play' in result
                 and runtime_client_type(runtime) in {'ios', 'macos'}):
-            if result['first_play'].get('state') != 'genres':
+            if (result['first_play'].get('state') != 'genres'
+                    and not active.broadcast.first_play_dismissed_offer_id):
                 active.broadcast.first_play_continuation = {
                     key: deepcopy(result[key]) for key in ('first_play', 'result_set', 'playback_actions',
                         'action_outcome', 'selected_action_id') if key in result}
@@ -754,6 +756,7 @@ async def async_prepare_session_for_you(hass, runtime, context, active, history_
 
 def _for_you_offer_projection(active, thread, response):
     from ..current_track_insight import session_scope
+    from ..mood_music_steering import unprepared_for_you_offer_id
     result_set = response.get('result_set')
     options = []
     for index, action in enumerate(response.get('playback_actions', [])):
@@ -767,7 +770,7 @@ def _for_you_offer_projection(active, thread, response):
                 'illustrative_not_audio_analysis': True}})
     expires = response.get('first_play', {}).get('expires_in', 0)
     turn = current_turn.get()
-    return {'schema_version': 1, 'offer_id': (result_set or {}).get('result_set_id', active.session_id),
+    return {'schema_version': 1, 'offer_id': (result_set or {}).get('result_set_id', unprepared_for_you_offer_id(active)),
             'state': 'available' if options else 'unavailable',
             'language':turn.style.get('language',active.locale) if turn is not None else active.locale,
             'intro': response.get('text', ''), 'intro_source': response.get('text_source'),

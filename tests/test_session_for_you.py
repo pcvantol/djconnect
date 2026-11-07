@@ -195,26 +195,52 @@ class ForYouTests(IsolatedAsyncioTestCase):
         await self.steering.prepare_for_you_once(self.hass, self.runtime, context, self.active, history, lambda: None)
         return history, self.steering.for_you_projection(self.hass, self.runtime, 'synthetic-owner', self.active)
 
-    async def test_dismissal_is_client_scoped_revokes_old_click_and_is_not_a_taste_vote(self):
+    async def test_dismissal_closes_same_offer_for_both_devices_without_taste_vote(self):
         history, offer = await self.prepared()
         before = deepcopy(self.runtime.memory.data)
         choice = {'operation': 'dismiss', 'result_set_id': offer['offer_id'], 'action_id': ''}
-        closed = self.steering.dismiss_for_you(self.hass, 'synthetic-owner', 'phone', offer['conversation_context'], choice, history)
-        self.assertFalse(closed['for_you']['visible'])
-        self.assertFalse(self.steering.for_you_projection(self.hass, self.runtime, 'synthetic-owner', self.active, client_device_id='phone')['visible'])
-        self.assertTrue(self.steering.for_you_projection(self.hass, self.runtime, 'synthetic-owner', self.active, client_device_id='ipad')['visible'])
+        for owner, offer_id in (('other-owner', offer['offer_id']), ('synthetic-owner', 'old-offer')):
+            with self.assertRaises(self.dialogue.DialogueError):
+                self.steering.dismiss_for_you(self.hass, owner, 'phone',
+                    offer['conversation_context'], {**choice, 'result_set_id': offer_id}, history)
+        closed = self.steering.dismiss_for_you(self.hass, 'synthetic-owner', 'phone',
+            offer['conversation_context'], choice, history)['for_you']
+        self.assertEqual(closed['state'], 'dismissed')
+        self.assertEqual(closed['session_id'], self.active.session_id)
+        self.assertEqual(closed['offer_id'], offer['offer_id'])
+        self.assertFalse(closed['visible'])
+        self.assertFalse(closed['actions_available'])
+        self.assertEqual(closed['options'], [])
+        self.assertFalse({'result_set', 'continuation', 'refresh_request'} & closed.keys())
         self.frame = history.dialogue.owners['profile:synthetic-owner'][offer['conversation_context']['thread_id']]
         admission = self.frame.result_set['first_play_admission']
-        self.new_turn('stale-phone-click')
-        self.turn.client_device_id = 'phone'
-        with self.assertRaises(self.dialogue.DialogueError):
-            admission.bind(self.turn)
-        self.assertFalse(admission.withdrawn)
-        self.new_turn('independent-ipad')
-        self.turn.client_device_id = 'ipad'
-        admission.bind(self.turn)
+        for device in ('phone', 'ipad'):
+            self.assertEqual(self.steering.for_you_projection(self.hass, self.runtime,
+                'synthetic-owner', self.active, client_device_id=device), closed)
+            self.new_turn('stale-' + device)
+            self.turn.client_device_id = device
+            with self.assertRaises(self.dialogue.DialogueError):
+                admission.bind(self.turn)
+        self.assertEqual(self.steering.dismiss_for_you(self.hass, 'synthetic-owner', 'ipad',
+            offer['conversation_context'], choice, history)['for_you'], closed)
         self.assertEqual(self.runtime.memory.data, before)
         self.assertEqual(self.effects, [])
+
+    async def test_dismissed_card_does_not_reopen_on_mood_or_explicit_refresh(self):
+        offer = await self.prepare_current()
+        previous = self.active
+        self.steering.dismiss_for_you(self.hass, 'synthetic-owner', 'ipad', offer['conversation_context'],
+            {'operation': 'dismiss', 'result_set_id': offer['offer_id'], 'action_id': ''},
+            self.preparation_history)
+        reads = list(self.reads)
+        _, status = await self.refresh_mood('party')
+        self.assertEqual(status['state'], 'unavailable')
+        self.new_turn('explicit-refresh-after-dismissal')
+        result = await self.steering.first_play_response(self.hass, self.runtime)
+        self.assertEqual(result['first_play']['state'], 'unavailable')
+        self.assertEqual(self.reads, reads)
+        self.assertEqual(self.steering.for_you_projection(self.hass, self.runtime,
+            'synthetic-owner', previous)['offer_id'], offer['offer_id'])
 
     async def test_old_session_dismissal_never_changes_replacement_session(self):
         history, offer = await self.prepared()
@@ -222,10 +248,10 @@ class ForYouTests(IsolatedAsyncioTestCase):
         with self.assertRaises(self.dialogue.DialogueError):
             self.steering.dismiss_for_you(self.hass, 'synthetic-owner', 'phone', offer['conversation_context'],
                 {'operation': 'dismiss', 'result_set_id': offer['offer_id'], 'action_id': ''}, history)
-        self.assertEqual(self.active.broadcast.first_play_dismissed_devices, set())
+        self.assertEqual(self.active.broadcast.first_play_dismissed_offer_id, '')
 
     async def test_expired_actions_do_not_remove_card_or_renew_on_poll(self):
-        _, offer = await self.prepared()
+        history, offer = await self.prepared()
         cached = self.active.broadcast.first_play_offer
         cached['_action_wall_deadline'] = 0
         cached['_action_monotonic_deadline'] = 0
@@ -235,6 +261,10 @@ class ForYouTests(IsolatedAsyncioTestCase):
         self.assertFalse(projected['actions_available'])
         self.assertEqual(projected['options'], offer['options'])
         self.assertFalse(projected['refresh_request']['automatic'])
+        dismissed = self.steering.dismiss_for_you(self.hass, 'synthetic-owner', 'phone',
+            offer['conversation_context'],
+            {'operation': 'dismiss', 'result_set_id': offer['offer_id'], 'action_id': ''}, history)
+        self.assertEqual(dismissed['for_you']['state'], 'dismissed')
         self.assertEqual(self.reads, reads)
 
     async def test_late_exact_playback_can_reconcile_unknown_result(self):
@@ -358,7 +388,7 @@ class ForYouTests(IsolatedAsyncioTestCase):
         task = asyncio.create_task(self.steering.first_play_choose(self.hass, self.runtime, action, self.frame.result_set, self.turn))
         try:
             await asyncio.wait_for(entered.wait(), 2)
-            self.steering.dismiss_for_you(self.hass, 'synthetic-owner', 'phone', offer['conversation_context'],
+            self.steering.dismiss_for_you(self.hass, 'synthetic-owner', 'ipad', offer['conversation_context'],
                 {'operation': 'dismiss', 'result_set_id': offer['offer_id'], 'action_id': ''}, history)
             self.assertTrue(admission.withdrawn)
         finally:
@@ -366,6 +396,52 @@ class ForYouTests(IsolatedAsyncioTestCase):
         with self.assertRaises(self.dialogue.DialogueError):
             await task
         self.assertEqual(self.effects, [])
+
+    async def test_dismissal_preserves_dispatched_effect_and_fences_follow_on_play(self):
+        import asyncio
+
+        for initial_active, expected_effect in ((True, 'play_uris'), (False, 'set_output')):
+            with self.subTest(expected_effect=expected_effect):
+                await self.new_session()
+                self.devices[0]['is_active'] = initial_active
+                history, offer = await self.prepared()
+                self.history = history
+                self.frame = history.dialogue.owners['profile:synthetic-owner'][offer['conversation_context']['thread_id']]
+                if not initial_active:
+                    output = await self.choose(identifier='choose-genre-before-close')
+                    self.assertEqual(output['first_play']['state'], 'output')
+                entered, release = asyncio.Event(), asyncio.Event()
+                original = self.use_cases.run_music_command
+
+                async def hold_readback(*args, **kwargs):
+                    result = await original(*args, **kwargs)
+                    entered.set()
+                    await release.wait()
+                    return result
+
+                before = len(self.effects)
+                with patch.object(self.use_cases, 'run_music_command', hold_readback):
+                    self.new_turn('dispatched-before-dismissal')
+                    shown = self.frame.result_set
+                    task = asyncio.create_task(self.steering.first_play_choose(
+                        self.hass, self.runtime, shown['items'][0], shown, self.turn))
+                    try:
+                        await asyncio.wait_for(entered.wait(), 2)
+                        terminal = self.steering.dismiss_for_you(self.hass, 'synthetic-owner', 'ipad',
+                            offer['conversation_context'], {'operation': 'dismiss',
+                                'result_set_id': offer['offer_id'], 'action_id': ''}, history)['for_you']
+                        self.assertEqual(terminal['state'], 'dismissed')
+                    finally:
+                        release.set()
+                    if initial_active:
+                        result = await task
+                        self.assertTrue(result['action_outcome']['readback_confirmed'])
+                    else:
+                        with self.assertRaises(self.dialogue.DialogueError):
+                            await task
+                self.assertEqual([effect[0] for effect in self.effects[before:]], [expected_effect])
+                self.assertEqual(self.steering.for_you_projection(self.hass, self.runtime,
+                    'synthetic-owner', self.active), terminal)
 
     async def prepare_current(self, *, locale='nl'):
         from tests.test_music_dna import FakeStore
