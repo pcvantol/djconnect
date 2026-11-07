@@ -1,3 +1,12 @@
+## 2026-11-07 — Share ‘For you’ dismissal across the active Session
+
+The existing paired Ask DJ dismissal closes the current offer for all devices
+of the same owner and active Session. The active projection returns a terminal
+schema-1 offer with the original IDs and no executable action. Polling, Mood
+updates and explicit refresh cannot reopen that Session's dismissed offer.
+A new Session can prepare its own. Existing effect boundaries protect an
+already sent transfer or mix. See [Session For You v1](docs/product/SESSION_FOR_YOU_V1.md).
+
 ## 2026-11-07 — Music announcements introduce the track in the selected DJ persona
 
 Core keeps the existing reviewed narration path and uses a short authored

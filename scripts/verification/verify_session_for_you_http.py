@@ -14,7 +14,49 @@ ROOT = Path(os.environ.get("DJC_SOURCE_ROOT", Path(__file__).resolve().parents[2
 sys.path[:0] = [str(ROOT), str(ROOT/"scripts/verification")]
 
 
-async def qualify(hass, manager, history, request, client, *, after=None, backend_id="source-spotify"):
+async def _pair_for_you_receivers(hass, client, storage):
+    from homeassistant.config_entries import ConfigEntries, ConfigEntryState
+
+    from custom_components.djconnect import DJConnectRuntime
+    from verify_session_conversation_history_http import entry
+
+    data = hass.data["djconnect"]
+    owner_entry = hass.config_entries.async_get_entry("owner-entry")
+    default_runtime = data["runtime"]
+    receivers = {}
+    for name, suffix, profile_id, code in (
+        ("peer", "111111111111", "profile-a", "234561"),
+        ("other", "222222222222", "profile-other", "234562"),
+    ):
+        identity = {"device_id": "djconnect-ios-" + suffix, "client_type": "ios"}
+        peer = entry("for-you-" + name, {
+            **owner_entry.data, **identity, "profile_id": profile_id, "pair_code": code,
+        })
+        # Like the base harness, register the synthetic entry and supply its loaded Runtime.
+        with patch.object(ConfigEntries, "async_setup", return_value=True):
+            await hass.config_entries.async_add(peer)
+        peer._async_set_state(hass, ConfigEntryState.LOADED, None)
+        runtime = DJConnectRuntime(peer, device_token="")
+        runtime.device_status.update(identity)
+        data[peer.entry_id] = runtime
+        await storage.async_upsert_device(identity["device_id"], "ios", linked_profile_id=profile_id)
+        # The legacy pairing route uses the configuration slot selected by this fixture.
+        data["runtime"] = runtime
+        try:
+            response = await client.post("/api/djconnect/v1/pair", json={**identity, "pair_code": code})
+            paired = await response.json()
+        finally:
+            data["runtime"] = default_runtime
+        assert response.status == 200 and paired["success"], (name, response.status, paired.get("error"))
+        receivers[name] = (identity, {
+            "Authorization": "Bearer " + paired["device_token"],
+            "X-DJConnect-Device-ID": identity["device_id"],
+        })
+    return receivers
+
+
+async def qualify(hass, manager, history, request, client, *, after=None, backend_id="source-spotify",
+                  pair_receivers=False):
     locale = os.environ.get("DJC_GOLDEN_LOCALE", "nl")
     if locale not in {"en", "nl"}:
         raise ValueError("unsupported_golden_locale")
@@ -25,6 +67,15 @@ async def qualify(hass, manager, history, request, client, *, after=None, backen
     from custom_components.djconnect.ask_dj.dialogue import current_turn
     from custom_components.djconnect.ask_dj_history import _request_hash
     storage = profile_storage(hass)
+    receivers = await _pair_for_you_receivers(hass, client, storage) if pair_receivers else {}
+
+    async def receiver_request(name, method, path, payload=None):
+        identity, headers = receivers[name]
+        data = {**identity, **(payload or {})}
+        kwargs = {"params": data} if method == "GET" else {"json": data}
+        response = await client.request(method, path, headers=headers, **kwargs)
+        return await response.json(), response.status
+
     if backend_id != "source-spotify":
         from custom_components.djconnect.domain.backend import BackendProvider
         await storage.async_upsert_music_backend(backend_id, BackendProvider.SPOTIFY_DIRECT,
@@ -241,6 +292,17 @@ async def qualify(hass, manager, history, request, client, *, after=None, backen
         assert active['for_you']['offer_id'] == refreshed['result_set']['result_set_id'] != before_offer
         offer = active['for_you']
         cases['explicit_refresh_updates_same_card_without_playback'] = 'PASS'
+        if pair_receivers:
+            # The dedicated harness opts into two independently paired clients
+            # plus a paired client linked to a different Profile.
+            other, status = await receiver_request('other', 'POST', '/api/djconnect/v1/ask_dj/message', {
+                'conversation_context': offer['conversation_context'],
+                'choice_action': {'operation': 'dismiss', 'result_set_id': offer['offer_id'],
+                                  'action_id': ''}})
+            assert status in {403, 409}, other
+            peer, status = await receiver_request('peer', 'GET', '/api/djconnect/v1/session/active')
+            assert status == 200 and peer['for_you']['offer_id'] == offer['offer_id']
+            assert peer['for_you']['visible']
         dismissed, status = await request("POST", "/api/djconnect/v1/ask_dj/message", {
             "conversation_context": offer["conversation_context"],
             "choice_action": {"operation": "dismiss", "result_set_id": offer["offer_id"], "action_id": ""}})
@@ -248,6 +310,19 @@ async def qualify(hass, manager, history, request, client, *, after=None, backen
         active, status = await request("GET", "/api/djconnect/v1/session/active")
         assert status == 200 and not active["for_you"]["visible"] and not state["effects"]
         cases["authenticated_dismissal_no_effects_polls_remain_hidden"] = "PASS"
+        terminal = dismissed['for_you']
+        assert terminal['session_id'] == offer['session_id'] and terminal['offer_id'] == offer['offer_id']
+        assert terminal['state'] == 'dismissed' and terminal['options'] == [] and not terminal['actions_available']
+        assert not {'continuation', 'result_set', 'refresh_request'} & terminal.keys()
+        if pair_receivers:
+            peer, status = await receiver_request('peer', 'GET', '/api/djconnect/v1/session/active')
+            assert status == 200 and peer['for_you'] == terminal
+            stale, status = await receiver_request('peer', 'POST', '/api/djconnect/v1/ask_dj/message', {
+                'conversation_context': offer['conversation_context'],
+                'choice_action': {'operation': 'dismiss', 'result_set_id': before_offer,
+                                  'action_id': ''}})
+            assert status == 409, stale
+            cases['paired_peer_sees_terminal_offer_and_other_profile_cannot_dismiss'] = 'PASS'
         # Expire only the choice owner's clock; no real sleep or HA auth clock change.
         result, offer = await start()
         original_clock = history.dialogue.clock
@@ -271,4 +346,5 @@ async def qualify(hass, manager, history, request, client, *, after=None, backen
 
 if __name__ == "__main__":
     from verify_session_conversation_history_http import main
-    asyncio.run(main(qualification_extension=qualify))
+    from functools import partial
+    asyncio.run(main(qualification_extension=partial(qualify, pair_receivers=True)))

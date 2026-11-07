@@ -3620,7 +3620,7 @@ class DJSessionBroadcastEngine:
     first_play_refresh: Any = field(default=None, init=False, repr=False)
     first_play_continuation: Any = field(default=None, init=False, repr=False)
     first_play_pending: Any = field(default=None, init=False, repr=False)
-    first_play_dismissed_devices: set[str] = field(default_factory=set, init=False, repr=False)
+    first_play_dismissed_offer_id: str = field(default="", init=False, repr=False)
     passive_state_observed: tuple = field(default_factory=lambda: (time.monotonic(), time.time()), repr=False)
     _media_revision: str = field(default="", init=False, repr=False)
     pending_events: tuple[BroadcastEventType, ...] = ()
