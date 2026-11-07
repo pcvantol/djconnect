@@ -197,3 +197,20 @@ wrong output, track or state, stale source, another Session and untyped stand-in
 never confirm. This is private data on the existing source witness: no public
 wire, native capability, provider dispatch, new permission or lease extension.
 It does not recreate the original uncertain request or authorize its replay.
+
+### Existing committed DNA basis during unrelated metadata persistence
+
+An already prepared offer compares its exact original committed genre snapshot;
+polling does not acquire a replacement basis. A pending unrelated metadata save
+may not replace that read basis with a missing-DNA result. Comparing the original
+loaded source is permitted only while the same manager/data/memories/owner row/
+genre containers, selected genres, generation, safety epoch and original privacy
+fences still match. A new snapshot remains unavailable during persistence.
+
+Changed/cleared/disabled genres, owner or manager replacement, unobserved
+container A-B-A, failed/cancelled writes and withdrawn admissions still retire
+the original. No recovery revives an old snapshot after failed persistence.
+Read/cached projection never extends the original60-second dual-clock choice,
+creates another offer, warms data, grants playback or retries an attempted or
+uncertain operation. Other clients need the same loaded Profile memory owner;
+a missing/different manager cannot borrow the original cached admission.

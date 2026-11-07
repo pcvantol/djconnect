@@ -138,6 +138,42 @@ class ForYouTests(IsolatedAsyncioTestCase):
             for forbidden in ('action_id', 'uris', 'images', 'artwork_url'):
                 self.assertNotIn(forbidden, option['visual_recipe'])
 
+    async def test_cached_offer_uses_original_committed_dna_during_unrelated_save(self):
+        import asyncio
+        _, before = await self.prepared()
+        memory = self.runtime.memory
+        entered, release = asyncio.Event(), asyncio.Event()
+        save = memory._store.async_save
+        async def pending(data):
+            entered.set()
+            await release.wait()
+            await save(data)
+        memory._store.async_save = pending
+        memory.data['memories']['profile:synthetic-owner']['last_seen'] = 'unrelated-metadata'
+        reads = list(self.reads)
+        task = asyncio.create_task(memory.async_save())
+        await entered.wait()
+        try:
+            during = self.steering.for_you_projection(self.hass, self.runtime, 'synthetic-owner', self.active)
+            catalogue = self.steering.first_play_catalogue(self.hass, self.runtime, 'synthetic-owner', self.active)
+            new_basis = memory.loaded_genre_seed_snapshot('synthetic-owner', limit=20)
+        finally:
+            release.set()
+            await task
+        self.assertIsNone(new_basis)
+        self.assertEqual(during['state'], 'available')
+        self.assertTrue(during['actions_available'])
+        self.assertTrue(catalogue['available'])
+        self.assertEqual(during['offer_id'], before['offer_id'])
+        self.assertEqual(during['result_set']['items'], before['result_set']['items'])
+        self.assertLessEqual(during['expires_in'], before['expires_in'])
+        self.assertEqual(reads, self.reads)
+        self.assertEqual(self.effects, [])
+        await memory.async_clear('profile:synthetic-owner')
+        denied = self.steering.for_you_projection(self.hass, self.runtime, 'synthetic-owner', self.active)
+        self.assertEqual(denied['state'], 'unavailable')
+        self.assertFalse(denied['actions_available'])
+
     async def test_confirmation_memory_is_deduped_and_clear_removes_it(self):
         memory = self.runtime.memory
         self.assertTrue(await memory.async_record_for_you_choice('synthetic-owner', 'original-action', 'neo soul', authorize=lambda: True))
