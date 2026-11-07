@@ -4,7 +4,7 @@
     "scripts/verification/verify_artist_collections_http.py": "d0e3bbf5aaa5a900dacd9db571b145c78501dadf1a86e115ebd6002e5ab3d89b",
     "scripts/verification/verify_session_conversation_history_http.py": "f05595c35ab21a2a87c5210ad4ec2d19cec341a7192827bdc7873a064727b068"
   },
-  "raw_receipt_sha256": "654345e9a3449db8a045710e6b4c423d91a8304a19a5a03a36be5dc6ce8f8d0c",
+  "raw_receipt_sha256": "b5d73125f5885170ce586d06b5c0edcdd37ab08c8073c7184aef070af30035ed",
   "receipt": {
     "actual_home_assistant": true,
     "cases": {
@@ -64,7 +64,7 @@
         "is_generated_text": false,
         "items": [
           {
-            "action_id": "67caa6289bc5002dfd4365b827091fdf",
+            "action_id": "fe22328fe6dab2a378a6d424d6d7d23f",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -75,7 +75,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 0",
             "uri": "spotify:album:0000000000000000000000",
@@ -86,7 +86,7 @@
             }
           },
           {
-            "action_id": "dfd9cd744d457a1e0dbbe3a5fc400457",
+            "action_id": "c76871ad9aa4067aa41491a3914b2838",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -97,7 +97,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 1",
             "uri": "spotify:album:1111111111111111111111",
@@ -108,7 +108,7 @@
             }
           },
           {
-            "action_id": "add4f2de178ac20d27ae0a342f86b1e9",
+            "action_id": "22ea5129349e4d6d78e1290c94c39320",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -119,7 +119,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 2",
             "uri": "spotify:album:2222222222222222222222",
@@ -130,7 +130,7 @@
             }
           },
           {
-            "action_id": "5ed47ef754b48a7b4cdcd699bf9c1450",
+            "action_id": "ef3a3cbe2040e14a8bab971ac483eff2",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -141,7 +141,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 3",
             "uri": "spotify:album:3333333333333333333333",
@@ -152,7 +152,7 @@
             }
           },
           {
-            "action_id": "98331ff3fbae8e5b0f783cc90f323467",
+            "action_id": "ba4bb2e9edcf6c88ece60401a44b88bc",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -163,7 +163,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 4",
             "uri": "spotify:album:4444444444444444444444",
@@ -174,7 +174,7 @@
             }
           },
           {
-            "action_id": "91c07561ada69fea888d6f5b19478c54",
+            "action_id": "392105afb549da6ccad4a833ec77e6f2",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -185,7 +185,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 0",
             "uri": "spotify:playlist:0000000000000000000000",
@@ -196,7 +196,7 @@
             }
           },
           {
-            "action_id": "80e4db49dd7f28006d9f66a3583ce31f",
+            "action_id": "b741b1c7bfb25e2d53ee2f971c8b8a9d",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -207,7 +207,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 1",
             "uri": "spotify:playlist:1111111111111111111111",
@@ -218,7 +218,7 @@
             }
           },
           {
-            "action_id": "d344016343cdc600af6fd646e6f0e63f",
+            "action_id": "62da2e1f4d3e487cea7bcbbe129b9423",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -229,7 +229,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 2",
             "uri": "spotify:playlist:2222222222222222222222",
@@ -240,7 +240,7 @@
             }
           },
           {
-            "action_id": "38a4262e7464425604c6dcee2265b3bd",
+            "action_id": "75e8a62ec3f60f192693b230acf4b6cd",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -251,7 +251,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 3",
             "uri": "spotify:playlist:3333333333333333333333",
@@ -262,7 +262,7 @@
             }
           },
           {
-            "action_id": "cbb82c2ccdddd4d8cff5791fb0297270",
+            "action_id": "00297255523b495d8342a7d9b206cb23",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -273,7 +273,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 4",
             "uri": "spotify:playlist:4444444444444444444444",
@@ -291,7 +291,7 @@
         "owner_profile_id": "artwork-profile",
         "playback_actions": [
           {
-            "action_id": "67caa6289bc5002dfd4365b827091fdf",
+            "action_id": "fe22328fe6dab2a378a6d424d6d7d23f",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -302,7 +302,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 0",
             "uri": "spotify:album:0000000000000000000000",
@@ -313,7 +313,7 @@
             }
           },
           {
-            "action_id": "dfd9cd744d457a1e0dbbe3a5fc400457",
+            "action_id": "c76871ad9aa4067aa41491a3914b2838",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -324,7 +324,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 1",
             "uri": "spotify:album:1111111111111111111111",
@@ -335,7 +335,7 @@
             }
           },
           {
-            "action_id": "add4f2de178ac20d27ae0a342f86b1e9",
+            "action_id": "22ea5129349e4d6d78e1290c94c39320",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -346,7 +346,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 2",
             "uri": "spotify:album:2222222222222222222222",
@@ -357,7 +357,7 @@
             }
           },
           {
-            "action_id": "5ed47ef754b48a7b4cdcd699bf9c1450",
+            "action_id": "ef3a3cbe2040e14a8bab971ac483eff2",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -368,7 +368,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 3",
             "uri": "spotify:album:3333333333333333333333",
@@ -379,7 +379,7 @@
             }
           },
           {
-            "action_id": "98331ff3fbae8e5b0f783cc90f323467",
+            "action_id": "ba4bb2e9edcf6c88ece60401a44b88bc",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -390,7 +390,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 4",
             "uri": "spotify:album:4444444444444444444444",
@@ -401,7 +401,7 @@
             }
           },
           {
-            "action_id": "91c07561ada69fea888d6f5b19478c54",
+            "action_id": "392105afb549da6ccad4a833ec77e6f2",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -412,7 +412,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 0",
             "uri": "spotify:playlist:0000000000000000000000",
@@ -423,7 +423,7 @@
             }
           },
           {
-            "action_id": "80e4db49dd7f28006d9f66a3583ce31f",
+            "action_id": "b741b1c7bfb25e2d53ee2f971c8b8a9d",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -434,7 +434,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 1",
             "uri": "spotify:playlist:1111111111111111111111",
@@ -445,7 +445,7 @@
             }
           },
           {
-            "action_id": "d344016343cdc600af6fd646e6f0e63f",
+            "action_id": "62da2e1f4d3e487cea7bcbbe129b9423",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -456,7 +456,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 2",
             "uri": "spotify:playlist:2222222222222222222222",
@@ -467,7 +467,7 @@
             }
           },
           {
-            "action_id": "38a4262e7464425604c6dcee2265b3bd",
+            "action_id": "75e8a62ec3f60f192693b230acf4b6cd",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -478,7 +478,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 3",
             "uri": "spotify:playlist:3333333333333333333333",
@@ -489,7 +489,7 @@
             }
           },
           {
-            "action_id": "cbb82c2ccdddd4d8cff5791fb0297270",
+            "action_id": "00297255523b495d8342a7d9b206cb23",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Play",
@@ -500,7 +500,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-            "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+            "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 4",
             "uri": "spotify:playlist:4444444444444444444444",
@@ -515,7 +515,7 @@
           "expires_in": 600.0,
           "items": [
             {
-              "action_id": "67caa6289bc5002dfd4365b827091fdf",
+              "action_id": "fe22328fe6dab2a378a6d424d6d7d23f",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Play",
@@ -526,7 +526,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-              "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+              "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
               "subtitle": "HAEVN",
               "title": "Fixture HAEVN album 0",
               "uri": "spotify:album:0000000000000000000000",
@@ -537,7 +537,7 @@
               }
             },
             {
-              "action_id": "dfd9cd744d457a1e0dbbe3a5fc400457",
+              "action_id": "c76871ad9aa4067aa41491a3914b2838",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Play",
@@ -548,7 +548,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-              "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+              "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
               "subtitle": "HAEVN",
               "title": "Fixture HAEVN album 1",
               "uri": "spotify:album:1111111111111111111111",
@@ -559,7 +559,7 @@
               }
             },
             {
-              "action_id": "add4f2de178ac20d27ae0a342f86b1e9",
+              "action_id": "22ea5129349e4d6d78e1290c94c39320",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Play",
@@ -570,7 +570,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-              "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+              "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
               "subtitle": "HAEVN",
               "title": "Fixture HAEVN album 2",
               "uri": "spotify:album:2222222222222222222222",
@@ -581,7 +581,7 @@
               }
             },
             {
-              "action_id": "5ed47ef754b48a7b4cdcd699bf9c1450",
+              "action_id": "ef3a3cbe2040e14a8bab971ac483eff2",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Play",
@@ -592,7 +592,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-              "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+              "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
               "subtitle": "HAEVN",
               "title": "Fixture HAEVN album 3",
               "uri": "spotify:album:3333333333333333333333",
@@ -603,7 +603,7 @@
               }
             },
             {
-              "action_id": "98331ff3fbae8e5b0f783cc90f323467",
+              "action_id": "ba4bb2e9edcf6c88ece60401a44b88bc",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Play",
@@ -614,7 +614,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-              "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+              "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
               "subtitle": "HAEVN",
               "title": "Fixture HAEVN album 4",
               "uri": "spotify:album:4444444444444444444444",
@@ -625,7 +625,7 @@
               }
             },
             {
-              "action_id": "91c07561ada69fea888d6f5b19478c54",
+              "action_id": "392105afb549da6ccad4a833ec77e6f2",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Play",
@@ -636,7 +636,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-              "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+              "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
               "subtitle": "fixture-owner",
               "title": "Fixture HAEVN playlist 0",
               "uri": "spotify:playlist:0000000000000000000000",
@@ -647,7 +647,7 @@
               }
             },
             {
-              "action_id": "80e4db49dd7f28006d9f66a3583ce31f",
+              "action_id": "b741b1c7bfb25e2d53ee2f971c8b8a9d",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Play",
@@ -658,7 +658,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-              "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+              "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
               "subtitle": "fixture-owner",
               "title": "Fixture HAEVN playlist 1",
               "uri": "spotify:playlist:1111111111111111111111",
@@ -669,7 +669,7 @@
               }
             },
             {
-              "action_id": "d344016343cdc600af6fd646e6f0e63f",
+              "action_id": "62da2e1f4d3e487cea7bcbbe129b9423",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Play",
@@ -680,7 +680,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-              "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+              "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
               "subtitle": "fixture-owner",
               "title": "Fixture HAEVN playlist 2",
               "uri": "spotify:playlist:2222222222222222222222",
@@ -691,7 +691,7 @@
               }
             },
             {
-              "action_id": "38a4262e7464425604c6dcee2265b3bd",
+              "action_id": "75e8a62ec3f60f192693b230acf4b6cd",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Play",
@@ -702,7 +702,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-              "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+              "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
               "subtitle": "fixture-owner",
               "title": "Fixture HAEVN playlist 3",
               "uri": "spotify:playlist:3333333333333333333333",
@@ -713,7 +713,7 @@
               }
             },
             {
-              "action_id": "cbb82c2ccdddd4d8cff5791fb0297270",
+              "action_id": "00297255523b495d8342a7d9b206cb23",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Play",
@@ -724,7 +724,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "I found 5 albums and 5 playlists with music by HAEVN. Pick one to play.",
-              "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+              "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
               "subtitle": "fixture-owner",
               "title": "Fixture HAEVN playlist 4",
               "uri": "spotify:playlist:4444444444444444444444",
@@ -735,7 +735,7 @@
               }
             }
           ],
-          "result_set_id": "choices-8f9778aedfd1454fbb26d4562559f3a3",
+          "result_set_id": "choices-e722a020e4034286b53cbe395ce3c9e0",
           "schema_version": 1
         },
         "session_speech": {
@@ -748,7 +748,7 @@
           ],
           "autoplay_eligible": false,
           "cache_policy": "private,no-store",
-          "expires_at": "2026-11-07T09:16:25.921720+00:00",
+          "expires_at": "2026-11-07T09:21:48.298355+00:00",
           "locale": "en",
           "manual_allowed": true,
           "persona": "home_dj",
@@ -835,7 +835,7 @@
         "is_generated_text": false,
         "items": [
           {
-            "action_id": "437216af3c9055d00b4bd5a5beb222b3",
+            "action_id": "09385b366b420966c216463b4a58778d",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -846,7 +846,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 0",
             "uri": "spotify:album:0000000000000000000000",
@@ -857,7 +857,7 @@
             }
           },
           {
-            "action_id": "8cdc26e4d584c20585c274d90921dddf",
+            "action_id": "c7e37b17a40c55b2cfb422e157c37cc4",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -868,7 +868,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 1",
             "uri": "spotify:album:1111111111111111111111",
@@ -879,7 +879,7 @@
             }
           },
           {
-            "action_id": "531311c73400d83cb9832e35652517ab",
+            "action_id": "9d020c779309b4dcb186a1e452205f95",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -890,7 +890,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 2",
             "uri": "spotify:album:2222222222222222222222",
@@ -901,7 +901,7 @@
             }
           },
           {
-            "action_id": "60654f60ab33fb02ab26919d6c89942c",
+            "action_id": "66497fdfdcdb1eb6518e3ce90da28ba8",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -912,7 +912,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 3",
             "uri": "spotify:album:3333333333333333333333",
@@ -923,7 +923,7 @@
             }
           },
           {
-            "action_id": "8fb275a39fb9b7e3bc8fa52b87c08585",
+            "action_id": "d624ce8b3f08750bf87a27f967188cf8",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -934,7 +934,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 4",
             "uri": "spotify:album:4444444444444444444444",
@@ -945,7 +945,7 @@
             }
           },
           {
-            "action_id": "0e1ca6800f55b732e76fc8544b5b2e32",
+            "action_id": "9a90618a42352ac95482caf80500c38a",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -956,7 +956,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 0",
             "uri": "spotify:playlist:0000000000000000000000",
@@ -967,7 +967,7 @@
             }
           },
           {
-            "action_id": "be57fc15a598f3519f4456df824e82bd",
+            "action_id": "ac1b207e8d39f868966d37591e15c58d",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -978,7 +978,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 1",
             "uri": "spotify:playlist:1111111111111111111111",
@@ -989,7 +989,7 @@
             }
           },
           {
-            "action_id": "32e72df67c18e502f836e3e325070ef8",
+            "action_id": "2b2a55aa7162917269b50320f755657d",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1000,7 +1000,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 2",
             "uri": "spotify:playlist:2222222222222222222222",
@@ -1011,7 +1011,7 @@
             }
           },
           {
-            "action_id": "0b14a1fc6b1fa33557e096487f663e4a",
+            "action_id": "c3cc8915d24de652ba976db54fbb428a",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1022,7 +1022,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 3",
             "uri": "spotify:playlist:3333333333333333333333",
@@ -1033,7 +1033,7 @@
             }
           },
           {
-            "action_id": "7dcb3ef9db9128f90d6c7fd5c951ad2f",
+            "action_id": "29fc2744abd400fa04775a33855b6351",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1044,7 +1044,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 4",
             "uri": "spotify:playlist:4444444444444444444444",
@@ -1062,7 +1062,7 @@
         "owner_profile_id": "artwork-profile",
         "playback_actions": [
           {
-            "action_id": "437216af3c9055d00b4bd5a5beb222b3",
+            "action_id": "09385b366b420966c216463b4a58778d",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1073,7 +1073,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 0",
             "uri": "spotify:album:0000000000000000000000",
@@ -1084,7 +1084,7 @@
             }
           },
           {
-            "action_id": "8cdc26e4d584c20585c274d90921dddf",
+            "action_id": "c7e37b17a40c55b2cfb422e157c37cc4",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1095,7 +1095,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 1",
             "uri": "spotify:album:1111111111111111111111",
@@ -1106,7 +1106,7 @@
             }
           },
           {
-            "action_id": "531311c73400d83cb9832e35652517ab",
+            "action_id": "9d020c779309b4dcb186a1e452205f95",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1117,7 +1117,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 2",
             "uri": "spotify:album:2222222222222222222222",
@@ -1128,7 +1128,7 @@
             }
           },
           {
-            "action_id": "60654f60ab33fb02ab26919d6c89942c",
+            "action_id": "66497fdfdcdb1eb6518e3ce90da28ba8",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1139,7 +1139,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 3",
             "uri": "spotify:album:3333333333333333333333",
@@ -1150,7 +1150,7 @@
             }
           },
           {
-            "action_id": "8fb275a39fb9b7e3bc8fa52b87c08585",
+            "action_id": "d624ce8b3f08750bf87a27f967188cf8",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1161,7 +1161,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "HAEVN",
             "title": "Fixture HAEVN album 4",
             "uri": "spotify:album:4444444444444444444444",
@@ -1172,7 +1172,7 @@
             }
           },
           {
-            "action_id": "0e1ca6800f55b732e76fc8544b5b2e32",
+            "action_id": "9a90618a42352ac95482caf80500c38a",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1183,7 +1183,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 0",
             "uri": "spotify:playlist:0000000000000000000000",
@@ -1194,7 +1194,7 @@
             }
           },
           {
-            "action_id": "be57fc15a598f3519f4456df824e82bd",
+            "action_id": "ac1b207e8d39f868966d37591e15c58d",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1205,7 +1205,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 1",
             "uri": "spotify:playlist:1111111111111111111111",
@@ -1216,7 +1216,7 @@
             }
           },
           {
-            "action_id": "32e72df67c18e502f836e3e325070ef8",
+            "action_id": "2b2a55aa7162917269b50320f755657d",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1227,7 +1227,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 2",
             "uri": "spotify:playlist:2222222222222222222222",
@@ -1238,7 +1238,7 @@
             }
           },
           {
-            "action_id": "0b14a1fc6b1fa33557e096487f663e4a",
+            "action_id": "c3cc8915d24de652ba976db54fbb428a",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1249,7 +1249,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 3",
             "uri": "spotify:playlist:3333333333333333333333",
@@ -1260,7 +1260,7 @@
             }
           },
           {
-            "action_id": "7dcb3ef9db9128f90d6c7fd5c951ad2f",
+            "action_id": "29fc2744abd400fa04775a33855b6351",
             "action_style": "play_now",
             "backend": "spotify_direct",
             "button_label": "Afspelen",
@@ -1271,7 +1271,7 @@
             "music_backend_revision": 0,
             "provider": "spotify",
             "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-            "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+            "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
             "subtitle": "fixture-owner",
             "title": "Fixture HAEVN playlist 4",
             "uri": "spotify:playlist:4444444444444444444444",
@@ -1286,7 +1286,7 @@
           "expires_in": 600.0,
           "items": [
             {
-              "action_id": "437216af3c9055d00b4bd5a5beb222b3",
+              "action_id": "09385b366b420966c216463b4a58778d",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Afspelen",
@@ -1297,7 +1297,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-              "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+              "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
               "subtitle": "HAEVN",
               "title": "Fixture HAEVN album 0",
               "uri": "spotify:album:0000000000000000000000",
@@ -1308,7 +1308,7 @@
               }
             },
             {
-              "action_id": "8cdc26e4d584c20585c274d90921dddf",
+              "action_id": "c7e37b17a40c55b2cfb422e157c37cc4",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Afspelen",
@@ -1319,7 +1319,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-              "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+              "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
               "subtitle": "HAEVN",
               "title": "Fixture HAEVN album 1",
               "uri": "spotify:album:1111111111111111111111",
@@ -1330,7 +1330,7 @@
               }
             },
             {
-              "action_id": "531311c73400d83cb9832e35652517ab",
+              "action_id": "9d020c779309b4dcb186a1e452205f95",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Afspelen",
@@ -1341,7 +1341,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-              "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+              "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
               "subtitle": "HAEVN",
               "title": "Fixture HAEVN album 2",
               "uri": "spotify:album:2222222222222222222222",
@@ -1352,7 +1352,7 @@
               }
             },
             {
-              "action_id": "60654f60ab33fb02ab26919d6c89942c",
+              "action_id": "66497fdfdcdb1eb6518e3ce90da28ba8",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Afspelen",
@@ -1363,7 +1363,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-              "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+              "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
               "subtitle": "HAEVN",
               "title": "Fixture HAEVN album 3",
               "uri": "spotify:album:3333333333333333333333",
@@ -1374,7 +1374,7 @@
               }
             },
             {
-              "action_id": "8fb275a39fb9b7e3bc8fa52b87c08585",
+              "action_id": "d624ce8b3f08750bf87a27f967188cf8",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Afspelen",
@@ -1385,7 +1385,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-              "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+              "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
               "subtitle": "HAEVN",
               "title": "Fixture HAEVN album 4",
               "uri": "spotify:album:4444444444444444444444",
@@ -1396,7 +1396,7 @@
               }
             },
             {
-              "action_id": "0e1ca6800f55b732e76fc8544b5b2e32",
+              "action_id": "9a90618a42352ac95482caf80500c38a",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Afspelen",
@@ -1407,7 +1407,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-              "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+              "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
               "subtitle": "fixture-owner",
               "title": "Fixture HAEVN playlist 0",
               "uri": "spotify:playlist:0000000000000000000000",
@@ -1418,7 +1418,7 @@
               }
             },
             {
-              "action_id": "be57fc15a598f3519f4456df824e82bd",
+              "action_id": "ac1b207e8d39f868966d37591e15c58d",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Afspelen",
@@ -1429,7 +1429,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-              "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+              "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
               "subtitle": "fixture-owner",
               "title": "Fixture HAEVN playlist 1",
               "uri": "spotify:playlist:1111111111111111111111",
@@ -1440,7 +1440,7 @@
               }
             },
             {
-              "action_id": "32e72df67c18e502f836e3e325070ef8",
+              "action_id": "2b2a55aa7162917269b50320f755657d",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Afspelen",
@@ -1451,7 +1451,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-              "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+              "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
               "subtitle": "fixture-owner",
               "title": "Fixture HAEVN playlist 2",
               "uri": "spotify:playlist:2222222222222222222222",
@@ -1462,7 +1462,7 @@
               }
             },
             {
-              "action_id": "0b14a1fc6b1fa33557e096487f663e4a",
+              "action_id": "c3cc8915d24de652ba976db54fbb428a",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Afspelen",
@@ -1473,7 +1473,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-              "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+              "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
               "subtitle": "fixture-owner",
               "title": "Fixture HAEVN playlist 3",
               "uri": "spotify:playlist:3333333333333333333333",
@@ -1484,7 +1484,7 @@
               }
             },
             {
-              "action_id": "7dcb3ef9db9128f90d6c7fd5c951ad2f",
+              "action_id": "29fc2744abd400fa04775a33855b6351",
               "action_style": "play_now",
               "backend": "spotify_direct",
               "button_label": "Afspelen",
@@ -1495,7 +1495,7 @@
               "music_backend_revision": 0,
               "provider": "spotify",
               "reason": "Ik vond 5 albums en 5 playlists met muziek van HAEVN. Kies wat je wilt horen.",
-              "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+              "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
               "subtitle": "fixture-owner",
               "title": "Fixture HAEVN playlist 4",
               "uri": "spotify:playlist:4444444444444444444444",
@@ -1506,7 +1506,7 @@
               }
             }
           ],
-          "result_set_id": "choices-a43493443781467d9bb5ac1b378d9380",
+          "result_set_id": "choices-0366b563d9d94f3fa43514bd73fd0a60",
           "schema_version": 1
         },
         "session_speech": {
@@ -1519,7 +1519,7 @@
           ],
           "autoplay_eligible": false,
           "cache_policy": "private,no-store",
-          "expires_at": "2026-11-07T09:16:25.917083+00:00",
+          "expires_at": "2026-11-07T09:21:48.294294+00:00",
           "locale": "nl",
           "manual_allowed": true,
           "persona": "home_dj",
@@ -1789,7 +1789,7 @@
       "custom_components/djconnect/ci_qualification_report.py": "a45c358669fea9cfb57a601a109443c722e10d91b067eacbb550a11cd264229b",
       "custom_components/djconnect/client_identity.py": "31543e0cf3ed7aa8322af24d0835c0fecf77974db0d8a07c7908d9deff7588cd",
       "custom_components/djconnect/client_retirement.py": "42bb54178f5c1655e600b21a6ccc954811d37e2a1f91f5318f7b97da6d69bca3",
-      "custom_components/djconnect/config_flow.py": "3102258ce6138725d87febe6e765f80f04926c7c8120ce814506efec423754d0",
+      "custom_components/djconnect/config_flow.py": "a0a8b032403b0c628cfb6d0d8f177d52a1201576495203a851cf86db2c8ed497",
       "custom_components/djconnect/const.py": "1a9f9aa331e13d009775c613b59b2f2ac9d151c79b1a46ae8aade1a4c0fff618",
       "custom_components/djconnect/content_deletion.py": "f48385f86d2b5d7b4f05d53f01c78fff2c072045ba51d6479c1049a33d3014c8",
       "custom_components/djconnect/content_deletion_api.py": "a92955d93cafc4f172c379e2c43e6a43a0b2d902cce3a51b6d26e5de38895c99",
@@ -1876,7 +1876,7 @@
       "custom_components/djconnect/host_wake_runtime.py": "300a5776ebb61e9aa46994e440cd47d18731685ee1164d248f4242fb3775bf16",
       "custom_components/djconnect/host_wake_target_wire.py": "1623491959d48f1f84143d58da27da29a1b59efe2fb0a58db4ad90b67b50aa21",
       "custom_components/djconnect/host_wake_withdrawal.py": "0480ea22f7ddb16432f1fb3bf8ba136e74ad37f0d7be97f4cf46233f96628a23",
-      "custom_components/djconnect/http.py": "1fc3fa59ff8567fd85a910447fd525261297971491b0c007df86446d0b5a4be1",
+      "custom_components/djconnect/http.py": "7ec1a2e547e6d1667bdae77af4fb8d6a2c959baac02048ac70c97bce15195d73",
       "custom_components/djconnect/hybrid_contract.py": "098acf391b0bbbbfb4caf5d2355df274b155e6566679a08d4f4a2ad04ca95b7a",
       "custom_components/djconnect/hybrid_ingress_qualification.py": "8e220874b16e7bbb1162261a1e89607a2a6067dca3fa3c820d2cc52ee3232933",
       "custom_components/djconnect/hybrid_local_policy.py": "711c4efc1d9a90bc92c02cb6c06af7c83a4b289cc3c9f34b675a156f099d864a",
@@ -1941,7 +1941,7 @@
       "custom_components/djconnect/profile_settings.py": "6c16c324d09f58df8d7e96bd75fa3c63a03d0962632275caaa2168e0d4fed1d8",
       "custom_components/djconnect/prompts/dj_persona.md": "dc9047cbadf58a7d5a89e5555ea93f5ef427c5b0ad79f3018ca57e02c9f61b1a",
       "custom_components/djconnect/public_artist_narration.py": "1dd32045e6ed5b8c7ec5d4feb98e8c2d75f60bd9d0f55c81d309c2e5d422fae8",
-      "custom_components/djconnect/push.py": "908403b0cbab5dc26c622fbaaf793dfc801ead070c3ca025649ba2830f2442e6",
+      "custom_components/djconnect/push.py": "e91bcd783522b31d73f7848c116f628f85db3be7ffc89e627863066a39bc7d3a",
       "custom_components/djconnect/queue_forecast.py": "55ca52487e145375daec582fc59d6a2ef9c858801e80e4ea8228e22425ee10fb",
       "custom_components/djconnect/repairs.py": "34b76242db66cd22a4b778710c8349cbc1e5d1001b29eeb72a45126ed67be02f",
       "custom_components/djconnect/reply_artwork.py": "f1f8b1b413d381b6a05c59f8238c8e9c4f79603e9beab378dc1d9fffba86c43c",
@@ -2035,7 +2035,7 @@
       "custom_components/djconnect/visual_director_runtime.py": "e2482668c44fefcee65dd658abda37035115d6b36f695747d1bbd83b711e8d85",
       "custom_components/djconnect/voice_preview.py": "ea1edd78efa3843911e39e94b374f1afdbc44f319baeca321000442f6175807b",
       "custom_components/djconnect/voice_profiles.py": "5aba9ae572b92c783686d9ccac3af3b97c2689ca98c10f086ba7ae4cdb2696c9",
-      "custom_components/djconnect/watch_preference_client.py": "59be2f3a880ea6d6586aac0c777209dc60b0a1af260f3d612e9de7c96aab0473",
+      "custom_components/djconnect/watch_preference_client.py": "19676ad4ec37c6e525839dec06ec95ae976db5b598ffdc9f8829456b6962a057",
       "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
       "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
     },
@@ -2102,7 +2102,7 @@
     "custom_components/djconnect/ci_qualification_report.py": "a45c358669fea9cfb57a601a109443c722e10d91b067eacbb550a11cd264229b",
     "custom_components/djconnect/client_identity.py": "31543e0cf3ed7aa8322af24d0835c0fecf77974db0d8a07c7908d9deff7588cd",
     "custom_components/djconnect/client_retirement.py": "42bb54178f5c1655e600b21a6ccc954811d37e2a1f91f5318f7b97da6d69bca3",
-    "custom_components/djconnect/config_flow.py": "3102258ce6138725d87febe6e765f80f04926c7c8120ce814506efec423754d0",
+    "custom_components/djconnect/config_flow.py": "a0a8b032403b0c628cfb6d0d8f177d52a1201576495203a851cf86db2c8ed497",
     "custom_components/djconnect/const.py": "1a9f9aa331e13d009775c613b59b2f2ac9d151c79b1a46ae8aade1a4c0fff618",
     "custom_components/djconnect/content_deletion.py": "f48385f86d2b5d7b4f05d53f01c78fff2c072045ba51d6479c1049a33d3014c8",
     "custom_components/djconnect/content_deletion_api.py": "a92955d93cafc4f172c379e2c43e6a43a0b2d902cce3a51b6d26e5de38895c99",
@@ -2189,7 +2189,7 @@
     "custom_components/djconnect/host_wake_runtime.py": "300a5776ebb61e9aa46994e440cd47d18731685ee1164d248f4242fb3775bf16",
     "custom_components/djconnect/host_wake_target_wire.py": "1623491959d48f1f84143d58da27da29a1b59efe2fb0a58db4ad90b67b50aa21",
     "custom_components/djconnect/host_wake_withdrawal.py": "0480ea22f7ddb16432f1fb3bf8ba136e74ad37f0d7be97f4cf46233f96628a23",
-    "custom_components/djconnect/http.py": "1fc3fa59ff8567fd85a910447fd525261297971491b0c007df86446d0b5a4be1",
+    "custom_components/djconnect/http.py": "7ec1a2e547e6d1667bdae77af4fb8d6a2c959baac02048ac70c97bce15195d73",
     "custom_components/djconnect/hybrid_contract.py": "098acf391b0bbbbfb4caf5d2355df274b155e6566679a08d4f4a2ad04ca95b7a",
     "custom_components/djconnect/hybrid_ingress_qualification.py": "8e220874b16e7bbb1162261a1e89607a2a6067dca3fa3c820d2cc52ee3232933",
     "custom_components/djconnect/hybrid_local_policy.py": "711c4efc1d9a90bc92c02cb6c06af7c83a4b289cc3c9f34b675a156f099d864a",
@@ -2254,7 +2254,7 @@
     "custom_components/djconnect/profile_settings.py": "6c16c324d09f58df8d7e96bd75fa3c63a03d0962632275caaa2168e0d4fed1d8",
     "custom_components/djconnect/prompts/dj_persona.md": "dc9047cbadf58a7d5a89e5555ea93f5ef427c5b0ad79f3018ca57e02c9f61b1a",
     "custom_components/djconnect/public_artist_narration.py": "1dd32045e6ed5b8c7ec5d4feb98e8c2d75f60bd9d0f55c81d309c2e5d422fae8",
-    "custom_components/djconnect/push.py": "908403b0cbab5dc26c622fbaaf793dfc801ead070c3ca025649ba2830f2442e6",
+    "custom_components/djconnect/push.py": "e91bcd783522b31d73f7848c116f628f85db3be7ffc89e627863066a39bc7d3a",
     "custom_components/djconnect/queue_forecast.py": "55ca52487e145375daec582fc59d6a2ef9c858801e80e4ea8228e22425ee10fb",
     "custom_components/djconnect/repairs.py": "34b76242db66cd22a4b778710c8349cbc1e5d1001b29eeb72a45126ed67be02f",
     "custom_components/djconnect/reply_artwork.py": "f1f8b1b413d381b6a05c59f8238c8e9c4f79603e9beab378dc1d9fffba86c43c",
@@ -2348,7 +2348,7 @@
     "custom_components/djconnect/visual_director_runtime.py": "e2482668c44fefcee65dd658abda37035115d6b36f695747d1bbd83b711e8d85",
     "custom_components/djconnect/voice_preview.py": "ea1edd78efa3843911e39e94b374f1afdbc44f319baeca321000442f6175807b",
     "custom_components/djconnect/voice_profiles.py": "5aba9ae572b92c783686d9ccac3af3b97c2689ca98c10f086ba7ae4cdb2696c9",
-    "custom_components/djconnect/watch_preference_client.py": "59be2f3a880ea6d6586aac0c777209dc60b0a1af260f3d612e9de7c96aab0473",
+    "custom_components/djconnect/watch_preference_client.py": "19676ad4ec37c6e525839dec06ec95ae976db5b598ffdc9f8829456b6962a057",
     "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
     "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
   }
