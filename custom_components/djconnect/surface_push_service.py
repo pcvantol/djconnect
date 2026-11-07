@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import suppress
+import logging
+import os
 import secrets
 import time
 
@@ -17,6 +19,7 @@ from .surface_push_registry import SurfaceAdmission, SurfacePushRegistry
 from .transport_operations import OperationJournal
 
 MAX_TASKS = 8
+_LOGGER = logging.getLogger(__name__)
 
 
 class SurfacePushService:
@@ -27,6 +30,9 @@ class SurfacePushService:
         self._purposes = {}  # Never a public client/enrolment/config ingestion route.
         from .surface_widget_adoption import WidgetPurposeAdoptions
         self._widget_adoptions = WidgetPurposeAdoptions(self, persistence)
+        self._widget_transport = None
+        self._widget_lifecycle = None
+        self._widget_custody = None
         self._tasks = set()
         self._signals = {}
         self._unsubscribe_stop = None
@@ -36,6 +42,36 @@ class SurfacePushService:
         self.registry = SurfacePushRegistry(OperationJournal(SurfaceOperationStore(persistence)), relay)
         from .surface_push_context import SurfaceContextContinuations
         self.contexts = SurfaceContextContinuations(self, wall=self.registry.journal.now_ms, monotonic=time.monotonic)
+
+    async def load_private_widget_access(self, path):
+        """Load once from the HA process's mounted secret, without issuer traffic."""
+        from .surface_widget_private_transport import WidgetAccessCustody, load_widget_access_file
+
+        if self.closed or self._widget_custody is not None:
+            return
+        custody = self._widget_custody = WidgetAccessCustody()
+        try:
+            credentials = await self.hass.async_add_executor_job(load_widget_access_file, path)
+            if not self.closed:
+                self._widget_transport = custody.bind(*credentials)
+        except SurfacePushError:
+            custody.retire()
+            _LOGGER.warning("DJConnect private WidgetKit machine access is unavailable")
+
+    def begin_enrolled_widget_adoption(self, owner, operation_id, identity, headers):
+        """Compose the private transport only for a separately enrolled owner."""
+        from .surface_issuer_journal import IssuerStageJournal, IssuerStageStore
+        from .surface_issuer_lifecycle import IssuerLifecycle
+        from .surface_issuer_owner import WidgetIssuerOwner
+
+        require(not self.closed and self._widget_transport is not None
+            and isinstance(owner, WidgetIssuerOwner), "surface_widget_owner_unavailable", 503)
+        lifecycle = self._widget_lifecycle
+        if lifecycle is None:
+            journal = IssuerStageJournal(IssuerStageStore(self._widget_adoptions.persistence))
+            lifecycle = self._widget_lifecycle = IssuerLifecycle(owner, journal, self._widget_transport)
+        require(lifecycle.owner is owner, "surface_widget_owner_unavailable", 503)
+        return self.begin_widget_adoption(lifecycle, operation_id, identity, headers)
 
     def begin_widget_adoption(self, lifecycle, operation_id, identity, headers):
         """Internal required-owner port; captures before caller task scheduling."""
@@ -247,6 +283,11 @@ class SurfacePushService:
         if self.closed:
             return
         self.closed = True
+        if self._widget_custody is not None:
+            self._widget_custody.retire()
+        self._widget_transport = None
+        if self._widget_lifecycle is not None:
+            self._widget_lifecycle.close()
         self.contexts.invalidate()
         self._widget_adoptions.invalidate()
         if getattr(self.manager,"_surface_push_service",None) is self:
@@ -281,6 +322,10 @@ def start_surface_service(hass):
     service = SurfacePushService(hass,session_runtime_manager(hass),persistence_service(hass))
     data["surface_push_service"] = service
     service._unsubscribe_stop = hass.bus.async_listen_once("homeassistant_stop",service.close)
+    from .surface_widget_private_transport import ACCESS_FILE_ENV
+    access_file = os.environ.get(ACCESS_FILE_ENV)
+    if access_file:
+        service.spawn(service.load_private_widget_access(access_file))
 
 
 async def close_surface_service(hass):
