@@ -5070,8 +5070,11 @@ class SessionRuntimeManager:
                         and media_identity == pending.selected_media[0]
                         and getattr(original_status, "target_id", None) == pending.output_id):
                     active.broadcast.first_play_state = "confirmed"
+            # A paused projection may already identify the item before its first
+            # playing observation. The repository deduplicates same-item resumes.
             if (self._historical_projections is not None and projection.state == "playing"
-                and projection.item_id and projection.item_id != old_playback.item_id):
+                and projection.item_id and (old_playback.state != "playing"
+                    or projection.item_id != old_playback.item_id)):
                 from .session_history_projection import new_observation_reference
                 await self._historical_projections.async_append_entries(owner_profile_id,session_id,[{
                     "kind":"playback_observed", "reference_id":new_observation_reference(),
