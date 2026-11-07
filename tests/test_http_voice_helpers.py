@@ -77,6 +77,11 @@ def install_http_stubs() -> None:
     http.HomeAssistantView = HomeAssistantView
     core.Context = Context
     core.HomeAssistant = object
+    if not hasattr(aiohttp, "ClientError"):
+        class ClientError(Exception):
+            pass
+
+        aiohttp.ClientError = ClientError
     aiohttp.ClientTimeout = ClientTimeout
     aiohttp.web = types.SimpleNamespace(Response=Response)
     aiohttp_client.async_get_clientsession = lambda hass: None
