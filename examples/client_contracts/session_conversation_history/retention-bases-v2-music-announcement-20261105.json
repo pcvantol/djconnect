@@ -25,7 +25,7 @@
     "custom_components/djconnect/historical_projection_query.py": "d050066855f168694ac63b7779b71072c5b9ebaaf93d27965b21b5deadcc4ea7",
     "custom_components/djconnect/history_entry_contract.py": "2cb333b1a9f8fce4471449857f735aa28f462e78d5ae95f952fa48ad8d17628f",
     "custom_components/djconnect/session_history_projection.py": "71f77a089d1b06865981f7517b6dc627175ec44d7ea522121ece61511688a6e2",
-    "custom_components/djconnect/session_speech.py": "f483d8323771fc63a910bd8fe92e42e3262435496dbe66b1058b7d31df20ef6b"
+    "custom_components/djconnect/session_speech.py": "d9465f78a2b249a0ed796f81a33ea1d37cdff740a5e5a414ccf15af23106a87a"
   },
   "tail_window": {
     "anchor_entry_id": null,

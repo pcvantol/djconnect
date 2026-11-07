@@ -90,7 +90,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md](../../../docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md) | `b7d62c93f26b4883c993f89f7a929c57ba6be8c082bb6ed7c220e60c5045aac6` |
 | [docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md](../../../docs/verification/HYBRID_LOCAL_TRANSPORT_SOURCE_READBACK_20261015.md) | `4bb082dd358cc9594240868cb163133be0320729b2d5687a337bcba2b5feeda3` |
 | [docs/product/SESSION_SPEECH_PERSONA_V1.md](../../../docs/product/SESSION_SPEECH_PERSONA_V1.md) | `141d2033f489a118dd72f0071ae2ef03bf9339689d9d28877aedcb0dc022a950` |
-| [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `3684f697946eea3bc348bad90390b3407c1154cb26c7d8ab50951dff93e0a131` |
+| [docs/product/SESSION_SPEECH_DELIVERY_V1.md](../../../docs/product/SESSION_SPEECH_DELIVERY_V1.md) | `5cececea1a2b1d129f3f6f90391781a0c504afe141bf6432f560dee00b035fc1` |
 | [docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md](../../../docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md) | `88d1f61b742c7b5e9258f7cd96ae35c691a3ea952ee98e345b8ffc9f1720dd38` |
 | [docs/history/prompts/2026-10-16-session-speech-persona-finalization.md](../../../docs/history/prompts/2026-10-16-session-speech-persona-finalization.md) | `08bfdd2e39d730e38d6a76b7cf8ffd8d1463781c59e52fa4aab8f3df0de16732` |
 | [docs/product/GENERIC_HA_TTS_V1.md](../../../docs/product/GENERIC_HA_TTS_V1.md) | `82cd101a752fcd160141ea23a6f2fee2ae877ac9a1e2f564a8a20bc723fdaab7` |

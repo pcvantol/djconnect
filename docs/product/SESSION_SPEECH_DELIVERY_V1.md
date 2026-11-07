@@ -1,3 +1,37 @@
+## 7 November correction: private headline manual HA speech
+
+The owner's existing Bulletin/TTS request authorizes a bounded future use of the
+same private NU.nl/Tweakers headline-only contribution through the selected HA
+TTS provider. It does not establish publisher licensing, article/image/model
+processing, archive retention, shared delivery or a renewed source lease. The
+private_feed_headlines_v1 marker remains a use boundary, never a public licence.
+
+Only normal publication of a fresh original private candidate creates a typed
+in-memory manual-speech use, joined by object identity to that same immutable
+candidate and its original throwing owner/Session/source/settings guard. Existing
+Moments, JSON, copied candidates and historical data do not acquire this use on
+read or reconnect. The unchanged prepare3 route admits only an explicit manual
+local-target ha_configured request. Automatic HA, prepare1/2 and speaker/both
+cannot reuse that admission. Existing text_only and local renderer rules remain.
+The descriptor advertises the permitted manual processor attempt; it is not
+provider readiness or audible acceptance, and creates no autoplay opportunity.
+
+Every admission rechecks original freshness and source/owner/Session/settings
+before and after awaits, together with the exact selected provider. Withdrawal
+while synthesis runs discards the waveform; retained private audio is unusable
+after original source withdrawal. No TTL is renewed, no model is called to read
+the headlines, and no new Moment, history row, speaker operation or device
+permission is manufactured. A new internal literal-processing basis distinguishes
+this manual private use from the historical public-news basis. There is no new
+wire field, endpoint, caller text/voice/provider override or credential path.
+
+Qualification must retain the source denial before correction, ordinary paired
+actual-HA prepare/deny/cache/withdrawal evidence, exact source hashes, and the
+separate protected Source/Final/install/native/audible gates. External RSS bytes
+and provider waveforms in isolated verification are declared fixtures. Actual
+HA-dev/native audible TTS, two publisher images and post-expiry retention remain
+separate acceptance and source-use questions; none follows from this source fix.
+
 # Session speech delivery and replay v1
 
 ## Current correction: native device speech with shared Settings
