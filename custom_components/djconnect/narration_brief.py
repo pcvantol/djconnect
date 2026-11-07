@@ -261,6 +261,9 @@ class RuntimeNarrationBrief(NarrationBrief):
 
     def assessment_prompt(self, text):
         prompt = super().assessment_prompt(text)
+        if self.kind == 'music_announcement':
+            prompt += ('\nSet style_ok to false for metadata-only text, even with a generic '
+                       'now-playing label. Require a short subjective invitation in the confirmed DJ persona.')
         if self.kind == 'session_opening':
             prompt += ('\nFor this welcome, style_ok must be false for a settings readout or three '
                 'successive definitions, even if all labels are correct. The DJ must speak directly '
@@ -466,6 +469,10 @@ def candidate(brief, response):
     residue = text
     for anchor in sorted(brief.anchors, key=len, reverse=True):
         residue = residue.replace(anchor, "")
+    if getattr(brief, 'kind', '') == 'music_announcement':
+        # Keep bare catalog readouts out even when their placeholders are valid.
+        if len(re.findall(r'[^\W\d_]+', residue, flags=re.UNICODE)) < 4:
+            return None
     if re.search(r"[\d{}]", residue):
         return None
     return text.strip()
