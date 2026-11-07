@@ -1,3 +1,12 @@
+## 2026-11-07 — Music announcements introduce the track in the selected DJ persona
+
+Core keeps the existing reviewed narration path and uses a short authored
+introduction in the confirmed locale and persona when the generated frame fails.
+Track and artist remain exact. Degraded output has no invented facts and retains
+the original start, playback, publication, privacy and speech gates. History
+keeps the original text and existing manual playback policy. See
+[Music announcement Moments v1](docs/product/MUSIC_ANNOUNCEMENT_MOMENTS_V1.md).
+
 ## 2026-11-07 — Private ephemeral Session catalogue reply correction
 
 Apple/Core synchronization before implementation: preserve the actual original

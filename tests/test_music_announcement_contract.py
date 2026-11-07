@@ -19,13 +19,14 @@ class AnnouncementContractTests(unittest.TestCase):
         self.assertTrue(receipt['source_unchanged'])
         extension = receipt['extension']
         self.assertEqual(set(extension['cases'].values()), {'PASS'})
-        self.assertEqual(extension['synthetic_model_response_calls'], 42)
+        self.assertEqual(extension['synthetic_model_response_calls'], 43)
         self.assertEqual(extension['real_model_provider_calls'], 0)
         self.assertEqual(extension['real_spotify_calls'], 0)
         self.assertEqual(extension['music_or_audio_effects'], 0)
         self.assertEqual(extension['native_installed_audible_acceptance'], 'NOT_RUN')
         self.assertIn('actual_text_only_local_manual_archive_replay_without_generation_or_session_restart', extension['cases'])
         self.assertIn('six_second_generation_preserves_original_UTC_deadline', extension['cases'])
+        self.assertIn('metadata_only_realization_becomes_one_persona_intro_with_manual_replay', extension['cases'])
         examples = extension['examples']
         self.assertEqual(len({e['moment']['moment_id'] for e in examples}), 20)
         self.assertTrue(all(e['moment']['type'] == 'music_announcement' for e in examples))

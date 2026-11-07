@@ -37,8 +37,14 @@ One bounded realization/review uses confirmed Persona/Mood/locale and the last
 eight actually published value-free frames. The model receives track/artist roles
 only; exact catalog values are substituted once locally after acceptance. No
 private taste, history, lyrics, sonic analysis, biography or DJ selection claim.
-Target6–10seconds; character estimates do not prove audible duration. Failure uses
-exact names only with explicit `realization:degraded`, never fake generated variety.
+Target six to ten seconds. Character estimates do not prove audible duration.
+Every new announcement includes a brief introduction in the confirmed DJ persona.
+The independent reviewer rejects generated text that only identifies the recording.
+If generation times out or returns an unusable introduction while the original
+publication still qualifies, Core uses a short authored listening invitation in
+the same locale and persona, followed by the exact track and artist. It remains
+marked `realization:degraded` and makes no claim about the music or how it was selected.
+Historical introductions keep their original accepted text.
 
 Near the current track's end, one next real queue hint can be privately prepared
 through the same realizer. Internal queue window at most three URIs, no future

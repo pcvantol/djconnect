@@ -53,6 +53,7 @@ async def qualify(hass, manager, history, request, client):
         await manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
     cases, examples, calls = {}, [], []
     slow_clock = None
+    metadata_only = False
     async def wire(hass, data, **kwargs):
         assert data.get('agent_id') == 'history-fixture-agent'
         assert kwargs.get('allow_agent_fallback') is False
@@ -62,6 +63,8 @@ async def qualify(hass, manager, history, request, client):
         if slow_clock is not None and not review:
             slow_clock[0] += 6
         calls.append('review' if review else 'realize')
+        if metadata_only and not review:
+            return {'response': {'speech': {'plain': {'speech': json.dumps({'text': '{track} — {artist}.'})}}}}
         answer = json.dumps({'supported':True, 'language_ok':True, 'style_ok':True}) if review else json.dumps(
             {'text':expression})
         return {'response':{'speech':{'plain':{'speech':answer}}}}
@@ -191,6 +194,34 @@ async def qualify(hass, manager, history, request, client):
         cases['six_second_generation_preserves_original_UTC_deadline'] = 'PASS'
         cases['repeated_projection_never_renews_original_clock_boundary'] = 'PASS'
         cases['original_start_expiry_preserves_only_authorized_manual_replay'] = 'PASS'
+
+        metadata_only = True
+        started, status = await request('POST', '/api/djconnect/v1/session/start', {'language': 'nl'})
+        assert status == 201, status
+        active = manager.current_active('profile-a')
+        observed = SimpleNamespace(state='playing', media_identity='spotify:track:'+'V'*22,
+            title='Synthetic fallback recording', artist='Synthetic performer', position_ms=0,
+            duration_ms=180000, catalog={'album_uri': 'spotify:album:'+'Z'*22}, target_id='fixture-output')
+        await manager.async_update_playback_projection(owner_profile_id='profile-a', session_id=active.session_id,
+            state='playing', media_identity=observed.media_identity, title=observed.title,
+            artist=observed.artist, position_ms=0, duration_ms=180000)
+        occurrence = intro.capture(manager, owner_profile_id='profile-a', session_id=active.session_id,
+            observed=observed, authorize=valid)
+        moment = await intro.publish(manager, owner_profile_id='profile-a', session_id=active.session_id,
+            occurrence=occurrence, authorize=valid)
+        assert moment is not None and intro.retained(moment)
+        assert moment.content.startswith('Ga er even goed voor zitten')
+        assert moment.as_dict()['music_announcement']['realization'] == 'degraded'
+        assert len(calls) == 43 and calls[-1] == 'realize'
+        assert await intro.publish(manager, owner_profile_id='profile-a', session_id=active.session_id,
+            occurrence=occurrence, authorize=valid) is None
+        await manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
+        body, status = await request('GET', '/api/djconnect/v1/session/history/'+active.session_id,
+                                     {'history_contract_version': 2})
+        assert status == 200
+        entry = next(entry for entry in body['entries'] if entry.get('moment_id') == moment.moment_id)
+        assert entry['text'] == moment.content and entry['session_speech']['manual_allowed']
+        cases['metadata_only_realization_becomes_one_persona_intro_with_manual_replay'] = 'PASS'
     return {'qualification':'ACTUAL_ISOLATED_HA_PAIRED_HTTP_SQLITE_MUSIC_ANNOUNCEMENT',
         'language':locale, 'cases':cases, 'examples':examples, 'synthetic_model_response_calls':len(calls),
         'real_model_provider_calls':0, 'real_spotify_calls':0, 'music_or_audio_effects':0,

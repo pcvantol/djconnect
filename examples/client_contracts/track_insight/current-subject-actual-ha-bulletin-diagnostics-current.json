@@ -215,13 +215,13 @@
         "hit": false,
         "key": "46f2f86799b7612de36684bd"
       },
-      "created_at": "2026-11-07T08:19:08.565567+00:00",
+      "created_at": "2026-11-07T09:11:34.478712+00:00",
       "id": "track_insight_46f2f86799b7612de36684bd",
       "language": "nl",
       "mood_context": null,
       "source": "current_detail",
       "subject": {
-        "expires_at": 1794039578.5649848,
+        "expires_at": 1794042724.4781704,
         "expires_in": 29,
         "media_identity": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
         "mode": "current",
@@ -295,15 +295,15 @@
       },
       "cache": {
         "hit": false,
-        "key": "e24472edce7b73d2d1cc762b"
+        "key": "da4c052d2af5029924ff24b0"
       },
-      "created_at": "2026-11-07T08:19:08.600555+00:00",
-      "id": "track_insight_e24472edce7b73d2d1cc762b",
+      "created_at": "2026-11-07T09:11:34.512241+00:00",
+      "id": "track_insight_da4c052d2af5029924ff24b0",
       "language": "nl",
       "mood_context": null,
       "source": "current_detail",
       "subject": {
-        "expires_at": 1794039578.5988774,
+        "expires_at": 1794042724.51072,
         "expires_in": 29,
         "media_identity": "spotify:track:BBBBBBBBBBBBBBBBBBBBBB",
         "mode": "current",
@@ -525,7 +525,7 @@
     "custom_components/djconnect/music_dna.py": "7dc08a079092aaf265bc1bbcf5403918444301bbfd360250a120f260ef3cd68b",
     "custom_components/djconnect/music_intent.py": "1c23fbc72358fefa64c409d5334bddb97230216fac1943233a10fec0c333e7f1",
     "custom_components/djconnect/musicbrainz_rate.py": "6e40f3c605fbd73dc246630cd4a1b60d7fb89b03344663d6102007d63846453a",
-    "custom_components/djconnect/narration_brief.py": "55914dac66696d19c2eeb0a7b209a1bbf94a4482fe10606fc9f5531feda5182d",
+    "custom_components/djconnect/narration_brief.py": "ca492fec0b8f50e8947ab2a546967263d8b1c50182c2a433d8e45e6a14a640dc",
     "custom_components/djconnect/narration_style.py": "145dd89eee8072f5797aac994f5a9620c4aba6947d0d4707dfb9bc9ce9d216f8",
     "custom_components/djconnect/native_moment_delivery.py": "6d6077ba410a45dd47bc64133d9646b67051c5dccf04739c01cb562c6f586c5f",
     "custom_components/djconnect/number.py": "57dd84220fbb1903708c9c4a0f850d699919aabbe4300dcce252fb0f205e3e7b",
@@ -630,7 +630,7 @@
     "custom_components/djconnect/tool_registry.py": "ef94acfa61b20c24af1ad1a6d31140140a6469d020cc2a3baa981492f6154c7a",
     "custom_components/djconnect/track_insight.py": "f9f3e4d179b2af4433ed3bb6a98432457a114da64be4099fecbdfa7422b81604",
     "custom_components/djconnect/track_insight_target.py": "c74959290c40ee0a8ac838e0a472cdb461c11fa9acfa41eaceb2e3129f98b562",
-    "custom_components/djconnect/track_start_announcement.py": "97891843614fd64b1ce6f8573e4aba6c955e702fd4ac98ea57764bd18f1a7a9f",
+    "custom_components/djconnect/track_start_announcement.py": "2d9e965266e20c4634672454271504802de3521f07d39ef0dfe90fdc1f1873ae",
     "custom_components/djconnect/translations/de.json": "99d602b1b714b627b736b3a26d17ead49c8d5ed02e06d4564e2a090307829d4f",
     "custom_components/djconnect/translations/en.json": "28e6cb15b91fca75af4aceac8b445e33b4782bf7fe7e8db0ef7a66e71e0b39d6",
     "custom_components/djconnect/translations/es.json": "23e71adddf3cae29487b01829b3815cf755de2e7974e1fd3024e6f1247c844b2",
