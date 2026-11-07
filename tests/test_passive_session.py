@@ -463,7 +463,7 @@ class PassiveOwnerGrantTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual((code, denied3['error']), (403, 'surface_grant_invalid'))
                 old3, code = await passive.handle(hass, {**read, 'projection_version': 3}, headers=headers)
                 self.assertEqual((code, old3['error']), (403, 'surface_grant_invalid'))
-                for version in (True, '2', 0, 4):
+                for version in (True, '2', 0, 5):
                     _, code = await passive.handle(hass, {**read, 'projection_version': version}, headers=headers)
                     self.assertEqual(code, 400)
                 _, code = await passive.handle(hass, {**consent, 'surface': 'live_activity',

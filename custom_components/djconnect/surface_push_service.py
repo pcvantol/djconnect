@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import suppress
+import secrets
 import time
 
 from .surface_push_contract import SurfacePushError, require
@@ -93,6 +94,40 @@ class SurfacePushService:
                 signals.stop()
                 self._signals.pop(key,None)
 
+    def capture_retained_widget(self, row, grant_id):
+        """Keep the original v4 consent and Session bound to the widget read."""
+        from .passive_session import projection
+        admission = row.admission
+        broadcast = admission.broadcast
+        require(broadcast is not None and admission.active_session is not None,
+            "surface_read_withdrawn", 403)
+        key = (admission.runtime.entry.entry_id, "widget")
+        grant = broadcast.passive_grants.get(key)
+        require(grant is not None and grant.projection_version == 4
+            and secrets.compare_digest(grant.grant_id, grant_id),
+            "surface_retained_consent_required", 403)
+        require(not grant.locked_display or row.metadata["consent"]["locked_display"],
+            "surface_retained_consent_required", 403)
+
+        def project():
+            require(broadcast.passive_grants.get(key) is grant and grant.authority(),
+                "surface_read_withdrawn", 403)
+            latest = admission.active_session()
+            require(latest is not None and latest.broadcast is broadcast,
+                "surface_read_withdrawn", 403)
+            return projection(latest, grant)
+
+        project()
+        return grant, project
+
+    def widget_signal_frame(self, row):
+        if row.retained_read is not None:
+            try:
+                return self.registry.retained_projection(row)
+            except SurfacePushError:
+                row.retained_read = None
+        return row.admission.projection()
+
     def _context_runtime(self, payload, headers):
         from .request_auth import resolve_runtime, authorize_runtime_device_request
         identity = {key: payload[key] for key in ("device_id", "client_type")}
@@ -169,7 +204,8 @@ class SurfacePushService:
             require(current(),"surface_read_withdrawn",403)
             return result
         result = SurfaceAdmission(authority.owner,authority.device,authority.binding,
-            active.session_id,current,frame,purpose=purpose,runtime=runtime,broadcast=active.broadcast)
+            active.session_id,current,frame,purpose=purpose,runtime=runtime,broadcast=active.broadcast,
+            active_session=lambda: self.manager.current_active(profile.profile_id))
         result.validate()
         return result
 
@@ -187,6 +223,7 @@ class SurfacePushService:
             if row.admission.owner==owner_binding and row.admission.session_id==session_id:
                 row.admission.purpose.withdraw()
                 row.phase,row.read_secret = "withdrawn",""
+                row.retained_read = None
 
         self.collect_signals()
 
@@ -203,6 +240,7 @@ class SurfacePushService:
         self._purposes.clear()
         for row in self.registry._entries.values():
             row.phase,row.read_secret = "withdrawn",""
+            row.retained_read = None
         self.collect_signals()
 
     async def close(self, _event=None):

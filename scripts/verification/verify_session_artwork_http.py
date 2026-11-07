@@ -364,6 +364,8 @@ async def main():
                 from passive_field_expiry_lab import run
             elif os.environ.get('DJC_PASSIVE_OBSERVATION_PROBE') == '1':
                 from passive_observation_sequence_lab import run
+            elif os.environ.get('DJC_PASSIVE_RETAINED_PROBE') == '1':
+                from passive_retained_lab import run
             else:
                 from passive_progress_lab import run
             await run(hass=hass, runtime=runtime, client=client, headers=headers,
