@@ -1,7 +1,12 @@
 """Core signed Watch preference request and reconciliation boundaries."""
+from contextlib import asynccontextmanager
 from dataclasses import replace
 import hashlib
 import json
+from pathlib import Path
+import sys
+from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 import unittest
 from unittest.mock import AsyncMock, Mock, patch
 
@@ -38,19 +43,22 @@ class WatchPreferenceClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(signature, "A" * 86)
         self.assertTrue(self.sign.await_args.args[0].startswith(b"DJC-WATCH-LIFECYCLE-V1\x00"))
 
-    async def test_unknown_write_reconciles_only_by_signed_read(self):
+    async def test_unknown_write_replays_original_bytes_once(self):
         for uncertain in (TimeoutError(), {"error": "watch_preference_outcome_unknown"}):
             with self.subTest(uncertain=uncertain):
                 self.post.reset_mock(side_effect=True)
+                self.sign.reset_mock()
                 self.post.side_effect = [uncertain, self.receipt]
                 self.assertEqual(await self.update(), "confirmed")
-                write, read = [json.loads(call.args[0]) for call in self.post.await_args_list]
-                self.assertEqual([write["action"], read["action"]], ["preference-write", "preference-read"])
-                self.assertEqual(read["expiry"], write["expiry"])
-                self.assertEqual(read["incarnation"], write["incarnation"])
-                self.assertNotEqual(read["operation"], write["operation"])
-                self.assertNotIn("expected_version", read)
-                self.assertNotIn("enabled", read)
+                first, replay = self.post.await_args_list
+                self.assertEqual(first, replay)
+                self.sign.assert_awaited_once()
+
+    async def test_unknown_write_cannot_replay_after_new_intent(self):
+        self.post.return_value = None
+        self.guard.side_effect = [None, None, None, None, PermissionError()]
+        self.assertEqual(await self.update(), "discarded")
+        self.post.assert_awaited_once()
 
     async def test_stale_authority_during_signing_does_not_send(self):
         self.guard.side_effect = [None, None, PermissionError(), None]
@@ -93,6 +101,62 @@ class WatchPreferenceClientTests(unittest.IsolatedAsyncioTestCase):
             with self.subTest(endpoint=endpoint), self.assertRaisesRegex(
                     ValueError, "invalid_watch_preference_endpoint"):
                 watch_preference_https(endpoint)
+
+    async def test_private_preference_transport_does_not_forward_credentials_on_redirect(self):
+        endpoint = "https://watch.example.test/internal/preference"
+        with self.assertRaisesRegex(ValueError, "invalid_watch_access_credentials"):
+            watch_preference_https(endpoint, access_credentials=("test-client", "bad\nsecret"))
+
+        response = Mock(status=302)
+        response.headers.getall.return_value = []
+        session = Mock()
+
+        @asynccontextmanager
+        async def redirect_response(*args, **kwargs):
+            yield response
+
+        session.post.side_effect = redirect_response
+
+        cookie_jar = object()
+
+        @asynccontextmanager
+        async def open_session(**kwargs):
+            self.assertFalse(kwargs["trust_env"])
+            self.assertIs(kwargs["cookie_jar"], cookie_jar)
+            yield session
+
+        aiohttp = SimpleNamespace(
+            ClientSession=open_session,
+            ClientTimeout=Mock(),
+            DummyCookieJar=lambda: cookie_jar,
+        )
+        with TemporaryDirectory() as directory:
+            credential = Path(directory) / "access.json"
+            credential.write_text(json.dumps({
+                "endpoint": endpoint, "client_id": "test-client", "client_secret": "test-secret",
+            }))
+            credential.chmod(0o600)
+            with patch.dict(sys.modules, {"aiohttp": aiohttp}):
+                post = watch_preference_https(endpoint, access_file=credential)
+                self.assertIsNone(await post(b"original signed body", "A" * 86))
+            alias = credential.with_name("alias.json")
+            alias.symlink_to(credential)
+            with self.assertRaisesRegex(ValueError, "invalid_watch_access_file"):
+                watch_preference_https(endpoint, access_file=alias)
+            with self.assertRaisesRegex(ValueError, "invalid_watch_access_file"):
+                watch_preference_https(endpoint + "-other", access_file=credential)
+            credential.chmod(0o644)
+            with self.assertRaisesRegex(ValueError, "invalid_watch_access_file"):
+                watch_preference_https(endpoint, access_file=credential)
+
+        session.post.assert_called_once()
+        args, kwargs = session.post.call_args
+        self.assertEqual(args, (endpoint,))
+        self.assertEqual(kwargs["data"], b"original signed body")
+        self.assertFalse(kwargs["allow_redirects"])
+        self.assertEqual(kwargs["headers"]["CF-Access-Client-Id"], "test-client")
+        self.assertEqual(kwargs["headers"]["CF-Access-Client-Secret"], "test-secret")
+        self.assertEqual(kwargs["headers"]["DJC-Watch-Lifecycle-Signature"], "A" * 86)
 
 
 class WatchRetirementClientTests(unittest.IsolatedAsyncioTestCase):
