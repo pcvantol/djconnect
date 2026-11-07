@@ -62,7 +62,10 @@ async def qualify(hass, manager, history, request, client):
         assert "Tweakers: " in moment.content and "NU.nl: " in moment.content
         assert "explicitly synthetic metadata" not in moment.content
         speech = moment_projection(active.broadcast, moment, autoplay=True)
-        assert speech["manual_allowed"] and speech["processors"] == ["local_on_device"]
+        from custom_components.djconnect.bulletin_runtime import manual_ha_speech_admitted
+        assert manual_ha_speech_admitted(moment)
+        assert speech["manual_allowed"] and speech["processors"] == ["local_on_device", "ha_configured"]
+        assert not speech["autoplay_eligible"]
         server_ssl, client_ssl = tls(Path(hass.config.config_dir))
         site = web.TCPSite(client.server.runner, "127.0.0.1", 0, ssl_context=server_ssl)
         await site.start()

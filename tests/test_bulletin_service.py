@@ -101,7 +101,30 @@ class BulletinServiceTests(unittest.IsolatedAsyncioTestCase):
         broadcast = self.fixture.active.broadcast
         self.assertIn(titles[0], str(broadcast.as_dict()))
         self.assertNotIn(titles[0], str(broadcast.as_dict(include_owner_only=False)))
-        self.assertEqual(moment_projection(broadcast, moment)["processors"], ["local_on_device"])
+        from dataclasses import replace
+        from custom_components.djconnect.bulletin_runtime import (
+            BulletinManualSpeechUse, manual_ha_speech_admitted,
+        )
+        speech = moment_projection(broadcast, moment, autoplay=True)
+        self.assertEqual(speech["processors"], ["local_on_device", "ha_configured"])
+        self.assertFalse(speech["autoplay_eligible"])
+        self.assertTrue(manual_ha_speech_admitted(moment))
+        self.assertNotIn("manual_speech_use", str(moment.as_dict()))
+        proof = moment.bulletin
+        old = replace(moment, bulletin=replace(proof, manual_speech_use=None))
+        self.assertFalse(manual_ha_speech_admitted(old))
+        self.assertEqual(moment_projection(broadcast, old)["processors"], ["local_on_device"])
+        for forged in ({"candidate": proof.candidate},
+                       BulletinManualSpeechUse(replace(proof.candidate), proof.original_guard),
+                       BulletinManualSpeechUse(proof.candidate, lambda: None)):
+            self.assertFalse(manual_ha_speech_admitted(
+                replace(moment, bulletin=replace(proof, manual_speech_use=forged))))
+        from unittest.mock import patch
+        with patch("custom_components.djconnect.bulletin_runtime.time.time",
+                   return_value=proof.candidate.expires_at + 1):
+            self.assertFalse(manual_ha_speech_admitted(moment))
+        self.fixture.authorized = False
+        self.assertFalse(manual_ha_speech_admitted(moment))
 
     async def test_existing_planner_consumes_ready_service_once_and_stop_withdraws_further_access(self):
         await self.start_ready()
