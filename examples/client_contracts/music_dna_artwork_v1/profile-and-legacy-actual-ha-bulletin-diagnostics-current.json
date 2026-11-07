@@ -71,7 +71,7 @@
       "hit": false
     },
     "enabled": true,
-    "generated_at": "2026-11-07T00:34:05.403757+00:00",
+    "generated_at": "2026-11-07T01:15:57.914380+00:00",
     "music_dna_key": "profile:artwork-profile",
     "revision": 1,
     "sections": [
@@ -86,7 +86,7 @@
               "provider": "spotify",
               "source_url": "https://open.spotify.com/album/BBBBBBBBBBBBBBBBBBBBBB"
             },
-            "image_expires_at": 1794012545.4040782,
+            "image_expires_at": 1794015057.914856,
             "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
             "kind": "track",
             "quality_band": "medium",
@@ -119,7 +119,7 @@
               "provider": "spotify",
               "source_url": "https://open.spotify.com/artist/CCCCCCCCCCCCCCCCCCCCCC"
             },
-            "image_expires_at": 1794012545.4041324,
+            "image_expires_at": 1794015057.9149327,
             "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
             "kind": "artist",
             "quality_band": "medium",
@@ -342,7 +342,7 @@
     "custom_components/djconnect/paired_live_contract.py": "fb4485b6acd9d548c17953edf64af4c4c4aa98c93cb325721acc033ff787f736",
     "custom_components/djconnect/pairing_defaults.py": "d65b049671f2c594edadfeed12a8a5b0da4d1c3a4f33aaa77b0a7e35aae243b7",
     "custom_components/djconnect/passive_contribution.py": "6cf021d669065f84bd80fde291ef5265e960bac5b84c01f313fe7adf0c05899f",
-    "custom_components/djconnect/passive_session.py": "659e4d321753ff0dd52be1c2eb20e7de5c86ac9943125448141f0527cc572c9f",
+    "custom_components/djconnect/passive_session.py": "83cdbd129e7b071b9b3d43a4c6cc8bbd8c475cbe8cf83426950c14801c37940f",
     "custom_components/djconnect/persistence/README.md": "c305e30879e4a3006a72fcf44487408ec7afba4caff509503d2b603c6ecf927f",
     "custom_components/djconnect/persistence/__init__.py": "8dc97e8769e396ad480a8a5db345974f63b7ff334020980a3d15921e898c8b97",
     "custom_components/djconnect/persistence/bootstrap.py": "cb239bd1fb477800436baee9a7496e5af48429f890dcdb5e1fa1ce01cad1b27d",
@@ -479,9 +479,9 @@
       "provider": "spotify",
       "source_url": "https://open.spotify.com/album/BBBBBBBBBBBBBBBBBBBBBB"
     },
-    "image_captured_at": 1794011645.3823957,
-    "image_expires_at": 1794012545.4963467,
-    "image_reference_expires_at": 1794033245.3823957,
+    "image_captured_at": 1794014157.883815,
+    "image_expires_at": 1794015058.0515397,
+    "image_reference_expires_at": 1794035757.883815,
     "image_subject_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB",
     "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
     "kind": "album",
@@ -496,7 +496,7 @@
     "generation": 0,
     "music_dna_key": "profile:artwork-profile",
     "profile": {
-      "consent_updated_at": "2026-11-07T00:34:05.375861+00:00",
+      "consent_updated_at": "2026-11-07T01:15:57.872898+00:00",
       "explicit_positives": {
         "accepted_recommendations": [],
         "eligible": false,
@@ -511,9 +511,9 @@
             "provider": "spotify",
             "source_url": "https://open.spotify.com/artist/CCCCCCCCCCCCCCCCCCCCCC"
           },
-          "image_captured_at": 1794011645.3825822,
-          "image_expires_at": 1794012545.3912888,
-          "image_reference_expires_at": 1794033245.3825822,
+          "image_captured_at": 1794014157.884179,
+          "image_expires_at": 1794015057.8953857,
+          "image_reference_expires_at": 1794035757.884179,
           "image_subject_uri": "spotify:artist:CCCCCCCCCCCCCCCCCCCCCC",
           "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
           "name": "Fixture artist",
@@ -525,7 +525,7 @@
           "name": "jazz"
         }
       ],
-      "last_profile_refresh": "2026-11-07T00:34:05+00:00",
+      "last_profile_refresh": "2026-11-07T01:15:57+00:00",
       "listening_rhythm": {
         "dayparts": [
           {
@@ -591,7 +591,7 @@
             "enabled": true,
             "id": "spotify_listening_profile",
             "label": "Spotify recent/top profile snapshots",
-            "last_updated": "2026-11-07T00:34:05+00:00"
+            "last_updated": "2026-11-07T01:15:57+00:00"
           },
           {
             "enabled": false,
@@ -643,9 +643,9 @@
             "provider": "spotify",
             "source_url": "https://open.spotify.com/album/BBBBBBBBBBBBBBBBBBBBBB"
           },
-          "image_captured_at": 1794011645.3823957,
-          "image_expires_at": 1794012545.391205,
-          "image_reference_expires_at": 1794033245.3823957,
+          "image_captured_at": 1794014157.883815,
+          "image_expires_at": 1794015057.8953342,
+          "image_reference_expires_at": 1794035757.883815,
           "image_subject_uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
           "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
           "title": "Fixture track",
@@ -660,7 +660,7 @@
       },
       "snapshot_history": [
         {
-          "captured_at": "2026-11-07T00:34:05+00:00",
+          "captured_at": "2026-11-07T01:15:57+00:00",
           "inferred_genres": [
             "jazz"
           ],
@@ -700,9 +700,9 @@
               "provider": "spotify",
               "source_url": "https://open.spotify.com/artist/CCCCCCCCCCCCCCCCCCCCCC"
             },
-            "image_captured_at": 1794011645.3825822,
-            "image_expires_at": 1794012545.3912888,
-            "image_reference_expires_at": 1794033245.3825822,
+            "image_captured_at": 1794014157.884179,
+            "image_expires_at": 1794015057.8953857,
+            "image_reference_expires_at": 1794035757.884179,
             "image_subject_uri": "spotify:artist:CCCCCCCCCCCCCCCCCCCCCC",
             "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
             "name": "Fixture artist",
@@ -722,9 +722,9 @@
               "provider": "spotify",
               "source_url": "https://open.spotify.com/artist/CCCCCCCCCCCCCCCCCCCCCC"
             },
-            "image_captured_at": 1794011645.3825822,
-            "image_expires_at": 1794012545.3912888,
-            "image_reference_expires_at": 1794033245.3825822,
+            "image_captured_at": 1794014157.884179,
+            "image_expires_at": 1794015057.8953857,
+            "image_reference_expires_at": 1794035757.884179,
             "image_subject_uri": "spotify:artist:CCCCCCCCCCCCCCCCCCCCCC",
             "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
             "name": "Fixture artist",
@@ -744,9 +744,9 @@
               "provider": "spotify",
               "source_url": "https://open.spotify.com/artist/CCCCCCCCCCCCCCCCCCCCCC"
             },
-            "image_captured_at": 1794011645.3825822,
-            "image_expires_at": 1794012545.3912888,
-            "image_reference_expires_at": 1794033245.3825822,
+            "image_captured_at": 1794014157.884179,
+            "image_expires_at": 1794015057.8953857,
+            "image_reference_expires_at": 1794035757.884179,
             "image_subject_uri": "spotify:artist:CCCCCCCCCCCCCCCCCCCCCC",
             "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
             "name": "Fixture artist",
@@ -769,9 +769,9 @@
               "provider": "spotify",
               "source_url": "https://open.spotify.com/album/BBBBBBBBBBBBBBBBBBBBBB"
             },
-            "image_captured_at": 1794011645.3823957,
-            "image_expires_at": 1794012545.391205,
-            "image_reference_expires_at": 1794033245.3823957,
+            "image_captured_at": 1794014157.883815,
+            "image_expires_at": 1794015057.8953342,
+            "image_reference_expires_at": 1794035757.883815,
             "image_subject_uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
             "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
             "title": "Fixture track",
@@ -793,9 +793,9 @@
               "provider": "spotify",
               "source_url": "https://open.spotify.com/album/BBBBBBBBBBBBBBBBBBBBBB"
             },
-            "image_captured_at": 1794011645.3823957,
-            "image_expires_at": 1794012545.391205,
-            "image_reference_expires_at": 1794033245.3823957,
+            "image_captured_at": 1794014157.883815,
+            "image_expires_at": 1794015057.8953342,
+            "image_reference_expires_at": 1794035757.883815,
             "image_subject_uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
             "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
             "title": "Fixture track",
@@ -817,9 +817,9 @@
               "provider": "spotify",
               "source_url": "https://open.spotify.com/album/BBBBBBBBBBBBBBBBBBBBBB"
             },
-            "image_captured_at": 1794011645.3823957,
-            "image_expires_at": 1794012545.391205,
-            "image_reference_expires_at": 1794033245.3823957,
+            "image_captured_at": 1794014157.883815,
+            "image_expires_at": 1794015057.8953342,
+            "image_reference_expires_at": 1794035757.883815,
             "image_subject_uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
             "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
             "title": "Fixture track",
@@ -837,7 +837,7 @@
       }
     ],
     "success": true,
-    "updated_at": "2026-11-07T00:34:05.389984+00:00"
+    "updated_at": "2026-11-07T01:15:57.894204+00:00"
   },
   "native": "NOT_RUN",
   "normalized_artist_has_artwork": true,

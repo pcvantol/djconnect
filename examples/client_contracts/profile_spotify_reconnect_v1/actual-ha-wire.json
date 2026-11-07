@@ -206,7 +206,7 @@
       "custom_components/djconnect/paired_live_contract.py": "fb4485b6acd9d548c17953edf64af4c4c4aa98c93cb325721acc033ff787f736",
       "custom_components/djconnect/pairing_defaults.py": "d65b049671f2c594edadfeed12a8a5b0da4d1c3a4f33aaa77b0a7e35aae243b7",
       "custom_components/djconnect/passive_contribution.py": "6cf021d669065f84bd80fde291ef5265e960bac5b84c01f313fe7adf0c05899f",
-      "custom_components/djconnect/passive_session.py": "659e4d321753ff0dd52be1c2eb20e7de5c86ac9943125448141f0527cc572c9f",
+      "custom_components/djconnect/passive_session.py": "83cdbd129e7b071b9b3d43a4c6cc8bbd8c475cbe8cf83426950c14801c37940f",
       "custom_components/djconnect/persistence/README.md": "c305e30879e4a3006a72fcf44487408ec7afba4caff509503d2b603c6ecf927f",
       "custom_components/djconnect/persistence/__init__.py": "8dc97e8769e396ad480a8a5db345974f63b7ff334020980a3d15921e898c8b97",
       "custom_components/djconnect/persistence/bootstrap.py": "cb239bd1fb477800436baee9a7496e5af48429f890dcdb5e1fa1ce01cad1b27d",
@@ -337,13 +337,13 @@
       "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
     }
   },
-  "canonical_view_raw_sha256": "3cd560dd3efff3ecea2dd862176418c9a4bacca744c0f5198939748575b73a69",
+  "canonical_view_raw_sha256": "84be5706c56af62d0934199807fb2ec21c2b9c3a4d30f7dcb453c1e18cae8611",
   "harness_pins": {
     "scripts/verification/verify_profile_spotify_discovery_http.py": "c2c0e05b8380d034c4e19c5686498ca7bf7363fe0a5a809511f6a86d3d23dca7",
     "scripts/verification/verify_profile_spotify_reconnect_http.py": "e352ec366654b36135e2118824fc47229a5b03ff172545e09b083bf88832397c"
   },
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "30e6581839a454b721c29b92bc952767e82d5ec127910429d93746adffa75d87",
+  "raw_receipt_sha256": "781d1c3b1dce2e44077658c6efce7d608cacb5e3d3587cf8238c8e9ca2944fd8",
   "receipt": {
     "actual_ha_store_readback": true,
     "cases": {
@@ -526,7 +526,7 @@
       "custom_components/djconnect/paired_live_contract.py": "fb4485b6acd9d548c17953edf64af4c4c4aa98c93cb325721acc033ff787f736",
       "custom_components/djconnect/pairing_defaults.py": "d65b049671f2c594edadfeed12a8a5b0da4d1c3a4f33aaa77b0a7e35aae243b7",
       "custom_components/djconnect/passive_contribution.py": "6cf021d669065f84bd80fde291ef5265e960bac5b84c01f313fe7adf0c05899f",
-      "custom_components/djconnect/passive_session.py": "659e4d321753ff0dd52be1c2eb20e7de5c86ac9943125448141f0527cc572c9f",
+      "custom_components/djconnect/passive_session.py": "83cdbd129e7b071b9b3d43a4c6cc8bbd8c475cbe8cf83426950c14801c37940f",
       "custom_components/djconnect/persistence/__init__.py": "8dc97e8769e396ad480a8a5db345974f63b7ff334020980a3d15921e898c8b97",
       "custom_components/djconnect/persistence/bootstrap.py": "cb239bd1fb477800436baee9a7496e5af48429f890dcdb5e1fa1ce01cad1b27d",
       "custom_components/djconnect/persistence/content_deletion.py": "c6375616d03c6c35f45233b497dbf19add00df5cc98dfd5213d68d7012cef5a2",
@@ -833,7 +833,7 @@
     "custom_components/djconnect/paired_live_contract.py": "fb4485b6acd9d548c17953edf64af4c4c4aa98c93cb325721acc033ff787f736",
     "custom_components/djconnect/pairing_defaults.py": "d65b049671f2c594edadfeed12a8a5b0da4d1c3a4f33aaa77b0a7e35aae243b7",
     "custom_components/djconnect/passive_contribution.py": "6cf021d669065f84bd80fde291ef5265e960bac5b84c01f313fe7adf0c05899f",
-    "custom_components/djconnect/passive_session.py": "659e4d321753ff0dd52be1c2eb20e7de5c86ac9943125448141f0527cc572c9f",
+    "custom_components/djconnect/passive_session.py": "83cdbd129e7b071b9b3d43a4c6cc8bbd8c475cbe8cf83426950c14801c37940f",
     "custom_components/djconnect/persistence/README.md": "c305e30879e4a3006a72fcf44487408ec7afba4caff509503d2b603c6ecf927f",
     "custom_components/djconnect/persistence/__init__.py": "8dc97e8769e396ad480a8a5db345974f63b7ff334020980a3d15921e898c8b97",
     "custom_components/djconnect/persistence/bootstrap.py": "cb239bd1fb477800436baee9a7496e5af48429f890dcdb5e1fa1ce01cad1b27d",

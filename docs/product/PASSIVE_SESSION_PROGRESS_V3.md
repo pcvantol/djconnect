@@ -108,3 +108,24 @@ API and OS/native path is still required for any such claim. No old cache or
 purpose deadline is extended locally to conceal a120-second freshness gap.
 New genuinely accepted provider observations may provide new original data;
 reads/redraws cannot rejuvenate an older observation, cover or contribution.
+
+## Original rich-frame revision across independent field expiry
+
+For the existing rich widget and Live Activity projection versions 1/2/3,
+revision identifies the original accepted base frame: existing Session, grant
+binding/generation, delivery sequence, original observed/expiry stamps, selected
+axes and playback state. It excludes read time and time-dependent pruning of
+independently expired contribution/music/cover fields and their availability
+reasons. An ordinary read across a shorter field deadline therefore keeps the
+same original revision and sequence while removing that field on time. The outer
+120-second deadline is never extended, and source withdrawal remains fail closed.
+Clients still compare the entire original observation after removing only fields
+whose own original deadlines have passed; unchanged revision never admits an
+unexplained field mutation. A fresh accepted observation uses its own existing
+sequence event and original clocks. No clock, field, grant or source right is
+created by reading. The separate minimal watch_widget projection is unchanged.
+
+Prepared artwork keeps its own media_revision equality identity. Replacing an
+image for the same Moment does not change the original base-frame revision,
+Moment text, publication or deadlines. This does not relax native whole-frame
+equality checks or authorize an unexplained same-sequence artwork replacement.

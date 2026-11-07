@@ -242,6 +242,8 @@ def projection(active, grant, *, registry=None, owner=''):
                        {'chill', 'groove', 'energy', 'party'} else None, 'revision': active.mood_revision},
               'presence': active.selected_presence, 'persona': active.dj_persona.value,
               'navigation': {'kind': 'open_session', 'session_id': active.session_id}}
+    # Revision belongs to the original frame, not read-time field pruning.
+    result['revision'] = digest({k: v for k, v in result.items() if k != 'as_of'})
     if (not grant.authority() or active.runtime_state.value != 'active'
             or broadcast.state.runtime_state.value != 'active'):
         return {'schema_version': grant.projection_version, 'state': 'withdrawn', 'surface': grant.surface,
@@ -266,7 +268,6 @@ def projection(active, grant, *, registry=None, owner=''):
         if grant.projection_version in (2, 3):
             for name in ('contribution_status', 'now_playing_status', 'artwork_status'):
                 result[name] = status('original_snapshot_expired', 'stale')
-    result['revision'] = digest({k: v for k, v in result.items() if k != 'as_of'})
     return result
 
 
