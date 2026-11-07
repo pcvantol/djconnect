@@ -120,28 +120,46 @@ class CrossStoreDeletionTests(IsolatedAsyncioTestCase):
             {'success': True, 'text': 'Synthetic copied old answer'},
             session_turn={'turn_id': 'dependent-turn', 'context': {'session_id': 'kept',
                 'selected_entry': {'session_id': 'old', 'entry_id': 'source-entry'}}})
+        await self.chat.async_append_exchange('profile:p',
+            {'client_message_id': 'unrelated', 'text': 'Synthetic unrelated question'},
+            {'success': True, 'text': 'Synthetic unrelated answer'},
+            session_turn={'turn_id': 'unrelated-turn', 'context': {'session_id': 'kept'}})
         messages = (await self.chat.async_history('profile:p'))['messages']
         dependent = [m for m in messages if m.get('client_message_id') == 'dependent']
+        unrelated = [m for m in messages if m.get('client_message_id') == 'unrelated']
         def admitted_fixture(tx):
-            for number, message in enumerate(dependent, 1):
+            for number, message in enumerate([*dependent, *unrelated], 1):
                 tx.execute('INSERT INTO djconnect_session_entries '
                     '(entry_id,session_id,owner_profile_id,entry_order,kind,reference_id,body,occurred_at,retained_until) '
                     'VALUES (?,?,?,?,?,?,?,?,?)',
-                    ('dependent-' + str(number), 'kept', 'p', number,
+                    ('fixture-' + str(number), 'kept', 'p', number,
                      'conversation_user' if message['role'] == 'user' else 'conversation_dj', message['id'],
-                     json.dumps({'history_scope': 'profile:p', 'message_id': message['id'], 'turn_id': 'dependent-turn'}),
+                     json.dumps({'history_scope': 'profile:p', 'message_id': message['id'],
+                                 'turn_id': message['session_turn']['turn_id']}),
                      '2026-10-21T07:00:00+00:00', '2027-01-01T07:00:00+00:00'))
         await self.service.async_in_transaction(admitted_fixture)
         before = await self.history.async_session_record('kept')
         await self.coordinator.async_delete(**self.args)
         rows = await self.history.async_entry_records('p', 'kept')
-        self.assertEqual({r['entry_id'] for r in rows}, {'dependent-1', 'dependent-2'})
+        self.assertEqual([r['entry_id'] for r in rows],
+                         ['fixture-1', 'fixture-2', 'fixture-3', 'fixture-4'])
         query = HistoricalProjectionQueryService(self.history, self.chat)
-        for row in rows:
-            projected = await query._project_entry('p', row)
+        timeline = await query.async_timeline_window('p', 'kept', window='tail')
+        self.assertEqual([entry['order'] for entry in timeline['entries']], [1, 2, 3, 4])
+        for projected, message in zip(timeline['entries'][:2], dependent, strict=True):
             self.assertEqual(projected['state'], 'source_withdrawn')
             self.assertEqual(projected['text'], '')
-            self.assertNotIn('session_speech', projected)
+            self.assertEqual(projected['origin_message_id'], message['id'])
+            self.assertEqual(projected['client_message_id'], 'dependent')
+            self.assertEqual(projected['turn_id'], 'dependent-turn')
+            self.assertEqual(projected['role'], message['role'])
+            self.assertEqual(projected['input_type'], 'text')
+            self.assertEqual(projected['context'], {'session_id': 'kept'})
+            for field in ('session_speech', 'session_media', 'images', 'sources',
+                          'links', 'historical_matches', 'navigation_actions'):
+                self.assertNotIn(field, projected)
+        self.assertEqual([entry['text'] for entry in timeline['entries'][2:]],
+                         ['Synthetic unrelated question', 'Synthetic unrelated answer'])
         self.assertGreater((await self.history.async_session_record('kept'))['revision'], before['revision'])
         values = (await self.chat.async_history('profile:p'))['messages']
         self.assertNotIn('Synthetic copied', str(values))

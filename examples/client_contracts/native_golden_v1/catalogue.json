@@ -21441,9 +21441,9 @@
     "docs/verification/fixtures/askdj_golden_release_matrix_v1.json": "0f21f97b8931580460113ba152dc60b3b020b765b0f52f8a5d4b3d57468ba046",
     "docs/verification/fixtures/dj_moment_persona_mood_golden_v1.json": "ea5fed1e1fd7a5646d8ac902904116f74ef25a249823bb8a50c5b4bd9f950c06",
     "examples/ask_dj_e2e_cases.json": "b5234d0a0766991f5f9af53d5738d8344d082c2224380a7b6ef9ac1daf2749d4",
-    "examples/client_contracts/music_announcement_v1/actual-ha-wire.json": "6a7149784aa7b7fdd0b2fffc82f663e9e614a5952fad794f928a5267c8d72dd3",
-    "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json": "27d96e534ad201245640fea626f7a32beba5f7cede93c959e684c07b0b805c7a",
-    "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json": "9d7b98e8593869c715d3757248f234757f607641c36e63ad24a4ff9d600d12f6",
+    "examples/client_contracts/music_announcement_v1/actual-ha-wire.json": "b35fd0c62e545edbaff1b8b3e83850dddfe18fc51bbb78e5f3bb314af0d6f420",
+    "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json": "d45decfcf9e45705dff50579a52c2416fcee703cb8b0a15463271880a579f2f7",
+    "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json": "65627ef892dac0c18455490d885414435ae904a81f7409e0be1c7acbb7d7b3bb",
     "scripts/verification/askdj_example_catalogue_golden.py": "b25cb9374b52a4fec22267a1bb83ad4081c8e6dc740504dffd5c7ad196d9a76f",
     "tools/verification/native_client_golden_contract.py": "68bd32d6a044c42100e6ec063e595e10467be4f1566b6b2579539c669b5906f8"
   }

@@ -8,7 +8,7 @@
   },
   "harness_sha256": "6cb913e6f752dd79dbf1b427af315145a110dc1e2f247804971904f9245f80a1",
   "live_provider_or_native_acceptance": false,
-  "receipt_sha256": "b2e313d09fcdea0017e976f33f7f860e9f01487e9d6099194dfddee1b85f5d9b",
+  "receipt_sha256": "d4ecc936bd9589c6b206a95227d90a51357e19f3b3acfc89228787a66722ef7d",
   "red_causal_before": "Catalogue fallback discarded exact provider artwork",
   "source_before_after_equal": true,
   "source_pins": {
@@ -140,7 +140,7 @@
     "custom_components/djconnect/ha_urls.py": "cfb435ee2f7f25450fc3f443703a3a466bffd0da103365b3163384797587d558",
     "custom_components/djconnect/help_http.py": "2679e21eec606e47e8d878317c26f9fbc269ec0c82581eba3ae06fa8419ff0b9",
     "custom_components/djconnect/historical_playback.py": "2bda01faaabb4a87e3714049cd99dfb7514e36bfd351cd1c9a93f90a0e8122fa",
-    "custom_components/djconnect/historical_projection_query.py": "d050066855f168694ac63b7779b71072c5b9ebaaf93d27965b21b5deadcc4ea7",
+    "custom_components/djconnect/historical_projection_query.py": "76fdbae0412b48fe08b37d9bb512ceedb332184284788004b1a39d6e3e7d57e6",
     "custom_components/djconnect/historical_projection_retention.py": "ba93b6476c4b47d716f4d1d03a5ebe26328c395d2b2fe981eaea5e242105bfc6",
     "custom_components/djconnect/history_deletion.py": "adf077184493e6f9a5a6b57ce21f13815e188da5b711d23226d9fffb5ebcf5f4",
     "custom_components/djconnect/history_deletion_api.py": "390d4b6725963864ea540ea39af759d20ae9f09253bd634febb74004052e4ced",
@@ -332,7 +332,7 @@
           "provider": "spotify",
           "source_url": "https://open.spotify.com/album/HHHHHHHHHHHHHHHHHHHHHH"
         },
-        "image_expires_at": 1794034001.100434,
+        "image_expires_at": 1794035043.9471028,
         "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
         "kind": "track",
         "quality_band": "medium",

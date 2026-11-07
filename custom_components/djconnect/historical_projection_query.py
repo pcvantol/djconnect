@@ -162,21 +162,25 @@ class HistoricalProjectionQueryService:
         key = (owner, row["session_id"], row["entry_id"])
         if key in ancestry or len(ancestry) >= 20:
             return None
-        # Explicit recursion state is passed through a task-local ContextVar below.
-        token = _projection_ancestry.set(ancestry | {key})
-        try:
-            if not await self.async_conversation_source_visible(owner,message):
-                entry.pop("conversation_reference",None)
-                return {**entry,"text":"","state":"source_withdrawn"}
-        finally:
-            _projection_ancestry.reset(token)
         entry.pop("conversation_reference", None)
         entry["origin_message_id"] = message["id"]
         entry["client_message_id"] = message.get("client_message_id")
-        entry["text"] = str(message.get("text") or "")
         entry["turn_id"] = ref["turn_id"]
-        entry["role"] = "user" if row["kind"] == "conversation_user" else "assistant"
+        entry["role"] = expected_role
         entry["input_type"] = message.get("session_turn", {}).get("input_type", "text")
+        # Explicit recursion state is passed through a task-local ContextVar below.
+        token = _projection_ancestry.set(ancestry | {key})
+        try:
+            if not await self.async_conversation_source_visible(owner, message):
+                return {
+                    **entry,
+                    "text": "",
+                    "state": "source_withdrawn",
+                    "context": {"session_id": row["session_id"]},
+                }
+        finally:
+            _projection_ancestry.reset(token)
+        entry["text"] = str(message.get("text") or "")
         entry["effective_style"] = message.get("session_turn", {}).get("effective_style")
         # Original acceptance owns this optional provenance. Legacy absence is
         # not permission to send arbitrary archived text to a cloud processor.
