@@ -1205,7 +1205,7 @@ def direct_question(text):
     """
     patterns = (
         ('age', r'(?:how old is|hoe oud is|wie alt ist|quel âge a|qué edad tiene)\s+(.+?)'),
-        ('members', r'(?:wie zijn (?:de )?(?:muzikanten|bandleden|leden) van(?: (?:de )?band)?|uit welke (?:muzikanten|bandleden|leden) bestaat|who are (?:the )?members of|wer sind die mitglieder von|qui sont les membres de|quiénes son los miembros de)\s+(.+?)'),
+        ('members', r'(?:wie zijn (?:de )?(?:muzikanten|bandleden|leden) van(?: (?:de )?band)?|uit welke (?:muzikanten|bandleden|leden) bestaat|wie zitten er in de band\s*,|who are (?:the )?members of|wer sind die mitglieder von|qui sont les membres de|quiénes son los miembros de)\s+(.+?)'),
         ('formation', r'(?:wanneer (?:is|werd)|when was|wann wurde|quand a été|cuándo fue)\s+(.+?)\s+(?:opgericht|formed|founded|gegründet|fondé|fundado)(?:,?\s*(?:welk jaar|in welk jaar|which year))?'),
         ('current_events', r'(?:treedt|treden)\s+(.+?)\s+(?:nog |weer |nog samen |samen )?op'),
         ('current_events', r'(?:does|do)\s+(.+?)\s+still perform(?: together)?'),

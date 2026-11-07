@@ -841,6 +841,7 @@ class SharedDialogueTest(unittest.IsolatedAsyncioTestCase):
             "Who is Peter Luts? My address is 123 Private Street",
             "Tell me about my neighbour Sarah",
             "Tell me about Radiohead; call 0612345678",
+            "Wie zitten er in de band, R.E.M., mijn adres is 123 Private Street",
         )):
             result, status = await self.request(question, identifier="private-query-" + str(index))
             self.assertEqual(status, 200, result)
