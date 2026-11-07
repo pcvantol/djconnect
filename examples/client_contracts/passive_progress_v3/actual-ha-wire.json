@@ -47,13 +47,13 @@
       "passive_session": {
         "schema_version": 3,
         "surface": "widget",
-        "binding_id": "3eb1aa1829af350a0a871066ccedb66f",
-        "generation": "e7556c3ff113212eb46c1192bb509945",
-        "session_id": "session-d43e454f12474f83bf84bd29a22034e9",
+        "binding_id": "4644ea0f7461297a9440aab5d2cc1de4",
+        "generation": "a947be10a53313a715d7ae0cf66ffd7b",
+        "session_id": "session-40eda73dff244e43a6b56ec2f667c0fd",
         "delivery_sequence": 11,
-        "as_of": "2026-11-07T08:19:37.790445+00:00",
-        "observed_at": "2026-11-07T08:19:37.786692+00:00",
-        "expires_at": "2026-11-07T08:21:37.786692+00:00",
+        "as_of": "2026-11-07T08:37:02.577229+00:00",
+        "observed_at": "2026-11-07T08:37:02.572403+00:00",
+        "expires_at": "2026-11-07T08:39:02.572403+00:00",
         "state": "active",
         "playback_state": "playing",
         "cache_policy": {
@@ -71,17 +71,17 @@
         "persona": "home_dj",
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-d43e454f12474f83bf84bd29a22034e9"
+          "session_id": "session-40eda73dff244e43a6b56ec2f667c0fd"
         },
-        "revision": "5371b7e87ba8ae4ce9a9e4b88ea1fcf5",
+        "revision": "2739032a9c84de743e097785ef42a95a",
         "contribution": {
-          "moment_id": "moment-aea334e9a7eae6689696eb7c52116ec7",
-          "published_at": "2026-11-07T08:19:37.701222+00:00",
+          "moment_id": "moment-100f84368932c010f822b0f53e56f860",
+          "published_at": "2026-11-07T08:37:02.465988+00:00",
           "text": "Welkom, fijn dat je er bent! Ik ben je Home DJ: warm en nieuwsgierig gezelschap. Met Groove houd ik mijn bijdragen ontspannen en vloeiend. Je koos Gebalanceerd: ik wissel bijdragen af met ruimte voor de muziek. Veel luisterplezier!",
           "persona": "home_dj",
           "source_attribution": {},
           "usage_basis": "runtime_authored_direction",
-          "expires_at": "2026-11-07T08:20:02.701222+00:00",
+          "expires_at": "2026-11-07T08:37:27.465988+00:00",
           "rights": {
             "passive_cache": true,
             "os_snapshot": true,
@@ -95,8 +95,8 @@
           "track": "Fixture track",
           "artist": "Northline",
           "album": "Fixture album",
-          "observed_at": "2026-11-07T08:19:37.738373+00:00",
-          "expires_at": "2026-11-07T08:21:37.738373+00:00",
+          "observed_at": "2026-11-07T08:37:02.516933+00:00",
+          "expires_at": "2026-11-07T08:39:02.516933+00:00",
           "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
           "attribution": {
             "provider": "Spotify",
@@ -106,17 +106,17 @@
           "usage_basis": "spotify_temporary_passive_metadata",
           "progress": {
             "schema_version": 1,
-            "position_ms": 20229,
+            "position_ms": 20307,
             "duration_ms": 240000,
             "playback_state": "playing",
-            "observed_at": "2026-11-07T08:19:37.738373+00:00",
-            "expires_at": "2026-11-07T08:21:37.738373+00:00"
+            "observed_at": "2026-11-07T08:37:02.516933+00:00",
+            "expires_at": "2026-11-07T08:39:02.516933+00:00"
           }
         },
         "artwork": [
           {
             "slot": "now_playing",
-            "asset_id": "vG0K2T1Byyx51Ad3-BNq047B8GDSmFda",
+            "asset_id": "F37OqqAuFpq6U9mR2JNM15un0dq2AnDG",
             "subject": {
               "provider": "spotify",
               "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
@@ -124,9 +124,9 @@
               "album_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB"
             },
             "role": "current_cover",
-            "media_revision": "cb4eec78009909f38e7cb4e1",
-            "captured_at": "2026-11-07T08:19:37.786640+00:00",
-            "expires_at": "2026-11-07T08:21:37.738373+00:00",
+            "media_revision": "7bb21fb1f36d0b724fb59b01",
+            "captured_at": "2026-11-07T08:37:02.572314+00:00",
+            "expires_at": "2026-11-07T08:39:02.516933+00:00",
             "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
             "attribution": {
               "provider": "Spotify",
@@ -144,7 +144,7 @@
             "height": 64,
             "crop_allowed": false,
             "usage_basis": "spotify_temporary_passive_cover",
-            "image_path": "/api/djconnect/v1/session/surface/image/session-d43e454f12474f83bf84bd29a22034e9/vG0K2T1Byyx51Ad3-BNq047B8GDSmFda",
+            "image_path": "/api/djconnect/v1/session/surface/image/session-40eda73dff244e43a6b56ec2f667c0fd/F37OqqAuFpq6U9mR2JNM15un0dq2AnDG",
             "rights": {
               "passive_cache": true,
               "os_snapshot": true,
@@ -172,13 +172,13 @@
       "passive_session": {
         "schema_version": 3,
         "surface": "live_activity",
-        "binding_id": "1d725fb31dbdf6d51c2cc1ffd2dce77d",
-        "generation": "8d5f86d9a7306cfd1c71d36ec4ef5059",
-        "session_id": "session-d43e454f12474f83bf84bd29a22034e9",
+        "binding_id": "757eb7aa889da69afd2b5230d4493970",
+        "generation": "857080637968cd745ce7e16d2c494710",
+        "session_id": "session-40eda73dff244e43a6b56ec2f667c0fd",
         "delivery_sequence": 11,
-        "as_of": "2026-11-07T08:19:37.791348+00:00",
-        "observed_at": "2026-11-07T08:19:37.786692+00:00",
-        "expires_at": "2026-11-07T08:21:37.786692+00:00",
+        "as_of": "2026-11-07T08:37:02.578242+00:00",
+        "observed_at": "2026-11-07T08:37:02.572403+00:00",
+        "expires_at": "2026-11-07T08:39:02.572403+00:00",
         "state": "active",
         "playback_state": "playing",
         "cache_policy": {
@@ -196,17 +196,17 @@
         "persona": "home_dj",
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-d43e454f12474f83bf84bd29a22034e9"
+          "session_id": "session-40eda73dff244e43a6b56ec2f667c0fd"
         },
-        "revision": "212aa86daa0c84fcf011e962f1ce8f19",
+        "revision": "d226ddd58a3ba93cd9ed29025a67297f",
         "contribution": {
-          "moment_id": "moment-aea334e9a7eae6689696eb7c52116ec7",
-          "published_at": "2026-11-07T08:19:37.701222+00:00",
+          "moment_id": "moment-100f84368932c010f822b0f53e56f860",
+          "published_at": "2026-11-07T08:37:02.465988+00:00",
           "text": "Welkom, fijn dat je er bent! Ik ben je Home DJ: warm en nieuwsgierig gezelschap. Met Groove houd ik mijn bijdragen ontspannen en vloeiend. Je koos Gebalanceerd: ik wissel bijdragen af met ruimte voor de muziek. Veel luisterplezier!",
           "persona": "home_dj",
           "source_attribution": {},
           "usage_basis": "runtime_authored_direction",
-          "expires_at": "2026-11-07T08:20:02.701222+00:00",
+          "expires_at": "2026-11-07T08:37:27.465988+00:00",
           "rights": {
             "passive_cache": true,
             "os_snapshot": true,
@@ -220,8 +220,8 @@
           "track": "Fixture track",
           "artist": "Northline",
           "album": "Fixture album",
-          "observed_at": "2026-11-07T08:19:37.738373+00:00",
-          "expires_at": "2026-11-07T08:21:37.738373+00:00",
+          "observed_at": "2026-11-07T08:37:02.516933+00:00",
+          "expires_at": "2026-11-07T08:39:02.516933+00:00",
           "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
           "attribution": {
             "provider": "Spotify",
@@ -231,17 +231,17 @@
           "usage_basis": "spotify_temporary_passive_metadata",
           "progress": {
             "schema_version": 1,
-            "position_ms": 20229,
+            "position_ms": 20307,
             "duration_ms": 240000,
             "playback_state": "playing",
-            "observed_at": "2026-11-07T08:19:37.738373+00:00",
-            "expires_at": "2026-11-07T08:21:37.738373+00:00"
+            "observed_at": "2026-11-07T08:37:02.516933+00:00",
+            "expires_at": "2026-11-07T08:39:02.516933+00:00"
           }
         },
         "artwork": [
           {
             "slot": "now_playing",
-            "asset_id": "vG0K2T1Byyx51Ad3-BNq047B8GDSmFda",
+            "asset_id": "F37OqqAuFpq6U9mR2JNM15un0dq2AnDG",
             "subject": {
               "provider": "spotify",
               "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
@@ -249,9 +249,9 @@
               "album_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB"
             },
             "role": "current_cover",
-            "media_revision": "cb4eec78009909f38e7cb4e1",
-            "captured_at": "2026-11-07T08:19:37.786640+00:00",
-            "expires_at": "2026-11-07T08:21:37.738373+00:00",
+            "media_revision": "7bb21fb1f36d0b724fb59b01",
+            "captured_at": "2026-11-07T08:37:02.572314+00:00",
+            "expires_at": "2026-11-07T08:39:02.516933+00:00",
             "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
             "attribution": {
               "provider": "Spotify",
@@ -269,7 +269,7 @@
             "height": 64,
             "crop_allowed": false,
             "usage_basis": "spotify_temporary_passive_cover",
-            "image_path": "/api/djconnect/v1/session/surface/image/session-d43e454f12474f83bf84bd29a22034e9/vG0K2T1Byyx51Ad3-BNq047B8GDSmFda",
+            "image_path": "/api/djconnect/v1/session/surface/image/session-40eda73dff244e43a6b56ec2f667c0fd/F37OqqAuFpq6U9mR2JNM15un0dq2AnDG",
             "rights": {
               "passive_cache": true,
               "os_snapshot": true,
@@ -298,13 +298,13 @@
         "schema_version": 1,
         "scope": "paired_watch_widget_v1",
         "surface": "watch_widget",
-        "binding_id": "70931755a96498fd4b35a34627daf87c",
-        "generation": "53b30f6313c66048c27392799dc385f1",
-        "session_id": "session-d43e454f12474f83bf84bd29a22034e9",
+        "binding_id": "a40d413f7ff139f6c2efa2c182378491",
+        "generation": "b99e97500a133ad6c51bbcf3b4482069",
+        "session_id": "session-40eda73dff244e43a6b56ec2f667c0fd",
         "delivery_sequence": 11,
-        "as_of": "2026-11-07T08:19:37.793128+00:00",
-        "observed_at": "2026-11-07T08:19:37.786692+00:00",
-        "expires_at": "2026-11-07T08:21:37.786692+00:00",
+        "as_of": "2026-11-07T08:37:02.580299+00:00",
+        "observed_at": "2026-11-07T08:37:02.572403+00:00",
+        "expires_at": "2026-11-07T08:39:02.572403+00:00",
         "state": "active",
         "cache_policy": {
           "scope": "current_watch_widget_only",
@@ -321,8 +321,8 @@
           "item_id": "02e3d582594577327c335fc0",
           "subject_uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
           "track": "Fixture track",
-          "observed_at": "2026-11-07T08:19:37.738373+00:00",
-          "expires_at": "2026-11-07T08:21:37.738373+00:00",
+          "observed_at": "2026-11-07T08:37:02.516933+00:00",
+          "expires_at": "2026-11-07T08:39:02.516933+00:00",
           "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
           "attribution": {
             "provider": "Spotify",
@@ -334,7 +334,7 @@
         "artwork": [
           {
             "slot": "now_playing",
-            "asset_id": "vG0K2T1Byyx51Ad3-BNq047B8GDSmFda",
+            "asset_id": "F37OqqAuFpq6U9mR2JNM15un0dq2AnDG",
             "subject": {
               "provider": "spotify",
               "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
@@ -342,9 +342,9 @@
               "album_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB"
             },
             "role": "current_cover",
-            "media_revision": "cb4eec78009909f38e7cb4e1",
-            "captured_at": "2026-11-07T08:19:37.786640+00:00",
-            "expires_at": "2026-11-07T08:21:37.738373+00:00",
+            "media_revision": "7bb21fb1f36d0b724fb59b01",
+            "captured_at": "2026-11-07T08:37:02.572314+00:00",
+            "expires_at": "2026-11-07T08:39:02.516933+00:00",
             "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
             "attribution": {
               "provider": "Spotify",
@@ -362,7 +362,7 @@
             "height": 64,
             "crop_allowed": false,
             "usage_basis": "spotify_temporary_passive_cover",
-            "image_path": "/api/djconnect/v1/session/surface/image/session-d43e454f12474f83bf84bd29a22034e9/vG0K2T1Byyx51Ad3-BNq047B8GDSmFda",
+            "image_path": "/api/djconnect/v1/session/surface/image/session-40eda73dff244e43a6b56ec2f667c0fd/F37OqqAuFpq6U9mR2JNM15un0dq2AnDG",
             "rights": {
               "passive_cache": true,
               "os_snapshot": true,
@@ -380,7 +380,7 @@
           "state": "available",
           "reason": "qualified"
         },
-        "revision": "0e6e28405e2065410d0a8ba949022c1e"
+        "revision": "3013e12456a6ec9a298e06bf5ff5f2b6"
       }
     },
     {
@@ -388,13 +388,13 @@
       "passive_session": {
         "schema_version": 3,
         "surface": "widget",
-        "binding_id": "3eb1aa1829af350a0a871066ccedb66f",
-        "generation": "e7556c3ff113212eb46c1192bb509945",
-        "session_id": "session-d43e454f12474f83bf84bd29a22034e9",
+        "binding_id": "4644ea0f7461297a9440aab5d2cc1de4",
+        "generation": "a947be10a53313a715d7ae0cf66ffd7b",
+        "session_id": "session-40eda73dff244e43a6b56ec2f667c0fd",
         "delivery_sequence": 18,
-        "as_of": "2026-11-07T08:19:37.811976+00:00",
-        "observed_at": "2026-11-07T08:19:37.811121+00:00",
-        "expires_at": "2026-11-07T08:21:37.811121+00:00",
+        "as_of": "2026-11-07T08:37:02.602237+00:00",
+        "observed_at": "2026-11-07T08:37:02.601112+00:00",
+        "expires_at": "2026-11-07T08:39:02.601112+00:00",
         "state": "active",
         "playback_state": "playing",
         "cache_policy": {
@@ -412,17 +412,17 @@
         "persona": "home_dj",
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-d43e454f12474f83bf84bd29a22034e9"
+          "session_id": "session-40eda73dff244e43a6b56ec2f667c0fd"
         },
-        "revision": "8a015e7a9386e47d4bb619c40dfbda22",
+        "revision": "996c69880f18ac16fa6e00a87e9d33cb",
         "contribution": {
-          "moment_id": "moment-aea334e9a7eae6689696eb7c52116ec7",
-          "published_at": "2026-11-07T08:19:37.701222+00:00",
+          "moment_id": "moment-100f84368932c010f822b0f53e56f860",
+          "published_at": "2026-11-07T08:37:02.465988+00:00",
           "text": "Welkom, fijn dat je er bent! Ik ben je Home DJ: warm en nieuwsgierig gezelschap. Met Groove houd ik mijn bijdragen ontspannen en vloeiend. Je koos Gebalanceerd: ik wissel bijdragen af met ruimte voor de muziek. Veel luisterplezier!",
           "persona": "home_dj",
           "source_attribution": {},
           "usage_basis": "runtime_authored_direction",
-          "expires_at": "2026-11-07T08:20:02.701222+00:00",
+          "expires_at": "2026-11-07T08:37:27.465988+00:00",
           "rights": {
             "passive_cache": true,
             "os_snapshot": true,
@@ -436,8 +436,8 @@
           "track": "Fixture track",
           "artist": "Northline",
           "album": "Fixture album",
-          "observed_at": "2026-11-07T08:19:37.738373+00:00",
-          "expires_at": "2026-11-07T08:21:37.738373+00:00",
+          "observed_at": "2026-11-07T08:37:02.516933+00:00",
+          "expires_at": "2026-11-07T08:39:02.516933+00:00",
           "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
           "attribution": {
             "provider": "Spotify",
@@ -447,17 +447,17 @@
           "usage_basis": "spotify_temporary_passive_metadata",
           "progress": {
             "schema_version": 1,
-            "position_ms": 20229,
+            "position_ms": 20307,
             "duration_ms": 240000,
             "playback_state": "playing",
-            "observed_at": "2026-11-07T08:19:37.738373+00:00",
-            "expires_at": "2026-11-07T08:21:37.738373+00:00"
+            "observed_at": "2026-11-07T08:37:02.516933+00:00",
+            "expires_at": "2026-11-07T08:39:02.516933+00:00"
           }
         },
         "artwork": [
           {
             "slot": "now_playing",
-            "asset_id": "vG0K2T1Byyx51Ad3-BNq047B8GDSmFda",
+            "asset_id": "F37OqqAuFpq6U9mR2JNM15un0dq2AnDG",
             "subject": {
               "provider": "spotify",
               "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
@@ -465,9 +465,9 @@
               "album_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB"
             },
             "role": "current_cover",
-            "media_revision": "cb4eec78009909f38e7cb4e1",
-            "captured_at": "2026-11-07T08:19:37.786640+00:00",
-            "expires_at": "2026-11-07T08:21:37.738373+00:00",
+            "media_revision": "7bb21fb1f36d0b724fb59b01",
+            "captured_at": "2026-11-07T08:37:02.572314+00:00",
+            "expires_at": "2026-11-07T08:39:02.516933+00:00",
             "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
             "attribution": {
               "provider": "Spotify",
@@ -485,7 +485,7 @@
             "height": 64,
             "crop_allowed": false,
             "usage_basis": "spotify_temporary_passive_cover",
-            "image_path": "/api/djconnect/v1/session/surface/image/session-d43e454f12474f83bf84bd29a22034e9/vG0K2T1Byyx51Ad3-BNq047B8GDSmFda",
+            "image_path": "/api/djconnect/v1/session/surface/image/session-40eda73dff244e43a6b56ec2f667c0fd/F37OqqAuFpq6U9mR2JNM15un0dq2AnDG",
             "rights": {
               "passive_cache": true,
               "os_snapshot": true,
@@ -514,13 +514,13 @@
         "schema_version": 1,
         "scope": "paired_watch_widget_v1",
         "surface": "watch_widget",
-        "binding_id": "70931755a96498fd4b35a34627daf87c",
-        "generation": "53b30f6313c66048c27392799dc385f1",
-        "session_id": "session-d43e454f12474f83bf84bd29a22034e9",
+        "binding_id": "a40d413f7ff139f6c2efa2c182378491",
+        "generation": "b99e97500a133ad6c51bbcf3b4482069",
+        "session_id": "session-40eda73dff244e43a6b56ec2f667c0fd",
         "delivery_sequence": 18,
-        "as_of": "2026-11-07T08:19:37.812324+00:00",
-        "observed_at": "2026-11-07T08:19:37.811121+00:00",
-        "expires_at": "2026-11-07T08:21:37.811121+00:00",
+        "as_of": "2026-11-07T08:37:02.602636+00:00",
+        "observed_at": "2026-11-07T08:37:02.601112+00:00",
+        "expires_at": "2026-11-07T08:39:02.601112+00:00",
         "state": "active",
         "cache_policy": {
           "scope": "current_watch_widget_only",
@@ -537,8 +537,8 @@
           "item_id": "02e3d582594577327c335fc0",
           "subject_uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
           "track": "Fixture track",
-          "observed_at": "2026-11-07T08:19:37.738373+00:00",
-          "expires_at": "2026-11-07T08:21:37.738373+00:00",
+          "observed_at": "2026-11-07T08:37:02.516933+00:00",
+          "expires_at": "2026-11-07T08:39:02.516933+00:00",
           "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
           "attribution": {
             "provider": "Spotify",
@@ -550,7 +550,7 @@
         "artwork": [
           {
             "slot": "now_playing",
-            "asset_id": "vG0K2T1Byyx51Ad3-BNq047B8GDSmFda",
+            "asset_id": "F37OqqAuFpq6U9mR2JNM15un0dq2AnDG",
             "subject": {
               "provider": "spotify",
               "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
@@ -558,9 +558,9 @@
               "album_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB"
             },
             "role": "current_cover",
-            "media_revision": "cb4eec78009909f38e7cb4e1",
-            "captured_at": "2026-11-07T08:19:37.786640+00:00",
-            "expires_at": "2026-11-07T08:21:37.738373+00:00",
+            "media_revision": "7bb21fb1f36d0b724fb59b01",
+            "captured_at": "2026-11-07T08:37:02.572314+00:00",
+            "expires_at": "2026-11-07T08:39:02.516933+00:00",
             "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
             "attribution": {
               "provider": "Spotify",
@@ -578,7 +578,7 @@
             "height": 64,
             "crop_allowed": false,
             "usage_basis": "spotify_temporary_passive_cover",
-            "image_path": "/api/djconnect/v1/session/surface/image/session-d43e454f12474f83bf84bd29a22034e9/vG0K2T1Byyx51Ad3-BNq047B8GDSmFda",
+            "image_path": "/api/djconnect/v1/session/surface/image/session-40eda73dff244e43a6b56ec2f667c0fd/F37OqqAuFpq6U9mR2JNM15un0dq2AnDG",
             "rights": {
               "passive_cache": true,
               "os_snapshot": true,
@@ -596,7 +596,7 @@
           "state": "available",
           "reason": "qualified"
         },
-        "revision": "9dfbafc0833c05d201bfd5283ecff49b"
+        "revision": "80bce5d3836a02184e5a9e2964d94d13"
       }
     }
   ],

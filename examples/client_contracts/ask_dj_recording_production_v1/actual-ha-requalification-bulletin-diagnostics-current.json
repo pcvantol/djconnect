@@ -1,7 +1,7 @@
 {
   "harness": "scripts/verification/verify_recording_production_http.py",
   "harness_sha256": "6f8381730395e0f58589acbbda1c9c67fe2d79ce58a0d9988a9d0d9d5534da6d",
-  "raw_receipt_sha256": "1fcd16f786cd369ff9ea24cceec1fc4680a2e02c494138999ef66ced0aa7d20c",
+  "raw_receipt_sha256": "4c267da3b0179dfef05d0b8cf04fb338dd46e1031ec8f48499dc211dbd74e9f3",
   "receipt": {
     "assignment_id": "DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009",
     "declared_agent_fixture_calls": [
@@ -1076,10 +1076,10 @@
           "entries": [
             {
               "current_display_allowed": false,
-              "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+              "entry_id": "entry-229163d539b954149f5c74d823d17260",
               "historical_view_only": true,
               "kind": "playback_observed",
-              "occurred_at": "2026-11-07T08:20:00.064388+00:00",
+              "occurred_at": "2026-11-07T08:37:28.022592+00:00",
               "order": 1,
               "playback": {
                 "album": "\u2026And Justice for All",
@@ -1093,7 +1093,7 @@
               },
               "requires_spotify_attribution": true,
               "retained_until": "9999-12-31T00:00:00+00:00",
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "session_media": {
                 "artwork": {
                   "active_flow_display_allowed": false,
@@ -1102,29 +1102,29 @@
                   "reason": "not_prepared",
                   "state": "unavailable"
                 },
-                "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                "entry_id": "entry-229163d539b954149f5c74d823d17260",
                 "revision": "not_prepared",
                 "schema_version": 1,
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "text": "One \u00b7 Metallica \u00b7 \u2026And Justice for All"
             },
             {
               "archive_basis": "runtime_authored_direction_v1",
               "current_display_allowed": false,
-              "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
+              "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
               "historical_view_only": true,
               "kind": "dj_moment",
               "locale": "nl",
-              "moment_id": "moment-cce89520360446c7801657b9d2e32777",
+              "moment_id": "moment-4d89626035d24bcba8bb2da385f2e035",
               "moment_type": "session",
               "mood": "energy",
-              "occurred_at": "2026-11-07T08:20:00.065219+00:00",
+              "occurred_at": "2026-11-07T08:37:28.024465+00:00",
               "order": 2,
               "persona": "home_dj",
               "persona_revision": 0,
               "retained_until": "9999-12-31T00:00:00+00:00",
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "session_media": {
                 "artwork": {
                   "active_flow_display_allowed": false,
@@ -1133,10 +1133,10 @@
                   "reason": "not_prepared",
                   "state": "unavailable"
                 },
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
                 "revision": "not_prepared",
                 "schema_version": 1,
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "session_speech": {
                 "attribution": [],
@@ -1148,7 +1148,7 @@
                 "mood": "energy",
                 "persona": "home_dj",
                 "persona_revision": 0,
-                "presentation_revision": "c2c14b58d83062c662ad9c0e",
+                "presentation_revision": "ecba2492ef8f1ad157876c19",
                 "processor_qualification_required": true,
                 "processors": [
                   "local_on_device",
@@ -1156,8 +1156,8 @@
                 ],
                 "reason": null,
                 "reference": {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "schema_version": 1,
                 "segments": [
@@ -1167,9 +1167,9 @@
                     "text": "Ik heb meer vaart voor ogen, met wat context wanneer de muziek daar ruimte voor geeft."
                   }
                 ],
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
                 "source_expires_at": "9999-12-31T00:00:00+00:00",
-                "source_id": "entry-99f74d424f0050239d243f4c7da5a77f",
+                "source_id": "entry-e8f73f51707f52b48e38684be24ea748",
                 "source_kind": "retained_dj_contribution",
                 "state": "available",
                 "style_basis": "accepted_contribution",
@@ -1187,19 +1187,19 @@
           "scanned_order_min": 1,
           "schema_version": 1,
           "session": {
-            "created_at": "2026-11-07T08:20:00.062479+00:00",
+            "created_at": "2026-11-07T08:37:28.013242+00:00",
             "ended_at": "",
             "history_coverage": "saved_entries_only_no_retrospective_observations",
             "interrupted_at": "",
             "lifecycle_status": "ACTIVE",
             "read_only": false,
             "revision": "2:ACTIVE:0:0:1dfb6d4cac35f95a:retention:1:0:delete:42482366ec961b0c285ec0fd0d4cbc45a9c9d7c4b65630d044a508b361c1e83b",
-            "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
-            "started_at": "2026-11-07T08:20:00.063842+00:00",
+            "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
+            "started_at": "2026-11-07T08:37:28.020689+00:00",
             "summary": {
-              "as_of": "2026-11-07T08:20:00.090556+00:00",
+              "as_of": "2026-11-07T08:37:28.075736+00:00",
               "moments_published": {
-                "as_of": "2026-11-07T08:20:00.090556+00:00",
+                "as_of": "2026-11-07T08:37:28.075736+00:00",
                 "basis": "semantic_publication_commit",
                 "coverage": "complete",
                 "revision": "2:ACTIVE:0:0:1dfb6d4cac35f95a:retention:1:0:delete:42482366ec961b0c285ec0fd0d4cbc45a9c9d7c4b65630d044a508b361c1e83b",
@@ -1207,7 +1207,7 @@
                 "value": 1
               },
               "mood": {
-                "as_of": "2026-11-07T08:20:00.090556+00:00",
+                "as_of": "2026-11-07T08:37:28.075736+00:00",
                 "basis": "confirmed_symbolic_mood_elapsed_intervals",
                 "coverage": "complete",
                 "revision": "2:ACTIVE:0:0:1dfb6d4cac35f95a:retention:1:0:delete:42482366ec961b0c285ec0fd0d4cbc45a9c9d7c4b65630d044a508b361c1e83b",
@@ -1218,7 +1218,7 @@
               "session_revision": "2:ACTIVE:0:0:1dfb6d4cac35f95a:retention:1:0:delete:42482366ec961b0c285ec0fd0d4cbc45a9c9d7c4b65630d044a508b361c1e83b",
               "state": "provisional",
               "tracks_observed": {
-                "as_of": "2026-11-07T08:20:00.090556+00:00",
+                "as_of": "2026-11-07T08:37:28.075736+00:00",
                 "basis": "accepted_playback_observed_entries",
                 "coverage": "complete",
                 "observation_scope": "stage_1_media_identity_changes_not_occurrences",
@@ -1234,7 +1234,7 @@
         },
         "cache_control": "no-store",
         "method": "GET",
-        "path": "/api/djconnect/v1/session/history/session-dfd4e96aef994529b3bcf5a023df8fe1",
+        "path": "/api/djconnect/v1/session/history/session-0e6244a6c85342aa994fd0a3b3dd03d7",
         "query": {
           "client_type": "ios",
           "device_id": "djconnect-ios-ABCDEF123456",
@@ -1257,20 +1257,20 @@
             "client_message_id": "loopback-text",
             "client_type": "ios",
             "confirmation_actions": [],
-            "created_at": "2026-11-07T08:20:00.147118Z",
+            "created_at": "2026-11-07T08:37:28.227476Z",
             "exchange_id": "loopback-text",
             "exchange_order": 1,
             "historical_entry_references": [
               {
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               {
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               }
             ],
-            "id": "server-d0f6d0bc-1ad9-464e-8300-be3f000373c6",
+            "id": "server-0c0e3f1e-ad0c-4194-9cf2-b858260afbb7",
             "images": [],
             "intent": {
               "category": "informational",
@@ -1287,7 +1287,7 @@
               "attribution": [],
               "autoplay_eligible": false,
               "cache_policy": "private,no-store",
-              "expires_at": "2026-11-07T08:25:00.152433+00:00",
+              "expires_at": "2026-11-07T08:42:28.247464+00:00",
               "locale": "nl",
               "manual_allowed": true,
               "persona": "home_dj",
@@ -1310,7 +1310,7 @@
                   "text": "Dit is een synthetisch antwoord op de geselecteerde bijdrage."
                 }
               ],
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "source_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19",
               "source_kind": "accepted_ask_dj",
               "state": "available",
@@ -1320,15 +1320,15 @@
               "captured_playback_item_id": "",
               "context": {
                 "selected_entry": {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "dependency_entries": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
               "dependency_moments": [],
@@ -1345,7 +1345,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+              "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
               "turn_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19"
             },
             "sources": [],
@@ -1366,14 +1366,14 @@
           "conversation": {
             "context": {
               "selected_entry": {
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
             },
             "entry_ids": [
-              "entry-6631b14b811a51738302805ef6975c95",
-              "entry-f7b8614f281559f79550750f7218e3ef"
+              "entry-e5a335df55f45c20a071a6133141fe5b",
+              "entry-c2b01afab2905541b60b4d1ac425d4d6"
             ],
             "history_scope": "profile",
             "input_type": "text",
@@ -1419,20 +1419,20 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-text",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.147100Z",
+              "created_at": "2026-11-07T08:37:28.227453Z",
               "exchange_id": "loopback-text",
               "exchange_order": 0,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-67d84823-75f5-4cf3-a4c0-7ed04561c4bb",
+              "id": "server-32a0e9d7-737a-4a26-8ab7-6363fdfff5a0",
               "images": [],
               "links": [],
               "playback_actions": [],
@@ -1441,15 +1441,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -1466,7 +1466,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19"
               },
               "sources": [],
@@ -1485,20 +1485,20 @@
               "client_message_id": "loopback-text",
               "client_type": "ios",
               "confirmation_actions": [],
-              "created_at": "2026-11-07T08:20:00.147118Z",
+              "created_at": "2026-11-07T08:37:28.227476Z",
               "exchange_id": "loopback-text",
               "exchange_order": 1,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-d0f6d0bc-1ad9-464e-8300-be3f000373c6",
+              "id": "server-0c0e3f1e-ad0c-4194-9cf2-b858260afbb7",
               "images": [],
               "intent": {
                 "category": "informational",
@@ -1515,7 +1515,7 @@
                 "attribution": [],
                 "autoplay_eligible": false,
                 "cache_policy": "private,no-store",
-                "expires_at": "2026-11-07T08:25:00.152433+00:00",
+                "expires_at": "2026-11-07T08:42:28.247464+00:00",
                 "locale": "nl",
                 "manual_allowed": true,
                 "persona": "home_dj",
@@ -1538,7 +1538,7 @@
                     "text": "Dit is een synthetisch antwoord op de geselecteerde bijdrage."
                   }
                 ],
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
                 "source_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19",
                 "source_kind": "accepted_ask_dj",
                 "state": "available",
@@ -1548,15 +1548,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -1573,7 +1573,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19"
               },
               "sources": [],
@@ -1587,12 +1587,12 @@
           "music_dna_key": "profile:profile-a",
           "owner_profile_id": "profile-a",
           "playback_actions": [],
-          "server_time": "2026-11-07T08:20:00.149875Z",
+          "server_time": "2026-11-07T08:37:28.241170Z",
           "session_speech": {
             "attribution": [],
             "autoplay_eligible": false,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-07T08:25:00.152433+00:00",
+            "expires_at": "2026-11-07T08:42:28.247464+00:00",
             "locale": "nl",
             "manual_allowed": true,
             "persona": "home_dj",
@@ -1615,7 +1615,7 @@
                 "text": "Dit is een synthetisch antwoord op de geselecteerde bijdrage."
               }
             ],
-            "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+            "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
             "source_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19",
             "source_kind": "accepted_ask_dj",
             "state": "available",
@@ -1631,20 +1631,20 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "loopback-text",
             "client_type": "ios",
-            "created_at": "2026-11-07T08:20:00.147100Z",
+            "created_at": "2026-11-07T08:37:28.227453Z",
             "exchange_id": "loopback-text",
             "exchange_order": 0,
             "historical_entry_references": [
               {
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               {
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               }
             ],
-            "id": "server-67d84823-75f5-4cf3-a4c0-7ed04561c4bb",
+            "id": "server-32a0e9d7-737a-4a26-8ab7-6363fdfff5a0",
             "images": [],
             "links": [],
             "playback_actions": [],
@@ -1653,15 +1653,15 @@
               "captured_playback_item_id": "",
               "context": {
                 "selected_entry": {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "dependency_entries": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
               "dependency_moments": [],
@@ -1678,7 +1678,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+              "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
               "turn_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19"
             },
             "sources": [],
@@ -1706,20 +1706,20 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-text",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.147100Z",
+              "created_at": "2026-11-07T08:37:28.227453Z",
               "exchange_id": "loopback-text",
               "exchange_order": 0,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-67d84823-75f5-4cf3-a4c0-7ed04561c4bb",
+              "id": "server-32a0e9d7-737a-4a26-8ab7-6363fdfff5a0",
               "images": [],
               "links": [],
               "playback_actions": [],
@@ -1728,15 +1728,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -1753,7 +1753,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19"
               },
               "sources": [],
@@ -1765,20 +1765,20 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-text",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.147118Z",
+              "created_at": "2026-11-07T08:37:28.227476Z",
               "exchange_id": "loopback-text",
               "exchange_order": 1,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-d0f6d0bc-1ad9-464e-8300-be3f000373c6",
+              "id": "server-0c0e3f1e-ad0c-4194-9cf2-b858260afbb7",
               "images": [],
               "intent": {
                 "category": "informational",
@@ -1792,15 +1792,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -1817,7 +1817,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19"
               },
               "sources": [],
@@ -1827,7 +1827,7 @@
             }
           ],
           "owner_profile_id": "profile-a",
-          "server_time": "2026-11-07T08:20:00.154953Z",
+          "server_time": "2026-11-07T08:37:28.251978Z",
           "success": true,
           "user_id": null
         },
@@ -1851,7 +1851,7 @@
           "history_trimmed_count": 0,
           "messages": [],
           "owner_profile_id": "profile-a",
-          "server_time": "2026-11-07T08:20:00.163851Z",
+          "server_time": "2026-11-07T08:37:28.264301Z",
           "success": true,
           "user_id": null
         },
@@ -1946,20 +1946,20 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-text",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.147100Z",
+              "created_at": "2026-11-07T08:37:28.227453Z",
               "exchange_id": "loopback-text",
               "exchange_order": 0,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-67d84823-75f5-4cf3-a4c0-7ed04561c4bb",
+              "id": "server-32a0e9d7-737a-4a26-8ab7-6363fdfff5a0",
               "images": [],
               "links": [],
               "playback_actions": [],
@@ -1968,15 +1968,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -1993,7 +1993,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19"
               },
               "sources": [],
@@ -2005,20 +2005,20 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-text",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.147118Z",
+              "created_at": "2026-11-07T08:37:28.227476Z",
               "exchange_id": "loopback-text",
               "exchange_order": 1,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-d0f6d0bc-1ad9-464e-8300-be3f000373c6",
+              "id": "server-0c0e3f1e-ad0c-4194-9cf2-b858260afbb7",
               "images": [],
               "intent": {
                 "category": "informational",
@@ -2032,15 +2032,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -2057,7 +2057,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19"
               },
               "sources": [],
@@ -2067,7 +2067,7 @@
             }
           ],
           "owner_profile_id": "profile-a",
-          "server_time": "2026-11-07T08:20:00.165105Z",
+          "server_time": "2026-11-07T08:37:28.266252Z",
           "success": true,
           "user_id": null
         },
@@ -2097,20 +2097,20 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-text",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.147100Z",
+              "created_at": "2026-11-07T08:37:28.227453Z",
               "exchange_id": "loopback-text",
               "exchange_order": 0,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-67d84823-75f5-4cf3-a4c0-7ed04561c4bb",
+              "id": "server-32a0e9d7-737a-4a26-8ab7-6363fdfff5a0",
               "images": [],
               "links": [],
               "playback_actions": [],
@@ -2119,15 +2119,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -2144,7 +2144,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19"
               },
               "sources": [],
@@ -2156,20 +2156,20 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-text",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.147118Z",
+              "created_at": "2026-11-07T08:37:28.227476Z",
               "exchange_id": "loopback-text",
               "exchange_order": 1,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-d0f6d0bc-1ad9-464e-8300-be3f000373c6",
+              "id": "server-0c0e3f1e-ad0c-4194-9cf2-b858260afbb7",
               "images": [],
               "intent": {
                 "category": "informational",
@@ -2183,15 +2183,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -2208,7 +2208,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19"
               },
               "sources": [],
@@ -2218,7 +2218,7 @@
             }
           ],
           "owner_profile_id": "profile-a",
-          "server_time": "2026-11-07T08:20:00.173216Z",
+          "server_time": "2026-11-07T08:37:28.277023Z",
           "success": true,
           "user_id": null
         },
@@ -2262,20 +2262,20 @@
             "client_message_id": "loopback-voice",
             "client_type": "ios",
             "confirmation_actions": [],
-            "created_at": "2026-11-07T08:20:00.190657Z",
+            "created_at": "2026-11-07T08:37:28.299003Z",
             "exchange_id": "loopback-voice",
             "exchange_order": 1,
             "historical_entry_references": [
               {
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               {
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               }
             ],
-            "id": "server-dcd460af-c1c1-4639-97fd-9dcd979ba096",
+            "id": "server-16b11df3-5233-4b50-b472-8b76a731986a",
             "images": [],
             "intent": {
               "category": "informational",
@@ -2292,7 +2292,7 @@
               "attribution": [],
               "autoplay_eligible": false,
               "cache_policy": "private,no-store",
-              "expires_at": "2026-11-07T08:25:00.197523+00:00",
+              "expires_at": "2026-11-07T08:42:28.306205+00:00",
               "locale": "nl",
               "manual_allowed": true,
               "persona": "home_dj",
@@ -2315,7 +2315,7 @@
                   "text": "Dit is een synthetisch antwoord op de geselecteerde bijdrage."
                 }
               ],
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "source_id": "turn-3ba331fcb7f4541bad8fbb59b5f88136",
               "source_kind": "accepted_ask_dj",
               "state": "available",
@@ -2325,15 +2325,15 @@
               "captured_playback_item_id": "",
               "context": {
                 "selected_entry": {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "dependency_entries": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
               "dependency_moments": [],
@@ -2352,7 +2352,7 @@
               "implicit_playback_entry": null,
               "input_type": "voice",
               "profile_id": "profile-a",
-              "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+              "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
               "turn_id": "turn-3ba331fcb7f4541bad8fbb59b5f88136"
             },
             "sources": [],
@@ -2373,14 +2373,14 @@
           "conversation": {
             "context": {
               "selected_entry": {
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
             },
             "entry_ids": [
-              "entry-57dce233ff705b479907ca708f9a9df1",
-              "entry-2dd8ead001155fe7adedc050864c169e"
+              "entry-5263f79e72675527a7d35ca50f6af0c0",
+              "entry-a2dedc161b5c5ce7a329c5e10c4d258f"
             ],
             "history_scope": "profile",
             "input_type": "voice",
@@ -2426,20 +2426,20 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-voice",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.190643Z",
+              "created_at": "2026-11-07T08:37:28.298987Z",
               "exchange_id": "loopback-voice",
               "exchange_order": 0,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-0e8e0b03-ded6-45be-880c-817dd50c993e",
+              "id": "server-cd944989-ec02-41f3-9922-43c71470b829",
               "images": [],
               "links": [],
               "playback_actions": [],
@@ -2448,15 +2448,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -2475,7 +2475,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "voice",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-3ba331fcb7f4541bad8fbb59b5f88136"
               },
               "sources": [],
@@ -2494,20 +2494,20 @@
               "client_message_id": "loopback-voice",
               "client_type": "ios",
               "confirmation_actions": [],
-              "created_at": "2026-11-07T08:20:00.190657Z",
+              "created_at": "2026-11-07T08:37:28.299003Z",
               "exchange_id": "loopback-voice",
               "exchange_order": 1,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-dcd460af-c1c1-4639-97fd-9dcd979ba096",
+              "id": "server-16b11df3-5233-4b50-b472-8b76a731986a",
               "images": [],
               "intent": {
                 "category": "informational",
@@ -2524,7 +2524,7 @@
                 "attribution": [],
                 "autoplay_eligible": false,
                 "cache_policy": "private,no-store",
-                "expires_at": "2026-11-07T08:25:00.197523+00:00",
+                "expires_at": "2026-11-07T08:42:28.306205+00:00",
                 "locale": "nl",
                 "manual_allowed": true,
                 "persona": "home_dj",
@@ -2547,7 +2547,7 @@
                     "text": "Dit is een synthetisch antwoord op de geselecteerde bijdrage."
                   }
                 ],
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
                 "source_id": "turn-3ba331fcb7f4541bad8fbb59b5f88136",
                 "source_kind": "accepted_ask_dj",
                 "state": "available",
@@ -2557,15 +2557,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -2584,7 +2584,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "voice",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-3ba331fcb7f4541bad8fbb59b5f88136"
               },
               "sources": [],
@@ -2599,12 +2599,12 @@
           "owner_profile_id": "profile-a",
           "playback_actions": [],
           "recognized_text": "Vertel over deze bijdrage",
-          "server_time": "2026-11-07T08:20:00.193451Z",
+          "server_time": "2026-11-07T08:37:28.302295Z",
           "session_speech": {
             "attribution": [],
             "autoplay_eligible": false,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-07T08:25:00.197523+00:00",
+            "expires_at": "2026-11-07T08:42:28.306205+00:00",
             "locale": "nl",
             "manual_allowed": true,
             "persona": "home_dj",
@@ -2627,7 +2627,7 @@
                 "text": "Dit is een synthetisch antwoord op de geselecteerde bijdrage."
               }
             ],
-            "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+            "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
             "source_id": "turn-3ba331fcb7f4541bad8fbb59b5f88136",
             "source_kind": "accepted_ask_dj",
             "state": "available",
@@ -2644,20 +2644,20 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "loopback-voice",
             "client_type": "ios",
-            "created_at": "2026-11-07T08:20:00.190643Z",
+            "created_at": "2026-11-07T08:37:28.298987Z",
             "exchange_id": "loopback-voice",
             "exchange_order": 0,
             "historical_entry_references": [
               {
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               {
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               }
             ],
-            "id": "server-0e8e0b03-ded6-45be-880c-817dd50c993e",
+            "id": "server-cd944989-ec02-41f3-9922-43c71470b829",
             "images": [],
             "links": [],
             "playback_actions": [],
@@ -2666,15 +2666,15 @@
               "captured_playback_item_id": "",
               "context": {
                 "selected_entry": {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "dependency_entries": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
               "dependency_moments": [],
@@ -2693,7 +2693,7 @@
               "implicit_playback_entry": null,
               "input_type": "voice",
               "profile_id": "profile-a",
-              "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+              "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
               "turn_id": "turn-3ba331fcb7f4541bad8fbb59b5f88136"
             },
             "sources": [],
@@ -2713,10 +2713,10 @@
           "entries": [
             {
               "current_display_allowed": false,
-              "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+              "entry_id": "entry-229163d539b954149f5c74d823d17260",
               "historical_view_only": true,
               "kind": "playback_observed",
-              "occurred_at": "2026-11-07T08:20:00.064388+00:00",
+              "occurred_at": "2026-11-07T08:37:28.022592+00:00",
               "order": 1,
               "playback": {
                 "album": "\u2026And Justice for All",
@@ -2729,8 +2729,8 @@
                 "title": "One"
               },
               "requires_spotify_attribution": true,
-              "retained_until": "2027-02-05T08:20:00.198061+00:00",
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "retained_until": "2027-02-05T08:37:28.307086+00:00",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "session_media": {
                 "artwork": {
                   "active_flow_display_allowed": false,
@@ -2739,29 +2739,29 @@
                   "reason": "not_prepared",
                   "state": "unavailable"
                 },
-                "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                "entry_id": "entry-229163d539b954149f5c74d823d17260",
                 "revision": "not_prepared",
                 "schema_version": 1,
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "text": "One \u00b7 Metallica \u00b7 \u2026And Justice for All"
             },
             {
               "archive_basis": "runtime_authored_direction_v1",
               "current_display_allowed": false,
-              "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
+              "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
               "historical_view_only": true,
               "kind": "dj_moment",
               "locale": "nl",
-              "moment_id": "moment-cce89520360446c7801657b9d2e32777",
+              "moment_id": "moment-4d89626035d24bcba8bb2da385f2e035",
               "moment_type": "session",
               "mood": "energy",
-              "occurred_at": "2026-11-07T08:20:00.065219+00:00",
+              "occurred_at": "2026-11-07T08:37:28.024465+00:00",
               "order": 2,
               "persona": "home_dj",
               "persona_revision": 0,
-              "retained_until": "2027-02-05T08:20:00.198061+00:00",
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "retained_until": "2027-02-05T08:37:28.307086+00:00",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "session_media": {
                 "artwork": {
                   "active_flow_display_allowed": false,
@@ -2770,22 +2770,22 @@
                   "reason": "not_prepared",
                   "state": "unavailable"
                 },
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
                 "revision": "not_prepared",
                 "schema_version": 1,
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "session_speech": {
                 "attribution": [],
                 "autoplay_eligible": false,
                 "cache_policy": "private,no-store",
-                "expires_at": "2027-02-05T08:20:00.198061+00:00",
+                "expires_at": "2027-02-05T08:37:28.307086+00:00",
                 "locale": "nl",
                 "manual_allowed": true,
                 "mood": "energy",
                 "persona": "home_dj",
                 "persona_revision": 0,
-                "presentation_revision": "c2c14b58d83062c662ad9c0e",
+                "presentation_revision": "ecba2492ef8f1ad157876c19",
                 "processor_qualification_required": true,
                 "processors": [
                   "local_on_device",
@@ -2793,8 +2793,8 @@
                 ],
                 "reason": null,
                 "reference": {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "schema_version": 1,
                 "segments": [
@@ -2804,9 +2804,9 @@
                     "text": "Ik heb meer vaart voor ogen, met wat context wanneer de muziek daar ruimte voor geeft."
                   }
                 ],
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
-                "source_expires_at": "2027-02-05T08:20:00.198061+00:00",
-                "source_id": "entry-99f74d424f0050239d243f4c7da5a77f",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
+                "source_expires_at": "2027-02-05T08:37:28.307086+00:00",
+                "source_id": "entry-e8f73f51707f52b48e38684be24ea748",
                 "source_kind": "retained_dj_contribution",
                 "state": "available",
                 "style_basis": "accepted_contribution",
@@ -2820,10 +2820,10 @@
               "client_message_id": "loopback-text",
               "context": {
                 "selected_entry": {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "current_display_allowed": false,
               "effective_style": {
@@ -2834,17 +2834,17 @@
                 "persona_revision": 0,
                 "response_style": "balanced"
               },
-              "entry_id": "entry-6631b14b811a51738302805ef6975c95",
+              "entry_id": "entry-e5a335df55f45c20a071a6133141fe5b",
               "historical_view_only": true,
               "input_type": "text",
               "kind": "conversation_user",
               "links": [],
-              "occurred_at": "2026-11-07T08:20:00.147100Z",
+              "occurred_at": "2026-11-07T08:37:28.227453Z",
               "order": 3,
-              "origin_message_id": "server-67d84823-75f5-4cf3-a4c0-7ed04561c4bb",
-              "retained_until": "2027-02-05T08:20:00.198061+00:00",
+              "origin_message_id": "server-32a0e9d7-737a-4a26-8ab7-6363fdfff5a0",
+              "retained_until": "2027-02-05T08:37:28.307086+00:00",
               "role": "user",
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "sources": [],
               "speech_processing_basis": null,
               "text": "Vertel over deze bijdrage",
@@ -2854,10 +2854,10 @@
               "client_message_id": "loopback-text",
               "context": {
                 "selected_entry": {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "current_display_allowed": false,
               "effective_style": {
@@ -2868,17 +2868,17 @@
                 "persona_revision": 0,
                 "response_style": "balanced"
               },
-              "entry_id": "entry-f7b8614f281559f79550750f7218e3ef",
+              "entry_id": "entry-c2b01afab2905541b60b4d1ac425d4d6",
               "historical_view_only": true,
               "input_type": "text",
               "kind": "conversation_dj",
               "links": [],
-              "occurred_at": "2026-11-07T08:20:00.147118Z",
+              "occurred_at": "2026-11-07T08:37:28.227476Z",
               "order": 4,
-              "origin_message_id": "server-d0f6d0bc-1ad9-464e-8300-be3f000373c6",
-              "retained_until": "2027-02-05T08:20:00.198061+00:00",
+              "origin_message_id": "server-0c0e3f1e-ad0c-4194-9cf2-b858260afbb7",
+              "retained_until": "2027-02-05T08:37:28.307086+00:00",
               "role": "assistant",
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "session_media": {
                 "artwork": {
                   "active_flow_display_allowed": false,
@@ -2887,22 +2887,22 @@
                   "reason": "not_prepared",
                   "state": "unavailable"
                 },
-                "entry_id": "entry-f7b8614f281559f79550750f7218e3ef",
+                "entry_id": "entry-c2b01afab2905541b60b4d1ac425d4d6",
                 "revision": "not_prepared",
                 "schema_version": 1,
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "session_speech": {
                 "attribution": [],
                 "autoplay_eligible": false,
                 "cache_policy": "private,no-store",
-                "expires_at": "2027-02-05T08:20:00.198061+00:00",
+                "expires_at": "2027-02-05T08:37:28.307086+00:00",
                 "locale": "nl",
                 "manual_allowed": true,
                 "mood": "energy",
                 "persona": "home_dj",
                 "persona_revision": 0,
-                "presentation_revision": "b3e47b59a3e40b2f03db6fc3",
+                "presentation_revision": "e833007ced0b9eeca0819909",
                 "processor_qualification_required": true,
                 "processors": [
                   "local_on_device",
@@ -2910,8 +2910,8 @@
                 ],
                 "reason": null,
                 "reference": {
-                  "entry_id": "entry-f7b8614f281559f79550750f7218e3ef",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-c2b01afab2905541b60b4d1ac425d4d6",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "schema_version": 1,
                 "segments": [
@@ -2921,9 +2921,9 @@
                     "text": "Dit is een synthetisch antwoord op de geselecteerde bijdrage."
                   }
                 ],
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
-                "source_expires_at": "2027-02-05T08:20:00.198061+00:00",
-                "source_id": "entry-f7b8614f281559f79550750f7218e3ef",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
+                "source_expires_at": "2027-02-05T08:37:28.307086+00:00",
+                "source_id": "entry-c2b01afab2905541b60b4d1ac425d4d6",
                 "source_kind": "retained_dj_contribution",
                 "state": "available",
                 "style_basis": "accepted_contribution",
@@ -2938,10 +2938,10 @@
               "client_message_id": "loopback-voice",
               "context": {
                 "selected_entry": {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "current_display_allowed": false,
               "effective_style": {
@@ -2952,17 +2952,17 @@
                 "persona_revision": 0,
                 "response_style": "balanced"
               },
-              "entry_id": "entry-57dce233ff705b479907ca708f9a9df1",
+              "entry_id": "entry-5263f79e72675527a7d35ca50f6af0c0",
               "historical_view_only": true,
               "input_type": "voice",
               "kind": "conversation_user",
               "links": [],
-              "occurred_at": "2026-11-07T08:20:00.190643Z",
+              "occurred_at": "2026-11-07T08:37:28.298987Z",
               "order": 5,
-              "origin_message_id": "server-0e8e0b03-ded6-45be-880c-817dd50c993e",
-              "retained_until": "2027-02-05T08:20:00.198061+00:00",
+              "origin_message_id": "server-cd944989-ec02-41f3-9922-43c71470b829",
+              "retained_until": "2027-02-05T08:37:28.307086+00:00",
               "role": "user",
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "sources": [],
               "speech_processing_basis": null,
               "text": "Vertel over deze bijdrage",
@@ -2972,10 +2972,10 @@
               "client_message_id": "loopback-voice",
               "context": {
                 "selected_entry": {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "current_display_allowed": false,
               "effective_style": {
@@ -2986,17 +2986,17 @@
                 "persona_revision": 0,
                 "response_style": "balanced"
               },
-              "entry_id": "entry-2dd8ead001155fe7adedc050864c169e",
+              "entry_id": "entry-a2dedc161b5c5ce7a329c5e10c4d258f",
               "historical_view_only": true,
               "input_type": "voice",
               "kind": "conversation_dj",
               "links": [],
-              "occurred_at": "2026-11-07T08:20:00.190657Z",
+              "occurred_at": "2026-11-07T08:37:28.299003Z",
               "order": 6,
-              "origin_message_id": "server-dcd460af-c1c1-4639-97fd-9dcd979ba096",
-              "retained_until": "2027-02-05T08:20:00.198061+00:00",
+              "origin_message_id": "server-16b11df3-5233-4b50-b472-8b76a731986a",
+              "retained_until": "2027-02-05T08:37:28.307086+00:00",
               "role": "assistant",
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "session_media": {
                 "artwork": {
                   "active_flow_display_allowed": false,
@@ -3005,22 +3005,22 @@
                   "reason": "not_prepared",
                   "state": "unavailable"
                 },
-                "entry_id": "entry-2dd8ead001155fe7adedc050864c169e",
+                "entry_id": "entry-a2dedc161b5c5ce7a329c5e10c4d258f",
                 "revision": "not_prepared",
                 "schema_version": 1,
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "session_speech": {
                 "attribution": [],
                 "autoplay_eligible": false,
                 "cache_policy": "private,no-store",
-                "expires_at": "2027-02-05T08:20:00.198061+00:00",
+                "expires_at": "2027-02-05T08:37:28.307086+00:00",
                 "locale": "nl",
                 "manual_allowed": true,
                 "mood": "energy",
                 "persona": "home_dj",
                 "persona_revision": 0,
-                "presentation_revision": "14d7a1993c59fb415341c89e",
+                "presentation_revision": "4eeacf3da2cc606823ccad65",
                 "processor_qualification_required": true,
                 "processors": [
                   "local_on_device",
@@ -3028,8 +3028,8 @@
                 ],
                 "reason": null,
                 "reference": {
-                  "entry_id": "entry-2dd8ead001155fe7adedc050864c169e",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-a2dedc161b5c5ce7a329c5e10c4d258f",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "schema_version": 1,
                 "segments": [
@@ -3039,9 +3039,9 @@
                     "text": "Dit is een synthetisch antwoord op de geselecteerde bijdrage."
                   }
                 ],
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
-                "source_expires_at": "2027-02-05T08:20:00.198061+00:00",
-                "source_id": "entry-2dd8ead001155fe7adedc050864c169e",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
+                "source_expires_at": "2027-02-05T08:37:28.307086+00:00",
+                "source_id": "entry-a2dedc161b5c5ce7a329c5e10c4d258f",
                 "source_kind": "retained_dj_contribution",
                 "state": "available",
                 "style_basis": "accepted_contribution",
@@ -3054,45 +3054,45 @@
             }
           ],
           "next_cursor": null,
-          "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:5edf4c47ac585afc5c80ab05081271486118ac0041b6470cdb1333b3d6afc477",
+          "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:bd550a6e721c74f080cca7c86f9695dfe146dcc0a0c3e2a558ed0abc2f57f288",
           "schema_version": 1,
           "session": {
-            "created_at": "2026-11-07T08:20:00.062479+00:00",
-            "ended_at": "2026-11-07T08:20:00.198061+00:00",
+            "created_at": "2026-11-07T08:37:28.013242+00:00",
+            "ended_at": "2026-11-07T08:37:28.307086+00:00",
             "history_coverage": "saved_entries_only_no_retrospective_observations",
             "interrupted_at": "",
             "lifecycle_status": "ENDED",
             "read_only": true,
-            "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:5edf4c47ac585afc5c80ab05081271486118ac0041b6470cdb1333b3d6afc477",
-            "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
-            "started_at": "2026-11-07T08:20:00.063842+00:00",
+            "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:bd550a6e721c74f080cca7c86f9695dfe146dcc0a0c3e2a558ed0abc2f57f288",
+            "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
+            "started_at": "2026-11-07T08:37:28.020689+00:00",
             "summary": {
-              "as_of": "2026-11-07T08:20:00.207415+00:00",
+              "as_of": "2026-11-07T08:37:28.321560+00:00",
               "moments_published": {
-                "as_of": "2026-11-07T08:20:00.207415+00:00",
+                "as_of": "2026-11-07T08:37:28.321560+00:00",
                 "basis": "semantic_publication_commit",
                 "coverage": "complete",
-                "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:5edf4c47ac585afc5c80ab05081271486118ac0041b6470cdb1333b3d6afc477",
+                "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:bd550a6e721c74f080cca7c86f9695dfe146dcc0a0c3e2a558ed0abc2f57f288",
                 "state": "final",
                 "value": 1
               },
               "mood": {
-                "as_of": "2026-11-07T08:20:00.207415+00:00",
+                "as_of": "2026-11-07T08:37:28.321560+00:00",
                 "basis": "confirmed_symbolic_mood_elapsed_intervals",
                 "coverage": "complete",
-                "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:5edf4c47ac585afc5c80ab05081271486118ac0041b6470cdb1333b3d6afc477",
+                "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:bd550a6e721c74f080cca7c86f9695dfe146dcc0a0c3e2a558ed0abc2f57f288",
                 "state": "final",
                 "value": "energy"
               },
               "schema_version": "djconnect-session-history-summary/1",
-              "session_revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:5edf4c47ac585afc5c80ab05081271486118ac0041b6470cdb1333b3d6afc477",
+              "session_revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:bd550a6e721c74f080cca7c86f9695dfe146dcc0a0c3e2a558ed0abc2f57f288",
               "state": "final",
               "tracks_observed": {
-                "as_of": "2026-11-07T08:20:00.207415+00:00",
+                "as_of": "2026-11-07T08:37:28.321560+00:00",
                 "basis": "accepted_playback_observed_entries",
                 "coverage": "complete",
                 "observation_scope": "stage_1_media_identity_changes_not_occurrences",
-                "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:5edf4c47ac585afc5c80ab05081271486118ac0041b6470cdb1333b3d6afc477",
+                "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:bd550a6e721c74f080cca7c86f9695dfe146dcc0a0c3e2a558ed0abc2f57f288",
                 "state": "final",
                 "value": 1
               }
@@ -3102,7 +3102,7 @@
         },
         "cache_control": "no-store",
         "method": "GET",
-        "path": "/api/djconnect/v1/session/history/session-dfd4e96aef994529b3bcf5a023df8fe1",
+        "path": "/api/djconnect/v1/session/history/session-0e6244a6c85342aa994fd0a3b3dd03d7",
         "query": {
           "client_type": "ios",
           "device_id": "djconnect-ios-ABCDEF123456"
@@ -3122,27 +3122,27 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "loopback-later",
             "client_type": "ios",
-            "created_at": "2026-11-07T08:20:00.218611Z",
+            "created_at": "2026-11-07T08:37:28.337851Z",
             "exchange_id": "loopback-later",
             "exchange_order": 1,
             "historical_entry_references": [
               {
-                "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "entry_id": "entry-229163d539b954149f5c74d823d17260",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               }
             ],
             "historical_matches": [
               {
                 "current_display_allowed": false,
-                "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                "entry_id": "entry-229163d539b954149f5c74d823d17260",
                 "historical_view_only": true,
                 "kind": "playback_observed",
-                "occurred_at": "2026-11-07T08:20:00.064388+00:00",
+                "occurred_at": "2026-11-07T08:37:28.022592+00:00",
                 "open_action": {
-                  "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                  "entry_id": "entry-229163d539b954149f5c74d823d17260",
                   "kind": "open_session",
                   "navigation_only": true,
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "order": 1,
                 "playback": {
@@ -3155,8 +3155,8 @@
                   "title": "One"
                 },
                 "requires_spotify_attribution": true,
-                "retained_until": "2027-02-05T08:20:00.198061+00:00",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+                "retained_until": "2027-02-05T08:37:28.307086+00:00",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
                 "session_media": {
                   "artwork": {
                     "active_flow_display_allowed": false,
@@ -3165,15 +3165,15 @@
                     "reason": "not_prepared",
                     "state": "unavailable"
                   },
-                  "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                  "entry_id": "entry-229163d539b954149f5c74d823d17260",
                   "revision": "not_prepared",
                   "schema_version": 1,
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "text": "One \u00b7 Metallica \u00b7 \u2026And Justice for All"
               }
             ],
-            "id": "server-f612efb1-8d53-48f9-84ef-73e8267c8b41",
+            "id": "server-919130e0-2646-4029-845d-8e0484f98f8b",
             "images": [],
             "intent": {
               "intent": "saved_session_playback_history"
@@ -3182,10 +3182,10 @@
             "message_kind": "assistant",
             "navigation_actions": [
               {
-                "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                "entry_id": "entry-229163d539b954149f5c74d823d17260",
                 "kind": "open_session",
                 "navigation_only": true,
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               }
             ],
             "playback_actions": [],
@@ -3198,12 +3198,12 @@
               ],
               "autoplay_eligible": false,
               "cache_policy": "private,no-store",
-              "expires_at": "2026-11-07T08:25:00.220615+00:00",
+              "expires_at": "2026-11-07T08:42:28.341637+00:00",
               "locale": "nl",
               "manual_allowed": true,
               "persona": "home_dj",
               "persona_revision": null,
-              "presentation_revision": "5cfbeb9b3160b277f2a9a213",
+              "presentation_revision": "5a578c0533ca0deae8ea1fd5",
               "processor_qualification_required": true,
               "processors": [
                 "local_on_device",
@@ -3218,14 +3218,14 @@
                 {
                   "ordinal": 1,
                   "speaker_role": "dj",
-                  "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:20:00.064388+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All"
+                  "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:37:28.022592+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All"
                 }
               ],
               "session_id": null,
               "source_id": "turn-c073337c199b580dabfc73ba78606d7f",
               "source_kind": "accepted_ask_dj",
               "state": "available",
-              "text_revision": "5cfbeb9b3160b277f2a9a213"
+              "text_revision": "5a578c0533ca0deae8ea1fd5"
             },
             "session_turn": {
               "captured_playback_item_id": "",
@@ -3257,7 +3257,7 @@
             ],
             "speech_processing_basis": "accepted_local_reply",
             "status": "delivered",
-            "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:20:00.064388+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All"
+            "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:37:28.022592+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All"
           },
           "audio_delivery": {
             "mode": "accepted_reference",
@@ -3293,20 +3293,20 @@
             "thread_id": "default",
             "turn_id": "turn-c073337c199b580dabfc73ba78606d7f"
           },
-          "dj_text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:20:00.064388+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All",
+          "dj_text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:37:28.022592+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All",
           "full_listens_proven": false,
           "historical_matches": [
             {
               "current_display_allowed": false,
-              "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+              "entry_id": "entry-229163d539b954149f5c74d823d17260",
               "historical_view_only": true,
               "kind": "playback_observed",
-              "occurred_at": "2026-11-07T08:20:00.064388+00:00",
+              "occurred_at": "2026-11-07T08:37:28.022592+00:00",
               "open_action": {
-                "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                "entry_id": "entry-229163d539b954149f5c74d823d17260",
                 "kind": "open_session",
                 "navigation_only": true,
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "order": 1,
               "playback": {
@@ -3320,8 +3320,8 @@
                 "title": "One"
               },
               "requires_spotify_attribution": true,
-              "retained_until": "2027-02-05T08:20:00.198061+00:00",
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "retained_until": "2027-02-05T08:37:28.307086+00:00",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "session_media": {
                 "artwork": {
                   "active_flow_display_allowed": false,
@@ -3330,10 +3330,10 @@
                   "reason": "not_prepared",
                   "state": "unavailable"
                 },
-                "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                "entry_id": "entry-229163d539b954149f5c74d823d17260",
                 "revision": "not_prepared",
                 "schema_version": 1,
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "text": "One \u00b7 Metallica \u00b7 \u2026And Justice for All"
             }
@@ -3354,16 +3354,16 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-later",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.218577Z",
+              "created_at": "2026-11-07T08:37:28.337799Z",
               "exchange_id": "loopback-later",
               "exchange_order": 0,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-229163d539b954149f5c74d823d17260",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-396f9bfd-fe86-4003-80ce-ca3445873a43",
+              "id": "server-4fb8cb2f-2bbc-4093-8c0e-5d0c056d9169",
               "images": [],
               "links": [],
               "playback_actions": [],
@@ -3406,27 +3406,27 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-later",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.218611Z",
+              "created_at": "2026-11-07T08:37:28.337851Z",
               "exchange_id": "loopback-later",
               "exchange_order": 1,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-229163d539b954149f5c74d823d17260",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
               "historical_matches": [
                 {
                   "current_display_allowed": false,
-                  "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                  "entry_id": "entry-229163d539b954149f5c74d823d17260",
                   "historical_view_only": true,
                   "kind": "playback_observed",
-                  "occurred_at": "2026-11-07T08:20:00.064388+00:00",
+                  "occurred_at": "2026-11-07T08:37:28.022592+00:00",
                   "open_action": {
-                    "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                    "entry_id": "entry-229163d539b954149f5c74d823d17260",
                     "kind": "open_session",
                     "navigation_only": true,
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
                   "order": 1,
                   "playback": {
@@ -3439,8 +3439,8 @@
                     "title": "One"
                   },
                   "requires_spotify_attribution": true,
-                  "retained_until": "2027-02-05T08:20:00.198061+00:00",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+                  "retained_until": "2027-02-05T08:37:28.307086+00:00",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
                   "session_media": {
                     "artwork": {
                       "active_flow_display_allowed": false,
@@ -3449,15 +3449,15 @@
                       "reason": "not_prepared",
                       "state": "unavailable"
                     },
-                    "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                    "entry_id": "entry-229163d539b954149f5c74d823d17260",
                     "revision": "not_prepared",
                     "schema_version": 1,
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
                   "text": "One \u00b7 Metallica \u00b7 \u2026And Justice for All"
                 }
               ],
-              "id": "server-f612efb1-8d53-48f9-84ef-73e8267c8b41",
+              "id": "server-919130e0-2646-4029-845d-8e0484f98f8b",
               "images": [],
               "intent": {
                 "intent": "saved_session_playback_history"
@@ -3466,10 +3466,10 @@
               "message_kind": "assistant",
               "navigation_actions": [
                 {
-                  "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                  "entry_id": "entry-229163d539b954149f5c74d823d17260",
                   "kind": "open_session",
                   "navigation_only": true,
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
               "playback_actions": [],
@@ -3482,12 +3482,12 @@
                 ],
                 "autoplay_eligible": false,
                 "cache_policy": "private,no-store",
-                "expires_at": "2026-11-07T08:25:00.220615+00:00",
+                "expires_at": "2026-11-07T08:42:28.341637+00:00",
                 "locale": "nl",
                 "manual_allowed": true,
                 "persona": "home_dj",
                 "persona_revision": null,
-                "presentation_revision": "5cfbeb9b3160b277f2a9a213",
+                "presentation_revision": "5a578c0533ca0deae8ea1fd5",
                 "processor_qualification_required": true,
                 "processors": [
                   "local_on_device",
@@ -3502,14 +3502,14 @@
                   {
                     "ordinal": 1,
                     "speaker_role": "dj",
-                    "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:20:00.064388+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All"
+                    "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:37:28.022592+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All"
                   }
                 ],
                 "session_id": null,
                 "source_id": "turn-c073337c199b580dabfc73ba78606d7f",
                 "source_kind": "accepted_ask_dj",
                 "state": "available",
-                "text_revision": "5cfbeb9b3160b277f2a9a213"
+                "text_revision": "5a578c0533ca0deae8ea1fd5"
               },
               "session_turn": {
                 "captured_playback_item_id": "",
@@ -3541,21 +3541,21 @@
               ],
               "speech_processing_basis": "accepted_local_reply",
               "status": "delivered",
-              "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:20:00.064388+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All"
+              "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:37:28.022592+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All"
             }
           ],
           "navigation_actions": [
             {
-              "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+              "entry_id": "entry-229163d539b954149f5c74d823d17260",
               "kind": "open_session",
               "navigation_only": true,
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
             }
           ],
           "owner_profile_id": "profile-a",
           "playback_actions": [],
           "repeat_counts_supported": false,
-          "server_time": "2026-11-07T08:20:00.219386Z",
+          "server_time": "2026-11-07T08:37:28.339439Z",
           "session_speech": {
             "attribution": [
               {
@@ -3564,12 +3564,12 @@
             ],
             "autoplay_eligible": false,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-07T08:25:00.220615+00:00",
+            "expires_at": "2026-11-07T08:42:28.341637+00:00",
             "locale": "nl",
             "manual_allowed": true,
             "persona": "home_dj",
             "persona_revision": null,
-            "presentation_revision": "5cfbeb9b3160b277f2a9a213",
+            "presentation_revision": "5a578c0533ca0deae8ea1fd5",
             "processor_qualification_required": true,
             "processors": [
               "local_on_device",
@@ -3584,14 +3584,14 @@
               {
                 "ordinal": 1,
                 "speaker_role": "dj",
-                "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:20:00.064388+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All"
+                "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:37:28.022592+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All"
               }
             ],
             "session_id": null,
             "source_id": "turn-c073337c199b580dabfc73ba78606d7f",
             "source_kind": "accepted_ask_dj",
             "state": "available",
-            "text_revision": "5cfbeb9b3160b277f2a9a213"
+            "text_revision": "5a578c0533ca0deae8ea1fd5"
           },
           "sources": [
             {
@@ -3599,23 +3599,23 @@
             }
           ],
           "success": true,
-          "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:20:00.064388+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All",
+          "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:37:28.022592+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All",
           "user_id": null,
           "user_message": {
             "audio_url": null,
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "loopback-later",
             "client_type": "ios",
-            "created_at": "2026-11-07T08:20:00.218577Z",
+            "created_at": "2026-11-07T08:37:28.337799Z",
             "exchange_id": "loopback-later",
             "exchange_order": 0,
             "historical_entry_references": [
               {
-                "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "entry_id": "entry-229163d539b954149f5c74d823d17260",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               }
             ],
-            "id": "server-396f9bfd-fe86-4003-80ce-ca3445873a43",
+            "id": "server-4fb8cb2f-2bbc-4093-8c0e-5d0c056d9169",
             "images": [],
             "links": [],
             "playback_actions": [],
@@ -3658,10 +3658,10 @@
         "body": {
           "entry": {
             "current_display_allowed": false,
-            "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+            "entry_id": "entry-229163d539b954149f5c74d823d17260",
             "historical_view_only": true,
             "kind": "playback_observed",
-            "occurred_at": "2026-11-07T08:20:00.064388+00:00",
+            "occurred_at": "2026-11-07T08:37:28.022592+00:00",
             "order": 1,
             "playback": {
               "album": "\u2026And Justice for All",
@@ -3674,8 +3674,8 @@
               "title": "One"
             },
             "requires_spotify_attribution": true,
-            "retained_until": "2027-02-05T08:20:00.198061+00:00",
-            "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+            "retained_until": "2027-02-05T08:37:28.307086+00:00",
+            "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
             "session_media": {
               "artwork": {
                 "active_flow_display_allowed": false,
@@ -3684,10 +3684,10 @@
                 "reason": "not_prepared",
                 "state": "unavailable"
               },
-              "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+              "entry_id": "entry-229163d539b954149f5c74d823d17260",
               "revision": "not_prepared",
               "schema_version": 1,
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
             },
             "text": "One \u00b7 Metallica \u00b7 \u2026And Justice for All"
           },
@@ -3695,42 +3695,42 @@
           "read_only": true,
           "schema_version": 1,
           "session": {
-            "created_at": "2026-11-07T08:20:00.062479+00:00",
-            "ended_at": "2026-11-07T08:20:00.198061+00:00",
+            "created_at": "2026-11-07T08:37:28.013242+00:00",
+            "ended_at": "2026-11-07T08:37:28.307086+00:00",
             "history_coverage": "saved_entries_only_no_retrospective_observations",
             "interrupted_at": "",
             "lifecycle_status": "ENDED",
             "read_only": true,
-            "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:6bb90009d007c5e2d07a1d1317522a5736579c367dd4315f61240eac5dcad2dd",
-            "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
-            "started_at": "2026-11-07T08:20:00.063842+00:00",
+            "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:153d01dad7aca1ea0edcf303b2661cd12c4cc63d71a010a21973c27ef79a8b42",
+            "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
+            "started_at": "2026-11-07T08:37:28.020689+00:00",
             "summary": {
-              "as_of": "2026-11-07T08:20:00.221268+00:00",
+              "as_of": "2026-11-07T08:37:28.342868+00:00",
               "moments_published": {
-                "as_of": "2026-11-07T08:20:00.221268+00:00",
+                "as_of": "2026-11-07T08:37:28.342868+00:00",
                 "basis": "semantic_publication_commit",
                 "coverage": "complete",
-                "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:6bb90009d007c5e2d07a1d1317522a5736579c367dd4315f61240eac5dcad2dd",
+                "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:153d01dad7aca1ea0edcf303b2661cd12c4cc63d71a010a21973c27ef79a8b42",
                 "state": "final",
                 "value": 1
               },
               "mood": {
-                "as_of": "2026-11-07T08:20:00.221268+00:00",
+                "as_of": "2026-11-07T08:37:28.342868+00:00",
                 "basis": "confirmed_symbolic_mood_elapsed_intervals",
                 "coverage": "complete",
-                "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:6bb90009d007c5e2d07a1d1317522a5736579c367dd4315f61240eac5dcad2dd",
+                "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:153d01dad7aca1ea0edcf303b2661cd12c4cc63d71a010a21973c27ef79a8b42",
                 "state": "final",
                 "value": "energy"
               },
               "schema_version": "djconnect-session-history-summary/1",
-              "session_revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:6bb90009d007c5e2d07a1d1317522a5736579c367dd4315f61240eac5dcad2dd",
+              "session_revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:153d01dad7aca1ea0edcf303b2661cd12c4cc63d71a010a21973c27ef79a8b42",
               "state": "final",
               "tracks_observed": {
-                "as_of": "2026-11-07T08:20:00.221268+00:00",
+                "as_of": "2026-11-07T08:37:28.342868+00:00",
                 "basis": "accepted_playback_observed_entries",
                 "coverage": "complete",
                 "observation_scope": "stage_1_media_identity_changes_not_occurrences",
-                "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:6bb90009d007c5e2d07a1d1317522a5736579c367dd4315f61240eac5dcad2dd",
+                "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:153d01dad7aca1ea0edcf303b2661cd12c4cc63d71a010a21973c27ef79a8b42",
                 "state": "final",
                 "value": 1
               }
@@ -3751,7 +3751,7 @@
           "matches": [
             {
               "current_display_allowed": false,
-              "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+              "entry_id": "entry-229163d539b954149f5c74d823d17260",
               "highlights": [
                 {
                   "length_utf16": 9,
@@ -3760,7 +3760,7 @@
               ],
               "historical_view_only": true,
               "kind": "playback_observed",
-              "occurred_at": "2026-11-07T08:20:00.064388+00:00",
+              "occurred_at": "2026-11-07T08:37:28.022592+00:00",
               "order": 1,
               "playback": {
                 "album": "\u2026And Justice for All",
@@ -3773,8 +3773,8 @@
                 "title": "One"
               },
               "requires_spotify_attribution": true,
-              "retained_until": "2027-02-05T08:20:00.198061+00:00",
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "retained_until": "2027-02-05T08:37:28.307086+00:00",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "session_media": {
                 "artwork": {
                   "active_flow_display_allowed": false,
@@ -3783,10 +3783,10 @@
                   "reason": "not_prepared",
                   "state": "unavailable"
                 },
-                "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                "entry_id": "entry-229163d539b954149f5c74d823d17260",
                 "revision": "not_prepared",
                 "schema_version": 1,
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "text": "One \u00b7 Metallica \u00b7 \u2026And Justice for All"
             }
@@ -3795,15 +3795,15 @@
           "normalization": "NFKC-casefold",
           "query": "METALLICA",
           "returned_count": 1,
-          "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:6bb90009d007c5e2d07a1d1317522a5736579c367dd4315f61240eac5dcad2dd",
+          "revision": "7:ENDED:0:0:1dfb6d4cac35f95a:retention:1:0:delete:153d01dad7aca1ea0edcf303b2661cd12c4cc63d71a010a21973c27ef79a8b42",
           "schema_version": 1,
-          "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+          "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
           "success": true,
           "total_count": 1
         },
         "cache_control": "no-store",
         "method": "GET",
-        "path": "/api/djconnect/v1/session/history/session-dfd4e96aef994529b3bcf5a023df8fe1/search",
+        "path": "/api/djconnect/v1/session/history/session-0e6244a6c85342aa994fd0a3b3dd03d7/search",
         "query": {
           "client_type": "ios",
           "device_id": "djconnect-ios-ABCDEF123456",
@@ -3819,7 +3819,7 @@
         },
         "cache_control": "no-store",
         "method": "GET",
-        "path": "/api/djconnect/v1/session/history/session-dfd4e96aef994529b3bcf5a023df8fe1",
+        "path": "/api/djconnect/v1/session/history/session-0e6244a6c85342aa994fd0a3b3dd03d7",
         "query": {
           "client_type": "ios",
           "device_id": "djconnect-ios-ABCDEF123456",
@@ -3835,7 +3835,7 @@
         },
         "cache_control": "no-store",
         "method": "GET",
-        "path": "/api/djconnect/v1/session/history/session-dfd4e96aef994529b3bcf5a023df8fe1",
+        "path": "/api/djconnect/v1/session/history/session-0e6244a6c85342aa994fd0a3b3dd03d7",
         "query": {
           "client_type": "ios",
           "device_id": "djconnect-ios-ABCDEF123456",
@@ -3857,20 +3857,20 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-text",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.147100Z",
+              "created_at": "2026-11-07T08:37:28.227453Z",
               "exchange_id": "loopback-text",
               "exchange_order": 0,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-67d84823-75f5-4cf3-a4c0-7ed04561c4bb",
+              "id": "server-32a0e9d7-737a-4a26-8ab7-6363fdfff5a0",
               "images": [],
               "links": [],
               "playback_actions": [],
@@ -3879,15 +3879,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -3904,7 +3904,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19"
               },
               "sources": [],
@@ -3916,20 +3916,20 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-text",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.147118Z",
+              "created_at": "2026-11-07T08:37:28.227476Z",
               "exchange_id": "loopback-text",
               "exchange_order": 1,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-d0f6d0bc-1ad9-464e-8300-be3f000373c6",
+              "id": "server-0c0e3f1e-ad0c-4194-9cf2-b858260afbb7",
               "images": [],
               "intent": {
                 "category": "informational",
@@ -3943,15 +3943,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -3968,7 +3968,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-ae787b9af9e15723b3fd1e1ee7ce8c19"
               },
               "sources": [],
@@ -3981,20 +3981,20 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-voice",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.190643Z",
+              "created_at": "2026-11-07T08:37:28.298987Z",
               "exchange_id": "loopback-voice",
               "exchange_order": 0,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-0e8e0b03-ded6-45be-880c-817dd50c993e",
+              "id": "server-cd944989-ec02-41f3-9922-43c71470b829",
               "images": [],
               "links": [],
               "playback_actions": [],
@@ -4003,15 +4003,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -4030,7 +4030,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "voice",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-3ba331fcb7f4541bad8fbb59b5f88136"
               },
               "sources": [],
@@ -4042,20 +4042,20 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-voice",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.190657Z",
+              "created_at": "2026-11-07T08:37:28.299003Z",
               "exchange_id": "loopback-voice",
               "exchange_order": 1,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-dcd460af-c1c1-4639-97fd-9dcd979ba096",
+              "id": "server-16b11df3-5233-4b50-b472-8b76a731986a",
               "images": [],
               "intent": {
                 "category": "informational",
@@ -4069,15 +4069,15 @@
                 "captured_playback_item_id": "",
                 "context": {
                   "selected_entry": {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "dependency_entries": [
                   {
-                    "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   }
                 ],
                 "dependency_moments": [],
@@ -4096,7 +4096,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "voice",
                 "profile_id": "profile-a",
-                "request_digest": "871a5449bf6d43ee13a137e8e62fff0b128e0587500781a1776e2eb27a277376",
+                "request_digest": "39fc2b5bc64304a3548a9751d176b754e0f83a805b34ff816ac250c113988ef4",
                 "turn_id": "turn-3ba331fcb7f4541bad8fbb59b5f88136"
               },
               "sources": [],
@@ -4109,16 +4109,16 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-later",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.218577Z",
+              "created_at": "2026-11-07T08:37:28.337799Z",
               "exchange_id": "loopback-later",
               "exchange_order": 0,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-229163d539b954149f5c74d823d17260",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
-              "id": "server-396f9bfd-fe86-4003-80ce-ca3445873a43",
+              "id": "server-4fb8cb2f-2bbc-4093-8c0e-5d0c056d9169",
               "images": [],
               "links": [],
               "playback_actions": [],
@@ -4155,27 +4155,27 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "loopback-later",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.218611Z",
+              "created_at": "2026-11-07T08:37:28.337851Z",
               "exchange_id": "loopback-later",
               "exchange_order": 1,
               "historical_entry_references": [
                 {
-                  "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-229163d539b954149f5c74d823d17260",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
               "historical_matches": [
                 {
                   "current_display_allowed": false,
-                  "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                  "entry_id": "entry-229163d539b954149f5c74d823d17260",
                   "historical_view_only": true,
                   "kind": "playback_observed",
-                  "occurred_at": "2026-11-07T08:20:00.064388+00:00",
+                  "occurred_at": "2026-11-07T08:37:28.022592+00:00",
                   "open_action": {
-                    "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                    "entry_id": "entry-229163d539b954149f5c74d823d17260",
                     "kind": "open_session",
                     "navigation_only": true,
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
                   "order": 1,
                   "playback": {
@@ -4188,8 +4188,8 @@
                     "title": "One"
                   },
                   "requires_spotify_attribution": true,
-                  "retained_until": "2027-02-05T08:20:00.198061+00:00",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+                  "retained_until": "2027-02-05T08:37:28.307086+00:00",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
                   "session_media": {
                     "artwork": {
                       "active_flow_display_allowed": false,
@@ -4198,15 +4198,15 @@
                       "reason": "not_prepared",
                       "state": "unavailable"
                     },
-                    "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                    "entry_id": "entry-229163d539b954149f5c74d823d17260",
                     "revision": "not_prepared",
                     "schema_version": 1,
-                    "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                    "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                   },
                   "text": "One \u00b7 Metallica \u00b7 \u2026And Justice for All"
                 }
               ],
-              "id": "server-f612efb1-8d53-48f9-84ef-73e8267c8b41",
+              "id": "server-919130e0-2646-4029-845d-8e0484f98f8b",
               "images": [],
               "intent": {
                 "intent": "saved_session_playback_history"
@@ -4215,10 +4215,10 @@
               "message_kind": "assistant",
               "navigation_actions": [
                 {
-                  "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                  "entry_id": "entry-229163d539b954149f5c74d823d17260",
                   "kind": "open_session",
                   "navigation_only": true,
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 }
               ],
               "playback_actions": [],
@@ -4253,11 +4253,11 @@
               ],
               "speech_processing_basis": "accepted_local_reply",
               "status": "delivered",
-              "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:20:00.064388+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All"
+              "text": "Gevonden in je bewaarde sessies (waargenomen playback; volledig beluisteren is niet bewezen):\n2026-11-07T08:37:28.022592+00:00 \u00b7 One \u00b7 Metallica \u00b7 \u2026And Justice for All"
             }
           ],
           "owner_profile_id": "profile-a",
-          "server_time": "2026-11-07T08:20:00.233271Z",
+          "server_time": "2026-11-07T08:37:28.359138Z",
           "success": true,
           "user_id": null
         },
@@ -4283,7 +4283,7 @@
           "history_trimmed_count": 0,
           "messages": [],
           "owner_profile_id": "profile-a",
-          "server_time": "2026-11-07T08:20:00.254610Z",
+          "server_time": "2026-11-07T08:37:28.389683Z",
           "success": true,
           "user_id": null
         },
@@ -4319,7 +4319,7 @@
           "history_trimmed_count": 0,
           "messages": [],
           "owner_profile_id": "profile-a",
-          "server_time": "2026-11-07T08:20:00.272317Z",
+          "server_time": "2026-11-07T08:37:28.413812Z",
           "success": true,
           "user_id": null
         },
@@ -4339,10 +4339,10 @@
           "entries": [
             {
               "current_display_allowed": false,
-              "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+              "entry_id": "entry-229163d539b954149f5c74d823d17260",
               "historical_view_only": true,
               "kind": "playback_observed",
-              "occurred_at": "2026-11-07T08:20:00.064388+00:00",
+              "occurred_at": "2026-11-07T08:37:28.022592+00:00",
               "order": 1,
               "playback": {
                 "album": "\u2026And Justice for All",
@@ -4355,8 +4355,8 @@
                 "title": "One"
               },
               "requires_spotify_attribution": true,
-              "retained_until": "2027-02-05T08:20:00.198061+00:00",
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "retained_until": "2027-02-05T08:37:28.307086+00:00",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "session_media": {
                 "artwork": {
                   "active_flow_display_allowed": false,
@@ -4365,29 +4365,29 @@
                   "reason": "not_prepared",
                   "state": "unavailable"
                 },
-                "entry_id": "entry-15ac3def0def5542a99c939fb5024222",
+                "entry_id": "entry-229163d539b954149f5c74d823d17260",
                 "revision": "not_prepared",
                 "schema_version": 1,
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "text": "One \u00b7 Metallica \u00b7 \u2026And Justice for All"
             },
             {
               "archive_basis": "runtime_authored_direction_v1",
               "current_display_allowed": false,
-              "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
+              "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
               "historical_view_only": true,
               "kind": "dj_moment",
               "locale": "nl",
-              "moment_id": "moment-cce89520360446c7801657b9d2e32777",
+              "moment_id": "moment-4d89626035d24bcba8bb2da385f2e035",
               "moment_type": "session",
               "mood": "energy",
-              "occurred_at": "2026-11-07T08:20:00.065219+00:00",
+              "occurred_at": "2026-11-07T08:37:28.024465+00:00",
               "order": 2,
               "persona": "home_dj",
               "persona_revision": 0,
-              "retained_until": "2027-02-05T08:20:00.198061+00:00",
-              "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
+              "retained_until": "2027-02-05T08:37:28.307086+00:00",
+              "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
               "session_media": {
                 "artwork": {
                   "active_flow_display_allowed": false,
@@ -4396,22 +4396,22 @@
                   "reason": "not_prepared",
                   "state": "unavailable"
                 },
-                "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
+                "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
                 "revision": "not_prepared",
                 "schema_version": 1,
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
               },
               "session_speech": {
                 "attribution": [],
                 "autoplay_eligible": false,
                 "cache_policy": "private,no-store",
-                "expires_at": "2027-02-05T08:20:00.198061+00:00",
+                "expires_at": "2027-02-05T08:37:28.307086+00:00",
                 "locale": "nl",
                 "manual_allowed": true,
                 "mood": "energy",
                 "persona": "home_dj",
                 "persona_revision": 0,
-                "presentation_revision": "c2c14b58d83062c662ad9c0e",
+                "presentation_revision": "ecba2492ef8f1ad157876c19",
                 "processor_qualification_required": true,
                 "processors": [
                   "local_on_device",
@@ -4419,8 +4419,8 @@
                 ],
                 "reason": null,
                 "reference": {
-                  "entry_id": "entry-99f74d424f0050239d243f4c7da5a77f",
-                  "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1"
+                  "entry_id": "entry-e8f73f51707f52b48e38684be24ea748",
+                  "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7"
                 },
                 "schema_version": 1,
                 "segments": [
@@ -4430,9 +4430,9 @@
                     "text": "Ik heb meer vaart voor ogen, met wat context wanneer de muziek daar ruimte voor geeft."
                   }
                 ],
-                "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
-                "source_expires_at": "2027-02-05T08:20:00.198061+00:00",
-                "source_id": "entry-99f74d424f0050239d243f4c7da5a77f",
+                "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
+                "source_expires_at": "2027-02-05T08:37:28.307086+00:00",
+                "source_id": "entry-e8f73f51707f52b48e38684be24ea748",
                 "source_kind": "retained_dj_contribution",
                 "state": "available",
                 "style_basis": "accepted_contribution",
@@ -4447,19 +4447,19 @@
           "revision": "7:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:42482366ec961b0c285ec0fd0d4cbc45a9c9d7c4b65630d044a508b361c1e83b",
           "schema_version": 1,
           "session": {
-            "created_at": "2026-11-07T08:20:00.062479+00:00",
-            "ended_at": "2026-11-07T08:20:00.198061+00:00",
+            "created_at": "2026-11-07T08:37:28.013242+00:00",
+            "ended_at": "2026-11-07T08:37:28.307086+00:00",
             "history_coverage": "saved_entries_only_no_retrospective_observations",
             "interrupted_at": "",
             "lifecycle_status": "ENDED",
             "read_only": true,
             "revision": "7:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:42482366ec961b0c285ec0fd0d4cbc45a9c9d7c4b65630d044a508b361c1e83b",
-            "session_id": "session-dfd4e96aef994529b3bcf5a023df8fe1",
-            "started_at": "2026-11-07T08:20:00.063842+00:00",
+            "session_id": "session-0e6244a6c85342aa994fd0a3b3dd03d7",
+            "started_at": "2026-11-07T08:37:28.020689+00:00",
             "summary": {
-              "as_of": "2026-11-07T08:20:00.272789+00:00",
+              "as_of": "2026-11-07T08:37:28.414522+00:00",
               "moments_published": {
-                "as_of": "2026-11-07T08:20:00.272789+00:00",
+                "as_of": "2026-11-07T08:37:28.414522+00:00",
                 "basis": "semantic_publication_commit",
                 "coverage": "complete",
                 "revision": "7:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:42482366ec961b0c285ec0fd0d4cbc45a9c9d7c4b65630d044a508b361c1e83b",
@@ -4467,7 +4467,7 @@
                 "value": 1
               },
               "mood": {
-                "as_of": "2026-11-07T08:20:00.272789+00:00",
+                "as_of": "2026-11-07T08:37:28.414522+00:00",
                 "basis": "confirmed_symbolic_mood_elapsed_intervals",
                 "coverage": "complete",
                 "revision": "7:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:42482366ec961b0c285ec0fd0d4cbc45a9c9d7c4b65630d044a508b361c1e83b",
@@ -4478,7 +4478,7 @@
               "session_revision": "7:ENDED:0:1:1dfb6d4cac35f95a:retention:1:0:delete:42482366ec961b0c285ec0fd0d4cbc45a9c9d7c4b65630d044a508b361c1e83b",
               "state": "final",
               "tracks_observed": {
-                "as_of": "2026-11-07T08:20:00.272789+00:00",
+                "as_of": "2026-11-07T08:37:28.414522+00:00",
                 "basis": "accepted_playback_observed_entries",
                 "coverage": "complete",
                 "observation_scope": "stage_1_media_identity_changes_not_occurrences",
@@ -4492,7 +4492,7 @@
         },
         "cache_control": "no-store",
         "method": "GET",
-        "path": "/api/djconnect/v1/session/history/session-dfd4e96aef994529b3bcf5a023df8fe1",
+        "path": "/api/djconnect/v1/session/history/session-0e6244a6c85342aa994fd0a3b3dd03d7",
         "query": {
           "client_type": "ios",
           "device_id": "djconnect-ios-ABCDEF123456"
@@ -4515,11 +4515,11 @@
             "client_message_id": "production-original",
             "client_type": "ios",
             "confirmation_actions": [],
-            "created_at": "2026-11-07T08:20:00.280128Z",
+            "created_at": "2026-11-07T08:37:28.425916Z",
             "exchange_id": "production-original",
             "exchange_order": 1,
             "historical_entry_references": [],
-            "id": "server-3c0d503a-9bdf-400a-9a87-7ab37ff8f4cf",
+            "id": "server-a93260ac-027a-4135-9153-dec58d8c642a",
             "images": [],
             "intent": {
               "action": "none",
@@ -4537,7 +4537,7 @@
               "attribution": [],
               "autoplay_eligible": false,
               "cache_policy": "private,no-store",
-              "expires_at": "2026-11-07T08:25:00.281803+00:00",
+              "expires_at": "2026-11-07T08:42:28.429057+00:00",
               "locale": "nl",
               "manual_allowed": true,
               "persona": "home_dj",
@@ -4560,7 +4560,7 @@
                   "text": "Bedoel je het huidige nummer of het geselecteerde nummer?"
                 }
               ],
-              "session_id": "session-098586b960b641b3b7651264b4bcfaf2",
+              "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678",
               "source_id": "turn-ba5345da5eb05a168b1e2b9d5442c2ae",
               "source_kind": "accepted_ask_dj",
               "state": "available",
@@ -4569,7 +4569,7 @@
             "session_turn": {
               "captured_playback_item_id": "",
               "context": {
-                "session_id": "session-098586b960b641b3b7651264b4bcfaf2"
+                "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678"
               },
               "dependency_entries": [],
               "dependency_moments": [],
@@ -4586,7 +4586,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "972d0c9bc602d3f214dbaa61471d541830cf645f002ca5d79ee658030e5b51cd",
+              "request_digest": "4494998348fc03bcf21d9d75069811985cef977fedaf97079a2cdce035e737ee",
               "turn_id": "turn-ba5345da5eb05a168b1e2b9d5442c2ae"
             },
             "sources": [],
@@ -4607,11 +4607,11 @@
           "confirmation_actions": [],
           "conversation": {
             "context": {
-              "session_id": "session-098586b960b641b3b7651264b4bcfaf2"
+              "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678"
             },
             "entry_ids": [
-              "entry-80798074b9835c6e803d08b2fb7ab83c",
-              "entry-cb21ee470fc152b083019ea819626f6c"
+              "entry-7a4aa80ca0245584b5e814f2354c8cd9",
+              "entry-4588d032d74b5448b2a7949c6f000e4e"
             ],
             "history_scope": "profile",
             "input_type": "text",
@@ -4658,11 +4658,11 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "production-original",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.280113Z",
+              "created_at": "2026-11-07T08:37:28.425891Z",
               "exchange_id": "production-original",
               "exchange_order": 0,
               "historical_entry_references": [],
-              "id": "server-3132fe30-d7fa-4a6f-9a2b-5df31d20baf9",
+              "id": "server-63f41282-8a56-4c8e-84cd-3b5e749a3ef9",
               "images": [],
               "links": [],
               "playback_actions": [],
@@ -4670,7 +4670,7 @@
               "session_turn": {
                 "captured_playback_item_id": "",
                 "context": {
-                  "session_id": "session-098586b960b641b3b7651264b4bcfaf2"
+                  "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678"
                 },
                 "dependency_entries": [],
                 "dependency_moments": [],
@@ -4687,7 +4687,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "972d0c9bc602d3f214dbaa61471d541830cf645f002ca5d79ee658030e5b51cd",
+                "request_digest": "4494998348fc03bcf21d9d75069811985cef977fedaf97079a2cdce035e737ee",
                 "turn_id": "turn-ba5345da5eb05a168b1e2b9d5442c2ae"
               },
               "sources": [],
@@ -4707,11 +4707,11 @@
               "client_message_id": "production-original",
               "client_type": "ios",
               "confirmation_actions": [],
-              "created_at": "2026-11-07T08:20:00.280128Z",
+              "created_at": "2026-11-07T08:37:28.425916Z",
               "exchange_id": "production-original",
               "exchange_order": 1,
               "historical_entry_references": [],
-              "id": "server-3c0d503a-9bdf-400a-9a87-7ab37ff8f4cf",
+              "id": "server-a93260ac-027a-4135-9153-dec58d8c642a",
               "images": [],
               "intent": {
                 "action": "none",
@@ -4729,7 +4729,7 @@
                 "attribution": [],
                 "autoplay_eligible": false,
                 "cache_policy": "private,no-store",
-                "expires_at": "2026-11-07T08:25:00.281803+00:00",
+                "expires_at": "2026-11-07T08:42:28.429057+00:00",
                 "locale": "nl",
                 "manual_allowed": true,
                 "persona": "home_dj",
@@ -4752,7 +4752,7 @@
                     "text": "Bedoel je het huidige nummer of het geselecteerde nummer?"
                   }
                 ],
-                "session_id": "session-098586b960b641b3b7651264b4bcfaf2",
+                "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678",
                 "source_id": "turn-ba5345da5eb05a168b1e2b9d5442c2ae",
                 "source_kind": "accepted_ask_dj",
                 "state": "available",
@@ -4761,7 +4761,7 @@
               "session_turn": {
                 "captured_playback_item_id": "",
                 "context": {
-                  "session_id": "session-098586b960b641b3b7651264b4bcfaf2"
+                  "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678"
                 },
                 "dependency_entries": [],
                 "dependency_moments": [],
@@ -4778,7 +4778,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "972d0c9bc602d3f214dbaa61471d541830cf645f002ca5d79ee658030e5b51cd",
+                "request_digest": "4494998348fc03bcf21d9d75069811985cef977fedaf97079a2cdce035e737ee",
                 "turn_id": "turn-ba5345da5eb05a168b1e2b9d5442c2ae"
               },
               "sources": [],
@@ -4791,12 +4791,12 @@
           "music_dna_key": "profile:profile-a",
           "owner_profile_id": "profile-a",
           "playback_actions": [],
-          "server_time": "2026-11-07T08:20:00.281060Z",
+          "server_time": "2026-11-07T08:37:28.427438Z",
           "session_speech": {
             "attribution": [],
             "autoplay_eligible": false,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-07T08:25:00.281803+00:00",
+            "expires_at": "2026-11-07T08:42:28.429057+00:00",
             "locale": "nl",
             "manual_allowed": true,
             "persona": "home_dj",
@@ -4819,7 +4819,7 @@
                 "text": "Bedoel je het huidige nummer of het geselecteerde nummer?"
               }
             ],
-            "session_id": "session-098586b960b641b3b7651264b4bcfaf2",
+            "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678",
             "source_id": "turn-ba5345da5eb05a168b1e2b9d5442c2ae",
             "source_kind": "accepted_ask_dj",
             "state": "available",
@@ -4835,11 +4835,11 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "production-original",
             "client_type": "ios",
-            "created_at": "2026-11-07T08:20:00.280113Z",
+            "created_at": "2026-11-07T08:37:28.425891Z",
             "exchange_id": "production-original",
             "exchange_order": 0,
             "historical_entry_references": [],
-            "id": "server-3132fe30-d7fa-4a6f-9a2b-5df31d20baf9",
+            "id": "server-63f41282-8a56-4c8e-84cd-3b5e749a3ef9",
             "images": [],
             "links": [],
             "playback_actions": [],
@@ -4847,7 +4847,7 @@
             "session_turn": {
               "captured_playback_item_id": "",
               "context": {
-                "session_id": "session-098586b960b641b3b7651264b4bcfaf2"
+                "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678"
               },
               "dependency_entries": [],
               "dependency_moments": [],
@@ -4864,7 +4864,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "972d0c9bc602d3f214dbaa61471d541830cf645f002ca5d79ee658030e5b51cd",
+              "request_digest": "4494998348fc03bcf21d9d75069811985cef977fedaf97079a2cdce035e737ee",
               "turn_id": "turn-ba5345da5eb05a168b1e2b9d5442c2ae"
             },
             "sources": [],
@@ -4894,11 +4894,11 @@
             "client_message_id": "production-selection",
             "client_type": "ios",
             "confirmation_actions": [],
-            "created_at": "2026-11-07T08:20:00.285431Z",
+            "created_at": "2026-11-07T08:37:28.433663Z",
             "exchange_id": "production-selection",
             "exchange_order": 1,
             "historical_entry_references": [],
-            "id": "server-fa413e22-a959-4959-bfa1-282d69f2ed80",
+            "id": "server-effe4d99-9472-4cc1-bceb-34a6fb61d84b",
             "images": [],
             "intent": {
               "action": "none",
@@ -4916,7 +4916,7 @@
               "attribution": [],
               "autoplay_eligible": false,
               "cache_policy": "private,no-store",
-              "expires_at": "2026-11-07T08:21:00.284309+00:00",
+              "expires_at": "2026-11-07T08:38:28.432475+00:00",
               "locale": "nl",
               "manual_allowed": true,
               "persona": "home_dj",
@@ -4939,7 +4939,7 @@
                   "text": "Ik kan nog geen betrouwbare bron over de opname en productie van dit nummer controleren."
                 }
               ],
-              "session_id": "session-098586b960b641b3b7651264b4bcfaf2",
+              "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678",
               "source_id": "turn-a7db6b259aad54a3938ef1c209e2d4cb",
               "source_kind": "accepted_ask_dj",
               "state": "available",
@@ -4948,7 +4948,7 @@
             "session_turn": {
               "captured_playback_item_id": "",
               "context": {
-                "session_id": "session-098586b960b641b3b7651264b4bcfaf2"
+                "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678"
               },
               "dependency_entries": [],
               "dependency_moments": [],
@@ -4967,7 +4967,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "e94b9c2dcfb437e1aac85009ff89f6eab0dbc3be84c958549b7b8954e09d720d",
+              "request_digest": "ccba7c67d63d8e27c410c5699701df8b4a44388d43226d62bfd1a356612f39ce",
               "turn_id": "turn-a7db6b259aad54a3938ef1c209e2d4cb"
             },
             "sources": [],
@@ -4987,11 +4987,11 @@
           "confirmation_actions": [],
           "conversation": {
             "context": {
-              "session_id": "session-098586b960b641b3b7651264b4bcfaf2"
+              "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678"
             },
             "entry_ids": [
-              "entry-db11ec1f0d945d3491954553ca7b69e5",
-              "entry-7413cdcf251b5e30ba7632a72805be12"
+              "entry-56cd3406772550a29692ed82850a8147",
+              "entry-bfcf97bd39585cbd9dde36567210b466"
             ],
             "history_scope": "profile",
             "input_type": "text",
@@ -5038,11 +5038,11 @@
               "client_id": "djconnect-ios-ABCDEF123456",
               "client_message_id": "production-selection",
               "client_type": "ios",
-              "created_at": "2026-11-07T08:20:00.285419Z",
+              "created_at": "2026-11-07T08:37:28.433646Z",
               "exchange_id": "production-selection",
               "exchange_order": 0,
               "historical_entry_references": [],
-              "id": "server-d1296e24-15a6-4c9c-8555-7733c47ca177",
+              "id": "server-c4d497ee-b879-42e9-8760-5b402236def2",
               "images": [],
               "links": [],
               "playback_actions": [],
@@ -5050,7 +5050,7 @@
               "session_turn": {
                 "captured_playback_item_id": "",
                 "context": {
-                  "session_id": "session-098586b960b641b3b7651264b4bcfaf2"
+                  "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678"
                 },
                 "dependency_entries": [],
                 "dependency_moments": [],
@@ -5069,7 +5069,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "e94b9c2dcfb437e1aac85009ff89f6eab0dbc3be84c958549b7b8954e09d720d",
+                "request_digest": "ccba7c67d63d8e27c410c5699701df8b4a44388d43226d62bfd1a356612f39ce",
                 "turn_id": "turn-a7db6b259aad54a3938ef1c209e2d4cb"
               },
               "sources": [],
@@ -5089,11 +5089,11 @@
               "client_message_id": "production-selection",
               "client_type": "ios",
               "confirmation_actions": [],
-              "created_at": "2026-11-07T08:20:00.285431Z",
+              "created_at": "2026-11-07T08:37:28.433663Z",
               "exchange_id": "production-selection",
               "exchange_order": 1,
               "historical_entry_references": [],
-              "id": "server-fa413e22-a959-4959-bfa1-282d69f2ed80",
+              "id": "server-effe4d99-9472-4cc1-bceb-34a6fb61d84b",
               "images": [],
               "intent": {
                 "action": "none",
@@ -5111,7 +5111,7 @@
                 "attribution": [],
                 "autoplay_eligible": false,
                 "cache_policy": "private,no-store",
-                "expires_at": "2026-11-07T08:21:00.284309+00:00",
+                "expires_at": "2026-11-07T08:38:28.432475+00:00",
                 "locale": "nl",
                 "manual_allowed": true,
                 "persona": "home_dj",
@@ -5134,7 +5134,7 @@
                     "text": "Ik kan nog geen betrouwbare bron over de opname en productie van dit nummer controleren."
                   }
                 ],
-                "session_id": "session-098586b960b641b3b7651264b4bcfaf2",
+                "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678",
                 "source_id": "turn-a7db6b259aad54a3938ef1c209e2d4cb",
                 "source_kind": "accepted_ask_dj",
                 "state": "available",
@@ -5143,7 +5143,7 @@
               "session_turn": {
                 "captured_playback_item_id": "",
                 "context": {
-                  "session_id": "session-098586b960b641b3b7651264b4bcfaf2"
+                  "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678"
                 },
                 "dependency_entries": [],
                 "dependency_moments": [],
@@ -5162,7 +5162,7 @@
                 "implicit_playback_entry": null,
                 "input_type": "text",
                 "profile_id": "profile-a",
-                "request_digest": "e94b9c2dcfb437e1aac85009ff89f6eab0dbc3be84c958549b7b8954e09d720d",
+                "request_digest": "ccba7c67d63d8e27c410c5699701df8b4a44388d43226d62bfd1a356612f39ce",
                 "turn_id": "turn-a7db6b259aad54a3938ef1c209e2d4cb"
               },
               "sources": [],
@@ -5175,12 +5175,12 @@
           "music_dna_key": "profile:profile-a",
           "owner_profile_id": "profile-a",
           "playback_actions": [],
-          "server_time": "2026-11-07T08:20:00.286163Z",
+          "server_time": "2026-11-07T08:37:28.434953Z",
           "session_speech": {
             "attribution": [],
             "autoplay_eligible": false,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-07T08:21:00.284309+00:00",
+            "expires_at": "2026-11-07T08:38:28.432475+00:00",
             "locale": "nl",
             "manual_allowed": true,
             "persona": "home_dj",
@@ -5203,7 +5203,7 @@
                 "text": "Ik kan nog geen betrouwbare bron over de opname en productie van dit nummer controleren."
               }
             ],
-            "session_id": "session-098586b960b641b3b7651264b4bcfaf2",
+            "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678",
             "source_id": "turn-a7db6b259aad54a3938ef1c209e2d4cb",
             "source_kind": "accepted_ask_dj",
             "state": "available",
@@ -5219,11 +5219,11 @@
             "client_id": "djconnect-ios-ABCDEF123456",
             "client_message_id": "production-selection",
             "client_type": "ios",
-            "created_at": "2026-11-07T08:20:00.285419Z",
+            "created_at": "2026-11-07T08:37:28.433646Z",
             "exchange_id": "production-selection",
             "exchange_order": 0,
             "historical_entry_references": [],
-            "id": "server-d1296e24-15a6-4c9c-8555-7733c47ca177",
+            "id": "server-c4d497ee-b879-42e9-8760-5b402236def2",
             "images": [],
             "links": [],
             "playback_actions": [],
@@ -5231,7 +5231,7 @@
             "session_turn": {
               "captured_playback_item_id": "",
               "context": {
-                "session_id": "session-098586b960b641b3b7651264b4bcfaf2"
+                "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678"
               },
               "dependency_entries": [],
               "dependency_moments": [],
@@ -5250,7 +5250,7 @@
               "implicit_playback_entry": null,
               "input_type": "text",
               "profile_id": "profile-a",
-              "request_digest": "e94b9c2dcfb437e1aac85009ff89f6eab0dbc3be84c958549b7b8954e09d720d",
+              "request_digest": "ccba7c67d63d8e27c410c5699701df8b4a44388d43226d62bfd1a356612f39ce",
               "turn_id": "turn-a7db6b259aad54a3938ef1c209e2d4cb"
             },
             "sources": [],
@@ -5276,7 +5276,7 @@
           "client_message_id": "production-bare-current",
           "conversation": {
             "context": {
-              "session_id": "session-098586b960b641b3b7651264b4bcfaf2"
+              "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678"
             },
             "entry_ids": [],
             "history_scope": "private_ephemeral",
@@ -5328,7 +5328,7 @@
             ],
             "autoplay_eligible": false,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-07T08:21:00.333242+00:00",
+            "expires_at": "2026-11-07T08:38:28.437953+00:00",
             "locale": "nl",
             "manual_allowed": true,
             "persona": "home_dj",
@@ -5351,7 +5351,7 @@
                 "text": "Dit is PRIVATE DISPLAY ARTIST, met PRIVATE DISPLAY TITLE."
               }
             ],
-            "session_id": "session-098586b960b641b3b7651264b4bcfaf2",
+            "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678",
             "source_id": "turn-f31b5e0764b45b8e9ad238a074f698c8",
             "source_kind": "accepted_ask_dj",
             "state": "available",
@@ -5390,7 +5390,7 @@
           "confirmation_actions": [],
           "conversation": {
             "context": {
-              "session_id": "session-098586b960b641b3b7651264b4bcfaf2"
+              "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678"
             },
             "entry_ids": [],
             "history_scope": "private_ephemeral",
@@ -5435,7 +5435,7 @@
             "attribution": [],
             "autoplay_eligible": false,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-07T08:25:00.335971+00:00",
+            "expires_at": "2026-11-07T08:42:28.441535+00:00",
             "locale": "nl",
             "manual_allowed": true,
             "persona": "home_dj",
@@ -5458,7 +5458,7 @@
                 "text": "Bedoel je het huidige nummer of het geselecteerde nummer?"
               }
             ],
-            "session_id": "session-098586b960b641b3b7651264b4bcfaf2",
+            "session_id": "session-1d9dfcc8bfd34e84a45aedcf912cd678",
             "source_id": "turn-fd168e22759d5984b70a0f37dca559a9",
             "source_kind": "accepted_ask_dj",
             "state": "available",
@@ -5491,7 +5491,7 @@
     ],
     "reused_verifier": "DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009",
     "scenario": "profile_history_http_scope",
-    "server_time": "2026-11-07T08:20:00.367416+00:00",
+    "server_time": "2026-11-07T08:37:28.480709+00:00",
     "source_files_sha256": {
       "custom_components/djconnect/__init__.py": "959b280334e2ea4f9bc0ee49e7ccd599a6e8b56494ad5d6b4002199de1a0af16",
       "custom_components/djconnect/ai_tools.py": "175ac20dc1ebdb535aaec839b6fc8e8fe012ac3c81e0f0f07e1856b692c9f0c8",
@@ -5544,7 +5544,7 @@
       "custom_components/djconnect/ci_qualification_report.py": "a45c358669fea9cfb57a601a109443c722e10d91b067eacbb550a11cd264229b",
       "custom_components/djconnect/client_identity.py": "31543e0cf3ed7aa8322af24d0835c0fecf77974db0d8a07c7908d9deff7588cd",
       "custom_components/djconnect/client_retirement.py": "42bb54178f5c1655e600b21a6ccc954811d37e2a1f91f5318f7b97da6d69bca3",
-      "custom_components/djconnect/config_flow.py": "3102258ce6138725d87febe6e765f80f04926c7c8120ce814506efec423754d0",
+      "custom_components/djconnect/config_flow.py": "a0a8b032403b0c628cfb6d0d8f177d52a1201576495203a851cf86db2c8ed497",
       "custom_components/djconnect/const.py": "1a9f9aa331e13d009775c613b59b2f2ac9d151c79b1a46ae8aade1a4c0fff618",
       "custom_components/djconnect/content_deletion.py": "f48385f86d2b5d7b4f05d53f01c78fff2c072045ba51d6479c1049a33d3014c8",
       "custom_components/djconnect/content_deletion_api.py": "a92955d93cafc4f172c379e2c43e6a43a0b2d902cce3a51b6d26e5de38895c99",
@@ -5629,7 +5629,7 @@
       "custom_components/djconnect/host_wake_runtime.py": "300a5776ebb61e9aa46994e440cd47d18731685ee1164d248f4242fb3775bf16",
       "custom_components/djconnect/host_wake_target_wire.py": "1623491959d48f1f84143d58da27da29a1b59efe2fb0a58db4ad90b67b50aa21",
       "custom_components/djconnect/host_wake_withdrawal.py": "0480ea22f7ddb16432f1fb3bf8ba136e74ad37f0d7be97f4cf46233f96628a23",
-      "custom_components/djconnect/http.py": "1fc3fa59ff8567fd85a910447fd525261297971491b0c007df86446d0b5a4be1",
+      "custom_components/djconnect/http.py": "7ec1a2e547e6d1667bdae77af4fb8d6a2c959baac02048ac70c97bce15195d73",
       "custom_components/djconnect/hybrid_contract.py": "098acf391b0bbbbfb4caf5d2355df274b155e6566679a08d4f4a2ad04ca95b7a",
       "custom_components/djconnect/hybrid_ingress_qualification.py": "8e220874b16e7bbb1162261a1e89607a2a6067dca3fa3c820d2cc52ee3232933",
       "custom_components/djconnect/hybrid_local_policy.py": "711c4efc1d9a90bc92c02cb6c06af7c83a4b289cc3c9f34b675a156f099d864a",
@@ -5688,7 +5688,7 @@
       "custom_components/djconnect/profile_privacy.py": "80a539a327c8d6c4650e0936ea0440800d0b0d8c71aff6c073520f343db77d88",
       "custom_components/djconnect/profile_settings.py": "6c16c324d09f58df8d7e96bd75fa3c63a03d0962632275caaa2168e0d4fed1d8",
       "custom_components/djconnect/public_artist_narration.py": "1dd32045e6ed5b8c7ec5d4feb98e8c2d75f60bd9d0f55c81d309c2e5d422fae8",
-      "custom_components/djconnect/push.py": "908403b0cbab5dc26c622fbaaf793dfc801ead070c3ca025649ba2830f2442e6",
+      "custom_components/djconnect/push.py": "e91bcd783522b31d73f7848c116f628f85db3be7ffc89e627863066a39bc7d3a",
       "custom_components/djconnect/queue_forecast.py": "55ca52487e145375daec582fc59d6a2ef9c858801e80e4ea8228e22425ee10fb",
       "custom_components/djconnect/repairs.py": "34b76242db66cd22a4b778710c8349cbc1e5d1001b29eeb72a45126ed67be02f",
       "custom_components/djconnect/reply_artwork.py": "f1f8b1b413d381b6a05c59f8238c8e9c4f79603e9beab378dc1d9fffba86c43c",
@@ -5777,7 +5777,7 @@
       "custom_components/djconnect/visual_director_runtime.py": "e2482668c44fefcee65dd658abda37035115d6b36f695747d1bbd83b711e8d85",
       "custom_components/djconnect/voice_preview.py": "ea1edd78efa3843911e39e94b374f1afdbc44f319baeca321000442f6175807b",
       "custom_components/djconnect/voice_profiles.py": "5aba9ae572b92c783686d9ccac3af3b97c2689ca98c10f086ba7ae4cdb2696c9",
-      "custom_components/djconnect/watch_preference_client.py": "59be2f3a880ea6d6586aac0c777209dc60b0a1af260f3d612e9de7c96aab0473",
+      "custom_components/djconnect/watch_preference_client.py": "19676ad4ec37c6e525839dec06ec95ae976db5b598ffdc9f8829456b6962a057",
       "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
       "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f",
       "examples/client_contracts/session_conversation_history/schema.json": "32a08e3d545bc4221233c64a5b1e5114f03463e42a5e72acd08d8384ea1fb675",
@@ -5846,7 +5846,7 @@
     "custom_components/djconnect/ci_qualification_report.py": "a45c358669fea9cfb57a601a109443c722e10d91b067eacbb550a11cd264229b",
     "custom_components/djconnect/client_identity.py": "31543e0cf3ed7aa8322af24d0835c0fecf77974db0d8a07c7908d9deff7588cd",
     "custom_components/djconnect/client_retirement.py": "42bb54178f5c1655e600b21a6ccc954811d37e2a1f91f5318f7b97da6d69bca3",
-    "custom_components/djconnect/config_flow.py": "3102258ce6138725d87febe6e765f80f04926c7c8120ce814506efec423754d0",
+    "custom_components/djconnect/config_flow.py": "a0a8b032403b0c628cfb6d0d8f177d52a1201576495203a851cf86db2c8ed497",
     "custom_components/djconnect/const.py": "1a9f9aa331e13d009775c613b59b2f2ac9d151c79b1a46ae8aade1a4c0fff618",
     "custom_components/djconnect/content_deletion.py": "f48385f86d2b5d7b4f05d53f01c78fff2c072045ba51d6479c1049a33d3014c8",
     "custom_components/djconnect/content_deletion_api.py": "a92955d93cafc4f172c379e2c43e6a43a0b2d902cce3a51b6d26e5de38895c99",
@@ -5933,7 +5933,7 @@
     "custom_components/djconnect/host_wake_runtime.py": "300a5776ebb61e9aa46994e440cd47d18731685ee1164d248f4242fb3775bf16",
     "custom_components/djconnect/host_wake_target_wire.py": "1623491959d48f1f84143d58da27da29a1b59efe2fb0a58db4ad90b67b50aa21",
     "custom_components/djconnect/host_wake_withdrawal.py": "0480ea22f7ddb16432f1fb3bf8ba136e74ad37f0d7be97f4cf46233f96628a23",
-    "custom_components/djconnect/http.py": "1fc3fa59ff8567fd85a910447fd525261297971491b0c007df86446d0b5a4be1",
+    "custom_components/djconnect/http.py": "7ec1a2e547e6d1667bdae77af4fb8d6a2c959baac02048ac70c97bce15195d73",
     "custom_components/djconnect/hybrid_contract.py": "098acf391b0bbbbfb4caf5d2355df274b155e6566679a08d4f4a2ad04ca95b7a",
     "custom_components/djconnect/hybrid_ingress_qualification.py": "8e220874b16e7bbb1162261a1e89607a2a6067dca3fa3c820d2cc52ee3232933",
     "custom_components/djconnect/hybrid_local_policy.py": "711c4efc1d9a90bc92c02cb6c06af7c83a4b289cc3c9f34b675a156f099d864a",
@@ -5998,7 +5998,7 @@
     "custom_components/djconnect/profile_settings.py": "6c16c324d09f58df8d7e96bd75fa3c63a03d0962632275caaa2168e0d4fed1d8",
     "custom_components/djconnect/prompts/dj_persona.md": "dc9047cbadf58a7d5a89e5555ea93f5ef427c5b0ad79f3018ca57e02c9f61b1a",
     "custom_components/djconnect/public_artist_narration.py": "1dd32045e6ed5b8c7ec5d4feb98e8c2d75f60bd9d0f55c81d309c2e5d422fae8",
-    "custom_components/djconnect/push.py": "908403b0cbab5dc26c622fbaaf793dfc801ead070c3ca025649ba2830f2442e6",
+    "custom_components/djconnect/push.py": "e91bcd783522b31d73f7848c116f628f85db3be7ffc89e627863066a39bc7d3a",
     "custom_components/djconnect/queue_forecast.py": "55ca52487e145375daec582fc59d6a2ef9c858801e80e4ea8228e22425ee10fb",
     "custom_components/djconnect/repairs.py": "34b76242db66cd22a4b778710c8349cbc1e5d1001b29eeb72a45126ed67be02f",
     "custom_components/djconnect/reply_artwork.py": "f1f8b1b413d381b6a05c59f8238c8e9c4f79603e9beab378dc1d9fffba86c43c",
@@ -6092,7 +6092,7 @@
     "custom_components/djconnect/visual_director_runtime.py": "e2482668c44fefcee65dd658abda37035115d6b36f695747d1bbd83b711e8d85",
     "custom_components/djconnect/voice_preview.py": "ea1edd78efa3843911e39e94b374f1afdbc44f319baeca321000442f6175807b",
     "custom_components/djconnect/voice_profiles.py": "5aba9ae572b92c783686d9ccac3af3b97c2689ca98c10f086ba7ae4cdb2696c9",
-    "custom_components/djconnect/watch_preference_client.py": "59be2f3a880ea6d6586aac0c777209dc60b0a1af260f3d612e9de7c96aab0473",
+    "custom_components/djconnect/watch_preference_client.py": "19676ad4ec37c6e525839dec06ec95ae976db5b598ffdc9f8829456b6962a057",
     "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
     "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
   }
