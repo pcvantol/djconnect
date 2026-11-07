@@ -15,7 +15,7 @@ class CurrentMetadataHistoryQualificationTests(unittest.TestCase):
             ).read_text()
         )
         self.assertTrue(proof["source_before_after_equal"])
-        self.assertEqual(len(proof["source_pins"]), 308)
+        self.assertEqual(len(proof["source_pins"]), 309)
         for name, expected in {**proof["source_pins"], **proof["harness_pins"]}.items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         receipt = proof["receipt"]

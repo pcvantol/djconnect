@@ -36,7 +36,7 @@ class QuestionContinuityTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(current['source_before_after_equal'])
         self.assertEqual(current['harness'], proof['harness'])
         self.assertEqual(current['harness_sha256'], proof['harness_sha256'])
-        self.assertEqual(len(current['source_pins']), 308)
+        self.assertEqual(len(current['source_pins']), 309)
         for name, digest in {
             **current['source_pins'],
             **proof["original_common_harness_source_pins"],

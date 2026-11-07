@@ -22,7 +22,7 @@
       "status": 403
     },
     {
-      "body_sha256": "188a598f3745493156fad4b8c0e5c85704ac47bf3c74a6c2b831f033f90ccfb0",
+      "body_sha256": "76fc136e648902bd8b55bbf226cc3146eb4da6c1b34d75afd3bdb6359c2de13b",
       "case": "actual normal admin preparation",
       "status": 200
     },
@@ -32,7 +32,7 @@
       "status": 409
     },
     {
-      "body_sha256": "54b5f94decd52a05d24f9b11ac152bed8a0441337466707bb87defbd1e31d6f6",
+      "body_sha256": "9f5ebb6ca12c0701bbbf34e5e94711b93552690a4f882ebfd76ef044ded7c243",
       "case": "same refresh second independent preparation",
       "status": 200
     },
@@ -41,7 +41,7 @@
       "pass": true
     },
     {
-      "body_sha256": "97ddd9ded4e878ddcfd572eac38aa51f140ef2259d88c3c4c1d09ac773e1a504",
+      "body_sha256": "8ffe646fb253900cbfc7cff2d68b43e2aaff7fb0ff85527b2241b86eede17dd6",
       "case": "prepare before admin ABA",
       "status": 200
     },
@@ -90,7 +90,7 @@
       "status": 401
     },
     {
-      "body_sha256": "62393534494e065bc364806460e064838976642b9c60721a9b9d92b57341f1b6",
+      "body_sha256": "f5fa2fc01b45f365d44948f1a4b54407f80bdf358b75e597eaad1d80f4e81c4a",
       "case": "prepare before configuration",
       "status": 200
     },
@@ -99,7 +99,7 @@
       "pass": true
     },
     {
-      "body_sha256": "8996ccb4914478e33e7c4c42a9a13df49c8eee9499df6190ab85aeeb7bf7e0a1",
+      "body_sha256": "f031671027815914fe2461e381f3d43da8437b1aa2c029c9ed10b8f9acf7b877",
       "case": "prepare before runtime",
       "status": 200
     },
@@ -108,7 +108,7 @@
       "pass": true
     },
     {
-      "body_sha256": "bda39cc70d47b08e9e377be371cbd059363319a5ca5507e3c379468dc277d0e4",
+      "body_sha256": "d82a79491a09e873813c32b0fef0bf6df04c94e75781b8831821290b1bb319f9",
       "case": "prepare before entry_state",
       "status": 200
     },
@@ -125,7 +125,7 @@
       "pass": true
     },
     {
-      "body_sha256": "0c41b371f743ee03d06592ba90298614fdc708490bb216c936646d23846f7860",
+      "body_sha256": "20bc0d8f0c1906a54d7dc2ed1c7815db4338ae544dd2480952e822bda68a218e",
       "case": "prepare before HA config ABA",
       "status": 200
     },
@@ -134,7 +134,7 @@
       "pass": true
     },
     {
-      "body_sha256": "aa9b5d4928df0897be30f0530eb5f69615e1445bf3553fb09cb3367fbc0338f0",
+      "body_sha256": "c244913909aa9e2dd488b46acc38a2896a0d40e6544bfc3674f789a008bc7ea6",
       "case": "prepare before real temporary entry flow",
       "status": 200
     },
@@ -143,12 +143,12 @@
       "pass": true
     },
     {
-      "body_sha256": "3606dbad888e82a9fd2e63543764635d3caf6b56d118173ababbb39b067286ff",
+      "body_sha256": "a03541608bde1d54851428b42fe946fc4941379f198f5aa483a59a16f193c4fa",
       "case": "prepare before runtime setter A",
       "status": 200
     },
     {
-      "body_sha256": "d98db8c7016fc56076061fe65bb57bca86d7f8e2a3b114878aba07e216c485c8",
+      "body_sha256": "5cd08293cbe147af15a8c565a7a6099924ae69ae29501746ca9f6def07a41f68",
       "case": "prepare before runtime setter B",
       "status": 200
     },
@@ -157,7 +157,7 @@
       "pass": true
     },
     {
-      "body_sha256": "bf89e7dfd61386271874cb765e0af6c1a0ac52a85407fa6e67034e345e58170f",
+      "body_sha256": "bd070ba77cd7db5513ebccbdd0a92f1f4041eab557a7584d320206d02b538702",
       "case": "fixed original local clock",
       "status": 200
     },
@@ -420,10 +420,10 @@
     "custom_components/djconnect/structured_playback.py": "38646476e55728ca71c63135e41e523ca284cabae5e0c2f0a4c830349d8fc01d",
     "custom_components/djconnect/surface_bootstrap_once.py": "cb257e6065d6335b7f22960384c25b5c4918ee75e5394aef6db0a430077e0f99",
     "custom_components/djconnect/surface_issuer_journal.py": "4cb01bec11b04c08ef0b313923254dff9b7f625a2e1264d57b3866133295b8eb",
-    "custom_components/djconnect/surface_issuer_lifecycle.py": "c58baeea524204ad6386c86a21c417b1a84f308c1f45702f33b79a07766c5dd3",
+    "custom_components/djconnect/surface_issuer_lifecycle.py": "c75703be2abaf4a68fd098a11a40e3a394382839e93380277a1803c6d0de6cc6",
     "custom_components/djconnect/surface_issuer_owner.py": "9412e7d4b6cd57206acd200ddc17240741bfc3b3695a5c1078e9cccd51af0505",
     "custom_components/djconnect/surface_issuer_responses.py": "441e32d5c48d67889e7a89c1507e000329c20f6327bc5760c7864679363c6834",
-    "custom_components/djconnect/surface_issuer_transport.py": "e32faa7fd02fe55a2088ecee2e46ca7f49ec96292f2698790341c2f7025fd9b8",
+    "custom_components/djconnect/surface_issuer_transport.py": "85656e0d89208ebf7b872d626ddb583d5239e45ed296e697ebb156a23641867f",
     "custom_components/djconnect/surface_issuer_wire.py": "6faf2eb2e293637e955459bcb25af30fd04aed449ea206356f221270dd9a2bb3",
     "custom_components/djconnect/surface_pair_journal.py": "1285aaef166ed3a7c0610050110922a8f886478cb642b643da7ecb99c3c4a70f",
     "custom_components/djconnect/surface_push_context.py": "b65af6f4b4cc0023853e4b179ca59001a6b418377f92a10124097983dac1de42",
@@ -431,9 +431,9 @@
     "custom_components/djconnect/surface_push_events.py": "aa60028d072a2981a38a0d9c441ef8c01193c660cf64087696b6c12b96c7fefd",
     "custom_components/djconnect/surface_push_http.py": "fdf1ff5fbb469223c3697992ca98a8598af9b3c10e002c19df06f73e6904df65",
     "custom_components/djconnect/surface_push_journal.py": "0738464f54a79a76d41e42d6678e6d0f3b43666c91972fc365a19c83754534d1",
-    "custom_components/djconnect/surface_push_purpose.py": "f29f862811b258851ada7fff60bb2e40dd3f2a69b3e8968196a6842e9137b925",
+    "custom_components/djconnect/surface_push_purpose.py": "d0d20c9f394efc33244303c71f5585b3f94765acf3a346e2b92b67c624eddb06",
     "custom_components/djconnect/surface_push_registry.py": "63d93db31aecd272c64d279b00ee65cb3bf074547009f0354a9011984188d38c",
-    "custom_components/djconnect/surface_push_relay.py": "1c5306528fbe066af3241bf705def82d7f6996d8ce34c59143b81d5d92985cd7",
+    "custom_components/djconnect/surface_push_relay.py": "4b2a7287e7e39a95b57a2d2076e5f1e3fd5ee87f6ac21ab7c47363efc2e69bda",
     "custom_components/djconnect/surface_push_service.py": "9560abe71a9851fe00e5cea3d1c128174e4ccf556fb54fbd1585f75bda8beeda",
     "custom_components/djconnect/surface_push_wire.py": "b46bcaa8999856df077ea612e4c80e5d400cfca551d73359352d3fa0a4a9e17c",
     "custom_components/djconnect/surface_registration.py": "a698f02742252022e30e180d28949ecc7d175e8b20c7d0b45dca987f6600d3f9",
@@ -441,6 +441,7 @@
     "custom_components/djconnect/surface_source_origin.py": "f887ba89068e88224e47dbf5875b644625623fa67e477ccd0f6b1217b863f20a",
     "custom_components/djconnect/surface_status_samples.py": "a7b01d2b8352bada97ab169daba91643777fcc5f882c98686fff893b1586876a",
     "custom_components/djconnect/surface_widget_adoption.py": "f57c7667ccc114e39b607121c626b33e02395e3bc22010e4c54b9fd3992019aa",
+    "custom_components/djconnect/surface_widget_private_transport.py": "4054e95c362d64bdd76de43bcc692ffea76cd6f1467c5dbfbf2cf5636cf90cdb",
     "custom_components/djconnect/switch.py": "4dbc76dcf13427c4b945e86cf20ac499e6be11f226232d1bde78eba0f7d6fc9d",
     "custom_components/djconnect/tool_handlers.py": "6d4a452ed7fc446aa27660a1348c35e74dd6159e1d309cb1c722bb16c28e046c",
     "custom_components/djconnect/tool_registry.py": "ef94acfa61b20c24af1ad1a6d31140140a6469d020cc2a3baa981492f6154c7a",

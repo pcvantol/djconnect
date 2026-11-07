@@ -35,6 +35,7 @@ class _OriginalAttempt:
     deadline_mono: float
     last_wall: int
     last_mono: float
+    transport: IssuerTransport = field(repr=False)
     local_guard: object = field(default=None, repr=False)
     closed: bool = False
     purpose: SurfacePurposeCredential | None = field(default=None, repr=False)
@@ -85,6 +86,10 @@ class IssuerLifecycle:
     def _validate(self, attempt, action, *, live):
         _cancelled()
         capture = attempt.capture
+        require(self.transport is attempt.transport, 'surface_issuer_transport_changed', 503)
+        from .surface_widget_private_transport import PrivateWidgetHTTPS
+        if type(attempt.transport) is PrivateWidgetHTTPS:
+            attempt.transport.validate_origin(capture.origin)
         if action == 'live' and attempt.local_guard is not None:
             require(attempt.local_guard() is None, 'surface_issuer_owner_unavailable', 503)
         capture.comparisons()
@@ -150,7 +155,7 @@ class IssuerLifecycle:
         jwk, _ = capture.comparisons()
         verify_envelope(path, envelope, jwk)
         guard()
-        reply = await self.transport.post_once(capture, action, envelope,
+        reply = await attempt.transport.post_once(capture, action, envelope,
             guard=guard, deadline=deadline)
         guard()
         require(type(reply) is IssuerHTTPReply, 'surface_issuer_reply_invalid')
@@ -173,7 +178,7 @@ class IssuerLifecycle:
             capture.expected.original_grant_expires_ms)
         handle = IssuerManagementHandle(capture, self._handle_owner)
         attempt = _OriginalAttempt(capture, handle, now, mono, end, mono + (end-now)/1000, now, mono,
-            local_guard=local_guard)
+            self.transport, local_guard=local_guard)
         require(identity not in self._attempts and len(self._attempts) < MAX_IDENTITIES,
             'surface_issuer_stage_consumed', 503)
         self._attempts[identity] = attempt
@@ -222,12 +227,15 @@ class IssuerLifecycle:
             guard()
             # The challenge window only gates issuance. Original grant anchors
             # remain unchanged for the RAM purpose, never reply/adoption time.
+            from .surface_widget_private_transport import PrivateWidgetHTTPS
+            private_transport = attempt.transport if type(attempt.transport) is PrivateWidgetHTTPS else None
             purpose = SurfacePurposeCredential(issued.bearer, capture.origin, issued.capability_id,
                 capture.expected.delegation_id, capture.expected.scope_digest,
                 capture.binding_id, capture.device_binding, capture.owner_binding,
                 capture.grant_binding, capture.source_binding, capture.policy_json,
                 capture.expected.original_grant_wall_ms, capture.expected.original_grant_monotonic,
-                current=lambda: self._purpose_current(attempt), wall=self.wall, monotonic=self.monotonic)
+                current=lambda: self._purpose_current(attempt), wall=self.wall, monotonic=self.monotonic,
+                private_transport=private_transport)
             attempt.purpose = purpose
             guard()
             require(purpose.is_current(), 'surface_issuer_owner_unavailable', 503)

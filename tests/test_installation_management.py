@@ -50,7 +50,7 @@ class ManagementGrammarTests(unittest.TestCase):
         proof = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation.json").read_text())
         original = proof["original_receipt"]
         current = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation-bulletin-diagnostics-current.json").read_text())
-        self.assertEqual(len(current["source_sha256"]), 308)
+        self.assertEqual(len(current["source_sha256"]), 309)
         for name, digest in current["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root / proof["harness"]).read_bytes()).hexdigest(), proof["harness_sha256"])
