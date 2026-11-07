@@ -1,5 +1,26 @@
 # Native surface push V1 — source preparation
 
+## HA-dev WidgetKit machine access
+
+Set `DJCONNECT_WIDGET_HA_DEV_ACCESS_FILE` to the absolute path of the
+operator-mounted credential file inside the HA-dev process. The file must
+be regular, owned by the HA process user, and mode `0400` or `0600`. It
+contains only `client_id`, `client_secret` and the original integer
+`expires_at_ms`. The Core service uses the credential only for
+`https://widget-ha-dev.djconnect.dev`. Startup does not contact the issuer
+or create a widget grant.
+
+A trusted in-process caller must supply the independently enrolled
+`WidgetIssuerOwner` and original paired request to
+`begin_enrolled_widget_adoption` before scheduling acquisition. The
+existing owner, device, source, Session, Broadcast and purpose checks
+continue to apply. File selection cannot enrol an owner. The service
+retires the selected generation at expiry or service shutdown. For a
+credential rotation, retire the old Access admission and restart the
+service with the new operator-mounted file; the old registration is not
+recreated by startup. Provider dispatch and physical delivery require
+their own verification.
+
 ## Original widget issuer-to-service adoption — 23 October 2026
 
 This source candidate adds the internal WIDGET-ONLY join between the existing issuer lifecycle and the HA surface service. Ordinary startup still supplies no enrolled owner, retains an empty purpose map and advertises no operational push availability. There is no new HTTP/configuration/Store/client credential-import route, operator enrollment, signer factory, public API activation, provider call or Activity/external-content permission.
