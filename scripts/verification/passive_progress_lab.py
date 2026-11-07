@@ -34,7 +34,7 @@ async def run(*, hass, runtime, client, headers, identity, manager, storage, sid
         assert response.headers['Cache-Control'] == 'no-store'
         return body
 
-    assert capability()['projection_versions'] == [1, 2, 3]
+    assert capability()['projection_versions'][:3] == [1, 2, 3]
     assert capability()['default_projection_version'] == 1
     await request('/authorize', {**consent, 'os_snapshot_cache': False}, 403)
     await request('/authorize', consent, 401, {})

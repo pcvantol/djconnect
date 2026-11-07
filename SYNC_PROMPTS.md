@@ -7928,3 +7928,9 @@ No new discovery/play request fields. New machine error codes carry no raw Engli
 provider message; clients render them in five UI languages, never replay an
 uncertain write or invent an output continuation. The explicit candidate read
 command grants no old-card playback authority and is not a runtime URI fallback.
+
+Retained latest large-widget contribution is a separate dependent source
+candidate: docs/product/PASSIVE_RETAINED_LATEST_CONTRIBUTION_V1.md. No change to
+approved #1484, existing v1/v2/v3 or Watch minimal scope; explicit projection4
+purpose/consent, original bounded publication lease and separate native gates
+must qualify before use. Current now_playing survives independent DJ expiry.

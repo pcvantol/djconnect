@@ -2,22 +2,22 @@
   "harness_pins": {
     "scripts/verification/passive_field_expiry_lab.py": "c4aa647f9626485c1d8e365a6b6897148f9e8f4a03f6a6ece400d499cbcb7f1a",
     "scripts/verification/verify_passive_field_expiry_http.py": "52be88c51b899800f0a8b4d9cd45008720e27d379f807ae3178a9cb5a94967cf",
-    "scripts/verification/verify_session_artwork_http.py": "f0a02658bcdedcaa7b6e0496822ee0c637124b26f1c8dcd357371c7a94ccc180"
+    "scripts/verification/verify_session_artwork_http.py": "3b4ba06e185d9eef18de42b5c509c2e1932203e9265a9b090b6492f6dd73be8f"
   },
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "11d0eefaad8800073071179a968b3a5442d8b9f320c5742cc76ef3848a6838ba",
+  "raw_receipt_sha256": "52c476ba37670a776e47ae18cb3747df0f186d25b778fb7e88c736c361cc2ad5",
   "receipt": {
     "after": {
       "contract_version": 1,
-      "grant_id": "Tvl9Ixlgk5Kq8b37BrKnCUP1bTerlVHw",
+      "grant_id": "clne9RApUgEJS4gRwupCZ9QW71KVAQwb",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_eligible_context",
           "state": "unavailable"
         },
-        "as_of": "2026-11-07T06:47:50.274749+00:00",
-        "binding_id": "0b6d1685a9c54f4cd7ad24e2059af541",
+        "as_of": "2026-11-07T07:54:38.158961+00:00",
+        "binding_id": "83c25b6fc20ce64810edcd9b67b658a7",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -31,28 +31,28 @@
           "state": "unavailable"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-07T06:49:25.268360+00:00",
-        "generation": "26f7c7fc1ba71f109016d8d986008efc",
+        "expires_at": "2026-11-07T07:56:13.189245+00:00",
+        "generation": "770d4f5ea6ad9a433b1c7fa9952dce50",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-5eb38956fc5e4f67903628bdf0a2c8d1"
+          "session_id": "session-d24a90688bb64eea8416d3ae64376526"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-07T06:47:25.268360+00:00",
+        "observed_at": "2026-11-07T07:54:13.189245+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "39760d2e86c3fe54b421837866fcddc1",
+        "revision": "525d11d7e1cf26c091314358a98f8522",
         "schema_version": 3,
-        "session_id": "session-5eb38956fc5e4f67903628bdf0a2c8d1",
+        "session_id": "session-d24a90688bb64eea8416d3ae64376526",
         "state": "active",
         "surface": "widget"
       },
@@ -60,15 +60,15 @@
     },
     "before": {
       "contract_version": 1,
-      "grant_id": "Tvl9Ixlgk5Kq8b37BrKnCUP1bTerlVHw",
+      "grant_id": "clne9RApUgEJS4gRwupCZ9QW71KVAQwb",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_matching_subject",
           "state": "unavailable"
         },
-        "as_of": "2026-11-07T06:47:25.269267+00:00",
-        "binding_id": "0b6d1685a9c54f4cd7ad24e2059af541",
+        "as_of": "2026-11-07T07:54:13.190382+00:00",
+        "binding_id": "83c25b6fc20ce64810edcd9b67b658a7",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -77,10 +77,10 @@
           "scope": "current_surface_only"
         },
         "contribution": {
-          "expires_at": "2026-11-07T06:47:50.212530+00:00",
-          "moment_id": "moment-6c402ff938cc713c740ac617fe89f56c",
+          "expires_at": "2026-11-07T07:54:38.098039+00:00",
+          "moment_id": "moment-6307e399e7d03a6cb5073cb790f0e4ea",
           "persona": "home_dj",
-          "published_at": "2026-11-07T06:47:25.212530+00:00",
+          "published_at": "2026-11-07T07:54:13.098039+00:00",
           "rights": {
             "external_relay": false,
             "os_snapshot": true,
@@ -96,28 +96,28 @@
           "state": "available"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-07T06:49:25.268360+00:00",
-        "generation": "26f7c7fc1ba71f109016d8d986008efc",
+        "expires_at": "2026-11-07T07:56:13.189245+00:00",
+        "generation": "770d4f5ea6ad9a433b1c7fa9952dce50",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-5eb38956fc5e4f67903628bdf0a2c8d1"
+          "session_id": "session-d24a90688bb64eea8416d3ae64376526"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-07T06:47:25.268360+00:00",
+        "observed_at": "2026-11-07T07:54:13.189245+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "39760d2e86c3fe54b421837866fcddc1",
+        "revision": "525d11d7e1cf26c091314358a98f8522",
         "schema_version": 3,
-        "session_id": "session-5eb38956fc5e4f67903628bdf0a2c8d1",
+        "session_id": "session-d24a90688bb64eea8416d3ae64376526",
         "state": "active",
         "surface": "widget"
       },
@@ -293,7 +293,7 @@
       "custom_components/djconnect/host_wake_runtime.py": "300a5776ebb61e9aa46994e440cd47d18731685ee1164d248f4242fb3775bf16",
       "custom_components/djconnect/host_wake_target_wire.py": "1623491959d48f1f84143d58da27da29a1b59efe2fb0a58db4ad90b67b50aa21",
       "custom_components/djconnect/host_wake_withdrawal.py": "0480ea22f7ddb16432f1fb3bf8ba136e74ad37f0d7be97f4cf46233f96628a23",
-      "custom_components/djconnect/http.py": "bae516375c6f1b145d3094ba59120dbb107785f4f07e0e67f4161393195047ed",
+      "custom_components/djconnect/http.py": "1fc3fa59ff8567fd85a910447fd525261297971491b0c007df86446d0b5a4be1",
       "custom_components/djconnect/hybrid_contract.py": "098acf391b0bbbbfb4caf5d2355df274b155e6566679a08d4f4a2ad04ca95b7a",
       "custom_components/djconnect/hybrid_ingress_qualification.py": "8e220874b16e7bbb1162261a1e89607a2a6067dca3fa3c820d2cc52ee3232933",
       "custom_components/djconnect/hybrid_local_policy.py": "711c4efc1d9a90bc92c02cb6c06af7c83a4b289cc3c9f34b675a156f099d864a",
@@ -325,8 +325,8 @@
       "custom_components/djconnect/paired_live.py": "b4f2796aab724309b31e750b8991031527921916f295a488c3f36a69a8dd17b6",
       "custom_components/djconnect/paired_live_contract.py": "fb4485b6acd9d548c17953edf64af4c4c4aa98c93cb325721acc033ff787f736",
       "custom_components/djconnect/pairing_defaults.py": "d65b049671f2c594edadfeed12a8a5b0da4d1c3a4f33aaa77b0a7e35aae243b7",
-      "custom_components/djconnect/passive_contribution.py": "6cf021d669065f84bd80fde291ef5265e960bac5b84c01f313fe7adf0c05899f",
-      "custom_components/djconnect/passive_session.py": "83cdbd129e7b071b9b3d43a4c6cc8bbd8c475cbe8cf83426950c14801c37940f",
+      "custom_components/djconnect/passive_contribution.py": "1e387aacd6cb6b36729d0b316d459cbd1327ce0f2ab8e62785b05f9d84f45ff5",
+      "custom_components/djconnect/passive_session.py": "f4b8f1299c84e3e3b4b4fbdbc2e73ddb13ebc6bc0bb77565789f783e9c158a0c",
       "custom_components/djconnect/persistence/README.md": "c305e30879e4a3006a72fcf44487408ec7afba4caff509503d2b603c6ecf927f",
       "custom_components/djconnect/persistence/__init__.py": "8dc97e8769e396ad480a8a5db345974f63b7ff334020980a3d15921e898c8b97",
       "custom_components/djconnect/persistence/bootstrap.py": "cb239bd1fb477800436baee9a7496e5af48429f890dcdb5e1fa1ce01cad1b27d",
@@ -456,7 +456,7 @@
       "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
       "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
     },
-    "waited_real_seconds": 24.993099021911622
+    "waited_real_seconds": 24.957410621643067
   },
   "source_before_after_equal": true,
   "source_pins": {
@@ -606,7 +606,7 @@
     "custom_components/djconnect/host_wake_runtime.py": "300a5776ebb61e9aa46994e440cd47d18731685ee1164d248f4242fb3775bf16",
     "custom_components/djconnect/host_wake_target_wire.py": "1623491959d48f1f84143d58da27da29a1b59efe2fb0a58db4ad90b67b50aa21",
     "custom_components/djconnect/host_wake_withdrawal.py": "0480ea22f7ddb16432f1fb3bf8ba136e74ad37f0d7be97f4cf46233f96628a23",
-    "custom_components/djconnect/http.py": "bae516375c6f1b145d3094ba59120dbb107785f4f07e0e67f4161393195047ed",
+    "custom_components/djconnect/http.py": "1fc3fa59ff8567fd85a910447fd525261297971491b0c007df86446d0b5a4be1",
     "custom_components/djconnect/hybrid_contract.py": "098acf391b0bbbbfb4caf5d2355df274b155e6566679a08d4f4a2ad04ca95b7a",
     "custom_components/djconnect/hybrid_ingress_qualification.py": "8e220874b16e7bbb1162261a1e89607a2a6067dca3fa3c820d2cc52ee3232933",
     "custom_components/djconnect/hybrid_local_policy.py": "711c4efc1d9a90bc92c02cb6c06af7c83a4b289cc3c9f34b675a156f099d864a",
@@ -638,8 +638,8 @@
     "custom_components/djconnect/paired_live.py": "b4f2796aab724309b31e750b8991031527921916f295a488c3f36a69a8dd17b6",
     "custom_components/djconnect/paired_live_contract.py": "fb4485b6acd9d548c17953edf64af4c4c4aa98c93cb325721acc033ff787f736",
     "custom_components/djconnect/pairing_defaults.py": "d65b049671f2c594edadfeed12a8a5b0da4d1c3a4f33aaa77b0a7e35aae243b7",
-    "custom_components/djconnect/passive_contribution.py": "6cf021d669065f84bd80fde291ef5265e960bac5b84c01f313fe7adf0c05899f",
-    "custom_components/djconnect/passive_session.py": "83cdbd129e7b071b9b3d43a4c6cc8bbd8c475cbe8cf83426950c14801c37940f",
+    "custom_components/djconnect/passive_contribution.py": "1e387aacd6cb6b36729d0b316d459cbd1327ce0f2ab8e62785b05f9d84f45ff5",
+    "custom_components/djconnect/passive_session.py": "f4b8f1299c84e3e3b4b4fbdbc2e73ddb13ebc6bc0bb77565789f783e9c158a0c",
     "custom_components/djconnect/persistence/README.md": "c305e30879e4a3006a72fcf44487408ec7afba4caff509503d2b603c6ecf927f",
     "custom_components/djconnect/persistence/__init__.py": "8dc97e8769e396ad480a8a5db345974f63b7ff334020980a3d15921e898c8b97",
     "custom_components/djconnect/persistence/bootstrap.py": "cb239bd1fb477800436baee9a7496e5af48429f890dcdb5e1fa1ce01cad1b27d",
