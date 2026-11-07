@@ -1,6 +1,6 @@
 {
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "b9f65356e2441556bb7092befdfe0ffb569d50bef0fbb158b39c243354bc8757",
+  "raw_receipt_sha256": "3f044a217f84c003ce957315f5e38bfa48888ec3642ad2c30cc4e599e7dbe907",
   "receipt": {
     "actual_ha_store_readback": true,
     "cases": {
@@ -45,7 +45,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-07T04:02:37.009106+00:00",
+            "observed_at": "2026-11-07T06:30:33.658221+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -89,7 +89,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-07T04:02:37.011345+00:00",
+            "observed_at": "2026-11-07T06:30:33.661085+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -132,7 +132,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-07T04:02:37.013389+00:00",
+            "observed_at": "2026-11-07T06:30:33.663098+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -162,7 +162,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-07T04:02:37.014722+00:00",
+            "observed_at": "2026-11-07T06:30:33.664920+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -192,7 +192,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": [],
-            "observed_at": "2026-11-07T04:02:37.015978+00:00",
+            "observed_at": "2026-11-07T06:30:33.666626+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -234,7 +234,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-07T04:02:37.019502+00:00",
+            "observed_at": "2026-11-07T06:30:33.670447+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -276,7 +276,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-07T04:02:37.039472+00:00",
+            "observed_at": "2026-11-07T06:30:33.710635+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -318,7 +318,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-07T04:02:37.040067+00:00",
+            "observed_at": "2026-11-07T06:30:33.711346+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -350,7 +350,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-07T04:02:37.040548+00:00",
+            "observed_at": "2026-11-07T06:30:33.711857+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -395,7 +395,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-07T04:02:37.040548+00:00",
+            "observed_at": "2026-11-07T06:30:33.711857+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -450,7 +450,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-07T04:02:37.042168+00:00",
+            "observed_at": "2026-11-07T06:30:33.714678+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -516,7 +516,7 @@
       "custom_components/djconnect/ask_dj/observations.py": "79c45e4a6fb17a6d818adf3ef3948c743ec926af68a5f0429e032b089310747c",
       "custom_components/djconnect/ask_dj/person_age.py": "20b3018c2c7b46935dfabc46c1b9d307d14f1dab777ace9e8327a367ed00b139",
       "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
-      "custom_components/djconnect/ask_dj/public_research.py": "d710d2f6c5699be8918694d2003ebd77941851c51c7da0a9c909071ee53c6811",
+      "custom_components/djconnect/ask_dj/public_research.py": "1a7605bf081eab4a70d95bbdc2eb0edf6c2a8546cb1f0f22ded264f33e2a7a37",
       "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
       "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
       "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",
@@ -809,7 +809,7 @@
     "custom_components/djconnect/ask_dj/observations.py": "79c45e4a6fb17a6d818adf3ef3948c743ec926af68a5f0429e032b089310747c",
     "custom_components/djconnect/ask_dj/person_age.py": "20b3018c2c7b46935dfabc46c1b9d307d14f1dab777ace9e8327a367ed00b139",
     "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
-    "custom_components/djconnect/ask_dj/public_research.py": "d710d2f6c5699be8918694d2003ebd77941851c51c7da0a9c909071ee53c6811",
+    "custom_components/djconnect/ask_dj/public_research.py": "1a7605bf081eab4a70d95bbdc2eb0edf6c2a8546cb1f0f22ded264f33e2a7a37",
     "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
     "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
     "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",

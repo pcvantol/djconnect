@@ -5,7 +5,7 @@
     "scripts/verification/verify_session_conversation_history_http.py": "f05595c35ab21a2a87c5210ad4ec2d19cec341a7192827bdc7873a064727b068"
   },
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "111edc91457f9bfda34494f0dac219975ac32aab11905ee7390cd2659aa27954",
+  "raw_receipt_sha256": "9830e716636d50b6d16a36046725d020fd65fe7dddfec33fefc4bc2dc0580716",
   "receipt": {
     "actual_home_assistant": true,
     "aiohttp_default_retry_client": true,
@@ -403,7 +403,7 @@
       "custom_components/djconnect/ask_dj/observations.py": "79c45e4a6fb17a6d818adf3ef3948c743ec926af68a5f0429e032b089310747c",
       "custom_components/djconnect/ask_dj/person_age.py": "20b3018c2c7b46935dfabc46c1b9d307d14f1dab777ace9e8327a367ed00b139",
       "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
-      "custom_components/djconnect/ask_dj/public_research.py": "d710d2f6c5699be8918694d2003ebd77941851c51c7da0a9c909071ee53c6811",
+      "custom_components/djconnect/ask_dj/public_research.py": "1a7605bf081eab4a70d95bbdc2eb0edf6c2a8546cb1f0f22ded264f33e2a7a37",
       "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
       "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
       "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",
@@ -830,7 +830,7 @@
     "custom_components/djconnect/ask_dj/observations.py": "79c45e4a6fb17a6d818adf3ef3948c743ec926af68a5f0429e032b089310747c",
     "custom_components/djconnect/ask_dj/person_age.py": "20b3018c2c7b46935dfabc46c1b9d307d14f1dab777ace9e8327a367ed00b139",
     "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
-    "custom_components/djconnect/ask_dj/public_research.py": "d710d2f6c5699be8918694d2003ebd77941851c51c7da0a9c909071ee53c6811",
+    "custom_components/djconnect/ask_dj/public_research.py": "1a7605bf081eab4a70d95bbdc2eb0edf6c2a8546cb1f0f22ded264f33e2a7a37",
     "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
     "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
     "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",

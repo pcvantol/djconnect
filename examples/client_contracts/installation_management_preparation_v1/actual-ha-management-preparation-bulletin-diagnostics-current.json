@@ -22,7 +22,7 @@
       "status": 403
     },
     {
-      "body_sha256": "7ffcf6b97ffaaf82977e58694ada474ffad53765ca3b0151e4ebbebb0ac399ae",
+      "body_sha256": "bae435187a1f5847ac9a0808cd33c6ed7f34c25c3ded26aa7b09f8b87cbb7214",
       "case": "actual normal admin preparation",
       "status": 200
     },
@@ -32,7 +32,7 @@
       "status": 409
     },
     {
-      "body_sha256": "4f5e0186ad7cab4ff8d102db6539fcf5507b7fcc498dd28c276f12c80361d6b7",
+      "body_sha256": "9bc26f6b298cdd52d21b1e603611c419acdc756c9a6db39618754c956c989538",
       "case": "same refresh second independent preparation",
       "status": 200
     },
@@ -41,7 +41,7 @@
       "pass": true
     },
     {
-      "body_sha256": "a7d8ea48dc3f444b3bebc85fadddfbf5e969f57350accb5422a2504d7c212ce8",
+      "body_sha256": "e67d646f57a2e9cbfbb0fe71710cf4e1704c0750a1f46924a5a49c1f94507e9e",
       "case": "prepare before admin ABA",
       "status": 200
     },
@@ -90,7 +90,7 @@
       "status": 401
     },
     {
-      "body_sha256": "8e2d527a04205838793f01068ba5d45566251e3283123a4ae135adc07d5ecb72",
+      "body_sha256": "01b658e6a0cd2f307048599bbc768d4e42b6b87b3b1125a7450de8efce72cdf1",
       "case": "prepare before configuration",
       "status": 200
     },
@@ -99,7 +99,7 @@
       "pass": true
     },
     {
-      "body_sha256": "c40168d66d710800c9905aa8045aacf18233465b9f7533dde6f121d66e48e24e",
+      "body_sha256": "1de0ec097c803cac6fa46d665b61ab2a9d912244b8bf41d3c987512f50c41ebb",
       "case": "prepare before runtime",
       "status": 200
     },
@@ -108,7 +108,7 @@
       "pass": true
     },
     {
-      "body_sha256": "9b46fd793d2542607d2a2ba980f3efe3756d0c866186cba52820dee1a72eb4a6",
+      "body_sha256": "6c3819196a2c5777cd691679d66639714c942f696e67a7488b9192daf0784f4e",
       "case": "prepare before entry_state",
       "status": 200
     },
@@ -125,7 +125,7 @@
       "pass": true
     },
     {
-      "body_sha256": "2e8f1960420f505f181d9285fc299d542a7b8e061e69d1cd1f4542db6231a12d",
+      "body_sha256": "aa47691f0fbe3a1f512dbb88f425a057bf4d9e0023dfcc9164c710d6110b945a",
       "case": "prepare before HA config ABA",
       "status": 200
     },
@@ -134,7 +134,7 @@
       "pass": true
     },
     {
-      "body_sha256": "cf92da923b9a19cb99f6932ff4cc81099fd49084ee4a972167c3668c1883a418",
+      "body_sha256": "865c788adbf47da15ae20861d74cbbe09bd7fa93c823bf3bd1ab17e99f5dd4b5",
       "case": "prepare before real temporary entry flow",
       "status": 200
     },
@@ -143,12 +143,12 @@
       "pass": true
     },
     {
-      "body_sha256": "bfa5b7faf847395135e3a626b87dd4a09c892021a72ea1d92c3eb5f9afd73ff2",
+      "body_sha256": "7793e30668f3e17eeb5ad70d9c0eb4c17f5000becba82d34ca2ad415dc834200",
       "case": "prepare before runtime setter A",
       "status": 200
     },
     {
-      "body_sha256": "8a32fc638ed37f8e5e535739e6418ff8c6f55aee8eee7fcf6f841351c3562737",
+      "body_sha256": "37eb8a55d5609ae5c04a68e346fabd298c36944f9b82850deafece449b0d2fea",
       "case": "prepare before runtime setter B",
       "status": 200
     },
@@ -157,7 +157,7 @@
       "pass": true
     },
     {
-      "body_sha256": "93ae93b895678b92ff5e4eeca171737313e8eefd9ca53030fc8d668b5232df0f",
+      "body_sha256": "9eda5c80ebc979f734e38eaaac57660242fa3ab4d0cc69100e77837b5598bff9",
       "case": "fixed original local clock",
       "status": 200
     },
@@ -199,7 +199,7 @@
     "custom_components/djconnect/ask_dj/observations.py": "79c45e4a6fb17a6d818adf3ef3948c743ec926af68a5f0429e032b089310747c",
     "custom_components/djconnect/ask_dj/person_age.py": "20b3018c2c7b46935dfabc46c1b9d307d14f1dab777ace9e8327a367ed00b139",
     "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
-    "custom_components/djconnect/ask_dj/public_research.py": "d710d2f6c5699be8918694d2003ebd77941851c51c7da0a9c909071ee53c6811",
+    "custom_components/djconnect/ask_dj/public_research.py": "1a7605bf081eab4a70d95bbdc2eb0edf6c2a8546cb1f0f22ded264f33e2a7a37",
     "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
     "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
     "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",
