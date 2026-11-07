@@ -25,6 +25,14 @@ per platform. Apple uses the existing native renderer and proves the actual
 target. Where the original pairing or platform proof is unavailable,
 enrollment stays closed.
 
+The Core pair journal captures the exact loaded ConfigEntry, including its
+options. First-time central credential persistence replaces those options.
+The automatic flow must complete that write before retaining the pair
+acknowledgement for the native witness, or carry the same original pair
+through only that verified credential write. A pending setup response,
+status request, arbitrary options update or restored acknowledgement cannot
+supply a replacement pairing witness.
+
 Turning off one channel invalidates that device and channel's authorization
 before awaiting remote withdrawal. Unpairing retires all authorizations for
 that pairing. Renewal and recovery require current authorization and preserve
