@@ -47,7 +47,9 @@ class _LoadedGenreSeeds:
         return self.signature[-1]
 
     def valid(self):
-        current = self.manager._loaded_genre_signature(self.owner, self.limit)
+        # Compare only the previously committed basis; never admit a new one
+        # from pending data. Relevant identity/value/epoch changes still retire it.
+        current = self.manager._loaded_genre_signature(self.owner, self.limit, existing_snapshot=True)
         if (self.withdrawn or current is None
                 or any(a is not b for a, b in zip(self.signature[:6], current[:6]))
                 or self.signature[6:] != current[6:]):
@@ -82,8 +84,9 @@ class MusicDNAManager:
         signature = self._loaded_genre_signature(profile_id, limit)
         return _LoadedGenreSeeds(self, profile_id, signature, limit) if signature else None
 
-    def _loaded_genre_signature(self, profile_id, limit=3):
-        if (not self._loaded or self._genre_save_failed or self._save_lock.locked()
+    def _loaded_genre_signature(self, profile_id, limit=3, *, existing_snapshot=False):
+        if (not self._loaded or self._genre_save_failed
+                or (self._save_lock.locked() and not existing_snapshot)
                 or not isinstance(profile_id, str) or not profile_id):
             return None
         memories = self._data.get("memories")

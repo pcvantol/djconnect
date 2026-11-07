@@ -5,19 +5,19 @@
     "scripts/verification/verify_session_artwork_http.py": "f0a02658bcdedcaa7b6e0496822ee0c637124b26f1c8dcd357371c7a94ccc180"
   },
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "e6121ebeaef62415e49dec599e519ad60f545417d524a7e5b20bc79dd1dd16bf",
+  "raw_receipt_sha256": "e019364eaa4c67eaacd257766df3c4dfcaa0dac6db20e6fc80fd1633469e56e1",
   "receipt": {
     "after": {
       "contract_version": 1,
-      "grant_id": "-RUmmIYzhKmDOJGj2UcOqpbnvW61jJ0v",
+      "grant_id": "S2Cb4kAXCsoP8uJcf_FhqzlFtIJ1C22S",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_eligible_context",
           "state": "unavailable"
         },
-        "as_of": "2026-11-07T01:54:20.015687+00:00",
-        "binding_id": "2eaf30870388119bdd7fc21e609715ba",
+        "as_of": "2026-11-07T02:41:02.400784+00:00",
+        "binding_id": "1d3cc8d64a7f6c30b725af1a53da932f",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -31,28 +31,28 @@
           "state": "unavailable"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-07T01:55:55.031292+00:00",
-        "generation": "286f17daa2fa5ea872aba6f7ef724505",
+        "expires_at": "2026-11-07T02:42:37.433413+00:00",
+        "generation": "3289bf80f50f7e449303e0aa181495da",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-1ec0598ac59c479193abf7518fdd6c2c"
+          "session_id": "session-8a8038b14fb045d9a9287e834ce6a3da"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-07T01:53:55.031292+00:00",
+        "observed_at": "2026-11-07T02:40:37.433413+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "ef3babf4c1a1db9402b307894906e443",
+        "revision": "1da0c41d9acb31b8adf6260c765f8450",
         "schema_version": 3,
-        "session_id": "session-1ec0598ac59c479193abf7518fdd6c2c",
+        "session_id": "session-8a8038b14fb045d9a9287e834ce6a3da",
         "state": "active",
         "surface": "widget"
       },
@@ -60,15 +60,15 @@
     },
     "before": {
       "contract_version": 1,
-      "grant_id": "-RUmmIYzhKmDOJGj2UcOqpbnvW61jJ0v",
+      "grant_id": "S2Cb4kAXCsoP8uJcf_FhqzlFtIJ1C22S",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_matching_subject",
           "state": "unavailable"
         },
-        "as_of": "2026-11-07T01:53:55.032435+00:00",
-        "binding_id": "2eaf30870388119bdd7fc21e609715ba",
+        "as_of": "2026-11-07T02:40:37.434601+00:00",
+        "binding_id": "1d3cc8d64a7f6c30b725af1a53da932f",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -77,10 +77,10 @@
           "scope": "current_surface_only"
         },
         "contribution": {
-          "expires_at": "2026-11-07T01:54:19.949108+00:00",
-          "moment_id": "moment-6596bdf1361d1e9949f5c7c71b505ede",
+          "expires_at": "2026-11-07T02:41:02.340120+00:00",
+          "moment_id": "moment-68058270b79fe70e64f3d6d188933db0",
           "persona": "home_dj",
-          "published_at": "2026-11-07T01:53:54.949108+00:00",
+          "published_at": "2026-11-07T02:40:37.340120+00:00",
           "rights": {
             "external_relay": false,
             "os_snapshot": true,
@@ -96,28 +96,28 @@
           "state": "available"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-07T01:55:55.031292+00:00",
-        "generation": "286f17daa2fa5ea872aba6f7ef724505",
+        "expires_at": "2026-11-07T02:42:37.433413+00:00",
+        "generation": "3289bf80f50f7e449303e0aa181495da",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-1ec0598ac59c479193abf7518fdd6c2c"
+          "session_id": "session-8a8038b14fb045d9a9287e834ce6a3da"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-07T01:53:55.031292+00:00",
+        "observed_at": "2026-11-07T02:40:37.433413+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "ef3babf4c1a1db9402b307894906e443",
+        "revision": "1da0c41d9acb31b8adf6260c765f8450",
         "schema_version": 3,
-        "session_id": "session-1ec0598ac59c479193abf7518fdd6c2c",
+        "session_id": "session-8a8038b14fb045d9a9287e834ce6a3da",
         "state": "active",
         "surface": "widget"
       },
@@ -312,9 +312,9 @@
       "custom_components/djconnect/moment_expression.py": "a77f630a285024280be49348c55a63a8ac88b87c2df2366eb2559eca9723c269",
       "custom_components/djconnect/moment_navigation.py": "7c4d94c6d4ebe947abf083818a2264c28e9d2ae3b577b45c2009e72712412af6",
       "custom_components/djconnect/mood.py": "84aefec705178fe6b32f601771d6280e5eb788f161c8cff1fd106a061d792e8c",
-      "custom_components/djconnect/mood_music_steering.py": "f5b6511f200c71d1611cd70ac498200cf2854b807b88b75eb012ca37ed254a4f",
+      "custom_components/djconnect/mood_music_steering.py": "607aeabd68931e8422fa45617a40cd0126c40f9ab24ac323af47a98f32db2cd0",
       "custom_components/djconnect/music_discovery.py": "3f0000a49cef12276cf39869bfda9348c9dcf3ed90d8f5819f37644d1ebb5218",
-      "custom_components/djconnect/music_dna.py": "4233406464d0f7a3d9e1e4479fea4641446675807faf705e337f0f3bf6a1114c",
+      "custom_components/djconnect/music_dna.py": "7dc08a079092aaf265bc1bbcf5403918444301bbfd360250a120f260ef3cd68b",
       "custom_components/djconnect/music_intent.py": "1c23fbc72358fefa64c409d5334bddb97230216fac1943233a10fec0c333e7f1",
       "custom_components/djconnect/musicbrainz_rate.py": "6e40f3c605fbd73dc246630cd4a1b60d7fb89b03344663d6102007d63846453a",
       "custom_components/djconnect/narration_brief.py": "55914dac66696d19c2eeb0a7b209a1bbf94a4482fe10606fc9f5531feda5182d",
@@ -456,7 +456,7 @@
       "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
       "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
     },
-    "waited_real_seconds": 24.966498184204102
+    "waited_real_seconds": 24.955291080474854
   },
   "source_before_after_equal": true,
   "source_pins": {
@@ -625,9 +625,9 @@
     "custom_components/djconnect/moment_expression.py": "a77f630a285024280be49348c55a63a8ac88b87c2df2366eb2559eca9723c269",
     "custom_components/djconnect/moment_navigation.py": "7c4d94c6d4ebe947abf083818a2264c28e9d2ae3b577b45c2009e72712412af6",
     "custom_components/djconnect/mood.py": "84aefec705178fe6b32f601771d6280e5eb788f161c8cff1fd106a061d792e8c",
-    "custom_components/djconnect/mood_music_steering.py": "f5b6511f200c71d1611cd70ac498200cf2854b807b88b75eb012ca37ed254a4f",
+    "custom_components/djconnect/mood_music_steering.py": "607aeabd68931e8422fa45617a40cd0126c40f9ab24ac323af47a98f32db2cd0",
     "custom_components/djconnect/music_discovery.py": "3f0000a49cef12276cf39869bfda9348c9dcf3ed90d8f5819f37644d1ebb5218",
-    "custom_components/djconnect/music_dna.py": "4233406464d0f7a3d9e1e4479fea4641446675807faf705e337f0f3bf6a1114c",
+    "custom_components/djconnect/music_dna.py": "7dc08a079092aaf265bc1bbcf5403918444301bbfd360250a120f260ef3cd68b",
     "custom_components/djconnect/music_intent.py": "1c23fbc72358fefa64c409d5334bddb97230216fac1943233a10fec0c333e7f1",
     "custom_components/djconnect/musicbrainz_rate.py": "6e40f3c605fbd73dc246630cd4a1b60d7fb89b03344663d6102007d63846453a",
     "custom_components/djconnect/narration_brief.py": "55914dac66696d19c2eeb0a7b209a1bbf94a4482fe10606fc9f5531feda5182d",

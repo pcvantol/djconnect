@@ -646,6 +646,20 @@ def _first_play_dna(hass, runtime, profile_id):
     return seeds, original
 
 
+def _cached_for_you_dna_current(hass, runtime, profile_id, active):
+    """Compare the original committed read basis; never renew it on projection."""
+    offer = active.broadcast.first_play_offer if active is not None else None
+    admission = offer.get('_admission') if isinstance(offer, dict) else None
+    if type(admission) is FirstPlayAdmission:
+        return (not admission.withdrawn and admission.hass is hass
+                and admission.active.session_id == active.session_id
+                and admission.active.broadcast is active.broadcast and admission.profile_id == profile_id
+                and getattr(admission.dna_seeds, 'owner', None) == profile_id
+                and getattr(admission.dna_seeds, 'manager', None) is getattr(runtime, 'memory', None)
+                and callable(admission.dna_guard) and admission.dna_guard() is True)
+    return _first_play_dna(hass, runtime, profile_id) is not None
+
+
 def first_play_requested(text):
     return str(text or "").strip().casefold().rstrip(".!?") in {
         value[1].casefold() for value in FIRST_PLAY_COPY.values()}
@@ -661,7 +675,7 @@ def first_play_catalogue(hass, runtime, profile_id, active, *, client_device_id=
     source, authority = source_admission(hass, runtime, profile_id) if active is not None else (None, None)
     from .session_runtime import session_runtime_manager
     stored = session_runtime_manager(hass)._history_source_contexts.get(active.session_id) if active else None
-    dna = _first_play_dna(hass, runtime, profile_id)
+    dna = _cached_for_you_dna_current(hass, runtime, profile_id, active)
     available = bool(active and _first_play_empty(active) and dna
                      and client_device_id not in active.broadcast.first_play_dismissed_devices
                      and source and stored == source and callable(authority) and authority())
@@ -1190,7 +1204,7 @@ def for_you_projection(hass, runtime, profile_id, active, *, client_device_id=""
             result['continuation'].setdefault('action_outcome', {
                 'state':'uncertain', 'retry_automatically':False})
     admission = offer.get('_admission') if isinstance(offer, dict) else None
-    if result['visible'] and (_first_play_dna(hass, runtime, profile_id) is None
+    if result['visible'] and (not _cached_for_you_dna_current(hass, runtime, profile_id, active)
             or (type(admission) is FirstPlayAdmission and (not admission.dna_guard() or not admission.authority()))):
         result.update(state='unavailable', reason='music_dna_unavailable', options=[], actions_available=False)
         result.pop('result_set', None)
