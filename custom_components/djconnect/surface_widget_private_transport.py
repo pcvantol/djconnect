@@ -45,6 +45,10 @@ class PrivateWidgetHTTPS(IssuerHTTPS):
         binding.validate()
         self._binding = binding
 
+    def validate_origin(self, origin):
+        require(origin == self._binding.origin, "surface_widget_origin_changed", 503)
+        self._binding.validate()
+
     async def post_once(self, capture, action, envelope, *, guard, deadline):
         require(type(capture) is IssuerOwnerCapture,
             "surface_issuer_owner_capture_invalid", 503)
@@ -70,7 +74,7 @@ class PrivateWidgetHTTPS(IssuerHTTPS):
     async def relay(self, admission, action, body, *, deadline):
         require(type(action) is str and action in _RELAY, "surface_widget_operation_invalid")
         purpose = admission.purpose
-        require(type(purpose) is SurfacePurposeCredential,
+        require(type(purpose) is SurfacePurposeCredential and purpose.private_transport is self,
             "surface_purpose_unavailable", 503)
 
         def guard():

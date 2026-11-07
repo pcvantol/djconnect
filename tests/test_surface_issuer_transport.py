@@ -226,11 +226,12 @@ class IssuerHTTPBoundaryTests(unittest.IsolatedAsyncioTestCase):
             capture.expected.scope_digest, capture.binding_id, capture.device_binding,
             capture.owner_binding, capture.grant_binding, capture.source_binding,
             capture.policy_json, expires - 1000, 100.0, lambda: True,
-            wall=lambda: expires - 1000, monotonic=lambda: 100.0)
+            wall=lambda: expires - 1000, monotonic=lambda: 100.0, private_transport=transport)
         body = {key: getattr(capture, key) for key in
             ("binding_id", "device_binding", "owner_binding")}
         admission = types.SimpleNamespace(purpose=purpose, validate=self.guard)
-        await transport.relay(admission, "status", body, deadline=110.0)
+        from custom_components.djconnect.surface_push_relay import post_once
+        await post_once(None, None, "status", body, admission)
         url, request = self.calls[0]
         self.assertEqual(url, capture.origin + "/v1/push/surface/status")
         self.assertEqual(request["headers"]["Authorization"], "Bearer " + purpose.bearer)

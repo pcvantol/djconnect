@@ -312,6 +312,24 @@ class IssuerLifecycleTests(unittest.IsolatedAsyncioTestCase):
         await asyncio.create_task(run())
         self.assertEqual(self.transport.calls, [])
 
+    async def test_issued_widget_purpose_retains_original_private_transport(self):
+        from custom_components.djconnect.surface_widget_private_transport import (
+            PrivateWidgetHTTPS, WidgetAccessBinding,
+        )
+
+        generation = [object()]
+        capture = self.owner.capture_live(operation(START))
+        binding = WidgetAccessBinding(capture.origin, generation[0], lambda: generation[0],
+            "fixture-id", "fixture-secret")
+        private = PrivateWidgetHTTPS(binding, monotonic=lambda: self.clock[1])
+        self.lifecycle.transport = private
+        with patch.object(PrivateWidgetHTTPS, "post_once", self.transport.post_once):
+            purpose = await self.lifecycle.acquire(self.lifecycle.begin(operation(START)))
+        self.assertIs(purpose.private_transport, private)
+        self.assertTrue(purpose.is_current())
+        generation[0] = object()
+        self.assertFalse(purpose.is_current())
+
 
 class IssuerStrictResponseTests(unittest.TestCase):
     def test_bounded_unique_utf8_closed_numeric_domain(self):
