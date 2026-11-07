@@ -43,6 +43,13 @@ _IMAGE_KEYS = frozenset(
 )
 
 
+class DiscoveryCatalogueSearch(dict):
+    """Internal request for the existing search to retain bounded artwork.
+
+    Plain command JSON cannot request provider reference metadata.
+    """
+
+
 def provider_asset_id(url: Any) -> str:
     """Only the exact existing Spotify CDN image route, no user-controlled fetch."""
     if not isinstance(url, str) or len(url) > 256 or "\\" in url or any(c.isspace() for c in url):
