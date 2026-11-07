@@ -463,6 +463,56 @@ class PushTest(unittest.TestCase):
                 self.assertEqual(call["json"]["app_bundle_id"], bundle_id)
                 self.assertEqual(call["json"]["categories"], ["ask_dj"])
 
+    def test_watch_moment_preference_cannot_be_written_by_token_registration(self) -> None:
+        hass = types.SimpleNamespace(session=FakeSession())
+        runtime = self._runtime()
+        watch = {
+            "device_id": "djconnect-watchos-ABCDEFGHIJKL",
+            "client_type": "watchos",
+            "push_token": "watch-token-secret-value",
+            "push_environment": "sandbox",
+            "app_bundle_id": "dev.djconnect.ios.watch",
+            "notification_categories": ["dj_moments_v1"],
+        }
+        for overrides in (
+            {},
+            {"categories": []},
+            {"categories": ["dj_moments_v1"]},
+        ):
+            with self.subTest(overrides=overrides):
+                result = asyncio.run(self.push.async_register(
+                    hass, runtime, user_id="user-1",
+                    payload={**watch, **overrides},
+                ))
+                self.assertTrue(result["success"])
+                outbound = hass.session.calls[-1]["json"]
+                self.assertEqual(outbound["ha_install_id"], "ha-install-1")
+                self.assertEqual(outbound["apns_token"], watch["push_token"])
+                self.assertEqual(outbound["device_id"], overrides.get("device_id", watch["device_id"]))
+                self.assertEqual(outbound["categories"], ["ask_dj"])
+
+    def test_watch_moment_registration_timeout_is_not_acknowledged(self) -> None:
+        class TimeoutSession(FakeSession):
+            def post(self, url, **kwargs):
+                super().post(url, **kwargs)
+                raise TimeoutError
+
+        hass = types.SimpleNamespace(session=TimeoutSession())
+        result = asyncio.run(self.push.async_register(
+            hass, self._runtime(), user_id="user-1",
+            payload={
+                "device_id": "djconnect-watchos-ABCDEFGHIJKL",
+                "client_type": "watchos",
+                "push_token": "watch-token-secret-value",
+                "push_environment": "sandbox",
+                "app_bundle_id": "dev.djconnect.ios.watch",
+                "categories": [],
+            },
+        ))
+        self.assertEqual(hass.session.calls[-1]["json"]["categories"], ["ask_dj"])
+        self.assertFalse(result["success"])
+        self.assertFalse(result["push_registered"])
+
     def test_register_rejects_client_type_device_id_mismatch(self) -> None:
         hass = types.SimpleNamespace(session=FakeSession())
         runtime = self._runtime()

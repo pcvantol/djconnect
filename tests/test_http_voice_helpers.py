@@ -1613,6 +1613,38 @@ class VoiceHttpHelperTest(unittest.TestCase):
             "Peter Mac",
         )
 
+    def test_watch_pair_view_returns_a_distinct_installation_per_open_flow(self) -> None:
+        pending = {
+            code: {"pair_code": code, "client_type": "watchos", "flow_id": flow}
+            for code, flow in (("604128", "watch-flow-1"), ("604129", "watch-flow-2"))
+        }
+        hass = types.SimpleNamespace(
+            data={"djconnect": {"config_flow_app_pairing_pending": pending}},
+            config=types.SimpleNamespace(internal_url="http://ha.local:8123"),
+        )
+
+        async def pair(code):
+            class Request:
+                app = {"hass": hass}
+
+                async def json(self):
+                    return {"pair_code": code, "client_type": "watchos",
+                            "device_id": "djconnect-watchos-68B74487726D",
+                            "ha_install_id": "untrusted-installation"}
+
+            response = self.response_envelope(await self.http.DJConnectPairView(None).post(Request()))
+            self.assertEqual(response["status_code"], 200)
+            return response["payload"]
+
+        first = asyncio.run(pair("604128"))
+        retry = asyncio.run(pair("604128"))
+        second = asyncio.run(pair("604129"))
+        self.assertEqual(first["pairing_session_id"], "watch-flow-1")
+        self.assertEqual(first["ha_install_id"], retry["ha_install_id"])
+        self.assertEqual(first["ha_install_id"], pending["604128"]["ha_install_id"])
+        self.assertNotEqual(first["ha_install_id"], second["ha_install_id"])
+        self.assertNotEqual(first["ha_install_id"], "untrusted-installation")
+
     def test_pair_view_prioritizes_open_app_pairing_over_conversation_runtime(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
 

@@ -1108,6 +1108,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         flow = self.config_flow.DJConnectConfigFlow()
         flow.hass = types.SimpleNamespace(
             data={self.const.DOMAIN: {}},
+            config_entries=types.SimpleNamespace(async_entries=lambda _: []),
             config=types.SimpleNamespace(language="en-US", internal_url="http://ha.local:8123")
         )
         flow._pairing_setup_method = self.const.SETUP_METHOD_PAIR_APP
@@ -1115,14 +1116,16 @@ class ConfigFlowHelperTest(unittest.TestCase):
         flow.flow_id = "flow-1"
         asyncio.run(flow._ensure_app_pairing_defaults())
         pair_code = flow._discovered_defaults[self.const.CONF_PAIR_CODE]
-        flow.hass.data[self.const.DOMAIN]["config_flow_app_pairing_pending"][pair_code][
-            "pairing_received"
-        ] = {
+        from custom_components.djconnect.surface_pair_journal import note_pending_pair
+
+        context = flow.hass.data[self.const.DOMAIN]["config_flow_app_pairing_pending"][pair_code]
+        context[self.const.CONF_HA_INSTALL_ID] = "ha_watch_flow"
+        context["pairing_received"] = note_pending_pair(flow.hass, context, {
             self.const.CONF_DEVICE_ID: "djconnect-watchos-68B74487726D",
             self.const.CONF_DEVICE_NAME: "Peter Apple Watch",
             self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_WATCHOS,
             self.const.CONF_DEVICE_TOKEN: "pending-watch-token",
-        }
+        })
 
         async def fake_set_unique_id(unique_id):
             flow._unique_id = unique_id
@@ -1150,6 +1153,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
         )
         self.assertIn("client_type=watchos", result["pairing"][self.const.CONF_PAIRING_URI])
         self.assertNotIn(self.const.CONF_LOCAL_URL, result["pairing"])
+        self.assertEqual(result["pairing"][self.const.CONF_HA_INSTALL_ID], "ha_watch_flow")
 
     def test_user_schema_keeps_selected_local_device_name_without_suffix(self) -> None:
         flow = self.config_flow.DJConnectConfigFlow()
