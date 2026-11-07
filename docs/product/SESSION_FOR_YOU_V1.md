@@ -95,7 +95,7 @@ starts/transfers music, never writes taste/history, and never retries uncertain
 work. Reads, reconnect, same-revision writes and expiry alone spend no calls.
 The original Session/owner/source/pairing/settings/DNA/history guards and original
 bounded preparation deadline apply after every await and at publication. Late
-results cannot overwrite a newer Mood revision, a dismissed client or another
+results cannot overwrite a newer Mood revision, a dismissed offer or another
 Session. A failed attempt remains unavailable for that revision; polling cannot
 restart it. An in-flight or uncertain explicit playback action blocks automatic
 replacement rather than creating a second effect opportunity.
@@ -141,13 +141,23 @@ only at the chosen mix's dispatch; no Spotify cross-endpoint atomicity is claime
 Dismiss via the same authenticated message endpoint, with the supplied
 conversation_context and choice_action:{operation:dismiss,
 result_set_id:offer_id,action_id:""}. No text/client_message_id is needed for this
-negative-only action. It hides only this paired client's original Session card,
-creates no chat/taste vote and invalidates its not-yet-dispatched continuation.
-It never rolls back a sent playback effect or dismisses another client's card.
+presentation action. The paired owner, active Session, thread and current offer
+must match. It closes the card on all paired clients of that owner and Session,
+even if the action lease has expired. The response and active Session reads
+return the same Session and offer IDs with state dismissed, visible false,
+empty options and actions_available false. They omit continuations, action
+sets and refresh prompts. Repeating the same dismissal is harmless.
 
-Only confirmation of the chosen mix's first track on the original selected
-output closes the whole card for the rest of that Session. Ordinary playback,
-a transport ACK or another track is insufficient. Unknown outcomes remain
+Dismissal lasts for the rest of the Session. Mood changes and explicit refresh
+requests do not reopen the card. The next Session can prepare its own offer.
+Dismissal writes no chat, taste preference or playback command. It revokes any
+action that has not reached its effect boundary. A transfer already sent can
+finish, but it cannot start the mix afterward. A mix already sent can complete
+its original readback without a retry. Dismissal does not report playback stopped.
+
+Without explicit dismissal, only confirmation of the chosen mix's first track
+on the original selected output closes the card. Ordinary playback, a transport
+ACK or another track is insufficient. Unknown outcomes remain
 visible pending, with no duplicate/automatic dispatch. A late matching
 observation may confirm once; old callbacks never mutate a replacement Session.
 Pause/stop/reconnect/app reopen do not reopen a confirmed card. A genuine new
@@ -162,7 +172,7 @@ source/effect authority. The isolated paired HTTP harness
 `scripts/verification/verify_session_for_you_http.py` uses real HA routing,
 SQLite and Store with declared synthetic Spotify/model responses, no network,
 no live credentials and no paid provider. Unit tests cover original lifetime,
-unknown/late acknowledgement, cancellation, client dismissal and recipe isolation.
+unknown/late acknowledgement, cancellation, shared dismissal and recipe isolation.
 These are source/runtime-transport proofs, not installed HA-dev, real Spotify,
 Apple rendering, local-model, physical-device or APNs acceptance. Normal protected
 Source review/CI, separate Finalization and installed/native release gates remain.
