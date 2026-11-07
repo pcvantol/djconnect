@@ -5132,6 +5132,12 @@ class SessionRuntimeManager:
             active.broadcast.passive_observation = (time.monotonic(), time.time(), projection)
             active.broadcast.passive_state_observed = active.broadcast.passive_observation[:2]
             changed = active.broadcast.update_playback(projection)
+            if not changed and active.broadcast.passive_grants:
+                # A newly accepted source observation has a new original clock
+                # even when safe values are identical. Existing passive readers
+                # must not receive a changed frame under their old sequence.
+                active.broadcast._publish(BroadcastEventType.PLAYBACK_CHANGED,
+                    {"playback": active.broadcast.as_dict()["playback"]})
             active.broadcast.forecast.accept_observation()
             active.broadcast.update_forecast(active)
             self._replace_playback_progress_clock(owner_profile_id, projection, session_id)

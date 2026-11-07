@@ -302,6 +302,55 @@ class PassiveOwnerGrantTests(unittest.IsolatedAsyncioTestCase):
     def tearDownClass(cls):
         cls.fixtures.SessionConversationHistoryTest.tearDownClass()
 
+    async def test_identical_accepted_observation_has_new_frame_but_reads_and_ungranted_updates_do_not(self):
+        fixture = self.fixtures.SessionConversationHistoryTest()
+        await fixture.asyncSetUp()
+        try:
+            hass, runtime, _, identity, headers = await fixture.transport_fixture()
+            runtime.entry = SimpleNamespace(entry_id='owner-entry', data=runtime.config, options={})
+            session = await fixture.manager.async_start(owner_profile_id='profile-a', locale='nl')
+            values = {'owner_profile_id': 'profile-a', 'session_id': session.session_id,
+                      'state': 'idle', 'media_identity': 'synthetic-empty-observation'}
+            await fixture.manager.async_update_playback_projection(**values)
+            broadcast = session.broadcast
+            sequence = broadcast.delivery_sequence
+            self.assertFalse(await fixture.manager.async_update_playback_projection(**values))
+            self.assertEqual(sequence, broadcast.delivery_sequence)
+            base = {**identity, 'contract_version': 1, 'projection_version': 3,
+                    'session_id': session.session_id, 'surface': 'widget'}
+            # Unit-only external source qualification; the actual HA proof uses
+            # real paired/source admission without patching production guards.
+            with patch('custom_components.djconnect.forecast_imagery.artist_authority',
+                       return_value=lambda: True):
+                authorized, status = await passive.handle(hass, {**base, 'enabled': True,
+                    'os_snapshot_cache': True, 'locked_display': False}, headers=headers, authorize=True)
+                self.assertEqual(status, 200, authorized)
+                read = {**base, 'grant_id': authorized['grant_id']}
+                before = authorized['passive_session']
+                await asyncio.sleep(.002)
+                self.assertFalse(await fixture.manager.async_update_playback_projection(**values))
+                reply, status = await passive.handle(hass, read, headers=headers)
+                self.assertEqual(status, 200, reply)
+                after = reply['passive_session']
+                self.assertEqual(reply['grant_id'], authorized['grant_id'])
+                for name in ('binding_id', 'generation', 'session_id'):
+                    self.assertEqual(before[name], after[name])
+                self.assertGreater(after['delivery_sequence'], before['delivery_sequence'])
+                self.assertNotEqual(after['observed_at'], before['observed_at'])
+                clock = broadcast.passive_state_observed
+                repeated, status = await passive.handle(hass, read, headers=headers)
+                self.assertEqual(status, 200, repeated)
+                for name in ('delivery_sequence', 'revision', 'observed_at', 'expires_at'):
+                    self.assertEqual(after[name], repeated['passive_session'][name])
+                self.assertEqual(clock, broadcast.passive_state_observed)
+                await passive.handle(hass, {**base, 'enabled': False,
+                    'os_snapshot_cache': True, 'locked_display': False}, headers=headers, authorize=True)
+                sequence = broadcast.delivery_sequence
+                self.assertFalse(await fixture.manager.async_update_playback_projection(**values))
+                self.assertEqual(sequence, broadcast.delivery_sequence)
+        finally:
+            await fixture.asyncTearDown()
+
     async def test_surface_isolation_and_stale_snapshot_do_not_renew_or_remove_grants(self):
         fixture = self.fixtures.SessionConversationHistoryTest()
         await fixture.asyncSetUp()
