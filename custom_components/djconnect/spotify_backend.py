@@ -686,7 +686,8 @@ class SpotifyBackend:
         data = await self._request("GET", "/me/player")
         playback = _normalize_playback(data)
         original_status = seal(original_source, "playing" if playback.get("is_playing")
-            else "paused" if playback.get("uri") else "idle")
+            else "paused" if playback.get("uri") else "idle",
+            target_id=(playback.get("device") or {}).get("id") or "")
         if original_status is not None:
             playback = ObservedPlayback(playback, original_status)
         await self._enrich_current_track_favorite_status(playback)

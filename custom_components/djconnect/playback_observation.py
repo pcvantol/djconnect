@@ -371,7 +371,8 @@ class PlaybackObservationManager:
                 observed.unavailable = True
                 invalidate_observer_metadata(self._hass, observed)
                 return
-            original_status = seal(original_status_source, getattr(result, "state", ""))
+            original_status = seal(original_status_source, getattr(result, "state", ""),
+                                   target_id=getattr(result, "target_id", ""))
             observed.unavailable = False
             if (self._spotify_sessions.get(observed.owner_profile_id) is not observed
                 or observed.command_revision != captured_command_revision):

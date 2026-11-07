@@ -14,7 +14,7 @@ ROOT = Path(os.environ.get("DJC_SOURCE_ROOT", Path(__file__).resolve().parents[2
 sys.path[:0] = [str(ROOT), str(ROOT/"scripts/verification")]
 
 
-async def qualify(hass, manager, history, request, client, *, after=None):
+async def qualify(hass, manager, history, request, client, *, after=None, backend_id="source-spotify"):
     locale = os.environ.get("DJC_GOLDEN_LOCALE", "nl")
     if locale not in {"en", "nl"}:
         raise ValueError("unsupported_golden_locale")
@@ -25,24 +25,28 @@ async def qualify(hass, manager, history, request, client, *, after=None):
     from custom_components.djconnect.ask_dj.dialogue import current_turn
     from custom_components.djconnect.ask_dj_history import _request_hash
     storage = profile_storage(hass)
-    await storage.async_upsert_music_account("source-account", "source-spotify", kind=MusicAccountKind.PERSONAL,
+    if backend_id != "source-spotify":
+        from custom_components.djconnect.domain.backend import BackendProvider
+        await storage.async_upsert_music_backend(backend_id, BackendProvider.SPOTIFY_DIRECT,
+            display_name="Synthetic actual-observer source")
+    await storage.async_upsert_music_account("source-account", backend_id, kind=MusicAccountKind.PERSONAL,
         display_name="Synthetic first-play account", linked_profile_ids=frozenset({"profile-a"}),
         provider_account_id="synthetic-first-play-provider")
     profile = storage.household.profiles["profile-a"]
     await storage.async_update_profile("profile-a", preferences=replace(profile.preferences,
-        default_backend_id="source-spotify", default_music_account_id="source-account"))
+        default_backend_id=backend_id, default_music_account_id="source-account"))
     # The reusable history harness only needs a readable historical connection.
     # This fixture needs an actually loaded, Profile-bound provider Runtime too;
     # build it normally rather than replacing the production source authority.
     from custom_components.djconnect import DJConnectRuntime
     source_entry = hass.config_entries.async_get_entry("source-entry")
     hass.config_entries.async_update_entry(source_entry, data={**source_entry.data,
-        "profile_id": "profile-a", "music_backend": "source-spotify",
+        "profile_id": "profile-a", "music_backend": backend_id,
         "spotify_client_id": "synthetic-first-play-provider"})
     hass.data["djconnect"]["source-entry"] = DJConnectRuntime(source_entry, device_token="")
     owner_entry = hass.config_entries.async_get_entry("owner-entry")
     hass.config_entries.async_update_entry(owner_entry, data={**owner_entry.data,
-        "profile_backend_entry_id": "source-entry", "music_backend": "source-spotify",
+        "profile_backend_entry_id": "source-entry", "music_backend": backend_id,
         "music_account_id": "source-account"})
     from homeassistant.helpers.storage import Store
     from custom_components.djconnect.music_dna import MusicDNAManager
@@ -59,7 +63,7 @@ async def qualify(hass, manager, history, request, client, *, after=None):
         owner_runtime.memory = memory
         return memory
     await install_dna()
-    source = {"backend_id": "source-spotify", "music_account_id": "source-account",
+    source = {"backend_id": backend_id, "music_account_id": "source-account",
               "provider_entry_id": "source-entry", "provider_account_id": "synthetic-first-play-provider"}
     state = {"active": True, "playing": False, "track": None, "effects": [], "reads": [], "missing": "", "tracks": {}, "legacy_mode": False}
     class Response:
@@ -133,7 +137,7 @@ async def qualify(hass, manager, history, request, client, *, after=None):
             state["replace_on_token"] = False
             old = manager.current_active("profile-a")
             await manager.async_end(owner_profile_id="profile-a", session_id=old.session_id)
-            state["replacement"] = await manager.async_start(owner_profile_id="profile-a", music_backend="source-spotify",
+            state["replacement"] = await manager.async_start(owner_profile_id="profile-a", music_backend=backend_id,
                 selected_mood="groove", locale="nl", history_source_context=source)
         return "SYNTHETIC_OFFLINE_UNUSABLE_TOKEN"
     cases, examples = {}, []

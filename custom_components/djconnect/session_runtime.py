@@ -5062,7 +5062,10 @@ class SessionRuntimeManager:
                 # Ordinary playback is neither dismissal nor acceptance of the
                 # Session's personal offer. Only its exact pending mix can close it.
                 pending = active.broadcast.first_play_pending
-                if (pending is not None and pending.play_dispatched
+                from .surface_status_samples import OriginalSample
+                if (type(original_status) is OriginalSample and original_status.current()
+                        and original_status.state == "playing"
+                        and pending is not None and pending.play_dispatched
                         and pending.authority()
                         and media_identity == pending.selected_media[0]
                         and getattr(original_status, "target_id", None) == pending.output_id):
