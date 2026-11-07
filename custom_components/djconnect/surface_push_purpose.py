@@ -54,6 +54,7 @@ class SurfacePurposeCredential:
     delegation_revision: int = 1
     wall: Callable[[], int] = field(default=lambda: int(time.time() * 1000), repr=False)
     monotonic: Callable[[], float] = field(default=time.monotonic, repr=False)
+    private_transport: object = field(default=None, repr=False, compare=False)
     _withdrawn: bool = field(default=False, init=False, repr=False)
     _event_attempts: int = field(default=0, init=False, repr=False)
 

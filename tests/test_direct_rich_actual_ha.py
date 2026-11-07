@@ -13,7 +13,7 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
         self.assertEqual(receipt['status'], 'PASS')
         self.assertEqual(receipt['schema_version'], 21)
         self.assertFalse(receipt['actual_operator_enrollment_native_clock_or_APNs_GO'])
-        self.assertEqual(len(receipt['source_sha256']), 308)
+        self.assertEqual(len(receipt['source_sha256']), 309)
         for name, expected in receipt['source_sha256'].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         self.assertEqual(hashlib.sha256((root / value['harness']).read_bytes()).hexdigest(), value['harness_sha256'])
@@ -43,7 +43,7 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
         self.assertEqual(receipt['model_calls'], 0)
         self.assertTrue(receipt['ordinary_pairing'])
         self.assertEqual(receipt['ha_credentials_issued'], 0)
-        self.assertEqual(len(receipt['source_sha256']), 308)
+        self.assertEqual(len(receipt['source_sha256']), 309)
         for name, expected in receipt['source_sha256'].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         self.assertEqual(hashlib.sha256((root / value['harness']).read_bytes()).hexdigest(), value['harness_sha256'])

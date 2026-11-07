@@ -157,7 +157,7 @@ class OriginalDnaHTTPContractTests(IsolatedAsyncioTestCase):
         root = Path(__file__).resolve().parents[1]
         wire = json.loads((root / 'examples/client_contracts/for_you_original_dna_v1/actual-ha-wire.json').read_text())
         self.assertTrue(wire['source_before_after_equal'])
-        self.assertEqual(len(wire['source_pins']), 308)
+        self.assertEqual(len(wire['source_pins']), 309)
         for name, expected in {**wire['source_pins'], **wire['harness_pins']}.items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         receipt = wire['receipt']
