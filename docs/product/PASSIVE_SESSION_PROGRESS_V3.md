@@ -1,3 +1,23 @@
+## 7 November correction: accepted source frame sequence
+
+An unchanged renderer-safe playback value can still be a newly accepted backend
+observation. If an already granted passive surface receives a new original
+observed_at/expires_at/revision, that frame must advance the existing delivery
+sequence. A same-sequence read must retain the same original observation; the
+native consumer is correct to reject a changed original frame under that number.
+
+Reuse the existing playback-changed event for that source-frame notification when
+passive grants already exist, while preserving the content-changed return value.
+Direct unchanged model updates, progress-only ticks, ordinary authorize/read and
+GET/status projections do not become new backend observations or renew a lease.
+No new endpoint, field, protocol version, grant, source right or synthetic source
+witness is introduced. Original owner/entry/Profile/provider/settings/deletion/
+clock/source checks remain; read-only delivery never publishes an event. No new
+Moment, playback effect, output selection, model/provider lookup or background/
+Watch/APNs authority follows from this sequence correction. Existing source and
+field deadlines are preserved; only genuine already-accepted observations retain
+their existing freshness semantics. Native wire/physical acceptance stays separate.
+
 # Passive Session original progress projection v3
 
 This owner-requested extension reuses PASSIVE_SESSION_PROJECTION_V1.md and its
