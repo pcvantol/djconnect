@@ -58,8 +58,6 @@ class IssuerHTTPS(IssuerTransport):
         self.monotonic = monotonic
 
     async def post_once(self, capture, action, envelope, *, guard, deadline):
-        import aiohttp  # Supplied by HA; pure journal/owner users need no SDK.
-
         require(type(capture) is IssuerOwnerCapture,
             'surface_issuer_owner_capture_invalid', 503)
         capture.comparisons()
@@ -67,7 +65,13 @@ class IssuerHTTPS(IssuerTransport):
         require(type(envelope) is dict and set(envelope) == {'payload', 'signature'},
             'surface_issuer_wire_invalid')
         signing_bytes(path, envelope['payload'])
-        encoded = canonical(envelope).encode('utf-8')
+        return await self._post(capture.origin, path, envelope, {},
+            guard=guard, deadline=deadline)
+
+    async def _post(self, origin, path, body, auth_headers, *, guard, deadline):
+        import aiohttp  # Supplied by HA; pure journal/owner users need no SDK.
+
+        encoded = canonical(body).encode('utf-8')
         require(len(encoded) <= 16384, 'surface_issuer_request_too_large')
         guard()
         remaining = min(10.0, deadline - self.monotonic())
@@ -81,9 +85,9 @@ class IssuerHTTPS(IssuerTransport):
                         auto_decompress=False, read_bufsize=8192,
                         timeout=aiohttp.ClientTimeout(total=remaining)) as session:
                     guard()
-                    async with session.post(capture.origin + path, data=encoded,
+                    async with session.post(origin + path, data=encoded,
                             headers={'Content-Type': 'application/json', 'Accept': 'application/json',
-                                'Accept-Encoding': 'identity'},
+                                'Accept-Encoding': 'identity', **auth_headers},
                             allow_redirects=False, proxy=None, auth=None) as response:
                         guard()
                         require(type(response.status) is int and response.status in (200, 202),
