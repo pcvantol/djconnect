@@ -1,25 +1,48 @@
 # Native surface push V1 — source preparation
 
-## HA-dev WidgetKit machine access
+## Automatic enrollment for Apple push
 
-Set `DJCONNECT_WIDGET_HA_DEV_ACCESS_FILE` to the absolute path of the
-operator-mounted credential file inside the HA-dev process. The file must
-be regular, owned by the HA process user, and mode `0400` or `0600`. It
-contains only `client_id`, `client_secret` and the original integer
-`expires_at_ms`. The Core service uses the credential only for
-`https://widget-ha-dev.djconnect.dev`. Startup does not contact the issuer
-or create a widget grant.
+Validate the same enrollment flow on HA-dev that a new production installation
+will use. Start with ordinary app pairing and use the central API's existing
+per-installation authentication. The approved test needs a fresh HA
+installation and real paired Apple devices.
 
-A trusted in-process caller must supply the independently enrolled
-`WidgetIssuerOwner` and original paired request to
-`begin_enrolled_widget_adoption` before scheduling acquisition. The
-existing owner, device, source, Session, Broadcast and purpose checks
-continue to apply. File selection cannot enrol an owner. The service
-retires the selected generation at expiry or service shutdown. For a
-credential rotation, retire the old Access admission and restart the
-service with the new operator-mounted file; the old registration is not
-recreated by startup. Provider dispatch and physical delivery require
-their own verification.
+Push defaults to off. The user chooses separately for each device and channel.
+The four channels are WidgetKit, Live Activities, Moments in the app, and
+Watch Smart Stack. Pairing, a shared Profile, an OS notification permission and
+a grant for local display or retained reads do not authorize push.
+
+Core records the explicit choice under the current paired device. It binds each
+authorization to the installation, device, pairing generation, consent
+generation, channel and native target. The central API verifies that binding and
+issues scoped credentials automatically. The Core and API lanes must qualify
+the installation signing key, exact signed protocol and replay rules before
+enabling issuance. The legacy bootstrap checks the request shape and limits its
+rate. First trust additionally requires an independently verified original
+pairing. Core and API must bind that proof to the enrolled signing key.
+Evaluate reuse of the [existing native first-key flow](HOST_WAKE_FIRST_KEY_V1.md)
+per platform. Apple uses the existing native renderer and proves the actual
+target. Where the original pairing or platform proof is unavailable,
+enrollment stays closed.
+
+Turning off one channel invalidates that device and channel's authorization
+before awaiting remote withdrawal. Unpairing retires all authorizations for
+that pairing. Renewal and recovery require current authorization and preserve
+the original target scope. The API validates current authorization independently
+of client and Core retries. The Watch preference and recovery chain stays
+separate from WidgetKit. Live Activities use their own scope and field rights.
+
+For each supported device and channel, capture the result of ordinary pairing,
+opt-in, automatic enrollment, actual DJ publication, APNs acceptance, native
+display or opening, and withdrawal. Verify the default-off case and that
+withdrawing one device/channel leaves the other chosen scopes eligible. The
+large widget receives a content-free refresh signal and reads the latest
+authorized contribution through the existing v4 background read contract.
+
+The isolated Cloudflare Access setup from #1528 remains in the historical test
+evidence. The shipping Core runtime has no operator-mounted service token
+setting. Customer installations use the central API and require no Cloudflare
+configuration or operator action.
 
 ## Original widget issuer-to-service adoption — 23 October 2026
 
