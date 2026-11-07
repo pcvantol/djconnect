@@ -212,9 +212,28 @@ class ForYouTests(IsolatedAsyncioTestCase):
             result = await self.choose()
         self.assertFalse(result['action_outcome']['readback_confirmed'])
         pending = self.active.broadcast.first_play_pending
+        from custom_components.djconnect.surface_status_samples import seal
+        source = SimpleNamespace(alive=True, broadcast=object())  # Unit-only; real HA proof uses genuine capture.
+        source.current = lambda *args: source.alive
+        original = seal(source, 'playing', target_id=pending.output_id)
+        stale_source = SimpleNamespace(alive=True, broadcast=object())
+        stale_source.current = lambda *args: stale_source.alive
+        stale = seal(stale_source, 'playing', target_id=pending.output_id)
+        stale_source.alive = False
+        for rejected in (None, SimpleNamespace(target_id=pending.output_id), stale,
+                         seal(source, 'paused', target_id=pending.output_id),
+                         seal(source, 'playing', target_id='different-output')):
+            await self.manager.async_update_playback_projection(owner_profile_id='synthetic-owner',
+                session_id=self.active.session_id, state='playing', media_identity=pending.selected_media[0],
+                original_status=rejected)
+            self.assertEqual(self.active.broadcast.first_play_state, 'attempted')
+        await self.manager.async_update_playback_projection(owner_profile_id='synthetic-owner',
+            session_id=self.active.session_id, state='playing', media_identity='spotify:track:' + 'Z' * 22,
+            original_status=original)
+        self.assertEqual(self.active.broadcast.first_play_state, 'attempted')
         await self.manager.async_update_playback_projection(owner_profile_id='synthetic-owner',
             session_id=self.active.session_id, state='playing', media_identity=pending.selected_media[0],
-            original_status=SimpleNamespace(target_id=pending.output_id))
+            original_status=original)
         self.assertEqual(self.active.broadcast.first_play_state, 'confirmed')
         self.assertEqual(len(self.effects), 1)
 

@@ -183,3 +183,17 @@ check remains mandatory. A transfer acknowledgement alone, a wrong output ID or
 an uncertain response does not grant playback. Neither path repeats a transfer,
 retries a start or renews the original Session/context/choice lease. External
 provider responses remain distinct from native/audible acceptance.
+
+### Original late playback output witness (7 November 2026)
+
+The existing late first-track/playing/output confirmation uses the original
+accepted provider observation, never a UI status or arbitrary ordinary playback.
+The private OriginalSample source/time witness must retain the exact target ID
+from that same backend return before any enrichment or owner/Session await.
+Its current original source/settings/command fences must still validate before
+it can confirm the pending mix. A witness has no field inferred from the output
+name, mutable runtime cache, historical row or a later response. Unknown/empty/
+wrong output, track or state, stale source, another Session and untyped stand-ins
+never confirm. This is private data on the existing source witness: no public
+wire, native capability, provider dispatch, new permission or lease extension.
+It does not recreate the original uncertain request or authorize its replay.
