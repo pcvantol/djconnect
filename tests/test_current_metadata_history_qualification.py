@@ -22,7 +22,9 @@ class CurrentMetadataHistoryQualificationTests(unittest.TestCase):
         self.assertTrue(receipt["actual_home_assistant"])
         self.assertTrue(receipt["ordinary_pairing"])
         self.assertTrue(receipt["source_unchanged"])
-        self.assertEqual(len(receipt["cases"]), 8)
+        self.assertEqual(len(receipt["cases"]), 10)
+        self.assertEqual(receipt["cases"]["first_playing_after_paused_anchors_once_even_after_resume"], "PASS")
+        self.assertEqual(receipt["cases"]["history_disabled_resume_stays_private_ephemeral"], "PASS")
         self.assertEqual(set(receipt["cases"].values()), {"PASS"})
         self.assertEqual(
             (

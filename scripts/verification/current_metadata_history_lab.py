@@ -68,14 +68,22 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
         history_source_context=source,
         locale="nl",
     )
-    await manager.async_update_playback_projection(
-        owner_profile_id="artwork-profile",
-        session_id=active.session_id,
-        state="playing",
-        media_identity="spotify:track:" + TRACK,
-        title="Fixture track",
-        artist="Fixture artist",
-    )
+    async def observe(session, state):
+        await manager.async_update_playback_projection(
+            owner_profile_id="artwork-profile",
+            session_id=session.session_id,
+            state=state,
+            media_identity="spotify:track:" + TRACK,
+            title="Fixture track",
+            artist="Fixture artist",
+        )
+
+    repository = manager._historical_projections
+    await observe(active, "paused")
+    item_id = active.broadcast.state.playback.item_id
+    assert item_id
+    assert await repository.async_current_playback_entry("artwork-profile", active.session_id, item_id) is None
+    await observe(active, "playing")
     context = {"session_id": active.session_id}
     cases, examples = {}, {}
     first, code = await request(
@@ -95,6 +103,13 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
     assert len(first["conversation"]["entry_ids"]) == 2
     examples["mac_text"] = first
     cases["literal_current_metadata_committed_to_original_session"] = "PASS"
+    anchor = await repository.async_current_playback_entry("artwork-profile", active.session_id, item_id)
+    assert anchor
+    await observe(active, "paused")
+    await observe(active, "playing")
+    await observe(active, "playing")
+    assert await repository.async_current_playback_entry("artwork-profile", active.session_id, item_id) == anchor
+    cases["first_playing_after_paused_anchors_once_even_after_resume"] = "PASS"
 
     transcript = AsyncMock(return_value="Wie is dit?")
     who, auth = actors[1]
@@ -229,6 +244,29 @@ async def run(*, hass, runtime, client, headers, identity, network, output, sour
             e["kind"].startswith("conversation_") for e in tail["entries"]
         ), tail
     cases["owner_clear_withdraws_shared_conversation_from_mac_phone_and_watch"] = "PASS"
+    await manager.async_end(owner_profile_id="artwork-profile", session_id=active.session_id)
+    private = await manager.async_start(
+        owner_profile_id="artwork-profile",
+        music_backend="spotify_direct",
+        history_source_context=source,
+        locale="nl",
+        history_enabled=False,
+    )
+    await observe(private, "paused")
+    await observe(private, "playing")
+    ephemeral, code = await request(
+        "POST", "/ask_dj/message",
+        {"text": "Wie is dit?", "language": "nl", "audio_response": "never",
+         "client_message_id": "private-mac-identification",
+         "conversation_context": {"session_id": private.session_id}},
+    )
+    assert code == 200 and ephemeral["success"], ephemeral
+    assert ephemeral["conversation"]["history_scope"] == "private_ephemeral"
+    assert ephemeral["conversation"]["entry_ids"] == [] and not ephemeral["history_persisted"]
+    assert await repository.async_current_playback_entry("artwork-profile", private.session_id, item_id) is None
+    history, code = await request("GET", "/ask_dj/history", {"conversation_scope": "profile"})
+    assert code == 200 and history["messages"] == [], history
+    cases["history_disabled_resume_stays_private_ephemeral"] = "PASS"
     assert all(c["method"] == "GET" for c in network.calls), network.calls
     record = {
         "actual_home_assistant": True,
