@@ -57,7 +57,7 @@
     ],
     "contract_id": "native_client_golden_v1",
     "expires_at": "2026-11-06T12:10:00+00:00",
-    "inventory_sha256": "d87976e36443de5d93b3490de403e8adf96043ef3930a897aaaba3b75cd94a68",
+    "inventory_sha256": "a1a7ecf8dc0ade28c682f22d07be97398775842577b49438f78ab4f3f7fea70e",
     "receipts": {
       "core_install": "8387e39700ff052c49492efe48affca364aa3276851a2f3414b108f4178cb28a",
       "cumulative_budget": "3563f4c0ab8f668dc86dcd0541097cca81868d7def466bb1ae30e648eb22067e",
@@ -82,7 +82,7 @@
       "ALL_PROVIDER_TRANSPORT_COVERAGE",
       "NATIVE_EXECUTION_AND_REVIEW"
     ],
-    "plan_sha256": "fe17fc5bba58ebf029a30aca5681a8f3f512945c5c82fb31ea7f153942c57443",
+    "plan_sha256": "d94771e71b2f42cc47a3b900945de0cf71706e1b60d94469de8c1f4c6ed807bd",
     "qualification": "DRAFT_NOT_ADMITTED",
     "runtime_fixture_provider_native_qualification": "NOT_GRANTED",
     "schema_version": 1,
@@ -171,7 +171,7 @@
         "source": "custom_components/djconnect/ask_dj/examples_v1.json"
       }
     ],
-    "plan_sha256": "fe17fc5bba58ebf029a30aca5681a8f3f512945c5c82fb31ea7f153942c57443",
+    "plan_sha256": "d94771e71b2f42cc47a3b900945de0cf71706e1b60d94469de8c1f4c6ed807bd",
     "receipts": {
       "core_install": "8387e39700ff052c49492efe48affca364aa3276851a2f3414b108f4178cb28a",
       "cumulative_budget": "3563f4c0ab8f668dc86dcd0541097cca81868d7def466bb1ae30e648eb22067e",
@@ -273,7 +273,7 @@
     "execute": false,
     "native_release_authority": "NOT_GRANTED",
     "observed_provider_attempts": 0,
-    "plan_sha256": "fe17fc5bba58ebf029a30aca5681a8f3f512945c5c82fb31ea7f153942c57443",
+    "plan_sha256": "d94771e71b2f42cc47a3b900945de0cf71706e1b60d94469de8c1f4c6ed807bd",
     "qualification": "EVIDENCE_PENDING_INDEPENDENT_REVIEW",
     "run_id": "00000000-0000-4000-8000-000000000001",
     "schema_version": 1
@@ -292,7 +292,7 @@
     "owner_authorization": "6001944a2c838e112b74c98ad6da287cd0c1a4d916726465641ac86498a18456",
     "provider_coverage": "3717b1c7666f0ccfd7d659cddbd534bec8105b7163b413eb699f1525fcea10af"
   },
-  "inventory_sha256": "d87976e36443de5d93b3490de403e8adf96043ef3930a897aaaba3b75cd94a68",
+  "inventory_sha256": "a1a7ecf8dc0ade28c682f22d07be97398775842577b49438f78ab4f3f7fea70e",
   "live_authority": "NONE",
   "required_rejections": [
     "mutated_inventory",
