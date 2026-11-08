@@ -339,6 +339,15 @@ only its own registered object URLs are renderable and all are revoked/decoded
 buffers cleared on expiry/withdrawal/end. No arbitrary blob URL allowance, direct
 provider hotlink, token query, asset persistence or automatic speech generation.
 
+### Shared Session Flow
+
+The optional `shared_flow` list contains up to twelve currently qualified
+proactive DJ contributions ordered by original publication. Each card carries
+its original display deadline and follows current source and share consent.
+Owner conversation, user interactions, playback observations and private
+Moments remain outside this projection. The display shows the newest card
+prominently and preserves the reading position when the viewer scrolls back.
+
 ## Failure codes and real acceptance before delivery
 
 Machine codes: `display_contract_unsupported`, `display_origin_denied`,

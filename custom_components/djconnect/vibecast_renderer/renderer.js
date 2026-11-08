@@ -312,6 +312,135 @@
     current = latest; lastShownAt = latest.created;
     showPrevious(previous, animate); showCurrent(latest, animate);
   }
+  const flowLabels = {
+    en:["Session Flow", "Back to live"],
+    nl:["Sessieflow", "Terug naar live"],
+    de:["Session-Flow", "Zurück zu Live"],
+    fr:["Fil de la session", "Revenir au direct"],
+    es:["Flujo de la sesión", "Volver al directo"]
+  };
+  const flowRows = new Map();
+  let followFlow = true, manualFlowScroll = false, flowExpiry;
+  function liveOffset(viewport) {
+    const end = Math.max(0,viewport.scrollHeight - viewport.clientHeight);
+    const newest = e("flow-cards").lastElementChild;
+    if (!newest) return end;
+    const start = newest.getBoundingClientRect().top - viewport.getBoundingClientRect().top + viewport.scrollTop;
+    return Math.max(0,Math.min(end,start-6));
+  }
+  function atLiveEdge(viewport) {
+    return viewport.scrollTop >= liveOffset(viewport)-4;
+  }
+  function followNewest(viewport, animate) {
+    viewport.scrollTo({top:liveOffset(viewport),behavior:animate && !reduceMotion() ? "smooth" : "auto"});
+  }
+  function renderFlow() {
+    if (!displayHost) return false;
+    const section = e("shared-flow"), viewport = e("flow-viewport"), list = e("flow-cards"), live = e("flow-live");
+    if (!section || !viewport || !list || !live) return false;
+    if (flowExpiry) window.clearTimeout(flowExpiry);
+    const active = Array.isArray(projection.shared_flow);
+    section.hidden = !active;
+    document.body.classList.toggle("shared-flow-live",active);
+    if (!active) {
+      clearChildren(list);
+      flowRows.clear();
+      followFlow=true;
+      manualFlowScroll=false;
+      live.hidden=true;
+      return false;
+    }
+    const labels = flowLabels[root.lang] || flowLabels.en;
+    viewport.setAttribute("aria-label",labels[0]);
+    live.textContent=labels[1];
+    const time=Date.now();
+    const items=projection.shared_flow.slice(-12).filter(item=>item && typeof item.moment_id==="string"
+      && typeof item.content==="string" && item.content && Date.parse(item.display_expires_at)>time);
+    const firstVisible = followFlow ? null : Array.from(list.children).find(row=>
+      row.getBoundingClientRect().bottom > viewport.getBoundingClientRect().top);
+    const priorTop=firstVisible ? firstVisible.getBoundingClientRect().top : 0;
+    const newest=items[items.length-1];
+    const newPublication=!!newest && !flowRows.has(newest.moment_id);
+    const currentKeys=new Set(items.map(item=>item.moment_id));
+    for (const [id,row] of flowRows) {
+      if (!currentKeys.has(id)) { row.remove();flowRows.delete(id); }
+    }
+    items.forEach((item,index)=>{
+      let row=flowRows.get(item.moment_id);
+      if (!row) {
+        row=document.createElement("li");
+        const label=document.createElement("span"), content=document.createElement("p");
+        label.className="flow-kind";
+        label.textContent=text.types[item.type] || item.title || "";
+        content.textContent=item.content;
+        row.append(label,content);
+        const citations = item.type==="dj_bulletin" ? bulletinCitations(item.sources) : qualifiedCitations(item.sources);
+        const attribution = item.source_attribution;
+        const sources = citations || (attribution && attribution.provider && publicCitationURL(attribution.url) ? [attribution] : []);
+        if (sources.length) {
+          const links = document.createElement("div");
+          links.className="flow-sources";
+          for (const source of sources) {
+            const link=document.createElement("a");
+            link.href=source.revision_url || source.url;
+            link.textContent=[source.title,source.provider,source.attributed_author || source.license].filter(Boolean).join(" · ");
+            link.target="_blank";
+            link.rel="noopener noreferrer";
+            links.appendChild(link);
+          }
+          row.appendChild(links);
+        }
+        flowRows.set(item.moment_id,row);
+      }
+      row.className="flow-card flow-age-"+Math.min(3,items.length-1-index);
+      if (list.children[index] !== row) list.insertBefore(row,list.children[index] || null);
+    });
+    if (followFlow && newPublication) followNewest(viewport,items.length>1);
+    if (firstVisible && firstVisible.isConnected) {
+      viewport.scrollTop+=firstVisible.getBoundingClientRect().top-priorTop;
+    }
+    live.hidden=followFlow || !items.length;
+    if (items.length) {
+      const expiry=Math.min(...items.map(item=>Date.parse(item.display_expires_at)));
+      flowExpiry=window.setTimeout(renderFlow,Math.max(0,expiry-Date.now()));
+    }
+    return true;
+  }
+  function connectFlowControls() {
+    const viewport=e("flow-viewport"), live=e("flow-live");
+    if (!viewport || !live) return;
+    const startManual=()=>{
+      manualFlowScroll=true;
+      if (followFlow && !atLiveEdge(viewport)) {
+        viewport.scrollTo({top:viewport.scrollTop,behavior:"auto"});
+        followFlow=false;
+        live.hidden=false;
+      }
+    };
+    for (const event of ["wheel","touchstart","pointerdown"]) viewport.addEventListener(event,startManual,{passive:true});
+    viewport.addEventListener("keydown",event=>{
+      const page = viewport.clientHeight;
+      const steps = {ArrowUp:-48, ArrowDown:48, PageUp:-page, PageDown:page,
+        Home:-viewport.scrollHeight, End:viewport.scrollHeight, " ":event.shiftKey ? -page : page};
+      if (!Object.prototype.hasOwnProperty.call(steps,event.key) || event.altKey || event.ctrlKey || event.metaKey) return;
+      event.preventDefault();
+      startManual();
+      viewport.scrollTop=event.key==="End" ? liveOffset(viewport) : viewport.scrollTop+steps[event.key];
+    });
+    viewport.addEventListener("scroll",()=>{
+      if (!manualFlowScroll) return;
+      followFlow=atLiveEdge(viewport);
+      live.hidden=followFlow;
+      if (followFlow) manualFlowScroll=false;
+    },{passive:true});
+    live.addEventListener("click",()=>{
+      followFlow=true;
+      manualFlowScroll=false;
+      followNewest(viewport,true);
+      viewport.focus({preventScroll:true});
+      live.hidden=true;
+    });
+  }
   function render(animate=false) {
     useLanguage(); updateClock();
     const p = playback(), mood = read(projection,["session","selected_mood"]);
@@ -344,7 +473,7 @@
     e("progress").hidden = !active;
     if (active) { e("progress").max=p.duration_ms; e("progress").value=p.position_ms; e("time").textContent=`${format(p.position_ms)} / ${format(p.duration_ms)}`; }
     else e("time").textContent="";
-    renderCards(animate);
+    if (!renderFlow()) renderCards(animate);
     reportPresentation();
   }
   function apply(snapshot) {
@@ -454,6 +583,7 @@
   window.addEventListener("djconnect-host-stop",stopHost);
   window.addEventListener("beforeunload",stopHost);
   if (displayHost) {
+    connectFlowControls();
     window.addEventListener("djconnect-display-clear",stopHost);
     window.addEventListener("djconnect-display-snapshot",({detail}) => {
       if (!detail || detail.contract_version !== 1 || !detail.session || detail.session.runtime_state !== "active") return;
