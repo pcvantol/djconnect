@@ -1,6 +1,6 @@
 {
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "fd5543206a9c0b0258288204f6a0e6ddf44cb8d097ddec58dc8a4eed2ae1b8cd",
+  "raw_receipt_sha256": "0c8fec12e084ca6985bbee85a40f6b76140e1ae0d20e1b6bb2b9c842fc140d4c",
   "receipt": {
     "actual_ha_store_readback": true,
     "cases": {
@@ -45,7 +45,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-07T19:15:41.403009+00:00",
+            "observed_at": "2026-11-08T11:58:35.782512+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -89,7 +89,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-07T19:15:41.405247+00:00",
+            "observed_at": "2026-11-08T11:58:35.786910+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -132,7 +132,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-07T19:15:41.406783+00:00",
+            "observed_at": "2026-11-08T11:58:35.790943+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -162,7 +162,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-07T19:15:41.407988+00:00",
+            "observed_at": "2026-11-08T11:58:35.797221+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -192,7 +192,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": [],
-            "observed_at": "2026-11-07T19:15:41.409329+00:00",
+            "observed_at": "2026-11-08T11:58:35.803336+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -234,7 +234,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-07T19:15:41.412920+00:00",
+            "observed_at": "2026-11-08T11:58:35.811986+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -276,7 +276,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-07T19:15:41.438285+00:00",
+            "observed_at": "2026-11-08T11:58:35.847926+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -318,7 +318,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-07T19:15:41.439004+00:00",
+            "observed_at": "2026-11-08T11:58:35.848726+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -350,7 +350,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-07T19:15:41.439649+00:00",
+            "observed_at": "2026-11-08T11:58:35.849331+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -395,7 +395,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-07T19:15:41.439649+00:00",
+            "observed_at": "2026-11-08T11:58:35.849331+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -450,7 +450,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-07T19:15:41.440701+00:00",
+            "observed_at": "2026-11-08T11:58:35.852328+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -607,7 +607,7 @@
       "custom_components/djconnect/ha_urls.py": "cfb435ee2f7f25450fc3f443703a3a466bffd0da103365b3163384797587d558",
       "custom_components/djconnect/help_http.py": "2679e21eec606e47e8d878317c26f9fbc269ec0c82581eba3ae06fa8419ff0b9",
       "custom_components/djconnect/historical_playback.py": "2bda01faaabb4a87e3714049cd99dfb7514e36bfd351cd1c9a93f90a0e8122fa",
-      "custom_components/djconnect/historical_projection_query.py": "76fdbae0412b48fe08b37d9bb512ceedb332184284788004b1a39d6e3e7d57e6",
+      "custom_components/djconnect/historical_projection_query.py": "07c62926331916f3345a5e48e12c22857f2b8ffedd032da3a5bba375d85519cb",
       "custom_components/djconnect/historical_projection_retention.py": "ba93b6476c4b47d716f4d1d03a5ebe26328c395d2b2fe981eaea5e242105bfc6",
       "custom_components/djconnect/history_deletion.py": "adf077184493e6f9a5a6b57ce21f13815e188da5b711d23226d9fffb5ebcf5f4",
       "custom_components/djconnect/history_deletion_api.py": "390d4b6725963864ea540ea39af759d20ae9f09253bd634febb74004052e4ced",
@@ -659,7 +659,7 @@
       "custom_components/djconnect/persistence/bootstrap.py": "cb239bd1fb477800436baee9a7496e5af48429f890dcdb5e1fa1ce01cad1b27d",
       "custom_components/djconnect/persistence/content_deletion.py": "c6375616d03c6c35f45233b497dbf19add00df5cc98dfd5213d68d7012cef5a2",
       "custom_components/djconnect/persistence/dj_settings.py": "a7e978ef9b3c1c4f7db7c6aa434cfc8ed800ab97aeed568548379769800bbc8f",
-      "custom_components/djconnect/persistence/history.py": "f7cd7ce0eb90ae340e249ba41d851fd3280dd91c5073d556ce59c71799f0b45a",
+      "custom_components/djconnect/persistence/history.py": "f38d8bcf461b524e95b0c3fa57fecbfb28b358fb1086eb4fd51ee582345f790d",
       "custom_components/djconnect/persistence/history_deletion.py": "38150f6f0685261d7be745ce3e4789279ba760af21a02a9c5b12cee281fcda3c",
       "custom_components/djconnect/persistence/ownership.py": "167eaa9ffb4ac5705987ac77e1e261d4741123787fd193192a4a65429bedc8e0",
       "custom_components/djconnect/persistence/provider.py": "d6116c1661f0c3188126585a2b71bb396e3bb049b5ab9bcd9808a3313537e93a",
@@ -672,7 +672,7 @@
       "custom_components/djconnect/persona_reaction_text.py": "b4b2220b2c3189399ffd186293a471cec6ba5fcccb8b6ff173669af88e6f6c80",
       "custom_components/djconnect/persona_reactions.py": "4a4a98a3caf9d208e69d69a716e6478baecebd3fbc1a68b7ac0dc81f7878cc22",
       "custom_components/djconnect/pipeline.py": "252d2ca7005c6537d2afa1e813beb56d059b7b24f1e73f3af4f2e528f16be42c",
-      "custom_components/djconnect/playback_observation.py": "03c4149a3846f9710caf5849493a0d8c623cd12e544a6cb2d7485530cdf520c6",
+      "custom_components/djconnect/playback_observation.py": "0c1093beb4ac1a3722aa2b0521e3bdb38cba6da00373a95c6d95a1ce07e77f3e",
       "custom_components/djconnect/playback_request.py": "8130fa1d3c6c84843d6c9162e02a3fad8bfaa9307cf1279db65bb9fc7bae86f3",
       "custom_components/djconnect/presence_policy.py": "31f33c4e70cc2d144045a2fa3d949e9282251c772fe3deb256f45d6dbe3b9f83",
       "custom_components/djconnect/presentation_composer.py": "bc16ebcf1c9e2fd2d53d8c7ba488b2e174771501d08030589af972baff5355a5",
@@ -698,12 +698,12 @@
       "custom_components/djconnect/session_forecast.py": "39bcd66d2c1a8b950d7a60e2cf9d3b95d66f2d15c24222a3a8a7973e6a38048a",
       "custom_components/djconnect/session_forecast_transport.py": "0b0a6ac26356a56319354dacb77b9a0e8ea1a5736745614223b6100afcc3b15d",
       "custom_components/djconnect/session_history_maintenance.py": "ab6b5e554b90b330441be9389d6477240209b53391788fef4bfa4fbd60b3e4a6",
-      "custom_components/djconnect/session_history_projection.py": "71f77a089d1b06865981f7517b6dc627175ec44d7ea522121ece61511688a6e2",
+      "custom_components/djconnect/session_history_projection.py": "95387276680be232cdb98f20877ff79a1180c12517132ec8b0b5f6c761993514",
       "custom_components/djconnect/session_mood.py": "48d9a264da2d54716b50f93c8a15945904951d31915d77d320b9c03b1dd1b17e",
       "custom_components/djconnect/session_opening.py": "140201631392f27de821e3c124240512a6ef8dfe7fdaf2917a26894230d23e01",
       "custom_components/djconnect/session_persona.py": "de54ff90a225ca7707699a27270f165b3cd29ffdb52c0e10e9aaf217d8d204cf",
       "custom_components/djconnect/session_presence.py": "990d522822c4ce2db627edf9fbf23ecdfad0b30727b65dfbce38e2dd8dc00f64",
-      "custom_components/djconnect/session_runtime.py": "bfa0cbaa88af498681a738723c95cd5be01d28b681c6c8b7fd0986394ed9ef44",
+      "custom_components/djconnect/session_runtime.py": "d15f5fa1f338341a3dc3cf7647ab7e76063bde047ba4157ae861cbef36c4e012",
       "custom_components/djconnect/session_speech.py": "d9465f78a2b249a0ed796f81a33ea1d37cdff740a5e5a414ccf15af23106a87a",
       "custom_components/djconnect/session_story_variety.py": "d821b325968781b14e67e5be89cf9365002660e8d2b7e57c5fcede2155ec149e",
       "custom_components/djconnect/settings_confirmation.py": "6d79b02aa1af2dce3c6c9f4d51aa829b5a0a5c9e8e803537e1550feca174e27c",
@@ -748,7 +748,7 @@
       "custom_components/djconnect/tool_registry.py": "ef94acfa61b20c24af1ad1a6d31140140a6469d020cc2a3baa981492f6154c7a",
       "custom_components/djconnect/track_insight.py": "f9f3e4d179b2af4433ed3bb6a98432457a114da64be4099fecbdfa7422b81604",
       "custom_components/djconnect/track_insight_target.py": "c74959290c40ee0a8ac838e0a472cdb461c11fa9acfa41eaceb2e3129f98b562",
-      "custom_components/djconnect/track_start_announcement.py": "2d9e965266e20c4634672454271504802de3521f07d39ef0dfe90fdc1f1873ae",
+      "custom_components/djconnect/track_start_announcement.py": "cfafd0f33db5e60bad04a694ee69782ee8db935d2ae86d1a6c5b24afcffa1175",
       "custom_components/djconnect/translations/de.json": "99d602b1b714b627b736b3a26d17ead49c8d5ed02e06d4564e2a090307829d4f",
       "custom_components/djconnect/translations/en.json": "28e6cb15b91fca75af4aceac8b445e33b4782bf7fe7e8db0ef7a66e71e0b39d6",
       "custom_components/djconnect/translations/es.json": "23e71adddf3cae29487b01829b3815cf755de2e7974e1fd3024e6f1247c844b2",
@@ -910,7 +910,7 @@
     "custom_components/djconnect/ha_urls.py": "cfb435ee2f7f25450fc3f443703a3a466bffd0da103365b3163384797587d558",
     "custom_components/djconnect/help_http.py": "2679e21eec606e47e8d878317c26f9fbc269ec0c82581eba3ae06fa8419ff0b9",
     "custom_components/djconnect/historical_playback.py": "2bda01faaabb4a87e3714049cd99dfb7514e36bfd351cd1c9a93f90a0e8122fa",
-    "custom_components/djconnect/historical_projection_query.py": "76fdbae0412b48fe08b37d9bb512ceedb332184284788004b1a39d6e3e7d57e6",
+    "custom_components/djconnect/historical_projection_query.py": "07c62926331916f3345a5e48e12c22857f2b8ffedd032da3a5bba375d85519cb",
     "custom_components/djconnect/historical_projection_retention.py": "ba93b6476c4b47d716f4d1d03a5ebe26328c395d2b2fe981eaea5e242105bfc6",
     "custom_components/djconnect/history_deletion.py": "adf077184493e6f9a5a6b57ce21f13815e188da5b711d23226d9fffb5ebcf5f4",
     "custom_components/djconnect/history_deletion_api.py": "390d4b6725963864ea540ea39af759d20ae9f09253bd634febb74004052e4ced",
@@ -967,7 +967,7 @@
     "custom_components/djconnect/persistence/bootstrap.py": "cb239bd1fb477800436baee9a7496e5af48429f890dcdb5e1fa1ce01cad1b27d",
     "custom_components/djconnect/persistence/content_deletion.py": "c6375616d03c6c35f45233b497dbf19add00df5cc98dfd5213d68d7012cef5a2",
     "custom_components/djconnect/persistence/dj_settings.py": "a7e978ef9b3c1c4f7db7c6aa434cfc8ed800ab97aeed568548379769800bbc8f",
-    "custom_components/djconnect/persistence/history.py": "f7cd7ce0eb90ae340e249ba41d851fd3280dd91c5073d556ce59c71799f0b45a",
+    "custom_components/djconnect/persistence/history.py": "f38d8bcf461b524e95b0c3fa57fecbfb28b358fb1086eb4fd51ee582345f790d",
     "custom_components/djconnect/persistence/history_deletion.py": "38150f6f0685261d7be745ce3e4789279ba760af21a02a9c5b12cee281fcda3c",
     "custom_components/djconnect/persistence/ownership.py": "167eaa9ffb4ac5705987ac77e1e261d4741123787fd193192a4a65429bedc8e0",
     "custom_components/djconnect/persistence/provider.py": "d6116c1661f0c3188126585a2b71bb396e3bb049b5ab9bcd9808a3313537e93a",
@@ -980,7 +980,7 @@
     "custom_components/djconnect/persona_reaction_text.py": "b4b2220b2c3189399ffd186293a471cec6ba5fcccb8b6ff173669af88e6f6c80",
     "custom_components/djconnect/persona_reactions.py": "4a4a98a3caf9d208e69d69a716e6478baecebd3fbc1a68b7ac0dc81f7878cc22",
     "custom_components/djconnect/pipeline.py": "252d2ca7005c6537d2afa1e813beb56d059b7b24f1e73f3af4f2e528f16be42c",
-    "custom_components/djconnect/playback_observation.py": "03c4149a3846f9710caf5849493a0d8c623cd12e544a6cb2d7485530cdf520c6",
+    "custom_components/djconnect/playback_observation.py": "0c1093beb4ac1a3722aa2b0521e3bdb38cba6da00373a95c6d95a1ce07e77f3e",
     "custom_components/djconnect/playback_request.py": "8130fa1d3c6c84843d6c9162e02a3fad8bfaa9307cf1279db65bb9fc7bae86f3",
     "custom_components/djconnect/presence_policy.py": "31f33c4e70cc2d144045a2fa3d949e9282251c772fe3deb256f45d6dbe3b9f83",
     "custom_components/djconnect/presentation_composer.py": "bc16ebcf1c9e2fd2d53d8c7ba488b2e174771501d08030589af972baff5355a5",
@@ -1008,12 +1008,12 @@
     "custom_components/djconnect/session_forecast.py": "39bcd66d2c1a8b950d7a60e2cf9d3b95d66f2d15c24222a3a8a7973e6a38048a",
     "custom_components/djconnect/session_forecast_transport.py": "0b0a6ac26356a56319354dacb77b9a0e8ea1a5736745614223b6100afcc3b15d",
     "custom_components/djconnect/session_history_maintenance.py": "ab6b5e554b90b330441be9389d6477240209b53391788fef4bfa4fbd60b3e4a6",
-    "custom_components/djconnect/session_history_projection.py": "71f77a089d1b06865981f7517b6dc627175ec44d7ea522121ece61511688a6e2",
+    "custom_components/djconnect/session_history_projection.py": "95387276680be232cdb98f20877ff79a1180c12517132ec8b0b5f6c761993514",
     "custom_components/djconnect/session_mood.py": "48d9a264da2d54716b50f93c8a15945904951d31915d77d320b9c03b1dd1b17e",
     "custom_components/djconnect/session_opening.py": "140201631392f27de821e3c124240512a6ef8dfe7fdaf2917a26894230d23e01",
     "custom_components/djconnect/session_persona.py": "de54ff90a225ca7707699a27270f165b3cd29ffdb52c0e10e9aaf217d8d204cf",
     "custom_components/djconnect/session_presence.py": "990d522822c4ce2db627edf9fbf23ecdfad0b30727b65dfbce38e2dd8dc00f64",
-    "custom_components/djconnect/session_runtime.py": "bfa0cbaa88af498681a738723c95cd5be01d28b681c6c8b7fd0986394ed9ef44",
+    "custom_components/djconnect/session_runtime.py": "d15f5fa1f338341a3dc3cf7647ab7e76063bde047ba4157ae861cbef36c4e012",
     "custom_components/djconnect/session_speech.py": "d9465f78a2b249a0ed796f81a33ea1d37cdff740a5e5a414ccf15af23106a87a",
     "custom_components/djconnect/session_story_variety.py": "d821b325968781b14e67e5be89cf9365002660e8d2b7e57c5fcede2155ec149e",
     "custom_components/djconnect/settings_confirmation.py": "6d79b02aa1af2dce3c6c9f4d51aa829b5a0a5c9e8e803537e1550feca174e27c",
@@ -1058,7 +1058,7 @@
     "custom_components/djconnect/tool_registry.py": "ef94acfa61b20c24af1ad1a6d31140140a6469d020cc2a3baa981492f6154c7a",
     "custom_components/djconnect/track_insight.py": "f9f3e4d179b2af4433ed3bb6a98432457a114da64be4099fecbdfa7422b81604",
     "custom_components/djconnect/track_insight_target.py": "c74959290c40ee0a8ac838e0a472cdb461c11fa9acfa41eaceb2e3129f98b562",
-    "custom_components/djconnect/track_start_announcement.py": "2d9e965266e20c4634672454271504802de3521f07d39ef0dfe90fdc1f1873ae",
+    "custom_components/djconnect/track_start_announcement.py": "cfafd0f33db5e60bad04a694ee69782ee8db935d2ae86d1a6c5b24afcffa1175",
     "custom_components/djconnect/translations/de.json": "99d602b1b714b627b736b3a26d17ead49c8d5ed02e06d4564e2a090307829d4f",
     "custom_components/djconnect/translations/en.json": "28e6cb15b91fca75af4aceac8b445e33b4782bf7fe7e8db0ef7a66e71e0b39d6",
     "custom_components/djconnect/translations/es.json": "23e71adddf3cae29487b01829b3815cf755de2e7974e1fd3024e6f1247c844b2",
