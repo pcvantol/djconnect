@@ -34,7 +34,42 @@
     return btoa(String.fromCharCode(...bytes)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
   };
   function later(fn,delay){const timer=setTimeout(()=>{timers.delete(timer);fn();},delay);timers.add(timer);return timer;}
-  function clearContent(){window.dispatchEvent(new Event("djconnect-display-clear"));}
+  function clearContent(){clearArtwork();window.dispatchEvent(new Event("djconnect-display-clear"));}
+  let artwork=null;
+  function clearArtwork(){
+    if(!artwork)return;
+    const previous=artwork;artwork=null;
+    previous.controller.abort();clearTimeout(previous.timer);
+    window.dispatchEvent(new CustomEvent("djconnect-display-artwork",{detail:null}));
+    if(previous.url)URL.revokeObjectURL(previous.url);
+  }
+  async function updateArtwork(snapshot){
+    const cover=snapshot.artwork;
+    if(!cover || cover.item_id!==snapshot.playback?.item_id ||
+       !/^[a-f0-9]{64}$/.test(cover.reference) || !(Date.parse(cover.expires_at)>Date.now())){
+      clearArtwork();return;
+    }
+    if(artwork?.reference===cover.reference)return;
+    clearArtwork();
+    const controller=new AbortController();
+    const pending={reference:cover.reference,controller,url:null,timer:null};
+    artwork=pending;
+    pending.timer=setTimeout(()=>{if(artwork===pending)clearArtwork();},Date.parse(cover.expires_at)-Date.now());
+    const timeout=setTimeout(()=>controller.abort(),10000);
+    try{
+      const response=await fetch("/api/djconnect/v1/display/artwork",{method:"POST",credentials:"omit",cache:"no-store",redirect:"error",
+        headers:{"Content-Type":"application/json",Authorization:"Bearer "+grant.grant_token},
+        body:JSON.stringify({contract_version:1,...binding(),reference:cover.reference}),signal:controller.signal});
+      const size=Number(response.headers.get("Content-Length")), mime=response.headers.get("Content-Type");
+      if(!response.ok || !(size>0 && size<=256000) || !["image/jpeg","image/png"].includes(mime))throw new Error("artwork");
+      const blob=await response.blob();
+      if(artwork!==pending || expired() || Date.parse(cover.expires_at)<=Date.now())return;
+      if(blob.size!==size)throw new Error("artwork");
+      pending.url=URL.createObjectURL(blob);
+      window.dispatchEvent(new CustomEvent("djconnect-display-artwork",{detail:{item_id:cover.item_id,url:pending.url}}));
+    }catch(_){if(artwork===pending)clearArtwork();}
+    finally{clearTimeout(timeout);}
+  }
   function show(message,code="",retry=false){
     panel.textContent=""; const caption=document.createElement("span");caption.textContent=message;panel.append(caption);
     if(code){const value=document.createElement("strong");value.textContent=code;value.setAttribute("aria-label",code.split("").join(" "));panel.append(value);}
@@ -101,7 +136,8 @@
             || frame.connection_generation<connectionGeneration)throw new Error("binding");
         connectionGeneration=frame.connection_generation;
         // The renderer receives only the Core's explicit shared allowlist.
-        window.dispatchEvent(new CustomEvent("djconnect-display-snapshot",{detail:snapshot}));panel.hidden=true;
+        window.dispatchEvent(new CustomEvent("djconnect-display-snapshot",{detail:snapshot}));
+        void updateArtwork(snapshot);panel.hidden=true;
       }catch(_){terminal(text.denied);}
     };
     current.onclose=event=>{

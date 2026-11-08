@@ -1,3 +1,20 @@
+## 2026-11-08 — VibeCast current album cover
+
+Core prepares the current Spotify edition cover from the existing authenticated
+playback observation and image pipeline. A separate display artwork read
+requires the active share, display grant and exact current cover reference.
+The browser discards the cover on track change, expiry or withdrawal.
+See [Display admission B](docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md).
+This slice is independent of the rolling Flow.
+
+## 2026-11-08 — VibeCast shared Session Flow
+
+The shared display renders only the bounded, consent-scoped proactive
+publications in the optional `shared_flow` field. The track header remains
+visible as the Flow scrolls. Native scroll and keyboard input allow reading
+older cards. New cards follow the live edge while live mode is active.
+See [Display admission B](docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md).
+
 ## 2026-11-07 — Share ‘For you’ dismissal across the active Session
 
 The existing paired Ask DJ dismissal closes the current offer for all devices

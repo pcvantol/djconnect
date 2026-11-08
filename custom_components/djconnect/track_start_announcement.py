@@ -40,6 +40,7 @@ class Occurrence:
     deadline: float
     source_context: tuple
     duration_ms: int | None = None
+    repeated: bool = False
 
     @property
     def item_id(self):
@@ -138,7 +139,8 @@ class AnnouncementState:
         # single original automatic deadline, it never resets it on a later poll.
         occurrence = Occurrence('occurrence-' + uuid4().hex, media_uri, title, artist,
             album_uri if ALBUM_URI.fullmatch(album_uri or '') else '', now,
-            now + START_WINDOW_SECONDS - position / 1000, source_context, duration)
+            now + START_WINDOW_SECONDS - position / 1000, source_context, duration,
+            repeated=same and (natural_restart or deliberate_restart))
         self.current_occurrence = occurrence
         return occurrence
 

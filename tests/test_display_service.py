@@ -1,8 +1,10 @@
 """B adapter unit chain with normal request helpers; not live HA proof."""
 import importlib
+from io import BytesIO
 import secrets
 import unittest
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import AsyncMock, patch
 
 from tests import test_display_authority as authority_tests
 
@@ -38,12 +40,12 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
             headers=self.fixture.headers if headers is None else headers,
             origins=[self.origin] if origins is None else origins, source="unit-peer")
 
-    async def admitted(self):
+    async def admitted(self, share=None):
         nonce = secrets.token_urlsafe(32)
         claim = (await self.call("claim", {"browser_nonce": nonce})).payload
         owner_fields = {key: claim[key] for key in ("issuer_epoch", "claim_id", "browser_generation", "code")}
         await self.call("owner/approve", owner_fields | {"session_id": self.fixture.active.session_id,
-            "share": {"mode": "create", "consent": True}})
+            "share": share or {"mode": "create", "consent": True}})
         binding = {key: claim[key] for key in ("issuer_epoch", "claim_id", "browser_generation", "claim_secret")}
         result = await self.call("collect", binding | {"browser_nonce": nonce})
         return result
@@ -168,6 +170,107 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(self.module.DisplayAdmissionError):
             snapshot.release()
         snapshot.complete()
+
+    async def test_current_album_bytes_are_bound_to_one_display_and_track(self):
+        from PIL import Image
+        from homeassistant.helpers import aiohttp_client
+        from custom_components.djconnect.display_delivery import _prepare_artwork
+        from custom_components.djconnect.display_transport import _FencedResponse
+        from custom_components.djconnect import image_proxy
+
+        async def display_credentials(share=None):
+            payload = (await self.admitted(share)).payload
+            binding = {key: payload[key] for key in ("issuer_epoch", "display_id")}
+            headers = {"Authorization": "Bearer " + payload["grant_token"]}
+            return binding, headers
+
+        async def observe(identifier):
+            await self.manager.async_update_playback_projection(owner_profile_id="profile-a",
+                session_id=self.fixture.active.session_id, state="playing",
+                media_identity="spotify:track:" + identifier, title="Track", album="Album")
+            return self.fixture.active.broadcast.state.playback
+
+        async def prepare(playback, color):
+            buf = BytesIO()
+            Image.new("RGB", (32, 32), color).save(buf, format="PNG")
+            body = buf.getvalue()
+
+            class Content:
+                async def iter_chunked(self, _size):
+                    yield body[:32]
+                    yield body[32:]
+
+            class Response:
+                status = 200
+                content = Content()
+
+                async def __aenter__(self):
+                    return self
+
+                async def __aexit__(self, *_error):
+                    return None
+
+            cdn = "https://i.scdn.co/image/" + "a" * 40
+
+            def get(url, *, allow_redirects, timeout):
+                self.assertEqual(url, cdn)
+                self.assertFalse(allow_redirects)
+                return Response()
+
+            hass = self.fixture.hass
+            decoder = AsyncMock(side_effect=lambda callback, data: callback(data))
+            with (patch.object(aiohttp_client, "async_get_clientsession", return_value=SimpleNamespace(get=get)),
+                  patch.object(image_proxy, "session_images", return_value=SimpleNamespace(decode=decoder))):
+                await _prepare_artwork(hass, state, self.fixture.active.broadcast, playback.item_id,
+                               playback.source_url, cdn,
+                               lambda: True, lambda: True, state._clock() + 60)
+            return body
+
+        async def snapshot(binding, headers):
+            result = await self.call("snapshot", binding, headers=headers)
+            try:
+                return result.payload["snapshot"]
+            finally:
+                result.complete()
+
+        binding, headers = await display_credentials()
+        state = self.manager._display_admission
+        share = state._shares[state._displays[binding["display_id"]].share_id]
+        other, other_headers = await display_credentials({
+            "mode": "existing", "share_id": share.share_id, "share_generation": share.generation,
+        })
+        first_bytes = await prepare(await observe("A" * 22), "red")
+        first = (await snapshot(binding, headers))["artwork"]
+        with self.assertRaises(self.module.DisplayAdmissionError):
+            await self.call("artwork", other | {"reference": first["reference"]}, headers=other_headers)
+        media = await self.call("artwork", binding | {"reference": first["reference"]}, headers=headers)
+        response = _FencedResponse(media)
+        self.assertEqual(response.body, first_bytes)
+        self.assertEqual(response.content_type, "image/png")
+        self.assertEqual(response.headers["Cache-Control"], "no-store")
+        try:
+            media.release()
+            playback = await observe("B" * 22)
+            with self.assertRaises(self.module.DisplayAdmissionError):
+                media.release()
+            self.assertNotIn("artwork", await snapshot(binding, headers))
+        finally:
+            media.complete()
+        second_bytes = await prepare(playback, "blue")
+        second = (await snapshot(binding, headers))["artwork"]
+        self.assertNotEqual(first["reference"], second["reference"])
+        media = await self.call("artwork", binding | {"reference": second["reference"]}, headers=headers)
+        self.assertEqual(media.media, (second_bytes, "image/png"))
+        try:
+            display = state._displays[binding["display_id"]]
+            with patch.object(state, "_clock", return_value=display.lease_deadline):
+                with self.assertRaises(self.module.DisplayAdmissionError):
+                    media.release()
+            await self.call("leave", binding, headers=headers)
+            with self.assertRaises(self.module.DisplayAdmissionError):
+                media.release()
+        finally:
+            media.complete()
 
     async def test_simultaneous_snapshot_reserves_before_projection_until_body_completes(self):
         result = await self.admitted()

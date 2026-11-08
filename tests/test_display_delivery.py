@@ -50,3 +50,16 @@ class DisplayDeliveryBudgetTests(unittest.TestCase):
             release()
         self.assertEqual(self.hub.reserved_bytes, 0)
         self.assertFalse(self.hub.projecting)
+
+
+    def test_artwork_cannot_displace_eight_live_projections(self):
+        artwork = [self.hub.reserve_artwork(str(n)) for n in range(8)]
+        with self.assertRaises(self.module.DisplayAdmissionError):
+            self.hub.reserve_artwork("ninth")
+        live = [self.hub.reserve_projection(str(n)) for n in range(8)]
+        self.assertEqual(self.hub.projections, 8)
+        self.assertLessEqual(self.hub.reserved_bytes, 4 * 1024 * 1024)
+        for release in artwork + live:
+            release()
+            release()
+        self.assertEqual(self.hub.reserved_bytes, 0)
