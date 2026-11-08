@@ -39,7 +39,7 @@ def shell_csp(html, origin):
     hashes = ["'sha256-" + base64.b64encode(hashlib.sha256(script.encode()).digest()).decode() + "'"
               for script in parser.scripts]
     return ("default-src 'none'; script-src " + " ".join(hashes) + "; "
-        "style-src 'unsafe-inline'; img-src 'self' data:; connect-src 'self' " + origin.replace("https:", "wss:", 1)
+        "style-src 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' " + origin.replace("https:", "wss:", 1)
         + "; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; "
         "frame-src 'none'; worker-src 'none'; media-src 'none'")
 

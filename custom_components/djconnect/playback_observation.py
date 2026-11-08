@@ -48,6 +48,9 @@ class _SpotifyObservationSession:
     poll_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     enrichment_task: asyncio.Task[Any] | None = None
     forecast_art_task: asyncio.Task[Any] | None = None
+    display_artwork_task: asyncio.Task[Any] | None = None
+    display_artwork_attempt: tuple[str, str, int] | None = None
+    display_artwork_retry: float = 0
     enrichment_media_identity: str = ""
     unavailable: bool = False
     command_revision: int = 0
@@ -166,6 +169,11 @@ class PlaybackObservationManager:
             with suppress(asyncio.CancelledError):
                 await observed.forecast_art_task
         observed.forecast_art_task = None
+        if observed.display_artwork_task is not None:
+            observed.display_artwork_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await observed.display_artwork_task
+            observed.display_artwork_task = None
         observed.enrichment_media_identity = ""
 
     async def async_stop_runtime(self, integration_runtime: Any) -> None:
@@ -434,6 +442,8 @@ class PlaybackObservationManager:
                 capture_occurrence=capture_accepted_occurrence,
             )
             accept_observation(self._hass, observed, result, visual_admission)
+            from .display_delivery import schedule_artwork
+            schedule_artwork(self._hass, manager, observed, result, original_status)
             catalog = getattr(result, "catalog", {})
             if (result.is_playing and result.media_identity and forecast_authority()
                     and isinstance(catalog, dict) and catalog.get("artist_ids")
