@@ -73,8 +73,8 @@ def projection_release_guard(active, authority, state, snapshot):
             return False
         artwork = snapshot.get("artwork")
         if artwork is not None:
-            from .display_artwork import descriptor
-            if descriptor(active, authority, state) != artwork:
+            from .display_delivery import artwork_descriptor
+            if artwork_descriptor(active, authority, state) != artwork:
                 return False
         # This clock read follows all validation and serialization/preparation.
         return not deadlines or time.monotonic() < min(deadlines)
@@ -169,8 +169,8 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
         "persona": {"home_dj", "radio_dj", "club_dj", "festival_dj"}, "presence": set(POLICIES)}
     result["session_presentation"] = {key: _label(value) for key, value in labels.items()
                                       if _label(value) in allowed[key]}
-    from .display_artwork import descriptor
-    artwork = descriptor(active, authority, state)
+    from .display_delivery import artwork_descriptor
+    artwork = artwork_descriptor(active, authority, state)
     if artwork is not None:
         result["artwork"] = artwork
     result["projection_revision"] = hashlib.sha256(json.dumps(result, sort_keys=True,

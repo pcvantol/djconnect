@@ -430,8 +430,8 @@ class PlaybackObservationManager:
                 original_status=original_status,
             )
             accept_observation(self._hass, observed, result, visual_admission)
-            from .display_artwork import schedule as schedule_display_artwork
-            schedule_display_artwork(self._hass, session_runtime_manager(self._hass),
+            from .display_delivery import schedule_artwork
+            schedule_artwork(self._hass, session_runtime_manager(self._hass),
                                      observed, result, original_status)
             from .track_start_announcement import capture as capture_announcement
             announcement = capture_announcement(session_runtime_manager(self._hass),

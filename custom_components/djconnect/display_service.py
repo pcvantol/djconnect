@@ -183,19 +183,18 @@ class DisplayAdmissionService:
                     raise DisplayAdmissionError("display_grant_invalid", 401)
                 args["token"] = token.removeprefix("Bearer ")
                 if action == "artwork":
-                    from .display_artwork import qualified
-                    from .display_delivery import display_live_hub
+                    from .display_delivery import display_live_hub, qualified_artwork
 
                     reference = args.pop("reference")
                     display = state.authorize(**args)
                     active = self.manager.current_active(display.owner.profile_id)
-                    found = qualified(active, display, state)
+                    found = qualified_artwork(active, display, state)
                     if found is None or reference != found[0]:
                         raise DisplayAdmissionError("display_artwork_unavailable", 404)
                     asset = found[1]
                     def guard():
                         current = self.manager.current_active(display.owner.profile_id)
-                        match = qualified(current, display, state)
+                        match = qualified_artwork(current, display, state)
                         return match is not None and match[0] == reference and match[1] is asset
                     complete = display_live_hub(self.manager).reserve_projection(("artwork", display.display_id))
                     media = (asset.body, asset.mime)

@@ -61,9 +61,9 @@ class _FencedResponse(web.Response):
             raw = json.dumps(result.payload, ensure_ascii=False, allow_nan=False).encode()
             mime, limit = "application/json", 128 * 1024
         else:
-            from .display_artwork import MAX_BYTES
+            from .display_delivery import MAX_DISPLAY_ARTWORK_BYTES
             raw, mime = result.media
-            limit = MAX_BYTES
+            limit = MAX_DISPLAY_ARTWORK_BYTES
         if len(raw) > limit:
             self._display_complete()
             raise DisplayAdmissionError("display_capacity", 503)

@@ -174,7 +174,7 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
     async def test_current_album_bytes_are_bound_to_one_display_and_track(self):
         from PIL import Image
         from homeassistant.helpers import aiohttp_client
-        from custom_components.djconnect.display_artwork import _prepare
+        from custom_components.djconnect.display_delivery import _prepare_artwork
         from custom_components.djconnect.display_transport import _FencedResponse
         from custom_components.djconnect import image_proxy
 
@@ -221,7 +221,7 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
             decoder = AsyncMock(side_effect=lambda callback, data: callback(data))
             with (patch.object(aiohttp_client, "async_get_clientsession", return_value=SimpleNamespace(get=get)),
                   patch.object(image_proxy, "session_images", return_value=SimpleNamespace(decode=decoder))):
-                await _prepare(hass, state, self.fixture.active.broadcast, playback.item_id,
+                await _prepare_artwork(hass, state, self.fixture.active.broadcast, playback.item_id,
                                playback.source_url, cdn,
                                lambda: True, lambda: True, state._clock() + 60)
             return body
