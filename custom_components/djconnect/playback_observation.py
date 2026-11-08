@@ -403,7 +403,18 @@ class PlaybackObservationManager:
             from .forecast_imagery import artist_authority
             forecast_authority = artist_authority(self._hass, observed.integration_runtime, owner_profile_id=observed.owner_profile_id,
                 expected_source=session_runtime_manager(self._hass)._history_source_contexts.get(observed.session_id, {}))
-            await session_runtime_manager(self._hass).async_update_playback_projection(
+            manager = session_runtime_manager(self._hass)
+            from .track_start_announcement import capture as capture_announcement
+            announcement = None
+
+            def capture_accepted_occurrence():
+                nonlocal announcement
+                announcement = capture_announcement(manager,
+                    owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                    observed=result, authorize=queue_authority)
+                return announcement
+
+            await manager.async_update_playback_projection(
                 owner_profile_id=observed.owner_profile_id,
                 session_id=observed.session_id,
                 state=getattr(result, "state", "playing" if result.is_playing else "idle"),
@@ -420,12 +431,9 @@ class PlaybackObservationManager:
                 position_ms=getattr(result, "position_ms", None),
                 forecast_authority=forecast_authority,
                 original_status=original_status,
+                capture_occurrence=capture_accepted_occurrence,
             )
             accept_observation(self._hass, observed, result, visual_admission)
-            from .track_start_announcement import capture as capture_announcement
-            announcement = capture_announcement(session_runtime_manager(self._hass),
-                owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
-                observed=result, authorize=queue_authority)
             catalog = getattr(result, "catalog", {})
             if (result.is_playing and result.media_identity and forecast_authority()
                     and isinstance(catalog, dict) and catalog.get("artist_ids")

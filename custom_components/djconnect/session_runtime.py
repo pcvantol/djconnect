@@ -5045,6 +5045,7 @@ class SessionRuntimeManager:
         up_next: dict[str, Any] | None = None,
         forecast_authority: Callable[[], bool] | None = None,
         original_status=None,
+        capture_occurrence: Callable[[], Any] | None = None,
     ) -> bool:
         """Apply one normalized observation to its active Runtime only."""
         projection = RendererSafePlaybackProjection.from_observation(
@@ -5070,14 +5071,20 @@ class SessionRuntimeManager:
                         and media_identity == pending.selected_media[0]
                         and getattr(original_status, "target_id", None) == pending.output_id):
                     active.broadcast.first_play_state = "confirmed"
-            # A paused projection may already identify the item before its first
-            # playing observation. The repository deduplicates same-item resumes.
+            # Capture the occurrence from the very sample being accepted here.
+            # A prior command readback or legacy row has no shared occurrence proof.
+            occurrence = capture_occurrence() if capture_occurrence else None
+            from .track_start_announcement import Occurrence
+            if type(occurrence) is not Occurrence or occurrence.item_id != projection.item_id:
+                occurrence = None
             if (self._historical_projections is not None and projection.state == "playing"
                 and projection.item_id and (old_playback.state != "playing"
-                    or projection.item_id != old_playback.item_id)):
+                    or projection.item_id != old_playback.item_id
+                    or (occurrence is not None and occurrence.repeated))):
                 from .session_history_projection import new_observation_reference
                 await self._historical_projections.async_append_entries(owner_profile_id,session_id,[{
-                    "kind":"playback_observed", "reference_id":new_observation_reference(),
+                    "kind":"playback_observed",
+                    "reference_id":occurrence.occurrence_id if occurrence else new_observation_reference(),
                     "body":{"item_id":projection.item_id,"title":projection.title,"artist":projection.artist,
                             "album":projection.album,"source_url":projection.source_url,
                             "album_uri": album_uri if re.fullmatch(r"spotify:album:[A-Za-z0-9]{22}", album_uri) else "",

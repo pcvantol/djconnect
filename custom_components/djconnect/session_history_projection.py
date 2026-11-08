@@ -6,6 +6,7 @@ import base64
 from datetime import UTC, datetime
 import hmac
 import json
+import re
 import secrets
 import unicodedata
 
@@ -218,6 +219,10 @@ def session_retained(session: dict, *, retention_days: int = 90) -> bool:
         )
     except (ValueError, TypeError):
         return False
+
+
+def is_playback_occurrence(value) -> bool:
+    return isinstance(value, str) and re.fullmatch(r"occurrence-[a-f0-9]{32}", value) is not None
 
 
 def new_observation_reference() -> str:
