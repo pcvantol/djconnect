@@ -196,7 +196,7 @@ class DisplayAdmissionService:
                         current = self.manager.current_active(display.owner.profile_id)
                         match = qualified_artwork(current, display, state)
                         return match is not None and match[0] == reference and match[1] is asset
-                    complete = display_live_hub(self.manager).reserve_projection(("artwork", display.display_id))
+                    complete = display_live_hub(self.manager).reserve_artwork(display.display_id)
                     media = (asset.body, asset.mime)
                     result = {}
                 elif action == "snapshot":

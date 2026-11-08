@@ -9,11 +9,14 @@ import re
 import secrets
 from typing import Callable
 
+from .display_admission import DisplayAdmissionError
+from .display_projection import MAX_FRAME_BYTES
 from .forecast_imagery import safe_cdn_url
 from .image_proxy import image_proxy_target
 
-from .display_admission import DisplayAdmissionError
-from .display_projection import MAX_FRAME_BYTES
+
+MAX_DISPLAY_ARTWORK_BYTES = 256000
+DISPLAY_ARTWORK_LIFETIME = 120
 
 
 class DisplayLiveHub:
@@ -26,6 +29,7 @@ class DisplayLiveHub:
         self.reserved_bytes = 0
         self.projections = 0
         self.projecting = {}
+        self.artwork_reads = {}
         self.peak_reserved_bytes = 0
         self.peak_projections = 0
         self.peak_preauth = 0
@@ -46,6 +50,24 @@ class DisplayLiveHub:
                 del self.projecting[display_id]
                 self.projections -= 1
                 self.reserved_bytes -= size
+        return release
+
+    def reserve_artwork(self, display_id):
+        """Keep optional media reads out of the live projection allowance."""
+        size = MAX_DISPLAY_ARTWORK_BYTES
+        if (display_id in self.artwork_reads or len(self.artwork_reads) >= 8
+                or self.reserved_bytes + size > 4 * 1024 * 1024):
+            raise DisplayAdmissionError("display_capacity", 429)
+        marker = object()
+        self.artwork_reads[display_id] = marker
+        self.reserved_bytes += size
+        self.peak_reserved_bytes = max(self.peak_reserved_bytes, self.reserved_bytes)
+
+        def release():
+            if self.artwork_reads.get(display_id) is marker:
+                del self.artwork_reads[display_id]
+                self.reserved_bytes -= size
+
         return release
 
     def reserve_preauth(self, source):
@@ -69,10 +91,6 @@ def display_live_hub(manager):
     if hub is None:
         hub = manager._display_live_hub = DisplayLiveHub(manager)
     return hub
-
-
-MAX_DISPLAY_ARTWORK_BYTES = 256000
-DISPLAY_ARTWORK_LIFETIME = 120
 
 
 @dataclass(frozen=True, repr=False)
