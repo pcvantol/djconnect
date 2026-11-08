@@ -1,359 +1,7 @@
 {
-  "cases": {
-    "actual_Runtime_value_copies_across_provider_generation_assessment_final_read_keep_original_admission": "PASS",
-    "actual_cc0_original_source_shared_generation_assessment_fixture": "PASS",
-    "cache_current_metadata_original_deadline": "PASS",
-    "closed_current_no_profile_dna_history_or_playback_effect": "PASS",
-    "contradictory_metadata_with_real_paired_owner_latches_original_subject": "PASS",
-    "explicit_current_actual_paired_http_resolves_cc0_without_opportunity_or_publication": "PASS",
-    "failed_source_never_uses_runtime_fallback": "PASS",
-    "final_source_await_actual_runtime_aba": "PASS",
-    "four_original_source_fields_cannot_transfer_cc0_model_rights": "PASS",
-    "initial_source_await_actual_runtime_aba": "PASS",
-    "legacy_status_no_optout_learning": "PASS",
-    "mixed_authority_before_source_read": "PASS",
-    "new_source_revision_same_recording_new_epoch": "PASS",
-    "on_demand_credits_never_fabricate_audio_measurements": "PASS",
-    "ordinary_no_selector_has_same_original_source_join": "PASS",
-    "ordinary_pair_exact_current_no_session_no_model": "PASS",
-    "paired_authority_withdrawn_during_source_read": "PASS",
-    "repeated_value_copies_retain_original_frame_and_expiry_without_extra_model_calls": "PASS",
-    "same_name_versions_are_distinct": "PASS",
-    "withdrawn_closed_current_remains_inert": "PASS"
-  },
-  "ha_sdk_version": "2026.10.0",
-  "harness_sha256": "0fa8d41564c70b7e7a1404731d58adba80357dbe91e3262dbff8a58bee900b6b",
-  "installed": "NOT_RUN",
-  "model_provider_calls": 0,
-  "model_reply_fixture_calls": 4,
-  "native": "NOT_RUN",
-  "provider_calls": [
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/artists"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/artists"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/tracks/contains"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/tracks/contains"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/tracks/contains"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/tracks/contains"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    },
-    {
-      "method": "GET",
-      "path": "/v1/me/player"
-    }
-  ],
-  "qualification": "ACTUAL_ISOLATED_HA_PAIRED_HTTP_SYNTHETIC_ONLY",
-  "responses": {
-    "current": {
-      "analysis": {
-        "arrangement_notes": [],
-        "basis": "unmeasured_metadata_only_v1",
-        "confidence": null,
-        "danceability": null,
-        "emotional_tone": null,
-        "energy": null,
-        "full_text": "Er is geen gekwalificeerde muzikale analyse voor deze opname beschikbaar. Playbackmetadata staat apart; de audio is niet gemeten.",
-        "genre": null,
-        "instrumentation": [],
-        "intensity": null,
-        "listening_cues": [],
-        "measured_audio": false,
-        "mood": null,
-        "production_notes": [],
-        "similar_tracks": [],
-        "source_attribution": {},
-        "subgenre": null,
-        "summary": "Er is geen gekwalificeerde muzikale analyse voor deze opname beschikbaar. Playbackmetadata staat apart; de audio is niet gemeten.",
-        "texture": null,
-        "verified_context": "",
-        "vibe": null
-      },
-      "cache": {
-        "hit": false,
-        "key": "46f2f86799b7612de36684bd"
-      },
-      "created_at": "2026-11-08T13:15:47.414842+00:00",
-      "id": "track_insight_46f2f86799b7612de36684bd",
-      "language": "nl",
-      "mood_context": null,
-      "source": "current_detail",
-      "subject": {
-        "expires_at": 1794143777.4141824,
-        "expires_in": 29,
-        "media_identity": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
-        "mode": "current",
-        "observation_id": "<opaque-observation-redacted>",
-        "schema_version": 1
-      },
-      "track": {
-        "album": "Fixture album",
-        "artist": "Fixture artist",
-        "artwork_url": "https://i.scdn.co/image/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "backend": "spotify_direct",
-        "duration_ms": 180000,
-        "entity_id": null,
-        "genres": [
-          "jazz"
-        ],
-        "is_playing": true,
-        "player_id": null,
-        "progress_ms": 10000,
-        "title": "Fixture track"
-      },
-      "visual_profile": {
-        "audio_reactive": false,
-        "basis": "decorative_unmeasured_v1",
-        "glow_strength": 0.6,
-        "motion_style": "minimal",
-        "palette": [
-          "#8197ae",
-          "#da263f",
-          "#d5f6bf"
-        ],
-        "particle_density": 0.575,
-        "pulse_speed": 0.625,
-        "seed": "8197aeda263fd5f6bf6d3bf43c860eb81efac5230b5e8ae9abd5a9846792f837",
-        "spectrum_bias": "balanced",
-        "wave_amplitude": 0.6
-      }
-    },
-    "mixed": {
-      "error": "invalid_track_insight_subject",
-      "message": "Kies de huidige opname of een specifieke bijdrage.",
-      "success": false
-    },
-    "on_demand_credit": {
-      "analysis": {
-        "arrangement_notes": [],
-        "basis": "qualified_credit_and_interpretation_v1",
-        "confidence": null,
-        "danceability": null,
-        "emotional_tone": null,
-        "energy": null,
-        "full_text": "Een gekwalificeerde producentbijdrage.",
-        "genre": null,
-        "instrumentation": [],
-        "intensity": null,
-        "listening_cues": [],
-        "measured_audio": false,
-        "mood": null,
-        "production_notes": [],
-        "similar_tracks": [],
-        "source_attribution": {
-          "license": "CC0-1.0",
-          "provider": "MusicBrainz",
-          "url": "https://musicbrainz.org/recording/22222222-2222-2222-2222-222222222222"
-        },
-        "subgenre": null,
-        "summary": "Een gekwalificeerde producentbijdrage.",
-        "texture": null,
-        "verified_context": "Producent: Fixture producer",
-        "vibe": null
-      },
-      "cache": {
-        "hit": false,
-        "key": "bdbd72ad0d58d5f39a86e53d"
-      },
-      "created_at": "2026-11-08T13:15:47.461922+00:00",
-      "id": "track_insight_bdbd72ad0d58d5f39a86e53d",
-      "language": "nl",
-      "mood_context": null,
-      "source": "current_detail",
-      "subject": {
-        "expires_at": 1794143777.4602215,
-        "expires_in": 29,
-        "media_identity": "spotify:track:BBBBBBBBBBBBBBBBBBBBBB",
-        "mode": "current",
-        "observation_id": "<opaque-observation-redacted>",
-        "schema_version": 1
-      },
-      "track": {
-        "album": "Fixture album",
-        "artist": "Fixture artist",
-        "artwork_url": "https://i.scdn.co/image/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "backend": "spotify_direct",
-        "duration_ms": 180000,
-        "entity_id": null,
-        "genres": [
-          "jazz"
-        ],
-        "is_playing": true,
-        "player_id": null,
-        "progress_ms": 12000,
-        "title": "Fixture track"
-      },
-      "visual_profile": {
-        "audio_reactive": false,
-        "basis": "decorative_unmeasured_v1",
-        "glow_strength": 0.6,
-        "motion_style": "minimal",
-        "palette": [
-          "#8197ae",
-          "#da263f",
-          "#d5f6bf"
-        ],
-        "particle_density": 0.575,
-        "pulse_speed": 0.625,
-        "seed": "8197aeda263fd5f6bf6d3bf43c860eb81efac5230b5e8ae9abd5a9846792f837",
-        "spectrum_bias": "balanced",
-        "wave_amplitude": 0.6
-      }
-    },
-    "unavailable": {
-      "error": "current_track_unavailable",
-      "message": "De huidige opname kon niet worden gecontroleerd. Probeer het zo opnieuw.",
-      "success": false
-    },
-    "withdrawn": {
-      "error": "unauthorized",
-      "message": "Access was withdrawn.",
-      "success": false
-    }
-  },
   "schema_version": 1,
+  "qualification": "ACTUAL_ISOLATED_HA_PAIRED_HTTP_SYNTHETIC_ONLY",
+  "ha_sdk_version": "2026.10.0",
   "source_files_sha256": {
     "custom_components/djconnect/AGENTS.md": "8fb8891e3a2cca055067fbbacafe6c189f38bc00c514a6bf6984639a182a70cf",
     "custom_components/djconnect/__init__.py": "959b280334e2ea4f9bc0ee49e7ccd599a6e8b56494ad5d6b4002199de1a0af16",
@@ -443,7 +91,7 @@
     "custom_components/djconnect/discovery_artwork.py": "b264d009ab25f63c9eb84bdcec4d3ff1ec86a93478a6b4d1a71e3011a9151995",
     "custom_components/djconnect/discovery_selection.py": "09df528e850f3459c5f7b332c3d49efc22aef39a1a6835ac7ebbc10054e4645a",
     "custom_components/djconnect/display_admission.py": "40b9d1251fdd89203b9658b9cfd047c39f4701d58b2d7d09c222ec2f4a7f773a",
-    "custom_components/djconnect/display_authority.py": "308cd770fbe2e98621d504e27c0786330ec4562fe43ef8a0ff9f2961a69a9d5d",
+    "custom_components/djconnect/display_authority.py": "2e588b14d0a90877739b20393766bebd4623939d2d173d00627a165d4304dd60",
     "custom_components/djconnect/display_delivery.py": "6fac2aa58bea479f501c522c1338f39f6509830c13d1e3737dde28a040d4b2c1",
     "custom_components/djconnect/display_live.py": "f6a63da450a8b64a71775a51f7060c7f76faa4af26f0ba23ecf99d68fcedd711",
     "custom_components/djconnect/display_origin.py": "6be2d0f0bacec09a47a91f854a249cb40c90379690cf15e28db70f6885b7015c",
@@ -637,7 +285,7 @@
     "custom_components/djconnect/translations/es.json": "23e71adddf3cae29487b01829b3815cf755de2e7974e1fd3024e6f1247c844b2",
     "custom_components/djconnect/translations/fr.json": "315be13e0e59cad8d25c4df24a02a00dc0f19643f5a59322a4945ab48ee1b08a",
     "custom_components/djconnect/translations/nl.json": "6171ea65dbae8bc6f0ddbd3af5f4562c0996d0a4c31e423b9e7c07dee0614740",
-    "custom_components/djconnect/transport_capabilities.py": "373848aae98ca1a34ab6d98ac8a050d62e6679bb61514bfa6fe8873fdbca81d4",
+    "custom_components/djconnect/transport_capabilities.py": "bf7d7dd57b6f3c967852cf97ed843ab13fa2615a77521acdb36115e7727fa59a",
     "custom_components/djconnect/transport_delivery.py": "70b45afe6e25f960973affd39ae6d77e8a695db41df8919e749ca6885aedd8af",
     "custom_components/djconnect/transport_operations.py": "3f87b3eda57f9fee4e0ccd7a69fe87c9df3893b746a46328708b7e15e16d133a",
     "custom_components/djconnect/tts.py": "1d5154ae501174fcc43c287c97de6429b15f743cd2fac0ce7ccaf2a83215f7c7",
@@ -665,5 +313,357 @@
     "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
     "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
   },
-  "source_unchanged": true
+  "source_unchanged": true,
+  "harness_sha256": "0fa8d41564c70b7e7a1404731d58adba80357dbe91e3262dbff8a58bee900b6b",
+  "cases": {
+    "ordinary_pair_exact_current_no_session_no_model": "PASS",
+    "cache_current_metadata_original_deadline": "PASS",
+    "same_name_versions_are_distinct": "PASS",
+    "new_source_revision_same_recording_new_epoch": "PASS",
+    "mixed_authority_before_source_read": "PASS",
+    "failed_source_never_uses_runtime_fallback": "PASS",
+    "initial_source_await_actual_runtime_aba": "PASS",
+    "final_source_await_actual_runtime_aba": "PASS",
+    "actual_Runtime_value_copies_across_provider_generation_assessment_final_read_keep_original_admission": "PASS",
+    "repeated_value_copies_retain_original_frame_and_expiry_without_extra_model_calls": "PASS",
+    "actual_cc0_original_source_shared_generation_assessment_fixture": "PASS",
+    "contradictory_metadata_with_real_paired_owner_latches_original_subject": "PASS",
+    "closed_current_no_profile_dna_history_or_playback_effect": "PASS",
+    "four_original_source_fields_cannot_transfer_cc0_model_rights": "PASS",
+    "ordinary_no_selector_has_same_original_source_join": "PASS",
+    "legacy_status_no_optout_learning": "PASS",
+    "explicit_current_actual_paired_http_resolves_cc0_without_opportunity_or_publication": "PASS",
+    "on_demand_credits_never_fabricate_audio_measurements": "PASS",
+    "paired_authority_withdrawn_during_source_read": "PASS",
+    "withdrawn_closed_current_remains_inert": "PASS"
+  },
+  "responses": {
+    "current": {
+      "id": "track_insight_46f2f86799b7612de36684bd",
+      "created_at": "2026-11-08T20:56:18.903901+00:00",
+      "source": "current_detail",
+      "language": "nl",
+      "mood_context": null,
+      "track": {
+        "title": "Fixture track",
+        "artist": "Fixture artist",
+        "album": "Fixture album",
+        "artwork_url": "https://i.scdn.co/image/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "duration_ms": 180000,
+        "progress_ms": 10000,
+        "is_playing": true,
+        "player_id": null,
+        "entity_id": null,
+        "backend": "spotify_direct",
+        "genres": [
+          "jazz"
+        ]
+      },
+      "analysis": {
+        "summary": "Er is geen gekwalificeerde muzikale analyse voor deze opname beschikbaar. Playbackmetadata staat apart; de audio is niet gemeten.",
+        "full_text": "Er is geen gekwalificeerde muzikale analyse voor deze opname beschikbaar. Playbackmetadata staat apart; de audio is niet gemeten.",
+        "listening_cues": [],
+        "genre": null,
+        "subgenre": null,
+        "mood": null,
+        "vibe": null,
+        "texture": null,
+        "emotional_tone": null,
+        "energy": null,
+        "danceability": null,
+        "intensity": null,
+        "confidence": null,
+        "production_notes": [],
+        "instrumentation": [],
+        "arrangement_notes": [],
+        "similar_tracks": [],
+        "basis": "unmeasured_metadata_only_v1",
+        "measured_audio": false,
+        "verified_context": "",
+        "source_attribution": {}
+      },
+      "visual_profile": {
+        "palette": [
+          "#8197ae",
+          "#da263f",
+          "#d5f6bf"
+        ],
+        "motion_style": "minimal",
+        "pulse_speed": 0.625,
+        "wave_amplitude": 0.6,
+        "particle_density": 0.575,
+        "glow_strength": 0.6,
+        "spectrum_bias": "balanced",
+        "seed": "8197aeda263fd5f6bf6d3bf43c860eb81efac5230b5e8ae9abd5a9846792f837",
+        "basis": "decorative_unmeasured_v1",
+        "audio_reactive": false
+      },
+      "cache": {
+        "hit": false,
+        "key": "46f2f86799b7612de36684bd"
+      },
+      "subject": {
+        "mode": "current",
+        "schema_version": 1,
+        "media_identity": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
+        "observation_id": "<opaque-observation-redacted>",
+        "expires_at": 1794171408.9029396,
+        "expires_in": 29
+      }
+    },
+    "on_demand_credit": {
+      "id": "track_insight_9fd4b04e62fde8e2a057940a",
+      "created_at": "2026-11-08T20:56:18.959551+00:00",
+      "source": "current_detail",
+      "language": "nl",
+      "mood_context": null,
+      "track": {
+        "title": "Fixture track",
+        "artist": "Fixture artist",
+        "album": "Fixture album",
+        "artwork_url": "https://i.scdn.co/image/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "duration_ms": 180000,
+        "progress_ms": 12000,
+        "is_playing": true,
+        "player_id": null,
+        "entity_id": null,
+        "backend": "spotify_direct",
+        "genres": [
+          "jazz"
+        ]
+      },
+      "analysis": {
+        "summary": "Een gekwalificeerde producentbijdrage.",
+        "full_text": "Een gekwalificeerde producentbijdrage.",
+        "listening_cues": [],
+        "genre": null,
+        "subgenre": null,
+        "mood": null,
+        "vibe": null,
+        "texture": null,
+        "emotional_tone": null,
+        "energy": null,
+        "danceability": null,
+        "intensity": null,
+        "confidence": null,
+        "production_notes": [],
+        "instrumentation": [],
+        "arrangement_notes": [],
+        "similar_tracks": [],
+        "basis": "qualified_credit_and_interpretation_v1",
+        "measured_audio": false,
+        "verified_context": "Producent: Fixture producer",
+        "source_attribution": {
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/recording/22222222-2222-2222-2222-222222222222",
+          "license": "CC0-1.0"
+        }
+      },
+      "visual_profile": {
+        "palette": [
+          "#8197ae",
+          "#da263f",
+          "#d5f6bf"
+        ],
+        "motion_style": "minimal",
+        "pulse_speed": 0.625,
+        "wave_amplitude": 0.6,
+        "particle_density": 0.575,
+        "glow_strength": 0.6,
+        "spectrum_bias": "balanced",
+        "seed": "8197aeda263fd5f6bf6d3bf43c860eb81efac5230b5e8ae9abd5a9846792f837",
+        "basis": "decorative_unmeasured_v1",
+        "audio_reactive": false
+      },
+      "cache": {
+        "hit": false,
+        "key": "9fd4b04e62fde8e2a057940a"
+      },
+      "subject": {
+        "mode": "current",
+        "schema_version": 1,
+        "media_identity": "spotify:track:BBBBBBBBBBBBBBBBBBBBBB",
+        "observation_id": "<opaque-observation-redacted>",
+        "expires_at": 1794171408.95708,
+        "expires_in": 29
+      }
+    },
+    "mixed": {
+      "success": false,
+      "error": "invalid_track_insight_subject",
+      "message": "Kies de huidige opname of een specifieke bijdrage."
+    },
+    "unavailable": {
+      "success": false,
+      "error": "current_track_unavailable",
+      "message": "De huidige opname kon niet worden gecontroleerd. Probeer het zo opnieuw."
+    },
+    "withdrawn": {
+      "success": false,
+      "error": "unauthorized",
+      "message": "Access was withdrawn."
+    }
+  },
+  "provider_calls": [
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/artists"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/artists"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/tracks/contains"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/tracks/contains"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/tracks/contains"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/tracks/contains"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/player"
+    }
+  ],
+  "model_provider_calls": 0,
+  "model_reply_fixture_calls": 4,
+  "installed": "NOT_RUN",
+  "native": "NOT_RUN"
 }
