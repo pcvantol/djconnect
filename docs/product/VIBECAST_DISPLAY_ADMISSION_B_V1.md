@@ -352,6 +352,15 @@ fence checks the source, playback item, display, share and original deadlines
 again before sending bytes. The display host alone creates the object URL
 and clears it on track change, withdrawal, disconnect or expiry.
 
+### Shared Session Flow
+
+The optional `shared_flow` list contains up to twelve currently qualified
+proactive DJ contributions ordered by original publication. Each card carries
+its original display deadline and follows current source and share consent.
+Owner conversation, user interactions, playback observations and private
+Moments remain outside this projection. The display shows the newest card
+prominently and preserves the reading position when the viewer scrolls back.
+
 ## Failure codes and real acceptance before delivery
 
 Machine codes: `display_contract_unsupported`, `display_origin_denied`,
