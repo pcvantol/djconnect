@@ -29,6 +29,7 @@ _SHAPES = {
     "renew": (_GRANT | {"renew_sequence"}, set()),
     "leave": (_GRANT, set()),
     "snapshot": (_GRANT, set()),
+    "artwork": (_GRANT | {"reference"}, set()),
 }
 
 
@@ -37,6 +38,7 @@ class DisplayResult:
     payload: dict
     release: Callable[[], None]
     complete: Callable[[], None] = lambda: None
+    media: tuple[bytes, str] | None = None
 
 
 def _shape(action, payload):
@@ -55,6 +57,8 @@ def _shape(action, payload):
             if type(value) is not int or not 1 <= value <= 2**53 - 1:
                 raise DisplayAdmissionError("display_code_invalid", 400)
         elif not isinstance(value, str) or not 0 < len(value) <= 256:
+            raise DisplayAdmissionError("display_code_invalid", 400)
+        elif key == "reference" and re.fullmatch(r"[0-9a-f]{64}", value) is None:
             raise DisplayAdmissionError("display_code_invalid", 400)
         elif key == "code" and re.fullmatch(r"[0-9]{6}", value) is None:
             raise DisplayAdmissionError("display_code_invalid", 400)
@@ -114,6 +118,7 @@ class DisplayAdmissionService:
             state = self.manager._display_admission
             if owner is not None and not owner.valid():
                 raise DisplayAdmissionError("display_context_changed", 403)
+            media = None
             args = {key: value for key, value in payload.items()
                     if key not in {"contract_version", "identity", "session_id"}}
             guard = owner.valid if owner else lambda: True
@@ -177,7 +182,25 @@ class DisplayAdmissionService:
                 if not isinstance(token, str) or not token.startswith("Bearer djcd_"):
                     raise DisplayAdmissionError("display_grant_invalid", 401)
                 args["token"] = token.removeprefix("Bearer ")
-                if action == "snapshot":
+                if action == "artwork":
+                    from .display_artwork import qualified
+                    from .display_delivery import display_live_hub
+
+                    reference = args.pop("reference")
+                    display = state.authorize(**args)
+                    active = self.manager.current_active(display.owner.profile_id)
+                    found = qualified(active, display, state)
+                    if found is None or reference != found[0]:
+                        raise DisplayAdmissionError("display_artwork_unavailable", 404)
+                    asset = found[1]
+                    def guard():
+                        current = self.manager.current_active(display.owner.profile_id)
+                        match = qualified(current, display, state)
+                        return match is not None and match[0] == reference and match[1] is asset
+                    complete = display_live_hub(self.manager).reserve_projection(("artwork", display.display_id))
+                    media = (asset.body, asset.mime)
+                    result = {}
+                elif action == "snapshot":
                     from .display_projection import shared_snapshot, projection_release_guard
                     from .display_delivery import display_live_hub
                     display = state.authorize(**args)
@@ -222,4 +245,4 @@ class DisplayAdmissionService:
             except BaseException:
                 complete()
                 raise
-            return DisplayResult(result, release, complete)
+            return DisplayResult(result, release, complete, media)

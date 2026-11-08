@@ -57,11 +57,17 @@ class _FencedResponse(web.Response):
         self._display_release = result.release
         self._display_complete = result.complete
         self._display_send_deadline = None
-        raw = json.dumps(result.payload, ensure_ascii=False, allow_nan=False).encode()
-        if len(raw) > 128 * 1024:
+        if result.media is None:
+            raw = json.dumps(result.payload, ensure_ascii=False, allow_nan=False).encode()
+            mime, limit = "application/json", 128 * 1024
+        else:
+            from .display_artwork import MAX_BYTES
+            raw, mime = result.media
+            limit = MAX_BYTES
+        if len(raw) > limit:
             self._display_complete()
             raise DisplayAdmissionError("display_capacity", 503)
-        super().__init__(body=raw, content_type="application/json", headers=SECURITY_HEADERS)
+        super().__init__(body=raw, content_type=mime, headers=SECURITY_HEADERS)
 
     async def prepare(self, request):
         self._display_send_deadline = asyncio.get_running_loop().time() + SEND_TIMEOUT_SECONDS
@@ -142,4 +148,4 @@ def transition_views(hass):
     """Closed list; no catch-all route accidentally accepts owner effects."""
     return [DisplayTransitionView(hass, action) for action in (
         "owner/context", "owner/resolve", "owner/approve", "owner/revoke",
-        "claim", "collect", "cancel", "renew", "leave", "snapshot")]
+        "claim", "collect", "cancel", "renew", "leave", "snapshot", "artwork")]

@@ -48,6 +48,9 @@ class _SpotifyObservationSession:
     poll_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     enrichment_task: asyncio.Task[Any] | None = None
     forecast_art_task: asyncio.Task[Any] | None = None
+    display_artwork_task: asyncio.Task[Any] | None = None
+    display_artwork_attempt: tuple[str, str, int] | None = None
+    display_artwork_retry: float = 0
     enrichment_media_identity: str = ""
     unavailable: bool = False
     command_revision: int = 0
@@ -166,6 +169,11 @@ class PlaybackObservationManager:
             with suppress(asyncio.CancelledError):
                 await observed.forecast_art_task
         observed.forecast_art_task = None
+        if observed.display_artwork_task is not None:
+            observed.display_artwork_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await observed.display_artwork_task
+            observed.display_artwork_task = None
         observed.enrichment_media_identity = ""
 
     async def async_stop_runtime(self, integration_runtime: Any) -> None:
@@ -422,6 +430,9 @@ class PlaybackObservationManager:
                 original_status=original_status,
             )
             accept_observation(self._hass, observed, result, visual_admission)
+            from .display_artwork import schedule as schedule_display_artwork
+            schedule_display_artwork(self._hass, session_runtime_manager(self._hass),
+                                     observed, result, original_status)
             from .track_start_announcement import capture as capture_announcement
             announcement = capture_announcement(session_runtime_manager(self._hass),
                 owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,

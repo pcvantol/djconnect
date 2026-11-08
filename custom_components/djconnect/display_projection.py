@@ -71,6 +71,11 @@ def projection_release_guard(active, authority, state, snapshot):
         if any(available.get(key) is not moment or key in broadcast._invalidated_current_moment_ids
                for key, moment in originals.items()) or len(originals) != len(selected_ids):
             return False
+        artwork = snapshot.get("artwork")
+        if artwork is not None:
+            from .display_artwork import descriptor
+            if descriptor(active, authority, state) != artwork:
+                return False
         # This clock read follows all validation and serialization/preparation.
         return not deadlines or time.monotonic() < min(deadlines)
 
@@ -102,7 +107,7 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
     if locale not in {"en", "nl", "de", "fr", "es"}:
         raise DisplayAdmissionError("display_context_changed", 409)
     playback = current.playback
-    # No artwork, target/output, queue/up-next, backend/provider or account data.
+    # Owner media URLs, target/output, queue and account data stay private.
     public_playback = {"state": playback.state}
     if playback.state in {"playing", "paused"} and playback.item_id:
         public_playback.update(item_id=playback.item_id, title=playback.title,
@@ -164,6 +169,10 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
         "persona": {"home_dj", "radio_dj", "club_dj", "festival_dj"}, "presence": set(POLICIES)}
     result["session_presentation"] = {key: _label(value) for key, value in labels.items()
                                       if _label(value) in allowed[key]}
+    from .display_artwork import descriptor
+    artwork = descriptor(active, authority, state)
+    if artwork is not None:
+        result["artwork"] = artwork
     result["projection_revision"] = hashlib.sha256(json.dumps(result, sort_keys=True,
         ensure_ascii=False, allow_nan=False).encode()).hexdigest()[:32]
     result["as_of"] = wall.isoformat()
