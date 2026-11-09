@@ -2,10 +2,13 @@
 import ast
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 MATRIX = Path('docs/verification/fixtures/askdj_golden_release_matrix_v1.json')
+sys.path.insert(0, str(ROOT))
+from scripts.verification.askdj_contextual_golden import LANGUAGES, RELEASE_LANGUAGES  # noqa: E402
 
 
 def required_bindings(matrix):
@@ -14,7 +17,7 @@ def required_bindings(matrix):
             *(b for family in matrix['families'] for step in family['steps'] for b in step['owning_tests'])]
 
 
-def release_blockers(matrix):
+def release_blockers(matrix, *, languages=None):
     """Known open product findings cannot disappear behind inventory green."""
     families = {row['id'] for row in matrix['families']}
     issues = matrix.get('reported_issues', [])
@@ -30,9 +33,14 @@ def release_blockers(matrix):
     if any(not step.get('owning_tests') or not step.get('id')
            or step.get('acceptance_status') not in {'owner_contract', 'open_real_quality'} for step in steps):
         raise ValueError('unbound_conversation_step')
-    return [row['id'] for row in issues if row['core_qualification'] == 'open'] + [
-        step['id'] for family in matrix['families'] for step in family['steps']
-        if step.get('acceptance_status') != 'owner_contract']
+    def in_scope(row):
+        language = row.get('language')
+        if language is not None and (not isinstance(language, str) or language not in LANGUAGES):
+            raise ValueError('invalid_qualification_language')
+        return languages is None or language is None or language in languages
+
+    return [row['id'] for row in issues if in_scope(row) and row['core_qualification'] == 'open'] + [
+        step['id'] for step in steps if in_scope(step) and step['acceptance_status'] != 'owner_contract']
 
 
 def validate_moment_matrix(root=ROOT):
@@ -72,7 +80,9 @@ def validate(root=ROOT):
     proactive_cases=validate_moment_matrix(root)
     raw = (root/MATRIX).read_bytes()
     matrix = json.loads(raw)
-    blockers = release_blockers(matrix)
+    if matrix.get('release_languages') != list(RELEASE_LANGUAGES):
+        raise ValueError('invalid_release_language_policy')
+    blockers = release_blockers(matrix, languages=RELEASE_LANGUAGES)
     base_raw = (root/matrix['existing_single_turn_cases']).read_bytes()
     base = json.loads(base_raw)
     source = ast.parse((root/'custom_components/djconnect/ask_dj/__init__.py').read_text())
@@ -87,7 +97,6 @@ def validate(root=ROOT):
         raise ValueError('uncovered_core_routes:'+','.join(missing))
     # Catalog presence alone is insufficient: every generic help example must
     # bind executable fixture values, including repeated artist placeholders.
-    import sys
     sys.path.insert(0,str(root))
     from tests.ask_dj_e2e_contract import materialize_case
     help_rows=[row for row in base if row['id'].startswith('help_prompt_')]
@@ -137,7 +146,7 @@ def validate(root=ROOT):
         if not methods or methods - named:
             raise ValueError('unbound_reported_issue_regression:'+','.join(sorted(methods - named)))
     catalogue_count, catalogue_steps = validate_catalogue_rows(matrix, root)
-    return {'catalogue_questions':catalogue_count, 'catalogue_conversation_steps':catalogue_steps, 'proactive_golden_cases':len(proactive_cases),'status':'PASS','literal_core_routes':len(names),'single_turn_cases':len(base),'executable_help_cases':len(help_rows),
+    return {'release_languages': list(RELEASE_LANGUAGES), 'catalogue_questions':catalogue_count, 'catalogue_conversation_steps':catalogue_steps, 'proactive_golden_cases':len(proactive_cases),'status':'PASS','literal_core_routes':len(names),'single_turn_cases':len(base),'executable_help_cases':len(help_rows),
             'conversation_families':len(families),'conversation_steps':sum(len(f['steps']) for f in families),
             'reported_issues':len(matrix['reported_issues']),
             'open_core_findings':[i for i in blockers if i.startswith('ASKDJ-ISSUE-')],

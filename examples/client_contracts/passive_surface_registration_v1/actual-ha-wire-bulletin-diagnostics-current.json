@@ -1,92 +1,6 @@
 {
-  "actual_options_repair_fenced_before_failed_device_await": true,
-  "actual_runtime_learning_fenced_before_assignment": true,
-  "actual_runtime_update_token_fenced": true,
-  "actual_temporary_entry_rotation_failed_await_ABA_stays_retired": true,
-  "actual_unload_fenced_before_failed_await": true,
-  "cases": [
-    {
-      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96",
-      "method": "GET",
-      "path": "/api/djconnect/v1/surface_registration/widget_transport/state",
-      "status": 503
-    },
-    {
-      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96",
-      "method": "GET",
-      "path": "/api/djconnect/v1/surface_registration/widget_transport/state?x=1",
-      "status": 400
-    },
-    {
-      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96",
-      "method": "GET",
-      "path": "/api/djconnect/v1/surface_registration/widget_transport/state",
-      "status": 400
-    },
-    {
-      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96",
-      "method": "POST",
-      "path": "/api/djconnect/v1/surface_registration/widget_transport/state",
-      "status": 405
-    },
-    {
-      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96",
-      "method": "GET",
-      "path": "/api/djconnect/v1/surface_registration/widget_transport/state",
-      "status": 401
-    },
-    {
-      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96",
-      "method": "GET",
-      "path": "/api/djconnect/v1/surface_registration/widget_transport/state",
-      "status": 400
-    },
-    {
-      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96",
-      "method": "GET",
-      "path": "/api/djconnect/v1/surface_registration/status_activity_transport/state",
-      "status": 503
-    },
-    {
-      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96",
-      "method": "GET",
-      "path": "/api/djconnect/v1/surface_registration/status_activity_transport/state?x=1",
-      "status": 400
-    },
-    {
-      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96",
-      "method": "GET",
-      "path": "/api/djconnect/v1/surface_registration/status_activity_transport/state",
-      "status": 400
-    },
-    {
-      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96",
-      "method": "POST",
-      "path": "/api/djconnect/v1/surface_registration/status_activity_transport/state",
-      "status": 405
-    },
-    {
-      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96",
-      "method": "GET",
-      "path": "/api/djconnect/v1/surface_registration/status_activity_transport/state",
-      "status": 401
-    },
-    {
-      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96",
-      "method": "GET",
-      "path": "/api/djconnect/v1/surface_registration/status_activity_transport/state",
-      "status": 400
-    }
-  ],
-  "duplicate_pair_no_new_fence": true,
-  "external_provider_calls": 0,
-  "model_calls": 0,
-  "no_GET_store_load_write_or_runtime_config": true,
-  "no_profile_or_session_required": true,
-  "positive_purpose_commit_native_installed_provider": "NOT_RUN",
-  "restore_does_not_mint_authority": true,
+  "status": "PASS",
   "scope": "Actual HA paired passive role HTTP and pre-assignment/pre-await negative hooks",
-  "source_before_after_equal": true,
   "source_hashes": {
     "custom_components/djconnect/AGENTS.md": "8fb8891e3a2cca055067fbbacafe6c189f38bc00c514a6bf6984639a182a70cf",
     "custom_components/djconnect/__init__.py": "959b280334e2ea4f9bc0ee49e7ccd599a6e8b56494ad5d6b4002199de1a0af16",
@@ -176,7 +90,7 @@
     "custom_components/djconnect/discovery_artwork.py": "b264d009ab25f63c9eb84bdcec4d3ff1ec86a93478a6b4d1a71e3011a9151995",
     "custom_components/djconnect/discovery_selection.py": "09df528e850f3459c5f7b332c3d49efc22aef39a1a6835ac7ebbc10054e4645a",
     "custom_components/djconnect/display_admission.py": "40b9d1251fdd89203b9658b9cfd047c39f4701d58b2d7d09c222ec2f4a7f773a",
-    "custom_components/djconnect/display_authority.py": "308cd770fbe2e98621d504e27c0786330ec4562fe43ef8a0ff9f2961a69a9d5d",
+    "custom_components/djconnect/display_authority.py": "2e588b14d0a90877739b20393766bebd4623939d2d173d00627a165d4304dd60",
     "custom_components/djconnect/display_delivery.py": "6fac2aa58bea479f501c522c1338f39f6509830c13d1e3737dde28a040d4b2c1",
     "custom_components/djconnect/display_live.py": "f6a63da450a8b64a71775a51f7060c7f76faa4af26f0ba23ecf99d68fcedd711",
     "custom_components/djconnect/display_origin.py": "6be2d0f0bacec09a47a91f854a249cb40c90379690cf15e28db70f6885b7015c",
@@ -370,7 +284,7 @@
     "custom_components/djconnect/translations/es.json": "23e71adddf3cae29487b01829b3815cf755de2e7974e1fd3024e6f1247c844b2",
     "custom_components/djconnect/translations/fr.json": "315be13e0e59cad8d25c4df24a02a00dc0f19643f5a59322a4945ab48ee1b08a",
     "custom_components/djconnect/translations/nl.json": "6171ea65dbae8bc6f0ddbd3af5f4562c0996d0a4c31e423b9e7c07dee0614740",
-    "custom_components/djconnect/transport_capabilities.py": "373848aae98ca1a34ab6d98ac8a050d62e6679bb61514bfa6fe8873fdbca81d4",
+    "custom_components/djconnect/transport_capabilities.py": "bf7d7dd57b6f3c967852cf97ed843ab13fa2615a77521acdb36115e7727fa59a",
     "custom_components/djconnect/transport_delivery.py": "70b45afe6e25f960973affd39ae6d77e8a695db41df8919e749ca6885aedd8af",
     "custom_components/djconnect/transport_operations.py": "3f87b3eda57f9fee4e0ccd7a69fe87c9df3893b746a46328708b7e15e16d133a",
     "custom_components/djconnect/tts.py": "1d5154ae501174fcc43c287c97de6429b15f743cd2fac0ce7ccaf2a83215f7c7",
@@ -398,5 +312,91 @@
     "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
     "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
   },
-  "status": "PASS"
+  "source_before_after_equal": true,
+  "cases": [
+    {
+      "method": "GET",
+      "path": "/api/djconnect/v1/surface_registration/widget_transport/state",
+      "status": 503,
+      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96"
+    },
+    {
+      "method": "GET",
+      "path": "/api/djconnect/v1/surface_registration/widget_transport/state?x=1",
+      "status": 400,
+      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96"
+    },
+    {
+      "method": "GET",
+      "path": "/api/djconnect/v1/surface_registration/widget_transport/state",
+      "status": 400,
+      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96"
+    },
+    {
+      "method": "POST",
+      "path": "/api/djconnect/v1/surface_registration/widget_transport/state",
+      "status": 405,
+      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96"
+    },
+    {
+      "method": "GET",
+      "path": "/api/djconnect/v1/surface_registration/widget_transport/state",
+      "status": 401,
+      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96"
+    },
+    {
+      "method": "GET",
+      "path": "/api/djconnect/v1/surface_registration/widget_transport/state",
+      "status": 400,
+      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96"
+    },
+    {
+      "method": "GET",
+      "path": "/api/djconnect/v1/surface_registration/status_activity_transport/state",
+      "status": 503,
+      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96"
+    },
+    {
+      "method": "GET",
+      "path": "/api/djconnect/v1/surface_registration/status_activity_transport/state?x=1",
+      "status": 400,
+      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96"
+    },
+    {
+      "method": "GET",
+      "path": "/api/djconnect/v1/surface_registration/status_activity_transport/state",
+      "status": 400,
+      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96"
+    },
+    {
+      "method": "POST",
+      "path": "/api/djconnect/v1/surface_registration/status_activity_transport/state",
+      "status": 405,
+      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96"
+    },
+    {
+      "method": "GET",
+      "path": "/api/djconnect/v1/surface_registration/status_activity_transport/state",
+      "status": 401,
+      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96"
+    },
+    {
+      "method": "GET",
+      "path": "/api/djconnect/v1/surface_registration/status_activity_transport/state",
+      "status": 400,
+      "body_sha256": "a9a599417507e676da7767ff178ac878b9fe2e28bd6a41b4cfc2a6832fb03e96"
+    }
+  ],
+  "no_profile_or_session_required": true,
+  "no_GET_store_load_write_or_runtime_config": true,
+  "duplicate_pair_no_new_fence": true,
+  "actual_runtime_learning_fenced_before_assignment": true,
+  "actual_unload_fenced_before_failed_await": true,
+  "restore_does_not_mint_authority": true,
+  "actual_options_repair_fenced_before_failed_device_await": true,
+  "actual_runtime_update_token_fenced": true,
+  "actual_temporary_entry_rotation_failed_await_ABA_stays_retired": true,
+  "model_calls": 0,
+  "external_provider_calls": 0,
+  "positive_purpose_commit_native_installed_provider": "NOT_RUN"
 }

@@ -56,6 +56,13 @@ this document neither authenticates A nor selects a crypto library or TV input.
 
 ## Authority and identity
 
+The B owner client types are `ios`, `macos` and `raspberry_pi`, advertised by
+`session_broadcast.paired_display_admission.owner_client_types`. Older responses
+without that field do not establish Raspberry Pi sender support. The Raspberry Pi
+uses its ordinary paired device bearer and the same bound Profile and current
+Session as other owners. A display claim still requires separate, explicit
+approval from that owner. This capability concerns the B sender contract only.
+
 The existing HTTP transport-capability projection adds
 `session_broadcast.paired_display_admission` version1; HA WebSocket discovery
 uses `fallbacks.session_broadcast_transport.paired_display_admission` with the

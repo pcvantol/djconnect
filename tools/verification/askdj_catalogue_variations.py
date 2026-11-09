@@ -19,9 +19,9 @@ def digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
-def seeds():
+def seeds(languages=None):
     rows = []
-    for case in base.cases() + base.chain_cases():
+    for case in base.scoped_cases(base.cases() + base.chain_cases(), languages):
         if case.get('operation') in {'offer', 'duplicate'}:
             continue  # Offer reuses its question variant; duplicate reuses the actual request.
         rows.append({'id': case['id'], 'language': case['language'],
@@ -33,8 +33,8 @@ def seeds():
     return rows
 
 
-def require_base(report, source_hashes):
-    if not base.validate_report(report, source_hashes=source_hashes):
+def require_base(report, source_hashes, *, languages=None):
+    if not base.validate_report(report, source_hashes=source_hashes, languages=languages):
         raise ValueError('variation_generation_requires_complete_current_base_PASS')
 
 
@@ -122,16 +122,16 @@ def _checks(response, language, rows, proposal_sha256):
     return checks
 
 
-async def generate(report, *, source_hashes, ask):
+async def generate(report, *, source_hashes, ask, languages=None):
     """ask(prompt, language, purpose) is the existing bounded HA model boundary.
 
     Invalid, selected, stale or failing base evidence causes zero callbacks. No
     retry, selective replacement or execution of an unchecked variant occurs.
     """
-    require_base(report, source_hashes)
+    require_base(report, source_hashes, languages=languages)
     batches, receipts = [], []
-    for language in base.LANGUAGES:
-        rows = [r for r in seeds() if r['language'] == language]
+    for language in languages or base.LANGUAGES:
+        rows = [r for r in seeds(languages) if r['language'] == language]
         proposed = await ask(generation_prompt(language, rows), language, 'variation_generation')
         variants = _variants(proposed, language, rows)
         reviewed = await ask(review_prompt(language, rows, variants), language, 'variation_meaning_review')
@@ -145,33 +145,33 @@ async def generate(report, *, source_hashes, ask):
                           'response_sha256': hashlib.sha256(reviewed.encode()).hexdigest()}))
     return {'schema_version': 1, 'qualification': 'GENERATED_UNEXECUTED_CATALOGUE_VARIATIONS_V1',
         'status': 'PENDING_ACTUAL_EXECUTION', 'base_report_sha256': digest(report),
-        'base_manifest_sha256': base.manifest_digest(), 'seed_sha256': digest(seeds()),
+        'base_manifest_sha256': base.manifest_digest(languages=languages), 'seed_sha256': digest(seeds(languages)),
         'generation_source_hashes': deepcopy(source_hashes), 'batches': batches,
         'generation_calls': receipts, 'attempts': len(receipts), 'product_qualified': False}
 
 
-def cases(corpus):
+def cases(corpus, *, languages=None):
     """Compile only new text; all independent base expectations remain unchanged."""
     if (not isinstance(corpus, dict) or corpus.get('schema_version') != 1
             or corpus.get('qualification') != 'GENERATED_UNEXECUTED_CATALOGUE_VARIATIONS_V1'
-            or corpus.get('base_manifest_sha256') != base.manifest_digest()
-            or corpus.get('seed_sha256') != digest(seeds())
+            or corpus.get('base_manifest_sha256') != base.manifest_digest(languages=languages)
+            or corpus.get('seed_sha256') != digest(seeds(languages))
             or corpus.get('product_qualified') is not False):
         raise ValueError('variation_corpus_missing_or_stale')
     batches = corpus.get('batches')
-    if not isinstance(batches, list) or [b.get('language') for b in batches] != list(base.LANGUAGES):
+    if not isinstance(batches, list) or [b.get('language') for b in batches] != list(languages or base.LANGUAGES):
         raise ValueError('variation_corpus_languages')
     variants = {}
     for batch in batches:
         language = batch['language']
-        rows = [r for r in seeds() if r['language'] == language]
+        rows = [r for r in seeds(languages) if r['language'] == language]
         for row in _variants(json.dumps({'language':language,'variants':batch.get('variants')}), language, rows):
             variants[row['id']] = row
         proposal_hash=digest({'originals':rows,'proposals':batch['variants']})
         _checks(json.dumps({'language':language,'checks':batch.get('checks'),
             'proposal_sha256':batch.get('reviewed_proposal_sha256')}), language, rows, proposal_hash)
     result = []
-    for original in base.cases() + base.chain_cases():
+    for original in base.scoped_cases(base.cases() + base.chain_cases(), languages):
         case = deepcopy(original)
         seed = original['id']
         if original.get('operation') == 'offer':

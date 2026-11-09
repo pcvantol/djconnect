@@ -78,6 +78,7 @@ class TransportCapabilitiesTest(unittest.TestCase):
         self.assertTrue(contract["read_only"])
         self.assertFalse(contract["rendezvous_a"])
         self.assertEqual(contract["owner_authentication"], "paired_device_bearer")
+        self.assertEqual(contract["owner_client_types"], ["ios", "macos", "raspberry_pi"])
         self.assertEqual(contract["display_authentication"], "dedicated_display_bearer")
         for private in ("available", "display_entry_url", "session_id", "share_id", "grant_token", "issuer_epoch"):
             self.assertNotIn(private, contract)

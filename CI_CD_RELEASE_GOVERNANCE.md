@@ -103,6 +103,20 @@ Review any change that touches:
 
 Default rule: personal profile data must not appear on shared or guest surfaces unless explicitly designed and documented.
 
+## Ask DJ release qualification scope
+
+The blocking actual Ask DJ qualification for the official Home Assistant
+artifact covers English and Dutch (`en`, `nl`). Its exact contextual,
+semantic, catalogue, variation, dialogue and prosody receipts must match
+that scope. Findings shared across languages and findings in EN or NL still
+block release while open. A finding explicitly limited to DE, FR or ES is
+tracked outside this release scope.
+
+All five product languages, deterministic regression coverage and historical
+qualification receipts remain intact. A scoped pass makes no real-quality
+claim for German, French or Spanish. It also makes no installed, native or
+audible acceptance claim.
+
 ## Release hygiene checklist
 
 Before release:

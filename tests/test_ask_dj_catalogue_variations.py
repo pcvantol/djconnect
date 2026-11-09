@@ -48,6 +48,21 @@ class VariationTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(corpus['product_qualified'])
         self.assertEqual(corpus['status'],'PENDING_ACTUAL_EXECUTION')
         self.assertEqual(corpus['attempts'],variants.MAX_ATTEMPTS)
+        from scripts.verification.askdj_contextual_golden import RELEASE_LANGUAGES
+        scoped = base_fixture.CatalogueGoldenTest().receipt_fixture(RELEASE_LANGUAGES)
+        pins = scoped['source_hashes']
+        self.assertTrue(variants.base.validate_report(scoped, source_hashes=pins, languages=RELEASE_LANGUAGES))
+        self.assertFalse(variants.base.validate_report(raw, source_hashes=pins, languages=RELEASE_LANGUAGES))
+        self.assertFalse(variants.base.validate_report(scoped, source_hashes=pins))
+        scoped_corpus = await variants.generate(scoped, source_hashes=pins, ask=self.fixture_call,
+                                                languages=RELEASE_LANGUAGES)
+        self.assertEqual(scoped_corpus['attempts'], 4)
+        scoped_cases = variants.cases(scoped_corpus, languages=RELEASE_LANGUAGES)
+        self.assertEqual(len(scoped_cases), 40)
+        self.assertEqual({row['language'] for row in scoped_cases}, {'en', 'nl'})
+        with self.assertRaises(ValueError):
+            variants.cases(scoped_corpus)
+
         actual = variants.cases(corpus)
         base = variants.base.cases()+variants.base.chain_cases()
         self.assertEqual(len(actual),len(base))
