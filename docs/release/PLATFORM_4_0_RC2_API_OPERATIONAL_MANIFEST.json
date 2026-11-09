@@ -112,7 +112,7 @@
     "cron": "If the candidate cron was enabled, remove it under protection before routing traffic to the old Worker. Confirm an empty effective schedule and quiescence of pending or running invocations, allowing for propagation. Verify zero triggers again after traffic switch.",
     "retention": "The old Worker has no scheduled handler. Use a forward fix unless old-code schema/erasure compatibility and a separately reviewed expiry-preserving maintenance path have both been proved. Do not introduce an unreviewed purge or widen retention.",
     "partial_failure": "Stop on partial or unknown migration or deployment results. Read back actual schema, ledger, Worker and cron. If 0013 has committed, preserve it and use the same recovery policy.",
-    "in_flight_delivery": "Before switching back, stop new push admission and prove the drain, or demonstrate that dispatch revalidates live authorization and the registration after target selection. Keep push admission closed until the old Worker is verified against the retained post-erasure database.",
+    "in_flight_delivery": "For a Worker rollback, require the same proof for relevant existing sends and retries. Keep push admission closed until the old Worker is verified against the retained post-erasure database.",
     "registration_authority": "Prove revoked or stale authorization cannot create a fresh registration after the switch. The old Worker upsert can create an active row, and the erasure trigger only runs on updates that disable or invalidate a row."
   },
   "separate_finalization": {
@@ -130,8 +130,10 @@
     "smoke": "Independently verify production health SHA and version, the applied migration, the erasure trigger and indexes, zero inactive registrations at the cutover, unchanged binding and route identities, five unchanged Durable Object identities, and the effective cron. Observe the first scheduled diagnostic purge using aggregate counts and provider evidence. Verify closed public VibeCast and Watch Moment routes. Keep native push acceptance separate.",
     "cutover": {
       "state": "PENDING_EVIDENCE",
-      "requirement": "Before applying 0013, use a reviewed, production-scoped control that prevents the old Worker from admitting new push sends, then prove all earlier sends and queued or retrying attempts with old targets have completed or been cancelled. Keep that control in effect until the new Worker and erasure state are verified, then restore push admission.",
-      "acceptance": "Record which traffic paths were stopped, the cutoff, and authoritative evidence covering in-flight work and scheduled retries. Idle-looking telemetry alone cannot prove a drain. If a positive drain cannot be shown, qualify a separately reviewed cutover that establishes dispatch-time registration revalidation before erasure."
+      "requirement": "Before applying 0013, stop new old-Worker push admission. Establish that earlier invocations and retained retries cannot send using stale targets. Keep this protection in effect until the new Worker and erasure state are verified.",
+      "acceptance": "Record the scope and cutoff. Accept authoritative provider evidence of termination of all relevant old invocations with no outstanding or retryable sends. Alternatively, qualify a separately reviewed barrier that prevents all old invocations and retries from reaching APNs, including those that already loaded a target. Account for sends that crossed the barrier before it took effect.",
+      "excluded_evidence": "An ingress block, a fixed delay, quiet telemetry and HTTP CPU limits do not prove completion of existing HTTP invocations. Cloudflare provides no hard wall-clock duration limit while the client remains connected.",
+      "provider_reference": "https://developers.cloudflare.com/workers/platform/limits/#duration"
     }
   },
   "next_authorized_action": "Qualify and record the production cutover. Then complete protected Core review, fresh production preflight, and exact artifact dispatch.",
