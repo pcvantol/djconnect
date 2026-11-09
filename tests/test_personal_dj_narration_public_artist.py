@@ -717,7 +717,7 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
     def test_short_quoted_single_keeps_work_episode_without_generic_quote_authority(self):
         from custom_components.djconnect.public_artist_narration import _has_public_work_episode
         for title in ('One','Up','DNA','I'):
-            for prefix,expected in (('released the single',True),('said',False)):
+            for prefix,expected in (('released the single',True), ('released the single,',True), ('said,',False)):
                 quote=f'Ada Reed {prefix} "{title}".'
                 anchors=self.research.source_work_anchors(quote)
                 source=self.research._source('Wikipedia','Ada Reed','https://en.wikipedia.org/wiki/Ada_Reed',

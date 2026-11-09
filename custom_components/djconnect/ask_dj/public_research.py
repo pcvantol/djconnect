@@ -454,7 +454,7 @@ def source_work_anchors(text, marked=()):
     model-authored labels add no anchors; ordinary claim review remains required.
     """
     pattern = re.compile(
-        r'\b(?:(?:single|album|song|track|nummer|lied|chanson|canción)|'
+        r'\b(?:(?:single|album|song|track|nummer|lied|chanson|canción),?|'
         r'(?P<activity>wrote and produced|schreef en produceerde|schrieb und produzierte|'
         r'a écrit et produit|escribió y produjo))\s+'
         r'(?:"([^"\n]{1,160})"|“([^”\n]{1,160})”|«([^»\n]{1,160})»)'
