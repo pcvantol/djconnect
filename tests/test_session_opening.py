@@ -50,6 +50,35 @@ class SessionOpeningTests(unittest.IsolatedAsyncioTestCase):
         return await self.manager.async_open_session(owner_profile_id=session.owner_profile_id,
                                                      session_id=session.session_id)
 
+    async def test_watch_handoff_requires_original_retained_publication(self):
+        deliveries = []
+        self.manager._watch_moment_delivery = lambda event, current: deliveries.append((event, current))
+        session = await self.start()
+        self.assertEqual(deliveries, [])
+        moment = await self.open(session)
+        self.assertIsNotNone(moment)
+        self.assertIs(await self.open(session), moment)
+        [(event, current)] = deliveries
+        self.assertEqual((event.session_id, event.moment_id, event.locale),
+                         (session.session_id, moment.moment_id, "nl"))
+        self.assertTrue(current())
+        envelope = event.envelope(ha_install_id="ha-test", ha_user_hash="a" * 64,
+                                  device_id="djconnect-watchos-ABCDEF123456")
+        self.assertEqual(set(envelope), {"version", "event_type", "event_id", "ha_install_id",
+                         "ha_user_hash", "device_id", "session_id", "moment_id",
+                         "created_at_ms", "expires_at_ms", "locale"})
+        self.assertEqual(envelope["event_type"], "dj_moment_published")
+        with self.assertRaises(ValueError):
+            event.envelope(ha_install_id="ha-test", ha_user_hash="a" * 64,
+                           device_id="djconnect-ios-ABCDEF123456")
+        session.publish_moment(moment)
+        self.assertEqual(len(deliveries), 1)
+        await self.manager.async_end(owner_profile_id=session.owner_profile_id, session_id=session.session_id)
+        self.assertFalse(current())
+        private_session = await self.start(history=False)
+        self.assertIsNotNone(await self.open(private_session))
+        self.assertEqual(len(deliveries), 1)
+
     async def test_all_start_choices_are_confirmed_localized_retained_and_reopened_once(self):
         from custom_components.djconnect.session_opening import COPY, MOODS, PERSONAS, PRESENCES
         for locale in COPY:

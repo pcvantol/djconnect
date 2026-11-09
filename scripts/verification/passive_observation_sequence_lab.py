@@ -16,7 +16,7 @@ async def run(**kw):
                 for p in sorted((root / 'custom_components/djconnect').rglob('*'))
                 if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc'}
     before_source = pins()
-    assert len(before_source) == 309
+    assert len(before_source) == 315
     hass, manager, sid = kw['hass'], kw['manager'], kw['sid']
     client, identity, headers = kw['client'], kw['second_identity'], kw['second_headers']
     await playback_observation_manager(hass).async_stop('profile-a', sid)

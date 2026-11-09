@@ -196,7 +196,9 @@ class DirectRichStoreTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(seen, [('wal', 2)])
         self.assertEqual(await self.service.async_in_transaction(lambda tx:
             tx.fetchone('PRAGMA synchronous')[0]), 1)
-        self.assertEqual(self.service.readiness.schema_version, 21)
+        from custom_components.djconnect.persistence.schema import CURRENT_SCHEMA_VERSION
+
+        self.assertEqual(self.service.readiness.schema_version, CURRENT_SCHEMA_VERSION)
 
     async def test_actual_postcommit_close_reopen_cannot_acknowledge_under_new_store_lifetime(self):
         actual = self.service.async_in_transaction

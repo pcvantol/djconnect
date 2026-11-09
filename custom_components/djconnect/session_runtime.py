@@ -4296,6 +4296,40 @@ def _safe_intra_track_insight(raw_insight: dict[str, Any]) -> dict[str, Any]:
     return {"track": safe_track, "analysis": safe_analysis}
 
 
+@dataclass(frozen=True, repr=False)
+class WatchMomentPublication:
+    """Original published Moment coordinates, before recipient admission."""
+
+    owner_profile_id: str
+    session_id: str
+    moment_id: str
+    event_id: str
+    created_at_ms: int
+    expires_at_ms: int
+    locale: str
+
+    def envelope(self, *, ha_install_id: str, ha_user_hash: str, device_id: str) -> dict:
+        """Render the wire only after the delivery owner admits these coordinates."""
+        identifiers = (self.event_id, ha_install_id, device_id, self.session_id, self.moment_id)
+        if (any(not re.fullmatch(r"[A-Za-z0-9_-]{1,160}", value) for value in identifiers)
+                or not re.fullmatch(r"djconnect-watchos-[A-Za-z0-9]{12}", device_id)
+                or not re.fullmatch(r"[a-f0-9]{64}", ha_user_hash)):
+            raise ValueError("invalid Watch Moment target")
+        return {
+            "version": "djc-watch-moment/1",
+            "event_type": "dj_moment_published",
+            "event_id": self.event_id,
+            "ha_install_id": ha_install_id,
+            "ha_user_hash": ha_user_hash,
+            "device_id": device_id,
+            "session_id": self.session_id,
+            "moment_id": self.moment_id,
+            "created_at_ms": self.created_at_ms,
+            "expires_at_ms": self.expires_at_ms,
+            "locale": self.locale,
+        }
+
+
 @dataclass(frozen=True)
 class DJSessionRuntime:
     """Minimum ephemeral state for one active DJ Session."""
@@ -4334,7 +4368,7 @@ class DJSessionRuntime:
     published_album_context: PublishedAlbumContext = field(default_factory=PublishedAlbumContext)
     presence_ledger: PresenceLedger = field(default_factory=PresenceLedger)
     persona_revision: int = 0
-    prepared_presentations: dict[str, Any] = field(default_factory=dict, repr=False, compare=False)
+    prepared_presentations: dict[str, tuple[Any, bool]] = field(default_factory=dict, repr=False, compare=False)
     deleted_moment_ids: set[str] = field(default_factory=set, repr=False, compare=False)
     # Owner-only choices. Never add these to the shared Broadcast projection.
     settings_generation: str = field(default_factory=lambda: uuid4().hex)
@@ -4345,6 +4379,7 @@ class DJSessionRuntime:
     selected_gender: GenderPreference = GenderPreference.DEFAULT
     selected_announcement_output: str = 'client_device'
     opening_context: SessionOpeningContext | None = field(default=None, repr=False)
+    watch_moment_published: Callable[[DJMoment], None] | None = field(default=None, repr=False, compare=False)
 
     def effective_dj_settings(self) -> DJSettings:
         """Typed effective choices; an unknown legacy Mood is not invented."""
@@ -4484,7 +4519,7 @@ class DJSessionRuntime:
             return
         if moment.moment_type is not DJMomentType.SILENCE and not self.allows_moment(moment):
             return
-        composition = self.prepared_presentations.pop(moment.moment_id, None)
+        composition, retained = self.prepared_presentations.pop(moment.moment_id, (None, False))
         accepted_semantic_commit = composition is not None
         from .settings_confirmation import context as settings_context
         explicit_confirmation = settings_context(moment) is not None
@@ -4506,12 +4541,19 @@ class DJSessionRuntime:
             self.presence_ledger.commit_announcement(moment.presentation_intent.maximum_duration_seconds)
         if commit_expression:
             self.moment_engine.commit_expression(moment, self.planner.output.session_flow)
+        if (self.watch_moment_published is not None and retained
+                and not explicit_confirmation and moment.observed_playback is None
+                and moment.moment_type is not DJMomentType.SILENCE):
+            try:
+                self.watch_moment_published(moment)
+            except Exception:
+                _LOGGER.debug("Watch Moment handoff unavailable")
 
 
 class SessionRuntimeManager:
     """Own active DJ Session Runtimes for this Home Assistant instance."""
 
-    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None, monotonic_source: Callable[[], float] | None = None, *, settings_repository=None, status_samples=None) -> None:
+    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None, monotonic_source: Callable[[], float] | None = None, *, settings_repository=None, status_samples=None, watch_moment_delivery=None) -> None:
         self._active_by_profile: dict[str, DJSessionRuntime] = {}
         self._visual_withdrawals: dict[tuple[str, str], tuple[object, Callable]] = {}
         self._visual_ending: set[tuple[str, str]] = set()
@@ -4528,6 +4570,7 @@ class SessionRuntimeManager:
         self._historical_projections = historical_projections
         self._settings_repository = settings_repository
         self._status_samples = status_samples
+        self._watch_moment_delivery = watch_moment_delivery
         self._source_origins = {}
         self._source_origin_intents = weakref.WeakValueDictionary()
         self._settings_defaults_revisions: dict[str, int] = {}
@@ -4537,6 +4580,41 @@ class SessionRuntimeManager:
         self._bulletin_service = None
         self._opening_tasks: dict[str, asyncio.Task] = {}
         self._opening_prepared: dict[str, tuple[DJMoment, DJMoment]] = {}
+
+    def _watch_moment_publisher(self, owner_profile_id, broadcast):
+        delivery = self._watch_moment_delivery
+        if delivery is None:
+            return None
+
+        def publish(moment):
+            original = self.current_active(owner_profile_id)
+            if original is None or original.broadcast is not broadcast:
+                return
+            source = self._history_source_contexts.get(original.session_id)
+            created_at_ms = time.time_ns() // 1_000_000
+            # Maximum accepted by the Watch Moment API. Only the original event
+            # may use this deadline, including across a retry or delayed handoff.
+            expires_at_ms = created_at_ms + 300_000
+            monotonic_deadline = self._monotonic_source() + 300
+            event_id = hashlib.sha256(f"{original.session_id}/{moment.moment_id}".encode()).hexdigest()
+            event = WatchMomentPublication(owner_profile_id, original.session_id, moment.moment_id,
+                                           event_id, created_at_ms, expires_at_ms, original.locale)
+
+            def current():
+                now_ms = time.time_ns() // 1_000_000
+                active = self.current_active(owner_profile_id)
+                return (self._watch_moment_delivery is delivery and active is original
+                        and active.publication_context_is_current()
+                        and self._history_source_contexts.get(event.session_id) is source
+                        and not broadcast.content_pending and moment.moment_id not in active.deleted_moment_ids
+                        and any(item is moment for item in broadcast.state.dj_moments)
+                        and created_at_ms <= now_ms < expires_at_ms
+                        and self._monotonic_source() < monotonic_deadline)
+
+            if current():
+                delivery(event, current)
+
+        return publish
 
     def register_visual_withdrawal(self, owner_profile_id, session_id, source, callback):
         """One bounded opaque RAM-only teardown hook; never a durable Session."""
@@ -4918,6 +4996,7 @@ class SessionRuntimeManager:
                     **creating.__dict__,
                     "runtime_state": SessionRuntimeState.ACTIVE,
                     "started_at": _timestamp(),
+                    "watch_moment_published": self._watch_moment_publisher(owner_profile_id, creating.broadcast),
                     "opening_context": SessionOpeningContext(session_id, selected_mood,
                         dj_persona.value, inherited.presence if inherited else DEFAULT_PRESENCE,
                         _locale_family(locale)),
@@ -7269,10 +7348,10 @@ class SessionRuntimeManager:
             entry['body']['dependency_moment_ids'] = sorted(dependencies)
 
         try:
-            accepted = await self._historical_projections.async_accept_moment(
+            accepted, retained = await self._historical_projections.async_accept_moment(
                 active.owner_profile_id, active.session_id, moment.moment_id, entry,
                 authorize=admission_is_current,
-                finalize_authorize=admission_is_current)
+                finalize_authorize=admission_is_current, include_retention=True)
         except PermissionError:
             if not admission_is_current():
                 return False
@@ -7298,7 +7377,7 @@ class SessionRuntimeManager:
                         moment.presentation_intent.maximum_duration_seconds)
                 return False
             active.prepared_presentations.clear()
-            active.prepared_presentations[moment.moment_id] = prepared
+            active.prepared_presentations[moment.moment_id] = (prepared, retained)
         return accepted
 
     async def async_end(
