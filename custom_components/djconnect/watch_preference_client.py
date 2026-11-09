@@ -12,8 +12,10 @@ from contextlib import suppress
 from dataclasses import dataclass
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
+import stat
 import struct
 import time
 from typing import Literal
@@ -68,17 +70,14 @@ def _validate(receiver: EnrolledWatchReceiver, intent: WatchPreferenceIntent) ->
         raise ValueError("invalid_watch_preference_binding")
 
 
-def _request(receiver: EnrolledWatchReceiver, intent: WatchPreferenceIntent, *, read: bool):
-    action = "preference-read" if read else "preference-write"
-    operation = uuid4().hex if read else intent.operation
+def _request(receiver: EnrolledWatchReceiver, intent: WatchPreferenceIntent):
     claims = {
-        "audience": receiver.audience, "action": action,
+        "audience": receiver.audience, "action": "preference-write",
         "installation": receiver.installation, "receiver": receiver.receiver,
         "epoch": receiver.epoch, "key_fingerprint": receiver.key_fingerprint,
-        "expiry": intent.expiry, "operation": operation, "incarnation": receiver.incarnation,
+        "expiry": intent.expiry, "operation": intent.operation, "incarnation": receiver.incarnation,
+        "expected_version": intent.expected_version, "enabled": intent.enabled,
     }
-    if not read:
-        claims.update(expected_version=intent.expected_version, enabled=intent.enabled)
     return _frame(claims)
 
 
@@ -120,11 +119,11 @@ async def update_watch_preference(
     receiver: EnrolledWatchReceiver, intent: WatchPreferenceIntent, *,
     require_current, sign_frame, post_signed, wall=time.time,
 ) -> PreferenceOutcome:
-    """Submit once and reconcile uncertainty with at most one signed read.
+    """Submit a signed intent and replay its exact bytes at most once after uncertainty.
 
     `require_current` must synchronously validate the original binding and
     local intent or raise PermissionError. Both async ports are called inside
-    the original expiry, with no intent rebase or write retry.
+    the original expiry, with no intent rebase or second signature.
     """
     _validate(receiver, intent)
 
@@ -136,27 +135,27 @@ async def update_watch_preference(
             raise TimeoutError
         return remaining
 
-    async def attempt(*, read: bool):
+    async def send(body, signature):
         guard()
-        body, frame = _request(receiver, intent, read=read)
-        raw = await sign_frame(frame)
-        guard()
-        if type(raw) is not bytes or len(raw) != 64:
-            raise PermissionError("watch_preference_signer_unavailable")
-        signature = base64.urlsafe_b64encode(raw).decode().rstrip("=")
-        reply = await post_signed(body, signature)
+        try:
+            reply = await post_signed(body, signature)
+        except PermissionError:
+            raise
+        except OSError:
+            reply = None
         guard()
         return _outcome(reply, receiver, intent)
 
     try:
         async with asyncio.timeout(guard()):
-            try:
-                result = await attempt(read=False)
-            except PermissionError:
-                raise
-            except OSError:
-                result = "unknown"
-            return await attempt(read=True) if result == "unknown" else result
+            guard()
+            body, frame = _request(receiver, intent)
+            raw = await sign_frame(frame)
+            if type(raw) is not bytes or len(raw) != 64:
+                raise PermissionError("watch_preference_signer_unavailable")
+            signature = base64.urlsafe_b64encode(raw).decode().rstrip("=")
+            result = await send(body, signature)
+            return await send(body, signature) if result == "unknown" else result
     except PermissionError:
         return "discarded"
     except (OSError, TimeoutError):
@@ -264,7 +263,10 @@ def watch_signer_unix_socket(path: Path, receiver: EnrolledWatchReceiver, public
     return sign_frame
 
 
-def _watch_lifecycle_https(endpoint: str, *, accepted_statuses: tuple[int, ...]):
+def _watch_lifecycle_https(
+    endpoint: str, *, accepted_statuses: tuple[int, ...],
+    access_credentials: tuple[str, str] | None = None,
+):
     """Bind the signed transport to a provisioned API endpoint.
 
     No ambient authentication, proxy, cookie, or redirect can move a signed
@@ -287,6 +289,17 @@ def _watch_lifecycle_https(endpoint: str, *, accepted_statuses: tuple[int, ...])
         valid = False
     if not valid:
         raise ValueError("invalid_watch_preference_endpoint")
+    access_headers = {}
+    if access_credentials is not None:
+        if (type(access_credentials) is not tuple or len(access_credentials) != 2
+                or any(type(value) is not str or not re.fullmatch(r"[!-~]{1,512}", value)
+                       for value in access_credentials)):
+            raise ValueError("invalid_watch_access_credentials")
+        client_id, client_secret = access_credentials
+        access_headers = {
+            "CF-Access-Client-Id": client_id,
+            "CF-Access-Client-Secret": client_secret,
+        }
 
     async def post_signed(body: bytes, signature: str):
         import aiohttp
@@ -305,6 +318,7 @@ def _watch_lifecycle_https(endpoint: str, *, accepted_statuses: tuple[int, ...])
                 async with session.post(endpoint, data=body, allow_redirects=False, headers={
                     "Content-Type": "application/json", "Accept": "application/json",
                     "Accept-Encoding": "identity", "DJC-Watch-Lifecycle-Signature": signature,
+                    **access_headers,
                 }) as response:
                     media = response.headers.getall("Content-Type", [])
                     if (response.status not in accepted_statuses or response.headers.getall("Content-Encoding", [])
@@ -323,9 +337,41 @@ def _watch_lifecycle_https(endpoint: str, *, accepted_statuses: tuple[int, ...])
     return post_signed
 
 
-def watch_preference_https(endpoint: str):
-    """Bind preference requests to the provisioned endpoint."""
-    request = _watch_lifecycle_https(endpoint, accepted_statuses=(200,))
+def _read_watch_access_file(path: Path, endpoint: str) -> tuple[str, str]:
+    from .surface_issuer_transport import SurfacePushError, strict_body
+
+    if not isinstance(path, Path) or not path.is_absolute():
+        raise ValueError("invalid_watch_access_file")
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(fd, "rb") as stream:
+            info = os.fstat(stream.fileno())
+            if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.geteuid()
+                    or stat.S_IMODE(info.st_mode) not in (0o400, 0o600)):
+                raise ValueError("invalid_watch_access_file")
+            data = stream.read(2049)
+        if len(data) > 2048:
+            raise ValueError("invalid_watch_access_file")
+        record = strict_body(data)
+        if set(record) != {"endpoint", "client_id", "client_secret"} or record["endpoint"] != endpoint:
+            raise ValueError("invalid_watch_access_file")
+        return record["client_id"], record["client_secret"]
+    except (OSError, SurfacePushError):
+        raise ValueError("invalid_watch_access_file") from None
+
+
+def watch_preference_https(
+    endpoint: str, *, access_credentials: tuple[str, str] | None = None,
+    access_file: Path | None = None,
+):
+    """Bind preference requests and optional machine credentials to one endpoint."""
+    if access_file is not None:
+        if access_credentials is not None:
+            raise ValueError("invalid_watch_access_file")
+        access_credentials = _read_watch_access_file(access_file, endpoint)
+    request = _watch_lifecycle_https(
+        endpoint, accepted_statuses=(200,), access_credentials=access_credentials,
+    )
 
     async def post_signed(body: bytes, signature: str):
         reply = await request(body, signature)
