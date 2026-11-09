@@ -178,7 +178,7 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
 /* Keep build information outside the playback and pairing layout. */
 body { display:grid; height:100vh; height:100dvh; grid-template-rows:minmax(0,1fr) auto }
 main { height:auto; min-width:0 }
-.renderer-footer { position:relative; z-index:1; display:flex; flex-wrap:wrap; justify-content:space-between; gap:.35rem 1rem; padding:.65rem 1.25rem; background:#131322; color:#b6b6c5; font-size:.8rem }
+.renderer-footer { position:relative; z-index:1; display:flex; flex-wrap:wrap; justify-content:space-between; gap:.35rem 1rem; padding:.65rem 1.25rem; color:#b6b6c5; font-size:.8rem }
 .renderer-footer a { color:inherit; text-decoration:underline; text-underline-offset:.2em }
 .renderer-footer a:focus { outline:2px solid #fff; outline-offset:3px }
 .waiting-maker { max-width:100%; flex-wrap:wrap }
