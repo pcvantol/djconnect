@@ -1,0 +1,98 @@
+name: Home Assistant external TestFlight artifact
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: ha-4-0-0-external-testflight-artifact
+  cancel-in-progress: false
+
+jobs:
+  package:
+    if: github.repository == 'pcvantol/djconnect' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      CANDIDATE_SHA: 67d3c98543ce4d2d2330e40bd0ea4565286e4a7c
+      VALIDATE_RUN: '42692912767'
+      GOLDEN_RUN: '42693949233'
+      GOLDEN_ARTIFACT: '13709630115'
+      GOLDEN_SHA256: 71aec99aa84a54f6d217039101af3e0bc88af420889ed1e03dcea01f87009de4
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          ref: ${{ env.CANDIDATE_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify candidate ancestry and evidence provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          git merge-base --is-ancestor "$CANDIDATE_SHA" refs/remotes/origin/main
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$VALIDATE_RUN" |
+            jq -e --arg sha "$CANDIDATE_SHA" '
+              .head_sha == $sha and .head_branch == "main" and .event == "push"
+              and .name == "Validate Home Assistant custom integration" and .conclusion == "success"
+            ' >/dev/null
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$GOLDEN_ARTIFACT" |
+            jq -e --arg sha "$CANDIDATE_SHA" --arg run "$GOLDEN_RUN" '
+              .expired == false and .name == ("askdj-contextual-golden-" + $sha)
+              and .workflow_run.head_sha == $sha and .workflow_run.head_branch == "main"
+              and (.workflow_run.id | tostring) == $run
+            ' >/dev/null
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ env.GOLDEN_ARTIFACT }}
+          github-token: ${{ github.token }}
+          run-id: ${{ env.GOLDEN_RUN }}
+          path: golden-evidence
+      - name: Qualify exact candidate for external TestFlight
+        run: |
+          set -euo pipefail
+          report=golden-evidence/askdj-contextual-golden.json
+          test "$(sha256sum "$report" | cut -d' ' -f1)" = "$GOLDEN_SHA256"
+          jq -e --arg sha "$CANDIDATE_SHA" '
+            .candidate_sha == $sha and .status == "FAIL" and .release_languages == ["en", "nl"]
+            and .executed_help_cases == 60 and .executed_proactive_cases == 560
+            and .executed_single_turn_cases == 112
+            and (.profiles | length) == 50
+            and all(.profiles[]; .status == "PASS" and .kind == "deterministic_owner_contract")
+            and (.findings | length) == 68
+            and all(.findings[]; startswith("open_core_qualification:"))
+          ' "$report" >/dev/null
+          jq -e '.version == "4.0.0"' custom_components/djconnect/manifest.json >/dev/null
+
+          mkdir -p beta-artifact
+          asset="djconnect-ha-4.0.0-external-testflight-${CANDIDATE_SHA}.tar.gz"
+          tar -C custom_components --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf - djconnect |
+            gzip -n > "beta-artifact/$asset"
+          tar -xOzf "beta-artifact/$asset" djconnect/manifest.json |
+            cmp - custom_components/djconnect/manifest.json
+          (cd beta-artifact && sha256sum "$asset" > "$asset.sha256")
+
+          jq -n --arg sha "$CANDIDATE_SHA" --arg policy "$GITHUB_SHA" --arg asset "$asset" \
+            --arg digest "$(cut -d' ' -f1 "beta-artifact/$asset.sha256")" \
+            --arg validate_run "$VALIDATE_RUN" --arg golden_artifact "$GOLDEN_ARTIFACT" \
+            --arg golden_sha256 "$GOLDEN_SHA256" --slurpfile golden "$report" '{
+              schema_version: 1,
+              status: "EXTERNAL_TESTFLIGHT_PACKAGE_QUALIFIED",
+              candidate_sha: $sha,
+              policy_sha: $policy,
+              artifact: $asset,
+              artifact_sha256: $digest,
+              validate_run: $validate_run,
+              golden_artifact: $golden_artifact,
+              golden_sha256: $golden_sha256,
+              askdj_real_quality: "DEFERRED",
+              deferred_findings: $golden[0].findings
+            }' > beta-artifact/qualification.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: external-testflight-ha-4.0.0-${{ env.CANDIDATE_SHA }}
+          path: beta-artifact/
+          if-no-files-found: error
