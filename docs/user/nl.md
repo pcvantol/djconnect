@@ -6,7 +6,7 @@ Je persoonlijke muziek-DJ in Home Assistant. Vraag muziek aan, geniet van DJ-bij
 
 ## Kies je versie
 
-Deze bron beschrijft kandidaat **4.0.0-rc.1**, geen geïnstalleerde release.
+Deze bron beschrijft kandidaat **4.0.0**, geen geïnstalleerde release.
 Controleer de versie in HACS. In **3.3.1** is een Assist-pipeline met **STT én TTS**
 verplicht. De kandidaat vraagt een beschikbare conversation-agent; spraak is
 optioneel bij het instellen. Alleen beschikbare spraakroutes worden aangeboden.

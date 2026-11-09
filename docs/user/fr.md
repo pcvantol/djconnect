@@ -6,7 +6,7 @@ Votre DJ musical personnel dans Home Assistant. Demandez de la musique, profitez
 
 ## Choisir la version
 
-Cette source décrit le candidat **4.0.0-rc.1**, pas une version installée.
+Cette source décrit le candidat **4.0.0**, pas une version installée.
 Vérifiez la version dans HACS. **3.3.1** exige un pipeline Assist avec **STT et TTS**.
 Le candidat exige un agent de conversation disponible ; la voix est optionnelle
 pour la configuration. Seuls les parcours vocaux disponibles sont proposés.
