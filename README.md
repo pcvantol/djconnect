@@ -43,7 +43,7 @@ from an available DJConnect app, supported device or Home Assistant Assist.
 [English](docs/user/installation.md) · [Nederlands](docs/user/nl.md) ·
 [Deutsch](docs/user/de.md) · [Français](docs/user/fr.md) · [Español](docs/user/es.md)
 
-> This branch describes **4.0.0-rc.1**, a candidate, not an installed-release claim.
+> This branch describes **4.0.0**, a candidate, not an installed-release claim.
 > Installed **3.3.1**? Follow the [stable setup guide](docs/user/stable-3.3.1.md).
 > Check your installed version in HACS before following the wizard steps.
 
