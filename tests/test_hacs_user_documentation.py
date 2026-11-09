@@ -18,7 +18,7 @@ class HacsUserDocumentationTest(unittest.TestCase):
         self.assertIs(json.loads((ROOT / "hacs.json").read_text())["render_readme"], True)
         manifest = json.loads((ROOT / "custom_components/djconnect/manifest.json").read_text())
         self.assertEqual(manifest["documentation"], "https://github.com/pcvantol/djconnect")
-        self.assertEqual(manifest["version"], "4.0.0-rc.1")
+        self.assertEqual(manifest["version"], "4.0.0")
         for name in ("README.md", "info.md"):
             text = (ROOT / name).read_text()
             self.assertIn(manifest["version"], text)
@@ -98,7 +98,7 @@ class HacsUserDocumentationTest(unittest.TestCase):
             with self.subTest(locale=locale):
                 for term in (
                     "3.3.1",
-                    "4.0.0-rc.1",
+                    "4.0.0",
                     "Spotify Direct",
                     "Music Assistant",
                     "Client ID",

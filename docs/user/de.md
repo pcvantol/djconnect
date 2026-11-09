@@ -6,7 +6,7 @@ Dein persönlicher Musik-DJ in Home Assistant. Wünsche dir Musik, höre DJ-Beit
 
 ## Version auswählen
 
-Diese Quelle beschreibt den Kandidaten **4.0.0-rc.1**, keine installierte Veröffentlichung.
+Diese Quelle beschreibt den Kandidaten **4.0.0**, keine installierte Veröffentlichung.
 Prüfe die Version in HACS. **3.3.1** verlangt eine Assist-Pipeline mit **STT und TTS**.
 Der Kandidat benötigt einen verfügbaren Conversation-Agent; Sprache ist bei der
 Einrichtung optional. Nur verfügbare Sprachwege werden angeboten.
