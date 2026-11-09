@@ -50,15 +50,33 @@ def capture_work(manager, owner):
 
 
 @dataclass(frozen=True)
+class BulletinManualSpeechUse:
+    """Future private headline use: explicit manual/local configured-HA speech only."""
+    candidate: BulletinCandidate
+    original_guard: object
+
+
+@dataclass(frozen=True)
 class BulletinProof:
     candidate: BulletinCandidate
     original_guard: object
+    manual_speech_use: BulletinManualSpeechUse | None = None
 
 
 def private_bulletin(moment):
     proof = getattr(moment, "bulletin", None)
     return (type(proof) is BulletinProof and type(proof.candidate) is BulletinCandidate
             and private_headlines(proof.candidate.items) is not None)
+
+
+def manual_ha_speech_admitted(moment):
+    """An old, copied or serialized proof cannot acquire a new processing use."""
+    if not private_bulletin(moment) or not admitted(moment):
+        return False
+    proof = moment.bulletin
+    use = proof.manual_speech_use
+    return (type(use) is BulletinManualSpeechUse and use.candidate is proof.candidate
+            and use.original_guard is proof.original_guard)
 
 
 def admitted(moment, *, monotonic=None, wall=None):
@@ -98,7 +116,7 @@ def sources(moment):
         for i in proof.candidate.items]
 
 
-def create_moment(core, candidate, original_guard):
+def create_moment(core, candidate, original_guard, *, manual_speech_use=None):
     session = candidate.session
     intent = replace(core._presentation_intent(session.mood, core.DJPersona(session.persona),
         reading_characters=len(candidate.text)), delivery_style="short source-grounded news story")
@@ -115,7 +133,7 @@ def create_moment(core, candidate, original_guard):
         artwork_url=None, actions=(), source_references=("fixed_rss_metadata_v1",),
         generation_metadata=(("context_source", "fixed_rss_metadata_v1"),
             ("bulletin_schema", "1"), ("candidate_id", candidate.candidate_id)),
-        bulletin=BulletinProof(candidate, original_guard))
+        bulletin=BulletinProof(candidate, original_guard, manual_speech_use))
 
 
 async def publish_if_selected(manager, *, owner_profile_id, session_id, media_identity):
@@ -156,7 +174,11 @@ async def publish_if_selected(manager, *, owner_profile_id, session_id, media_id
                 except Exception:
                     withdrawn = True
                     raise PermissionError("bulletin_original_authority_withdrawn") from None
-            moment = create_moment(core, candidate, original_guard)
+            # Bind only a newly published original candidate. Existing Moments
+            # and archived/serialized proofs are never upgraded on a read.
+            use = (BulletinManualSpeechUse(candidate, original_guard)
+                   if private_headlines(candidate.items) is not None else None)
+            moment = create_moment(core, candidate, original_guard, manual_speech_use=use)
             position = max(playback.position_ms or 0,
                 opportunity.last_observed_position_ms + int(age * 1000))
             remaining = (playback.duration_ms - position) / 1000

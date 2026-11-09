@@ -18,12 +18,15 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from run_askdj_contextual_release_gate import IMAGE, validate_report  # noqa: E402
+from scripts.verification.askdj_contextual_golden import RELEASE_LANGUAGES  # noqa: E402
 from askdj_release_inventory import validate as validate_inventory, validate_moment_matrix, required_bindings, release_blockers  # noqa: E402
 
 # Existing owning interpretation/authorization/transport suites. These use explicit
 # agent/provider fixtures; their PASS is not paid-model or physical acceptance.
 TEST_PATTERNS = (
     'test_pipeline.py', 'test_processor_runtime.py',
+    'test_session_for_you.py', 'test_for_you_refresh_contract.py',
+    'test_profile_settings_owner.py', 'test_profile_dj_settings_runtime.py',
     'test_visual_director*.py',
     'test_ask_dj*.py', 'test_askdj_contextual_release_gate.py', 'test_voice_intents.py', 'test_http_voice_helpers.py',
     'test_historical_playback.py', 'test_history_playback_application.py', 'test_captured_reply_artwork.py',
@@ -88,7 +91,7 @@ PROFILES = {
 }
 
 
-def validate_prosody_report(raw, directory):
+def validate_prosody_report(raw, directory, *, languages=None):
     """Technical audio gate, never a substitute for audible quality review."""
     if (not isinstance(raw, dict)
             or raw.get('qualification') != 'ISOLATED_REAL_HA_PAIRED_OPENAI_LITERAL_TTS'
@@ -120,15 +123,16 @@ def validate_prosody_report(raw, directory):
             or not re.fullmatch('[0-9a-f]{64}', synthesis[0].get('text_sha256', ''))):
         return False
     rows = raw.get('mood_prosody', [])
-    expected = {(language, mood) for language in ('en', 'nl', 'de', 'fr', 'es')
+    locales = languages or ('en', 'nl', 'de', 'fr', 'es')
+    expected = {(language, mood) for language in locales
                 for mood in ('chill', 'groove', 'energy', 'party')}
     if (not isinstance(rows, list) or not all(isinstance(r, dict) for r in rows)
             or raw.get('status') != 'PASS' or raw.get('source_unchanged') is not True
-            or raw.get('paid_tts_attempts') != 21 or len(rows) != 20
+            or raw.get('paid_tts_attempts') != len(expected) + 1 or len(rows) != len(expected)
             or {(r.get('language'), r.get('mood')) for r in rows} != expected
             or not raw.get('core_transports') or len(raw.get('audio_reads', [])) != 2):
         return False
-    for language in ('en', 'nl', 'de', 'fr', 'es'):
+    for language in locales:
         group = [r for r in rows if r['language'] == language]
         if (len({r.get('text_sha256') for r in group}) != 1
                 or len({r.get('voice') for r in group}) != 1
@@ -175,6 +179,7 @@ def expected_source_hashes():
     files.append(ROOT/'tools/verification/askdj_catalogue_variations.py')
     files.append(ROOT/'scripts/verification/askdj_semantic_read_golden.py')
     files.append(ROOT/'scripts/verification/askdj_contextual_quality.py')
+    files.append(ROOT/'scripts/verification/askdj_contextual_golden.py')
     files.append(ROOT/'scripts/verification/askdj_example_catalogue_golden.py')
     files.append(ROOT/'scripts/verification/askdj_catalogue_provider_fixture.py')
     files.append(ROOT/'custom_components/djconnect/ask_dj/examples_v1.json')
@@ -186,9 +191,9 @@ def expected_source_hashes():
     return {str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
 
 
-def validate_semantic_report(raw):
+def validate_semantic_report(raw, *, languages=None):
     from scripts.verification.askdj_semantic_read_golden import cases, manifest_digest, expected_plan
-    expected = cases()
+    expected = cases(languages)
     def unique_object(pairs):
         result = {}
         for key, value in pairs:
@@ -201,7 +206,7 @@ def validate_semantic_report(raw):
             or raw.get('source_hashes') != expected_source_hashes()
             or raw.get('source_unchanged') is not True
             or raw.get('pairing') != 'ordinary_device_token_minted_persisted'
-            or raw.get('manifest_sha256') != manifest_digest()
+            or raw.get('manifest_sha256') != manifest_digest(languages)
             or raw.get('effects') != []
             or type(raw.get('setup_paid_model_calls')) is not int
             or not 0 <= raw['setup_paid_model_calls'] <= 2
@@ -312,7 +317,7 @@ def validate_local_report(mode, raw):
     return True
 
 
-def redacted_full_report(raw):
+def redacted_full_report(raw, *, languages=None):
     calls = raw.get('model_calls', [])
     transports = raw.get('core_transports', [])
     # Every SDK attempt is attached to the actual Core client_message_id. No
@@ -327,8 +332,9 @@ def redacted_full_report(raw):
     required={mode+'-'+step for mode in ('standalone','active','paused')
               for step in ('credit','pronoun','topic','volume','after-volume','search',
                            'refine','select','between-selection','play','after-play')}
+    locales = languages or ('en','nl','de','fr','es')
     required.update(locale+'-'+persona+'-'+step
-                    for locale in ('en','nl','de','fr','es')
+                    for locale in locales
                     for persona in ('home_dj','radio_dj','club_dj','festival_dj')
                     for step in ('identity','follow'))
     if not required.issubset({r.get('case') for r in transports}):
@@ -338,12 +344,15 @@ def redacted_full_report(raw):
         invalid.append('mixed_contexts_missing')
     styles=raw.get('style_cases',[])
     if {(r.get('language'),r.get('persona')) for r in styles if isinstance(r,dict)}!={
-        (locale,persona) for locale in ('en','nl','de','fr','es')
+        (locale,persona) for locale in locales
         for persona in ('home_dj','radio_dj','club_dj','festival_dj')}:
         invalid.append('language_persona_combinations_missing')
     if any(not isinstance(r,dict) or not r.get('identity') or not r.get('followup') for r in styles):
         invalid.append('missing_actual_style_answers')
     for item in transports:
+        request_language = (item.get('request') or {}).get('language')
+        if languages is not None and request_language is not None and request_language not in languages:
+            invalid.append('unexpected_release_language')
         body = item.get('body') or {}
         question_id = (item.get('request') or {}).get('client_message_id') or item['case']
         declared = (body.get('conversation') or {}).get('metrics', {}).get('agent_calls')
@@ -372,14 +381,14 @@ def redacted_full_report(raw):
         invalid.append('missing_paid_token_usage')
     if any(r.get('model') != 'gpt-6-luna' or not r.get('case_id') for r in calls):
         invalid.append('paid_model_or_case_binding')
-    if len(raw.get('mixed_chains', [])) != 3 or len(raw.get('style_cases', [])) != 20:
+    if len(raw.get('mixed_chains', [])) != 3 or len(raw.get('style_cases', [])) != 4 * len(locales):
         invalid.append('conversation_or_persona_coverage_missing')
     if any(r['status'] != r['expected_status'] for r in rows):
         invalid.append('unexpected_http_outcome')
     return {'status': 'FAIL' if invalid else 'PASS', 'cases': rows, 'usage': usage,
             'paid_attempts': len(calls), 'unknown_usage_expected_denials': len(incomplete),
             'semantic_attempt_counts': dict(by_case), 'unbound_case_ids': unmatched, 'findings': invalid,
-            'mixed_contexts': 3, 'language_persona_chains': 20,
+            'mixed_contexts': 3, 'language_persona_chains': 4 * len(locales),
             'external_provider_boundary': 'fixture', 'model_boundary': 'real_paid'}
 
 
@@ -392,6 +401,7 @@ def run(candidate, output):
         raise ValueError('dirty_checkout')
     result = {'schema_version': 1, 'suite': 'askdj_release_matrix_v1',
               'candidate_sha': candidate, 'status': 'FAIL', 'profiles': [],
+              'release_languages': list(RELEASE_LANGUAGES),
               'native_installed_hardware': 'NOT_RUN', 'inventory': validate_inventory()}
     # Failure evidence exists even when admission/credential/provider fails.
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -455,7 +465,7 @@ def run(candidate, output):
         result['executed_single_turn_cases']=len(qa)
         result['executed_help_cases']=sum(c['id'].startswith('help_prompt_') for c in qa)
         result['reported_issues']=len(inventory['reported_issues'])
-        if blockers := release_blockers(inventory):
+        if blockers := release_blockers(inventory, languages=RELEASE_LANGUAGES):
             # Do not spend model credits rerunning a known rejected candidate.
             result['findings']=['open_core_qualification:'+item for item in blockers]
             save()
@@ -472,6 +482,9 @@ def run(candidate, output):
                 return 1
             flags = ['-e','DJC_SAFETY_PROBE='+mode]
             payload = {'api_key':key,'model':'gpt-6-luna','max_tokens':700}
+            if mode == 'contextual_golden':
+                from scripts.verification.askdj_contextual_golden import MAX_OUTPUT_TOKENS
+                payload['max_tokens'] = MAX_OUTPUT_TOKENS
             if mode in {'catalogue_golden','catalogue_variations'}:
                 from scripts.verification.askdj_example_catalogue_golden import MAX_OUTPUT_TOKENS
                 payload['max_tokens'] = MAX_OUTPUT_TOKENS
@@ -482,7 +495,7 @@ def run(candidate, output):
                     if not corpus_path.is_file() or corpus_path.stat().st_size > 256*1024:
                         raise ValueError('frozen_variation_corpus_missing_or_oversized')
                     corpus=json.loads(corpus_path.read_text())
-                    variation_cases(corpus)
+                    variation_cases(corpus, languages=RELEASE_LANGUAGES)
                 except (ValueError, TypeError, KeyError):
                     result['profiles'].append({'id':mode,'status':'FAIL',
                         'findings':['qualified_frozen_variation_corpus_required_after_base_PASS']})
@@ -499,6 +512,7 @@ def run(candidate, output):
                 payload['tts_settings'] = {'chat_model': tts_model}
                 flags = ['-e','DJC_SAFETY_PROBE=literal_tts','-e','DJC_MOOD_PROSODY=1',
                          '-e','DJC_PROSODY_FIVE_LANGUAGES=1']
+            flags += ['-e', 'DJC_ASKDJ_RELEASE_LANGUAGES=' + ','.join(RELEASE_LANGUAGES)]
             code=owned_run([*flags, IMAGE,
                             '/candidate/scripts/verification/verify_ask_dj_contextual_dialogue_http.py'],
                            payload=payload,
@@ -509,19 +523,20 @@ def run(candidate, output):
             else:
                 raw=json.loads(path.read_text())
                 if mode=='mood_prosody':
-                    row={'id':mode,'status':'PASS' if validate_prosody_report(raw, directory) else 'FAIL',
+                    row={'id':mode,'status':'PASS' if validate_prosody_report(raw, directory, languages=RELEASE_LANGUAGES) else 'FAIL',
                          'paid_tts_attempts':raw.get('paid_tts_attempts'),
                          'kind':'real_paired_ha_and_provider_prosody', 'audible_acceptance':'NOT_RUN',
                          'mood_prosody':raw.get('mood_prosody', [])}
                 elif mode=='full_golden':
-                    row={'id':mode,**redacted_full_report(raw)}
+                    row={'id':mode,**redacted_full_report(raw, languages=RELEASE_LANGUAGES)}
                 elif mode=='contextual_golden':
                     raw['candidate_sha']=candidate
                     row={k:raw.get(k) for k in ('cases','manifest_sha256','paid_model_calls','usage')}
-                    row.update(id=mode,status='PASS' if validate_report(raw,candidate) else 'FAIL')
+                    row.update(id=mode,status='PASS' if validate_report(raw,candidate,languages=RELEASE_LANGUAGES) else 'FAIL')
                 elif mode=='catalogue_golden':
                     from scripts.verification.askdj_example_catalogue_golden import validate_report as validate_catalogue
-                    row={'id':mode,'status':'PASS' if validate_catalogue(raw, source_hashes=expected_source_hashes()) else 'FAIL',
+                    row={'id':mode,'status':'PASS' if validate_catalogue(raw, source_hashes=expected_source_hashes(),
+                        languages=RELEASE_LANGUAGES) else 'FAIL',
                          'paid_attempts':raw.get('paid_model_calls'), 'kind':'real_paired_ha_exact_catalogue_questions',
                          'case_count':len(raw.get('cases',[])), 'manifest_sha256':raw.get('manifest_sha256'),
                          'failed_cases':[{'id':r.get('id'),'findings':r.get('findings',[])}
@@ -530,14 +545,14 @@ def run(candidate, output):
                 elif mode=='catalogue_variations':
                     from scripts.verification.askdj_example_catalogue_golden import validate_variation_report
                     row={'id':mode,'status':'PASS' if validate_variation_report(raw,
-                        corpus=corpus,source_hashes=expected_source_hashes()) else 'FAIL',
+                        corpus=corpus,source_hashes=expected_source_hashes(),languages=RELEASE_LANGUAGES) else 'FAIL',
                         'paid_attempts':raw.get('paid_model_calls'),'kind':'real_paired_ha_frozen_question_variations',
                         'case_count':len(raw.get('cases',[])),'manifest_sha256':raw.get('manifest_sha256'),
                         'failed_cases':[{'id':r.get('id'),'findings':r.get('findings',[])}
                             for r in raw.get('cases',[]) if r.get('status')!='PASS'],
                         'native':'NOT_RUN','installed':'NOT_RUN'}
                 elif mode=='semantic_reads':
-                    row={'id':mode,'status':'PASS' if validate_semantic_report(raw) else 'FAIL',
+                    row={'id':mode,'status':'PASS' if validate_semantic_report(raw, languages=RELEASE_LANGUAGES) else 'FAIL',
                          'paid_attempts':raw.get('paid_model_calls'), 'kind':'real_paired_ha_semantic_interpretation',
                          'native':'NOT_RUN','installed':'NOT_RUN'}
                 else:

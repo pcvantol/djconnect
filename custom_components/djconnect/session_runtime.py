@@ -3617,8 +3617,10 @@ class DJSessionBroadcastEngine:
     first_play_offer: Any = field(default=None, init=False, repr=False)
     track_announcements: Any = field(default=None, init=False, repr=False)
     first_play_preparation: Any = field(default=None, init=False, repr=False)
+    first_play_refresh: Any = field(default=None, init=False, repr=False)
+    first_play_continuation: Any = field(default=None, init=False, repr=False)
     first_play_pending: Any = field(default=None, init=False, repr=False)
-    first_play_dismissed_devices: set[str] = field(default_factory=set, init=False, repr=False)
+    first_play_dismissed_offer_id: str = field(default="", init=False, repr=False)
     passive_state_observed: tuple = field(default_factory=lambda: (time.monotonic(), time.time()), repr=False)
     _media_revision: str = field(default="", init=False, repr=False)
     pending_events: tuple[BroadcastEventType, ...] = ()
@@ -4817,6 +4819,7 @@ class SessionRuntimeManager:
         history_enabled: bool = True,
         history_source_context: dict[str, str] | None = None,
         inherit_settings: bool = False,
+        explicit_mood_choice: bool = False,
         source_adoption=None,
     ) -> DJSessionRuntime:
         """Create the one active Runtime allowed for a Profile."""
@@ -4831,7 +4834,8 @@ class SessionRuntimeManager:
                 if defaults['activated'] or inherit_settings:
                     inherited = DJSettings.from_dict(defaults['defaults'])
                     defaults_revision = defaults['defaults_revision']
-                    selected_mood = inherited.mood
+                    if not (explicit_mood_choice and selected_mood in {'chill', 'groove', 'energy', 'party'}):
+                        selected_mood = inherited.mood
                     dj_persona = DJPersona(inherited.persona)
             now = _timestamp()
             session_id = f"session-{uuid4().hex}"
@@ -5041,6 +5045,7 @@ class SessionRuntimeManager:
         up_next: dict[str, Any] | None = None,
         forecast_authority: Callable[[], bool] | None = None,
         original_status=None,
+        capture_occurrence: Callable[[], Any] | None = None,
     ) -> bool:
         """Apply one normalized observation to its active Runtime only."""
         projection = RendererSafePlaybackProjection.from_observation(
@@ -5058,16 +5063,28 @@ class SessionRuntimeManager:
                 # Ordinary playback is neither dismissal nor acceptance of the
                 # Session's personal offer. Only its exact pending mix can close it.
                 pending = active.broadcast.first_play_pending
-                if (pending is not None and pending.play_dispatched
+                from .surface_status_samples import OriginalSample
+                if (type(original_status) is OriginalSample and original_status.current()
+                        and original_status.state == "playing"
+                        and pending is not None and pending.play_dispatched
                         and pending.authority()
                         and media_identity == pending.selected_media[0]
                         and getattr(original_status, "target_id", None) == pending.output_id):
                     active.broadcast.first_play_state = "confirmed"
+            # Capture the occurrence from the very sample being accepted here.
+            # A prior command readback or legacy row has no shared occurrence proof.
+            occurrence = capture_occurrence() if capture_occurrence else None
+            from .track_start_announcement import Occurrence
+            if type(occurrence) is not Occurrence or occurrence.item_id != projection.item_id:
+                occurrence = None
             if (self._historical_projections is not None and projection.state == "playing"
-                and projection.item_id and projection.item_id != old_playback.item_id):
+                and projection.item_id and (old_playback.state != "playing"
+                    or projection.item_id != old_playback.item_id
+                    or (occurrence is not None and occurrence.repeated))):
                 from .session_history_projection import new_observation_reference
                 await self._historical_projections.async_append_entries(owner_profile_id,session_id,[{
-                    "kind":"playback_observed", "reference_id":new_observation_reference(),
+                    "kind":"playback_observed",
+                    "reference_id":occurrence.occurrence_id if occurrence else new_observation_reference(),
                     "body":{"item_id":projection.item_id,"title":projection.title,"artist":projection.artist,
                             "album":projection.album,"source_url":projection.source_url,
                             "album_uri": album_uri if re.fullmatch(r"spotify:album:[A-Za-z0-9]{22}", album_uri) else "",
@@ -5128,6 +5145,12 @@ class SessionRuntimeManager:
             active.broadcast.passive_observation = (time.monotonic(), time.time(), projection)
             active.broadcast.passive_state_observed = active.broadcast.passive_observation[:2]
             changed = active.broadcast.update_playback(projection)
+            if not changed and active.broadcast.passive_grants:
+                # A newly accepted source observation has a new original clock
+                # even when safe values are identical. Existing passive readers
+                # must not receive a changed frame under their old sequence.
+                active.broadcast._publish(BroadcastEventType.PLAYBACK_CHANGED,
+                    {"playback": active.broadcast.as_dict()["playback"]})
             active.broadcast.forecast.accept_observation()
             active.broadcast.update_forecast(active)
             self._replace_playback_progress_clock(owner_profile_id, projection, session_id)

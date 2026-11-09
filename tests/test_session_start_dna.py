@@ -1,4 +1,5 @@
 """Profile-bound loaded Music DNA seeds; no provider/model or UI effects."""
+import asyncio
 from copy import deepcopy
 from unittest import IsolatedAsyncioTestCase
 
@@ -82,3 +83,100 @@ class LoadedGenreSeedTests(IsolatedAsyncioTestCase):
         manager.data["memories"]["profile:owner-a"]["last_seen"] = "synthetic-change"
         await manager.async_save()
         self.assertTrue(original.valid())
+
+    async def test_pending_unrelated_save_preserves_only_original_committed_seed_basis(self):
+        manager, store = self.manager()
+        await manager.async_load()
+        original = self.snapshot(manager)
+        before = original.genres
+        entered, release = asyncio.Event(), asyncio.Event()
+        save = store.async_save
+        async def pending(data):
+            entered.set()
+            await release.wait()
+            await save(data)
+        store.async_save = pending
+        manager.data['memories']['profile:owner-a']['last_seen'] = 'unrelated-metadata'
+        task = asyncio.create_task(manager.async_save())
+        await entered.wait()
+        try:
+            new_snapshot = self.snapshot(manager)
+            during = original.valid()
+        finally:
+            release.set()
+            await task
+        self.assertIsNone(new_snapshot, 'Pending cache must never mint a new committed basis')
+        self.assertTrue(during, 'Same already-committed original genres survive unrelated save')
+        self.assertTrue(original.valid())
+        self.assertEqual(original.genres, before)
+
+    async def test_pending_relevant_change_or_failed_write_still_retires_original(self):
+        for mode in ('genres', 'disabled', 'generation', 'failure'):
+            with self.subTest(mode=mode):
+                manager, store = self.manager()
+                await manager.async_load()
+                original = self.snapshot(manager)
+                entered, release = asyncio.Event(), asyncio.Event()
+                save = store.async_save
+                async def pending(data):
+                    entered.set()
+                    await release.wait()
+                    if mode == 'failure':
+                        raise OSError('declared fixture failure')
+                    await save(data)
+                store.async_save = pending
+                row = manager.data['memories']['profile:owner-a']
+                if mode == 'genres':
+                    row['favorite_genres'] = ['jazz', 'funk', 'house']
+                elif mode == 'disabled':
+                    row['enabled'] = False
+                elif mode == 'generation':
+                    row['generation'] += 1
+                task = asyncio.create_task(manager.async_save())
+                await entered.wait()
+                try:
+                    during = original.valid()
+                    self.assertIsNone(self.snapshot(manager))
+                finally:
+                    release.set()
+                    if mode == 'failure':
+                        with self.assertRaises(OSError):
+                            await task
+                    else:
+                        await task
+                if mode != 'failure':
+                    self.assertFalse(during)
+                self.assertFalse(original.valid())
+
+
+class OriginalDnaHTTPContractTests(IsolatedAsyncioTestCase):
+    async def test_actual_cached_offer_keeps_original_committed_basis_and_lease(self):
+        import hashlib
+        import json
+        from pathlib import Path
+        root = Path(__file__).resolve().parents[1]
+        wire = json.loads((root / 'examples/client_contracts/for_you_original_dna_v1/actual-ha-wire.json').read_text())
+        self.assertTrue(wire['source_before_after_equal'])
+        self.assertEqual(len(wire['source_pins']), 309)
+        for name, expected in {**wire['source_pins'], **wire['harness_pins']}.items():
+            self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
+        receipt = wire['receipt']
+        self.assertTrue(receipt['source_unchanged'])
+        extension = receipt['extension']
+        self.assertEqual(set(extension['cases'].values()), {'PASS'})
+        examples = extension['dna_snapshot_examples']
+        self.assertEqual({x['language'] for x in examples}, {'en', 'nl'})
+        for example in examples:
+            before, during = example['original_offer'], example['during_save']
+            self.assertEqual(during['state'], 'available')
+            self.assertTrue(during['actions_available'])
+            self.assertEqual(before['offer_id'], during['offer_id'])
+            self.assertEqual(before['result_set']['items'], during['result_set']['items'])
+            self.assertLessEqual(during['expires_in'], before['expires_in'])
+            self.assertTrue(example['original_deadlines_unchanged'])
+            self.assertEqual(example['new_snapshots_on_poll'], 0)
+            self.assertEqual(len(example['synthetic_effects']), 1)
+            self.assertTrue(example['original_choice_response']['action_outcome']['readback_confirmed'])
+        self.assertEqual(extension['real_provider_calls'], 0)
+        self.assertEqual(extension['model_provider_calls'], 0)
+        self.assertEqual(extension['native_installed_acceptance'], 'NOT_RUN')

@@ -56,6 +56,13 @@ this document neither authenticates A nor selects a crypto library or TV input.
 
 ## Authority and identity
 
+The B owner client types are `ios`, `macos` and `raspberry_pi`, advertised by
+`session_broadcast.paired_display_admission.owner_client_types`. Older responses
+without that field do not establish Raspberry Pi sender support. The Raspberry Pi
+uses its ordinary paired device bearer and the same bound Profile and current
+Session as other owners. A display claim still requires separate, explicit
+approval from that owner. This capability concerns the B sender contract only.
+
 The existing HTTP transport-capability projection adds
 `session_broadcast.paired_display_admission` version1; HA WebSocket discovery
 uses `fallbacks.session_broadcast_transport.paired_display_admission` with the
@@ -338,6 +345,28 @@ qualified authenticated bytes, the thin host may use bounded fetch+object URLs;
 only its own registered object URLs are renderable and all are revoked/decoded
 buffers cleared on expiry/withdrawal/end. No arbitrary blob URL allowance, direct
 provider hotlink, token query, asset persistence or automatic speech generation.
+
+### Current album cover
+
+The normal Spotify observer can prepare one current edition cover in memory
+while a display is admitted. Reuse the bounded Session artwork decoder. Pin the authenticated source account,
+current playback item and the exact Spotify CDN image observed for that item. Display reads consume prepared bytes only.
+
+The snapshot may advertise a display-bound cover reference for the current
+playback item. `POST /api/djconnect/v1/display/artwork` requires the same TLS,
+origin and grant checks as snapshot, plus the exact reference. The release
+fence checks the source, playback item, display, share and original deadlines
+again before sending bytes. The display host alone creates the object URL
+and clears it on track change, withdrawal, disconnect or expiry.
+
+### Shared Session Flow
+
+The optional `shared_flow` list contains up to twelve currently qualified
+proactive DJ contributions ordered by original publication. Each card carries
+its original display deadline and follows current source and share consent.
+Owner conversation, user interactions, playback observations and private
+Moments remain outside this projection. The display shows the newest card
+prominently and preserves the reading position when the viewer scrolls back.
 
 ## Failure codes and real acceptance before delivery
 

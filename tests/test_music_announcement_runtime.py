@@ -118,9 +118,38 @@ class AnnouncementRuntimeTests(unittest.IsolatedAsyncioTestCase):
             unavailable, self.authorize)
         moment = await self.publish(occurrence)
         self.assertIsNotNone(moment)
-        self.assertEqual(moment.content, 'Original {artist} — Original artist.')
+        self.assertEqual(moment.content, 'Ga er even goed voor zitten en geef dit nummer de ruimte. '
+                         'Original {artist} — Original artist.')
         self.assertEqual(moment.as_dict()['music_announcement']['realization'], 'degraded')
         self.assertIsNone(await self.publish(occurrence))
+
+    async def test_fallback_keeps_each_supported_locale_and_persona_distinct(self):
+        from custom_components.djconnect.session_runtime import DJPersona
+
+        occurrence = await self.sample()
+        texts = []
+        for locale in self.module.LABELS:
+            for persona in DJPersona:
+                with self.subTest(locale=locale, persona=persona):
+                    text = self.module.fallback(occurrence, locale, persona)
+                    self.assertTrue(text.endswith('Original {artist} — Original artist.'))
+                    self.assertNotIn(text, texts)
+                    texts.append(text)
+
+    async def test_metadata_only_realization_uses_persona_intro(self):
+        occurrence = await self.sample()
+
+        async def metadata_only(brief, guard):
+            guard()
+            frame = '{track} — {artist}.'
+            return self.briefs.NarratedText(brief.render(frame), frame)
+
+        self.manager.connect_narration('profile-a', self.active.session_id,
+            metadata_only, self.authorize)
+        moment = await self.publish(occurrence)
+        self.assertTrue(moment.content.startswith('Ga er even goed voor zitten'))
+        self.assertEqual(moment.as_dict()['music_announcement']['realization'], 'degraded')
+        self.assertTrue(self.module.accepted(moment))
 
     async def test_twenty_starts_use_separate_budget_with_last_eight_published_frames(self):
         frames = []

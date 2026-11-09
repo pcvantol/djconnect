@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import asyncio
 from copy import deepcopy
+from contextlib import contextmanager
+from contextvars import ContextVar
 import hashlib
 import time
 import logging
@@ -24,8 +26,8 @@ from .const import (
     DEFAULT_SPOTIFY_MARKET,
 )
 from .music_dna import resolve_music_dna_key
-from .discovery_artwork import capture_artwork, runtime_scope, credential_cache_scope
-from .spotify_oauth import SpotifyTokenRefreshError, refresh_access_token
+from .discovery_artwork import DiscoveryCatalogueSearch, capture_artwork, runtime_scope, credential_cache_scope, authority_valid
+from .spotify_oauth import SpotifyTokenRefreshError, refresh_access_token, store_spotify_scope_evidence
 
 SPOTIFY_API_BASE = "https://api.spotify.com/v1"
 CACHE_TTL_SECONDS = 30
@@ -63,6 +65,62 @@ class SpotifyOutputError(SpotifyBackendError):
         self.uncertain = uncertain
 
 
+class SpotifyDiscoveryError(SpotifyBackendError):
+    """One Discovery operation failed; never a global playback/voice outage."""
+
+    def __init__(self, code, *, http_status=None, dispatch_state='not_dispatched'):
+        super().__init__(code, http_status=http_status)
+        self.code = code
+        self.dispatch_state = dispatch_state
+
+
+@dataclass(repr=False)
+class DiscoveryDispatch:
+    """Task-local original-item authority; JSON payloads cannot mint this scope."""
+
+    valid: Any
+    reserve: Any
+    task: Any = field(default_factory=asyncio.current_task)
+    approved_uri: str = ""
+    output_id: str = ""
+    attempted: bool = False
+    acknowledged: bool = False
+
+    def require_current(self):
+        if self.task is not asyncio.current_task() or not self.valid():
+            raise SpotifyDiscoveryError("music_discovery_context_changed",
+                dispatch_state="dispatched" if self.attempted else "not_dispatched")
+
+    def before_transport(self, method, path, body):
+        self.require_current()
+        if method.upper() == "GET":
+            return
+        expected = ({"uris": [self.approved_uri]} if self.approved_uri.startswith("spotify:track:")
+                    else {"context_uri": self.approved_uri})
+        if (method.upper() != "PUT" or urlsplit(path).path != "/me/player/play"
+                or not self.output_id or parse_qs(urlsplit(path).query) != {"device_id": [self.output_id]}
+                or body != expected or self.attempted):
+            raise SpotifyDiscoveryError("music_discovery_effect_not_authorized")
+        self.reserve()
+        self.attempted = True
+
+
+_discovery_dispatch = ContextVar("djconnect_discovery_dispatch", default=None)
+
+
+@contextmanager
+def discovery_dispatch(valid, reserve):
+    scope = DiscoveryDispatch(valid, reserve)
+    token = _discovery_dispatch.set(scope)
+    try:
+        yield scope
+    finally:
+        _discovery_dispatch.reset(token)
+        scope.valid = lambda: False
+        scope.reserve = lambda: None
+        scope.task = None
+
+
 class SpotifyReauthRequiredError(SpotifyBackendError):
     """Raised when Spotify revoked the stored OAuth refresh token."""
 
@@ -98,6 +156,35 @@ async def handle_spotify_command(
     backend = SpotifyBackend(hass, runtime)
     normalized = str(command or "").strip().lower()
     _LOGGER.debug("DJConnect Spotify backend handling command: %s", normalized)
+    if normalized == "discovery_playlist_identity":
+        value = value if isinstance(value, dict) else {}
+        try:
+            from .profile_backend import ProfileBackendView
+
+            subject = runtime.caller if isinstance(runtime, ProfileBackendView) else runtime
+            original = runtime_scope(runtime)
+            def deny_write():
+                raise SpotifyDiscoveryError("music_discovery_effect_not_authorized")
+            with discovery_dispatch(lambda: runtime_scope(runtime) == original and authority_valid(subject), deny_write) as read_scope:
+                item = await backend.discovery_playlist_identity(value.get("artist_uri"), value.get("playlist_uri"))
+                read_scope.require_current()
+                return {"success": True, "read_only": True, "dispatch_authority": False, "item": item}
+        except SpotifyBackendError as exc:
+            return {"success": False, "read_only": True, "dispatch_authority": False,
+                    "error": getattr(exc, "code", "music_discovery_provider_request_failed"),
+                    "provider_http_status": exc.http_status, "error_scope": "command", "retry_automatically": False}
+    scope = _discovery_dispatch.get()
+    if normalized == "resolve_discovery_artist":
+        if scope is None:
+            raise SpotifyDiscoveryError("music_discovery_effect_not_authorized")
+        scope.require_current()
+        # Artist cards start the exact cached artist, as explicitly selected by
+        # the owner. Editorial playlist access is not a playback prerequisite.
+        artist = await backend.discovery_artist_identity(str(value or ""))
+        scope.require_current()
+        return {"success": True, "item": {**artist, "identity_basis": "spotify_artist_identity"}}
+    if normalized == "play_discovery_context" or (normalized == "play_uris" and scope is not None):
+        return await backend.play_discovery_selection(value)
     if normalized == "status":
         return {"success": True, "playback": await backend.playback_state()}
     if normalized == "devices":
@@ -140,6 +227,7 @@ async def handle_spotify_command(
         tracks = await backend.search_tracks(
             _search_query(value),
             limit=_search_limit(value, default=10, maximum=10),
+            **({"with_discovery_artwork": True} if type(value) is DiscoveryCatalogueSearch else {}),
         )
         return {
             "success": True,
@@ -203,6 +291,8 @@ async def handle_spotify_command(
             "success": True,
             **await backend.related_artists(_artist_album_query(value)),
         }
+    if normalized == "artist_collections":
+        return {"success": True, **await backend.artist_collections(_artist_album_query(value))}
     if normalized == "artist_profile":
         return {
             "success": True,
@@ -437,6 +527,13 @@ class SpotifyBackend:
         access_token = str(token.get("access_token") or "").strip()
         if not access_token:
             raise SpotifyBackendError("Spotify OAuth refresh did not return an access token")
+        scope_changed = store_spotify_scope_evidence(self.hass, getattr(self.runtime, "entry", None), token, client_id=client_id)
+        if scope_changed:
+            try:
+                from .repairs import async_create_fixable_issues
+                await async_create_fixable_issues(self.hass, self.runtime.entry)
+            except Exception:  # noqa: BLE001
+                _LOGGER.debug("DJConnect could not synchronize scope Repair", exc_info=True)
         _delete_spotify_reauth_issue(
             self.hass,
             getattr(self.runtime, "entry", None),
@@ -491,17 +588,38 @@ class SpotifyBackend:
             from .ask_dj.dialogue import guard_effect_dispatch
 
             await guard_effect_dispatch(method=method, path=path, body=json)
+            scope = _discovery_dispatch.get()
+            if scope is not None:
+                scope.before_transport(method, path, json)
             if (callable(self._retire_startup) and (urlsplit(path).path == "/me/player/play"
                     or (urlsplit(path).path == "/me/player" and isinstance(json, dict) and json.get("play") is True))):
                 self._retire_startup()
+        scope = _discovery_dispatch.get()
+        if scope is not None and method.upper() == "GET":
+            scope.require_current()
+        request_options = {}
+        if scope is not None and method.upper() != "GET":
+            transport_attempts = 0
+            async def one_transport_attempt(request, handler):
+                nonlocal transport_attempts
+                scope.require_current()
+                if transport_attempts:
+                    raise SpotifyDiscoveryError("music_discovery_write_outcome_unknown", dispatch_state="unknown")
+                transport_attempts += 1
+                return await handler(request)
+            # aiohttp can internally retry PUT after a disconnected pooled socket.
+            # Public per-request middleware runs on every attempt and blocks that
+            # second transport without touching the shared session's retry flags.
+            request_options = {"middlewares": (one_transport_attempt,), "allow_redirects": False}
         async with self.session.request(
             method,
             SPOTIFY_API_BASE + path,
             json=json,
             headers={"Authorization": f"Bearer {token}"},
             timeout=ClientTimeout(total=12),
+            **request_options,
         ) as resp:
-            if resp.status == 401 and retry_on_unauthorized:
+            if resp.status == 401 and retry_on_unauthorized and not (scope is not None and scope.attempted):
                 await _consume_spotify_response(resp)
                 self.runtime.spotify_access_token = None
                 self.runtime.spotify_access_token_expires_at = 0
@@ -569,7 +687,8 @@ class SpotifyBackend:
         data = await self._request("GET", "/me/player")
         playback = _normalize_playback(data)
         original_status = seal(original_source, "playing" if playback.get("is_playing")
-            else "paused" if playback.get("uri") else "idle")
+            else "paused" if playback.get("uri") else "idle",
+            target_id=(playback.get("device") or {}).get("id") or "")
         if original_status is not None:
             playback = ObservedPlayback(playback, original_status)
         await self._enrich_current_track_favorite_status(playback)
@@ -984,7 +1103,9 @@ class SpotifyBackend:
                 return True
         return False
 
-    async def search_tracks(self, query: str, *, limit: int = 10) -> list[dict[str, Any]]:
+    async def search_tracks(
+        self, query: str, *, limit: int = 10, with_discovery_artwork: bool = False
+    ) -> list[dict[str, Any]]:
         """Search Spotify tracks and return normalized playable items."""
         query = str(query or "").strip()
         if not query:
@@ -999,11 +1120,20 @@ class SpotifyBackend:
         items = section.get("items") or []
         if not isinstance(items, list):
             items = []
-        tracks = [
-            _normalize_search_item(item, "track", query)
-            for item in items
-            if isinstance(item, dict)
-        ][:limit]
+        tracks = []
+        for item in (item for item in items if isinstance(item, dict)):
+            track = _normalize_search_item(item, "track", query)
+            if (with_discovery_artwork and item.get("type") == "track"
+                    and not item.get("linked_from") and not item.get("is_local")
+                    and item.get("is_playable") is not False and not item.get("restrictions")):
+                # Preserve only the same response's exact recording, album
+                # edition and CDN asset; no new lookup or public search field.
+                source = _normalize_profile_track(item)
+                if source.get("artwork"):
+                    track.update(artwork=source["artwork"], album_uri=source["album_uri"])
+            tracks.append(track)
+            if len(tracks) >= limit:
+                break
         self.runtime.last_spotify_search = _spotify_search_debug(
             query=query,
             spotify_type="track",
@@ -1355,6 +1485,86 @@ class SpotifyBackend:
 
         return await self._cached(f"related_artists:{query.lower()}", load, ttl=LISTENING_PROFILE_CACHE_TTL_SECONDS)
 
+    async def artist_collections(self, query: str) -> dict[str, Any]:
+        """Bounded read-only artist albums and credited playlist candidates."""
+        from aiohttp import ClientError
+
+        result = {"artist": {}, "albums": [], "playlists": [],
+                  "availability": {"albums": "unavailable", "playlists": "unavailable"}}
+        deadline = asyncio.get_running_loop().time() + 10
+        async def bounded(awaitable, seconds):
+            remaining = deadline - asyncio.get_running_loop().time()
+            if remaining <= 0:
+                awaitable.close()
+                raise TimeoutError
+            return await asyncio.wait_for(awaitable, min(seconds, remaining))
+        failures = (SpotifyBackendError, ClientError, OSError, TimeoutError)
+        try:
+            artist = await bounded(self.artist_profile(query), 3)
+        except failures:
+            return result
+        artist_id = str(artist.get("id") or "")
+        if (not re.fullmatch(r"[A-Za-z0-9]{22}", artist_id)
+                or artist.get("uri") != "spotify:artist:" + artist_id
+                or not artist.get("name")):
+            return result
+        result["artist"] = artist
+        try:
+            params = urlencode({"include_groups": "album", "limit": 20,
+                                "market": self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET})
+            page = await bounded(self._request("GET", f"/artists/{artist_id}/albums?{params}"), 2.5)
+            items = page.get("items") if isinstance(page, dict) else None
+            if not isinstance(items, list):
+                raise ValueError("invalid_catalog_page")
+            seen = set()
+            for item in items[:20]:
+                if not isinstance(item, dict):
+                    continue
+                uri = str(item.get("uri") or "")
+                credits = item.get("artists")
+                if (not re.fullmatch(r"spotify:album:[A-Za-z0-9]{22}", uri)
+                        or item.get("id") != uri.rsplit(":", 1)[1]
+                        or item.get("album_type") != "album"
+                        or not item.get("name") or uri in seen
+                        or not isinstance(credits, list)
+                        or not any(isinstance(a, dict) and a.get("id") == artist_id for a in credits)):
+                    continue
+                seen.add(uri)
+                result["albums"].append(_normalize_album_item(item))
+            result["albums"] = _dedupe_albums(result["albums"])[:5]
+            result["availability"]["albums"] = "available"
+        except (*failures, ValueError):
+            pass
+        try:
+            params = urlencode({"q": str(artist["name"]), "type": "playlist", "limit": 10,
+                                "market": self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET})
+            page = await bounded(self._request("GET", f"/search?{params}"), 2.5)
+            candidates = (page.get("playlists") or {}).get("items") if isinstance(page, dict) else None
+            if not isinstance(candidates, list):
+                raise ValueError("invalid_catalog_page")
+            seen = set()
+            failed_checks = False
+            for item in candidates[:10]:
+                uri = str(item.get("uri") or "") if isinstance(item, dict) else ""
+                if (not re.fullmatch(r"spotify:playlist:[A-Za-z0-9]{22}", uri)
+                        or uri in seen or item.get("id") != uri.rsplit(":", 1)[1]
+                        or not item.get("name")):
+                    continue
+                seen.add(uri)
+                try:
+                    credited = await bounded(self.playlist_contains_artist(uri, artist_id), 1)
+                except failures:
+                    failed_checks = True
+                    continue
+                if credited:
+                    result["playlists"].append(_normalize_playlist(item))
+                    if len(result["playlists"]) == 5:
+                        break
+            result["availability"]["playlists"] = "partial" if failed_checks else "available"
+        except (*failures, ValueError):
+            pass
+        return result
+
     async def artist_profile(self, query: str) -> dict[str, Any]:
         """Fetch compact Spotify artist profile metadata for Ask DJ style questions."""
         query = str(query or "").strip()
@@ -1485,6 +1695,140 @@ class SpotifyBackend:
                 raise
             await self._request("PUT", "/me/player/play", json=body, expected_empty=True)
         return selection
+
+    async def play_discovery_selection(self, value):
+        """One selection on the presently observed output; never transfer or retry."""
+        scope = _discovery_dispatch.get()
+        if scope is None:
+            raise SpotifyDiscoveryError("music_discovery_effect_not_authorized")
+        scope.require_current()
+        uri = scope.approved_uri
+        if not isinstance(uri, str) or not re.fullmatch(r"spotify:(track|album|playlist|artist):[A-Za-z0-9]{22}", uri):
+            raise SpotifyDiscoveryError("music_discovery_item_not_playable")
+        expected = {"uris": [uri]} if uri.startswith("spotify:track:") else {"context_uri": uri}
+        if value != expected:
+            raise SpotifyDiscoveryError("music_discovery_item_not_playable")
+        current = await self._request("GET", "/me/player")
+        scope.require_current()
+        device = current.get("device") if isinstance(current, dict) else None
+        if (not isinstance(device, dict) or not isinstance(device.get("id"), str)
+                or not device["id"] or device.get("is_active") is not True
+                or device.get("is_restricted") is not False):
+            raise SpotifyDiscoveryError("music_discovery_output_required")
+        scope.output_id = device["id"]
+        await self._request("PUT", "/me/player/play?" + urlencode({"device_id": scope.output_id}),
+                            json=expected, expected_empty=True)
+        scope.acknowledged = True
+        observed = {}
+        try:
+            scope.require_current()
+            observed = await self._request("GET", "/me/player")
+            scope.require_current()
+        except SpotifyBackendError:
+            pass  # Acknowledged write is not automatically repeated after failed readback.
+        context = observed.get("context") if isinstance(observed, dict) else None
+        track = observed.get("item") if isinstance(observed, dict) else None
+        output = observed.get("device") if isinstance(observed, dict) else None
+        confirmed = (isinstance(output, dict) and output.get("id") == scope.output_id
+            and ((isinstance(track, dict) and track.get("uri") == uri) if uri.startswith("spotify:track:")
+                 else isinstance(context, dict) and context.get("uri") == uri))
+        return {"success": True, "action_outcome": {"state": "dispatched", "readback_confirmed": bool(confirmed),
+            "retry_automatically": False, "queue_replacement_verified": False}, "playback": {}}
+
+    async def discovery_artist_identity(self, artist_uri):
+        match = re.fullmatch(r"spotify:artist:([A-Za-z0-9]{22})", str(artist_uri))
+        if not match:
+            raise SpotifyDiscoveryError("music_discovery_artist_invalid")
+        artist = await self._request("GET", "/artists/" + match[1])
+        if (not isinstance(artist, dict) or artist.get("id") != match[1]
+                or artist.get("uri") != artist_uri or artist.get("type") != "artist"
+                or not isinstance(artist.get("name"), str) or not 0 < len(artist["name"]) <= 256):
+            raise SpotifyDiscoveryError("music_discovery_artist_invalid")
+        return artist
+
+    async def discovery_playlist_identity(self, artist_uri, playlist_uri):
+        """Read-only explicit candidate diagnosis; grants no original-card play authority."""
+        match = re.fullmatch(r"spotify:playlist:([A-Za-z0-9]{22})", str(playlist_uri))
+        if not match:
+            raise SpotifyDiscoveryError("music_discovery_playlist_invalid")
+        artist = await self.discovery_artist_identity(artist_uri)
+        selected = await self._qualify_discovery_playlist(artist, match[1])
+        if selected is None:
+            raise SpotifyDiscoveryError("music_discovery_playlist_identity_unqualified")
+        return selected
+
+    async def _qualify_discovery_playlist(self, artist, playlist_id):
+        title = " ".join(("This Is " + artist["name"].strip()).split()).casefold()
+        try:
+            details = await self._request("GET", "/playlists/" + playlist_id)
+            if (not isinstance(details, dict) or details.get("id") != playlist_id
+                    or details.get("uri") != "spotify:playlist:" + playlist_id
+                    or details.get("type") != "playlist"
+                    or not isinstance(details.get("name"), str)
+                    or " ".join(details["name"].split()).casefold() != title
+                    or not isinstance(details.get("owner"), dict) or details["owner"].get("id") != "spotify"):
+                return None
+            page = details.get("items") if isinstance(details.get("items"), dict) else details.get("tracks")
+            tracks = page.get("items") if isinstance(page, dict) else None
+            if not isinstance(tracks, list):
+                page = await self._request("GET", "/playlists/" + playlist_id + "/items?limit=5&offset=0")
+                tracks = page.get("items") if isinstance(page, dict) else None
+        except SpotifyDiscoveryError:
+            raise
+        except SpotifyBackendError as exc:
+            code = ("music_discovery_playlist_access_denied" if exc.http_status == 403 else
+                    "music_discovery_playlist_not_found" if exc.http_status == 404 else
+                    "music_discovery_provider_request_failed")
+            raise SpotifyDiscoveryError(code, http_status=exc.http_status) from exc
+        if not isinstance(tracks, list) or not tracks:
+            return None
+        for row in tracks[:5]:
+            track = (row.get("item") if isinstance(row.get("item"), dict) else row.get("track")) if isinstance(row, dict) else None
+            if (not isinstance(track, dict) or track.get("type") != "track" or track.get("is_local")
+                    or not isinstance(track.get("id"), str) or not re.fullmatch(r"[A-Za-z0-9]{22}", track["id"])
+                    or track.get("uri") != "spotify:track:" + track["id"]
+                    or not isinstance(track.get("artists"), list)
+                    or not any(isinstance(a, dict) and a.get("id") == artist["id"]
+                        and a.get("uri", artist["uri"]) == artist["uri"] for a in track["artists"])):
+                return None
+        url = "https://open.spotify.com/playlist/" + playlist_id
+        return {"id": playlist_id, "uri": details["uri"], "kind": "playlist", "title": details["name"],
+                "artist_uri": artist["uri"], "source_url": url,
+                "attribution": {"provider": "Spotify", "mark": "spotify", "url": url},
+                "identity_basis": "spotify_owned_exact_title_and_credited_artist_ids"}
+
+    async def resolve_discovery_artist(self, artist_uri):
+        """Bounded real This Is resolution; no public-page/diagnostic URI fallback."""
+        artist = await self.discovery_artist_identity(artist_uri)
+        title = "This Is " + artist["name"].strip()
+        query = urlencode({"q": title, "type": "playlist", "limit": 10,
+                           "market": str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)})
+        result = await self._request("GET", "/search?" + query)
+        section = result.get("playlists") if isinstance(result, dict) else None
+        items = section.get("items") if isinstance(section, dict) else None
+        candidates = set()
+        for item in items[:10] if isinstance(items, list) else []:
+            if not isinstance(item, dict):
+                continue
+            ident = item.get("id")
+            if (isinstance(ident, str) and re.fullmatch(r"[A-Za-z0-9]{22}", ident)
+                    and item.get("uri") == "spotify:playlist:" + ident and item.get("type") == "playlist"
+                    and isinstance(item.get("name"), str)
+                    and " ".join(item["name"].split()).casefold() == " ".join(title.split()).casefold()
+                    and isinstance(item.get("owner"), dict) and item["owner"].get("id") == "spotify"):
+                candidates.add(ident)
+        if not candidates:
+            raise SpotifyDiscoveryError("music_discovery_this_is_not_found")
+        if len(candidates) > 3:
+            raise SpotifyDiscoveryError("music_discovery_this_is_ambiguous")
+        qualified = []
+        for ident in sorted(candidates):
+            selected = await self._qualify_discovery_playlist(artist, ident)
+            if selected is not None:
+                qualified.append(selected)
+        if len(qualified) != 1:
+            raise SpotifyDiscoveryError("music_discovery_this_is_ambiguous" if qualified else "music_discovery_playlist_identity_unqualified")
+        return qualified[0]
 
     async def play_context_at(self, value: Any) -> None:
         if not isinstance(value, dict):
@@ -1801,11 +2145,18 @@ class SpotifyBackend:
             volume = max(0, min(100, int(float(value))))
         except (TypeError, ValueError) as exc:
             raise ValueError("set_volume value must be 0-100") from exc
-        await self._request(
-            "PUT",
-            f"/me/player/volume?volume_percent={volume}",
-            expected_empty=True,
-        )
+        try:
+            await self._request(
+                "PUT",
+                f"/me/player/volume?volume_percent={volume}",
+                expected_empty=True,
+            )
+        except SpotifyBackendError as exc:
+            if exc.http_status == 403 and "cannot control device volume" in str(exc).casefold():
+                from .use_cases import MusicBackendCapabilityError
+
+                raise MusicBackendCapabilityError("set_volume", "supports_volume", "spotify_direct") from exc
+            raise
 
     async def save_current_track(self) -> dict[str, Any]:
         return await self.set_current_track_favorite(True)
@@ -2265,7 +2616,7 @@ def _normalize_device(device: dict[str, Any]) -> dict[str, Any]:
         "type": device.get("type") or "",
         "active": bool(device.get("is_active")),
         "is_restricted": bool(device.get("is_restricted")),
-        "supports_volume": not bool(device.get("is_restricted")),
+        "supports_volume": device.get("supports_volume") if type(device.get("supports_volume")) is bool else None,
         "volume_percent": device.get("volume_percent"),
     }
 

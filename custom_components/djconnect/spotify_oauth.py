@@ -3,6 +3,8 @@ from __future__ import annotations
 import base64
 import hashlib
 import secrets
+import re
+from datetime import datetime, UTC
 from typing import Any
 
 from aiohttp import ClientTimeout
@@ -66,6 +68,83 @@ def ensure_spotify_scopes(
             normalized.append(scope)
             existing.add(scope)
     return " ".join(normalized)
+
+
+SCOPE_EVIDENCE_KEY = "spotify_scope_evidence"
+_SCOPE_NAME = re.compile(r"[a-z][a-z0-9-]{0,63}\Z")
+_SCOPE_FIELDS = {'version', 'status', 'source', 'observed_at', 'client_id_sha256', 'granted_scopes'}
+
+
+def _safe_scope_evidence(value, client_id):
+    if (not isinstance(value, dict) or set(value) != _SCOPE_FIELDS
+            or type(value.get('version')) is not int or value['version'] != 1
+            or value.get('source') not in {'authorization_code', 'refresh_token'}
+            or value.get('status') not in {'known', 'unknown'}
+            or value.get('client_id_sha256') != hashlib.sha256(str(client_id).encode()).hexdigest()):
+        return None
+    try:
+        stamp = datetime.fromisoformat(value['observed_at'])
+        if stamp.tzinfo is None:
+            return None
+    except (TypeError, ValueError):
+        return None
+    scopes = value.get('granted_scopes')
+    if value['status'] == 'known':
+        if (not isinstance(scopes, list) or len(scopes) > 64
+                or any(not isinstance(v, str) or not _SCOPE_NAME.fullmatch(v) for v in scopes)
+                or len(set(scopes)) != len(scopes)):
+            return None
+    elif scopes is not None:
+        return None
+    return {**value, 'granted_scopes': list(scopes) if scopes is not None else None}
+
+
+def spotify_scope_evidence(token, *, requested, client_id, source,
+                           previous=None, observed_at=None):
+    """Provider scope metadata only; requested never stands in for granted."""
+    if source not in {'authorization_code', 'refresh_token'}:
+        raise ValueError('invalid_scope_evidence_source')
+    prior = _safe_scope_evidence(previous, client_id)
+    raw = token.get('scope') if isinstance(token, dict) else None
+    if source == 'refresh_token' and isinstance(token, dict) and 'scope' not in token and prior is not None:
+        return prior
+    scopes = raw.split() if isinstance(raw, str) and len(raw) <= 4096 else None
+    known = (scopes is not None and len(scopes) <= 64
+             and all(_SCOPE_NAME.fullmatch(scope) for scope in scopes))
+    return {'version': 1, 'status': 'known' if known else 'unknown', 'source': source,
+            'observed_at': observed_at or datetime.now(UTC).isoformat(),
+            'client_id_sha256': hashlib.sha256(str(client_id).encode()).hexdigest(),
+            'granted_scopes': list(dict.fromkeys(scopes)) if known else None}
+
+
+def spotify_scope_status(config):
+    """Safe separate diagnostics; this receipt never authorizes an API action."""
+    requested = normalize_spotify_scopes(config.get('spotify_scopes'))
+    evidence = _safe_scope_evidence(config.get(SCOPE_EVIDENCE_KEY), config.get('spotify_client_id', ''))
+    granted = evidence['granted_scopes'] if evidence and evidence['status'] == 'known' else None
+    return {'requested_scopes': requested, 'granted_scopes': granted,
+            'granted_scope_status': 'known' if granted is not None else 'unknown',
+            'granted_scope_evidence': evidence,
+            'missing_requested_scopes': missing_spotify_scopes(requested),
+            'missing_granted_scopes': missing_spotify_scopes(granted) if granted is not None else None}
+
+
+def store_spotify_scope_evidence(hass, entry, token, *, client_id):
+    """Ordinary refresh persistence through the same current credential owner."""
+    entries = getattr(hass, 'config_entries', None)
+    getter = getattr(entries, 'async_get_entry', None)
+    updater = getattr(entries, 'async_update_entry', None)
+    if (entry is None or not callable(getter) or not callable(updater)
+            or getter(entry.entry_id) is not entry
+            or getattr(entry, 'disabled_by', None) is not None
+            or str({**entry.data, **getattr(entry, 'options', {})}.get('spotify_client_id', '')) != str(client_id)):
+        return False
+    evidence = spotify_scope_evidence(token, requested=entry.data.get('spotify_scopes'),
+        client_id=client_id, source='refresh_token', previous=entry.data.get(SCOPE_EVIDENCE_KEY))
+    if evidence != entry.data.get(SCOPE_EVIDENCE_KEY):
+        updater(entry, data={**entry.data, SCOPE_EVIDENCE_KEY: evidence})
+        return True
+    return False
 
 
 def create_code_verifier() -> str:

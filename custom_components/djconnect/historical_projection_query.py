@@ -162,21 +162,25 @@ class HistoricalProjectionQueryService:
         key = (owner, row["session_id"], row["entry_id"])
         if key in ancestry or len(ancestry) >= 20:
             return None
-        # Explicit recursion state is passed through a task-local ContextVar below.
-        token = _projection_ancestry.set(ancestry | {key})
-        try:
-            if not await self.async_conversation_source_visible(owner,message):
-                entry.pop("conversation_reference",None)
-                return {**entry,"text":"","state":"source_withdrawn"}
-        finally:
-            _projection_ancestry.reset(token)
         entry.pop("conversation_reference", None)
         entry["origin_message_id"] = message["id"]
         entry["client_message_id"] = message.get("client_message_id")
-        entry["text"] = str(message.get("text") or "")
         entry["turn_id"] = ref["turn_id"]
-        entry["role"] = "user" if row["kind"] == "conversation_user" else "assistant"
+        entry["role"] = expected_role
         entry["input_type"] = message.get("session_turn", {}).get("input_type", "text")
+        # Explicit recursion state is passed through a task-local ContextVar below.
+        token = _projection_ancestry.set(ancestry | {key})
+        try:
+            if not await self.async_conversation_source_visible(owner, message):
+                return {
+                    **entry,
+                    "text": "",
+                    "state": "source_withdrawn",
+                    "context": {"session_id": row["session_id"]},
+                }
+        finally:
+            _projection_ancestry.reset(token)
+        entry["text"] = str(message.get("text") or "")
         entry["effective_style"] = message.get("session_turn", {}).get("effective_style")
         # Original acceptance owns this optional provenance. Legacy absence is
         # not permission to send arbitrary archived text to a cloud processor.
@@ -378,6 +382,30 @@ class HistoricalProjectionQueryService:
         return {"entries": observations, "revision": session["revision"],
                 "coverage": "stage1_distinct_accepted_observations", "complete": False}
 
+    async def _feed_replacements(self, owner: str, session_id: str, rows: list[dict]) -> dict:
+        from .session_history_projection import is_playback_occurrence
+
+        observed = {row["reference_id"]: row["order"] for row in rows
+                    if row["kind"] == "playback_observed"
+                    and is_playback_occurrence(row["reference_id"])}
+        if not observed:
+            return {}
+        replacements = {}
+        for row in await self._repository.async_feed_announcements(owner, session_id, list(observed)):
+            entry = await self._project_entry(owner, row)
+            if (not entry or entry.get("kind") != "dj_moment"
+                    or entry.get("moment_type") != "music_announcement"
+                    or entry.get("archive_basis") != "owner_metadata_narration_v1"
+                    or not isinstance(entry.get("text"), str) or not entry["text"].strip()):
+                continue
+            metadata = entry.get("music_announcement")
+            if not isinstance(metadata, dict) or metadata.get("schema_version") != 1:
+                continue
+            occurrence = metadata.get("occurrence_id")
+            if is_playback_occurrence(occurrence) and occurrence in observed and row["order"] > observed[occurrence]:
+                replacements[occurrence] = entry
+        return replacements
+
     async def async_timeline_page(
         self, owner: str, session_id: str, *, limit: int = 20, cursor: str = ""
     ) -> dict:
@@ -392,10 +420,13 @@ class HistoricalProjectionQueryService:
         scope = revision_scope(owner, session, "timeline")
         after = self._history_cursor.decode(cursor, scope) if cursor else 0
         rows = await self._repository.async_entry_records(owner, session_id, after=after)
+        replacements = await self._feed_replacements(owner, session_id, rows[:250])
         visible = []
         last = after
         for row in rows[:250]:
             last = row["order"]
+            if row["kind"] == "playback_observed" and row["reference_id"] in replacements:
+                continue
             entry = await self._project_entry(owner, row)
             if entry is not None:
                 visible.append(entry)
@@ -406,7 +437,7 @@ class HistoricalProjectionQueryService:
 
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("invalid_history_cursor")
-        self._validate_entry_deadlines(visible)
+        self._validate_entry_deadlines([*visible, *replacements.values()])
         self._project_public_images(owner, visible)
         return {
             "success": True,
@@ -442,10 +473,13 @@ class HistoricalProjectionQueryService:
             )
         else:
             rows = await self._repository.async_entry_records(owner, session_id, descending=True)
+        replacements = await self._feed_replacements(owner, session_id, rows[:250])
         visible = []
         scanned = []
         for row in rows[:250]:
             scanned.append(row["order"])
+            if row["kind"] == "playback_observed" and row["reference_id"] in replacements:
+                continue
             entry = await self._project_entry(owner, row)
             if entry is not None:
                 visible.append(entry)
@@ -454,7 +488,7 @@ class HistoricalProjectionQueryService:
         visible.sort(key=lambda entry: entry["order"])
         if (await self._session(owner, session_id))["revision"] != session["revision"]:
             raise HistoryQueryError("invalid_history_cursor")
-        self._validate_entry_deadlines(visible)
+        self._validate_entry_deadlines([*visible, *replacements.values()])
         self._project_public_images(owner, visible)
         return {
             "success": True,

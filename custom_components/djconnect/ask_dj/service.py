@@ -152,6 +152,9 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             stored = await query()._repository.async_session_record(session_id)
             if stored is None or not stored["history_enabled"]:
                 persist_history = False
+        metadata_history_allowed = bool(persist_history and session_id
+            and payload.get("privacy_mode") in (None, "default"))
+        metadata_archive = None
         target, live = context.get("selected_entry"), context.get("selected_moment")
         # Explicit subjects come from the current question. A stale chip cannot block them.
         from .public_research import explicit_public_subject, safe_subject
@@ -167,9 +170,10 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             except (PermissionError, SessionConversationError):
                 # An independent explicit topic must not be held hostage by an expired chip.
                 selected_preview = None
-            from .public_research import resolve_partial_name
+            from .public_research import resolve_partial_name, selected_playback_lookup_subjects
             _, references_selected_subject, ambiguous_selected_subject = resolve_partial_name(
-                new_subject, model_source(selected_preview).get("subjects", []))
+                new_subject, model_source(selected_preview).get("subjects", [])
+                + selected_playback_lookup_subjects(selected_preview))
             references_selected_subject = references_selected_subject or ambiguous_selected_subject
         if (new_subject and not safe_subject(new_subject) and not references_selected_subject
                 and selected_preview is not None):
@@ -418,7 +422,16 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             await turn.guard()
             if turn.explicit_research_subject:
                 context = {k:v for k,v in context.items() if k not in {"selected_entry","selected_moment"}}
-            if result.pop("_private_current_context", False):
+            if metadata_history_allowed:
+                from .observations import current_metadata_archive
+                metadata_archive = await current_metadata_archive(
+                    hass, turn, result, query(), profile_id, session_id, implicit)
+                if metadata_archive is not None:
+                    persist_history = turn.archiveable = True
+                    turn.delivery_validators.append(metadata_archive)
+                    turn.provider_display_source = {"provider": "Spotify",
+                        "source_context": deepcopy(turn.reply_source_context)}
+            if result.pop("_private_current_context", False) and metadata_archive is None:
                 # Live mutable intent and unqualified catalog retention are not
                 # promoted into the permanent conversation/Session archive.
                 persist_history = False
@@ -469,7 +482,7 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             turn_record["provider_display_source"] = deepcopy(turn.provider_display_source)
         from ..reply_artwork import accepted as accepted_reply_media, KEY as REPLY_MEDIA_KEY
         reply_media = accepted_reply_media(turn, result)
-        if persist_history and reply_media is not None:
+        if persist_history and reply_media is not None and metadata_archive is None:
             from ..session_conversation import async_metadata_archive_admission
             reply_archive = await async_metadata_archive_admission(
                 hass, profile_id, reply_media['source_context'], turn.reply_source_authority)
@@ -483,9 +496,13 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             new = saved is None
             async def persistence_guard():
                 # SessionRuntimeManager owns its short lock here; never reacquire it.
+                if metadata_archive is not None:
+                    metadata_archive()
                 if recent_archive is not None:
                     recent_archive()
                 await guard(check_runtime=not (bool(style_session) or settings_token is not None))
+                if metadata_archive is not None:
+                    metadata_archive()
                 if recent_archive is not None:
                     recent_archive()
 
@@ -495,6 +512,12 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                     archival_result = {k: v for k, v in result.items() if k != RECENT_KEY}
                     if retained_recent is not None:
                         archival_result[RECENT_KEY] = retained_recent
+                    if metadata_archive is not None:
+                        metadata_archive()
+                        archival_result = {k: deepcopy(result[k]) for k in (
+                            "success", "text", "dj_text", "intent", "action", "sources", "links",
+                            "speech_processing_basis") if k in result}
+                        archival_result.update(images=[], playback_actions=[], audio_url=None)
                     catalogue_caption = result.get("_catalogue_history_caption")
                     if (result.get("text_source") == "qualified_catalog_result"
                             and isinstance(catalogue_caption, str)):
@@ -520,6 +543,8 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
                     # All authority/storage/source awaits precede this synchronous acceptance fence.
                     validate_content_dependencies()
                     validate_retained_deadline()
+                    if metadata_archive is not None:
+                        metadata_archive()
                     if history_manager.scope_revision(scope) != expected or history_grant_revision(hass, profile_id) != grant:
                         raise SessionConversationError("conversation_context_changed")
                     if session_id:
@@ -558,8 +583,26 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             result.pop("_dialogue_question", None)
             result.pop("_consume_pending", None)
             if (turn.first_play_request and result.get('first_play', {}).get('state') == 'genres'
-                    and active is not None and active.session_id == turn.session_id):
+                    and active is not None and active.session_id == turn.session_id
+                    and not active.broadcast.first_play_dismissed_offer_id):
                 active.broadcast.first_play_offer = _for_you_offer_projection(active, thread, result)
+                active.broadcast.first_play_continuation = None
+        from ..request_auth import runtime_client_type
+        if (active is not None and active.session_id == turn.session_id and 'first_play' in result
+                and runtime_client_type(runtime) in {'ios', 'macos'}):
+            if (result['first_play'].get('state') != 'genres'
+                    and not active.broadcast.first_play_dismissed_offer_id):
+                active.broadcast.first_play_continuation = {
+                    key: deepcopy(result[key]) for key in ('first_play', 'result_set', 'playback_actions',
+                        'action_outcome', 'selected_action_id') if key in result}
+                from ..current_track_insight import session_scope
+                active.broadcast.first_play_continuation['_session_scope'] = session_scope(active)
+                active.broadcast.first_play_continuation['mood_revision'] = active.mood_revision
+                active.broadcast.first_play_continuation['conversation_context'] = {
+                    'session_id':active.session_id, 'thread_id':thread}
+            from ..mood_music_steering import for_you_projection
+            result['for_you'] = for_you_projection(hass, runtime, profile_id, active,
+                client_device_id=turn.client_device_id)
         catalogue_caption = result.pop("_catalogue_history_caption", None)
         if saved and not result.get("deduplicated"):
             # Preserve the existing live bubble contract without turning transient
@@ -618,6 +661,12 @@ async def async_exchange(hass, runtime, payload, *, profile_id, history_manager,
             if isinstance(response.get("messages"), list):
                 response["messages"] = [live_assistant if message.get("id") == live_assistant.get("id") else message
                                         for message in response["messages"]]
+        if not persist_history:
+            # The accepted current projection already lives at the root. Domain
+            # presenters can supply a partial assistant object without a history
+            # identity; never expose it as a canonical row or invent an ID.
+            for key in ("user_message", "assistant_message", "messages", "history_revision", "clear_revision"):
+                response.pop(key, None)
         # RAM-only admission travels with this bounded in-flight future. Each
         # waiter rechecks the original evidence with its own caller authority.
         from ..reply_artwork import public as public_reply_media
@@ -690,7 +739,7 @@ async def async_prepare_session_for_you(hass, runtime, context, active, history_
             raise SessionConversationError('conversation_context_changed')
     turn = DialogueTurn(frame, scope, thread, 'prepare-' + active.session_id,
                         hashlib.sha256(active.session_id.encode()).hexdigest(), generation,
-                        guard, history_manager, style=style_projection({}, active, context.profile),
+                        guard, history_manager, style=style_projection({'language':active.locale}, active, context.profile),
                         session_id=active.session_id, startup_preparation=True, archiveable=False,
                         client_device_id=getattr(context, 'device_id', ''))
     turn.reply_source_context, turn.reply_source_authority = source_admission(hass, runtime, context.profile_id)
@@ -707,6 +756,7 @@ async def async_prepare_session_for_you(hass, runtime, context, active, history_
 
 def _for_you_offer_projection(active, thread, response):
     from ..current_track_insight import session_scope
+    from ..mood_music_steering import unprepared_for_you_offer_id
     result_set = response.get('result_set')
     options = []
     for index, action in enumerate(response.get('playback_actions', [])):
@@ -720,8 +770,9 @@ def _for_you_offer_projection(active, thread, response):
                 'illustrative_not_audio_analysis': True}})
     expires = response.get('first_play', {}).get('expires_in', 0)
     turn = current_turn.get()
-    return {'schema_version': 1, 'offer_id': (result_set or {}).get('result_set_id', active.session_id),
+    return {'schema_version': 1, 'offer_id': (result_set or {}).get('result_set_id', unprepared_for_you_offer_id(active)),
             'state': 'available' if options else 'unavailable',
+            'language':turn.style.get('language',active.locale) if turn is not None else active.locale,
             'intro': response.get('text', ''), 'intro_source': response.get('text_source'),
             'options': options, 'result_set': result_set,
             'conversation_context': {'session_id': active.session_id, 'thread_id': thread},

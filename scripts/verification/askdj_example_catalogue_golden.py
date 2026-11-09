@@ -221,9 +221,13 @@ def chain_cases(root=ROOT):
     return rows
 
 
-def manifest_digest(root=ROOT):
+def scoped_cases(rows, languages=None):
+    return [row for row in rows if languages is None or row['language'] in languages]
+
+
+def manifest_digest(root=ROOT, *, languages=None):
     return hashlib.sha256(json.dumps({'catalogue_sha256':hashlib.sha256(catalogue_bytes(root)).hexdigest(),
-        'cases':cases(root), 'chains':chain_cases(root)}, sort_keys=True).encode()).hexdigest()
+        'cases':scoped_cases(cases(root), languages), 'chains':scoped_cases(chain_cases(root), languages)}, sort_keys=True).encode()).hexdigest()
 
 
 def append_public_support_observation(observations, *, case_id, accepted, answer, review, research):
@@ -435,20 +439,22 @@ def check_response(case, body, writes):
 
 
 async def run(*, hass, call, start, end, state, provider_calls, model_receipts, judge_language,
-              corpus=None, progress=None):
+              corpus=None, progress=None, languages=None):
     """Actual authenticated message path. Source fixtures never author answers."""
     from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
     from custom_components.djconnect.playback_observation import playback_observation_manager
     import os
     selected = os.environ.get('DJC_CATALOGUE_CASES', '')
     selected_ids = selected.split(',') if selected else []
+    if languages is not None and selected_ids:
+        raise ValueError('release_catalogue_cannot_select_individual_cases')
     if corpus is not None:
         from tools.verification.askdj_catalogue_variations import cases as variation_cases
         if selected_ids:
             raise ValueError('variation_profile_cannot_hide_selected_cases')
-        all_cases = variation_cases(corpus)
+        all_cases = variation_cases(corpus, languages=languages)
     else:
-        all_cases = cases() + chain_cases()
+        all_cases = scoped_cases(cases() + chain_cases(), languages)
     if selected_ids:
         known = {c['id'] for c in all_cases}
         if len(set(selected_ids)) != len(selected_ids) or set(selected_ids) - known:
@@ -541,29 +547,31 @@ async def run(*, hass, call, start, end, state, provider_calls, model_receipts, 
                             'REAL_PAIRED_HA_EXACT_CATALOGUE_QUESTIONS_V1'),
         'selected_case_ids':selected_ids,
         'status':'PASS' if all(r['status']=='PASS' for r in rows) else 'FAIL',
-        'manifest_sha256':variation_manifest(corpus) if corpus is not None else manifest_digest(), 'cases':rows,
+        'manifest_sha256':variation_manifest(corpus, languages=languages) if corpus is not None
+            else manifest_digest(languages=languages), 'cases':rows,
         'model_calls':model_receipts, 'paid_model_calls':len(model_receipts),
         'native':'NOT_RUN', 'installed':'NOT_RUN',
         'speech':'NOT_RUN_audio_response_never', 'model_quality':'not_editorial_acceptance'}
 
 
-def validate_report(raw, *, source_hashes, expected_profile=LEGACY_REASONING_PROFILE):
+def validate_report(raw, *, source_hashes, expected_profile=LEGACY_REASONING_PROFILE, languages=None):
     """A skipped/duplicated/missing question or model/transport/effect receipt fails."""
-    return _validate_execution(raw, source_hashes=source_hashes, expected=cases()+chain_cases(),
-        qualification='REAL_PAIRED_HA_EXACT_CATALOGUE_QUESTIONS_V1', manifest=manifest_digest(),
+    return _validate_execution(raw, source_hashes=source_hashes, expected=scoped_cases(cases()+chain_cases(), languages),
+        qualification='REAL_PAIRED_HA_EXACT_CATALOGUE_QUESTIONS_V1', manifest=manifest_digest(languages=languages),
         expected_profile=expected_profile)
 
 
-def variation_manifest(corpus):
+def variation_manifest(corpus, *, languages=None):
     from tools.verification.askdj_catalogue_variations import digest, cases as variation_cases
-    return digest({'base':manifest_digest(),'corpus':corpus,'cases':variation_cases(corpus)})
+    return digest({'base':manifest_digest(languages=languages),'corpus':corpus,
+                   'cases':variation_cases(corpus, languages=languages)})
 
 
-def validate_variation_report(raw, *, corpus, source_hashes):
+def validate_variation_report(raw, *, corpus, source_hashes, languages=None):
     from tools.verification.askdj_catalogue_variations import cases as variation_cases
     try:
-        expected=variation_cases(corpus)
-        manifest=variation_manifest(corpus)
+        expected=variation_cases(corpus, languages=languages)
+        manifest=variation_manifest(corpus, languages=languages)
     except (ValueError, TypeError, KeyError):
         return False
     return _validate_execution(raw, source_hashes=source_hashes, expected=expected,

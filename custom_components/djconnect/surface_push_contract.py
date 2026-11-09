@@ -129,6 +129,13 @@ def capability():
         "reason": "requires_current_operator_enrolled_purpose",
         "context_path": BASE + "/context",
         "background_read_path": BASE + "/read",
+        "retained_widget_background": {
+            "contract_version": 1,
+            "projection_version": 4,
+            "authorize_path": BASE + "/retained-authorize",
+            "read_path": BASE + "/retained-read",
+            "requires_original_widget_registration_and_v4_grant": True,
+        },
         "register_path": BASE + "/register",
         "revoke_path": BASE + "/revoke",
         "status_path": BASE + "/status",

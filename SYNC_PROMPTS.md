@@ -1,3 +1,127 @@
+## 2026-11-08 — VibeCast current album cover
+
+Core prepares the current Spotify edition cover from the existing authenticated
+playback observation and image pipeline. A separate display artwork read
+requires the active share, display grant and exact current cover reference.
+The browser discards the cover on track change, expiry or withdrawal.
+See [Display admission B](docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md).
+This slice is independent of the rolling Flow.
+
+## 2026-11-08 — VibeCast shared Session Flow
+
+The shared display renders only the bounded, consent-scoped proactive
+publications in the optional `shared_flow` field. The track header remains
+visible as the Flow scrolls. Native scroll and keyboard input allow reading
+older cards. New cards follow the live edge while live mode is active.
+See [Display admission B](docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md).
+
+## 2026-11-07 — Share ‘For you’ dismissal across the active Session
+
+The existing paired Ask DJ dismissal closes the current offer for all devices
+of the same owner and active Session. The active projection returns a terminal
+schema-1 offer with the original IDs and no executable action. Polling, Mood
+updates and explicit refresh cannot reopen that Session's dismissed offer.
+A new Session can prepare its own. Existing effect boundaries protect an
+already sent transfer or mix. See [Session For You v1](docs/product/SESSION_FOR_YOU_V1.md).
+
+## 2026-11-07 — Music announcements introduce the track in the selected DJ persona
+
+Core keeps the existing reviewed narration path and uses a short authored
+introduction in the confirmed locale and persona when the generated frame fails.
+Track and artist remain exact. Degraded output has no invented facts and retains
+the original start, playback, publication, privacy and speech gates. History
+keeps the original text and existing manual playback policy. See
+[Music announcement Moments v1](docs/product/MUSIC_ANNOUNCEMENT_MOMENTS_V1.md).
+
+## 2026-11-07 — Private ephemeral Session catalogue reply correction
+
+Apple/Core synchronization before implementation: preserve the actual original
+accepted owner, turn, request and Session/context confirmation. Private ephemeral
+catalogue answers use root text/media/result-set actions; no partial `assistant_message`
+without a history identity, fake message ID, Store/SQL entry or revision is added.
+Use the existing explicit private-ephemeral in-memory root presentation and all
+original epoch/owner/Session/result-lease guards. Canonical history parsing remains
+strict. Qualify the actual fresh-Session/history2/speech3 producer wire and native
+Session-composer path independently; general Ask DJ success is not integral acceptance.
+See [canonical shape](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md).
+No source/model/image/retention permission, new endpoint, background processing,
+playback execution or device installation is granted by this synchronization note.
+
+## 2026-11-06 — Explicit minimal Watch Smart Stack purpose
+
+The human narrows Watch Smart Stack to track name + cover in confirmed Session
+Mood color, no DJ contribution/progress/artist/album display. Select a separate
+optional paired_watch_widget_v1 surface scope in the existing passive family;
+never replicate iPhone grants or borrow private foreground/Flow rights. Own
+watchos identity + enabled/cache/locked-display consent and original source/
+expiry fences are mandatory. See docs/product/WATCH_SMART_STACK_PASSIVE_SCOPE_V1.md.
+No live pairing/runtime/native/background/APNs admission is granted by source work.
+
+## 2026-11-06 — Passive widget original playback progress
+
+The owner requests current track/artist/album, progress, qualified cover, confirmed
+Mood colors and current/latest public DJ contribution in the Mac widget. Native
+configuration/cache diagnosis stays with Apple; never bypass explicit surface
+consent or borrow private foreground data to fill an empty cache. Core adds only
+opt-in passive projection_version3 original progress, retaining v1/v2 wire bytes,
+current/latest contribution qualification and original cache/authority deadlines.
+See docs/product/PASSIVE_SESSION_PROGRESS_V3.md. No provider action, model call,
+new observation/grant on read, APNs claim or separate intelligence. Apple owns
+size-specific line truncation and expiry-aware deterministic rendering.
+
+## 2026-11-06 — Action-scoped Spotify volume refusal
+
+Fix the reported iPhone output volume failure as one Core increment. Preserve
+Spotify's exact boolean supports_volume (missing/invalid remains unknown), with
+no device-name/type heuristic. A proven volume capability refusal uses the
+existing unsupported_backend_capability / supports_volume contract; other
+volume failures use volume_command_failed without inventing global health.
+Both set_volume and volume_delta preserve independent status/cache, DJ/voice and
+Session state on failure. No raw provider exception, retry, model/TTS, credential,
+live provider/volume request or HA-dev installation in this preparation step.
+See docs/product/SPOTIFY_VOLUME_ACTION_ERRORS_V1.md. Protected merge and runtime
+installation remain separate after an exact reviewable PR.
+
+## 2026-11-06 — Native client Golden consumer contract, source protocol increment
+
+The human requests integral Core Golden behavior through iPhone/iPad/Mac/Watch,
+Session contributions and Ask DJ Q/A, including 14 Help/suggestion entries and
+music announcements. Slow/expensive native/provider runs are manual or explicitly
+release-relevant, never routine per-PR work. This increment defines a pinned
+consumer inventory, closed draft-plan/evidence grammar and public-safe reconciliation
+through the existing ordinary product routes. It creates no live fixture, grant,
+provider client/hook, alternate execution path or qualification from synthetic data.
+See docs/verification/NATIVE_CLIENT_GOLDEN_CONTRACT_V1.md. Existing matrix IDs and
+locale/model policies are preserved; missing native mapping remains BLOCKED.
+
+## 2026-11-06 — For-you original output readback repair
+
+See docs/product/SESSION_FOR_YOU_V1.md: an exact private post-transfer player
+readback may confirm the originally admitted speaker even while the separate
+device inventory lags. An old paused track is not mix confirmation. No second
+transfer, automatic start retry, new choice/context/lease or Watch authority is
+granted. EN/NL qualification uses real paired HA/adapters with only external
+Spotify response wires synthetic; physical provider/native acceptance remains
+separate. The original native13:46 error response was not retained, so the
+reproduced inventory case is not claimed as its proven cause.
+
+## 2026-11-06 — Voor jou locale, confirmed Mood refresh and output continuation
+
+Owner-requested Core/Apple repair, coordinated with Apple chat `apple 3`.
+English/Dutch intro and display labels follow the accepted Session/app locale;
+canonical genre/query/mix IDs remain original. See
+[SESSION_FOR_YOU_V1](docs/product/SESSION_FOR_YOU_V1.md#confirmed-mood-refresh-and-locale-6-november-2026).
+Core owns one bounded new preparation after a confirmed, non-replayed Mood
+revision. GET/reconnect never generates; uncertain effects never retry. Additive
+refresh_policy schema1 is server-executed status, while existing
+refresh_request.automatic remains false. Additive continuation retains the actual
+ordinary speaker result set and action outcome; Apple renders those original
+opaque choices and does not reconstruct a play request. Exact source, CI,
+protected merge, install and native/provider acceptance remain separate.
+The welcome-screen UI/adoption stays with Apple. Core honors the existing explicit
+start mood as Session-only while absent mood inherits defaults; no preview/Profile
+write and no corrective Mood write after Session start.
+
 ## 2026-11-05 — Voor jou source merged
 
 PR [#1463](https://github.com/pcvantol/djconnect/pull/1463) merged as
@@ -7820,3 +7944,28 @@ is the Apple Watch handoff. Send it on every Watch Mood write and require the
 same scope in the acknowledgement. Keep the original paired Watch identity,
 active Session ID and expected Mood revision. An older Core rejects the extra
 field. Preserve that denial and never retry using Profile settings.
+
+Discovery artist Play Now repair: docs/product/DISCOVERY_ARTIST_THIS_IS_PLAYBACK_V1.md.
+Resolve only server-cached exact artist to real qualified This Is playlist;
+context-start replaces selection, never offset-only command or URI guess.
+Provider limits/output-required/stale authority/failure must cause no dispatch,
+feedback or false played:true; no replay, transfer or client-side resolution.
+
+Spotify scope evidence repair: docs/product/SPOTIFY_GRANTED_SCOPE_EVIDENCE_V1.md.
+Requested11 are unchanged and are not granted evidence. Persist token.scope
+metadata through ordinary callback/refresh custody; missing/malformed is unknown,
+new grant cannot inherit old evidence. Only after protected install use the
+human-authorized same11-scope PKCE flow for DEFAULT; no playback scope test.
+
+Discovery read-only diagnosis and typed errors are specified in
+`DISCOVERY_ARTIST_THIS_IS_PLAYBACK_V1.md#explicit-candidate-read-only-diagnosis`.
+No new discovery/play request fields. New machine error codes carry no raw English
+provider message; clients render them in five UI languages, never replay an
+uncertain write or invent an output continuation. The explicit candidate read
+command grants no old-card playback authority and is not a runtime URI fallback.
+
+Retained latest large-widget contribution is a separate dependent source
+candidate: docs/product/PASSIVE_RETAINED_LATEST_CONTRIBUTION_V1.md. No change to
+approved #1484, existing v1/v2/v3 or Watch minimal scope; explicit projection4
+purpose/consent, original bounded publication lease and separate native gates
+must qualify before use. Current now_playing survives independent DJ expiry.

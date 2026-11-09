@@ -1,3 +1,4018 @@
+## 2026-11-08 — Finalize Core VibeCast Pi sender support
+
+### Repository Status
+
+Core PR [#1531](https://github.com/pcvantol/djconnect/pull/1531) merged as
+`12fc0ef00a81d8b95091522a4b05f8de61314728`. The signed main tree
+`3fc9e3fd0dd2d1c494e05d717b8cac98e5e84be6` matches the qualified PR head
+`5d8bd82f87c485c48ad4695ba5d9eaff5b95bd69`.
+[Trusted Delivery](https://github.com/pcvantol/djconnect/actions/runs/42523009693),
+[main HA validation and coverage](https://github.com/pcvantol/djconnect/actions/runs/42524520093)
+and [main CodeQL](https://github.com/pcvantol/djconnect/actions/runs/42524520112) passed.
+
+### Management Summary
+
+VibeCast display admission B v1 admits a normally paired Raspberry Pi app as a
+sender alongside iOS and macOS. The external browser display shows a six-digit
+code. Resolving the code does not start sharing. Explicit owner approval binds
+the screen to the active session and Profile. Withdrawal closes display access
+while the DJ session continues.
+
+Forty-five isolated HA checks and the dedicated Raspberry Pi HTTPS/WSS scenario
+passed. The local Core test suite ran 4,764 tests with 11 skips. The dedicated
+scenario used ephemeral pairing and made zero provider calls. It covered
+one-time collection, Profile changes, read-only display grants and withdrawal.
+
+### HA-dev Readback
+
+HA-dev installed a QA composition based on the signed main commit. Its package
+SHA-256 is `3469c19d122d2f790243313b3102c7dc81fcf4a916ac64b09bbd1a0302ac9299`.
+Configuration check and startup passed. All 309 installed file digests matched
+the manifest, including the retained Watch changes. Profile defaults were
+unchanged. Both VibeCast pages returned HTTPS 200 and capabilities listed
+`ios`, `macos` and `raspberry_pi` for admission B v1. Rollback evidence was retained.
+
+### Roadmap Position and Remaining Acceptance
+
+The Core producer is available to the Pi consumer tracked under
+[Pi #104](https://github.com/pcvantol/djconnect-pi/issues/104). The reachable
+physical Pi10 still runs rc.6. The native sender controls and physical display
+pairing, rendering and withdrawal await a separately qualified Pi build.
+The public Rendezvous route has a separate admission contract. Production
+publication is outside this Finalization.
+
+### Repository and Workspace State
+
+Core source is merged and the installed HA-dev producer is verified. The
+separate Finalization and its main checks must pass before recording
+`MERGED_RECONCILED`. Retain the QA package, receipts, prior installation
+and Pi lane work. Workspace cleanup is assessed separately.
+
+## 2026-11-08 — Finalize VibeCast 1.1.4 Core source
+
+### Repository Status
+
+Core PR [#1535](https://github.com/pcvantol/djconnect/pull/1535) merged as
+`c624392c9fb7d8b23bf9a57c6674840c7798b16a`. The signed merge matches the
+qualified candidate `c91ee641da9314ce71a769aed45c7122e4b63aef` at tree
+`c8aadd0758bf8c96375048642948a74dd49a5bff`. The candidate passed technical PR
+checks and [Owner Authorization](https://github.com/pcvantol/djconnect/actions/runs/42492342504).
+The isolated Finalization checkout was based on the same commit as remote main.
+
+The [main validation jobs](https://github.com/pcvantol/djconnect/actions/runs/42492405310)
+passed tests, HACS, hassfest, dependency audit, Ruff and Bandit. Main CodeQL,
+Golden Qualification, brand reproducibility, the consumer boundary and Help
+preflight passed. Post-merge coverage evidence and TDE observation also
+completed successfully.
+
+### Management Summary
+
+VibeCast 1.1.4 keeps Spotify album art and track metadata visible above the
+scrolling shared Session Flow. The feed prefers the published music announcement
+for the matching playback occurrence. Local and Cast builds use the same
+renderer. Candidate qualification covered 45 isolated Home Assistant scenarios,
+eight browser combinations and a combined WebKit pass. Two package builds
+matched byte for byte, and the isolated receiver importer passed.
+
+The [receiver intake](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6723049558)
+records the supplying revision, original verifier and package digests.
+The Cast archive SHA-256 is
+`11c41ab9bbe2f8fe9d2a3bf4aca4eb86c3cd4ab6caafc4fafe8f8239de19e418`.
+The manifest SHA-256 is
+`cfb608e93bffe6b5d66022879550741bc3da93fc881881f155a057e586f20f10`.
+
+### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification. This
+increment reconciles the VibeCast Core source delivery.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+The [canonical roadmap](docs/roadmap/v1/djconnect-platform-v1.json) retains the
+settings consumer follow-through. The entries below confer no assignment.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls** — Planned / NOT_ISSUED. Canonical edge SETTINGS-4 follows the completed Core producer. Consumer qualification and a separate owning assignment remain required.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition** — Planned / NOT_ISSUED. Canonical edge SETTINGS-6 follows the completed Core producer. Consumer qualification and a separate owning assignment remain required.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition** — Planned / NOT_ISSUED. Canonical edge SETTINGS-8 follows the completed Core producer. Consumer qualification and a separate owning assignment remain required.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences** — Planned / NOT_ISSUED. Canonical edge SETTINGS-10 follows the completed Core producer. Consumer qualification and a separate owning assignment remain required.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit** — Planned / NOT_ISSUED. Canonical edge SETTINGS-12 follows the completed Core producer. Consumer qualification and a separate owning assignment remain required.
+
+### Blocked Items
+
+A read-only comparison on HA-dev found that both installed VibeCast pages
+differ from #1535. The installation and HTTPS readback remain open. Physical
+Safari and Cast acceptance require the installed build and separate device
+evidence. Receiver adoption awaits an intake receipt from the receiver lane.
+
+### Deferred Items
+
+Production publication is outside this delivery.
+
+### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this Finalization merges and
+its protected main checks pass.
+
+### Workspace State
+
+`NOT_READY` pending Finalization and local workspace cleanup. Candidate and
+rollback evidence remain available. Stale branch cleanup is pending.
+
+## 2026-11-07 — Finalize WidgetKit machine access for HA-dev
+
+### Repository Status
+
+Core #1528 merged as `f2f9c2937b981597592ad4e7fafa6c6f8d76f6cc`
+from `f2c843b8314eaa4dd5f2befcc97b1c579257d90f`. Trusted Delivery
+qualification passed in run 42405654864. All validation and coverage jobs
+passed on Core main in run 42405997137.
+
+### Management Summary
+
+Core startup can load an operator-mounted, owner-only credential for the
+dedicated WidgetKit HA-dev Access origin. The credential expires at its
+original deadline and is retired when the service shuts down. Issuance
+still requires a separately enrolled owner and the original paired request.
+
+The full source suite accounted for 4,760 tests with 11 skips. In isolated
+Home Assistant 2026.10.0, all 44 scenarios passed and the startup probe
+loaded and retired a synthetic credential. The HA-dev debug archive from
+the merge contains 309 verified files. An independent reconstruction matched every file. The original #1439
+patch changes four of those files. The running HA-dev instance was kept on its existing
+build during an active session. A separate Docker container start probe
+timed out on the first attempt and exited zero on a bounded retry.
+The running HA instance remained available.
+
+### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification.
+Native push remains under the existing v4 and signed preference contracts.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+### Blocked Items
+
+The live WidgetKit pilot needs an Access credential placed directly into
+HA-dev custody and the exact operator-signed enrollment. API #228 merged
+as `2274d2875c2ea5c324427c8014ade0c05b0fbead`. The isolated Worker stays
+closed while the live prerequisites are pending. Provider acceptance and
+physical display on Mac, iPad and iPhone remain unverified. Live Activity
+and Watch Moment have separate delivery and device checks. #1439 remains
+pending the independently authorized signed Watch preference chain.
+
+### Repository State
+
+`MERGED_UNRECONCILED` until this Final merges and its main checks pass.
+
+### Workspace State
+
+`NOT_READY` until the local cleanup record is complete. The source patch,
+archive receipts and existing rollback copies are retained.
+
+<!-- widget-access-1528-finalization-end -->
+
+## 2026-11-07 — Finalize private WidgetKit transport for HA-dev
+
+### Repository Status
+
+Core #1525 merged as `64fd74bd22537cd1dd76bf5bc2c5dcfdd4721b05`.
+The Owner Authorization workflow approved the original candidate
+`0ba789addd050b0e77ecea15b82f3fd79d3027a5` in run 42383555160.
+Core #1526 merged as `5d54fa619a381201816dd75b2e5a8e4f96253b63`.
+It repairs the isolated Music DNA test fixture. Main validation passed in
+run 42384969504. This separate Final records source and HA-dev installation.
+
+### Management Summary
+
+Core binds the HA-dev WidgetKit issuer transport to its original private
+origin, Access credential generation and enrollment window. The separately
+merged API Worker #227 is on API main at `773ac1f662541ede2c5aae9c37681a6d520d1973`.
+
+HA-dev debug build `215358cc0043639a9d27152aeb98fc1e38ac81fb` combines Core
+main with the original #1439 patch. An independent reconstruction matched
+the exact product tree. The complete local suite accounted for 4,762 tests
+with 11 skips. All 43 isolated Home Assistant scenarios and the standalone
+catalogue case passed. The independent runtime readback matched all 309
+installed files. The configuration and database checks passed, both paired
+reads returned HTTP 200, and Profile defaults matched across the restart.
+
+### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification.
+Native push remains under the existing v4 and signed preference contracts.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+### Blocked Items
+
+HA-dev reports `background_delivery=false` and
+`requires_current_operator_enrolled_purpose`. The private WidgetKit pilot
+needs its Access and operator enrollment before a real publication test.
+Watch #1439 remains open pending the signed preference chain. Widget,
+Live Activity and Watch device acceptance remain open.
+
+The official HA release run 42385355493 passed the 50 deterministic
+Golden profiles and stopped at the 68 existing open qualifications
+before any paid calls. The installed build is the local HA-dev debug
+composition.
+
+### Repository State
+
+`MERGED_UNRECONCILED` until this Final merges and its main checks pass.
+
+### Workspace State
+
+`NOT_READY` until reconciliation and the local cleanup record are complete.
+The source branches, build receipts and rollback copy are retained.
+
+<!-- widget-private-1525-finalization-end -->
+
+## 2026-11-07 — Finalize shared Voor jou dismissal
+
+### Repository Status
+
+Source #1522 merged as `2df634ff85a4eee72198c71c524cb6a372ef793e` from head
+`307f5be94ad38cb2a777da26fc90dc607c846cd0`. Independent main validation 42364858316
+passed, including post-merge coverage. This separate Final changes five
+documentation files.
+
+### Management Summary
+
+Dismissing Voor jou closes the current offer for the whole active Session across
+paired clients of the same Profile. The terminal projection retains the exact
+Session and offer IDs and contains no actions. Mood and explicit refresh keep
+the card closed for that Session. An already dispatched play can complete its
+original readback. Dismissal never sends a playback request.
+
+The Core suite ran 4,752 tests with 11 skips. Framework validation passed 172
+tests, and 43 isolated HA scenarios and the standalone catalogue proof passed.
+The paired HA fixture covers two independently paired clients of the same Profile,
+a different Profile, stale offers and the absence of playback effects.
+
+HA-dev debug build `f5cc96c92081e9684b844123c9f6dc1d7772e279` preserves the original #1439
+patch. All 308 installed files match the qualified composition. The paired
+Session and capability reads returned HTTP 200, configuration and database
+checks passed, and Profile defaults matched across the restart.
+
+### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification unchanged.
+The existing Session and Voor jou producer contracts govern this change.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+### Blocked Items
+
+Physical Apple rendering for shared dismissal is tracked separately.
+The signed Watch preference chain and physical provider delivery remain open.
+
+### Deferred Items
+
+No provider playback or native push was triggered by this qualification.
+Existing work and evidence are retained.
+
+### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Final merges and its
+independent main checks pass.
+
+### Workspace State
+
+Workspace State: `NOT_READY` until this Final is reconciled and the workspace
+cleanup is recorded. See the [Voor jou contract](docs/product/SESSION_FOR_YOU_V1.md).
+
+<!-- shared-for-you-1522-finalization-end -->
+
+## 2026-11-07 — Finalize introductions in the selected DJ persona
+
+#### Repository Status
+
+Source #1520 merged as `021005255ae5139f0545bd0cbb52a1a2afbd7bb8` from head
+`e104114175972eb5f92e1985fc19863fb4b6f6b0`. Independent main validation 42359738266
+passed, including post-merge coverage. This separate Final changes five
+documentation files.
+
+#### Management Summary
+
+The archived incident matched a degraded announcement containing only the
+recording labels. New qualified announcements use the reviewed introduction
+or a short authored fallback in the confirmed persona and language. The
+original publication window, exact recording labels and speech policy apply.
+
+The HA-dev debug build `050ed7c5aa02ce667a5b8b8eacb7ff3a45ddaa4e` includes the
+original #1439 overlay. All 308 installed files match the independent
+reconstruction. The paired session and capabilities routes returned HTTP 200.
+The configuration and database checks passed and Profile defaults matched
+across the restart. A fixture in the installed module verified the four Dutch
+fallback introductions. The isolated HA receipt also verifies the archived
+intro and its manual speech eligibility.
+
+#### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification unchanged.
+The existing Session speech and original publication contracts govern announcements.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Native display and audible playback require separate device verification.
+Widget provider delivery and the signed Watch preference chain remain open.
+
+#### Deferred Items
+
+Golden remains execute:false. Existing WIP is preserved.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Final merges and its
+independent main checks pass.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until this Final is reconciled. See the
+[announcement contract](docs/product/MUSIC_ANNOUNCEMENT_MOMENTS_V1.md).
+
+<!-- announcement-persona-1520-finalization-end -->
+
+## 2026-11-07 — Finalize the retained latest contribution for large widgets
+
+#### Repository Status
+
+Source #1486 merged as `82d2d4eb692bc427c8d85d4cf646bacd557feb0c` from head
+`f095847bad3b183bd65ca6c566ba0d9ceee521bb`. Independent main validation 42355939874
+passed, including post-merge coverage. This separate Final changes five
+documentation files.
+
+#### Management Summary
+
+The HA-dev debug build `d2e4099db344f0f38d482d20c72ce2c182a1d84a` includes the
+original #1439 overlay. The independent reconstruction matched all 308 product
+files, and 43 isolated HA checks plus 14 original Watch tests passed. The runtime
+installation matches all 308 files. Configuration validation passed, paired session
+and capabilities reads returned HTTP 200, database quick check returned ok, and
+Profile defaults matched across the restart.
+
+Runtime advertises projection v4 and separate retained-authorize and retained-read
+routes. Both the existing widget registration and the explicit retained v4 grant
+are required. Runtime reports that live push requires an enrolled operator purpose.
+
+#### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification unchanged.
+The retained-latest contract governs the WidgetKit background read.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Apple native consent, cold background read and physical widget display require
+their own acceptance. Provider dispatch and the signed Watch preference chain
+remain open.
+
+#### Deferred Items
+
+Golden remains execute:false. Existing WIP is preserved.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Final merges and its
+independent main checks pass.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until this Final is reconciled. See the
+[qualification](docs/verification/PASSIVE_RETAINED_LATEST_20261106.md).
+
+<!-- retained-widget-1486-finalization-end -->
+
+## 2026-11-07 — Finalize the withdrawn conversation timeline correction
+
+#### Repository Status
+
+Source #1517 merged as `ac84880ae815f98483cb2a9f8c44d3bcd0a482d3` from exact qualified head
+`2885344449fdf908ab38723ee863aa8441e4ee1b`. Independent main validation 42349580063 passed.
+This separate Final changes five documentation files.
+
+#### Management Summary
+
+The HA-dev debug build `912c0246a9ca8897e9acaa54481fbf1cb90c33d4` combines qualified
+main and the original #1439 overlay. All 308 installed files match the
+independently reconstructed product. Configuration, database and runtime
+readback passed after controlled restart.
+
+The original deletion remains completed. Ordinary paired reads from the
+Mac mini and both iPads returned the archived timeline and Profile
+history with HTTP 200. All four dependent rows have valid retained
+identity and owning Session metadata and contain no text, media
+references or actions. Two rows include an artwork status with all
+display permissions disabled. Neither erased row returned. The independent rows have identical
+identity and ordering before and after the repair.
+
+#### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification unchanged.
+The existing deletion and history contracts continue to govern the result.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Native rendering of the original archived timeline is a separate Apple
+readback. Watch signing/restore and physical APNs verification remain separate.
+
+#### Deferred Items
+
+Golden remains execute:false. Keep the timer stopped and unrelated WIP intact.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Final merges and
+its independent main checks pass.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until own Final cleanup and reconciliation.
+See [qualification](docs/verification/SESSION_WITHDRAWN_TIMELINE_20261107.md).
+
+<!-- history-withdrawn-1517-finalization-end -->
+
+## 2026-11-07 — Keep withdrawn conversation entries valid in Session history
+
+#### Repository Status
+
+Bounded Core correction from reconciled main `f1c3b21599692dde180f8df3420f4ca14f641063`.
+The current HA-dev build contains #1515 and the original #1439 overlay.
+
+#### Management Summary
+
+A completed individual deletion left four dependent conversation entries
+unavailable. The ordinary paired version 2 timeline included the four
+entries without required conversation identity and context. Apple rejected
+the entire page. Profile history remained readable.
+
+The projection now supplies the existing conversation identity, role,
+input type and owning Session on each unavailable entry. Dependent text,
+selection context, sources, media, actions and speech remain withdrawn.
+The original deletion scope, stored rows, ordering, and unrelated content
+are preserved. No new deletion or replay was run against HA-dev.
+
+The synthetic timeline regression failed before the correction and passes
+after it, including both roles and independent neighboring content. All
+42 isolated HA groups, the standalone catalogue check, 4,735 canonical
+tests with 11 existing skips, 172 framework checks, Ruff and Bandit passed.
+
+#### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification unchanged.
+The correction uses the existing paired Session history contract and
+owner deletion boundary.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Source checks and exact Owner Authorization, protected merge, independent
+main CI, HA-dev debug installation/readback, native timeline read and
+separate Final remain.
+
+#### Deferred Items
+
+Golden remains execute:false. Physical Watch, signing, restore authority
+and APNs remain separate. Keep the timer stopped and retain unrelated WIP.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for the predecessor only.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until protected delivery and own Final cleanup.
+See [qualification](docs/verification/SESSION_WITHDRAWN_TIMELINE_20261107.md).
+
+<!-- session-withdrawn-timeline-source-20261107-end -->
+
+## 2026-11-07 — Ask DJ Dutch R.E.M. membership / Source1515 Finalization
+
+#### Repository Status
+
+Source [#1515](https://github.com/pcvantol/djconnect/pull/1515) merged as
+`f02032f9b4b56234e0b7a3c231955b31d2722ae1` from exact authorized
+`360184bff549f305128b06f9db5286d4856290cf`. Exact Owner Authorization,
+protected Source checks and entire independent main 42347914865 passed.
+This separate Final changes five documents only.
+
+#### Management Summary
+
+The exact typed Dutch R.E.M. question now enters the explicit membership
+route and preserves the exact public artist name. The ordinary exchange
+regression verifies the membership angle and evidence review. Private
+trailing clauses are still rejected. The original generic iPad error
+requires its own terminal status or reproduction.
+
+All 4,735 canonical tests (11 existing skips), 172 framework checks, 18
+document checks, Ruff, Bandit and 42 isolated HA groups passed.
+
+HA-dev debug `06daaa93e611197769318bc6455300d4ce54e390` combines qualified Source main and the original
+#1439 overlay. The independently reconstructed product
+`3e43e2e932e6fb68c92476d3c25de6f680231d50` matches all 308 installed files.
+The composite passed 42 HA groups and 14 original Watch tests. Configuration,
+frontend and capability endpoints, database, Profile defaults and availability
+for DEFAULT and both Macs passed readback after one controlled restart.
+Initial active Session present: False.
+The rollback and original WIP/evidence remain. Product-identical documentary
+main is reconciled only after its own full CI, without another restart.
+
+#### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification unchanged.
+No new wire, playback command, privacy authority, signing or provider grant.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+A fresh typed R.E.M. question on the iPad remains a separate acceptance check.
+Real audible audio,
+physical Watch, signer/restore, retained-latest #1486 and APNs remain separate.
+
+#### Deferred Items
+
+Golden remains execute:false until independent real fixture and provider
+admissions qualify. The Dutch opening terminology issue is separate.
+All five UI languages and Help 28/42 remain. Root timer stays stopped.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Final merges and
+its own main qualifies, then `MERGED_RECONCILED` for Source1515.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Clean only this own Final after verified full bundle, exact tree and activity
+checks. See [qualification](docs/verification/ASK_DJ_REM_MEMBERSHIP_20261107.md).
+
+<!-- rem-membership-1515-finalization-end -->
+
+## 2026-11-07 — Recognize the explicit Dutch R.E.M. membership question
+
+#### Repository Status
+
+Bounded Core correction from reconciled main
+`74b9d91e86614578576a2b15224980d7a13224d3` (#1513 / #1514).
+HA-dev debug `bd7ef50117a290a6d555e15d753f09eadb9dffba` and the original #1439
+overlay remain installed until protected delivery qualifies.
+
+#### Management Summary
+
+The exact Dutch request “Wie zitten er in de band, R.E.M.” now takes
+the existing explicit membership route with R.E.M. as the artist.
+Previously it required semantic interpretation and an isolated exchange
+could ask for clarification. The regression enters through the ordinary
+exchange, verifies the exact artist and membership angle, and exercises
+the existing original paragraph and source review path. The private
+trailing-clause rejection still applies. The original generic iPad failure
+remains separate because its terminal status could not be correlated.
+
+All 42 isolated HA groups and the standalone catalogue proof passed.
+The 4,735 canonical tests include 11 existing skips. The 172 verification
+framework and 18 document checks, Ruff and Bandit passed.
+
+#### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification unchanged.
+The correction uses the existing public music research authority and membership evidence.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Exact-head Source checks/Owner Authorization, merge, complete independent
+main CI, original #1439 debug composition, HA-dev install/readback and a
+separate Final remain. A fresh native membership result remains a separate acceptance check.
+
+#### Deferred Items
+
+Golden remains execute:false. Physical Watch, signing/restore, retained
+latest #1486 and APNs remain independent. Keep the timer stopped and retain
+WIP, rollback and private evidence.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for predecessor only. This Source
+requires its own protected merge and separate Final.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until protected delivery and own Final cleanup.
+See [qualification](docs/verification/ASK_DJ_REM_MEMBERSHIP_20261107.md).
+
+<!-- rem-membership-source-20261107-end -->
+
+## 2026-11-07 — Discover catalogue artwork / Source1513 Finalization
+
+#### Repository Status
+
+Source [#1513](https://github.com/pcvantol/djconnect/pull/1513) merged as
+`8d6154a0e18c1b0e6978c2806eeec41867fb3596` from exact authorized
+`afebb43891202e729dffad6013ffdf2066ada562`. Exact Owner Authorization,
+protected Source checks and entire independent main 42337416247 passed.
+This separate Final changes five documents only.
+
+#### Management Summary
+
+The normal paired feed's six original catalogue fallback tracks had no image
+fields. Four bounded catalogue searches found those same exact tracks with
+album and Spotify CDN metadata. On unchanged predecessor, isolated real HA
+reproduced loss of the already supplied reference. The internal search now
+preserves exact track/album/artwork from the same response. The existing
+owner and expiry guards remain, and ordinary search has no new fields.
+Wrong identities still yield placeholders, without extra provider lookup.
+
+The isolated paired HA regression verifies the exact PNG through the existing
+private no-store image route, mismatched album omission and no opt-in via
+public search JSON. Historical artwork harness remains byte-identical and
+passes on this source. All 4,735 canonical tests (11 existing skips), 172
+framework and 18 document checks, Ruff/Bandit and 42 HA groups pass.
+
+HA-dev debug `bd7ef50117a290a6d555e15d753f09eadb9dffba` combines qualified Source main and the original
+#1439 overlay. The independently reconstructed product
+`53ca5bf425cebf2ee2bac7740ffb675e37d7892e` matches all 308 installed files.
+The composite passed 42 HA groups and 14 original Watch tests. Configuration,
+frontend and capability endpoints, database, Profile defaults and availability
+for DEFAULT and both Macs passed readback after one controlled restart.
+Initial active Session present: False.
+The ordinary installed feed had rotated to 4 different tracks.
+All 4 carried a qualified image reference; none were the original six.
+One bounded actual image sample returned HTTP 200 with private no-store JPEG bytes.
+This is current producer/transport proof; original six and native rendering remain separate.
+The rollback and original WIP/evidence remain. Product-identical documentary
+main is reconciled only after its own full CI, without another restart.
+
+#### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification unchanged.
+No new wire, playback command, privacy authority, signing or provider grant.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Native cover rendering is separate from normal installed feed and image
+readback. No playback test or provider grant is added. Real audible audio,
+physical Watch, signer/restore, retained-latest #1486 and APNs remain separate.
+
+#### Deferred Items
+
+Golden remains execute:false until independent real fixture and provider
+admissions qualify. The Dutch opening terminology issue is separate.
+All five UI languages and Help 28/42 remain. Root timer stays stopped.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Final merges and
+its own main qualifies, then `MERGED_RECONCILED` for Source1513.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Clean only this own Final after verified full bundle, exact tree and activity
+checks. See [qualification](docs/verification/DISCOVERY_CATALOGUE_ARTWORK_20261107.md).
+
+<!-- discovery-catalogue-1513-finalization-end -->
+
+## 2026-11-07 — Preserve exact Spotify artwork in the Discover catalogue fallback
+
+#### Repository Status
+
+Bounded Core correction from reconciled main
+`c4d9ee2b2fd00577297abc0faa7d84c197a915fe` (#1511 / #1512).
+HA-dev debug `a909e8036f72a9d787a79d11caf505a738dd2e4b` and the original #1439
+overlay remain installed until protected delivery qualifies.
+
+#### Management Summary
+
+The normal paired Discover feed returned six catalogue-fallback tracks
+without image URL, expiry or attribution. Four bounded existing Spotify
+catalogue searches returned those same six exact track identities, with
+album URI and Spotify CDN image URL. The old search normalizer discarded
+the validated reference needed by the Discover projector. On exact
+predecessor product, isolated paired HA reproduces the missing image
+despite an exact track/album/CDN provider response.
+
+The private catalogue search request retains the existing normalized
+artwork reference from the same Spotify response, only for exact playable
+track and album identity and the permitted image CDN. Conflicting album
+identity, local or relinked results and unavailable art still produce
+placeholders. Ordinary search JSON cannot opt into the private reference.
+The existing owner/profile/expiry-bound image route delivers the original
+asset; no extra catalogue lookup, provider grant, playback effect, wire
+field, or App-specific workaround was introduced. Raw catalogue URLs and
+private references are never inserted into the Discover response.
+
+The isolated paired real-HA reproduction now returns the original album
+attribution, bounded image lease and exact fixture PNG, with no extra
+track lookup. Wrong album ID stays without image, and a public request
+cannot ask for the internal reference. Existing clear, owner, expiry,
+rotation, and provider replacement tests remain. All 42 isolated HA
+groups, 4,735 canonical tests with 11 existing skips, 172 framework, 18
+document checks, Ruff and Bandit pass. No native or installed acceptance
+is inferred from the fixtures. Historical receipts stay frozen.
+
+#### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification unchanged.
+Same optional image contract and catalogue fallback. All five UI languages
+and Help 28/42 unchanged.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Exact-head Source checks/Owner Authorization, merge, complete independent
+main CI, original #1439 debug composition, HA-dev install/readback and a
+separate Final remain. Matching ordinary installed response and native
+rendering require independent verification after READY.
+
+#### Deferred Items
+
+Golden remains execute:false. Physical Watch, signing/restore, retained
+latest #1486 and APNs remain independent. Keep the timer stopped and retain
+WIP, rollback and private evidence.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for predecessor only. This Source
+requires its own protected merge and separate Final.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until protected delivery and own Final cleanup.
+See [qualification](docs/verification/DISCOVERY_CATALOGUE_ARTWORK_20261107.md).
+
+<!-- discovery-catalogue-artwork-source-20261107-end -->
+
+## 2026-11-07 — First playing history observation / Source1511 Finalization
+
+#### Repository Status
+
+Source [#1511](https://github.com/pcvantol/djconnect/pull/1511) merged as
+`78acc21bdbd6dcc472d1944241b51735a5342fe3` from exact authorized
+`dae509ce8e50f540f3dcad97cd7fe897e582b051`. Owner Authorization 42333997215,
+protected Source checks and entire independent main 42334287653 passed.
+This separate Final changes five documents only.
+
+#### Management Summary
+
+The paired real HA reproduction on unchanged predecessor gave a correct
+Dutch current-artist answer but kept it private and temporary after the same
+item moved from paused to playing. The original native Session had no
+observation for that item; the missing original wire is not reconstructed.
+
+Core records the first accepted playing transition through the existing
+history transaction. Later same-item resumes reuse its observation. History
+disabled remains private; owner, source, clear and expiry guards still apply.
+The ten-case real HA test covers Store/SQLite reload, both history surfaces,
+paired owner isolation and clear. All 4,735 canonical tests are accounted for
+with 11 existing skips, 172 framework and 18 document checks, Ruff/Bandit and
+42 isolated HA groups passed. Fixture I/O is synthetic and read-only.
+
+HA-dev debug `a909e8036f72a9d787a79d11caf505a738dd2e4b` combines qualified Source main and the original
+#1439 overlay. The independently reconstructed product
+`e855188d987012d981f76d32c74e21766bd681f4` matches all 308 installed files.
+The composite passed 42 HA groups and 14 original Watch tests. Configuration,
+frontend and capability endpoints, database, Profile defaults and availability
+for DEFAULT and both Macs passed readback after one controlled restart.
+Initial active Session present: False.
+The rollback and original WIP/evidence remain. Product-identical documentary
+main is reconciled only after its own full CI, without another restart.
+
+#### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification unchanged.
+No new wire, playback command, privacy authority, signing or provider grant.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Native acceptance is separate and requires a new ordinary Session and fresh
+question after READY. No replay of the previous request. Real audible audio,
+physical Watch, signer/restore, retained-latest #1486 and APNs remain separate.
+
+#### Deferred Items
+
+Golden remains execute:false until independent real fixture and provider
+admissions qualify. The Dutch opening terminology issue is separate.
+All five UI languages and Help 28/42 remain. Root timer stays stopped.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Final merges and
+its own main qualifies, then `MERGED_RECONCILED` for Source1511.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Clean only this own Final after verified full bundle, exact tree and activity
+checks. See [qualification](docs/verification/FIRST_PLAYING_HISTORY_ANCHOR_20261107.md).
+
+<!-- first-playing-1511-finalization-end -->
+
+## 2026-11-07 — First playing observation after a paused projection
+
+#### Repository Status
+
+Bounded Core source correction from fully reconciled main
+`8ab09da8ce0c8c29d335cd5caefefc790d54011e` (#1509 / #1510). HA-dev debug
+`8fc90590e843241128109230db55cb936e4d4757` remains installed with the
+original #1439 overlay. Existing authorized protected delivery applies.
+
+#### Management Summary
+
+An ordinary Dutch current-artist answer appeared in a fresh Mac Session,
+but neither the Session nor paired Profile history retained that turn. The
+original request/response correlation is unavailable. The original Session
+had history enabled, no retained playback observation for its first item,
+and later observations for other items. No old request was replayed.
+
+On exact predecessor product, isolated paired real HA reproduces HTTP 200
+with correct literal metadata and private_ephemeral, history_persisted false
+and no entry IDs after observing a paused item and then the same item playing.
+The Runtime previously checked only item-ID inequality to record playing,
+although paused playback already exposes that same ID.
+
+The first transition into playing now reaches the existing history transaction.
+The same item on resume reuses the repository's deduplicated observation; a
+paused-only projection does not record playback. History disabled, owner,
+withdrawal, clear, source binding and literal-text archive rules remain.
+No API field, authority, provider call, playback dispatch or model path added.
+
+The revised real HA harness uses the genuine paired request and existing
+SQLite/Store paths with synthetic Spotify/STT fixtures. The original Session
+contains both conversation entries; the same two exchanges are visible to
+paired Mac, iPhone and Watch fixtures and survive Store/SQLite reload. Resume
+preserves the same observation ID, another owner is denied, clear withdraws
+the exchanges, and the history-disabled paused-to-playing case remains
+private_ephemeral without a playback anchor or history message. Ten cases pass.
+No live provider, native, audible or installed acceptance is claimed.
+
+All 4,735 canonical tests are accounted for (11 existing skips); 172 framework
+and 18 lifecycle/roadmap/Postman checks, Ruff and Bandit pass. All 42 isolated
+HA groups use frozen product source. Current receipts come from actual reruns;
+historical proof stays frozen. All five UI languages and Help 28/42 stay intact.
+
+#### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification unchanged.
+This corrects existing playback observation and current metadata retention.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Exact-head Source gates and Owner Authorization, merge, independent main CI,
+debug composition with the original #1439, install/readback, separate Final
+and scoped cleanup remain. Any native acceptance requires a fresh ordinary
+question and current qualified source, with no replay of the old request.
+
+#### Deferred Items
+
+Golden remains source protocol only and execute:false; no newly qualified
+fixture owner, provider coverage or native admission is asserted. Physical
+Watch, signing/restore, retained latest #1486 and APNs remain independent.
+The Dutch opening terminology discrepancy remains separate. Keep the timer
+stopped and retain original WIP, private evidence and rollback.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for predecessor only. This Source must
+merge and then receive its own separate Final.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until protected delivery and own Final cleanup.
+See [qualification](docs/verification/FIRST_PLAYING_HISTORY_ANCHOR_20261107.md).
+
+<!-- first-playing-history-anchor-source-20261107-end -->
+
+## 2026-11-07 — Committed For-you DNA snapshot / Source1509 Finalization
+
+#### Repository Status
+
+Source [#1509](https://github.com/pcvantol/djconnect/pull/1509) merged as
+`a99b9fe85651e5b98807e04440f126f4ccf1c248` from exact authorized
+`0432906c435dcb56f9ca898e8616352908e44917`. All technical source gates,
+Owner Authorization42330982228 and entire independent main42331367667 PASS.
+This is the separate five-document Final for1509 only; no product, fixture,
+source permission, policy or roadmap-status change is added.
+
+#### Management Summary
+
+A cached For-you offer could become unavailable while an unrelated metadata
+save was pending. Unchanged prior source was reproduced through a normal paired
+HA GET: music_dna_unavailable with59.997seconds of the original lease left.
+This is independent causal qualification, not reconstruction of the missing
+original native request or proof that every native symptom has one cause.
+
+The cached offer/catalogue now compares its exact original committed loaded DNA
+basis during unrelated pending writes. New snapshot acquisition still fails while
+locked. Relevant genre changes, privacy clear/disable, save failure, generation,
+owner/manager/Session/source/settings and original deadline fences remain.
+Dataclass replacement within the same original Session/Broadcast is permitted;
+no new permission, clock renewal, provider/model poll, effect retry, output or
+volume action is introduced. Old uncertain operations are never recreated.
+
+All4735 canonical tests account with11 existing skips;32 focused,172 framework,
+18 lifecycle/roadmap/Postman, Ruff and medium/high Bandit PASS. All42 isolated
+actual HA groups pass on frozen308 product files. EN/NL normal paired reads keep
+the original offer/action IDs/deadline during an actual pending HA Store save,
+without acquiring a new snapshot or reading providers. New snapshot acquisition
+remains blocked; the original ordinary choice after commit executes once.
+Initial causal and over-strict test failures are retained. Actual SQLite/avatar
+traces retain every non-pin representation; current receipts come from reruns.
+Golden family/step definitions and execute:false remain unchanged.
+
+HA-dev debug `8fc90590e843241128109230db55cb936e4d4757` is composed from qualified source main
+`a99b9fe85651e5b98807e04440f126f4ccf1c248` and original1439 overlay SHA256
+502d3f509e50f0494fe082fb5f29d204350eee3cf3a07e6479d9f4a832e09755.
+Independent reconstruction matches product `59405efd26ccc9fc8cef1091c3280380c68b43c6` and
+all308 installed files. Composite42 actual HA groups and14 original Watch tests
+PASS. Two product files differ from prior debug08922514. One controlled restart
+retains a fresh private source/storage rollback. Configcheck0, frontend/cap200,
+DBquick_checkok, unchanged Profile defaults and DEFAULT/bothMac backend reads
+PASS. Initial active Session present: False.
+No root playback, reauthorization, output, volume, pairing or APNs command.
+Reconcile documentary main only after its entire independent CI and identical
+product join; no second restart and no claim that a document SHA is new code.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification unchanged.
+Source, CI, merge, installation, runtime, provider, native, audible, background and
+APNs remain separate claims. All five UI languages and Help28/42 boundary survive.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Post-install native acceptance requires a NEW ordinary Session and fresh original
+request. The previous native operation lacks its original client correlation;
+current playback or absent retained history cannot prove dispatch count or
+reconstruct its admission. Physical Watch, background, signing/issuer/restore and
+real APNs evidence remain independent. Original1439 remains a debug overlay;
+retained-latest1486 stays excluded.
+
+#### Deferred Items
+
+Apple widget intermittent artwork remains independent: qualified original cache
+and later natural artwork appearance do not prove stable native rendering.
+Within-root passive expiry still needs its exact native observation. Actual
+Bulletin speech needs original fresh sources and playing opportunity, without
+expired-source/image/retention upgrades. Golden44families/385steps still needs
+real fixture/app/provider/owner/budget receipts; no stale adapter or personal
+DEFAULT history reset. Preserve WIP, raw failures, private evidence and rollback.
+Root timer remains stopped. Existing Apple hold/READY coordination is retained.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Final merges, then
+`MERGED_RECONCILED` for1509 only. Five documents; prior rolling records retained.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Remove only this own clean unused Final after full bundle/content/activity proof;
+retain all other source/debug/WIP/evidence. See
+[qualification](docs/verification/FOR_YOU_COMMITTED_DNA_SNAPSHOT_20261107.md).
+
+<!-- for-you-dna-1509-finalization-end -->
+
+## 2026-11-07 — Existing committed For-you DNA snapshot during metadata saves
+
+#### Repository Status
+
+One bounded source correction from fully reconciled main
+`a6a5e9fb7696dd52baec76a0ccce148a810362b1` (Source1507 / Final1508).
+HA-dev debug08922514 plus exact original1439 overlay is installed and read back;
+whole independent CI, documentary reconciliation without second restart and own
+Final cleanup with35861-object bundle passed. Standing explicit human permission
+covers current exact-head merges, separate Final and HA-dev installs without
+nighttime questions, while real source/release/device gates remain mandatory.
+
+#### Management Summary
+
+The fresh Apple40499 native trial saw For-you availability disappear while the
+original choice lease was still positive. Current normal paired Core read returned
+music_dna_unavailable; its Session retained only the opening Moment. Persisted
+own DNA remains enabled with genres. The original client_message_id/raw response
+was not retained, so absence of a history entry does not prove no request or
+reservation. No missing live request, runtime lock or original admission is
+reconstructed and no already-uncertain operation is replayed or silently confirmed.
+
+Independently, the existing source invariant fails reproducibly: an unrelated
+pending metadata save makes a valid already-committed genre snapshot permanently
+withdraw, and a cached ordinary paired-HA offer becomes unavailable with59.997s
+remaining. Causal units and the same HA flow on unchanged predecessor product fail.
+This is independently proved source causality, not retroactive attribution of the
+unobserved native request. No source permission is inferred from playing music.
+
+Only an EXISTING committed snapshot may compare its exact original data/memories/
+owner row/genre-container identities, normalized genres, generation and safety
+epoch while an unrelated metadata save is pending. New snapshot acquisition stays
+blocked during writes. Cached For-you/catalogue projection reuses that original
+admission's guarded read basis, with exact same memory manager, owner and Session/
+Broadcast. It does not mint a replacement snapshot, fetch, learn, create an offer,
+renew its60-second wall/monotonic deadline or dispatch an effect. Runtime dataclass
+replacement with the same Session/Broadcast preserves the separate existing
+session_settings_changed fence; initial over-strict fixture expectation is retained.
+
+Clear/disable, relevant genre changes, owner/memory/source replacement, observed
+and container-replacement A-B-A, failed/cancelled writes, generation changes,
+withdrawn admission and original privacy/source/settings/effect guards still deny.
+Recovery never revives a snapshot retired by failed persistence. An attempted or
+uncertain operation still cannot refresh/replay automatically. No public field,
+version, grant, principal/key/epoch, provider capability, Native/Watch restore or
+APNs authority is added. All five UI languages and Help28/42 remain unchanged.
+
+All4735 canonical process-sharded tests account with11 existing skips;32 focused,
+172 framework, Ruff and medium/high Bandit PASS. All42 isolated actual HA groups
+PASS on frozen308 product files. New ordinary paired EN/NL flows perform three
+cached reads during an actual delayed disposable HA Store save: identical offer/
+action IDs and original shorter remaining lease, no new snapshot/provider read/
+effect. New pending snapshot acquisition is explicitly refused. After commit,
+the ORIGINAL choice executes once with exact readback; no refresh or new grant.
+Relevant-change/failure/clear/optout/ABA regressions remain negative. External
+provider/model inputs are declared fixtures and cause zero real paid/provider or
+installed/native effects. Actual SQLite/avatar traces preserve every non-pin
+representation. Current proof joins derive from actual reruns; frozen history,
+Golden source definitions/model ceilings/execute:false and roadmap status remain.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification unchanged.
+Existing cached-source invariant only; no new platform feature/authority. Source,
+CI, merge, install, runtime, provider, native, audio, background and APNs stay separate.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Current exact-head protected Source checks/Owner Authorization, merge, whole
+independent main CI, reconstructed main+original1439 debug install/readback,
+separate Final and own cleanup remain. Fresh ordinary native acceptance needs a
+new Session and original explicit request after qualified install. No old unknown
+client request, dispatch count or grant is fabricated from current history/state.
+
+#### Deferred Items
+
+Source1507 late original-output confirmation is installed but the fresh native
+trial exposed this separate source unavailability; no general native PASS is
+claimed. Apple329 same-binary installer qualified separately. Actual widgets show
+track/progress and sometimes artwork; intermittent native publication/art and
+within-root contribution expiry remain independently open. Real Bulletin audio
+needs original fresh sources and playing opportunity; source/image/retention
+rights are not invented. Golden44/385 needs true independent fixture/app/provider/
+owner/budget receipts, no stale39/167 adapter or DEFAULT history reset. Physical
+Watch,1439 signer/restore/APNs and retained-latest1486 gates remain separate.
+Preserve WIP, failures, private receipts and rollback. Root timer remains stopped.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for predecessor1507 only. This source is
+not merged; its Source merge is `MERGED_UNRECONCILED` until separate Final.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until protected delivery and own Final cleanup.
+Retain all other source/debug/WIP/evidence. See
+[qualification](docs/verification/FOR_YOU_COMMITTED_DNA_SNAPSHOT_20261107.md).
+
+<!-- for-you-committed-dna-source-20261107-end -->
+
+## 2026-11-07 — Original output sample / For-you source1507 Finalization
+
+#### Repository Status
+
+Source [#1507](https://github.com/pcvantol/djconnect/pull/1507) merged as
+`37e86995a299038a64e526111da68dc5e59c4b59` from exact authorized
+`d18bb4d0402f6f6d56c31c0a79b34570060c1538`. All technical source gates,
+Owner Authorization42327235670 and entire independent main42327574227 PASS.
+This is the required separate five-document Final for1507 only; no product,
+fixture, source permission, policy or roadmap-status change is added.
+
+#### Management Summary
+
+The actual original one-shot Schuur start was observed playing while its original
+For-you card stayed uncertain. Private readonly receipts bind the same Session
+and chosen first track to playback2.63seconds after the user/DJ entries. These
+are cause evidence, not post-repair native acceptance or an invented response.
+The concrete genuine observer defect was lost target identity: Runtime expected
+original_status.target_id, but real OriginalSample carried source/time only.
+An old untyped unit stand-in hid the missing producer value. A qualified paired
+real-HA flow on unchanged prior product fails at its exact late-confirm assertion.
+
+The private original sample now seals the SAME returned provider target before
+awaits, for observer and normal guarded command readback. Late confirmation needs
+actual current OriginalSample/playing plus the existing original dispatched choice,
+first URI, selected output and owner/Session authority. Wrong/unknown output,
+track/state, withdrawn source and untyped stand-ins remain blocked. No wire DTO,
+clock/lease/grant/permission, retry, extra provider call, output/volume action,
+Watch/native restore, principal/key tuple or APNs authority is introduced.
+The old uncertain operation is never recreated across the installation restart.
+
+All4731 canonical tests account with11 existing skips;36 focused,172 framework,
+18 committed lifecycle/roadmap/Postman, Ruff and medium/high Bandit PASS. All41
+isolated actual HA groups pass on frozen308 product files. EN/NL ordinary paired
+flows keep one original synthetic effect, then close on the genuinely captured
+late first-track/output sample; repeated observations never dispatch a second play.
+An unqualified general fixture ID and two test-isolation failures are retained.
+The fixture now normally registers its canonical Spotify backend; test-only source
+shape and captured commit-owner reload are fixed without changing product guards.
+Actual SQLite/avatar traces retain every non-pin representation; current proofs
+come from actual reruns, never old verdict rehashes. Golden family/step definitions
+and execute:false remain; synthetic provider/model inputs spend no live calls.
+
+HA-dev debug `089225144ce73e006d7dcc15dc80d29594f5f772` is composed from qualified source main
+`37e86995a299038a64e526111da68dc5e59c4b59` and exact original1439 overlay SHA256
+502d3f509e50f0494fe082fb5f29d204350eee3cf3a07e6479d9f4a832e09755.
+Independent reconstruction matches product `108f427143f6faecb4f6f20a23c96f3df50c61de` and all
+308 installed files. Composite41 actual-HA groups and14 original Watch preference
+tests pass. Four product files differ from prior debug0d1b475c. One controlled
+restart retains a fresh private source/storage rollback. Configcheck0, frontend/
+cap200, DBquick_checkok, unchanged Profile defaults and DEFAULT/bothMac backend
+availability pass. Initial active Session readback: False.
+Core install/readback sends no reauthorization, playback, speaker, volume,
+pairing or APNs command. Reconcile documentary main only after its own whole CI and exact identical
+product join, with no second restart. A document SHA is not installed new code.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification unchanged.
+Existing late matching-readback semantics only. Source, CI, merge, installation,
+runtime, provider, native, audible, background and APNs stay separate claims.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Actual post-install native confirmation requires a new ordinary Session and its
+original explicitly authorized request. Do not recover an old in-memory pending
+admission after restart or infer it from current playback. Physical Watch,
+background/pairing/issuer/restore and true APNs evidence remain independent.
+
+#### Deferred Items
+
+Apple's stale loaded widget executable was separately proven by exact lsof/recovery
+path evidence; its own installer fix and actual artwork/progress display remain
+independent from Core1507. Within-root passive contribution expiry still needs
+its exact native observation. Actual Bulletin speech requires original fresh
+sources and playing opportunity, not expired-source/image/retention upgrades.
+Golden44families/385steps still lacks separately real fixture/app/provider/owner/
+budget receipts; no stale39/167 adapter, invented fixture or DEFAULT history reset.
+Retained-latest1486 stays excluded;1439 physical/signing/restore gates remain open.
+Five UI languages and Help28/42 boundary survive. Preserve all WIP/raw failures/
+private evidence/rollback. Root timer remains stopped.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Final merges, then
+`MERGED_RECONCILED` for1507 only. Five documents; original rolling records retained.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Remove only this own clean unused Final after full bundle/content/activity proof;
+retain all other source/debug/WIP/evidence. See
+[qualification](docs/verification/FOR_YOU_ORIGINAL_OUTPUT_SAMPLE_20261107.md).
+
+<!-- for-you-output-1507-finalization-end -->
+
+## 2026-11-07 — Original provider output in late For-you confirmation
+
+#### Repository Status
+
+Dedicated source correction from fully reconciled main
+`490e50e394bfa01309baa17653110c3b68375fa3` (Source1505 / Final1506).
+HA-dev runs debug0d1b475c with original1439 overlay; independent whole main CI,
+308-file runtime readback and own Final cleanup with35742-object bundle passed.
+Standing explicit human authority covers exact-head PR merge, separate Final and
+HA-dev installs without overnight questions. It does not replace actual gates.
+
+#### Management Summary
+
+The ordinary Apple40499 actor made one explicit fresh For-you speaker choice on
+the authorized Schuur output. Playback was actually observed, while the existing
+card remained uncertain. Read-only Core correlation found the four original SQL
+entries, the same current Session, original selected offer and exact first-track
+match2.63seconds after the user/DJ entries. Only its three own history messages
+and one matching effect receipt are retained privately outside source. Neither
+those entries nor the UI are promoted into a reconstructed missing response,
+a new dispatch or original authority after restart. No audible claim is made.
+
+The concrete producer defect is independent and causal: session_runtime read
+original_status.target_id, but the real OriginalSample source/time witness had
+no output field. SpotifyPlaybackObservation had that exact provider output; the
+old unit used SimpleNamespace(target_id=...) and missed the genuine type path.
+The same qualified paired-HA observer flow on unchanged490e50e3 product fails at
+'late real sample did not close original mix'. It passes EN/NL after this repair,
+with exactly one original synthetic play effect and a genuine current sample.
+The first general source-ID fixture was correctly refused observer qualification;
+it remains a setup failure, fixed only by normal disposable backend registration.
+
+OriginalSample now privately retains exact target_id sealed from the SAME actual
+backend return before enrichment/owner awaits. Both ordinary observer and guarded
+command readback supply that existing value. Runtime confirmation additionally
+requires the actual OriginalSample type, current original source fence and
+playing state, retaining original dispatched pending choice, same first URI,
+selected output and owner/Session authority. Missing/wrong output, stale source,
+wrong track, paused state or untyped stand-in remains uncertain. No public DTO,
+endpoint, permission, key, grant, TTL, provider call, retry, output/volume effect,
+Watch capability, principal, native restore or APNs authority is introduced.
+
+All4731 canonical process-sharded tests account with11 existing local skips;
+36 focused,172 framework, Ruff and medium/high Bandit PASS. All41 isolated actual
+HA groups PASS on frozen308 product files. The new normal paired EN/NL sequence
+uses the existing original observer/source sealing, actual pending mix and same
+output, then a late playing sample. It closes the card with no second effect;
+repeated observation remains single-effect. External provider/model/CDN inputs are
+declared fixtures, zero paid/live-provider/installed/native effect. Current pins
+derive from actual reruns. Actual SQLite/avatar traces preserve all non-pin
+representations; frozen history and Golden family/step definitions stay intact.
+Canonical sharding exposed a missing broadcast attribute on the unit-only source
+and a stale captured conversation-commit owner after fixture Runtime reload.
+The unit witness is now self-contained and the narration fixture reloads its
+captured service as the existing For-you fixture already does. Both failed full
+runs remain external; the final full suite passes without changing any product
+source guard or factual/Golden expectation to hide the failures.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification unchanged.
+Repair the existing normative late exact readback; no new architecture/feature
+or release claim. Source, CI, merge, installation, runtime, provider, native,
+physical audio, background and APNs evidence remain separate.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Protected exact-head checks/Owner Authorization, source merge, whole independent
+main CI, separately reconstructed main+original1439 debug installation/readback,
+separate Final and its own cleanup remain. Original live pending authority is
+not reconstructed after installation restart; any further native acceptance must
+use a genuinely new normal Session and original authorized request, not a retry.
+
+#### Deferred Items
+
+Apple separately proved a stale loaded widget executable from a recovery bundle;
+its own installer fix and native current track/art/progress proof remain distinct.
+Rich widget within-root contribution expiry, background, physical Watch and real
+APNs are not inferred. Bulletin real speech requires its original fresh sources
+and real playing opportunity; image and retention rights are not fabricated.
+Golden44families/385steps still needs independently real fixture/app/provider/
+owner/budget receipts, no stale39/167 adapter or DEFAULT personal-history reset.
+Retained-latest1486 stays excluded;1439 signing/restore/physical gates remain open.
+All five UI languages and Help28 EN/NL qualified/42 pending DE-FR-ES leaves stay
+intact. Preserve WIP, raw failures, private receipts and rollback; timer stays off.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for predecessor1505 only. This source is
+not merged; source merge becomes `MERGED_UNRECONCILED` until separate Final.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until protected delivery and own Final cleanup.
+Do not remove other source/debug worktrees or evidence. See
+[qualification](docs/verification/FOR_YOU_ORIGINAL_OUTPUT_SAMPLE_20261107.md).
+
+<!-- for-you-original-output-sample-source-20261107-end -->
+
+## 2026-11-07 — Rich passive original-frame expiry source1505 Finalization
+
+#### Repository Status
+
+Source PR [#1505](https://github.com/pcvantol/djconnect/pull/1505) merged as
+`da38e2c6e3b66397bcd570ab718dec8251cabc4e` from exact owner-authorized
+`7d58436defc521955147e8e86bcd768c7074e56e`. All technical source checks,
+Owner Authorization42323676727 and independent main42323952303 passed.
+This separate five-document increment reconciles source1505 only; no product,
+fixture, permission, policy or roadmap status change is added.
+
+#### Management Summary
+
+The independently qualified paired Mac/real-HA fixture proved a concrete source
+invariant defect: shorter contribution expiry changed opaque root revision under
+an otherwise unchanged original grant/binding/generation/sequence and fresh root.
+Causal unit RED fails before the bounded one-file correction. Rich widget/Live
+Activity revision now belongs to its original base frame before time-dependent
+field pruning. Every original field/root deadline remains; no read renewal,
+wire extension, source right, authority, grant, playback/output effect or Moment
+is introduced. Artwork keeps independent media_revision and the native whole-frame
+comparison stays strict; the minimal watch_widget projection is untouched.
+The original live widget response is not reconstructed and is not this fixture.
+
+All4729 canonical sharded tests account with11 existing local skips;28 focused,
+172 framework and18 committed document/lifecycle/Postman checks pass, as do static
+and security checks. All40 isolated actual HA groups pass on frozen308 product
+files. A new actual paired-HA probe waits25 real seconds, under the original grant
+and with no fresh observation/reauthorization, then verifies expired contribution
+removal with unchanged root revision/sequence/clocks and repeated-read stability.
+A formatting-only helper rerun is separately retained and bound.
+External provider/CDN replies are declared fixtures; real provider/installed/native
+claims do not follow. Actual SQLite and avatar traces retain their historical
+representations except refreshed source hashes. Golden998/44families/385steps,
+execute:false/model policy, frozen roadmap and Help28/42 boundary remain intact.
+Original failures and separate live metadata remain preserved outside source.
+
+HA-dev debug `0d1b475cd1c9926d5d0c96728a27fbbdefcb0525` is built from qualified main
+`da38e2c6e3b66397bcd570ab718dec8251cabc4e` plus exact original1439 overlay SHA256
+502d3f509e50f0494fe082fb5f29d204350eee3cf3a07e6479d9f4a832e09755.
+Independent reconstruction matches product`f7bf339907cd95747283f2a8119789acc38d4542`
+and all308files. The composite passes40 actual HA groups and14 original signed
+Watch-preference tests. Only passive_session.py differs from prior installed
+c2faba2f. One controlled restart retains a fresh private source/storage rollback.
+Configcheck0, frontend/cap200, paired Session/EN-NL Help reads, DBquick_check,
+unchanged Profile defaults and DEFAULT/bothMac backend availability pass.
+Active Session at readback: False. No OAuth, volume,
+playback, output, pairing or APNs write was dispatched by installation/readback.
+Reconcile this documentary main after its own whole CI passes, with identical
+product bytes and no second restart; a document SHA is not new installed code.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+This reconciles the existing passive source correction only.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Fresh ordinary native widget diagnostics must join the corrected producer before
+calling the original incident resolved. Provider, actual OS widget, background,
+physical Watch and real APNs qualification remain distinct. Missing original
+wires, signer/key/epoch tuples and source/receiver rights are not invented.
+
+#### Deferred Items
+
+For-you60s original dual-clock contract remains unchanged. Existing canonical
+manual refresh permits a new explicit proposal after authoritative non-attempted
+expiry, never old action replay or uncertain retry. Original live SQL rows retain
+privacy receipts only, so a later expired GET cannot establish original deadlines.
+Apple owns its separate metadata-only diagnostics and expired-output presentation
+repair. Actual Bulletin native speech needs genuine fresh source/music conditions;
+images/retention, retained-latest1486 and1439 physical/restore/signing gates stay
+outside this source correction. Five-language UI and Help28 EN/NL qualified/42
+pending DE-FR-ES leaves stay intact. All other WIP, failures and rollback remain;
+the timer remains stopped.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for1505 only. Five documents; prior rolling bytes retained.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Only this own clean merged unused Finalization may be removed after full bundle/
+content and immediate activity proof; preserve all other source/debug/evidence.
+See [qualification](docs/verification/PASSIVE_ORIGINAL_FRAME_EXPIRY_20261107.md).
+
+<!-- passive-expiry-1505-finalization-end -->
+
+## 2026-11-07 — Rich passive original frame across natural field expiry
+
+#### Repository Status
+
+Bounded producer repair from fully reconciled main
+`a0e326b202d27df06ed2cf1e5b3748678dfa98e8` (Source1503 / Final1504).
+The predecessor debug c2faba2f with exact original1439 overlay is installed;
+independent main CI and own Final cleanup with35631-object bundle are complete.
+Standing human authorization covers exact-head merges, separate Finalization and
+HA-dev debug installations without overnight questions; real gates remain.
+
+#### Management Summary
+
+A normal source-qualified paired Mac/isolated real-HA read, after24.96 seconds of
+real waiting, reproduced a distinct defect: shorter contribution expiry removed
+text and changed availability reasons while the root remained fresh, but also
+changed the opaque revision under the same original grant/binding/generation/
+sequence. This is independent source proof, not a reconstructed original native
+response. The strict Apple same-original-observation guard is preserved.
+
+The rich widget/Live Activity projection now derives its opaque revision from the
+original base frame before time-dependent field pruning. No wire field/version,
+authority, TTL, lease, source permission, playback effect or Watch/APNs path is
+added. All original field and root deadlines still remove data on time. Prepared
+artwork retains its independent media_revision; a same-Moment image replacement
+changes only image equality identity, not the base frame. Full native comparison
+still rejects unexplained same-sequence changes. Minimal watch_widget is untouched.
+
+Causal unit RED on revision mismatch before the fix;28 focused tests then PASS.
+All4729 canonical sharded tests account with11 existing local skips;172 framework,
+Ruff and medium/high Bandit PASS. All40 isolated actual-HA groups PASS with frozen
+308 product files, including real-time25-second expiry under the original normal
+grant, unchanged root clock/revision/sequence and repeated reads without renewal.
+A formatting-only helper rerun is separately retained and bound. Provider/CDN/
+model inputs are declared fixtures; zero real-provider/installed/native effect.
+Current source/harness pins derive from actual reruns. Actual SQLite and avatar
+traces preserve every non-pin representation; frozen history and Golden family/
+step definitions remain unchanged. No indexed roadmap reference is changed.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification unchanged.
+Existing producer invariant repair only; source, CI, merge, install, runtime,
+provider, native, audible, background and APNs acceptance remain separate.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Exact-head protected Source checks/Owner Authorization, independent main CI,
+qualified main+original1439 debug installation/readback and separate Final remain.
+Fresh Apple40499 ordinary Session/original consent must verify repeated source
+observations and shorter field expiry before claiming native widget resolution.
+
+#### Deferred Items
+
+For-you original60-second dual-clock actions and uncertain-operation guards stay
+unchanged. Apple owns its separately qualified expired-output UX. Actual private
+Bulletin audio still requires fresh original publishers and a real playing
+opportunity; no expired-source upgrade or fabricated provider action. Images,
+retention, physical Watch, signer/restore/APNs and Golden native44/385 intake stay
+separately gated. Retained-latest1486 is excluded; Help28/42 and all five UI
+languages remain. Preserve all source/WIP/debug/rollback evidence; timer stays off.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for predecessor1503 only. This increment is
+not merged; its Source merge is `MERGED_UNRECONCILED` until separate Finalization.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until this increment's protected delivery and own
+Final cleanup. No other writer or worktree is removed. See
+[qualification](docs/verification/PASSIVE_ORIGINAL_FRAME_EXPIRY_20261107.md).
+
+<!-- passive-original-frame-expiry-source-20261107-end -->
+
+## 2026-11-07 — Original passive observation source1503 Finalization
+
+#### Repository Status
+
+Source PR [#1503](https://github.com/pcvantol/djconnect/pull/1503) merged as
+`de99f57c00d2eb7dca1a9e25231fa2565776a99d` from exact owner-authorized
+`ee4ae5b2ced2ffac301ba8d61e2e1014305aa960`. All technical source checks,
+Owner Authorization42319965079 and independent main42320335708 passed.
+This separate five-document increment reconciles source1503 only; no product,
+fixture, permission, policy or roadmap status change is added.
+
+#### Management Summary
+
+The independently qualified paired Mac/real-HA fixture proved a concrete source
+invariant defect: identical accepted backend observations changed original passive
+clock/revision under the same grant/binding/generation/delivery_sequence. A
+causal unit failed before the six-line one-product-file correction. Existing
+passive grants now receive the existing playback frame sequence for a newly
+accepted observation even when safe values are unchanged. The content-changed
+return remainsFalse. Direct unchanged model updates, ordinary reads and disabled
+grants remain without an extra event. No new source right, grant, wire field,
+version, provider/model lookup, playback/output effect, Moment or native/Watch/
+background/APNs activation is created; native same-frame checks stay strict.
+The original live widget response is not reconstructed and is not this fixture.
+
+All4727 canonical sharded tests account with11 existing local skips;28 focused,
+172 framework and18 committed document/lifecycle/Postman checks pass, as do static
+and security checks. All39 isolated actual HA groups pass on frozen308 product
+files. New idle and paused paired/source-qualified cases keep original grant/
+binding/generation while advancing sequence on accepted observations; repeated
+reads preserve original clocks/revision/sequence and disabled grants add no event.
+External provider/CDN replies are declared fixtures; real provider/installed/native
+claims do not follow. Actual SQLite and avatar traces retain their historical
+representations except refreshed source hashes. Golden998/44families/385steps,
+execute:false/model policy, frozen roadmap and Help28/42 boundary remain intact.
+Original failures and separate live metadata remain preserved outside source.
+
+HA-dev debug `c2faba2f17a29380b5fed481e787dd95bc0fe6e1` is built from qualified main
+`de99f57c00d2eb7dca1a9e25231fa2565776a99d` plus exact original1439 overlay SHA256
+502d3f509e50f0494fe082fb5f29d204350eee3cf3a07e6479d9f4a832e09755.
+Independent reconstruction matches product50ccdea8cd2a03bb7fe3128d525b08405156e866
+and all308files. The composite passes39 actual HA groups and14 original signed
+Watch-preference tests. Only session_runtime.py differs from prior installed
+393386ec. One controlled restart retains a fresh private source/storage rollback.
+Configcheck0, frontend/cap200, paired Session/EN-NL Help reads, DBquick_check,
+unchanged Profile defaults and DEFAULT/bothMac backend availability pass.
+Active Session at readback: False. No OAuth, volume,
+playback, output, pairing or APNs write was dispatched by installation/readback.
+Reconcile this documentary main after its own whole CI passes, with identical
+product bytes and no second restart; a document SHA is not new installed code.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+This reconciles the existing passive source correction only.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Fresh ordinary native widget diagnostics must join the corrected producer before
+calling the original incident resolved. Provider, actual OS widget, background,
+physical Watch and real APNs qualification remain distinct. Missing original
+wires, signer/key/epoch tuples and source/receiver rights are not invented.
+
+#### Deferred Items
+
+For-you60s original dual-clock contract remains unchanged. Existing canonical
+manual refresh permits a new explicit proposal after authoritative non-attempted
+expiry, never old action replay or uncertain retry. Original live SQL rows retain
+privacy receipts only, so a later expired GET cannot establish original deadlines.
+Apple owns its separate metadata-only diagnostics and expired-output presentation
+repair. Actual Bulletin native speech needs genuine fresh source/music conditions;
+images/retention, retained-latest1486 and1439 physical/restore/signing gates stay
+outside this source correction. Five-language UI and Help28 EN/NL qualified/42
+pending DE-FR-ES leaves stay intact. All other WIP, failures and rollback remain;
+the timer remains stopped.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for1503 only. Five documents; prior rolling bytes retained.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Only this own clean merged unused Finalization may be removed after full bundle/
+content and immediate activity proof; preserve all other source/debug/evidence.
+See [qualification](docs/verification/PASSIVE_ORIGINAL_OBSERVATION_SEQUENCE_20261107.md).
+
+<!-- passive-observation-1503-finalization-end -->
+
+## 2026-11-07 — Original passive source observation sequence qualification
+
+#### Repository Status
+
+One coherent source correction from reconciled main
+`cb8abc80763b00da71667ec572ab9b7285fc055e` (source1501 / Final1502).
+The predecessor is installed as debug393386ec with exact original1439 overlay;
+main/runtime checks and own Final cleanup with35520-object bundle are complete.
+Standing direct human scope covers PRs, separate Finalization and HA-dev installs
+without overnight questions. Original source, exact version and real gates remain.
+
+#### Management Summary
+
+Fresh native40498 logs showed a widget cache accepted then invalid_response
+withdrawal within4s. The original live response was not preserved or reconstructed.
+An independent existing source-qualified paired-Mac/real-HA fixture demonstrates
+one concrete producer invariant defect: a second identical accepted backend
+observation changes observed_at/expires_at/revision under the same grant, binding,
+generation AND delivery_sequence. The native same-sequence guard correctly
+rejects such a changed original frame. A general history-only fixture was correctly
+refused surface authority and is retained as unqualified, never used as a grant.
+
+The six-line one-product-file correction emits the existing PLAYBACK_CHANGED
+frame only at accepted backend ingress when safe content is unchanged and passive
+grants already exist. The original content-changed return staysFalse; no new
+playback effect, Moment, output, model/provider lookup, wire field/version, source
+right, cache/lease rule or background/Watch/APNs authority is created. Direct
+unchanged model updates, ungranted observations and ordinary authorize/read remain
+without extra events. Original owner/Session/source/settings/privacy/expiry guards
+and the strict native same-original-observation check remain intact.
+
+The causal unit fails before the repair (sequence3 not greater than3), then all28
+focused checks pass. All4727 canonical process-sharded tests account with11 existing
+local skips;172 framework and static/security checks pass. All39 isolated actual
+HA groups pass on frozen308 product files. The new ordinary paired/source-qualified
+Mac proof verifies idle and paused observations retain the same original grant/
+binding/generation but advance delivery_sequence. Repeated reads retain clocks,
+revision and sequence; disabled grants add no extra event. External provider/CDN
+responses are declared fixtures; zero real provider/installed/native effect.
+
+Current source/harness pins derive from actual reruns. Actual SQLite retention
+and avatar traces are rebuilt and preserve all representations except current
+source hashes. Golden998/44families/385steps/model policy/execute:false and frozen
+roadmap/status/frontier remain unchanged. No indexed current document reference
+was changed by the bounded passive-progress contract clarification. Original
+failures, raw isolated comparisons and separate live metadata remain external.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+Existing passive producer correction only; no new contract version or roadmap
+status claim. Source, CI, merge, install, runtime, provider, native, physical audio,
+background and APNs evidence remain independent.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Protected exact-head Source checks/Owner Authorization, merge, independent main
+CI, main+original1439 debug qualification/install/readback and separate Final
+remain. Fresh native diagnostics must join the actual corrected producer before
+calling the original widget incident resolved. No missing live wire is invented.
+
+#### Deferred Items
+
+For-you original60s dual-clock choices remain unchanged. The actual old SQL
+entries retain privacy receipts only, not original response expiry/actions; the
+later GET with expires0 cannot prove the earlier UI failure's cause. Manual NEW
+proposal semantics are already canonical and remain distinct from any attempted/
+uncertain replay. Apple owns separate metadata-only diagnostics/expired-UI work.
+Bulletin actual native speech needs original fresh publishers and a real playing
+opportunity, without expired-Moment upgrade. Images/retention, physical Watch,
+widget backgrounds and1439 signer/restore/APNs gates remain separate. Retained-
+latest1486 stays outside the build; five UI languages and Help28/42 stay intact.
+All other WIP/debug/rollback evidence remains; the timer stays stopped.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for predecessor1501 only. This source is
+not merged; its merge becomes `MERGED_UNRECONCILED` until separate Finalization.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` until protected delivery and own Final cleanup.
+No other writer, worktree or unique evidence is removed. See
+[qualification](docs/verification/PASSIVE_ORIGINAL_OBSERVATION_SEQUENCE_20261107.md).
+
+<!-- passive-original-observation-source-20261107-end -->
+
+## 2026-11-07 — Private Bulletin manual speech source1501 Finalization
+
+#### Repository Status
+
+Source PR [#1501](https://github.com/pcvantol/djconnect/pull/1501) merged as
+`843a56ac57bf3030251cced377a1fa84b6aa26dc` from exact owner-authorized
+`50c32ebda467754a95749aa6f1ec0299510b59ce`. All technical checks,
+Owner Authorization42315796931 and independent main42316184074 passed.
+This separate five-document increment reconciles that source only, with no
+product, fixture, source-permission, policy or roadmap status change.
+
+#### Management Summary
+
+Fresh original private NU.nl/Tweakers Bulletin publications now bind an optional
+Python-only manual speech use to the same candidate and original source guard.
+Only prepare3 manual/local can use the selected HA provider. Old/JSON/copied/
+mismatched/expired/withdrawn proofs cannot gain that use; automatic HA, legacy,
+speaker/both, text_only and original owner/Session/settings/provider/source/
+delete/expiry checks remain. No source lease, archive/image/model-processing right,
+playback operation or history row is created. Internal marker remains a use
+boundary, not a publisher licence. No old native request or expired Moment is used.
+
+All4725 canonical sharded tests account with11 existing local skips;23 focused,
+172 framework and18 committed document/lifecycle/Postman checks pass, as do static
+and security checks. All38 isolated actual HA groups pass on frozen308 product
+files. The new actual paired proof covers ready manual audio, cached repeated
+intent, automatic denial, local renderer continuity, owner-only TLS, source
+withdrawal and waveform rejection after the asynchronous synthesis returns.
+Two declared waveform-fixture calls include deliberate late withdrawal; real
+model/provider/RSS and native/audio acceptance are not asserted. Earlier fixture
+pipeline setup, stale source-reference and private-descriptor expectation failures
+remain preserved and classified. Only the current Speech document byte reference
+and SOURCES view change; historic roadmap/fixture representations, Golden998/
+44families/385steps/model policy/execute:false and Help28/42 boundary stay intact.
+
+HA-dev debug `393386ec7152d363751b76c08e13da94a2889f36` is built from qualified main843a56ac plus the exact
+original1439 overlay SHA256
+502d3f509e50f0494fe082fb5f29d204350eee3cf3a07e6479d9f4a832e09755.
+Independent reconstruction matches product2e1079888009dad80d362ae338752b039c548dde
+and all308files. The same composite product passes38 actual HA groups and14
+original signed Watch-preference tests. Only bulletin_runtime.py and
+session_speech.py differ from prior installed8446c156. One controlled restart
+retains a fresh private source/storage rollback. Configcheck0, frontend/cap200,
+ordinary paired Session/EN-NL Help reads, DBquick_check, unchanged Profile defaults
+and DEFAULT/bothMac backend availability readbacks pass. Active Session at
+readback: False. No OAuth, volume, playback, pairing or
+APNs write was dispatched by the install/readback. Reconcile this documentary
+main only after its own CI passes, with identical product bytes and no restart;
+a document SHA is not a new installed product identity.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+This reconciles the existing Bulletin manual speech repair only.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Fresh ordinary native/manual provider and audible Bulletin acceptance remains
+Apple-owned and separate. Publisher images, post-expiry retention, widgets/
+backgrounds, physical Watch voice and1439 signer/restore/physical/APNs authority
+remain distinct gates. Missing source rights, original requests or signing tuples
+are not reconstructed. Earlier fresh native HAEVN9-card acceptance remains valid
+for that measured case; it does not establish Bulletin audio or these other gates.
+
+#### Deferred Items
+
+Retained-latest1486 stays outside this build. Help28 EN/NL qualified/42 unchanged
+pending DE-FR-ES textual leaves and all five UI languages are preserved. Other
+source/debug/WIP/rollback and original failures remain; the timer stays stopped.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for1501 only. Five documents, no product or fixture change;
+all prior rolling records remain byte-preserved.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Remove only this own clean merged unused Finalization after complete bundle/
+content proof and immediate activity checks; preserve all other work/evidence.
+See [qualification](docs/verification/PRIVATE_BULLETIN_MANUAL_HA_SPEECH_20261107.md).
+
+<!-- private-bulletin-1501-finalization-end -->
+
+## 2026-11-07 — Private Bulletin explicit manual HA speech source qualification
+
+#### Repository Status
+
+Source increment from reconciled main `0b8cbb50a984c101c3c6e502636468c6d920d818`
+(source1499 / Final1500). That predecessor is installed as debug8446c156 with
+original1439 overlay and independently accepted by a fresh Macmini40497 ordinary
+HAEVN Session reply:4 albums/5 playlists/9 rendered cards, no playback write.
+Its own documentary workspace cleanup retained a full35405-object bundle.
+Standing human permission covers scoped PRs, Finalizations and HA-dev installs
+without overnight questions. Exact version checks remain mandatory.
+
+#### Management Summary
+
+A selected qualified HA provider still rejected a private NU.nl/Tweakers Bulletin
+because only the native local processor was admitted. The corrected paired-HA
+baseline returns source_processor_not_qualified with zero synthesis. Earlier
+processor_not_qualified reproductions used an incomplete pipeline fixture; those
+failures are retained and not asserted as source causality. The corrected fixture
+uses public HA pipeline/config-entry APIs and normal provider qualification.
+
+Normal publication now creates a Python-only manual-speech use bound to the same
+actual fresh immutable candidate and original throwing source guard. Old, copied,
+JSON-shaped, mismatched, expired and withdrawn proofs cannot acquire it. A new
+private descriptor advertises a manual HA attempt without autoplay eligibility.
+Only explicit prepare3 manual/local ha_configured can use it. Automatic HA,
+legacy preparation, speaker/both, existing text_only and original owner/Session/
+settings/provider/deletion/source/expiry fences remain. The new internal literal
+basis distinguishes this private manual use from historical public-news rights.
+No read renews expiry or creates a source/image/model/retention grant.
+
+All4725 canonical sharded tests account with11 existing skips,23 focused checks,
+172 framework checks and static/security checks pass. All38 isolated actual HA
+route groups pass on the same frozen308 product files. The new paired proof
+covers ready manual audio, identical cached repeat, zero extra synthesis for
+repeat/automatic denial, unchanged local renderer route, private TLS visibility,
+source withdrawal and waveform rejection after a real asynchronous synthesis
+completes. Two explicit synthetic waveform calls include the deliberate late
+withdrawal case; zero real model, external RSS/provider or installed mutations.
+The old private-descriptor expectation was updated for this human-approved manual
+use and rerun; original failing evidence remains. Actual source/harness receipt
+pins are refreshed from real reruns, without changing Golden case definitions,
+44families/385steps, model budgets, execution policy or provider/native verdicts.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+This fixes an existing explicit Bulletin playback-of-text route, without a new
+HTTP contract, endpoint, storage owner, provider or roadmap status change.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Protected exact-head Source checks/Owner Authorization, merge, independent main
+CI, qualified main+original1439 debug install/readback and separate Final remain.
+Fresh actual native/selected-provider audible Bulletin acceptance follows only
+installation and a new ordinary original Moment. No expired Moment upgrade.
+Publisher images, post-expiry retention, widgets/backgrounds, physical Watch voice
+and1439 signer/restore/APNs gates remain separate. Missing authority is not minted.
+
+#### Deferred Items
+
+The visible private marker is Apple presentation work; the internal use boundary
+is preserved. Source images and retention gain no permission here. Retained-latest
+1486 remains outside the build. Help28 EN/NL qualified /42 pending DE-FR-ES textual
+leaves and all five UI languages stay intact. Existing WIP/source/debug/rollback
+and original failures remain preserved; the timer remains stopped.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for1499 only. This source is not merged;
+its merge becomes `MERGED_UNRECONCILED` until separate five-document Finalization.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` for this source until protected delivery and own
+Finalization cleanup. No other active worktree or unique evidence is deleted.
+Source, CI, merge, install, runtime, provider, native, audible and APNs are distinct.
+See [qualification](docs/verification/PRIVATE_BULLETIN_MANUAL_HA_SPEECH_20261107.md).
+
+<!-- private-bulletin-manual-ha-speech-source-20261107-end -->
+
+## 2026-11-07 — Private Session catalogue source1499 Finalization
+
+#### Repository Status
+
+Source PR [#1499](https://github.com/pcvantol/djconnect/pull/1499) merged as
+`31831d31515a699daedd755ddc5f7654c2dfd5db` from exact owner-authorized
+`bd3ae02daf28cc32c271020271e6a99b63210e49`. All required source checks,
+Owner Authorization42311926770 and independent main42312391294 passed.
+The earlier head failed because a generated current API source-reference view
+was omitted from the commit; it was included and18 clean-commit document checks
+passed. Original failures remain. This separate five-document increment
+reconciles that source only; no product or authority change is added here.
+
+#### Management Summary
+
+A genuine Core200 HAEVN reply failed strict native history decoding because a
+private ephemeral response included a partial assistant_message without an ID.
+The synchronized six-line one-product-file correction omits partial history
+objects and Store revision fields only when not persisted. The accepted root
+projection, genuine owner/client/turn/Session context and original result-set
+choices remain. No history/delivery ID, Store/SQL row, archive/source/model/image
+right or playback operation is invented. Canonical saved exchanges stay intact.
+
+All4724 canonical process-sharded tests account with11 existing local skips,
+19 focused checks,172 framework checks,11 contract/Postman checks,8 lifecycle/
+roadmap checks and static/security checks pass. All37 isolated actual HA groups
+pass on frozen308 product files. The new7case paired Session/settings3/history2/
+speech3 proof preserves NL/EN root choices, duplicate original turns/actions,
+unchanged Profile history/revisions, zero SQL conversation rows and refusal after
+original Session end. External provider/semantic replies are declared fixtures.
+Fresh source/harness hashes derive from actual reruns; original WIP and evidence
+remain. Only the current API byte reference and its derived SOURCES view change;
+frozen roadmap history/status/frontier and Golden998/44families/385steps remain.
+
+Unchanged Apple strict decoding passes four exact new test envelopes. Separate
+synthetic client rendering shows10choices, unchanged historyrevision42, no local
+history/default persistence and scope withdrawal. Exact-wire decoder evidence
+stays external; the permanent client regression uses independently authored
+synthetic transport data rather than shipping runtime captures. These client
+tests do not replace a fresh ordinary native Session result.
+
+HA-dev debug `8446c1561d42199881e7afdb3dbbbbf0f33c7483` is built from qualified main31831d31 plus the
+exact original1439 overlay SHA256
+502d3f509e50f0494fe082fb5f29d204350eee3cf3a07e6479d9f4a832e09755.
+Independent reconstruction matches product0d215072533adfb125845fe96c12c7f9cbf344a5
+and all308files. All37 composite HA groups and14 original Watch tests pass.
+One controlled restart retains a new private source/storage rollback.
+Configcheck0, frontend/capabilities200, paired Session and EN/NL Help reads,
+DBquick_check and unchanged Profile defaults pass; DEFAULT and both actual Mac
+backend reads return200/success and available. Active Session at readback:
+False. No old failed request or expired action is resent.
+No OAuth, playback, volume, pairing, model or APNs effect was performed by this
+installation/readback. After this documentary merge, reconcile identical product
+metadata without a restart; a document SHA is not new installed product code.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+This reconciles the existing private ephemeral response correction only.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Fresh ordinary native Session rendering/choice acceptance remains Apple-owned.
+Physical Watch voice, iPad controls, Bulletin manual speech/images/retention,
+widget backgrounds and1439 signer/restore/physical/APNs gates retain separate
+owners, original grants and acceptance evidence. No missing original request,
+source permission, signing tuple or provider terminal is reconstructed.
+
+#### Deferred Items
+
+The Bulletin preflight branch remains clean while the native finding is resolved.
+Retained-latest1486 remains outside this build. Help28 EN/NL qualified /42 pending
+DE-FR-ES textual leaves and all five UI languages are preserved. Other source/
+debug/WIP/rollback remain; the timer remains stopped.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for source1499 only. Five documents, no product,
+fixture, configuration or policy changes; predecessor bytes stay intact.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Preserve original failures, source/debug worktrees, bundles and private rollback.
+Remove only this own clean merged unused Finalization after complete object/
+content preservation and immediate activity checks. Preserve all unique WIP.
+See [qualification](docs/verification/SESSION_PRIVATE_CATALOGUE_RESPONSE_20261107.md).
+
+<!-- session-private-1499-finalization-end -->
+
+## 2026-11-07 — Private ephemeral Session catalogue response source qualification
+
+#### Repository Status
+
+Qualified source increment on reconciled main
+`54d737c0b57c464be828e10b9983ee870540c5b9` (source1497 / Final1498).
+The earlier general HAEVN route proof did not establish native acceptance.
+A new actual Macmini40497 Session question returned server200/success/nine actions
+but failed native decoding. That concrete finding takes priority over Bulletin;
+its independent preflight branch remains clean and its baseline refusal preserved.
+Standing direct permission covers scoped merges, separate Finalization and HA-dev
+installs without overnight questions; exact source/check/authority gates remain.
+
+#### Management Summary
+
+The domain presenter supplied a partial assistant_message without a history ID
+inside a private_ephemeral response. The strict Apple history decoder causally
+fails at assistant_message.id on the original isolated producer wire. Core already
+supplies genuine owner/client-message/accepted-turn/Session confirmation; neither
+an empty confirmation nor a new history/delivery ID is needed. The synchronized
+canonical contract/API/SYNC clarification preceded this six-line one-product-file
+repair. Nonpersisted exchanges omit user_message/assistant_message/messages and
+history/clear revisions. Fresh text/media/catalogue/result-set fields remain at
+the root; real accepted turn/context and original action identities stay intact.
+Canonical stored exchanges keep their actual messages, IDs, SQL rows and revisions.
+There is no archival, source/image/model-processing or playback permission gain.
+
+A new causal unit fails before the repair and passes after it.19 focused checks,
+all4724 canonical process-sharded tests with11 existing skips,172 framework checks,
+11 document/Postman checks and static/security validation pass. All37 isolated
+actual HA groups pass on identical frozen308 product files. The new seven-case
+proof exercises original paired fresh Session/settings3/history2/speech3 with no
+current playback, NL/EN root-only responses, duplicate original turn/actions with
+no additional model, unchanged Profile Store/revisions, zero SQL conversation
+rows, ended-Session refusal and the equivalent general-screen path. External
+Spotify replies and the semantic response are explicit fixtures; native renderer
+acceptance remains Apple-owned and separate.
+
+Current receipt hashes come from real reruns. Original live request metadata,
+malformed full Session wire, strict native decoder failure, causal unit RED and
+stale-pin/document-check failures remain preserved. The API document's current
+byte reference alone is refreshed in planning maintenance; frozen history,
+roadmap statuses, frontier and dependencies are unchanged. Golden998 definitions,
+44families/385steps/model policy/execute:false, five-language UI and Help28/42
+textual boundary remain. An illustrative private response is added to Postman.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+This repairs the existing private ephemeral wire contract, with no new endpoint,
+operator authority, storage model, release permission or roadmap phase.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Protected Source/Owner Authorization/current-SHA checks, merge, independent main
+CI, main+exact original1439 debug qualification/install/runtime and separate Final
+remain required. New actual native Session rendering/choice acceptance must be
+measured after installation; do not replay the failed original live request or
+reuse its expired actions. Physical Watch voice, iPad controls, Bulletin manual
+speech/images/retention, widget backgrounds and1439 signer/restore/APNs gates
+retain their own owners, original grants and separate acceptance evidence.
+
+#### Deferred Items
+
+The private Bulletin branch remains unmodified pending this native finding.
+Retained-latest1486 remains outside the build. Help28 EN/NL qualified /42 unchanged
+pending DE-FR-ES leaves and all five-language UI data remain preserved.
+All other source/debug/WIP/rollback evidence is retained. The timer remains stopped.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for predecessor1497 only. This qualified
+increment is not merged; its protected merge becomes `MERGED_UNRECONCILED` until
+a separate five-document Finalization and local cleanup complete.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` for this unmerged source. Preserve original producer
+failures, all source/debug worktrees, isolated receipts and private installed
+rollback. No other writer or WIP is removed. Source, CI, merge, installation,
+runtime, real provider/model, native, audible and APNs claims remain separate.
+See [qualification](docs/verification/SESSION_PRIVATE_CATALOGUE_RESPONSE_20261107.md).
+
+<!-- session-private-catalogue-source-20261107-end -->
+
+## 2026-11-06 — Named artist collections source1497 Finalization
+
+#### Repository Status
+
+Source PR [#1497](https://github.com/pcvantol/djconnect/pull/1497) merged as
+`35f79032b7326deece85ca7eb8eebc3e3dddcd50` from exact owner-authorized
+`1483a845e43067d1872af2f7a4c339dce2b7fb57`. All technical source checks,
+Owner Authorization42304992308 and independent main42305413606 passed.
+This separate five-document increment reconciles that implementation only.
+
+#### Management Summary
+
+Named artist availability questions offer actual credited albums/playlists via
+existing server-owned result/choice actions without starting music. A single
+bounded read qualifies original Spotify artist identity and up to five rows per
+category. Partial/denied categories do not erase available verified rows. No
+paging/top-up, contextual-artist fallback, guessed URI or model-authored catalogue
+is introduced. All five UI languages retain literal count/availability labels.
+
+All4722 canonical process-sharded tests reconcile with11 existing skips,
+12 focused checks,172 framework checks,8 lifecycle/roadmap checks and static/
+security validation pass. All36 isolated actual HA groups pass on frozen308
+product files; the six new paired HTTP cases declare synthetic external Spotify
+replies and semantic-plan responses. Fresh proof hashes derive from actual
+reruns; old WIP, raw receipts and failed lab attempts remain preserved.
+Golden998 definitions/44families/385steps, model policy and execute:false remain.
+
+HA-dev debug `582a69e32ce08b95b7cff84dbc45bc490fa03e3c` is built from qualified main35f79032 plus the
+exact original1439 overlay SHA256
+502d3f509e50f0494fe082fb5f29d204350eee3cf3a07e6479d9f4a832e09755.
+Independent reconstruction matches productc0a0bf1ffd2bd6a7b3c1a258d0c5812cd122a026
+and all308files. All36 composite HA groups and14 original Watch tests pass.
+One controlled restart retained a fresh private source/storage rollback.
+Configcheck0, frontend/capabilities200, paired Session and EN/NL Help reads,
+DBquick_check and unchanged Profile defaults pass. DEFAULT and both actual Mac
+backend status reads return200/success and available. Active Session at readback:
+False. This does not prove native Session rendering.
+
+Separate ordinary authorized paired HAEVN questions in Dutch and English both
+return200/success with artist_collections_information, literal qualified catalogue
+results: four actual albums and five credited playlists. They request no audio,
+playback, queue, volume or output operation; before/after playback readbacks are
+identical. This live route/provider response evidence is separate from the
+isolated fixtures and from independently metered Golden/model-terminal, native
+selection or audible acceptance. No OAuth/pairing/APNs operation was performed.
+After documentary merge, reconcile identical product metadata without restart;
+never label a documentation SHA as new installed product code.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+This reconciles the existing read-only artist availability repair only.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Native visible card/choice/audible acceptance remains separate. Shared-feed and
+original Watch speech physical checks, iPad controls, Bulletin source processor/
+retention/images and widget backgrounds retain their own lanes and evidence.
+1439 signer/restore/physical Apple/APNs gates remain open; no original grants or
+Session/playback authority are invented from current metadata or screenshots.
+
+#### Deferred Items
+
+Retained-latest1486 remains outside this build. Help28 EN/NL qualified /42
+unchanged pending DE-FR-ES textual leaves and all five-language UI data remain.
+Other lanes and unique WIP are preserved; the timer remains stopped.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for source1497 only. Five documents, no product,
+fixture, configuration or policy changes; predecessor document bytes remain.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Preserve source/debug worktrees, original failures, bundles and private rollback.
+Remove only this own clean merged unused Finalization after full object/content
+proof and immediate activity checks. Preserve all unique WIP and user data.
+See [qualification](docs/verification/ARTIST_COLLECTION_OFFERS_20261106.md).
+
+<!-- artist-collections-1497-finalization-end -->
+
+## 2026-11-06 — Named artist collection offers source qualification
+
+#### Repository Status
+
+Qualified source increment on protected reconciled main
+`d53172017f7648821d4fae443d5b37ff21df401a` (source1495 / Final1496).
+The existing HAEVN WIP is preserved in its original worktree and a verified
+external patch/untracked-file copy; this independent branch carries its changes
+onto current main. Host verification remains exit0/MATCH on this same machine.
+Standing direct owner permission covers scoped PR merges, separate Finalization
+and HA-dev deployments without overnight questions; exact repository gates remain.
+
+#### Management Summary
+
+The reported Dutch `Heb je iets van de artiest haevn` and English availability
+question can select a closed named artist_collections read. Only a public artist
+name comes from the existing bounded semantic interpreter. Core resolves actual
+Spotify identity, credited albums and credited playlist candidates; it offers at
+most five of each through existing original result/choice actions. The question
+does not play, queue, transfer, change volume or manufacture provider IDs.
+One ten-second backend deadline bounds artist lookup, one20-album page, one10-
+playlist search page and at most ten first50-item credit reads. Missing/denied
+categories preserve available qualified rows and honestly show actual counts.
+No paging/top-up, current-artist fallback or model-authored catalogue is added.
+All five languages retain literal availability/count/action labels; targeted
+reported wording is qualified in EN/NL.
+
+All4722 canonical process-sharded tests reconcile with11 existing skips and no
+failures/errors;12 focused checks,172 framework checks, Ruff/Bandit/diff pass.
+All36 actual isolated HA groups pass against frozen308 product files, including
+six new actual paired HTTP cases using real HA agent class/public registration,
+original Profile/Spotify ownership and ordinary result-set/action creation.
+Only external Spotify replies and the agent response are declared fixtures.
+First refused/incorrect lab attempts and stale-pin failures remain preserved;
+no source/agent/privacy check was weakened. Current proof wrappers derive from
+fresh actual runs rather than relabelled old receipts.
+Golden998 definitions,44families/385steps, model policy and execute:false remain
+unchanged. This additional producer regression does not claim live model, actual
+Spotify catalogue completeness, native selection or audible acceptance.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+This repairs the existing read-only artist availability route, with no new
+platform architecture, operator grant, public execution endpoint or roadmap phase.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Protected Source checks, exact-head Owner Authorization, merge, independent main
+validation, new main+original1439 debug composition/install/runtime readback and
+separate Finalization remain required. Actual Spotify access may yield partial
+or no collections; source tests do not prove provider entitlement or completeness.
+Native shared-feed/Watch voice, iPad controls, Bulletin processor/retention/images,
+widget backgrounds and1439 signing/restore/physical/APNs gates remain separate.
+No historical HAEVN error trace is reconstructed from an absent request receipt.
+
+#### Deferred Items
+
+Retained-latest1486 remains outside HA-dev. Help28 EN/NL qualified /42 DE-FR-ES
+pending textual leaves and all five-language UI data remain unchanged.
+Other lanes/WIP/rollback are preserved and the timer remains stopped.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` for predecessor1495 only; this source
+increment is qualified but unmerged. After its protected merge, state becomes
+`MERGED_UNRECONCILED` until a separate documentary Finalization and local cleanup.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` for this unmerged source branch. Original WIP,
+failed attempts, isolated receipts and private installed rollback remain intact.
+Do not remove source/debug/evidence or another lane's working tree. Installation,
+runtime, real provider, native/audible and APNs claims remain independent.
+See [contract](docs/product/ARTIST_COLLECTION_OFFERS_V1.md) and
+[qualification](docs/verification/ARTIST_COLLECTION_OFFERS_20261106.md).
+
+<!-- artist-collections-source-20261106-end -->
+
+## 2026-11-06 — Shared Session metadata source1495 Finalization
+
+#### Repository Status
+
+Source PR [#1495](https://github.com/pcvantol/djconnect/pull/1495) merged as
+`8dbbcc6ef9ce811360f5baae4f9462acb997a630` from exact human-approved
+`272b5618ab67e64e5c456ec880180e1c684cb6db`. All source checks passed,
+Owner Authorization42300218762 and independent main42300718166 passed.
+This separate five-document increment reconciles that implementation only.
+
+#### Management Summary
+
+Literal current-artist/track questions in the explicit original active Session
+now qualify for the existing owner metadata archive and shared conversation
+entries. Typed local provenance, original SQL playback/item, exact source/account/
+entry, privacy/history and strict provider-runtime epoch guard remain mandatory.
+Only text/source links persist; transient image/audio/actions are not archived
+and no model-processing basis is granted. Other private turns remain private.
+Store acknowledgement races compensate both Store and SQLite. The fresh paired
+Mac/iPhone/Watch proof reopens the same original text/voice-derived entries,
+checks reload/deduplication/other-Profile rejection and owner clear.
+
+All4713 canonical process-sharded tests reconcile with11 existing skips,
+44 focused checks,172 verification-framework checks,8 lifecycle/roadmap checks,
+Ruff, Bandit and diff validation pass. All35 isolated actual HA groups pass on
+frozen308 product files; the8-case cross-device proof and current source-bound
+receipts derive from real reruns. Original failures and historical receipts
+remain. Golden998 definitions, model policy, locales and execute:false are unchanged.
+
+HA-dev debug `29ed7a975032ebcba4e1384ce403d17843d76f15` is built from qualified main8dbbcc6e
+plus the exact original #1439 overlay SHA256
+502d3f509e50f0494fe082fb5f29d204350eee3cf3a07e6479d9f4a832e09755.
+Independent reconstruction matches productf03ad002725d13acbd0ffa7c8819aa9bcee813ce.
+All35 actual HA groups and14 original Watch tests pass on identical composite
+product bytes. All308 installed hashes, configcheck0, frontend/capabilities200,
+paired Session and EN/NL Help reads, DBquick_check and unchanged Profile defaults
+pass. DEFAULT and both actual Mac backend reads return200/success and available.
+One controlled restart and private source/storage rollback are retained.
+Active Session during readback: False.
+No new OAuth, playback, volume, pairing, model or APNs effect was performed.
+This is installation/runtime evidence, not native cross-device rendering or actual Watch microphone/STT
+acceptance. After the documentary merge, verify identical product and reconcile
+metadata without another restart; never label a documentation SHA as new code.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+This reconciles existing shared Session conversation repair, with no new roadmap capability.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Native shared-feed rendering, original Watch voice/STT and audible acceptance remain distinct.
+#1439 signing/restore/physical Apple/APNs gates remain open. No screenshot,
+current track, diagnostic URI or lost original Session mints playback authority.
+HAEVN collections, ForYou confirmation correlation, Bulletin processor/retention/
+image contracts and Apple controls retain their own evidence and owners.
+
+#### Deferred Items
+
+Retained-latest #1486 remains outside this build. Help28 EN/NL qualified /42
+DE-FR-ES pending textual publication and all five-language UI data are preserved.
+Other lanes and source WIP are retained. The timer remains stopped.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for source1495 only. Five documents, no product,
+fixture, configuration or policy changes; predecessor bytes remain unchanged.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Preserve source/debug worktrees, original failures, bundles and private rollback.
+Remove only this own clean merged unused Finalization after full object/content
+proof and immediate activity checks. Preserve all unique WIP and user data.
+See [qualification](docs/verification/CURRENT_METADATA_SESSION_HISTORY_20261106.md).
+
+<!-- session-metadata-1495-finalization-end -->
+
+## 2026-11-06 — Shared literal current metadata Session history
+
+#### Repository Status
+
+Direct human instruction authorizes scoped PR merges, separate Finalization and
+HA-dev deployment without overnight questions. This isolated source increment
+starts from qualified maine7dd585cdf7ae37c463a82e8b5847f6b7b46b356, after source1493
+and Finalization1494 were reconciled and their own Finalization workspace cleaned.
+Current host verify exited0/MATCH. Normal exact-head checks and registered Owner
+Authorization remain; standing human scope does not invent source/signer/grants.
+
+#### Management Summary
+
+The actual active Session had playback and DJ entries but no Ask DJ conversation
+entries; the successful literal current-artist reply was always marked private,
+so no Profile Store/Session references were written. The new Python-only typed
+candidate reuses existing original-owner metadata archive admission for a fresh,
+matching literal current response in the explicitly identified original Session.
+Exact original SQL playback, item hash, Profile/account/provider/entry and history
+permissions qualify; source runtime epoch withdrawal is a strict denial across
+Store acknowledgement and final commit. No client/model dictionary mints this
+admission. Only literal question/answer/source links are stored, with no image,
+audio, action or reply-media grant and no model-processing basis. The live short
+image remains independently leased. Other private turns and selected catalogue/
+Moment/queue/forecast content retain their previous boundaries. Disabled history
+and general requests without an original Session hint remain unchanged.
+
+The causal failures and original runtime-metadata evidence are retained. Focused
+source checks cover paired literal entries, privacy/history denial, track/source
+withdrawal, original provider epoch and Store compensation, dictionary injection
+and private-thread isolation. Disposable actual HA proof uses separate ordinary
+Mac/iPhone/Watch pairing, a declared STT transcript boundary, current source and
+real SQLite/HA Store reads; all three receive the same original entries. It also
+covers reload, deduplication, another Profile and owner clear. Final qualification
+and exact source/harness bindings are recorded separately before source commit.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+This repairs the existing shared Session conversation product contract. Golden998
+case definitions, model policy, EN/NL scope and all five-language UI data remain.
+The transcript fixture is not real microphone/STT-provider/native acceptance.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Source PR checks, exact-head authorization registration, protected merge,
+independent main, original-1439-preserving debug install/readback and separate
+Finalization are distinct gates. Native shared-feed and actual Watch voice
+transport/STT acceptance remain with Apple. The original voice failure has no
+captured request/HTTP code yet; the Assist pipeline is unchanged. #1439 live
+signer/restore/physical/APNs authority remains separate and is not fabricated.
+
+#### Deferred Items
+
+HAEVN artist-collections WIP remains in its own branch. Bulletin speech/retention/
+image and retained-latest widget/Activity/background contracts remain independent
+follow-ups. #1486 is still draft. Help28 EN/NL qualified /42 DE-FR-ES pending
+textual publication and all five-language UI data are preserved. Timer stopped.
+
+#### Repository State
+
+Predecessor Repository State: `MERGED_RECONCILED`; this source is a new bounded
+reviewable increment requiring its own merge and separate documentary Finalization.
+No old missing RAM question is reconstructed or inserted from a screenshot.
+
+#### Workspace State
+
+Only this source worktree is modified. Preserve unrelated source WIP, original
+#1439 overlay, source/debug bundles, failed qualification attempts and private
+HA-dev rollback. No broad cleanup or user-data deletion is part of this change.
+
+<!-- current-metadata-session-history-source-end -->
+
+## 2026-11-06 — Direct artist source1493 Finalization
+
+#### Repository Status
+
+Source PR [#1493](https://github.com/pcvantol/djconnect/pull/1493) merged as
+`19f6d95155d99d7b4d1574fd12fa3ce2ee8d5fde` from exact human-approved
+`71a08574a67367954853befbb3d32adb26ae76d6`. All source checks passed,
+Owner Authorization42291801056 and independent main42291904254 passed.
+This separate five-document increment reconciles that implementation only.
+
+#### Management Summary
+
+The owner's explicit choice is implemented: Discovery artist Play Now starts
+that exact artist directly through Spotify, without a This Is promise. The
+original cached card, paired Profile/account/consent, actual unrestricted output
+and one-transport fences remain. No editorial playlist search/items, guessed
+playlist, client URI substitution, transfer, append or automatic retry is used.
+Actual read-only probes resolved the three reported artists but found no qualified
+This Is candidate; search absence does not establish the app's quota mode.
+
+All4704 canonical process-sharded tests reconcile with11 existing skips,
+42 focused checks,172 verification-framework checks,8 lifecycle/roadmap checks,
+Ruff, Bandit and diff validation pass. All34 isolated actual HA groups pass on
+frozen308 product files; the14-case Discovery proof and current source-bound
+receipts derive from real reruns. Original failures and historical receipts
+remain. Golden998 definitions, model policy, locales and execute:false are unchanged.
+
+HA-dev debug `1d06a9a50d710853c1f8e1cadb6fbebc688901b1` is built from qualified main19f6d951
+plus the exact original #1439 overlay SHA256
+502d3f509e50f0494fe082fb5f29d204350eee3cf3a07e6479d9f4a832e09755.
+Independent reconstruction matches product80811c543bd76c3f9fb532824ae38dfe9d79cd7b.
+All34 actual HA groups and14 original Watch tests pass on identical composite
+product bytes. All308 installed hashes, configcheck0, frontend/capabilities200,
+paired Session and EN/NL Help reads, DBquick_check and unchanged Profile defaults
+pass. DEFAULT and both actual Mac backend reads return200/success and available.
+One controlled restart and private source/storage rollback are retained.
+Active Session during readback: False.
+No new OAuth, playback, volume, pairing, model or APNs effect was performed.
+This is installation/runtime evidence, not live artist playback or audible/native
+acceptance. After the documentary merge, verify identical product and reconcile
+metadata without another restart; never label a documentation SHA as new code.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+This reconciles existing Discovery action repair, with no new roadmap capability.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Live artist playback, native queue refresh and audible acceptance remain distinct.
+#1439 signing/restore/physical Apple/APNs gates remain open. No screenshot,
+current track, diagnostic URI or lost original Session mints playback authority.
+HAEVN collections, ForYou confirmation correlation, Bulletin processor/retention/
+image contracts and Apple controls retain their own evidence and owners.
+
+#### Deferred Items
+
+Retained-latest #1486 remains outside this build. Help28 EN/NL qualified /42
+DE-FR-ES pending textual publication and all five-language UI data are preserved.
+Other lanes and source WIP are retained. The timer remains stopped.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for source1493 only. Five documents, no product,
+fixture, configuration or policy changes; predecessor bytes remain unchanged.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Preserve source/debug worktrees, original failures, bundles and private rollback.
+Remove only this own clean merged unused Finalization after full object/content
+proof and immediate activity checks. Preserve all unique WIP and user data.
+See [qualification](docs/verification/DISCOVERY_DIRECT_ARTIST_20261106.md).
+
+<!-- direct-artist-1493-finalization-end -->
+
+## 2026-11-06 — Direct artist playback from Discovery
+
+#### Repository Status
+
+Explicit owner choice: play the selected artist directly through Spotify,
+without a This Is promise. Dedicated branch codex/discovery-direct-artist-20261106
+starts at qualified main48434a60ccef649725a4bc8898f4aa3210570e6a. Predecessor
+source1491 and separate Finalization1492 are merged and reconciled; the verified
+Finalization worktree was bundled and removed. Current machine verification
+exited0/MATCH. Source review and exact-head protected authorization are separate.
+
+#### Management Summary
+
+Artist Play Now resolves the exact original server-cached artist identity and
+starts that same artist context. Editorial search and playlist-items access are
+not prerequisites. The existing paired Profile/account/consent/cache/output and
+single-transport fences remain. No client URI, guessed playlist, fan playlist,
+top-tracks substitute, transfer, queue append or automatic retry is introduced.
+Track, album, playlist and read-only explicit candidate diagnosis remain separate.
+The three actual artist read probes succeeded but found no qualified official
+This Is search candidate; this establishes the unusable dependency, not the
+Spotify app's quota mode. No new OAuth or broader scope is needed by this change.
+
+The original isolated HA failure is preserved before the product fix. Current
+synthetic provider/real paired HA checks validate artist identity, one direct
+context PUT, no editorial lookup, ignored extra client URI, wrong identity,
+denial, duplicate/concurrent selection, stale cache, changed pairing during artist
+and token waits, active output and actual aiohttp disconnect without replay.
+See the separate qualification record for final test counts and source pins.
+No source proof claims installed, live provider, native or audible acceptance.
+
+#### Roadmap Position
+
+Generation2 Product Development / Phase1 Platform Qualification is unchanged.
+This repairs an existing Discover action; no new platform capability is issued.
+Golden998 scenario definitions, EN/NL selection, all five UI languages and
+execute:false are preserved. Current evidence is rebound only from actual reruns.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Exact-head Owner Authorization, protected source merge, independent main CI,
+separate Finalization and HA-dev debug install with original #1439 remain gates.
+After install, real artist-context readback and native/audible acceptance must
+be recorded separately. #1439 live signing/restore/physical Apple/APNs gates
+remain open. Retained-latest #1486 remains outside this build.
+
+#### Deferred Items
+
+Existing HAEVN artist-collections WIP is preserved in its own branch. ForYou
+receipt correlation, Bulletin speech/retention/image contracts and Apple UI
+follow-ups retain their own owners and evidence. Help28 EN/NL /42 DE-FR-ES
+textual qualification boundary and all five-language UI data remain unchanged.
+The timer remains stopped.
+
+#### Repository State
+
+Source increment is locally reviewable after its checks; no merge or install is
+claimed. Repository State: `MERGED_RECONCILED` describes predecessor source1491
+only; this source requires its own protected merge and separate Finalization.
+
+#### Workspace State
+
+Only the new repair worktree is modified. Original detached/canonical worktrees,
+HAEVN WIP, original #1439 overlay, evidence and private installation rollback are
+preserved. No cleanup or user-data deletion is included.
+
+<!-- direct-discovery-artist-source-end -->
+
+## 2026-11-06 — Profile reconnect source1491 Finalization
+
+#### Repository Status
+
+Source [#1491](https://github.com/pcvantol/djconnect/pull/1491) merged as
+`88463e73b21f358fa585b977ab393141311a68bf` from exact human-approved
+`c81a3828f6017c01600a5e3ca7521873e65bc0a4`. All technical source checks passed;
+Owner Authorization run42282203893 and independent main run42282324180 passed.
+This separate documentary increment retains its own protected checks.
+
+#### Management Summary
+
+Spotify reconnect belongs to the current Profile/account, reachable from every
+currently linked supported device. The original HA storage entry's device name
+is not a user prerequisite. Ordinary PKCE revalidates the original requester,
+binding generation, Profile/account/backend/client ID and exact existing owner
+across awaits. Only that owner receives the grant; caller credentials are not
+copied. Disabled/unloaded/ambiguous/changed ownership and unfenced legacy local
+credential fallback stay closed. Original orphan repair remains separate.
+Same-Spotify selection reuses the current Profile connection; options completion
+uses the HA options manager. Initial setup no longer touches a global runtime.
+Observation-only scope metadata persists without triggering reload loops, while
+real configuration changes still reload. The related read-only Discovery view
+checks the registered original caller and preserves provider and pairing fences.
+All five UI languages receive the missing localized options error.
+
+All4700 canonical process-sharded tests reconcile (11 existing skips),172
+verification-framework tests,178 focused checks,8 lifecycle/roadmap checks,
+Ruff, Bandit medium/high and diff validation pass. All34 actual isolated HA
+protocol groups pass against frozen308 product files. Ten new Profile callback/
+Store cases and paired canonical-view/stale-pairing proof are bound to actual
+reruns. Historical failures/original receipts remain; no assertions or extra skips
+were introduced to hide exploratory serial test-order coupling. Golden998 case
+content, model policy, locales and execute:false are unchanged.
+
+HA-dev debug `bb0309cb7fdfdadf5c5f87b5e4d1e4d77352e501` is based on qualified main88463e73
+plus the exact original #1439 patch (SHA256502d3f509e50f0494fe082fb5f29d204350eee3cf3a07e6479d9f4a832e09755).
+Independent reconstruction matches the qualified composite product tree. The
+same composite passed all34 actual HA groups and14 original #1439 write/replay
+tests. All308 installed hashes, configcheck0, frontend/capabilities200, paired
+Session and EN/NL Help readback, DBquick_check and unchanged Profile defaults
+pass. DEFAULT and both actual Mac backend status reads return200/success with
+backend_available:true. Current OAuth/Profile storage was preserved; one controlled
+restart and fresh private source/storage rollback are retained. No new OAuth,
+playback, volume, pairing, model, audible/native or APNs action was performed.
+Active Session during readback: False.
+After this docs-only merge, rebind identical product provenance and read runtime
+again without another restart; do not describe a documentation SHA as new code.
+
+#### Roadmap Position
+
+Generation2 Product Development, Phase1 Platform Qualification is unchanged.
+This increment reconciles source1491 only. Planned Settings consumers and their
+producer dependencies were reread; no new roadmap capability is authorized.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+#1439 remains unmerged with exact live signing/restore and physical Apple/APNs
+verification separate. This Profile repair does not supply those authorities.
+The real provider's Discover candidate/HAEVN catalogue access, original ForYou
+operation-to-confirmation correlation, Bulletin speech unavailable reason and
+retained-feed/source-image contract remain active separate follow-ups. No old
+card, screenshot, generic now-playing or expired source mints a new grant.
+
+#### Deferred Items
+
+Retained-latest #1486, paid Golden findings and physical/native acceptance are
+unchanged. Preserve the Help28 EN/NL qualified /42 DE-FR-ES pending textual
+publication boundary and all five-language UI data. Timer remains stopped.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for source1491 only. This PR changes exactly four
+rolling records plus one immutable history, no product/fixture/contract/policy.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Keep source/debug worktrees, original failures, verified bundles and all private
+rollback. Remove only this own clean merged unused Finalization after full
+object/content equality and an immediate complete activity check. Other lanes,
+WIP, Profile credentials, account/history and pending Apple work are retained.
+See [immutable history](docs/history/2026-11-06-profile-reconnect-1491-finalization.md)
+and [qualification](docs/verification/PROFILE_SPOTIFY_RECONNECT_20261106.md).
+
+<!-- profile-reconnect-1491-finalization-end -->
+
+## 2026-11-06 — Profile-owned Spotify reconnect repair
+
+#### Repository Status
+
+Authorized repair on `codex/profile-spotify-reconnect-20261106`, based on
+qualified main `b5f06bb6ec29b7d2a5f2ca464550b269def8976d`. Predecessor #1490
+Finalization and independent main run42277371292 passed. Its identical clean
+worktree was bundled, verified and removed; other lanes and WIP are preserved.
+Current host verify exited0 with all required desired-state rows MATCH.
+Local source qualification passes all4700 canonical tests (11 existing skips),
+all34 actual-HA groups,178 focused tests and8 lifecycle/roadmap checks.
+Protected source PR qualification and exact Owner Authorization follow.
+
+#### Management Summary
+
+Spotify belongs to the Profile/account. Any currently linked supported device
+can open normal PKCE reconnect for that same current HA credential owner.
+The device title that originally stored the grant is never a user prerequisite.
+Source resolves and fences the current device binding generation, Profile,
+account, backend, client ID and exact existing owner across OAuth awaits.
+Credentials remain only in that owner; original orphan recovery stays separate
+and cannot elect over an existing, disabled or unloaded owner.
+Selecting the already selected Spotify backend reuses the connection without
+requiring local client credentials or starting another grant. A stale deleted
+owner reference may be reconciled only for the explicitly selected requester.
+
+Initial setup no longer changes a global existing runtime. Reauthorization
+updates only its exact current owner and completes the HA options manager.
+A changed/replaced requester or owner, ambiguous ownership and old local
+credential fallback cannot bypass current Profile admission. New options error
+rendering is present in all five supported languages.
+
+Scope-observation metadata persists without full integration reloads; meaningful
+client-ID/backend/Profile configuration still reloads. The related read-only
+Discovery command validates its registered caller while retaining the canonical
+view's original provider and complete scope, including stale-pairing rejection.
+
+All34 maintained isolated actual-HA protocol groups pass on the same308 product
+files. Ten new callback/Store cases pass; the separate real paired canonical-view
+probe succeeds and denies a changed pairing. Existing fixtures, historical
+failures and actual rerun receipts are retained. Full repository test and static
+results are recorded in `docs/verification/PROFILE_SPOTIFY_RECONNECT_20261106.md`.
+Real OAuth, installed/native, audible playback and APNs acceptance are separate.
+
+#### Roadmap Position
+
+Generation2 Product Development, Phase1 Platform Qualification stays unchanged.
+This increment reconciles source1489 only. Settings producer/dependencies and
+planned consumer horizon were reread; no new consumer prompt is issued.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Current-source GitHub checks and exact Owner Authorization are required before
+merge; mandatory separate Finalization follows. HA-dev source-only recovery
+remains debug1e990d979d55b5e54f58f3e90f9a65ec03c92516 with the original #1439
+patch. Do not reinstall the known-failing scope observer before this repair is
+qualified. Installation after merge requires independent composite qualification,
+all installed hashes and runtime readback, preserving current credentials.
+#1439 live signer/restore/physical Apple/APNs gates remain open. HAEVN discovery
+and the native uncertain ForYou presentation remain separately correlated work;
+no provider rejection or fabricated catalogue rows are inferred from absent logs.
+
+#### Deferred Items
+
+Retained-latest draft #1486, historical paid Golden findings and physical/native
+acceptance are unchanged. No model or provider calls were used for this source
+qualification; Golden998 case policies/locales and execute:false are preserved.
+The Help EN/NL textual publication boundary and all five-language UI data remain.
+
+#### Repository State
+
+REVIEWABLE_FROZEN — one coherent Profile reconnect/reload regression repair.
+See `docs/product/PROFILE_SPOTIFY_RECONNECT_V1.md` and the dated verification
+report. Normal protected Source and separate Finalization remain mandatory.
+
+#### Workspace State
+
+Own isolated source branch only. All previous product/debug/overlay worktrees,
+private recovery snapshots, original receipts and WIP remain. Prior #1490
+Finalization cleanup is proven; global WORKSPACE_READY is not claimed for other
+active lanes. Timer remains stopped.
+
+## 2026-11-06 — Discovery source1489 Finalization
+
+#### Repository Status
+
+Source [#1489](https://github.com/pcvantol/djconnect/pull/1489) merged as
+`7c789d00f0e27adeb744a3ed8347ff6b0267073f` from exact human-approved
+`1c62e3a93837660b95425f83a94c5914591c60b8`. All technical source checks passed.
+Owner Authorization [42273191305](https://github.com/pcvantol/djconnect/actions/runs/42273191305)
+and independent main validation [42273279331](https://github.com/pcvantol/djconnect/actions/runs/42273279331)
+passed. This mandatory separate documentary increment retains its own checks.
+
+#### Management Summary
+
+Discover no longer sends context-only selections to an offset-only operation or
+reports played:true/positive DNA feedback after a failed start. Exact cached
+artists resolve only to bounded real Spotify-owned This Is candidates, matching
+provider artist identity, normalized title, consistent URI and credited artist
+IDs. Missing/ambiguous/denied evidence never becomes a fan playlist, guessed ID,
+web-scraped fallback or old-card authority learned from a diagnostic read.
+
+One task-local original-owner/Profile/source/consent/cache-lease scope permits
+one exact context/track PUT on the observed active unrestricted output. It rejects
+changed ownership, duplicates and child-task/JSON-minted scope, with no automatic
+transfer, redirect or401 write retry. Public per-request aiohttp middleware also
+blocks its implicit idempotent PUT retry after socket loss, without changing
+shared-session retry settings. Only acknowledged still-authorized dispatch can
+record positive feedback into the original resolved record. New scoped errors
+contain stable machine codes for five-language client rendering, no raw provider
+or English-only message; current discovery/play request body stays unchanged.
+
+409 related/receipt/roadmap/lifecycle tests and all32 maintained real isolated HA
+protocol suites pass on unchanged308 product files. The final14-case Discovery
+proof uses ordinary pairing, Profile, Music DNA Store/cache, actual HTTP/adapter
+code and a normal default aiohttp ClientSession. Only external provider wires
+are synthetic; no real provider/model calls or installed mutations occur there.
+A real loopback server accepts a PUT then drops the response; the second attempt
+is blocked, one write is received and the outcome stays unknown without feedback.
+Historical artwork verifier/receipts/assertions and original failed attempts are
+retained. Golden998 cases, policies, locale scope and execute:false are unchanged;
+current receipts and native inventory hashes are refreshed from actual reruns.
+
+HA-dev debug `d393800fe2de76b47848bbe40fb926747f47425b` combines qualified main with exactly the original
+#1439 patch (SHA256502d3f509e50f0494fe082fb5f29d204350eee3cf3a07e6479d9f4a832e09755).
+Independent reconstruction matches every product blob. This combination passes374
+behavior tests, the original1439 signed-write tests and all32 actual HA protocols.
+All308 installed hashes, configcheck0, frontend/capabilities200, ordinary paired
+Session/EN-NL Help readback200, DBquick_check ok and unchanged Profile defaults
+pass. One controlled restart and private source/storage rollback are retained;
+no new Session, playback, volume, pairing, native or APNs action was performed.
+Active Session for the runtime readback identity: False.
+
+After installation, one explicit paired read-only diagnostic request checked the
+publicly verified Armin van Buuren artist/official This Is playlist candidate via
+DEFAULT. HTTP200; success=False; read_only=true;
+dispatch_authority=false. The installed read returned a local context_changed guard rejection with no provider HTTP status. No Spotify API access denial or app-mode conclusion is established. Investigation identifies the canonical ProfileBackendView authority subject as a follow-up; the guard must be corrected with preserved owner fences and a new source qualification, not bypassed operationally.
+All11 actual Spotify grants were already known from the ordinary #1487 refresh;
+no PKCE, credential export, broader rights, model call or playback write was used
+for this diagnosis. It does not supply a runtime artist-card URI fallback.
+
+Subsequent live investigation established an independent operational regression:
+spotify_scope_evidence changes observed_at on refresh, but the entry reload
+signature does not exclude that metadata. Since18:47:53Z, safe log counters showed
+536 repeated setup lines and470 profile_connection_unavailable events, with no
+invalid_grant. Ordinary DEFAULT-owner status was200 while both Macs returned400
+profile_connection_unavailable. No missing Spotify rights or revoked grant was
+established. The read-only diagnostic's local fence denial is therefore not a
+provider access outcome; canonical view handling also remains a separate check.
+
+To restore service, only source was returned to the intact previously qualified
+debug1e990d979d55b5e54f58f3e90f9a65ec03c92516 (main_dacf9cd0 plus original1439).
+All308 recovery hashes, configuration check0, DBquick_check and unchanged Profile
+defaults passed. Fresh ordinary status reads from DEFAULT and both actual Macs
+now return200/success/backend_available:true. Current credentials and Profile
+storage were not restored or rewritten from backup. The newer source and a fresh
+private recovery snapshot remain retained. #1489 and scope observer changes are
+temporarily absent from HA-dev; original source/CI/merge evidence remains true.
+
+Do not relabel this older installed product as the latest main or reinstall the
+known failing observer solely for this documentary PR. The recovery manifest
+remains authoritative. The next source repair must exclude observation-only
+receipts from reload identity, retain all original pairing/Profile/source fences
+and route reconnect from any client to the existing Profile credential owner,
+without copying credentials or requiring a device-named configuration choice.
+The human explicitly confirmed Profile->Spotify, devices->Profile ownership.
+Operator-specific receipts remain private; source, installation, provider access
+and native/audible outcomes stay distinct. No real playback or new OAuth grant
+was used to diagnose or restore service.
+
+#### Roadmap Position
+
+Generation2 Product Development, Phase1 Platform Qualification stays unchanged.
+This increment reconciles source1489 only. Settings producer/dependencies and
+planned consumer horizon were reread; no new consumer prompt is issued.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+The explicit DEFAULT candidate read is still blocked by the local context_changed
+guard outcome. Correct the canonical ProfileBackendView authority subject in a
+separate qualified source repair; preserve every original identity/provider fence.
+Physical/native Discover queue refresh and audible acceptance remain separate.
+One context PUT/acknowledgement does not prove manually queued Spotify entries
+were erased. Public playlist existence, API search visibility and actual metadata/
+items access remain distinct. #1439 is unmerged with exact live signing,
+independent restore and physical Apple/APNs gates. Retained-latest projection4
+#1486 remains a separate draft, not an installed capability. Native Golden
+admission and historical paid Golden findings are not closed by these fixtures.
+
+#### Deferred Items
+
+No production deployment, credential or scope expansion, automatic provider
+substitution, physical install or timer. Preserve all five UI languages and the
+Help28 EN/NL qualified /42 DE-FR-ES pending publication boundary. Apple debug40495
+installation was reported independently by its lane, not performed or qualified
+as Spotify/UI/APNs acceptance by this source transaction.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for source1489 only. Branch base is main7c789d00.
+Other canonical and active lane checkouts are retained unchanged.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Preserve source/debug worktrees, original failures, proof bundles and private
+rollback. Remove only own clean merged unused Finalization after full object/
+content equality and immediate activity proof, without global cleanup.
+See [immutable history](docs/history/2026-11-06-discovery-1489-finalization.md)
+and [qualification](docs/verification/DISCOVERY_ARTIST_CONTEXT_20261106.md).
+
+<!-- discovery-1489-finalization-end -->
+
+## 2026-11-06 — Spotify granted scopes source1487 Finalization
+
+#### Repository Status
+
+Source [#1487](https://github.com/pcvantol/djconnect/pull/1487) merged as
+`0d5eb7667711bebf51bd81a1dc0e7b2d555e61da` from exact owner-approved
+`e724b20431e72e51c8fb654a36fbdeb695f7be78`. Owner Authorization
+[42261543271](https://github.com/pcvantol/djconnect/actions/runs/42261543271)
+and independent main validation
+[42261721851](https://github.com/pcvantol/djconnect/actions/runs/42261721851)
+passed. This separate documentary increment retains its own protected checks.
+
+#### Management Summary
+
+Requested Spotify scopes and actual provider grants are now separate. The normal
+callback and same-client token refresh persist a closed credential-free receipt;
+missing or malformed provider scope stays unknown. No requested-list inference,
+broader rights, account substitution or playback probe is introduced. Diagnostics
+and the existing missing-scopes Repair use the actual grant when known.
+
+347 related regressions and59 receipt/contract checks pass. All31 actual isolated
+HA protocols pass on unchanged308 product files. The new14-case actual HA proof
+covers full/partial/empty/missing/malformed grant metadata, owner/client fences,
+callback consumption, ordinary refresh and Repair creation/removal. Historical
+failures and original receipts remain retained. Golden998 references, locale and
+model scope and execute:false remain unchanged; no model/provider/native calls
+were made by these isolated qualifications.
+
+HA-dev debug `a5bb31d1a6dacaf0059aa87e74330d39be2e4ee3` combines main0d5eb766 with the exact previously
+installed #1439 product patch. Independent reconstruction from main plus that
+original patch matches every product blob. Composite31 HA protocols and361
+behavior tests pass. The local installer first stopped before mutation on two
+outdated assertions:318 versus actual308 files and equality of config_flow.py
+with old1439 despite the newly approved scope change. Automatic review rejected
+loosening that gate. The original script and failures were preserved; independent
+reconstruction and per-file equality now enforce the approved combined tree.
+
+Installation verified all308 hashes, configcheck0, frontend/capabilities200,
+ordinary paired Session/EN-NL Help readback200, DBquick_check ok and unchanged
+Profile defaults. One controlled restart and a private source/storage rollback
+were retained. No new Session, playback, pairing or native install was performed.
+The readback identity had no active Session after restart.
+
+On2026-11-06T17:40:33.296385Z, the existing DEFAULT credential owner's ordinary
+refresh returned actual token.scope: all11 requested rights granted, with the
+receipt bound to the effective client identity. No missing grant remains. No
+new PKCE round or scope expansion was needed or performed. This proves grants,
+not Spotify app-mode playlist access, successful artist playback, audible output,
+Apple UI behavior or APNs delivery. Provider playlist access remains separately
+bounded and read-only before any later explicit playback acceptance.
+
+After this docs-only merge, update identical product provenance and independently
+read runtime again without another restart. Private operational receipts retain
+owner-specific details; no tokens or raw provider credentials enter these docs.
+
+#### Roadmap Position
+
+Generation2 Product Development, Phase1 Platform Qualification remains unchanged.
+This increment reconciles source1487 only. Canonical settings producer and planned
+consumer horizon were reread; no new consumer prompt or dispatch is issued.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+#1439 stays unmerged; exact live signing, independent restore and physical Apple/
+APNs gates remain separate. Ontdek artist context repair and retained-latest
+projection4 remain separate source candidates, not installed capabilities.
+Apple source#323 merge is not a native installation or physical acceptance claim.
+Native Golden admission and historical paid Golden findings remain open.
+
+#### Deferred Items
+
+Real provider/native/model acceptance remains separately scoped and authorized.
+Preserve all five UI languages and Help28 EN/NL qualified /42 DE-FR-ES pending
+publication boundary. No production deployment, broader OAuth rights or timer.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for source1487 only. Branch base is main0d5eb766.
+Other canonical and active lane checkouts remain untouched.
+
+#### Workspace State
+
+Workspace State: `NOT_READY` globally while independent lanes remain active.
+Preserve source/debug worktrees, original failures, proof bundles and private
+rollback. Remove only own clean merged unused Finalization after authoritative
+content/object proof and immediate activity checks; no global cleanup.
+See [immutable history](docs/history/2026-11-06-spotify-scopes-1487-finalization.md)
+and [qualification](docs/verification/SPOTIFY_GRANTED_SCOPES_20261106.md).
+
+<!-- spotify-scopes-1487-finalization-end -->
+
+## 2026-11-06 — Passive widget source1484 Finalization
+
+#### Repository Status
+
+Source PR [#1484](https://github.com/pcvantol/djconnect/pull/1484) merged as
+`dba4d1c8b078ea953950092f39157a9a906d6a53`, from exact approved
+`c5990379f95059559edb3546f6edfd363c248544`. All Source technical checks passed.
+Owner Authorization [42251106644](https://github.com/pcvantol/djconnect/actions/runs/42251106644)
+and independent main validation [42251186620](https://github.com/pcvantol/djconnect/actions/runs/42251186620)
+passed. This separate documentary Finalization retains its own protected merge.
+
+#### Management Summary
+
+Explicit rich projection3 carries original position/duration/state with original
+dual-clock bounds; renderer ticks, reads and Mood do not refresh evidence. Separate
+own paired Watch widget1 carries only track/current cover/confirmed Mood, with
+own locked-display/cache consent. No phone grant/content replication or background
+permission. Expiry/withdrawal clears Watch content and Mood. Existing v1/v2 and
+Direct-rich-v1 codecs remain unchanged. LiveActivity track/cover/Mood lifetime is
+independent of a shorter DJ contribution. A retained-latest DJ display beyond its
+original short presentation lease is a separately requested dependent source
+candidate, not a delivered #1484 capability or a client cache permission.
+
+41 passive tests and95 combined regressions pass; all30 actual isolated HA
+protocols pass on unchanged308 product bytes. The new HTTP proof covers17 cases,
+including ordinary own Watch pairing, current-cover bytes, cross-scope rejection,
+repeat reads, Settings3 Mood, new samples, expiry and revoke. Only external wires
+are synthetic; no real provider/model/native effects.29 current receipts are
+requalified from actual runs, historical originals retained.998 Golden references,
+case/model/locale scope and execute:false are preserved. Original red tests,
+fixture failures, document-binding CI failure and neutral-state rerun are kept.
+
+HA-dev debug `8beb95a10a502801a994fafb830ecf452bc00b47` combines this main with exactly the prior
+installed #1439 product patch; independent product-tree composition proof passes.
+Only passive_session.py/passive_contribution.py/http.py change from installed
+product. The composite passes30 actual HA protocols and171 behavior regressions.
+The original main Watch test expected pre-overlay signed-read behavior; #1439's
+own original tests verify its preserved exact-write replay policy. The mismatch
+and passing overlay test are retained without a product change.
+
+All308 installed hashes, configcheck0, frontend/capabilities and ordinary paired
+runtime readback200, DBquick_check ok and unchanged stored Profile defaults pass.
+One controlled HA-dev restart, private storage/source rollback, no live playback,
+volume, pairing, native install or APNs action. Active Session after restart for
+the readback identity: False.
+After this docs-only merge, update identical product provenance and independently
+read runtime again; no second restart or provider/native acceptance is inferred.
+
+#### Roadmap Position
+
+Generation2 Product Development, Phase1 Platform Qualification stays unchanged.
+This increment reconciles source1484 only. The canonical settings horizon and
+producer dependencies were reread; no new consumer prompt or dispatch is issued.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Physical widget/Smart Stack/shared-store/ActivityKit/Dynamic Island/lockscreen
+acceptance and actual background/APNs delivery remain Apple-owned and unqualified.
+The retained-latest contribution purpose is not implemented by this increment.
+#1439 remains unmerged with exact live signer/independent restore/physical gates.
+Integral native Golden still requires its real disposable fixture, independent
+source/app/operator/budget/transport/effect receipts; source proof is not admission.
+The historical paid Golden failure and39 Core findings/29 quality steps stay open.
+
+#### Deferred Items
+
+Real model/native/provider qualification stays manual or release-relevant, not
+per-PR. Preserve all five UI languages and the Help28 EN/NL /42 pending DE/FR/ES
+boundary. No production/native deployment, OAuth repair, new credential or timer.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for source1484 only. This branch starts at current main
+ dba4d1c8. Other canonical/worktree checkouts are not switched to manufacture
+main==origin/main. The separately requested retained-latest candidate is parked
+without changing this approved source transaction.
+
+#### Workspace State
+
+Workspace State: `NOT_READY`. Preserve active source/debug/Apple worktrees, all
+original failures/evidence and private rollback. Remove only own merged clean
+unused worktrees after full object/content and immediate activity proof. No
+global cleanup or next-capability readiness follows from this installation.
+See [immutable history](docs/history/2026-11-06-passive-widget-1484-finalization.md)
+and [qualification](docs/verification/PASSIVE_PROGRESS_AND_WATCH_SCOPE_20261106.md).
+
+<!-- passive-widget-1484-finalization-end -->
+
+## 2026-11-06 — Spotify volume source1482 Finalization
+
+#### Repository Status
+
+Source PR [#1482](https://github.com/pcvantol/djconnect/pull/1482) merged as
+`220e6c49f333bb7a2bacd8b6be4aad1455da7fbf`, from exact approved
+`e119a4eb9e34966995ef84a45fe7a8f45444326a`. All Source technical checks passed.
+Owner Authorization [42238953362](https://github.com/pcvantol/djconnect/actions/runs/42238953362)
+and separate main validation [42239093092](https://github.com/pcvantol/djconnect/actions/runs/42239093092)
+passed. This is source/debug delivery, not real iPhone volume or native acceptance.
+The separate documentary Finalization needs its own protected merge.
+
+#### Management Summary
+
+Spotify's explicit supports_volume true/false is preserved; unknown is not
+inferred from device name/type/is_restricted. Only the specific403 volume refusal
+becomes the existing supports_volume capability rejection. Both set_volume and
+volume_delta failures are command-scoped; generic volume failure omits global
+health, no longer changes last_error/backend cache or DJ/voice state, and never
+wraps a failed operation as success. Independent status errors retain their
+existing policy. There is no new provider request or automatic retry.
+
+Original red regressions remain preserved. Nine new behavior tests plus one
+current actual-receipt binding, 257 related pinned-HA tests, 47 current proof checks
+and 29 actual isolated HA protocols pass. The new actual paired HTTP/SQLite volume
+proof has 18 EN/NL cases across 49 requests. All provider/token responses are
+synthetic and no real provider/model call occurs in qualification. 28 maintained
+current receipts are rebound from actual reruns, never hash-only updates; historical
+originals remain. Apple independently reports 10 compatible client response cases
+green. Installed/native/provider/audio acceptance remains separate.
+
+HA-dev was installed from new main plus the exact preserved previous #1439 patch:
+`77b11c681a51d042909f4f472bdfe32db1797552`. Product-tree equivalence to main plus
+that original patch is independently checked; only api_handlers.py/http.py/
+spotify_backend.py differ from the previous installed product. All 308 installed
+hashes, config check 0, frontend/capabilities and ordinary paired active-Session
+readback 200, database quick_check ok and unchanged stored Profile defaults pass.
+No active Session exists for the readback identity after the authorized restart.
+One controlled HA-dev restart occurred; no live volume command or native install.
+Exact composite validation passes29 HA protocols and 343 related test executions.
+The isolated Websocket worker initially lacked its normal HA core stub; original
+failure is retained and the same assertions pass with ordinary HTTP bootstrap
+(36 tests), without product changes. Rollback includes private DJConnect stores
+and config entries. After this docs-only merge, rebind identical installed product
+bytes to new-main provenance and independently read runtime again; no second restart.
+
+#### Roadmap Position
+
+Generation 2 Product Development, Phase 1 Platform Qualification is unchanged.
+The active increment is documentary reconciliation of the volume command repair.
+The canonical five-item settings horizon was reread, not rescheduled by this bugfix.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Derived afresh from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md;
+producer edges SETTINGS-4/6/8/10/12 retain the same prerequisites. These entries
+do not issue prompts or grant execution/native dispatch authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact consumer acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Physical iPhone refusal presentation and real device volume capability remain
+unverified. Expensive integral native Golden still needs actual disposable fixture,
+installed app/producer, operator budget/transport coverage and independent effect/
+audio receipts. Source protocol/inventory is not live admission. The historical
+paid release Golden failure and 39 Core findings/29 quality steps remain open.
+#1439 remains unmerged with live signer/independent restore and physical/APNs gates.
+No authorization for those scopes is inferred from this volume repair.
+
+#### Deferred Items
+
+Slow/costly real native/provider runs stay manual or explicitly release-relevant,
+not per-PR. All five product languages and the Help 28 EN/NL / 42 pending DE/FR/ES
+boundary remain. No production/native deployment, OAuth repair, real volume test,
+new credentials, next capability or timer restart is performed here.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for source1482 only. This task branch starts at current
+origin/main 220e6c49. The canonical main worktree remains at its retained clean
+local checkout; main==origin/main is not claimed and another lane's checkout is
+not moved to manufacture equality.
+
+#### Workspace State
+
+Workspace State: `NOT_READY`. Active source/debug/Apple worktrees, unique evidence,
+original failures and private rollback stay retained. Remove only this task's
+merged clean unused worktrees after exact content/object and immediate activity
+proof; any open-file hold preserves the corresponding source/branch. No global
+cleanup or next-capability readiness is inferred from successful installation.
+See [immutable history](docs/history/2026-11-06-spotify-volume-1482-finalization.md)
+and [source qualification](docs/verification/SPOTIFY_VOLUME_ACTION_ERRORS_20261106.md).
+
+<!-- spotify-volume-1482-finalization-end -->
+
+## 2026-11-06 — Spotify volume action-error source increment
+
+Current branch: `codex/spotify-volume-action-error-20261106`, from main b9cc7a50.
+Source/offline validation is PASS; reviewable PR and exact protected merge remain
+separate. See [qualification](docs/verification/SPOTIFY_VOLUME_ACTION_ERRORS_20261106.md)
+and [contract](docs/product/SPOTIFY_VOLUME_ACTION_ERRORS_V1.md). Preserve explicit
+Spotify volume capability and isolate command failures from global backend/DJ/
+voice/Session state. 257 related pinned-HA tests and 29 isolated HA protocol suites
+pass with synthetic provider replies and zero real provider/model calls. Original
+failures and historical receipts remain. No HA-dev or native install in this step;
+after an approved merge, apply the user's main-debug update/readback policy with
+#1439 preserved. Generation 2 / Phase 1 Platform Qualification and canonical roadmap
+order stay unchanged. Native/client/audio and #1439 release gates remain OPEN.
+
+## 2026-11-06 — Native Golden source1480 Finalization
+
+#### Repository Status
+
+Source PR [#1480](https://github.com/pcvantol/djconnect/pull/1480) merged as
+`107e237ab2bde9e35abbcdc4a06ce8d17c0b7f80`, from exact approved
+`2b57e6d29ed06b3b6a8ea7e56955fbe14b23af12`. Source technical checks passed.
+Exact Owner Authorization [42233476359](https://github.com/pcvantol/djconnect/actions/runs/42233476359)
+passed. Main validation run 42233575495 has passed its tests/static checks;
+post-merge coverage evidence is still running at this documentary freeze point.
+No paid/native release qualification is claimed. This separate Finalization
+requires its own protected merge.
+
+#### Management Summary
+
+The offline protocol inventories 998 original references: 44 families/385 steps,
+560 Moment cases, 28 EN/NL Help observations and 25 producer cases. It source-binds
+40 ordinary Ask DJ and 28 pure Help GET rows while keeping missing locale/driver/
+owner mappings explicit. A draft plan or synthetic all-PASS evidence never grants
+live fixture, provider, native or release authority. Exact independent source/app/
+fixture/budget pins, bounded no-retry policy and counted failed attempts remain
+required. Zero real model/provider calls were used. 20 new tests, 29 combined
+observer/contract tests, 4 offline actual SDK transport tests, Ruff, projection
+and CLI no-execute/no-overwrite checks pass. Product bytes are unchanged.
+
+HA-dev now adopts source main 107e237a in debug composite
+`a1357c0cffe28c64b00f17f8e92cf730a14c285f`, retaining the exact four installed
+#1439 files from 56aaaa9c. All 308 installed hashes match. Ordinary paired active
+Session/EN-NL Help/capabilities reads return 200, SQLitequick_check is ok and Profile
+defaults stay unchanged. The current readback has an active groove Session;
+Help has six base and ten active-Session eligible entries. These are current
+context observations, not all 14-entries native acceptance. No Session, playback,
+provider call or HA restart was initiated by this update. Previous metadata,
+rollback and install/runtime evidence remain external. After this docs-only
+Finalization merge, rebind unchanged bytes to new-main provenance and read back.
+
+#### Roadmap Position
+
+Generation 2 Product Development, Phase 1 Platform Qualification is unchanged.
+The active increment is documentary reconciliation of the native Golden source
+protocol. Client mapping/admission and real native execution remain future work.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+Freshly derived from docs/roadmap/v1/djconnect-platform-v1.json and CATALOGUE.md,
+with explicit producer edges SETTINGS-4/6/8/10/12. The fifth entry is WEBSITE::COPY;
+the earlier summary's JOINT::ACCEPTANCE placement skipped this planned item.
+This refresh follows canonical order and grants no new execution authority.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact owning acceptance and a separate issued prompt still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact owning acceptance and a separate issued prompt still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact owning acceptance and a separate issued prompt still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact owning acceptance and a separate issued prompt still gate execution.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: canonical settings follow-through order; exact owning acceptance and a separate issued prompt still gate execution.
+
+#### Blocked Items
+
+Real disposable fixture, independent installed app/producer receipts, complete
+provider transport coverage, actual cumulative pre-I/O budget owner and native
+semantic/effect/audio review remain OPEN. Unmapped or unlocalized cases cannot
+be treated as passed. The existing selected model/task metadata still prevents
+some Help Play entries becoming eligible; no config warming/learning is allowed.
+The historical paid release Golden failure, 39 Core findings / 29 quality steps,
+#1439 live signer/independent restore and physical Apple/APNs gates remain open.
+
+#### Deferred Items
+
+Real slow/expensive native/provider runs remain manual or release-relevant, not
+per-PR. EN/NL qualification preserves all five product languages and 42 pending
+DE/FR/ES Help leaves. No next capability, timer, credential/provider configuration,
+production deployment or native installation is started by this Finalization.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this separate Finalization merges,
+then `MERGED_RECONCILED` for source1480 only. origin/main was 107e237a during
+preparation. The canonical main worktree remains clean at its retained local
+checkout; it is not claimed equal to origin/main. The task branch starts at the
+exact current remote main without moving another lane's checkout.
+
+#### Workspace State
+
+Workspace State: `NOT_READY`. Active Apple/Core work, installed composite source,
+original failures, rollback and unique evidence remain retained. This task's
+merged source/final worktrees are candidates only after full object/content
+proof and an immediate activity check; no force cleanup or global readiness claim.
+See [source qualification](docs/verification/NATIVE_CLIENT_GOLDEN_PROTOCOL_20261106.md)
+and [immutable history](docs/history/2026-11-06-native-golden-1480-finalization.md).
+
+<!-- native-golden-1480-finalization-end -->
+
+## 2026-11-06 — Native client Golden source protocol
+
+Current increment: `codex/native-golden-consumer-contract-20261106`.
+The offline inventory/closed plan/evidence validator is ready for source review;
+protected merge and separate Finalization remain pending. See
+[protocol qualification](docs/verification/NATIVE_CLIENT_GOLDEN_PROTOCOL_20261106.md).
+20 new tests, 29 combined observer/contract tests and 4 offline SDK transport tests
+pass. No product bytes or installed runtime change. The inventory preserves 998
+source references, with explicit remaining mappings; this is not integral native
+acceptance. Real fixture/operator/provider/client evidence remains OPEN. Expensive
+native runs remain manual/release-relevant. After each merged PR, update HA-dev
+main-debug provenance/install and read it back, preserving #1439. Platform
+Qualification and the existing roadmap order remain unchanged.
+
+## 2026-11-06 — For-you output source1478 Finalization
+
+#### Repository Status
+
+Source PR [#1478](https://github.com/pcvantol/djconnect/pull/1478) merged as
+`7347eed5daed85d501a8b2d6f03897790e26851b`, from exact Owner-authorized
+`d57136399a6190616c9a2d2a71c05bef6cfa8846`.
+All Source technical checks and TDE observation passed. Exact Owner Authorization
+[42224343939](https://github.com/pcvantol/djconnect/actions/runs/42224343939) passed.
+Separate post-merge normal main CI42224442110 passed. This is not a paid release
+qualification or real native playback acceptance.
+
+#### Management Summary
+
+The original speaker continuation now accepts only the normal private adapter's
+exact dispatched, confirmed output receipt plus matching player.device.id even
+when a separate devices inventory lags. Otherwise the original guarded fresh
+inventory check remains. The old paused track confirms only the output, not the
+mix. Original admission, frozen mix, selected output, context and lease remain;
+no transfer/start retry, fallback speaker or new Profile defaults write is added.
+
+Original source fails the causal output-lag probe with409; repaired source passes
+six new EN/NL cases.28 isolated HA protocols pass on exact source product hashes;
+420 related tests are accounted after actual evidence rebinding and28 focused
+checks pass. The combined development source separately passes28 HA protocols,
+462 behavior tests and28 proof checks while retaining the installed Watch overlay.
+All historical failed probes remain preserved. The original native13:46 response
+was unavailable, so its precise cause is not claimed as proven.
+
+The owner requested a new main debug install after every merged PR. HA-dev now
+contains main7347eed5 plus the unchanged four #1439 Watch files, debug source
+`3d1b99bab62fd956da8f6002a3d04e3908220474`.308/308 product hashes match, configcheck0,
+frontend/capabilities and ordinary paired readback200, SQLitequick_checkok and
+stored Profile defaults unchanged. No active Session exists for the readback
+identity after restart. Rollback and runtime evidence are retained externally.
+No new live provider/playback test has been executed. After this documentation-only
+merge, identical installed product bytes can be rebound to new-main provenance
+without another runtime interruption; the independent readback remains mandatory.
+
+#### Roadmap Position
+
+Generation2 Product Development, Phase1 Platform Qualification is unchanged.
+This is documentary reconciliation of the merged output-readback repair.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+The same existing settings plan was reread from
+`docs/roadmap/v1/djconnect-platform-v1.json` and its maintained `CATALOGUE.md`.
+These entries grant no new writer, dispatch or change of execution order.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+5. **SETTINGS::JOINT::ACCEPTANCE — Cross-device six-field effects, persistence and cleanup acceptance**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::MIGRATION In progress. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+#### Blocked Items
+
+Real native/provider/audible confirmation of the selected mix remains open.
+The ordinary Help readback has six currently eligible EN/NL base entries; missing
+Session/track/forecast preconditions and unqualified selected model-task metadata
+must not be replaced with invented eligibility. The public native Golden
+consumer/fixture/export admission remains pending; old manifests are not admission.
+The earlier blocking paid HA release Golden failure remains open and no official
+release is claimed.39 Core findings and29 quality steps are not closed here.
+#1439 remains a separate unmerged draft with live signer/independent restore and
+physical/APNs gates. This Finalization needs its own protected merge.
+
+#### Deferred Items
+
+Failing-item repair stays EN/NL-only; all five UI language families and Help's
+28 qualified EN/NL leaves with42 pending DE/FR/ES leaves remain. Expensive/slow
+real native/provider Golden runs are manual or explicitly release-relevant;
+this record starts no run, transfers no budget and changes no CI policy. Fast
+provider-free regressions remain independent. No production deployment, live
+playback retry, provider configuration/credential change or timer restart.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` for source1478 until this separate protected
+Finalization merges, then `MERGED_RECONCILED` for this increment only.
+
+#### Workspace State
+
+Workspace State: `NOT_READY`. Active Core/Apple worktrees, installed debug source,
+original failures and unique evidence remain retained. Previous safe cleanup
+removed only three merged documentary worktrees; Docker-held sources were retained.
+No general cleanup or next-capability readiness is inferred from source or install.
+See [immutable history](docs/history/2026-11-06-for-you-output-source-1478-finalization.md)
+and [source qualification](docs/verification/SESSION_FOR_YOU_OUTPUT_READBACK_20261106.md).
+
+<!-- for-you-output-1478-finalization-end -->
+
+## 2026-11-06 — For-you source1476 Finalization
+
+#### Repository Status
+
+Source PR [#1476](https://github.com/pcvantol/djconnect/pull/1476) merged as
+`7d6e5c07500ba281a2152c270ea5a8b2814a16c2`, from exact Owner-authorized
+`73dc991ade612c776771e0d41daf79bba00b6077`.
+All Source technical checks, including full tests, EN/NL functional Golden,
+security, Trusted Delivery and TDE observation passed. Exact Owner Authorization
+[42215580398](https://github.com/pcvantol/djconnect/actions/runs/42215580398) passed.
+Post-merge main CI and any release qualification remain separate evidence.
+
+#### Management Summary
+
+Core prepares For-you in the accepted Session locale, projects localized genre
+labels without changing canonical choices, and schedules one bounded offer per
+confirmed, non-replayed Settings3 Mood revision on authenticated iOS/macOS.
+Original speaker continuation retains its admitted context, original mood revision
+and decreasing wall/monotonic lease. No read regenerates, no unknown effect retries,
+and no automatic playback is granted. An explicit welcome mood applies to that
+Session without changing stored Profile defaults. Missing/internal starts retain
+existing default inheritance. Watch card/continuation exposure stays closed.
+
+Twenty-seven actual isolated HA protocols passed on unchanged308 product hashes;
+eight new EN/NL HTTP/Settings3/SQLite cases,419 related isolated tests and29 receipt
+checks passed. The final avatar trace was reproduced: all cases remained identical,
+only its current runtime source pin changed; seven owning tests passed. The original
+failed CI and mixed-fixture test runs remain preserved as failures. Synthetic external
+transports establish functional behavior only, not real editorial/provider acceptance.
+Apple reports clean local commit `00038412e26cef89032702b2a23744cb66557a77`, nine targeted
+test functions including nine choice scenarios, four mood-animation cases and EN/NL
+HTTP/WebSocket tests passed. This is a separate lane report, not installed acceptance.
+
+#### Roadmap Position
+
+Generation2 Product Development, Phase1 Platform Qualification is unchanged.
+This is documentary reconciliation of the merged Core repair, not a new capability.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+The same existing settings plan was reread from
+`docs/roadmap/v1/djconnect-platform-v1.json` and its maintained `CATALOGUE.md`.
+These entries grant no new writer, dispatch or change of execution order.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+5. **SETTINGS::JOINT::ACCEPTANCE — Cross-device six-field effects, persistence and cleanup acceptance**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::MIGRATION In progress. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+#### Blocked Items
+
+This Finalization needs its own protected merge. Core installation/runtime readback,
+Apple publication/build/installation and physical/native/audible/APNs acceptance
+have not been performed for this repair. #1439 is conflict-free at `63018ca8` with
+technical checks passed, but remains a separate unmerged draft: qualified live signer,
+independent restore authority and real dispatch acceptance remain open.
+The separate earlier HA release run42206941134 failed blocking paid contextual Golden;
+packaging was skipped. The39 Core findings and29 quality steps are not closed here.
+
+#### Deferred Items
+
+Failing-item remediation remains EN/NL-only; DE/FR/ES remediation stays owner-deferred.
+All five UI/localization families and Help's EN/NL28-leaf publication boundary with42
+unchanged pending leaves remain. No new model/provider call, installation, deployment,
+unique WIP deletion or timer restart is authorized by this documentary increment.
+
+#### Repository State
+
+Repository State: `MERGED_UNRECONCILED` for source1476 until this separate Finalization
+passes protected merge, then `MERGED_RECONCILED` for this source increment only.
+
+#### Workspace State
+
+Workspace State: `NOT_READY`. Canonical main synchronization and conforming local
+cleanup remain separate. Active worktrees, original failures and nonredundant evidence
+are retained; no cleanup or next-capability readiness is claimed.
+See [immutable history](docs/history/2026-11-06-for-you-source-1476-finalization.md)
+and [repair qualification](docs/verification/SESSION_FOR_YOU_REFRESH_20261106.md).
+
+<!-- for-you-1476-finalization-end -->
+
+## 2026-11-06 — Golden source1474 Finalization
+
+### Repository Status
+
+Source PR [#1474](https://github.com/pcvantol/djconnect/pull/1474) merged as
+`1dbfb37a1c0b940aeda530999dbb5eb014023da7`, from exact Owner-authorized
+`1fca98ca61ce21fc03df64ae38641b8b64590157`.
+All Source technical checks passed; Owner Authorization run42206002884 passed.
+The new functional Golden job passed four actual isolated HA HTTP/Store runs
+and nine causal regressions. Its original Linux artifact was read back and
+matched the candidate source pins.337 related tests passed locally.
+
+### Management Summary
+
+The existing Advisory Golden workflow now executes EN/NL For-you, music
+announcement, unavailable-speech, band/performance, composer-role and topic-change
+coverage. Original negative cases and CI portability failures remain preserved.
+All308 product files equal the predecessor main. Synthetic external transports
+prove functional behavior only; no live prose/provider/native/audible/APNs claim.
+
+### Roadmap Position
+
+Generation2 Product Development, Phase1 Platform Qualification is unchanged.
+This is the separate documentary reconciliation of the merged verification source.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+The same existing settings plan was reread from
+`docs/roadmap/v1/djconnect-platform-v1.json` and its maintained `CATALOGUE.md`.
+These entries grant no new writer, dispatch or change of execution order.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+5. **SETTINGS::JOINT::ACCEPTANCE — Cross-device six-field effects, persistence and cleanup acceptance**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::MIGRATION In progress. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+### Blocked Items
+
+Full real-answer quality and native/provider/audible/APNs acceptance remain open.
+Post-merge release run42206941134 failed its separate blocking paid contextual
+Golden gate; packaging was skipped. This is not a qualified release.
+The39 Core findings and29 quality steps remain unchanged.1439 is conflict-free
+but remains a separate unmerged draft with its existing live-authority gates.
+This Finalization needs its own protected merge; other active Core/Apple repair
+work is not declared delivered by this documentary change.
+
+### Deferred Items
+
+DE/FR/ES failing-item remediation remains owner-deferred. All five UI/localization
+families and the Help EN/NL28-leaf boundary with42 unchanged pending leaves remain.
+No installation, release, model call, cleanup of unique WIP or timer restart.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` for source1474 only after this separate
+Finalization passes its protected merge; until then `MERGED_UNRECONCILED`.
+
+### Workspace State
+
+Workspace State: `NOT_READY` until canonical-main synchronization and conforming
+local cleanup. Active WIP and original evidence remain retained.
+See [immutable history](docs/history/2026-11-06-golden-source-1474-finalization.md)
+and [functional scope](docs/verification/GOLDEN_EN_NL_FEATURES_V1.md).
+
+<!-- golden-1474-finalization-end -->
+
+## 2026-11-06 — Golden source1472 Finalization
+
+### Repository Status
+
+PR [#1472](https://github.com/pcvantol/djconnect/pull/1472) merged as
+`5becc026f4931ccbf758e10c307bbee5a8a7522d`, from exact Owner-authorized
+`a04e424509437cc8c310f0c17b5a9282d586c214`. Source CI/HACS/security passed;
+4598 tests accounted,54 skipped;26 actual-HA groups and26 receipt checks pass.
+Post-merge product tests/HACS/security/coverage pass; the housekeeping HTTP502
+was recovered by its isolated job retry. All308 product files equal the merged source.
+
+### Management Summary
+
+Selected-context source binding, original composer proof, short-title admission,
+concise identity answers and actual producer evidence are repaired. The owner
+limited failing-item remediation to EN/NL:8/8 cases pass in the last full run.
+The other12 language cases retain their original results and are deferred.
+This is not full20-case, robustness, official release or installed acceptance.
+
+### Roadmap Position
+
+Generation2 Product Development, Phase1 Platform Qualification is unchanged.
+This is the separate documentary reconciliation of the owner-selected repair.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+The same existing settings plan was reread from
+`docs/roadmap/v1/djconnect-platform-v1.json` and its maintained `CATALOGUE.md`.
+These entries grant no new writer, dispatch or change of execution order.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::PRODUCER Completed. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+5. **SETTINGS::JOINT::ACCEPTANCE — Cross-device six-field effects, persistence and cleanup acceptance**: Planned / NOT_ISSUED; direct prerequisite SETTINGS::CORE::MIGRATION In progress. Execution Rationale: retain the existing settings follow-through slot; dependencies and owning acceptance still gate execution.
+
+### Blocked Items
+
+Publication reliability and independent real-quality/native/provider/audible/APNs
+acceptance remain open.39 Core findings and29 quality steps are unchanged.1439
+is not merged by this increment. This Finalization's
+own protected merge must complete before documentary completion.
+
+### Deferred Items
+
+DE/FR/ES failing-item remediation is deferred by the owner's explicit instruction;
+all five UI/localization families and the existing EN/NL28-leaf Help boundary
+with42 unchanged pending leaves remain preserved. All prior WIP/evidence is kept.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` for the bounded1472 source increment once
+this separate Finalization has passed its protected merge. Before that merge,
+the source remains `MERGED_UNRECONCILED`.
+
+### Workspace State
+
+Workspace State: `NOT_READY` until canonical-main synchronization and conforming
+local cleanup after Finalization. The timer stays stopped. See the
+[scope/evidence projection](docs/verification/GOLDEN_1472_FINALIZATION_20261106.json)
+and [immutable history](docs/history/2026-11-06-golden-source-1472-finalization.md).
+Earlier records below retain their historical freeze-point scopes.
+
+<!-- golden-1472-finalization-end -->
+
 ## 2026-11-05 — Orphaned Spotify connection repair Finalization
 
 Source PR [#1469](https://github.com/pcvantol/djconnect/pull/1469) merged as

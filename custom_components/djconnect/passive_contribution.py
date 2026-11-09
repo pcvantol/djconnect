@@ -122,7 +122,7 @@ def contribution(broadcast, now, *, projection_version=1):
                 'usage_basis': ('public_artist_narration_v1' if sources else
                     'cc0_facts_authored_expression' if cc0 else 'runtime_authored_direction'),
                 'expires_at': deadline.isoformat()}
-        if projection_version == 2:
+        if projection_version in (2, 3):
             body['rights'] = {'passive_cache': True, 'os_snapshot': True,
                               'external_relay': False, 'watch_replication': False}
         if sources:
@@ -132,3 +132,78 @@ def contribution(broadcast, now, *, projection_version=1):
                 'adapted': True, 'attribution_required': True}
         return body, status('qualified', 'available')
     return None, status(reason or 'no_publication')
+
+
+def retained_latest(broadcast, now):
+    """One original public publication, separately consented; no older fallback."""
+    if broadcast.content_pending or broadcast.content_current_withdrawn:
+        return None, status('source_not_qualified')
+    if broadcast.state.selected_presence == 'music_only':
+        return None, status('presence_music_only', 'suppressed')
+    if not broadcast.state.dj_moments:
+        return None, status('no_publication')
+    moment = broadcast.state.dj_moments[-1]
+    if moment.moment_type.value == 'silence':
+        return None, status('intentional_silence', 'suppressed')
+    admission = next((a for a in broadcast.native_delivery()['admissions']
+                      if a['moment_id'] == moment.moment_id), {})
+    boundary = broadcast._moment_delivery_boundaries.get(moment.moment_id)
+    if (not boundary or admission.get('qualification') != 'qualified'
+            or not admission.get('active_flow_display_allowed')
+            or moment.presentation_intent.visibility.value == 'owner_only' or not moment.content):
+        return None, status('source_not_qualified')
+    if len(moment.content) > 640:
+        return None, status('copy_too_long')
+    from .public_artist_narration import ResearchMomentAcceptance
+    researched = type(moment.narration_acceptance) is ResearchMomentAcceptance
+    sources = researched_sources(moment, now) if researched else None
+    if researched and sources is None:
+        return None, status('source_not_qualified')
+    fact = moment.source_fact
+    cc0 = not researched and fact is not None and fact.provider in {'MusicBrainz', 'Wikidata'} and fact.license == 'CC0-1.0'
+    authored = fact is None and moment.source_references == ('session_direction',)
+    if not (cc0 or authored or sources):
+        return None, status('source_not_qualified')
+    try:
+        wall = time.time()
+        published = datetime.fromisoformat(boundary.published_at)
+        limits = [datetime.fromisoformat(boundary.utc_at(boundary.published_monotonic + 1800))]
+        source_expiry = admission.get('source_expires_at')
+        if (cc0 or sources) and not source_expiry:
+            return None, status('source_not_qualified')
+        if source_expiry:
+            limits.append(datetime.fromisoformat(source_expiry))
+        if sources:
+            limits.extend(datetime.fromisoformat(s['expires_at']) for s in sources)
+        if any(d.tzinfo is None for d in [published, *limits]):
+            return None, status('source_not_qualified')
+        retained = min(limits)
+        observed_mono, observed_wall = broadcast.passive_state_observed
+        clocks = (wall, now, boundary.published_monotonic, published.timestamp(),
+                  observed_mono, observed_wall, retained.timestamp())
+        if (not all(type(v) in (int, float) and math.isfinite(v) for v in clocks)
+                or not boundary.published_monotonic <= now < boundary.published_monotonic + 1800
+                or not published.timestamp() <= wall < retained.timestamp()):
+            return None, status('original_deadline_expired')
+        if (not observed_mono <= now < observed_mono + 120
+                or not 0 < observed_wall <= wall < observed_wall + 120):
+            return None, status('original_snapshot_expired', 'stale')
+        expiry = min(retained.timestamp(), observed_wall + 120)
+    except (ValueError, TypeError, KeyError, OverflowError, OSError):
+        return None, status('source_not_qualified')
+    from datetime import UTC
+    body = {'moment_id': moment.moment_id, 'published_at': boundary.published_at,
+            'text': moment.content, 'persona': moment.presentation_intent.dj_persona.value,
+            'source_attribution': dict(moment.source_attribution), 'purpose': 'retained_latest',
+            'usage_basis': ('public_artist_narration_v1' if sources else
+                'cc0_facts_authored_expression' if cc0 else 'runtime_authored_direction'),
+            'retained_expires_at': retained.isoformat(),
+            'expires_at': datetime.fromtimestamp(expiry, UTC).isoformat(),
+            'rights': {'passive_cache': True, 'os_snapshot': True,
+                       'external_relay': False, 'watch_replication': False}}
+    if sources:
+        body['sources'] = sources
+        body['expression_license'] = {'id': 'CC-BY-SA-4.0',
+            'url': 'https://creativecommons.org/licenses/by-sa/4.0/',
+            'adapted': True, 'attribution_required': True}
+    return body, status('qualified', 'available')

@@ -76,6 +76,25 @@ class DisplayProjectionTests(unittest.TestCase):
                       "profile_id", "account_id", "device_id", "session_forecast"):
             self.assertNotIn('"' + field + '"', wire)
 
+    def test_shared_flow_retains_only_qualified_publication_until_original_expiry(self):
+        moment = self.prepared()
+        broadcast = self.session.broadcast
+        initial = self.snapshot()
+        self.assertEqual([row["moment_id"] for row in initial["shared_flow"]], [moment.moment_id])
+        broadcast.invalidate_current_delivery()
+        broadcast.state = replace(broadcast.state, playback=replace(broadcast.state.playback, item_id="other"))
+        updated = self.snapshot()
+        self.assertEqual(updated["dj_moments"], [])
+        self.assertEqual(updated["shared_flow"], initial["shared_flow"])
+        guard = self.projection.projection_release_guard(self.session, self.display, self.state, updated)
+        with patch("time.monotonic", return_value=101):
+            self.assertTrue(guard())
+            broadcast.deleted_moment_ids.add(moment.moment_id)
+            self.assertFalse(guard())
+        self.assertEqual(self.snapshot()["shared_flow"], [])
+        broadcast.deleted_moment_ids.remove(moment.moment_id)
+        self.assertEqual(self.snapshot(now=1901)["shared_flow"], [])
+
     def test_owner_visibility_or_owner_channel_never_becomes_shared_from_valid_source(self):
         moment = self.prepared()
         broadcast = self.session.broadcast
@@ -83,6 +102,7 @@ class DisplayProjectionTests(unittest.TestCase):
                              replace(moment.presentation_intent, delivery_channels=(self.runtime.DeliveryChannel.OWNER,))):
             broadcast.state = replace(broadcast.state, dj_moments=(replace(moment, presentation_intent=presentation),))
             self.assertEqual(self.snapshot()["dj_moments"], [])
+            self.assertEqual(self.snapshot()["shared_flow"], [])
 
     def test_shared_label_without_field_proof_attribution_or_flow_is_insufficient(self):
         moment = self.prepared()

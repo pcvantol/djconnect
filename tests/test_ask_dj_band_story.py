@@ -15,22 +15,25 @@ class BandStoryTests(unittest.IsolatedAsyncioTestCase):
     def tearDownClass(cls):
         shared.SharedDialogueTest.tearDownClass()
 
-    async def check_membership_route(self, question, *, explicit_task=None, task_failure=False):
+    async def check_membership_route(self, question, *, explicit_task=None, task_failure=False, language="nl", subject="Example Band", expect_direct=False):
         f = shared.SharedDialogueTest()
         await f.asyncSetUp()
         try:
             from custom_components.djconnect.ask_dj import public_research as r
-            excerpt = ("Example Band is a rock band. Example Band consists of Ava Example and Bo Sample. "
+            excerpt = (f"{subject} is a rock band. {subject} consists of Ava Example and Bo Sample. "
                        "Ava Example sings and Bo Sample plays guitar.")
-            source = r._source("Wikipedia", "Example Band", "https://en.wikipedia.org/wiki/Example_Band",
+            source = r._source("Wikipedia", subject, "https://en.wikipedia.org/wiki/" + subject.replace(" ", "_"),
                 excerpt, "en", entity_id="Q123", original_text=excerpt,
                 paragraph_ranges=((0, len(excerpt)),))
-            async def research(subject, text, language, guard, **kwargs):
+            async def research(artist, text, language, guard, **kwargs):
                 await guard()
-                self.assertEqual(subject, "Example Band")
+                self.assertEqual(artist, subject)
+                self.assertEqual(kwargs.get("research_angle"), "members")
                 self.assertTrue(kwargs.get("original_paragraphs"), "membership needs original paragraphs on both paths")
                 return [source], {"state": "available", "declared_synthetic_sources": True}
-            answer = "Example Band bestaat uit Ava Example en Bo Sample. Ava Example zingt en Bo Sample speelt gitaar."
+            answer = f"{subject} bestaat uit Ava Example en Bo Sample. Ava Example zingt en Bo Sample speelt gitaar."
+            if language == "en":
+                answer = f"{subject} consists of Ava Example and Bo Sample. Ava Example sings and Bo Sample plays guitar."
             projections = []
             typed_calls = []
             from custom_components.djconnect.structured_playback import TASK_CONFIG
@@ -48,7 +51,7 @@ class BandStoryTests(unittest.IsolatedAsyncioTestCase):
                 projection = json.loads(data["text"].split("\nData:\n", 1)[1])
                 projections.append(projection)
                 if "available" in projection:
-                    reply = {"read": "research", "reference": "named", "subject": "Example Band",
+                    reply = {"read": "research", "reference": "named", "subject": subject,
                              "exclude_current": False, "angle": "members"}
                 elif "drafts" in projection or "evidence" in projection:
                     reply = shared._research_assessment_fixture(projection)
@@ -62,13 +65,15 @@ class BandStoryTests(unittest.IsolatedAsyncioTestCase):
             with patch.object(r, "research", research), patch.object(f.pipeline, "_call_conversation_process_transport", agent), \
                  (patch.object(f.core, "_assist_context", assist_without_task) if task_failure else nullcontext()), \
                  (patch.object(f.pipeline, "call_structured_artist", rejected_task) if task_failure else nullcontext()):
-                result, status = await f.request(question, identifier="members-" + str(question.islower()), language="nl")
+                result, status = await f.request(question, identifier="members-" + str(question.islower()), language=language)
             if task_failure:
                 self.assertEqual(typed_calls, [None], "explicit configured Task cannot disappear into ordinary generation")
                 self.assertEqual(projections, [], "a failed explicit Task cannot buy another provider path")
                 self.assertNotEqual(result.get("knowledge_basis"), "fetched_public_music_research_v1")
                 return
             self.assertEqual(status, 200, result)
+            if expect_direct:
+                self.assertFalse(any("available" in p for p in projections), projections)
             self.assertEqual(result["text"], answer, result)
             self.assertEqual(result.get("knowledge_basis"), "fetched_public_music_research_v1")
             self.assertTrue(any(p.get("artist_draft_schema") for p in projections))
@@ -78,7 +83,15 @@ class BandStoryTests(unittest.IsolatedAsyncioTestCase):
             await f.asyncTearDown()
 
     async def test_explicit_membership_uses_complete_artist_route(self):
-        await self.check_membership_route("Uit welke bandleden bestaat Example Band?")
+        with self.subTest(formulation="bandleden bestaat"):
+            await self.check_membership_route("Uit welke bandleden bestaat Example Band?")
+        with self.subTest(formulation="zitten er in de band"):
+            await self.check_membership_route(
+                "Wie zitten er in de band, R.E.M.", subject="R.E.M.", expect_direct=True,
+            )
+
+    async def test_english_membership_uses_complete_artist_route(self):
+        await self.check_membership_route("Who are the members of Example Band?", language="en")
 
     async def test_interpreted_membership_uses_complete_artist_route(self):
         await self.check_membership_route("uit welke bandleden bestaat example band?")
@@ -272,7 +285,7 @@ class BandStoryActualHAEvidenceTests(unittest.TestCase):
         self.assertTrue(current['source_before_after_equal'])
         self.assertEqual(current['harness'], proof['harness'])
         self.assertEqual(current['harness_sha256'], proof['harness_sha256'])
-        self.assertEqual(len(current['source_pins']), 308)
+        self.assertEqual(len(current['source_pins']), 309)
         for name, digest in {**current['source_pins'], **proof["original_common_harness_source_pins"],
                 proof["harness"]: proof["harness_sha256"]}.items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)

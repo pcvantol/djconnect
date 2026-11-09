@@ -51,6 +51,18 @@ class OriginalStatusSQLTests(unittest.IsolatedAsyncioTestCase):
     def sample(self, ms=10000, state="playing", *, source=None, ended=False):
         return OriginalSample(source or self.source, ms, 10.0, state, ended, str(uuid.uuid4()))
 
+    async def test_original_sample_keeps_exact_provider_output_for_late_confirmation(self):
+        from custom_components.djconnect.surface_status_samples import seal
+        original = seal(self.source, 'playing', target_id='synthetic-original-output')
+        self.assertIs(type(original), OriginalSample)
+        self.assertTrue(original.current())
+        self.assertEqual(original.target_id, 'synthetic-original-output')
+        self.assertIsNone(seal(self.source, 'playing', target_id=True))
+        self.assertIsNone(seal(self.source, 'playing', target_id='X' * 257))
+        self.source.alive = False
+        self.assertFalse(original.current())
+        self.assertIsNone(seal(self.source, 'playing', target_id='synthetic-original-output'))
+
     async def rows(self):
         return await self.service.async_in_transaction(lambda tx: tx.fetchall(
             "SELECT scope_hash,sample_id,ordinal,observed_ms,playback_state,ended FROM djconnect_status_samples"))

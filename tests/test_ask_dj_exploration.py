@@ -411,7 +411,7 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
                  'dialogue_subjects':[{'name':'Brian Eno', 'role':'composer'}],
                  'source_attribution':{'provider':'MusicBrainz', 'license':'CC0-1.0',
                     'url':'https://musicbrainz.org/work/11111111-1111-1111-1111-111111111111'}}
-        def build(candidate, *, interpreted=True, subject='Brian Eno', change_source=False):
+        def build(candidate, *, interpreted=True, subject='Brian Eno', change_source=False, allow_opened=False):
             source = model_source(candidate)
             if change_source:
                 source['qualified_excerpt'] = 'A forged credit.'
@@ -419,7 +419,7 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
                        'qualified_context':source}
             turn = SimpleNamespace(selected_read_context=candidate, source_context=source,
                                    interpreted_context_research=interpreted)
-            return context, research.selected_credit_context(context, turn)
+            return context, research.selected_credit_context(context, turn, allow_opened_credit=allow_opened)
         _, bound = build(entry)
         span = research.selected_credit_spans(bound)[0]
         review = {'review_schema':'source_id_review_v1', 'claim_checks':[
@@ -449,6 +449,17 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
         for kwargs in ({'interpreted':False}, {'subject':'Different artist'}, {'change_source':True}):
             original, result = build(entry, **kwargs)
             self.assertIs(result, original)
+        raw = deepcopy(entry)
+        raw.pop('qualified_fact_text')
+        # The new ordinary-question projection still cannot promote a generated
+        # body under a copied CC0 label, even when the caller opts in.
+        original, result = build(raw, interpreted=False, allow_opened=True)
+        self.assertIs(result, original)
+        raw['text'] = entry['qualified_fact_text']
+        original, result = build(raw, interpreted=False, allow_opened=True)
+        self.assertNotEqual(research.selected_credit_spans(result), [])
+        self.assertEqual(research.selected_credit_spans(result)[0]['text'], raw['text'])
+        self.assertEqual(research.selected_credit_spans(dict(result)), [])
 
     def test_dutch_production_activity_inflections_preserve_independent_role_and_claim_guards(self):
         from custom_components.djconnect.ask_dj import public_research as research
@@ -708,8 +719,9 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
     async def test_multipart_named_story_uses_semantics_and_actual_question_name(self):
         f=self.f
         from scripts.verification.askdj_contextual_quality import QUESTIONS
-        questions=['Neem me mee in Nirvana: de bandleden en een bijzonder optreden, niet alleen credits.',
-                   QUESTIONS['nl']]
+        questions=[('nl', 'Neem me mee in Nirvana: de bandleden en een bijzonder optreden, niet alleen credits.'),
+                   ('nl', QUESTIONS['nl']), ('en', QUESTIONS['en'])]
+        locale = ['nl']
         async def agent(hass,data,**kwargs):
             p=json.loads(data['text'].split('\nData:\n',1)[1])
             if 'available' in p:
@@ -718,21 +730,26 @@ class ExplorationTests(unittest.IsolatedAsyncioTestCase):
             elif 'evidence' in p:
                 reply=json.dumps(reviewed_fixture(p))
             else:
-                reply='Nirvana is een Amerikaanse band. Wil je hun muziek verder verkennen?'
+                reply=('Kurt Cobain zong bij Nirvana en Krist Novoselic speelde bas. Nirvana trad op bij MTV Unplugged. Wil je hun muziek verder verkennen?' if locale[0]=='nl'
+                       else 'Kurt Cobain sang in Nirvana and Krist Novoselic played bass. Nirvana performed on MTV Unplugged. Would you like to explore their music?')
             return {'response':{'speech':{'plain':{'speech':reply}}}}
         async def playback_tool(hass,runtime,tool,*args,**kwargs):
             self.assertEqual(tool,'djconnect_now_playing')
             return {'playback':{'artist':'Peter Luts','title':'Different current recording'}}
-        with f.research_http(title='Nirvana',text='Nirvana is an American band.'),patch.object(
+        with f.research_http(title='Nirvana',text='Nirvana is an American band. Kurt Cobain sang in Nirvana and Krist Novoselic played bass. Nirvana performed on MTV Unplugged.'),patch.object(
                 f.pipeline,'_call_conversation_process_transport',agent),patch.object(
                 f.core,'async_call_ai_tool',playback_tool),patch.object(
                 f.core,'_fetch_artist_concert_events',side_effect=AssertionError('not a current artist agenda')):
-            for index,question in enumerate(questions):
+            for index,(language,question) in enumerate(questions):
+                locale[0] = language
                 await f.history.async_clear('profile:profile-a')
-                result,status=await f.request(question,identifier='multipart-band-'+str(index),language='nl')
+                result,status=await f.request(question,identifier='multipart-band-'+str(index),language=language)
                 self.assertEqual(status,200,result)
                 self.assertTrue(result.get('is_generated_text'),result)
                 self.assertIn('Nirvana',result['text'])
+                self.assertIn('Kurt Cobain',result['text'])
+                self.assertIn('Krist Novoselic',result['text'])
+                self.assertIn('MTV Unplugged',result['text'])
                 self.assertNotIn('Peter Luts',result['text'])
                 self.assertEqual(result['intent']['intent'],'ask_music_info')
                 self.assertEqual(result['action'],'none')

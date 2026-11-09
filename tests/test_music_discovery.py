@@ -3,13 +3,37 @@ from __future__ import annotations
 import asyncio
 import types
 import unittest
+from unittest.mock import patch
 
 from tests.test_http_voice_helpers import install_http_stubs
 
 install_http_stubs()
 
+# The lightweight HA fixture supplies aiohttp transport types, without a network.
+import aiohttp  # noqa: E402
+if not hasattr(aiohttp, "ClientError"):
+    class FixtureClientError(Exception):
+        pass
+    aiohttp.ClientError = FixtureClientError
+
 from custom_components.djconnect import music_discovery  # noqa: E402
 from custom_components.djconnect.const import CONF_CLIENT_TYPE, CONF_DEVICE_ID  # noqa: E402
+
+
+async def _explicit_discovery_guard(runtime, payload, *, user_id=None):
+    # This lightweight rendering fixture has no HA Store. Transport/owner fences
+    # are exercised separately against the real backend and disposable HA.
+    return types.SimpleNamespace(key=payload.get("music_dna_key") or "user:" + user_id,
+        enabled=True, persistence_allowed=True, valid=lambda: runtime.memory.enabled)
+
+
+def _ack_discovery_transport():
+    from custom_components.djconnect.spotify_backend import _discovery_dispatch
+    scope = _discovery_dispatch.get()
+    if scope is not None:
+        scope.require_current()
+        scope.reserve()
+        scope.attempted = scope.acknowledged = True
 
 
 class MusicDiscoveryTests(unittest.TestCase):
@@ -439,12 +463,15 @@ class MusicDiscoveryTests(unittest.TestCase):
         self.assertTrue(result["enabled"])
         self.assertNotEqual(result.get("reason"), "invalid_client_type")
 
+    @patch.object(music_discovery, "capture_refresh_guard", _explicit_discovery_guard)
     def test_play_validates_cached_item_starts_playback_and_records_feedback(self) -> None:
         calls = []
         self._original_run_music_command = music_discovery.run_music_command
 
         async def command(hass, runtime, command_name, value=None, *, play=None):
             calls.append((command_name, value, play))
+            if command_name == "play_uris":
+                _ack_discovery_transport()
             return {"success": True, "playback": {"track_name": "Intro"}}
 
         music_discovery.run_music_command = command
@@ -483,6 +510,50 @@ class MusicDiscoveryTests(unittest.TestCase):
             "context_signature",
             self.runtime.music_discovery_cache["user:ha-user-1"],
         )
+
+    @patch.object(music_discovery, "capture_refresh_guard", _explicit_discovery_guard)
+    def test_failed_backend_never_reports_played_or_records_positive_feedback(self) -> None:
+        self._original_run_music_command = music_discovery.run_music_command
+        async def rejected(hass, runtime, command_name, value=None, *, play=None):
+            return {"success": False, "playback": {}}
+        music_discovery.run_music_command = rejected
+        feed, _ = asyncio.run(music_discovery.async_handle_music_discovery_feed_payload(
+            self.hass, _payload(), headers=self.headers, user_id="ha-user-1"))
+        section = feed["sections"][0]
+        payload = {**_payload(), "section_id": section["id"], "discovery_item_id": section["items"][0]["id"]}
+        result, status = asyncio.run(music_discovery.async_handle_music_discovery_play_payload(
+            self.hass, payload, headers=self.headers, user_id="ha-user-1"))
+        self.assertEqual(status, 200)
+        self.assertFalse(result["played"])
+        self.assertFalse(result["music_dna_feedback_recorded"])
+        self.assertEqual(self.runtime.memory.discovery_plays, [])
+        self.assertEqual(result["error_scope"], "command")
+
+    @patch.object(music_discovery, "capture_refresh_guard", _explicit_discovery_guard)
+    def test_unsupported_backend_and_disconnected_transport_are_scoped_failures(self) -> None:
+        class Disconnected(aiohttp.ClientError):
+            pass
+        self._original_run_music_command = music_discovery.run_music_command
+        async def reads(hass, runtime, command_name, value=None, *, play=None):
+            return {"success": True, "tracks": []}
+        music_discovery.run_music_command = reads
+        feed, _ = asyncio.run(music_discovery.async_handle_music_discovery_feed_payload(
+            self.hass, _payload(), headers=self.headers, user_id="ha-user-1"))
+        section = feed["sections"][0]
+        payload = {**_payload(), "section_id": section["id"], "discovery_item_id": section["items"][0]["id"]}
+        for exc, code in [(ValueError("unsupported synthetic adapter"), "music_discovery_backend_unsupported"),
+                          (Disconnected(), "music_discovery_provider_request_failed")]:
+            async def failed(hass, runtime, command_name, value=None, *, play=None):
+                raise exc
+            music_discovery.run_music_command = failed
+            result, status = asyncio.run(music_discovery.async_handle_music_discovery_play_payload(
+                self.hass, payload, headers=self.headers, user_id="ha-user-1"))
+            self.assertEqual(status, 200)
+            self.assertEqual(result["error"], code)
+            self.assertFalse(result["played"])
+            self.assertFalse(result["retry_automatically"])
+            self.assertNotIn("message", result)
+            self.assertEqual(self.runtime.memory.discovery_plays, [])
 
     def test_negative_feedback_records_signal_and_removes_cached_item(self) -> None:
         self._original_run_music_command = music_discovery.run_music_command
@@ -542,6 +613,7 @@ class MusicDiscoveryTests(unittest.TestCase):
         ]
         self.assertNotIn(item["uri"], cached_uris)
 
+    @patch.object(music_discovery, "capture_refresh_guard", _explicit_discovery_guard)
     def test_http_contract_feed_play_feedback_and_refetch_flow(self) -> None:
         calls = []
         self._original_run_music_command = music_discovery.run_music_command
@@ -565,6 +637,7 @@ class MusicDiscoveryTests(unittest.TestCase):
                     ],
                 }
             if command_name == "play_uris":
+                _ack_discovery_transport()
                 return {"success": True, "playback": {"track_name": "Fresh Discovery"}}
             return {"success": True, "tracks": []}
 
@@ -904,7 +977,7 @@ class _Memory:
         self.listening_profile_fresh = True
         return "user:test"
 
-    async def async_record_discovery_play(self, runtime, item, payload=None, *, user_id=None):
+    async def async_record_discovery_play(self, runtime, item, payload=None, *, user_id=None, guard=None):
         self.discovery_plays.append(
             {
                 "discovery_item_id": item.get("id"),

@@ -25,6 +25,7 @@ LITERAL_PROCESSING_BASES = frozenset({
     "core_owned_persona_reaction_v1",
     "runtime_accepted_settings_v1",
     "public_news_bulletin_v1",
+    "private_headline_manual_ha_v1",
 })
 
 
@@ -391,9 +392,13 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
         mood=moment.presentation_intent.source_session_mood,
         expires_at=expiry, source_kind="published_dj_moment",
         attribution=moment.as_dict().get('sources') or ([dict(moment.source_attribution)] if moment.source_attribution else []), autoplay=autoplay)
-    from .bulletin_runtime import private_bulletin
+    from .bulletin_runtime import private_bulletin, manual_ha_speech_admitted
     if descriptor["manual_allowed"] and private_bulletin(moment):
-        descriptor["processors"] = ["local_on_device"]
+        descriptor["processors"] = (["local_on_device", "ha_configured"]
+            if manual_ha_speech_admitted(moment) else ["local_on_device"])
+        # The new source use is manual only, never a new autoplay opportunity.
+        if manual_ha_speech_admitted(moment):
+            descriptor["autoplay_eligible"] = False
     if announcement:
         descriptor['moment_type'] = 'music_announcement'
     return descriptor
@@ -446,6 +451,9 @@ async def resolve_moment(hass, profile_id, reference, *, history=None):
     guard = PrivateSpeechSource(hass, validate,
         expires_at=datetime.fromisoformat(descriptor["expires_at"]).timestamp(), session_id=active.session_id,
         moment_id=moment.moment_id)
+    from .bulletin_runtime import private_bulletin, manual_ha_speech_admitted
+    if private_bulletin(moment):
+        guard.private_bulletin_ha_use = lambda: manual_ha_speech_admitted(moment)
     source = moment.source_fact
     from .public_artist_narration import ResearchMomentAcceptance
     from .settings_confirmation import context as settings_context
@@ -636,6 +644,13 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
         else:
             descriptor, source_guard = await resolve_dialogue(hass, history,
                 context.profile_id, reference, profile_source=source_scope(context.profile))
+        private_ha_use = (getattr(source_guard, 'private_bulletin_ha_use', None)
+                          if data['processor'] == 'ha_configured' else None)
+        if private_ha_use is not None and not (
+                target_aware and data['intent'] == 'manual' and data['target'] == 'local'
+                and private_ha_use()):
+            return {'success': True, 'session_speech': unavailable(
+                reference, 'source_processor_not_qualified')}, 200
         if (selected is not None and selected.announcement_output == 'text_only'
                 and descriptor.get('moment_type') != 'music_announcement'):
             return {'success': True, 'session_speech': unavailable(
@@ -676,8 +691,11 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
                     **migration_acceptance)['requires_review']:
                 raise PermissionError('settings_migration_choice_required')
             source_guard()
+            if private_ha_use is not None and not private_ha_use():
+                raise PermissionError('bulletin_manual_speech_use_withdrawn')
         guard.on_withdraw = source_guard.on_withdraw
-        guard.processor_basis = source_guard.processor_basis
+        guard.processor_basis = ('private_headline_manual_ha_v1'
+                                 if private_ha_use is not None else source_guard.processor_basis)
         guard()
         register_delivery_admission(guard)
         if not descriptor["manual_allowed"]:

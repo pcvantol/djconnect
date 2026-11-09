@@ -48,6 +48,9 @@ class _SpotifyObservationSession:
     poll_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     enrichment_task: asyncio.Task[Any] | None = None
     forecast_art_task: asyncio.Task[Any] | None = None
+    display_artwork_task: asyncio.Task[Any] | None = None
+    display_artwork_attempt: tuple[str, str, int] | None = None
+    display_artwork_retry: float = 0
     enrichment_media_identity: str = ""
     unavailable: bool = False
     command_revision: int = 0
@@ -166,6 +169,11 @@ class PlaybackObservationManager:
             with suppress(asyncio.CancelledError):
                 await observed.forecast_art_task
         observed.forecast_art_task = None
+        if observed.display_artwork_task is not None:
+            observed.display_artwork_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await observed.display_artwork_task
+            observed.display_artwork_task = None
         observed.enrichment_media_identity = ""
 
     async def async_stop_runtime(self, integration_runtime: Any) -> None:
@@ -371,7 +379,8 @@ class PlaybackObservationManager:
                 observed.unavailable = True
                 invalidate_observer_metadata(self._hass, observed)
                 return
-            original_status = seal(original_status_source, getattr(result, "state", ""))
+            original_status = seal(original_status_source, getattr(result, "state", ""),
+                                   target_id=getattr(result, "target_id", ""))
             observed.unavailable = False
             if (self._spotify_sessions.get(observed.owner_profile_id) is not observed
                 or observed.command_revision != captured_command_revision):
@@ -402,7 +411,18 @@ class PlaybackObservationManager:
             from .forecast_imagery import artist_authority
             forecast_authority = artist_authority(self._hass, observed.integration_runtime, owner_profile_id=observed.owner_profile_id,
                 expected_source=session_runtime_manager(self._hass)._history_source_contexts.get(observed.session_id, {}))
-            await session_runtime_manager(self._hass).async_update_playback_projection(
+            manager = session_runtime_manager(self._hass)
+            from .track_start_announcement import capture as capture_announcement
+            announcement = None
+
+            def capture_accepted_occurrence():
+                nonlocal announcement
+                announcement = capture_announcement(manager,
+                    owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                    observed=result, authorize=queue_authority)
+                return announcement
+
+            await manager.async_update_playback_projection(
                 owner_profile_id=observed.owner_profile_id,
                 session_id=observed.session_id,
                 state=getattr(result, "state", "playing" if result.is_playing else "idle"),
@@ -419,12 +439,11 @@ class PlaybackObservationManager:
                 position_ms=getattr(result, "position_ms", None),
                 forecast_authority=forecast_authority,
                 original_status=original_status,
+                capture_occurrence=capture_accepted_occurrence,
             )
             accept_observation(self._hass, observed, result, visual_admission)
-            from .track_start_announcement import capture as capture_announcement
-            announcement = capture_announcement(session_runtime_manager(self._hass),
-                owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
-                observed=result, authorize=queue_authority)
+            from .display_delivery import schedule_artwork
+            schedule_artwork(self._hass, manager, observed, result, original_status)
             catalog = getattr(result, "catalog", {})
             if (result.is_playing and result.media_identity and forecast_authority()
                     and isinstance(catalog, dict) and catalog.get("artist_ids")

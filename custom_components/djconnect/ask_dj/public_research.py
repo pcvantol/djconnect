@@ -1159,6 +1159,21 @@ def safe_subject(subject, *, qualified=False):
     return name
 
 
+def selected_playback_lookup_subjects(entry):
+    """Resolve a private selection locally; it grants no fact or model-input rights."""
+    from .observations import _identified_playback
+    if not isinstance(entry, dict) or entry.get('kind') != 'playback_observed':
+        return []
+    identified = _identified_playback(entry.get('playback'))
+    if identified is None:
+        return []
+    name = safe_subject(identified[1], qualified=True)
+    # A combined artist label cannot identify one participant from a partial name.
+    if not name or re.search(r'[,;/|]', name):
+        return []
+    return [{'name': name, 'role': 'artist_lookup'}]
+
+
 def resolve_partial_name(subject, subjects):
     """A unique qualified subject can expand a first/surname; never infer identity."""
     names = list(
@@ -1190,7 +1205,7 @@ def direct_question(text):
     """
     patterns = (
         ('age', r'(?:how old is|hoe oud is|wie alt ist|quel âge a|qué edad tiene)\s+(.+?)'),
-        ('members', r'(?:wie zijn (?:de )?(?:muzikanten|bandleden|leden) van(?: (?:de )?band)?|uit welke (?:muzikanten|bandleden|leden) bestaat|who are (?:the )?members of|wer sind die mitglieder von|qui sont les membres de|quiénes son los miembros de)\s+(.+?)'),
+        ('members', r'(?:wie zijn (?:de )?(?:muzikanten|bandleden|leden) van(?: (?:de )?band)?|uit welke (?:muzikanten|bandleden|leden) bestaat|wie zitten er in de band\s*,|who are (?:the )?members of|wer sind die mitglieder von|qui sont les membres de|quiénes son los miembros de)\s+(.+?)'),
         ('formation', r'(?:wanneer (?:is|werd)|when was|wann wurde|quand a été|cuándo fue)\s+(.+?)\s+(?:opgericht|formed|founded|gegründet|fondé|fundado)(?:,?\s*(?:welk jaar|in welk jaar|which year))?'),
         ('current_events', r'(?:treedt|treden)\s+(.+?)\s+(?:nog |weer |nog samen |samen )?op'),
         ('current_events', r'(?:does|do)\s+(.+?)\s+still perform(?: together)?'),
@@ -1283,7 +1298,18 @@ def subject_for_question(text, turn):
     if named:
         # An existing qualified name is the first authority, not arbitrary
         # trailing prose. Partial matching requires every supplied name token.
-        resolved, referenced, ambiguous = resolve_partial_name(named, subjects)
+        selected_lookup = getattr(turn, 'selected_read_context', None)
+        lookup_subjects = selected_playback_lookup_subjects(selected_lookup)
+        resolved, referenced, ambiguous = resolve_partial_name(named, subjects + lookup_subjects)
+        if referenced and lookup_subjects:
+            def validate_lookup():
+                from .dialogue import DialogueError
+                if (turn.selected_read_context is not selected_lookup
+                        or selected_playback_lookup_subjects(selected_lookup) != lookup_subjects):
+                    raise DialogueError('conversation_context_changed', 409)
+            # Public source/answer waits cannot extend the original private lookup identity.
+            turn.delivery_validators.append(validate_lookup)
+            turn.effect_validators.append(validate_lookup)
         if ambiguous:
             return "", False, True
         if referenced:
@@ -1458,7 +1484,13 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         "and claim_checks (the complete ordered checks described below). Also include every additional "
         "quality/focus boolean explicitly requested. Never omit review_schema: a missing wire marker is invalid. "
         if quote_by_id else
-        "Return only JSON with supported (boolean) and unsupported_claims (an array of at most three short verbatim unsupported claims, empty when supported). "
+        "Return exactly one JSON object. Required top-level keys: supported (boolean), unsupported_claims "
+        "(an array of at most three short verbatim unsupported claims, empty when supported), claim_checks "
+        "(complete ordered literal evidence for every accepted factual segment) and temporal_claims "
+        "(all explicit years, or an empty array when there are none). Never return only a supported:true "
+        "verdict: positive source-schema2/3 proof requires the actual claim_checks, including selected "
+        "credit facts. Use the original supplied evidence_spans IDs and unchanged literal quotes. "
+        "When a supported_prefix qualifies, provide complete proof for that exact prefix as well. "
     )
     recovery = (
         "If supported is false only because of later unsupported text, you may additionally return supported_prefix, prefix_supported:true, prefix_answers_question:true. "
@@ -1509,7 +1541,9 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         "a question containing a factual premise still needs its actual supporting source. "
         "True only if every externally checkable factual assertion in "
         "the answer responds to the user's actual music question and follows from the fetched excerpts or exact qualified music credit context. Faithful paraphrases and ordinary translations are allowed; do not reject a faithful summary merely for different wording. Correctly distinguish composer, "
-        "producer, band member and performer. Counts and exclusivity must agree: four performing musicians plus an additional credited member are not four total members. Do not infer identity from a same-name result. Conflicts and current concert "
+        "producer, band member and performer. A selected credit limits its work relation only; an independently fetched biography may establish the same person's other occupations without attributing those roles to this recording. "
+        "Ordinary translated occupation names preserve that biography when their meaning is the same; do not require the biography to repeat the separate selected composer role. "
+        "Counts and exclusivity must agree: four performing musicians plus an additional credited member are not four total members. Do not infer identity from a same-name result. Conflicts and current concert "
         "dates/venues must remain explicit. Only the DJ's own present conversational warmth is subjective. "
         "Statements about an artist's preferences, intentions, feelings, working methods or imagined reaction to success are factual claims requiring explicit source evidence; hedging with perhaps does not admit them. "
         "Distinguish present DJ appreciation from a factual modifier inside that appreciation: 'a nice starting point' may be subjective; 'a nice starting point for experimental music' also asserts a genre relationship. "
@@ -1523,6 +1557,8 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         "Preserve date precision: by the end of a year is an upper boundary, not evidence that an event occurred at that year end. "
         "Never transfer a nearby event's date. Relative years such as that same year have no executable antecedent binding and must be unsupported. "
         "For each explicit year in the accepted answer or supported prefix, also return temporal_claims, an array of at most8objects, "
+        "Temporal claim is the WHOLE original answer sentence containing that year, including clauses without a year. "
+        "It is never the smaller dated clause copied from claim_checks. Copy the sentence verbatim; do not rewrite or add punctuation. "
         "For a work event each has exactly claim (unchanged complete answer sentence), event_anchor (one exact original source_anchors work name present in the quote and answer), "
         "Only in the answer, a single outer ASCII-parenthesis pair around that work name may be omitted when unambiguous; keep event_anchor itself exact. "
         "year (four-digit string), source_id (the admitted source content_hash) and quote (unchanged complete source sentence containing only that year). "
@@ -1541,6 +1577,8 @@ def assessment_prompt(answer, context, language, question="", *, allow_prefix=Tr
         ("Each resolved claim is one unchanged nonempty atomic answer segment. Cover ALL retained text in order, including every modifier/connector and punctuation; only whitespace between segments may be omitted. "
          if answer_word_ids else
          "text is one unchanged nonempty atomic answer segment. Cover ALL retained text in order, including every modifier/connector and punctuation; only whitespace between segments may be omitted. ") +
+        "Before returning positive proof, concatenate the text segments in order and check that they reproduce the original answer exactly, ignoring only whitespace between segments. "
+        "Never insert a full stop to turn a clause into a sentence, replace a comma or drop a connective. "
         "A factual name or work title still needs source evidence inside an expression of DJ appreciation. "
         "Split the present appreciation words from the unchanged source-bound name/title/role, and cite the latter as a fact with its literal evidence ID. "
         "Do not put a named work into an evidence-free appreciation segment merely because the surrounding sentence says I like it. "
@@ -1726,7 +1764,7 @@ class SelectedCreditResearchContext(dict):
         self.credit = credit
 
 
-def selected_credit_context(context, turn):
+def selected_credit_context(context, turn, *, allow_opened_credit=False):
     """Address the exact original credit already admitted by the shared owner.
 
     No new lookup, refreshed expiry, generated body, or biography-derived credit.
@@ -1736,11 +1774,21 @@ def selected_credit_context(context, turn):
 
     entry = turn.selected_read_context
     source = turn.source_context
-    if (not turn.interpreted_context_research or not isinstance(entry, dict)
+    original_credit = entry.get('qualified_fact_text') if isinstance(entry, dict) else None
+    if (not original_credit and allow_opened_credit and isinstance(entry, dict)
+            and entry.get('archive_basis') == 'cc0_normalized_fields_v1'):
+        # Only the canonical already-normalized composer literal can take
+        # this legacy path; a generated body or copied CC0 label is insufficient.
+        from ..session_facts import composer_fact_bodies
+        names = [row.get('name') for row in source.get('subjects', [])
+                 if isinstance(row, dict) and row.get('role') == 'composer']
+        if names and all(isinstance(name, str) and name.strip() for name in names):
+            if entry.get('text') in composer_fact_bodies(', '.join(names)):
+                original_credit = entry['text']
+    if (not (turn.interpreted_context_research or allow_opened_credit) or not isinstance(entry, dict)
             or model_source(entry) != source or context.get('qualified_context') != source
             or source.get('basis') != 'cc0_normalized_fields_v1'
-            or not entry.get('qualified_fact_text')
-            or entry['qualified_fact_text'] != source.get('qualified_excerpt')):
+            or not original_credit or original_credit != source.get('qualified_excerpt')):
         return context
     subject = context['public_music_research'].get('resolved_public_subject')
     roles = {s.get('role') for s in source.get('subjects', [])
@@ -1984,12 +2032,13 @@ def temporal_evidence_ok(answer, data, context):
         sentence, anchor, year, source_id, quote = (claim[k] for k in ('claim', 'event_anchor', 'year', 'source_id', 'quote'))
         source = sources.get(source_id, {})
         excerpt = source.get('untrusted_excerpt', '')
-        if (not 4 <= len(anchor) <= 120 or not 1 <= len(sentence) <= 1200 or not 1 <= len(quote) <= 1200
+        if (not 1 <= len(anchor) <= 120 or not 1 <= len(sentence) <= 1200 or not 1 <= len(quote) <= 1200
                 or not re.fullmatch(r'[0-9a-f]{64}', source_id) or not _YEAR.fullmatch(year)
                 or anchor not in source.get('source_anchors', [])
                 or sentence not in _sentences(answer) or quote not in _sentences(excerpt)
                 or quote[-1] not in '.!?' or set(_YEAR.findall(quote)) != {year}
                 or not _answer_mentions_anchor(sentence, anchor, anchors)
+                or (len(anchor) < 4 and not _answer_mentions_anchor(quote, anchor, anchors))
                 or not _year_end_bounds_fit(sentence, quote)
                 or not re.search(r'(?<!\w)' + re.escape(anchor) + r'(?!\w)', quote, re.I)
                 or any(pattern.search(sentence) and not pattern.search(quote) for pattern in _EVENT_ACTIONS)

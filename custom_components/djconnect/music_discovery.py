@@ -1,13 +1,16 @@
 """Music Discovery feed support for DJConnect clients."""
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime, timedelta, timezone
 import hashlib
 import logging
 import re
 from typing import Any
 
-from .discovery_artwork import capture_refresh_guard, compact_artwork, artwork_url, artwork_owner, privacy_scope, project_discovery_images
+from aiohttp import ClientError
+
+from .discovery_artwork import DiscoveryCatalogueSearch, capture_refresh_guard, compact_artwork, artwork_url, artwork_owner, privacy_scope, project_discovery_images
 
 from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID
 from .request_auth import (
@@ -17,7 +20,7 @@ from .request_auth import (
     runtime_client_type,
     validate_required_client_type,
 )
-from .use_cases import run_music_command
+from .use_cases import run_music_command, MusicBackendCapabilityError
 
 DISCOVERY_TTL_SECONDS = 30 * 60
 DISCOVERY_REFRESH_MIN_SECONDS = 5 * 60
@@ -198,6 +201,9 @@ async def async_handle_music_discovery_play_payload(
     if error:
         _log_error_response("play", error)
         return error
+    from .discovery_artwork import runtime_scope
+    original_authority = runtime_scope(runtime)
+    guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
     context = await _music_dna_context(runtime, payload, user_id=user_id)
     if not _music_dna_enabled(context):
         response = _disabled("music_dna_disabled", context)
@@ -228,27 +234,85 @@ async def async_handle_music_discovery_play_payload(
             item.get("kind"),
         )
         return {"success": False, "error": "discovery_item_not_playable", "message": "Discovery item cannot be played."}, 400
-    kind = str(item.get("kind") or "").strip()
-    command = "play_uris" if kind == "track" else "play_context_at"
-    value: Any = {"uris": [uri]} if kind == "track" else {"context_uri": uri}
-    playback = await run_music_command(hass, runtime, command, value, play=True)
-    recorded = await _record_discovery_play(runtime, item, payload, user_id=user_id)
-    _mark_cached_feed_stale(runtime, context)
-    _LOGGER.debug(
-        "DJConnect Music Discovery play completed client_type=%s device_id=%s item_kind=%s playback_success=%s feedback_recorded=%s",
-        payload.get(CONF_CLIENT_TYPE),
-        payload.get(CONF_DEVICE_ID),
-        kind,
-        bool(playback.get("success", True)) if isinstance(playback, dict) else True,
-        recorded,
-    )
-    return {
-        "success": bool(playback.get("success", True)) if isinstance(playback, dict) else True,
-        "played": True,
-        "playback": playback.get("playback") if isinstance(playback, dict) else {},
-        "item": item,
-        "music_dna_feedback_recorded": recorded,
-    }, 200
+    from .spotify_backend import SpotifyBackendError, SpotifyDiscoveryError, discovery_dispatch
+
+    # Snapshot the original cached item and original owner before any provider await.
+    cached = _cache(runtime).get(_cache_key(context))
+    original_response = cached.get("response") if isinstance(cached, dict) else None
+
+    def current():
+        stamp = cached.get("generated_at") if isinstance(cached, dict) else None
+        age = (_now() - stamp).total_seconds() if isinstance(stamp, datetime) and stamp.tzinfo else -1
+        return bool(guard is not None and guard.valid() and guard.enabled
+            and guard.key == context.get("music_dna_key") and runtime_scope(runtime) == original_authority
+            and _cache(runtime).get(_cache_key(context)) is cached
+            and cached.get("response") is original_response and 0 <= age < DISCOVERY_TTL_SECONDS
+            and _find_cached_item(runtime, context, item_id, section_id) == item)
+
+    def failure(code, scope=None):
+        state = "dispatched" if scope is not None and scope.acknowledged else (
+            "unknown" if scope is not None and scope.attempted else "not_dispatched")
+        return {"success": False, "played": False, "error": code, "error_scope": "command",
+            "music_dna_feedback_recorded": False, "retry_automatically": False,
+            "action_outcome": {"state": state, "retry_automatically": False}}, 200
+
+    lock = getattr(runtime, "music_discovery_play_lock", None)
+    if lock is None:
+        lock = asyncio.Lock()
+        runtime.music_discovery_play_lock = lock
+    async with lock:
+        if not current():
+            return failure("music_discovery_context_changed")
+        if item_id in cached.get("dispatched_item_ids", set()):
+            return failure("music_discovery_already_attempted")
+
+        def reserve():
+            if not current() or item_id in cached.get("dispatched_item_ids", set()):
+                raise SpotifyDiscoveryError("music_discovery_context_changed")
+            cached.setdefault("dispatched_item_ids", set()).add(item_id)
+
+        with discovery_dispatch(current, reserve) as scope:
+            try:
+                kind = str(item.get("kind") or "").strip()
+                selected_uri = uri
+                if kind == "artist":
+                    resolved = await run_music_command(hass, runtime, "resolve_discovery_artist", uri, play=False)
+                    scope.require_current()
+                    selected = resolved.get("item") if isinstance(resolved, dict) else None
+                    if (not isinstance(selected, dict) or selected.get("uri") != uri
+                            or selected.get("type") != "artist"
+                            or selected.get("identity_basis") != "spotify_artist_identity"):
+                        return failure("music_discovery_artist_invalid", scope)
+                    selected_uri = selected.get("uri")
+                elif kind not in {"track", "album", "playlist"}:
+                    return failure("music_discovery_item_not_playable", scope)
+                scope.approved_uri = selected_uri
+                command = "play_uris" if kind == "track" else "play_discovery_context"
+                value = {"uris": [selected_uri]} if kind == "track" else {"context_uri": selected_uri}
+                playback = await run_music_command(hass, runtime, command, value, play=True)
+                scope.require_current()
+                if not isinstance(playback, dict) or playback.get("success") is not True or not scope.acknowledged:
+                    return failure("music_discovery_start_failed", scope)
+                # Only an acknowledged, still-authorized write may become a positive signal.
+                recorded = (await _record_discovery_play(runtime, item, payload, user_id=user_id, guard=guard)
+                            if guard.persistence_allowed else False)
+                scope.require_current()
+                _mark_cached_feed_stale(runtime, context)
+                return {"success": True, "played": True, "item": item,
+                    "playback": playback.get("playback", {}),
+                    "action_outcome": playback.get("action_outcome", {}),
+                    "music_dna_feedback_recorded": recorded}, 200
+            except SpotifyDiscoveryError as exc:
+                return failure(exc.code, scope)
+            except SpotifyBackendError:
+                return failure("music_discovery_provider_request_failed" if current()
+                               else "music_discovery_context_changed", scope)
+            except (MusicBackendCapabilityError, ValueError, TypeError):
+                return failure("music_discovery_backend_unsupported" if current()
+                               else "music_discovery_context_changed", scope)
+            except (TimeoutError, OSError, ClientError):
+                return failure("music_discovery_provider_request_failed" if current()
+                               else "music_discovery_context_changed", scope)
 
 
 async def async_handle_music_discovery_feedback_payload(
@@ -782,9 +846,9 @@ async def _catalog_discovery_items(
         if not query_artist:
             continue
         try:
-            result = await run_music_command(hass, runtime, "search_tracks", {
-                "query": f'artist:"{query_artist}"', "limit": 10,
-            })
+            result = await run_music_command(hass, runtime, "search_tracks", DiscoveryCatalogueSearch(
+                query=f'artist:"{query_artist}"', limit=10,
+            ))
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Music Discovery catalog search unavailable: %s", exc.__class__.__name__)
             break
@@ -1239,13 +1303,14 @@ async def _record_discovery_play(
     payload: dict[str, Any],
     *,
     user_id: str | None,
+    guard: Any = None,
 ) -> bool:
     memory = getattr(runtime, "memory", None)
     recorder = getattr(memory, "async_record_discovery_play", None)
     if not callable(recorder):
         return False
-    await recorder(runtime, item, payload, user_id=user_id)
-    return True
+    await recorder(runtime, item, payload, user_id=user_id, **({"guard": guard} if guard is not None else {}))
+    return guard is None or guard.valid()
 
 
 async def _record_discovery_negative_feedback(

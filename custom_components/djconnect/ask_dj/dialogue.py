@@ -234,6 +234,7 @@ class DialogueTurn:
     retire_startup_after_play: Any = None  # Original server Session, negative-only fence.
     provider_display_source: dict | None = None  # Original archive binding, never model input.
     reply_source_context: dict | None = None
+    current_metadata_history: Any = None  # Typed local literal read; never a wire/model grant.
     reply_source_authority: Any = None
     reply_media_candidate: Any = None  # Exact image/subject from this response only.
     historical_playback_admission: Any = None  # RAM-only original-source validator.
@@ -1143,12 +1144,22 @@ def model_prompt(text: str, payload: dict, source: dict | None = None, *, verifi
             "Keep source names in the source links; don't narrate your research process. "
             "Translate English prose naturally into the selected language, preserving people's names and work titles. "
             "A broad occupation must not become a narrower role; an activity is not an extra job. "
+            "One selected work credit does not establish a general occupation: identify its composer as composer of that work, not as an extra biography job. "
+            "When mentioning a selected composer credit, explicitly retain the underlying work behind this recording. "
+            "Never shorten it to the recording's composer credit or composer on this recording; those change its scope. "
+            "You may omit an unneeded credit rather than add a redundant or ambiguous credit sentence. "
             "Keep performer, composer and producer credits distinct. A collaboration proves only that collaboration. "
+            "Band membership or a work credit does not establish fame: do not say best known for or rose to fame unless the original passage explicitly states that reputation. "
             "Don't invent causal, genre, sonic, chronological or career connections between separately supported facts. "
             "Founders are not necessarily the complete original lineup; do not turn a founder count into a duo/trio claim. "
             "Keep projects, demos and actual work titles distinct: a demo associated with a project does not acquire its name as a title. "
             "Your present interest or appreciation may colour the telling, without asserting artist psychology or listener feelings. "
             "Use a concrete work, collaboration or activity from the evidence to answer a general introduction. "
+            "For a short who-is identity question use at most TWO short sentences: concise identification and one useful literal public biographical fact. "
+            "Do not expand that short identity answer into a work example, career account, sonic description, date or concluding appreciation. "
+            "When selected credits supply the name, do not stop at repeating that credit; use the fetched biography to introduce the person. "
+            "Keep different source passages and different works in separate complete sentences. Do not join unrelated roles or works with a semicolon or an and. "
+            "For that short introduction do not add a career arc, a significance recap or relative chronology; answer the question and stop. "
             "Leave dates out unless needed to answer this question; when needed bind each absolute year to its exact source-marked work and event. "
             "Band founding/member dates instead require an exact supplied biographical_date_events proof: name its group and actor explicitly, "
             "in a separate simple sentence containing ONLY the named group/actor, founding/joining action and year. "

@@ -65,6 +65,26 @@ class ProfileSettingsOwnerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(status, 200, after)
         self.assertEqual(after['snapshot']['session']['settings'], accepted['snapshot']['defaults'])
 
+    async def test_explicit_welcome_mood_is_session_only_and_preserves_stored_defaults(self):
+        before, status = await self.read()
+        accepted, status = await self.choose(before, {'persona':'radio_dj', 'mood':'energy', 'presence':'music_only'})
+        self.assertEqual(status, 200, accepted)
+        defaults = accepted['snapshot']['defaults']
+        revision = accepted['snapshot']['defaults_revision']
+        active = await self.fixture.manager.async_start(owner_profile_id='profile-a', selected_mood='chill',
+                                                        explicit_mood_choice=True)
+        self.assertEqual(active.selected_mood, 'chill')
+        self.assertEqual(active.initial_session_mood, 'chill')
+        self.assertEqual(active.opening_context.mood, 'chill')
+        after, status = await self.read()
+        self.assertEqual(status, 200, after)
+        self.assertEqual(after['snapshot']['defaults'], defaults)
+        self.assertEqual(after['snapshot']['defaults_revision'], revision)
+        self.assertEqual(after['snapshot']['session']['settings']['mood'], 'chill')
+        await self.fixture.manager.async_end(owner_profile_id='profile-a', session_id=active.session_id)
+        inherited = await self.fixture.manager.async_start(owner_profile_id='profile-a')
+        self.assertEqual(inherited.selected_mood, 'energy')
+
     async def test_invalid_profile_client_or_broad_ha_credentials_never_return_settings(self):
         for extra in ({'profile_id': 'other'}, {'client_type': 'windows'}, {'contract_version': 1}):
             body, status = await self.read(**extra)

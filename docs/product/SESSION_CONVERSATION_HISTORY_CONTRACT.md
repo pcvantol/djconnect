@@ -1,3 +1,72 @@
+## 2026-11-07 — Explicit private ephemeral paired response shape
+
+A paired Ask DJ response with `success:true`, `history_persisted:false` and
+`conversation.schema_version:1` / `history_scope:"private_ephemeral"` is a
+current-response presentation, not a canonical stored exchange. Core preserves
+its genuine accepted `owner_profile_id`, original `client_message_id` and
+`conversation` confirmation: real `turn_id`, `thread_id`, exact original context,
+`entry_ids:[]`, `input_type`, style and original source/turn metrics. No context,
+owner or accepted-turn identity is synthesized by a client.
+
+The accepted fresh text/media/catalogue projection stays at the root: `text`,
+`dj_text`, `items`, `playback_actions`, `result_set`, sources/links/images and
+any independently admitted current speech fields. A partial history-shaped
+`assistant_message` without a real history message identity is not emitted.
+Nonpersisted responses omit `user_message`, `assistant_message`, `messages` and
+Store `history_revision`/`clear_revision` fields. No new server message/history ID,
+Store write, Session SQL row, clear/default revision or archival grant is created.
+Canonical persisted exchanges retain their existing complete messages and revisions.
+
+Consumers use the existing explicit private-ephemeral root presentation in memory,
+with the original request epoch, owner, Session/context, client message and source/
+result lease fences. A local display UUID is not a server/history identity and
+must never become original authority, durable history, a playback grant or a
+reopened canonical entry. Session/owner/source withdrawal and expiry remove the
+presentation; a later history read neither renews it nor grants persistence.
+Only original server result-set/action IDs can request explicit later selection.
+Strict canonical history decoding remains unchanged.
+
+The actual Macmini40497 HAEVN request returned server200/success and nine real
+catalogue actions, but native strict decoding failed at `assistant_message.id`.
+An independent isolated HA fresh-Session/history2/speech3 reproduction confirms
+the same malformed partial object and genuine original context. Earlier generic
+route success was not native acceptance. This correction has been synchronized
+with the Apple lane before implementation; source, CI, merge, install/runtime
+and native rendering remain separate qualification gates.
+
+## Qualified literal current metadata correction — 6 November 2026
+
+A current-track/artist identification in an explicitly identified active Session
+may retain its bounded literal question and answer through the existing
+owner-metadata archive admission. This corrects successful current answers that
+were always marked private ephemeral and therefore absent from all other linked
+devices' Session feeds. It does not copy RAM-only catalogue or Moment prose.
+
+A Python-only typed candidate is minted solely by the two fresh matching current
+metadata reads. Original Session/playback item hash, actual original SQL playback
+entry, exact provider/account/entry source binding, current Profile/privacy and
+history-enabled state must all qualify. The existing original-source archive
+validator runs before persistence and across commit/delivery waits. Owner,
+source, track, history-clear or Session changes withdraw the turn. Caller/model
+JSON, unknown/missing source identity, another Profile, historical selection,
+live Moment, queue or forecast cannot mint this candidate.
+
+Only literal text and bounded source links enter the existing Profile Store and
+conversation_user/conversation_dj references in that original Session's SQLite
+entries. Existing source-bound history reads revalidate this original metadata
+binding; no account substitution or retention extension is introduced. A previous
+private thread remains private for its other content. Disabled Session history,
+explicit private request, missing original entry or unqualified source retains
+the existing ephemeral behavior. General-screen requests without an explicit
+Session context do not silently become Session entries.
+
+The immediate response may retain its original short-lived artist image. Stored
+text has no image/audio/action/reply-media reference and creates no image or
+speech processing grant. Pixel expiry, selected-result/live-source protection,
+source withdrawal, supported five-language text and the existing common voice
+and text application service remain unchanged. Native rendering, actual STT,
+installed/runtime, audible output and APNs acceptance remain separate.
+
 ## Rich band membership and public photo continuation
 
 The additive [band-membership contract](ASK_DJ_BAND_MEMBERS_STORY_V1.md) owns

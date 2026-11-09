@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "suite": "askdj_release_matrix_v1",
+  "release_languages": ["en", "nl"],
   "existing_single_turn_cases": "examples/ask_dj_e2e_cases.json",
   "additional_route_contracts": {
     "artist_fun_queue": {
@@ -34,6 +35,54 @@
     "album_tracks_information": {
       "file": "tests/test_ask_dj_album_tracks.py",
       "method": "test_current_album_other_tracks_in_five_languages_are_informational_and_not_promoted_to_model_or_archive"
+    },
+    "golden_en_membership": {
+      "file": "tests/test_ask_dj_band_story.py",
+      "method": "test_english_membership_uses_complete_artist_route"
+    },
+    "golden_nl_topic_switch": {
+      "file": "tests/test_ask_dj_contextual_dialogue.py",
+      "method": "test_dutch_new_topic_detaches_prior_source_dependencies"
+    },
+    "golden_en_composer_role": {
+      "file": "tests/test_ask_dj_contextual_dialogue.py",
+      "method": "test_english_selected_composer_keeps_role"
+    },
+    "golden_nl_composer_role": {
+      "file": "tests/test_ask_dj_contextual_dialogue.py",
+      "method": "test_dutch_selected_composer_keeps_role"
+    },
+    "golden_nl_speech_unavailable": {
+      "file": "tests/test_ask_dj_contextual_dialogue.py",
+      "method": "test_dutch_unavailable_provider_keeps_text_and_does_not_repeat"
+    },
+    "for_you_session_locale": {
+      "file": "tests/test_session_for_you.py",
+      "method": "test_session_locale_drives_intro_despite_default_english_profile"
+    },
+    "for_you_read_locale_no_generation": {
+      "file": "tests/test_session_for_you.py",
+      "method": "test_locale_projection_never_regenerates_renews_or_changes_mix_ids"
+    },
+    "for_you_one_confirmed_mood_preparation": {
+      "file": "tests/test_session_for_you.py",
+      "method": "test_one_preparation_per_confirmed_revision_and_poll_never_retries"
+    },
+    "for_you_latest_mood_response_wins": {
+      "file": "tests/test_session_for_you.py",
+      "method": "test_late_mood_result_cannot_replace_newer_offer"
+    },
+    "for_you_failed_mood_preparation_no_retry": {
+      "file": "tests/test_session_for_you.py",
+      "method": "test_failed_refresh_is_not_restarted_by_same_revision"
+    },
+    "for_you_welcome_mood_session_only": {
+      "file": "tests/test_profile_settings_owner.py",
+      "method": "test_explicit_welcome_mood_is_session_only_and_preserves_stored_defaults"
+    },
+    "for_you_actual_refresh_and_speaker_wire": {
+      "file": "tests/test_for_you_refresh_contract.py",
+      "method": "test_original_ha_fixture_matches_the_current_producer_and_harness"
     }
   },
   "families": [
@@ -3195,6 +3244,10 @@
         {
           "file": "tests/test_ask_dj_exploration.py",
           "method": "test_more_on_reopened_older_contribution_uses_original_subject_and_current_style"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_temporal_receipts_admit_literal_short_titles_but_not_ordinary_words"
         }
       ],
       "real_ha_profile": "full_golden",
@@ -4944,6 +4997,26 @@
         {
           "file": "tests/test_ask_dj_semantic_reads.py",
           "method": "test_actual_artist_route_brief_focus_preserves_broader_scope_and_private_boundary"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_partial_name_on_selected_playback_keeps_reference_and_researches_full_artist"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_private_playback_lookup_subjects_never_admit_stale_combined_or_other_sources"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_selected_playback_artist_lookup_keeps_original_session_fence_during_fetch"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_selected_playback_lookup_expiry_remains_fenced_after_subject_resolution"
+        },
+        {
+          "file": "tests/test_ask_dj_contextual_dialogue.py",
+          "method": "test_legacy_selected_credit_review_exposes_original_span_without_granting_positive_truth"
         }
       ],
       "fixture_boundary": "External model responses only for owner contracts; semantic_reads runs 45 held-out inputs through actual HA/qualified model and provider I/O fixtures."
@@ -7894,9 +7967,9 @@
         },
         {
           "id": "ASKDJ-CATALOGUE-all-locales-actual-acceptance",
-          "question": "Run all70exact questions and30speaker/album/dedup steps through ordinary paired Ask DJ",
+          "question": "Run the 28 exact EN/NL questions and 12 EN/NL speaker/album/dedup steps through ordinary paired Ask DJ",
           "expected_answer": "All actual identity, whole-context playback, locale, narration, source and no-extra-effect assertions pass; missing/skipped/unsupported routes fail. No chip-ID execution alias or hidden prompt rewriting.",
-          "model_policy": "up to392bounded HA agent attempts including90 separate answer-language assessments; zero STT/TTS; no model retry/fallback",
+          "model_policy": "bounded HA agent attempts including 36 separate answer-language assessments; zero STT/TTS; no model retry/fallback",
           "owning_tests": [
             {
               "file": "tests/test_ask_dj_catalogue_golden.py",
@@ -7910,7 +7983,7 @@
           "id": "ASKDJ-CATALOGUE-generated-variants-actual-execution",
           "question": "After complete current base PASS, generate and independently meaning-review paraphrases, spoken questions and typos; run all frozen variations and conversation continuations.",
           "expected_answer": "Original independent identity/effect/permission/locale/source/narration oracles remain unchanged. Failed base, stale evidence or changed meaning spends zero generation calls. Generated text is not product PASS. Every failed variation is retained and requires a product fix and actual rerun; no selective replacement.",
-          "model_policy": "Generation only after full base PASS; max10HA calls with separate meaning review. Frozen100step variation execution max392calls; duplicate zero new effects/model calls.",
+          "model_policy": "Generation only after exact EN/NL base PASS; max4 HA calls with separate meaning review. Execute the 40 frozen EN/NL steps; duplicate zero new effects/model calls.",
           "owning_tests": [
             {
               "file": "tests/test_ask_dj_catalogue_variations.py",
@@ -9903,12 +9976,9 @@
     ],
     "languages": [
       "en",
-      "nl",
-      "de",
-      "fr",
-      "es"
+      "nl"
     ],
-    "paid_tts_attempt_cap": 21,
+    "paid_tts_attempt_cap": 9,
     "audible_review": "separate; audio bytes or duration do not prove intended expression"
   },
   "reported_issues": [

@@ -65,6 +65,24 @@ class PassiveProjectionTests(unittest.TestCase):
         self.assertEqual(before, self.session.broadcast.state)
         self.assertEqual(sequence, self.session.broadcast.delivery_sequence)
 
+    def test_shorter_field_expiry_keeps_original_rich_frame_revision(self):
+        self.prepare()
+        for version in (1, 2, 3):
+            self.grant = replace(self.grant, projection_version=version)
+            before = self.frame(101)
+            original = deepcopy(self.session.broadcast.state)
+            expired = self.frame(219)
+            self.assertIsNotNone(before['contribution'])
+            self.assertIsNone(expired['contribution'])
+            self.assertEqual(expired['state'], 'active')
+            for field in ('revision', 'delivery_sequence', 'observed_at', 'expires_at',
+                          'binding_id', 'generation'):
+                self.assertEqual(before[field], expired[field], field)
+            self.assertEqual(original, self.session.broadcast.state)
+            if version in (2, 3):
+                self.assertNotEqual(before['contribution_status'], expired['contribution_status'])
+            self.assertEqual(self.frame(221)['state'], 'stale')
+
     def test_expiry_is_not_read_repaint_or_reconnect_renewed(self):
         self.prepare()
         self.assertIsNotNone(self.frame()['contribution'])
@@ -192,7 +210,8 @@ class PassiveProjectionTests(unittest.TestCase):
         second = self.frame(registry=registry, owner='owner')
         self.assertEqual(first['contribution'], second['contribution'])
         self.assertEqual(first['delivery_sequence'], second['delivery_sequence'])
-        self.assertNotEqual(first['revision'], second['revision'])
+        self.assertEqual(first['revision'], second['revision'])
+        self.assertNotEqual(first['artwork'][0]['media_revision'], second['artwork'][0]['media_revision'])
         self.assertNotIn('/session/media/', json.dumps(second))
         art['subject']['type'] = 'artist'
         self.assertEqual(self.frame(registry=registry, owner='owner')['artwork'], [])
@@ -302,6 +321,55 @@ class PassiveOwnerGrantTests(unittest.IsolatedAsyncioTestCase):
     def tearDownClass(cls):
         cls.fixtures.SessionConversationHistoryTest.tearDownClass()
 
+    async def test_identical_accepted_observation_has_new_frame_but_reads_and_ungranted_updates_do_not(self):
+        fixture = self.fixtures.SessionConversationHistoryTest()
+        await fixture.asyncSetUp()
+        try:
+            hass, runtime, _, identity, headers = await fixture.transport_fixture()
+            runtime.entry = SimpleNamespace(entry_id='owner-entry', data=runtime.config, options={})
+            session = await fixture.manager.async_start(owner_profile_id='profile-a', locale='nl')
+            values = {'owner_profile_id': 'profile-a', 'session_id': session.session_id,
+                      'state': 'idle', 'media_identity': 'synthetic-empty-observation'}
+            await fixture.manager.async_update_playback_projection(**values)
+            broadcast = session.broadcast
+            sequence = broadcast.delivery_sequence
+            self.assertFalse(await fixture.manager.async_update_playback_projection(**values))
+            self.assertEqual(sequence, broadcast.delivery_sequence)
+            base = {**identity, 'contract_version': 1, 'projection_version': 3,
+                    'session_id': session.session_id, 'surface': 'widget'}
+            # Unit-only external source qualification; the actual HA proof uses
+            # real paired/source admission without patching production guards.
+            with patch('custom_components.djconnect.forecast_imagery.artist_authority',
+                       return_value=lambda: True):
+                authorized, status = await passive.handle(hass, {**base, 'enabled': True,
+                    'os_snapshot_cache': True, 'locked_display': False}, headers=headers, authorize=True)
+                self.assertEqual(status, 200, authorized)
+                read = {**base, 'grant_id': authorized['grant_id']}
+                before = authorized['passive_session']
+                await asyncio.sleep(.002)
+                self.assertFalse(await fixture.manager.async_update_playback_projection(**values))
+                reply, status = await passive.handle(hass, read, headers=headers)
+                self.assertEqual(status, 200, reply)
+                after = reply['passive_session']
+                self.assertEqual(reply['grant_id'], authorized['grant_id'])
+                for name in ('binding_id', 'generation', 'session_id'):
+                    self.assertEqual(before[name], after[name])
+                self.assertGreater(after['delivery_sequence'], before['delivery_sequence'])
+                self.assertNotEqual(after['observed_at'], before['observed_at'])
+                clock = broadcast.passive_state_observed
+                repeated, status = await passive.handle(hass, read, headers=headers)
+                self.assertEqual(status, 200, repeated)
+                for name in ('delivery_sequence', 'revision', 'observed_at', 'expires_at'):
+                    self.assertEqual(after[name], repeated['passive_session'][name])
+                self.assertEqual(clock, broadcast.passive_state_observed)
+                await passive.handle(hass, {**base, 'enabled': False,
+                    'os_snapshot_cache': True, 'locked_display': False}, headers=headers, authorize=True)
+                sequence = broadcast.delivery_sequence
+                self.assertFalse(await fixture.manager.async_update_playback_projection(**values))
+                self.assertEqual(sequence, broadcast.delivery_sequence)
+        finally:
+            await fixture.asyncTearDown()
+
     async def test_surface_isolation_and_stale_snapshot_do_not_renew_or_remove_grants(self):
         fixture = self.fixtures.SessionConversationHistoryTest()
         await fixture.asyncSetUp()
@@ -381,7 +449,21 @@ class PassiveOwnerGrantTests(unittest.IsolatedAsyncioTestCase):
                 valid, code = await passive.handle(hass, {**read, 'projection_version': 2}, headers=headers)
                 self.assertEqual(code, 200)
                 self.assertEqual(valid['passive_session']['cache_policy']['locked_display'], False)
-                for version in (True, '2', 0, 3):
+                observation = session.broadcast.passive_observation
+                v3, code = await passive.handle(hass, {**consent, 'projection_version': 3},
+                                                headers=headers, authorize=True)
+                self.assertEqual(code, 200)
+                self.assertEqual(v3['passive_session']['schema_version'], 3)
+                self.assertIs(session.broadcast.passive_observation, observation)
+                read3 = {**base, 'grant_id': v3['grant_id'], 'projection_version': 3}
+                valid3, code = await passive.handle(hass, read3, headers=headers)
+                self.assertEqual(code, 200)
+                self.assertEqual(valid3['passive_session']['revision'], v3['passive_session']['revision'])
+                denied3, code = await passive.handle(hass, {**read3, 'projection_version': 2}, headers=headers)
+                self.assertEqual((code, denied3['error']), (403, 'surface_grant_invalid'))
+                old3, code = await passive.handle(hass, {**read, 'projection_version': 3}, headers=headers)
+                self.assertEqual((code, old3['error']), (403, 'surface_grant_invalid'))
+                for version in (True, '2', 0, 5):
                     _, code = await passive.handle(hass, {**read, 'projection_version': version}, headers=headers)
                     self.assertEqual(code, 400)
                 _, code = await passive.handle(hass, {**consent, 'surface': 'live_activity',

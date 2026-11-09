@@ -15,7 +15,7 @@ from .const import (
     SPOTIFY_SCOPES,
 )
 from .assist_stt import detect_stt_support
-from .spotify_oauth import missing_spotify_scopes, normalize_spotify_scopes
+from .spotify_oauth import spotify_scope_status, normalize_spotify_scopes
 from .tts import detect_tts_support
 from .use_cases import ManualMusicBackend, MusicAssistantBackend, SpotifyDirectBackend
 
@@ -86,8 +86,13 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
         or entry.data.get(CONF_MUSIC_BACKEND)
         or DEFAULT_MUSIC_BACKEND
     )
-    configured_scopes = entry.data.get(CONF_SPOTIFY_SCOPES)
-    missing_scopes = missing_spotify_scopes(configured_scopes)
+    scope_config = {**entry.data, **entry.options,
+                    'spotify_scope_evidence': entry.data.get('spotify_scope_evidence')}
+    configured_scopes = scope_config.get(CONF_SPOTIFY_SCOPES)
+    scope_status = spotify_scope_status(scope_config)
+    missing_scopes = scope_status['missing_granted_scopes']
+    if missing_scopes is None:
+        missing_scopes = scope_status['missing_requested_scopes']
     capabilities = (
         MusicAssistantBackend.capabilities
         if backend == MUSIC_BACKEND_MUSIC_ASSISTANT
@@ -96,6 +101,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
         else SpotifyDirectBackend.capabilities
     )
     spotify_oauth = {
+        **scope_status,
         "configured_scopes": normalize_spotify_scopes(configured_scopes),
         "required_scopes": SPOTIFY_SCOPES,
         "missing_scopes": missing_scopes,

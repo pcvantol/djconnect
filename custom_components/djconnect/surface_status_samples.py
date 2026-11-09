@@ -151,6 +151,7 @@ class OriginalSample:
     state: str | None
     ended: bool
     sample_id: str
+    target_id: str = ""
     _consumed: list = field(default_factory=lambda: [False], repr=False)
 
     def consume(self):
@@ -163,16 +164,17 @@ class OriginalSample:
         return self.witness.current(self if self.ended else None)
 
 
-def seal(witness, state):
+def seal(witness, state, *, target_id=""):
     """Call immediately on actual backend return/readback entry, before await."""
     states = {"playing": "playing", "paused": "paused", "stopped": "stopped", "idle": "unknown"}
-    if witness is None or type(state) is not str or state not in states or not witness.current():
+    if (witness is None or type(state) is not str or state not in states
+            or type(target_id) is not str or len(target_id) > 256 or not witness.current()):
         return None
     try:
         ms, mono = _stamp()
     except ValueError:
         return None
-    return OriginalSample(witness, ms, mono, states[state], False, str(uuid.uuid4()))
+    return OriginalSample(witness, ms, mono, states[state], False, str(uuid.uuid4()), target_id=target_id)
 
 
 def advance_own_command(sample):

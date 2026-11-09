@@ -40,6 +40,7 @@ class Occurrence:
     deadline: float
     source_context: tuple
     duration_ms: int | None = None
+    repeated: bool = False
 
     @property
     def item_id(self):
@@ -138,7 +139,8 @@ class AnnouncementState:
         # single original automatic deadline, it never resets it on a later poll.
         occurrence = Occurrence('occurrence-' + uuid4().hex, media_uri, title, artist,
             album_uri if ALBUM_URI.fullmatch(album_uri or '') else '', now,
-            now + START_WINDOW_SECONDS - position / 1000, source_context, duration)
+            now + START_WINDOW_SECONDS - position / 1000, source_context, duration,
+            repeated=same and (natural_restart or deliberate_restart))
         self.current_occurrence = occurrence
         return occurrence
 
@@ -245,11 +247,43 @@ def retained(moment):
         return False
 
 
-def fallback(occurrence, locale):
-    # An honest name/title-only degraded path, never fake generative variety.
-    if locale not in LABELS:
-        raise ValueError('unsupported_locale')
-    return f'{occurrence.title} — {occurrence.artist}.'
+_FALLBACK_INTROS = {
+    'en': {
+        'home_dj': 'Settle in and give this one a little room.',
+        'radio_dj': 'Stay with me for the next few minutes.',
+        'club_dj': 'Your floor now. Find your own way into it.',
+        'festival_dj': 'Make a little space and take this moment in.',
+    },
+    'nl': {
+        'home_dj': 'Ga er even goed voor zitten en geef dit nummer de ruimte.',
+        'radio_dj': 'Blijf nog even bij me voor de komende minuten.',
+        'club_dj': 'De vloer is van jou. Beweeg op je eigen manier.',
+        'festival_dj': 'Maak wat ruimte en neem dit moment helemaal in je op.',
+    },
+    'de': {
+        'home_dj': 'Mach es dir bequem und gib diesem Stück etwas Raum.',
+        'radio_dj': 'Bleib noch ein paar Minuten bei mir.',
+        'club_dj': 'Die Tanzfläche gehört dir. Beweg dich, wie du magst.',
+        'festival_dj': 'Mach ein bisschen Platz und genieß diesen Moment.',
+    },
+    'fr': {
+        'home_dj': 'Installe-toi et laisse un peu de place à ce morceau.',
+        'radio_dj': 'Reste encore quelques minutes avec moi.',
+        'club_dj': 'La piste est à toi. Bouge comme tu en as envie.',
+        'festival_dj': 'Fais un peu de place et profite de ce moment.',
+    },
+    'es': {
+        'home_dj': 'Ponte a gusto y dale un poco de espacio a este tema.',
+        'radio_dj': 'Quédate conmigo unos minutos más.',
+        'club_dj': 'La pista es tuya. Muévete a tu manera.',
+        'festival_dj': 'Haz un poco de espacio y disfruta de este momento.',
+    },
+}
+
+
+def fallback(occurrence, locale, persona):
+    intro = _FALLBACK_INTROS[locale][persona]
+    return f'{intro} {occurrence.title} — {occurrence.artist}.'
 
 
 def capture(manager, *, owner_profile_id, session_id, observed, authorize):
@@ -394,7 +428,7 @@ async def publish(manager, *, owner_profile_id, session_id, occurrence, authoriz
     try:
         guard()
         value = Contribution(occurrence, active.locale, scope)
-        content = fallback(occurrence, active.locale)
+        content = fallback(occurrence, active.locale, active.dj_persona.value)
         seed = DJMoment(moment_id='moment-'+uuid4().hex, session_id=session_id, created_at=_timestamp(),
             moment_type=DJMomentType.MUSIC_ANNOUNCEMENT,
             knowledge_intent=KnowledgeIntent(KnowledgeIntentType.TRACK_CONTEXT,

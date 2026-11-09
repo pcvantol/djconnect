@@ -40,7 +40,7 @@ def parse_plan(raw):
         return None
     if not isinstance(value, dict):
         return None
-    named_artist = value.get("read") == "artist_tracks" and value.get("reference") == "named"
+    named_artist = value.get("read") in {"artist_tracks", "artist_collections"} and value.get("reference") == "named"
     research = value.get("read") == "research"
     recent = research and value.get('reference') == 'recent'
     expected = {"read", "reference", "exclude_current"} | ({"artist"} if named_artist else
@@ -68,7 +68,10 @@ def parse_plan(raw):
                 or value["angle"] not in ANGLES):
             return None
         return ReadPlan(read, reference, exclude, subject=value["subject"], angle=value["angle"])
-    if read in {"artist", "artist_story", "production_story", "recording", "release", "album_tracks", "other_album", "artist_tracks"}:
+    if read == "artist_collections":
+        if reference != "named" or exclude:
+            return None
+    elif read in {"artist", "artist_story", "production_story", "recording", "release", "album_tracks", "other_album", "artist_tracks"}:
         if reference not in ({"current", "selected", "named"} if read == "artist_tracks" else {"current", "selected"}):
             return None
     elif read in {"queue", "forecast", "previous_track", "none"}:
@@ -92,16 +95,20 @@ def prompt(text, language, *, selected, active, context=None, recent_subject=Non
     return (
         "Interpret the user's music question semantically, including typos, colloquial language, "  # nosec B608 -- Reviewed HA-agent prose/JSON, never SQL; see CORE_CONSOLIDATION_B608_REVIEW_20261020.md.
         "missing accents and paraphrases. This is a read-only route proposal, NOT an answer or command. "
-        "Return exactly one JSON object with read, reference, exclude_current; add artist only for artist_tracks/named, "
+        "Return exactly one JSON object with read, reference, exclude_current; add artist only for artist_tracks/named or artist_collections/named, "
         "or subject and angle only for research/selected or research/named; research/recent adds ONLY angle. "
         "read is one of artist (only identify performer), artist_story (explain the contextual artist, "
         "biography, background, tell me about this artist), recording (identify title), release (edition release date), "
         "production_story (explain the recording/production of the selected or current recording, not the artist biography), "
         "album_tracks (enumerate tracks contained on this album), other_album (another album by the contextual artist), "
         "artist_tracks (offer real catalog songs or hits by a performer, without starting music), "
+        "artist_collections (offer up to five actual albums and five playlists for an explicitly named performer, without playing), "
         "queue (reported upcoming music), forecast (DJ-session preview), previous_track, "
         "research (fetch public evidence for a selected contribution, named musical subject or supplied recent public query), none. "
         "reference is current or selected for artist/artist_story/production_story/recording/release/album_tracks/other_album/artist_tracks; "
+        "artist_collections requires named and an artist public name. A general availability request such as "
+        "'Heb je iets van de artiest HAEVN' or 'Have you got something by HAEVN' is artist_collections/named/false, "
+        "not artist_tracks, research, playback or none. Do not fabricate collection rows. "
         "artist_tracks also allows named as described below. Research allows selected, named or recent as described below. Other reads use none. "
         "If a contribution is selected, a deictic question refers to it unless "
         "the user explicitly asks about music playing now. If selected is unavailable do not invent it. "
@@ -306,6 +313,9 @@ async def execute_plan(hass, runtime, text, plan, scope):
         from .artist_story import response
         answer = await response(hass, runtime, text, selected,
                                 **({'recording': True} if plan.read == 'production_story' else {}))
+    elif plan.read == "artist_collections":
+        from .spotify_collection_offers import artist_collections_read
+        answer = await artist_collections_read(hass, runtime, plan.artist, turn=turn)
     elif plan.read == "artist_tracks":
         from .artist_tracks import artist_tracks_read
         answer = await artist_tracks_read(hass, runtime, plan, selected)

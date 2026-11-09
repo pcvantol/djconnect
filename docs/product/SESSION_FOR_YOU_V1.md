@@ -66,11 +66,59 @@ keys, action grants or track URIs enter that narration prompt.
 
 The exact original owner/source/Session/Broadcast/settings/DNA/history grant and
 both wall/monotonic60-second deadline fence every awaited continuation and final
-dispatch. A cached card survives lease expiry, with disabled actions and an
-explicit refresh_request (automatic:false); polling never renews it. Settings
-changes disable the old choices. Explicit refresh sends the supplied compatibility
-prompt through the ordinary Ask DJ route and updates the same cached offer;
-it never silently changes or plays a mix. Historical receipts are not rebound.
+dispatch. A cached card survives lease expiry, with disabled actions and an explicit
+refresh_request (automatic:false); polling never renews it. That compatibility
+request remains manual. The additive server-owned refresh policy below is not a
+client request to synthesize or replay an Ask DJ prompt.
+
+### Confirmed Mood refresh and locale (6 November 2026)
+
+The explicit existing session/start mood field is a Session-only welcome choice:
+a valid supplied mood wins for that newly created Session without changing any
+Profile default or defaults_revision. Missing mood inherits canonical defaults.
+The initial runtime, opening context, first offer and returned selected_mood must
+all agree. The server performs no corrective write after responding; clients
+must not persist welcome previews or silently mutate Profile defaults.
+
+Owner-selected repair scope is English/Dutch. Genuine preparation must use the
+original accepted Session locale, even when the Profile/Assist default is English.
+Visible genre labels are localized presentation; the owned canonical genre,
+Spotify search query, frozen track mix and opaque action IDs remain unchanged.
+Unknown genre names remain original taxonomy, never fabricated translations.
+An explicitly supplied current app locale on an authenticated active read may
+localize labels and the authored intro fallback without provider I/O, renewal or
+changing Session state. A generated intro is used only for its accepted locale.
+
+One successfully committed, non-replayed Settings3 Mood revision may schedule one new
+server-owned offer for that same Session. It clears stale genre choices, never
+starts/transfers music, never writes taste/history, and never retries uncertain
+work. Reads, reconnect, same-revision writes and expiry alone spend no calls.
+The original Session/owner/source/pairing/settings/DNA/history guards and original
+bounded preparation deadline apply after every await and at publication. Late
+results cannot overwrite a newer Mood revision, a dismissed offer or another
+Session. A failed attempt remains unavailable for that revision; polling cannot
+restart it. An in-flight or uncertain explicit playback action blocks automatic
+replacement rather than creating a second effect opportunity.
+
+Additive for_you.refresh_policy schema1 describes execution:server,
+trigger:confirmed_mood_revision, mood_revision, state (pending/available/unavailable),
+automatic_playback:false and retry_automatically:false. It is freshness/status,
+not an action grant. Native clients adopt the current server offer from the
+normal active response; they never generate a refresh from a GET or replay an
+uncertain selection. refresh_request.automatic stays false for compatibility.
+
+A selection response and active projection may include for_you.continuation with
+the originally accepted first_play state, result_set, playback_actions,
+conversation_context and action_outcome. Continuation expires_in is recomputed
+from the original wall/monotonic deadline, never renewed; mood_revision binds
+its accepted Session context. Active reads accept language=nl/en in GET query
+or the ordinary djconnect/read payload.language, plus existing language headers. Only an actually admitted output result
+set may supply speaker buttons. An awaiting_output state must expose that exact
+continuation, not the old genre IDs. Uncertain/attempted playback stays visibly
+uncertain with retry_automatically:false; it cannot be silently retried or upgraded
+to confirmed. Exact original explicit choices continue through the existing
+normal command adapter and readback.
+
 
 ## Selection and dismissal
 
@@ -93,13 +141,23 @@ only at the chosen mix's dispatch; no Spotify cross-endpoint atomicity is claime
 Dismiss via the same authenticated message endpoint, with the supplied
 conversation_context and choice_action:{operation:dismiss,
 result_set_id:offer_id,action_id:""}. No text/client_message_id is needed for this
-negative-only action. It hides only this paired client's original Session card,
-creates no chat/taste vote and invalidates its not-yet-dispatched continuation.
-It never rolls back a sent playback effect or dismisses another client's card.
+presentation action. The paired owner, active Session, thread and current offer
+must match. It closes the card on all paired clients of that owner and Session,
+even if the action lease has expired. The response and active Session reads
+return the same Session and offer IDs with state dismissed, visible false,
+empty options and actions_available false. They omit continuations, action
+sets and refresh prompts. Repeating the same dismissal is harmless.
 
-Only confirmation of the chosen mix's first track on the original selected
-output closes the whole card for the rest of that Session. Ordinary playback,
-a transport ACK or another track is insufficient. Unknown outcomes remain
+Dismissal lasts for the rest of the Session. Mood changes and explicit refresh
+requests do not reopen the card. The next Session can prepare its own offer.
+Dismissal writes no chat, taste preference or playback command. It revokes any
+action that has not reached its effect boundary. A transfer already sent can
+finish, but it cannot start the mix afterward. A mix already sent can complete
+its original readback without a retry. Dismissal does not report playback stopped.
+
+Without explicit dismissal, only confirmation of the chosen mix's first track
+on the original selected output closes the card. Ordinary playback, a transport
+ACK or another track is insufficient. Unknown outcomes remain
 visible pending, with no duplicate/automatic dispatch. A late matching
 observation may confirm once; old callbacks never mutate a replacement Session.
 Pause/stop/reconnect/app reopen do not reopen a confirmed card. A genuine new
@@ -114,7 +172,55 @@ source/effect authority. The isolated paired HTTP harness
 `scripts/verification/verify_session_for_you_http.py` uses real HA routing,
 SQLite and Store with declared synthetic Spotify/model responses, no network,
 no live credentials and no paid provider. Unit tests cover original lifetime,
-unknown/late acknowledgement, cancellation, client dismissal and recipe isolation.
+unknown/late acknowledgement, cancellation, shared dismissal and recipe isolation.
 These are source/runtime-transport proofs, not installed HA-dev, real Spotify,
 Apple rendering, local-model, physical-device or APNs acceptance. Normal protected
 Source review/CI, separate Finalization and installed/native release gates remain.
+
+### Original output confirmation after speaker selection
+
+For the admitted genre-to-speaker continuation, the normal output adapter may
+confirm the exact selected output through its fresh post-transfer player readback
+(`action_outcome.state=dispatched`, `readback_confirmed=true`, and the exact
+`selected_output_id`). This private adapter receipt must also agree with the
+returned playback device ID. A separately lagging devices inventory cannot revoke
+that already confirmed transfer. This is output confirmation only: an old paused
+track is not proof that the selected mix started. The same frozen mix still requires
+its own exact output/first-track/playing readback to close the card.
+
+Without that exact output confirmation, the existing guarded fresh inventory
+check remains mandatory. A transfer acknowledgement alone, a wrong output ID or
+an uncertain response does not grant playback. Neither path repeats a transfer,
+retries a start or renews the original Session/context/choice lease. External
+provider responses remain distinct from native/audible acceptance.
+
+### Original late playback output witness (7 November 2026)
+
+The existing late first-track/playing/output confirmation uses the original
+accepted provider observation, never a UI status or arbitrary ordinary playback.
+The private OriginalSample source/time witness must retain the exact target ID
+from that same backend return before any enrichment or owner/Session await.
+Its current original source/settings/command fences must still validate before
+it can confirm the pending mix. A witness has no field inferred from the output
+name, mutable runtime cache, historical row or a later response. Unknown/empty/
+wrong output, track or state, stale source, another Session and untyped stand-ins
+never confirm. This is private data on the existing source witness: no public
+wire, native capability, provider dispatch, new permission or lease extension.
+It does not recreate the original uncertain request or authorize its replay.
+
+### Existing committed DNA basis during unrelated metadata persistence
+
+An already prepared offer compares its exact original committed genre snapshot;
+polling does not acquire a replacement basis. A pending unrelated metadata save
+may not replace that read basis with a missing-DNA result. Comparing the original
+loaded source is permitted only while the same manager/data/memories/owner row/
+genre containers, selected genres, generation, safety epoch and original privacy
+fences still match. A new snapshot remains unavailable during persistence.
+
+Changed/cleared/disabled genres, owner or manager replacement, unobserved
+container A-B-A, failed/cancelled writes and withdrawn admissions still retire
+the original. No recovery revives an old snapshot after failed persistence.
+Read/cached projection never extends the original60-second dual-clock choice,
+creates another offer, warms data, grants playback or retries an attempted or
+uncertain operation. Other clients need the same loaded Profile memory owner;
+a missing/different manager cannot borrow the original cached admission.

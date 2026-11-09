@@ -36,7 +36,7 @@ class SourceOriginActualProofTests(unittest.TestCase):
         current = json.loads((root / "examples/client_contracts/source_origin_v1/actual-ha-source-origin-data-bulletin-diagnostics-current.json").read_text())
         self.assertEqual(current["state"], "PASS")
         self.assertEqual(len(current["cases"]), 19)
-        self.assertEqual(len(current["source_sha256"]), 308)
+        self.assertEqual(len(current["source_sha256"]), 309)
         for relative, digest in current["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), digest, relative)
         harness = hashlib.sha256((root / receipt["harness"]).read_bytes()).hexdigest()

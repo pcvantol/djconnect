@@ -3685,7 +3685,7 @@ def _entry_reload_signature(entry: ConfigEntry) -> tuple[tuple[str, Any], tuple[
             sorted(
                 (str(key), value)
                 for key, value in (values or {}).items()
-                if key not in {CONF_SPOTIFY_REFRESH_TOKEN, CONF_LAST_DEVICE_STATUS}
+                if key not in {CONF_SPOTIFY_REFRESH_TOKEN, CONF_LAST_DEVICE_STATUS, "spotify_scope_evidence"}
             )
         )
 

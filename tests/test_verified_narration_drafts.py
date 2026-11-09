@@ -209,6 +209,9 @@ class VerifiedArtistDraftTests(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
         shared.SharedDialogueTest.setUpClass()
+        # Shared fixtures reload Runtime authority; refresh its captured commit
+        # owner too, independently of which earlier module shared this worker.
+        importlib.reload(importlib.import_module('custom_components.djconnect.ask_dj.service'))
 
     @classmethod
     def tearDownClass(cls):

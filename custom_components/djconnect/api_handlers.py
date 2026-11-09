@@ -313,6 +313,7 @@ async def async_handle_session_start_payload(
             owner_profile_id=context.profile_id,
             room=str(data.get("room") or context.room_id or "").strip(),
             selected_mood=str(data.get("mood") or "").strip(),
+            explicit_mood_choice=str(data.get("mood") or "").strip() in {"chill", "groove", "energy", "party"},
             music_backend=context.backend_id,
             dj_persona=_dj_persona(data.get("dj_persona")),
             locale=_session_locale(hass, runtime, data),
@@ -510,7 +511,7 @@ async def async_handle_active_session_payload(
         await _record_for_you_confirmation(_runtime, session.broadcast.first_play_pending)
         _conversation_profile_fence(hass, _runtime, identity_payload(data), headers or {}, context)
     return {"success": True, "session": session.as_dict() if session else None,
-            **_session_offer_fields(hass, _runtime, context, session)}, 200
+            **_session_offer_fields(hass, _runtime, context, session, locale=_for_you_request_locale(data, headers, session))}, 200
 
 
 async def _async_owner_broadcast_session_context(
@@ -920,6 +921,9 @@ async def async_handle_command_payload(
         command,
     )
     normalized_command = command.lower()
+    if normalized_command == "discovery_playlist_identity" and not authorize_runtime_device_request(
+            runtime, headers, data.get("device_id"), client_type):
+        return _error_payload("unauthorized"), 401
     _debug_playback_request(runtime, data, command=normalized_command)
     if normalized_command == "queue":
         _debug_queue_request(runtime, data)
@@ -958,7 +962,12 @@ async def _dispatch_special_command(
         result, debug_command = ask_result
         return _finalize_special_command(hass, runtime, result, music_dna_key, debug_command), command_value
     if normalized_command == "volume_delta":
-        result = await _handle_volume_delta_command(hass, runtime, command_value)
+        try:
+            result = await _handle_volume_delta_command(hass, runtime, command_value)
+        except Exception as exc:  # noqa: BLE001
+            return _volume_command_error_result(runtime, data, command, normalized_command, exc=exc), command_value
+        if result.get("success") is False and result.get("error") != "invalid_volume_delta":
+            return _volume_command_error_result(runtime, data, command, normalized_command, result=result), command_value
         return _finalize_special_command(hass, runtime, result, music_dna_key, normalized_command), command_value
     return None, command_value
 
@@ -1171,6 +1180,10 @@ async def _run_backend_command(
         result = await http_helpers.run_music_command(
             hass, runtime, command, command_value, play=bool(data.get("play", False))
         )
+        if normalized_command == "set_volume" and result.get("success") is False:
+            return _volume_command_error_result(runtime, data, command, normalized_command, result=result)
+        if normalized_command == "discovery_playlist_identity":
+            return result, 200  # Pure provider diagnosis does not rewrite global health/DJ state.
         runtime.update(last_error=None)
         if result.get("success"):
             result.setdefault("backend_available", True)
@@ -1183,10 +1196,34 @@ async def _run_backend_command(
     except ValueError as exc:
         return _backend_error_result(runtime, data, command, normalized_command, _error_payload("invalid_command", str(exc)), 400)
     except MusicBackendCapabilityError as exc:
+        if normalized_command == "set_volume":
+            return _volume_command_error_result(runtime, data, command, normalized_command, exc=exc)
         runtime.update(last_error=_safe_backend_error_message(exc))
         return _backend_error_result(runtime, data, command, normalized_command, _unsupported_backend_capability_payload(hass, runtime, exc), 400)
     except Exception as exc:  # noqa: BLE001
         return _unexpected_backend_error_result(hass, runtime, data, command, normalized_command, exc)
+
+
+def _volume_command_error_result(
+    runtime: Any, data: dict[str, Any], command: str, normalized_command: str,
+    *, exc: Exception | None = None, result: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], int]:
+    """A failed volume action supplies no new independent global health state."""
+    original = result or {}
+    unsupported = (
+        exc is not None and _looks_like_backend_capability_error(exc)
+        and getattr(exc, "capability", None) == "supports_volume"
+    ) or (original.get("error") == "unsupported_backend_capability"
+          and original.get("capability") == "supports_volume")
+    code = "unsupported_backend_capability" if unsupported else "volume_command_failed"
+    payload = {"success": False, "error": code, "message": code,
+               "command": normalized_command, "error_scope": "command", "retry_automatically": False}
+    if unsupported:
+        payload.update(capability="supports_volume", backend_available=True,
+                       backend=getattr(exc, "backend", None) or original.get("backend") or "unknown")
+    # No last_error, DJ/voice state, cached playback or capability/health write.
+    # Do not decorate from provider metadata: a scoped error must not rebind it.
+    return _backend_error_result(runtime, data, command, normalized_command, payload, 200)
 
 
 def _finalize_backend_success(
@@ -1233,6 +1270,8 @@ def _unexpected_backend_error_result(
     """Map expected and unexpected backend exceptions to legacy responses."""
     from .spotify_backend import SpotifyOutputError
     from .domain.storage import ProfileStorageValidationError
+    if normalized_command in {"set_volume", "volume_delta"}:
+        return _volume_command_error_result(runtime, data, command, normalized_command, exc=exc)
     if isinstance(exc, SpotifyOutputError):
         from .playback_request import failure
         from .ask_dj import _response_language
@@ -3604,9 +3643,21 @@ def _int_or_none(value: Any) -> int | None:
         return None
 
 
-def _session_offer_fields(hass, runtime, context, active):
+def _for_you_request_locale(data, headers, active):
+    headers = headers or {}
+    explicit = (data.get('language') or data.get('locale') or headers.get('X-DJConnect-Language')
+                or headers.get('X-DJConnect-Locale') or headers.get('Accept-Language'))
+    return normalize_supported_language(str(explicit).split(',', 1)[0]) if explicit else getattr(active, 'locale', 'en')
+
+
+def _session_offer_fields(hass, runtime, context, active, *, locale=None):
     from .mood_music_steering import first_play_catalogue, session_start_catalogue, for_you_projection
     allowed = context.client_type in {"ios", "macos"}
+    projected = for_you_projection(hass, runtime, context.profile_id, active,
+        client_device_id=context.device_id, locale=locale) if allowed else None
+    start = session_start_catalogue(hass, runtime, context.profile_id, active if allowed else None,
+        client_device_id=context.device_id)
+    if projected is not None and start.get('items'):
+        start['items'][0].update(label=projected['title'], offer=projected)
     return {"first_play_action": first_play_catalogue(hass, runtime, context.profile_id, active if allowed else None, client_device_id=context.device_id),
-            "session_start_actions": session_start_catalogue(hass, runtime, context.profile_id, active if allowed else None, client_device_id=context.device_id),
-            "for_you": for_you_projection(hass, runtime, context.profile_id, active, client_device_id=context.device_id) if allowed else None}
+            "session_start_actions": start, "for_you": projected}

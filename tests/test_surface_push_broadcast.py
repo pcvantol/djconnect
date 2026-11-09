@@ -4,6 +4,7 @@ from copy import deepcopy
 from dataclasses import replace
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from tests import test_surface_push_registry as fixture
 from custom_components.djconnect.surface_push_service import SurfacePushService
@@ -82,6 +83,51 @@ class SurfaceBroadcastTests(unittest.IsolatedAsyncioTestCase):
         self.broadcast.emit('mood_changed')
         await self.finish()
         self.assertEqual(len(self.f.calls),2)
+
+    async def test_retained_read_joins_original_widget_and_explicit_v4_consent(self):
+        from custom_components.djconnect.passive_session import SurfaceGrant
+
+        registration = self.response['registration']
+        registration_id = registration['registration_id']
+        row = self.f.registry._entries[registration_id]
+        active = SimpleNamespace(broadcast=self.broadcast)
+        row.admission = replace(row.admission, active_session=lambda: active,
+            runtime=SimpleNamespace(entry=SimpleNamespace(entry_id='entry')))
+        grant = SurfaceGrant('retained-grant', 'binding', 'generation', 'entry',
+            'widget', False, lambda: True, 4)
+        self.broadcast.passive_grants = {('entry', 'widget'): grant}
+        frame = {**self.frame, 'schema_version': 4, 'latest_contribution': None}
+        registry = self.f.registry
+        with patch('custom_components.djconnect.passive_session.projection',
+                   side_effect=lambda *a: deepcopy(frame)):
+            def authorize(grant_id):
+                return registry.admit_retained_read(row.admission, registration_id,
+                    grant_id, self.service.capture_retained_widget)
+            with self.assertRaisesRegex(ValueError, 'surface_retained_consent_required'):
+                authorize('old')
+            issued = authorize('retained-grant')
+            repeated = authorize('retained-grant')
+            self.assertEqual(issued, repeated)
+            self.assertEqual(issued['expires_at_ms'], registration['expires_at_ms'])
+            self.assertEqual(len(self.f.calls), 1)
+            credential = issued['credential']
+            legacy = self.response['background_read']['credential']
+            with self.assertRaisesRegex(ValueError, 'surface_read_unauthorized'):
+                registry.read_retained(registration_id, legacy)
+            with self.assertRaisesRegex(ValueError, 'surface_read_unauthorized'):
+                registry.read(registration_id, credential)
+            frame['latest_contribution'] = {'moment_id': 'new-moment', 'text': 'synthetic contribution'}
+            self.broadcast.emit('dj_moment_published')
+            self.broadcast.emit('dj_moment_published')
+            await self.finish()
+            self.assertEqual([action for action, _ in self.f.calls], ['register', 'event'])
+            self.assertEqual(self.f.calls[-1][1]['event'], 'widget_reload')
+            self.assertNotIn('synthetic contribution', repr(self.f.calls))
+            result = registry.read_retained(registration_id, credential)
+            self.assertEqual(result['passive_session'], frame)
+            self.broadcast.passive_grants.clear()
+            with self.assertRaisesRegex(ValueError, 'surface_read_withdrawn'):
+                registry.read_retained(registration_id, credential)
 
     async def test_inflight_changes_coalesce_to_one_later_original_operation(self):
         entered,finish = asyncio.Event(),asyncio.Event()

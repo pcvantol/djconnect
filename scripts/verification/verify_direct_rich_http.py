@@ -55,12 +55,17 @@ async def qualify(self, client, identity, headers):
     await self.hass.async_block_till_done()
     setup_service(self.hass)  # Same owning setup hook, never initialized by a read.
     paired = {**headers, "X-DJConnect-Client-Type": "ios"}
-    # Preparation is an explicit ordinary owning action, before pure reads.
-    history_response = await client.get("/api/djconnect/v1/session/history/" + active.session_id,
-        params={**identity, 'history_contract_version':2}, headers=paired)
+    # Search can find the underlying observation even when a published
+    # announcement takes its place in the session feed.
+    history_response = await client.get(
+        "/api/djconnect/v1/session/history/" + active.session_id + "/search",
+        params={**identity, "history_contract_version": 2, "q": self.raw["item"]["name"]},
+        headers=paired,
+    )
     history = await history_response.json()
     assert history_response.status == 200, (history_response.status, history.get('error'))
-    playback_entry = next(item for item in history["entries"] if item["kind"] == "playback_observed")
+    playback_entry = next(item for item in history["matches"] if item["kind"] == "playback_observed")
+    # Preparation is an explicit ordinary owning action, before pure reads.
     prepared = await client.post("/api/djconnect/v1/session/media/prepare", headers=paired,
         json={**identity, "contract_version": 1, "session_id": active.session_id,
             "targets": [{"entry_id": playback_entry["entry_id"]}]})

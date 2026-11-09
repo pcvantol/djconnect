@@ -47,7 +47,15 @@ async def post_once(hass, runtime, action, payload, admission):
     admission.validate()
     purpose = getattr(admission, "purpose", None)
     require(type(purpose) is SurfacePurposeCredential, "surface_purpose_unavailable", 503)
-    token = purpose.authorize(action, payload)
+    body = dict(payload)
+    _assert_safe_payload(body)
+    if purpose.private_transport is not None:
+        from .surface_widget_private_transport import PrivateWidgetHTTPS
+        transport = purpose.private_transport
+        require(type(transport) is PrivateWidgetHTTPS, "surface_widget_access_invalid", 503)
+        reply = await transport.relay(admission, action, body, deadline=transport.monotonic() + 10)
+        return reply.body
+    token = purpose.authorize(action, body)
     parsed = urlsplit(_api_base_url(runtime))
     require(
         parsed.scheme == "https"
@@ -62,8 +70,6 @@ async def post_once(hass, runtime, action, payload, admission):
     )
     origin = f"https://{parsed.netloc}"
     require(origin == purpose.origin, "surface_purpose_origin_mismatch", 403)
-    body = dict(payload)
-    _assert_safe_payload(body)
     session = async_get_clientsession(hass)
     try:
         async with asyncio.timeout(10):
