@@ -831,6 +831,8 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.calls[0].count('Host identity:'),1)
         self.assertNotIn('appreciation of a supported fact is welcome', self.calls[0])
         self.assertIn('Omit first-person evaluations', self.calls[0])
+        self.assertIn('An edition number is not a year.', self.calls[1])
+        self.assertIn('in the source quote must not receive a temporal receipt.', self.calls[1])
         self.assertNotIn('recording_credit_scope',data)
         self.assertNotIn(self.catalog['title'],self.calls[0])
         self.assertNotIn(self.catalog['album_name'],self.calls[0])

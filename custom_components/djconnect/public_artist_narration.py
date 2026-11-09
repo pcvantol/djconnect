@@ -720,6 +720,11 @@ async def realize(brief, *, ask, admission, debug=None):
         "and grammatical alone does not establish personal narration. Check the actual words "
         "for each judgment; do not infer warmth from the presence of these instructions. "
         "A single suitable answer does not prove contrast between different Persona/Mood settings. "
+        + (" In this credit narration, temporal_claims must be an empty array when the answer "
+           "contains no explicit year. An edition number is not a year. A year that appears only "
+           "in the source quote must not receive a temporal receipt. "
+           "A first-person evaluation appended to the documented action is not evidence of telling voice. "
+           if credit else "")
         + (" Also return recording_focus_preserved:boolean, true ONLY if selected_contributor is expressly "
            "credited as producer on this recording, every other person mentioned keeps their exact original "
            "role, and there is no exclusive/complete-credits claim or transfer of biography between people. "
