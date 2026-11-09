@@ -1,26 +1,25 @@
 {
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
-  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
-  "manifest_id": "release-4.0.0-api-worker-59af9700-20261109",
+  "status": "BLOCKED_PENDING_PROVEN_PRODUCTION_CUTOVER",
+  "manifest_id": "release-4.0.0-api-worker-3f0fe635-push-erasure-20261109",
   "platform_version": "4.0",
   "release_version": "4.0.0",
   "release_profile": "INTERNAL_RELEASE",
   "generated_at": "2026-11-09",
   "approval": {
-    "state": "APPROVED",
-    "approved_at": "2026-11-09",
-    "authority_record": "Peter requested stable 4.0.0 rollout of all release components and environments in the VibeCast Codex conversation 01a1a063-78f2-77b2-8d12-47f3c8fb973d.",
-    "approved_statement": "Deploy the stable API 4.0.0 main artifact bound by this manifest to the existing production Worker. Keep public VibeCast dispatch closed."
+    "state": "PENDING_PROTECTED_CORE_APPROVAL",
+    "authority_record": "Peter explicitly instructed production rollout in API Codex thread 01a15afc-c690-7783-8a49-93b7d0de4baa, message 01a1c258-3d5d-7590-978c-917131dfcc4a.",
+    "requested_statement": "Deploy the exact API 4.0.0 artifact below. Apply only migration 0013 with its specified erasure and enable only the specified hourly diagnostic purge cron."
   },
   "repositories": [
     {
       "repository": "pcvantol/djconnect-api",
-      "source_sha": "59af9700061b34e44a9d8a7a4ca480e846b5f717",
-      "tree": "62c0152ed5fdd65d806c3af33a44249ebda2dce8",
+      "source_sha": "3f0fe6354217a5db0f63f2a8c095866f1064c069",
+      "tree": "7b7f15947aff17cf0074098884b91b143d5093cd",
       "version": "4.0.0",
-      "validate_run": "42683210592",
-      "artifact_run": "42683504006"
+      "validate_run": "42710958578",
+      "artifact_run": "42711295524"
     }
   ],
   "required_targets": [
@@ -33,13 +32,15 @@
     {
       "owner": "pcvantol/djconnect-api",
       "target": "cloudflare_workers_production",
-      "artifact_id": "13703731773",
-      "artifact_sha256": "90eebaef16ad0412c200961f6ea8e2aa0025a90d81b599de9bfb73b7562047bd",
-      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/42683504006"
+      "artifact_id": "13714774119",
+      "artifact_sha256": "cb423f57f4890f5b893131650e73542129f133fbe59e70a6adcf88740b1140fd",
+      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/42711295524"
     }
   ],
   "migration_boundary": {
-    "preflight_pending": [],
+    "preflight_pending": [
+      "0013_push_registration_erasure.sql"
+    ],
     "permitted_pending_additive": [],
     "manual_ddl": [],
     "application_dml": false,
@@ -60,28 +61,80 @@
       "namespace_deletions": [],
       "namespace_renames": [],
       "namespace_transfers": []
+    },
+    "numbered_migrations": [
+      {
+        "path": "migrations/0013_push_registration_erasure.sql",
+        "sha256": "cc4bab55a2ad48a9335c06355713a5cbb088fbc891fbc2f61b1770c10d7a60a5",
+        "embedded_dml": {
+          "table": "registrations",
+          "predicate": "disabled = 1 OR invalid = 1",
+          "action": "DELETE",
+          "active_registration_deletion": false
+        },
+        "expected_new_schema_objects": {
+          "registrations_erase_on_deactivation": "CREATE TRIGGER registrations_erase_on_deactivation\nAFTER UPDATE OF disabled, invalid ON registrations\nWHEN NEW.disabled = 1 OR NEW.invalid = 1\nBEGIN\n\tDELETE FROM registrations WHERE id = NEW.id;\nEND",
+          "idx_relay_events_created": "CREATE INDEX idx_relay_events_created ON relay_events (created_at)",
+          "idx_push_delivery_failures_event": "CREATE INDEX idx_push_delivery_failures_event ON push_delivery_failures (relay_event_id)",
+          "idx_registrations_last_success": "CREATE INDEX idx_registrations_last_success ON registrations (last_success_at)\n\tWHERE last_success_at IS NOT NULL",
+          "idx_registrations_last_error": "CREATE INDEX idx_registrations_last_error ON registrations (updated_at)\n\tWHERE last_error_code IS NOT NULL"
+        }
+      }
+    ],
+    "last_applied_before": "0012_watch_lifecycle.sql",
+    "last_applied_after": "0013_push_registration_erasure.sql",
+    "expected_pending_after": [],
+    "scope_note": "The numbered migration is the sole permitted immediate D1 mutation, including its own migration bookkeeping. Standalone application DML and manual DDL are outside this scope. The new cron separately owns its normal expired-diagnostics purge.",
+    "previous_migration_files_byte_identical": 12,
+    "preflight_observation": {
+      "checked_at": "2026-11-09T22:03:24.342822+00:00",
+      "counts": {
+        "inactive": 9,
+        "active": 24,
+        "expired_relay": 16,
+        "expired_failures": 0
+      },
+      "expected_counts_at_dispatch": "Refresh observations; live traffic can change the counts. The deletion predicate is the authorization boundary.",
+      "storage_binding_count": 6,
+      "durable_objects": 5,
+      "storage_identity_sha256": "499452d0b0d65cc5908ff5b99f49532595c104eac2740b07dc0d5861e9fc2b9f"
+    },
+    "pending_sha256": {
+      "0013_push_registration_erasure.sql": "cc4bab55a2ad48a9335c06355713a5cbb088fbc891fbc2f61b1770c10d7a60a5"
     }
   },
   "rollback": {
-    "source_sha": "1b75d268d9023740c10f89616761232c9e3b9357",
-    "deployment_id": "4c73579f-9779-48a1-aa64-3a07f75b639b",
-    "worker_version_id": "7fd3adcf-12a1-4c1d-b482-4e6af3006986",
-    "eligible_only_if_no_migration_and_namespace_identity_unchanged": true
+    "source_sha": "59af9700061b34e44a9d8a7a4ca480e846b5f717",
+    "deployment_id": "143cc7f1-24dc-44fa-a6ab-cee00f07ebc8",
+    "worker_version_id": "7e312559-82e7-4045-bde7-2bc5b96d59ef",
+    "eligibility": "CONDITIONAL_ONLY_AFTER_NONPRODUCTION_COMPATIBILITY_PROOF",
+    "schema": "Retain 0013, the erasure trigger, its indexes and the live post-erasure D1 database.",
+    "cron": "If the candidate cron was enabled, remove it under protection before routing traffic to the old Worker. Confirm an empty effective schedule and quiescence of pending or running invocations, allowing for propagation. Verify zero triggers again after traffic switch.",
+    "retention": "The old Worker has no scheduled handler. Use a forward fix unless old-code schema/erasure compatibility and a separately reviewed expiry-preserving maintenance path have both been proved. Do not introduce an unreviewed purge or widen retention.",
+    "partial_failure": "Stop on partial or unknown migration or deployment results. Read back actual schema, ledger, Worker and cron. If 0013 has committed, preserve it and use the same recovery policy.",
+    "in_flight_delivery": "Before switching back, stop new push admission and prove the drain, or demonstrate that dispatch revalidates live authorization and the registration after target selection. Keep push admission closed until the old Worker is verified against the retained post-erasure database.",
+    "registration_authority": "Prove revoked or stale authorization cannot create a fresh registration after the switch. The old Worker upsert can create an active row, and the erasure trigger only runs on updates that disable or invalidate a row."
   },
   "separate_finalization": {
     "state": "PENDING",
     "requires": [
-      "original protected deployment receipt and exact live Worker SHA",
-      "observed migration tag, five namespace IDs and D1 zero pending",
-      "independent API health smoke and negative Watch Moment and public VibeCast rendezvous smoke"
+      "Protected Core approval and exact production migration and deployment receipts.",
+      "Independent Worker, D1, cron and closed-route readback.",
+      "First scheduled purge evidence and aggregate counts without registration data."
     ]
   },
   "execution": {
-    "preflight": "Require the recorded Worker version, route, existing tag and namespace identity, unchanged Wrangler configuration and zero pending D1 migrations.",
-    "deployment": "Use the protected workflow and exact official main artifact. Preserve all namespace identities and the closed public VibeCast policy.",
-    "smoke": "Independently verify the production health version and SHA, zero pending D1, unchanged route, migration tag and namespace identity, and the closed public VibeCast route."
+    "required_guard": "The protected production executor must verify the manifest-pinned target, migration file digest and exact pending set immediately before mutation, then apply only 0013 and verify the ledger before deploying. A check performed outside the execution lane is insufficient. Require a one-to-one match of preflight_pending and pending_sha256, preserve list order, compare the actual pending list without sorting, and verify the exact archived bytes. Existing empty lists without a hash map remain valid.",
+    "preflight": "Refresh live Worker deployment/version, D1 identity, migration ledger, schema and retention; check unchanged bindings, routes, five Durable Object identities and absence of cron. Serialize all production writes that could change migration or trigger state; stop on drift.",
+    "deployment": "Apply only 0013 using the protected D1 migration mechanism. Require the exact post-apply D1 ledger before deploying the pinned bundle with one hourly cron. Independently verify the erasure result, trigger, indexes, final live Worker SHA and effective trigger list before declaring the release delivered.",
+    "smoke": "Independently verify production health SHA and version, the applied migration, the erasure trigger and indexes, zero inactive registrations at the cutover, unchanged binding and route identities, five unchanged Durable Object identities, and the effective cron. Observe the first scheduled diagnostic purge using aggregate counts and provider evidence. Verify closed public VibeCast and Watch Moment routes. Keep native push acceptance separate.",
+    "cutover": {
+      "state": "PENDING_EVIDENCE",
+      "requirement": "Before applying 0013, use a reviewed, production-scoped control that prevents the old Worker from admitting new push sends, then prove all earlier sends and queued or retrying attempts with old targets have completed or been cancelled. Keep that control in effect until the new Worker and erasure state are verified, then restore push admission.",
+      "acceptance": "Record which traffic paths were stopped, the cutoff, and authoritative evidence covering in-flight work and scheduled retries. Idle-looking telemetry alone cannot prove a drain. If a positive drain cannot be shown, qualify a separately reviewed cutover that establishes dispatch-time registration revalidation before erasure."
+    }
   },
-  "next_authorized_action": "After protected Core manifest delivery and fresh production preflight, dispatch the exact API artifact through the protected workflow and run separate production smoke.",
+  "next_authorized_action": "Qualify and record the production cutover. Then complete protected Core review, fresh production preflight, and exact artifact dispatch.",
   "target_identity": {
     "worker": "djconnect-api",
     "database": "djconnect_api",
@@ -93,20 +146,47 @@
     "workers_dev": false,
     "preview_urls": false
   },
-  "worker_payload": {
-    "sha256": "e8713ca464f75c37105ffe877547a31ba3e7cee4ce2feae5049d3ba453e11827",
-    "bytes": 1469119,
-    "wrangler_sha256": "e42eead0bab919b9d78d0922cfab7bf5ab837666bda8a6a488e225604185ea81"
-  },
   "recovery": {
-    "mode": "SAME_SCHEMA_WORKER_ROLLBACK",
-    "preservation": "Preserve the migration tag, all five namespace identities, bindings, alarms and original expirations.",
+    "mode": "FORWARD_FIX_PREFERRED_CONDITIONAL_WORKER_ONLY_ROLLBACK",
+    "time_travel_days_observed": 30,
+    "time_travel_probes_days": {
+      "available": 29,
+      "too_old": 31
+    },
+    "production_d1_restore_allowed": false,
+    "historical_snapshot_serving_allowed": false,
+    "preservation": "Do not restore production D1 in place, rebind the Worker to a historical copy, or import historical registration rows. A historical recovery copy, if separately approved, remains isolated from production routes, Worker bindings, cron and APNs credentials. A pre-erasure snapshot can contain rows then marked active, so re-running 0013 alone cannot establish eligibility.",
     "stop_conditions": [
-      "Unexpected migration, namespace, D1 or route state."
+      "Uncertain deletion state, schema, effective cron, active Worker or namespace identity.",
+      "No verified method to preserve all post-bookmark erasures and revocations during recovery."
     ]
   },
   "review_baseline": {
-    "core_main_sha": "036ce06a1d6413703d2d34010c051bbc9ba15973",
-    "superseded_manifest_blob": "589db9b6baa88c5cabfea4ad074c761c1c70f4f4"
+    "core_main_sha": "eaaaa302cf89a59dac177f8b90ecdb2d95b7005a",
+    "superseded_manifest_blob": "cf2540efb5c0eea126b8ee21a5a7e273735c80eb",
+    "protected_api_guard": {
+      "pull_request": 242,
+      "reviewed_source_sha": "84e46b87d4cc7ca9c819919ba71e29ca0653f9fb",
+      "merged_source_sha": "3f0fe6354217a5db0f63f2a8c095866f1064c069",
+      "identical_tree": "7b7f15947aff17cf0074098884b91b143d5093cd",
+      "owner_authorization_run": "42710537619",
+      "guard_sha256": "1f574fef53a4ac24f0e2b8511bf207ae9ae3f5816e83e68e1037aee28a1268bb",
+      "deployment_workflow_sha256": "d45cbffb150b955a8f6cd4220ae85413463192da42feb2fbadcb365714ae7876",
+      "historical_ci_workflow_sha256": "e1e90326dcb5d25c5f1e661d55cbd48f965700d171b0a3ad9b03fed185e2a60d"
+    }
+  },
+  "cron_boundary": {
+    "before": [],
+    "after": [
+      "0 * * * *"
+    ],
+    "purpose": "Purge expired relay and push delivery diagnostics using the candidate policy.",
+    "old_worker_has_scheduled_handler": false,
+    "rollback_requires_effective_cron_removal_before_traffic_switch": true
+  },
+  "worker_payload": {
+    "sha256": "5ceabbe6d6d7d5734b0fdfe15ec2b7546f4d56bf1edd91f7803594ed1f20a5df",
+    "bytes": 1471514,
+    "wrangler_sha256": "e7576e5cd1f4317bf899c2b4269f36f012c4fcf52613f7dd43e8a0af964516f1"
   }
 }
