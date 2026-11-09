@@ -13,7 +13,7 @@ const binding = {issuer_epoch:"epoch",display_id:"display",share_id:"share",shar
 async function main() {
   const browser = await webkit.launch({timeout:12000});
   try {
-    const page = await browser.newPage({viewport:{width:1280,height:720},reducedMotion:"reduce"});
+    const page = await browser.newPage({viewport:{width:1280,height:720},reducedMotion:"reduce",locale:"en-US",timezoneId:"Europe/Amsterdam"});
     page.setDefaultTimeout(5000);
     let socket;
     await page.route(origin+"/**",route=>{
@@ -48,6 +48,7 @@ async function main() {
       display_expires_at:new Date(Date.now()-1000).toISOString(),
       flow_expires_at:new Date(Date.now()+40000).toISOString()
     }));
+    cards[7].created_at="2026-01-01T23:05:00Z";
     const previousTrack="https://open.spotify.com/track/"+"B".repeat(22);
     cards[6].artwork={item_id:"previous",reference:"b".repeat(64),source_url:previousTrack,
       expires_at:cards[6].flow_expires_at};
@@ -66,9 +67,13 @@ async function main() {
     for(let i=0;!socket && i<50;i++) await new Promise(resolve=>setTimeout(resolve,50));
     assert.ok(socket);
     snapshot(8);
-    const viewport=page.locator("#flow-viewport"), rows=page.locator(".flow-card");
+    const viewport=page.locator("#flow-viewport"), rows=page.locator("#flow-cards > .flow-card");
     const atEdge=()=>viewport.evaluate(e=>e.scrollTop<=4);
     await rows.nth(7).waitFor();
+    const timestamp=rows.first().locator("time");
+    assert.equal(await timestamp.getAttribute("datetime"),cards[7].created_at);
+    assert.equal(await timestamp.textContent(),"00:05");
+    assert.equal(await rows.nth(2).locator("time").count(),0);
     const albumCover=page.locator("#artwork");
     await page.waitForFunction(()=>document.querySelector("#artwork").naturalWidth>0);
     const coverUrl=await albumCover.getAttribute("src");
@@ -87,7 +92,7 @@ async function main() {
     assert.equal(await atEdge(),true);
     assert.equal(await page.locator(".now-playing").evaluate(node=>getComputedStyle(node).backgroundColor),"rgba(0, 0, 0, 0)");
     assert.equal(await page.locator("#display-speaker-label").textContent(),"Living room");
-    assert.equal(await page.locator("#display-volume-label").textContent(),"37%");
+    assert.equal(await page.locator("#display-volume-label").count(),0);
     assert.equal(await page.locator("#display-output :is(button,input)").count(),0);
     assert.equal(await page.locator("#display-meter progress").count(),1);
     assert.equal(await page.locator("#time").textContent(),"1:00 / 4:00");
@@ -96,7 +101,7 @@ async function main() {
     await page.emulateMedia({reducedMotion:"no-preference"});
     assert.equal(await equalizer.evaluate(node=>getComputedStyle(node).animationName),"display-equalize");
     snapshot(8,"current","paused",{volume_percent:0});
-    await page.waitForFunction(()=>document.querySelector("#display-volume-label").textContent==="0%");
+    await page.locator("#display-output").waitFor({state:"hidden"});
     assert.equal(await equalizer.evaluate(node=>getComputedStyle(node).animationName),"none");
     await page.emulateMedia({reducedMotion:"reduce"});
     snapshot(8);
@@ -116,7 +121,7 @@ async function main() {
     await viewport.focus();
     await page.keyboard.press("ArrowDown");
     await page.waitForFunction(()=>!document.querySelector("#flow-live").hidden);
-    const readingRow=await viewport.evaluateHandle(e=>[...e.querySelectorAll(".flow-card")]
+    const readingRow=await viewport.evaluateHandle(e=>[...e.querySelectorAll("#flow-cards > .flow-card")]
       .find(row=>row.getBoundingClientRect().bottom>e.getBoundingClientRect().top));
     const readingTop=await readingRow.evaluate(row=>row.getBoundingClientRect().top);
     const live=page.getByRole("button",{name:"Back to live"});
@@ -132,7 +137,7 @@ async function main() {
     await spotlight.waitFor();
     const avatar=spotlight.locator("#spotlight-avatar");
     await avatar.waitFor();
-    assert.equal(await avatar.getAttribute("data-mood"),"groove");
+    assert.equal(await spotlight.getAttribute("data-mood"),"groove");
     assert.equal(await avatar.locator("stop").first().evaluate(node=>getComputedStyle(node).stopColor),"rgb(6, 199, 173)");
     const wave=avatar.locator(".spotlight-wave rect").first();
     assert.equal(await wave.evaluate(node=>getComputedStyle(node).animationName),"spotlight-pulse");
@@ -148,7 +153,7 @@ async function main() {
     assert.equal((await page.locator("#title").boundingBox()).y,top.y);
     await spotlight.waitFor({state:"hidden"});
     await viewport.waitFor({state:"visible"});
-    assert.equal(await page.locator("#shared-flow").evaluate(node=>getComputedStyle(node).transitionDuration),"0.35s");
+    assert.equal(await viewport.evaluate(node=>getComputedStyle(node).transitionDuration),"0.35s");
     assert.equal(await viewport.evaluate(node=>node.scrollTop),readingScroll);
     const nextMoment={...moment,moment_id:"next-spotlight",display_expires_at:new Date(Date.now()+10000).toISOString()};
     snapshot(8,"current","playing",undefined,{current_moment_id:nextMoment.moment_id,dj_moments:[nextMoment]});
@@ -186,7 +191,7 @@ async function main() {
     assert.ok(newestTop>=paneTop && newestTop<paneTop+12);
     cards[0].flow_expires_at=new Date(Date.now()-1000).toISOString();
     snapshot(11);
-    await page.waitForFunction(()=>document.querySelectorAll(".flow-card").length===10);
+    await page.waitForFunction(()=>document.querySelectorAll("#flow-cards > .flow-card").length===10);
     snapshot(11,"next-recording");
     await contributionCover.waitFor({state:"detached"});
     const retainedCover=rows.locator('a[href="'+previousTrack+'"] img');
@@ -195,6 +200,22 @@ async function main() {
     cards[6].flow_expires_at=new Date(Date.now()-1000).toISOString();
     snapshot(11,"next-recording");
     await retainedCover.waitFor({state:"detached"});
+
+    const horizon={valid_until:new Date(Date.now()+10000).toISOString(),
+      sections:[{title:"Direction",text:"Keep the musical thread steady."}]};
+    const session={session_id:"session",runtime_state:"active",locale:"es"};
+    snapshot(11,"next-recording","playing",undefined,{session,horizon});
+    const horizonCard=page.locator("#horizon-card");
+    await horizonCard.waitFor({state:"visible"});
+    assert.equal(await horizonCard.locator("h2").textContent(),"Los próximos minutos");
+    assert.equal(await horizonCard.locator("#horizon-sections p").textContent(),horizon.sections[0].text);
+    assert.equal(await page.locator("#renderer-build-label").textContent(),"Versión de VibeCast");
+    assert.equal(await rows.first().locator(".flow-kind").textContent(),"Álbum");
+    assert.equal(await rows.first().locator("p").textContent(),cards[10].content);
+    snapshot(11,"next-recording","playing",undefined,{session,
+      horizon:{...horizon,valid_until:new Date(Date.now()-1000).toISOString()}});
+    await horizonCard.waitFor({state:"hidden"});
+    assert.equal(await horizonCard.locator("#horizon-sections").textContent(),"");
     socket.close({code:1008});
     await viewport.waitFor({state:"hidden"});
     assert.equal(await rows.count(),0);
