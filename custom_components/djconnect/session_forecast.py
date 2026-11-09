@@ -140,6 +140,30 @@ class ForecastProjection:
                                  if _valid_wall_deadline(a.get('expires_at'), self.wall_clock())]
         return result
 
+    def shared_text(self, playback, *, locale: str, persona: str, mood: str) -> dict | None:
+        """Realize the current, authored forecast from display-safe inputs only."""
+        valid_until = self.value.get("valid_until")
+        if (self.value.get("state") != "ready" or self.withdrawn or self.expired
+                or not self.authority() or self.clock() >= self.deadline
+                or (self._semantic.get("queue_preview") and not self._queue_authority())
+                or not _valid_wall_deadline(valid_until, self.wall_clock())
+                or playback.state != "playing" or self.context_item_id != playback.item_id
+                or not playback.title or not playback.artist):
+            return None
+        album = playback.album or playback.title
+        if any(self._semantic.get(key) != value for key, value in (
+            ("title", playback.title), ("artist", playback.artist), ("album", album),
+        )):
+            return None
+        _, sections = realize({
+            "has_current": True, "title": playback.title, "artist": playback.artist, "album": album,
+            "source_url": "", "guidance": self._semantic.get("guidance"),
+            "aim": mood if self._semantic.get("aim") == mood else "",
+        }, locale, persona)
+        return {"valid_until": valid_until, "sections": [
+            {"title": section["title"], "text": section["text"]} for section in sections
+        ]}
+
     def invalidate_imagery(self, allowed_urls: set[str]) -> bool:
         """Withdraw pixels without renewing narrative or source deadlines."""
         if not self.value:

@@ -42,6 +42,13 @@ def _flow_deadline(boundary, expires_at):
     ).total_seconds()
 
 
+def _shared_horizon(broadcast):
+    current = broadcast.state
+    return broadcast.forecast.shared_text(current.playback, locale=current.locale,
+                                          persona=_label(current.dj_persona),
+                                          mood=_label(current.selected_mood))
+
+
 def projection_release_guard(active, authority, state, snapshot):
     """Capture immutable original proof clocks; final check performs no encoding."""
     broadcast = active.broadcast
@@ -89,6 +96,8 @@ def projection_release_guard(active, authority, state, snapshot):
             from .display_delivery import artwork_descriptor
             if artwork_descriptor(active, authority, state) != artwork:
                 return False
+        if "horizon" in snapshot and _shared_horizon(broadcast) != snapshot["horizon"]:
+            return False
         from .bulletin_runtime import admitted as bulletin_admitted
         if any(moment.bulletin is not None and not bulletin_admitted(moment)
                for moment in originals.values()):
@@ -220,6 +229,9 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
         "persona": {"home_dj", "radio_dj", "club_dj", "festival_dj"}, "presence": set(POLICIES)}
     result["session_presentation"] = {key: _label(value) for key, value in labels.items()
                                       if _label(value) in allowed[key]}
+    horizon = _shared_horizon(broadcast)
+    if horizon is not None:
+        result["horizon"] = horizon
     from .display_delivery import artwork_descriptor
     artwork = artwork_descriptor(active, authority, state)
     if artwork is not None:

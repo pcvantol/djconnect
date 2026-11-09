@@ -1,6 +1,6 @@
 {
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "0d97bd71fa39138653fd220b8744a9a57adc6fa8d52bb4a41cbf09baf6cb4d55",
+  "raw_receipt_sha256": "bc366ab2b6ffe58e82d9344161017c9f61ac2819eb2575ff8edbf7cd6e62b711",
   "receipt": {
     "actual_ha_store_readback": true,
     "cases": {
@@ -45,7 +45,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-09T11:11:07.533231+00:00",
+            "observed_at": "2026-11-09T17:53:56.531804+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -89,7 +89,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-09T11:11:07.535846+00:00",
+            "observed_at": "2026-11-09T17:53:56.543113+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -132,7 +132,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-09T11:11:07.537530+00:00",
+            "observed_at": "2026-11-09T17:53:56.553920+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -162,7 +162,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-09T11:11:07.539203+00:00",
+            "observed_at": "2026-11-09T17:53:56.560540+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -192,7 +192,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": [],
-            "observed_at": "2026-11-09T11:11:07.541106+00:00",
+            "observed_at": "2026-11-09T17:53:56.567044+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -234,7 +234,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-09T11:11:07.546472+00:00",
+            "observed_at": "2026-11-09T17:53:56.579909+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -276,7 +276,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-09T11:11:07.570519+00:00",
+            "observed_at": "2026-11-09T17:53:56.642296+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -318,7 +318,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-09T11:11:07.571295+00:00",
+            "observed_at": "2026-11-09T17:53:56.644839+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -350,7 +350,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-09T11:11:07.571932+00:00",
+            "observed_at": "2026-11-09T17:53:56.646128+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -395,7 +395,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-09T11:11:07.571932+00:00",
+            "observed_at": "2026-11-09T17:53:56.646128+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -450,7 +450,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-09T11:11:07.574219+00:00",
+            "observed_at": "2026-11-09T17:53:56.652076+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -571,7 +571,7 @@
       "custom_components/djconnect/display_delivery.py": "6fac2aa58bea479f501c522c1338f39f6509830c13d1e3737dde28a040d4b2c1",
       "custom_components/djconnect/display_live.py": "f6a63da450a8b64a71775a51f7060c7f76faa4af26f0ba23ecf99d68fcedd711",
       "custom_components/djconnect/display_origin.py": "6be2d0f0bacec09a47a91f854a249cb40c90379690cf15e28db70f6885b7015c",
-      "custom_components/djconnect/display_projection.py": "7a39adb838a1e3472842c7c22bd2d054974b24abe8bc5f6b3e04ed15b3c1f5b8",
+      "custom_components/djconnect/display_projection.py": "8588f0d17aba862943a671b0248f534e7f865877c22ae36ed4e117eb7529fb48",
       "custom_components/djconnect/display_service.py": "811f4b8eed6b98ba5c6ac5017aad997173ed65088b9693aaab840ca40874023b",
       "custom_components/djconnect/display_shell.py": "04d7ede7655643ea251f224326fd1c010f441933beb734c31d65515869960bc7",
       "custom_components/djconnect/display_transport.py": "7079bd9692e08e188ecae4e5fcbbe97725a876b75addfd0918c236780168bda5",
@@ -701,7 +701,7 @@
       "custom_components/djconnect/session_artwork.py": "c92ce2bfde5366ee47a1d353aae0b684314b794e97e87ed88410725df168d6a1",
       "custom_components/djconnect/session_conversation.py": "166df3182f09fc43320adeaeb544accbc552672fa7d80a47582718ba9e48b9d7",
       "custom_components/djconnect/session_facts.py": "18a0757d0c3b644b177474bdf563386ca4578ec7093598bb859fb47f189ee60d",
-      "custom_components/djconnect/session_forecast.py": "39bcd66d2c1a8b950d7a60e2cf9d3b95d66f2d15c24222a3a8a7973e6a38048a",
+      "custom_components/djconnect/session_forecast.py": "9fddc94adf5aff2cbf08af66cc103ca1f21f00cc9d772f1547b143d34fc84382",
       "custom_components/djconnect/session_forecast_transport.py": "0b0a6ac26356a56319354dacb77b9a0e8ea1a5736745614223b6100afcc3b15d",
       "custom_components/djconnect/session_history_maintenance.py": "ab6b5e554b90b330441be9389d6477240209b53391788fef4bfa4fbd60b3e4a6",
       "custom_components/djconnect/session_history_projection.py": "95387276680be232cdb98f20877ff79a1180c12517132ec8b0b5f6c761993514",
@@ -880,7 +880,7 @@
     "custom_components/djconnect/display_delivery.py": "6fac2aa58bea479f501c522c1338f39f6509830c13d1e3737dde28a040d4b2c1",
     "custom_components/djconnect/display_live.py": "f6a63da450a8b64a71775a51f7060c7f76faa4af26f0ba23ecf99d68fcedd711",
     "custom_components/djconnect/display_origin.py": "6be2d0f0bacec09a47a91f854a249cb40c90379690cf15e28db70f6885b7015c",
-    "custom_components/djconnect/display_projection.py": "7a39adb838a1e3472842c7c22bd2d054974b24abe8bc5f6b3e04ed15b3c1f5b8",
+    "custom_components/djconnect/display_projection.py": "8588f0d17aba862943a671b0248f534e7f865877c22ae36ed4e117eb7529fb48",
     "custom_components/djconnect/display_service.py": "811f4b8eed6b98ba5c6ac5017aad997173ed65088b9693aaab840ca40874023b",
     "custom_components/djconnect/display_shell.py": "04d7ede7655643ea251f224326fd1c010f441933beb734c31d65515869960bc7",
     "custom_components/djconnect/display_transport.py": "7079bd9692e08e188ecae4e5fcbbe97725a876b75addfd0918c236780168bda5",
@@ -1017,7 +1017,7 @@
     "custom_components/djconnect/session_artwork.py": "c92ce2bfde5366ee47a1d353aae0b684314b794e97e87ed88410725df168d6a1",
     "custom_components/djconnect/session_conversation.py": "166df3182f09fc43320adeaeb544accbc552672fa7d80a47582718ba9e48b9d7",
     "custom_components/djconnect/session_facts.py": "18a0757d0c3b644b177474bdf563386ca4578ec7093598bb859fb47f189ee60d",
-    "custom_components/djconnect/session_forecast.py": "39bcd66d2c1a8b950d7a60e2cf9d3b95d66f2d15c24222a3a8a7973e6a38048a",
+    "custom_components/djconnect/session_forecast.py": "9fddc94adf5aff2cbf08af66cc103ca1f21f00cc9d772f1547b143d34fc84382",
     "custom_components/djconnect/session_forecast_transport.py": "0b0a6ac26356a56319354dacb77b9a0e8ea1a5736745614223b6100afcc3b15d",
     "custom_components/djconnect/session_history_maintenance.py": "ab6b5e554b90b330441be9389d6477240209b53391788fef4bfa4fbd60b3e4a6",
     "custom_components/djconnect/session_history_projection.py": "95387276680be232cdb98f20877ff79a1180c12517132ec8b0b5f6c761993514",
