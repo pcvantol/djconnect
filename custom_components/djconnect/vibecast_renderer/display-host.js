@@ -50,6 +50,16 @@
     const bytes=new Uint8Array(32); crypto.getRandomValues(bytes);
     return btoa(String.fromCharCode(...bytes)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
   };
+  function claimRequestId(){
+    try{
+      const state=window.history.state;
+      const previous=state?.vibeCastClaimRequestId;
+      if(typeof previous==="string" && /^[A-Za-z0-9_-]{43}$/.test(previous))return previous;
+      const id=nonce();
+      window.history.replaceState({...state,vibeCastClaimRequestId:id},"");
+      return id;
+    }catch(_){return null;}
+  }
   function later(fn,delay){const timer=setTimeout(()=>{timers.delete(timer);fn();},delay);timers.add(timer);return timer;}
   function clearContent(){clearArtwork();window.dispatchEvent(new Event("djconnect-display-clear"));}
   const artwork=new Map();
@@ -277,7 +287,8 @@
     if(location.protocol!=="https:" || location.search || location.hash || !crypto.getRandomValues)return show(text.unavailable,"",true);
     show(text.approve,null);
     try{
-      const browser_nonce=nonce(),{value,started}=await post("claim",{browser_nonce});
+      const requestId=claimRequestId(), browser_nonce=nonce();
+      const {value,started}=await post("claim",requestId ? {browser_nonce,request_id:requestId} : {browser_nonce});
       if(g!==generation || stopped)return;
       if(value.contract_version!==1 || !/^[0-9]{6}$/.test(value.code) || !(value.expires_in>0 && value.expires_in<=120))throw new Error("contract");
       claim={issuer_epoch:value.issuer_epoch,claim_id:value.claim_id,claim_secret:value.claim_secret,

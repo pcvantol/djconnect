@@ -70,6 +70,16 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
                 await self.call(action, data)
         self.assertFalse(self.manager._display_admission._claims)
 
+    async def test_claim_reload_replaces_old_response_authority(self):
+        request_id = secrets.token_urlsafe(32)
+        first = await self.call("claim", {"browser_nonce": secrets.token_urlsafe(32), "request_id": request_id})
+        resumed = await self.call("claim", {"browser_nonce": secrets.token_urlsafe(32), "request_id": request_id})
+        self.assertEqual(resumed.payload["code"], first.payload["code"])
+        self.assertNotEqual(resumed.payload["claim_secret"], first.payload["claim_secret"])
+        with self.assertRaises(self.module.DisplayAdmissionError):
+            first.release()
+        resumed.release()
+
     async def test_nested_share_malformed_types_are_errors_without_reservations(self):
         nonce = secrets.token_urlsafe(32)
         claim = (await self.call("claim", {"browser_nonce": nonce})).payload

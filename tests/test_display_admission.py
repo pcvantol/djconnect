@@ -23,9 +23,9 @@ class DisplayAuthorityTests(unittest.TestCase):
     def owner_for(self, entry, profile="profile", session="session"):
         return state.DisplayOwnerBinding(profile, session, entry, "stamp-" + entry, lambda: self.live.get(entry, True))
 
-    def claim(self, source="source"):
+    def claim(self, source="source", **args):
         nonce = secrets.token_urlsafe(32)
-        result = self.manager.create_claim(source=source, browser_nonce=nonce)
+        result = self.manager.create_claim(source=source, browser_nonce=nonce, **args)
         return result, {key: result[key] for key in ("issuer_epoch", "claim_id", "claim_secret", "browser_generation")} | {"browser_nonce": nonce}
 
     def approve(self, claim, owner=None, share=None):
@@ -40,6 +40,33 @@ class DisplayAuthorityTests(unittest.TestCase):
     @staticmethod
     def grant(admitted):
         return {"token": admitted["grant_token"], "display_id": admitted["display_id"], "issuer_epoch": admitted["issuer_epoch"]}
+
+    def test_reload_keeps_unapproved_code_and_original_expiry(self):
+        request_id = secrets.token_urlsafe(32)
+        with patch.object(state.secrets, "randbelow", side_effect=[123456, 654321]):
+            first, old_binding = self.claim(request_id=request_id)
+            self.now += 45
+            resumed, binding = self.claim(request_id=request_id)
+            self.assertEqual(resumed["code"], first["code"])
+            self.assertEqual(resumed["expires_in"], 75)
+            self.assertEqual(len(self.manager._claims), 1)
+            with self.assertRaises(state.DisplayAdmissionError):
+                self.manager.collect(**old_binding)
+            with self.assertRaises(state.DisplayAdmissionError):
+                self.approve(first)
+            self.assertEqual(self.manager.collect(**binding)["state"], "pending")
+            self.now += 75
+            fresh, _ = self.claim(request_id=request_id)
+            self.assertNotEqual(fresh["code"], first["code"])
+            self.assertEqual(fresh["expires_in"], 120)
+
+    def test_reload_identifier_cannot_replace_approved_claim(self):
+        request_id = secrets.token_urlsafe(32)
+        claim, binding = self.claim(request_id=request_id)
+        self.approve(claim)
+        with self.assertRaises(state.DisplayAdmissionError):
+            self.claim(request_id=request_id)
+        self.assertEqual(self.manager.collect(**binding)["state"], "admitted")
 
     def test_code_is_not_authority_and_collection_is_secret_bound_once(self):
         claim, browser = self.claim()

@@ -25,7 +25,7 @@ _SHAPES = {
                        "browser_generation", "code", "share"}, set()),
     "owner/revoke": ({"identity", "session_id", "share_id"},
                      {"display_id", "issuer_epoch", "connection_generation"}),
-    "claim": ({"browser_nonce"}, set()),
+    "claim": ({"browser_nonce"}, {"request_id"}),
     "collect": (_BROWSER, set()), "cancel": (_BROWSER, set()),
     "renew": (_GRANT | {"renew_sequence"}, set()),
     "leave": (_GRANT, set()),

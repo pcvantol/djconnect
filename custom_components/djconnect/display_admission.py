@@ -54,6 +54,7 @@ class _Claim:
     generation: str
     source: str
     deadline: float
+    request_hash: str = ""
     failures: int = 0
     owner: DisplayOwnerBinding | None = None
     share_id: str = ""
@@ -190,11 +191,22 @@ class DisplayAdmissionState:
         if failure:
             self._attempts[owner.profile_id] = (count + 1, deadline)
 
-    def create_claim(self, *, source: str, browser_nonce: str) -> dict:
+    def create_claim(self, *, source: str, browser_nonce: str, request_id: str | None = None) -> dict:
         self.prune()
         if not isinstance(browser_nonce, str) or re.fullmatch(r"[A-Za-z0-9_-]{43}", browser_nonce) is None:
             raise DisplayAdmissionError("display_code_invalid", 400)
+        if request_id is not None and (not isinstance(request_id, str) or re.fullmatch(r"[A-Za-z0-9_-]{43}", request_id) is None):
+            raise DisplayAdmissionError("display_code_invalid", 400)
         source = str(source)[:128]
+        request_hash = _digest(request_id) if request_id is not None else ""
+        previous = next((claim for claim in self._claims.values()
+                         if request_hash and claim.request_hash == request_hash), None)
+        if previous is not None:
+            # Reload can replace an unapproved claim, never inherit an approval.
+            if previous.owner is not None or previous.source != source:
+                raise DisplayAdmissionError("display_context_changed", 409)
+            return self._issue_claim(source, browser_nonce, previous.code, previous.deadline,
+                                     request_hash, previous.failures, replaces=previous.claim_id)
         if len(self._claims) >= MAX_CLAIMS or sum(c.source == source for c in self._claims.values()) >= MAX_PER_SOURCE:
             raise DisplayAdmissionError("display_capacity", 429)
         used = {c.code for c in self._claims.values()}
@@ -206,12 +218,19 @@ class DisplayAdmissionState:
                 break
         if not code:
             raise DisplayAdmissionError("display_capacity", 429)
+        return self._issue_claim(source, browser_nonce, code, self._clock() + CLAIM_TTL, request_hash)
+
+    def _issue_claim(self, source, browser_nonce, code, deadline, request_hash, failures=0, *, replaces=None):
         claim_id, secret, generation = (secrets.token_urlsafe(32) for _ in range(3))
+        if replaces is not None:
+            del self._claims[replaces]
         self._claims[claim_id] = _Claim(claim_id, _digest(secret), _digest(browser_nonce), code,
-                                       generation, source, self._clock() + CLAIM_TTL)
+                                       generation, source, deadline,
+                                       request_hash=request_hash, failures=failures)
         return {"success": True, "contract_version": 1, "issuer_epoch": self.issuer_epoch,
                 "claim_id": claim_id, "claim_secret": secret, "code": code,
-                "browser_generation": generation, "expires_in": CLAIM_TTL}
+                "browser_generation": generation,
+                "expires_in": max(0, deadline - self._clock()) if replaces else CLAIM_TTL}
 
     def resolve(self, *, code: str, owner: DisplayOwnerBinding) -> dict:
         self.prune()
