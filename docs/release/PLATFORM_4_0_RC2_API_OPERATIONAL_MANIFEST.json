@@ -1,16 +1,17 @@
 {
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
-  "status": "BLOCKED_PENDING_PROVEN_PRODUCTION_CUTOVER",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
   "manifest_id": "release-4.0.0-api-worker-3f0fe635-push-erasure-20261109",
   "platform_version": "4.0",
   "release_version": "4.0.0",
   "release_profile": "INTERNAL_RELEASE",
   "generated_at": "2026-11-09",
   "approval": {
-    "state": "PENDING_PROTECTED_CORE_APPROVAL",
+    "state": "APPROVED",
     "authority_record": "Peter explicitly instructed production rollout in API Codex thread 01a15afc-c690-7783-8a49-93b7d0de4baa, message 01a1c258-3d5d-7590-978c-917131dfcc4a.",
-    "requested_statement": "Deploy the exact API 4.0.0 artifact below. Apply only migration 0013 with its specified erasure and enable only the specified hourly diagnostic purge cron."
+    "cutover_authority": "On 2026-11-09 Peter van Tol instructed Core to continue and clarified that nobody uses production yet. This accepts the residual legacy APNs send window for the single migration 0013 cutover on api.djconnect.dev under this manifest.",
+    "approved_statement": "Deploy the exact API 4.0.0 artifact below. Apply only migration 0013 with its specified erasure and enable only the specified hourly diagnostic purge cron."
   },
   "repositories": [
     {
@@ -129,14 +130,14 @@
     "deployment": "Apply only 0013 using the protected D1 migration mechanism. Require the exact post-apply D1 ledger before deploying the pinned bundle with one hourly cron. Independently verify the erasure result, trigger, indexes, final live Worker SHA and effective trigger list before declaring the release delivered.",
     "smoke": "Independently verify production health SHA and version, the applied migration, the erasure trigger and indexes, zero inactive registrations at the cutover, unchanged binding and route identities, five unchanged Durable Object identities, and the effective cron. Observe the first scheduled diagnostic purge using aggregate counts and provider evidence. Verify closed public VibeCast and Watch Moment routes. Keep native push acceptance separate.",
     "cutover": {
-      "state": "PENDING_EVIDENCE",
-      "requirement": "Before applying 0013, stop new old-Worker push admission. Establish that earlier invocations and retained retries cannot send using stale targets. Keep this protection in effect until the new Worker and erasure state are verified.",
-      "acceptance": "Record the scope and cutoff. Accept authoritative provider evidence of termination of all relevant old invocations with no outstanding or retryable sends. Alternatively, qualify a separately reviewed barrier that prevents all old invocations and retries from reaching APNs, including those that already loaded a target. Account for sends that crossed the barrier before it took effect.",
-      "excluded_evidence": "An ingress block, a fixed delay, quiet telemetry and HTTP CPU limits do not prove completion of existing HTTP invocations. Cloudflare provides no hard wall-clock duration limit while the client remains connected.",
-      "provider_reference": "https://developers.cloudflare.com/workers/platform/limits/#duration"
+      "state": "OWNER_ACCEPTED_ONE_TIME_PRE_RELEASE_RISK",
+      "scope": "Only this artifact and migration 0013 on api.djconnect.dev while the service is in pre-release use. The Cloudflare target remains production.",
+      "residual_risk": "The old Worker can send or retry with a previously loaded APNs target during the switch or after 0013 deletes its registration. It can also admit requests before the new version takes over. Termination of old invocations has not been established.",
+      "execution": "Keep the rollout serialized. Refresh the production baseline immediately before dispatch and stop on drift. Apply only the verified 0013 migration and switch directly to the pinned Worker in the same protected workflow run. Verify the actual Worker, ledger, trigger and cron independently.",
+      "future_cutovers": "This acceptance applies only to this manifest. It provides no drain evidence or authority for future cutovers, rollback, or restoration of erased registrations."
     }
   },
-  "next_authorized_action": "Qualify and record the production cutover. Then complete protected Core review, fresh production preflight, and exact artifact dispatch.",
+  "next_authorized_action": "Complete protected Core review and merge, refresh the production preflight, then dispatch the exact artifact and verify the cutover independently.",
   "target_identity": {
     "worker": "djconnect-api",
     "database": "djconnect_api",
