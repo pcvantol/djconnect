@@ -390,7 +390,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
         return ids
 
     async def async_accept_moment(
-        self, owner, session_id, moment_id, entry=None, *, authorize=None, finalize_authorize=None
+        self, owner, session_id, moment_id, entry=None, *, authorize=None, finalize_authorize=None, include_retention=False
     ):
         """Semantic commit independently qualified from optional archival text."""
 
@@ -405,24 +405,24 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 'SELECT 1 FROM djconnect_content_tombstones WHERE owner_profile_id=? AND session_id=? AND reference_id=?',
                 (owner, session_id, moment_id),
             ):
-                return False
+                return False, False
             if tx.fetchone(
                 'SELECT 1 FROM djconnect_content_tombstones WHERE owner_profile_id=? AND session_id=? '
                 'AND reference_id IN (SELECT value FROM json_each(?))',
                 (owner, session_id, json.dumps((entry or {}).get('body', {}).get('dependency_moment_ids', []))),
             ):
-                return False
+                return False, False
             if not row[2]:
                 # Private-history opt-out does not disable existing live Moments.
                 # Validate active ownership in this transaction without retaining
                 # derived totals, replay keys or body under a revoked grant.
-                return True
+                return True, False
             old = tx.fetchone(
                 "SELECT 1 FROM djconnect_session_acceptances WHERE session_id=? AND kind='dj_moment' AND reference_id=?",
                 (session_id, moment_id),
             )
             if old:
-                return False
+                return False, False
             ids = self._append_entries_tx(tx, owner, session_id, [entry]) if entry else []
             from .summary import record_event_tx
 
@@ -432,9 +432,11 @@ class HistoricalProjectionRepository(PersistenceRepository):
                     "UPDATE djconnect_persistent_sessions SET history_revision=history_revision+1 WHERE session_id=?",
                     (session_id,),
                 )
-            return True
+            retained = bool(ids and entry and entry.get("kind") == "dj_moment")
+            return True, retained
 
-        return await self._async_in_transaction(accept, authorize=authorize, finalize_authorize=finalize_authorize)
+        result = await self._async_in_transaction(accept, authorize=authorize, finalize_authorize=finalize_authorize)
+        return result if include_retention else result[0]
 
     async def async_accept_mood(self, owner, session_id, mood, *, authorize=None):
         def accept(tx):
