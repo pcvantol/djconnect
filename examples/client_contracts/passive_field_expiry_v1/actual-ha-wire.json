@@ -5,19 +5,19 @@
     "scripts/verification/verify_session_artwork_http.py": "3b4ba06e185d9eef18de42b5c509c2e1932203e9265a9b090b6492f6dd73be8f"
   },
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "3a36b3e673f5032ee39338228a4b8142f7f4efb9df736f3f1a488e085b37bcc4",
+  "raw_receipt_sha256": "2199ec1a0c45d7569e7195861f19736dac7a3aeb00b9c5c659f461b0aa9df25e",
   "receipt": {
     "after": {
       "contract_version": 1,
-      "grant_id": "nAlX4qtHRhfIBzQUHKA8Y8U-xnLa5HsE",
+      "grant_id": "IgcRx_fi3HHAZ6OA3MVwKsQGKyEH381p",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_eligible_context",
           "state": "unavailable"
         },
-        "as_of": "2026-11-09T08:03:31.166245+00:00",
-        "binding_id": "a02a3b55d5ed524872f6c1e58c489124",
+        "as_of": "2026-11-09T09:22:09.057122+00:00",
+        "binding_id": "438000942e28d0f3854dea44a595d441",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -31,28 +31,28 @@
           "state": "unavailable"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-09T08:05:06.244013+00:00",
-        "generation": "2c1b09248ac26ffc83c10276f50750e1",
+        "expires_at": "2026-11-09T09:23:44.127358+00:00",
+        "generation": "52e3740afea3793430abd5178e6131ef",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-c8b6ccaca3ea487ea7365d9c9ce59e92"
+          "session_id": "session-a7cbfeb00a7d4d23abb447d6c4bd2f4f"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-09T08:03:06.244013+00:00",
+        "observed_at": "2026-11-09T09:21:44.127358+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "3681b072a623c1366ad3ebe80e10f1d9",
+        "revision": "d722bed9d33d50cea11c548d0759b22f",
         "schema_version": 3,
-        "session_id": "session-c8b6ccaca3ea487ea7365d9c9ce59e92",
+        "session_id": "session-a7cbfeb00a7d4d23abb447d6c4bd2f4f",
         "state": "active",
         "surface": "widget"
       },
@@ -60,15 +60,15 @@
     },
     "before": {
       "contract_version": 1,
-      "grant_id": "nAlX4qtHRhfIBzQUHKA8Y8U-xnLa5HsE",
+      "grant_id": "IgcRx_fi3HHAZ6OA3MVwKsQGKyEH381p",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_matching_subject",
           "state": "unavailable"
         },
-        "as_of": "2026-11-09T08:03:06.245728+00:00",
-        "binding_id": "a02a3b55d5ed524872f6c1e58c489124",
+        "as_of": "2026-11-09T09:21:44.128506+00:00",
+        "binding_id": "438000942e28d0f3854dea44a595d441",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -77,10 +77,10 @@
           "scope": "current_surface_only"
         },
         "contribution": {
-          "expires_at": "2026-11-09T08:03:31.098566+00:00",
-          "moment_id": "moment-f6803ac08299d41171d1c8ddbab3e539",
+          "expires_at": "2026-11-09T09:22:08.986153+00:00",
+          "moment_id": "moment-aa3ab0bc02001f879d075bebc9ec320b",
           "persona": "home_dj",
-          "published_at": "2026-11-09T08:03:06.098566+00:00",
+          "published_at": "2026-11-09T09:21:43.986153+00:00",
           "rights": {
             "external_relay": false,
             "os_snapshot": true,
@@ -96,28 +96,28 @@
           "state": "available"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-09T08:05:06.244013+00:00",
-        "generation": "2c1b09248ac26ffc83c10276f50750e1",
+        "expires_at": "2026-11-09T09:23:44.127358+00:00",
+        "generation": "52e3740afea3793430abd5178e6131ef",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-c8b6ccaca3ea487ea7365d9c9ce59e92"
+          "session_id": "session-a7cbfeb00a7d4d23abb447d6c4bd2f4f"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-09T08:03:06.244013+00:00",
+        "observed_at": "2026-11-09T09:21:44.127358+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "3681b072a623c1366ad3ebe80e10f1d9",
+        "revision": "d722bed9d33d50cea11c548d0759b22f",
         "schema_version": 3,
-        "session_id": "session-c8b6ccaca3ea487ea7365d9c9ce59e92",
+        "session_id": "session-a7cbfeb00a7d4d23abb447d6c4bd2f4f",
         "state": "active",
         "surface": "widget"
       },
@@ -463,7 +463,7 @@
       "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
       "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
     },
-    "waited_real_seconds": 24.90258173942566
+    "waited_real_seconds": 24.90748815536499
   },
   "source_before_after_equal": true,
   "source_pins": {

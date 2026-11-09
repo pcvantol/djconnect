@@ -8,7 +8,7 @@
   },
   "harness_sha256": "6cb913e6f752dd79dbf1b427af315145a110dc1e2f247804971904f9245f80a1",
   "live_provider_or_native_acceptance": false,
-  "receipt_sha256": "831bd4de0c5b2103dcd225f75cd1d939ebf127ca5dfaeaec85f28b876df349bf",
+  "receipt_sha256": "294989080e751c2f6bed44012939e5469a967a067738ba2a44ad5d67b12c3870",
   "red_causal_before": "Catalogue fallback discarded exact provider artwork",
   "source_before_after_equal": true,
   "source_pins": {
@@ -339,7 +339,7 @@
           "provider": "spotify",
           "source_url": "https://open.spotify.com/album/HHHHHHHHHHHHHHHHHHHHHH"
         },
-        "image_expires_at": 1794212283.405555,
+        "image_expires_at": 1794216975.9967873,
         "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
         "kind": "track",
         "quality_band": "medium",
