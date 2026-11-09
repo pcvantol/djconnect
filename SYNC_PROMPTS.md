@@ -1,3 +1,18 @@
+## 2026-11-09 — VibeCast read-only output and DJ spotlight
+
+Paired owner context advertises optional `output_status_consent_supported`.
+If it is true, an Apple client can offer a default-off choice for the current
+screen. Send `share.include_output_status: true` only after the owner selects
+it and the fresh owner context still advertises support. Older hosts and
+unchosen displays receive the existing request. The choice applies to one
+screen, including when it joins an existing share. The B renderer consumes
+only the observed output label and volume percentage, never device IDs or
+playback controls.
+
+The B spotlight follows the Core current-contribution candidate shared with
+Apple, subject to the existing shared-publication and source deadlines. The
+mood palette follows the confirmed Session mood. See [Display admission B](docs/product/VIBECAST_DISPLAY_ADMISSION_B_V1.md).
+
 ## 2026-11-08 — VibeCast current album cover
 
 Core prepares the current Spotify edition cover from the existing authenticated

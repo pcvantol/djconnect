@@ -3413,6 +3413,7 @@ class RendererSafePlaybackProjection:
     updated_at: str = ""
     up_next: tuple[tuple[str, str], ...] = ()
     source_url: str = ""
+    volume_percent: int | None = None
 
     @classmethod
     def from_observation(
@@ -3425,6 +3426,7 @@ class RendererSafePlaybackProjection:
         album: str = "",
         artwork_url: str = "",
         target_name: str = "",
+        volume_percent: int | None = None,
         duration_ms: int | None = None,
         position_ms: int | None = None,
         up_next: dict[str, Any] | None = None,
@@ -3453,6 +3455,7 @@ class RendererSafePlaybackProjection:
             album=_bounded_text(album, 256),
             artwork_url=_safe_artwork_url(artwork_url),
             target_name=_bounded_text(target_name, 256),
+            volume_percent=volume_percent if type(volume_percent) is int and 0 <= volume_percent <= 100 else None,
             duration_ms=safe_duration,
             position_ms=safe_position,
             updated_at=_timestamp(),
@@ -4071,6 +4074,14 @@ class DJSessionBroadcastEngine:
         """Previously published cards cannot become current again after disruption."""
         self._invalidated_current_moment_ids.update(moment.moment_id for moment in self.state.dj_moments)
 
+    def current_delivery_candidate_id(self) -> str | None:
+        """Find the latest contribution for current delivery, including silence."""
+        from .settings_confirmation import context as settings_context
+
+        return next((moment.moment_id for moment in reversed(self.state.dj_moments)
+                     if settings_context(moment) is not None
+                     or self._moment_playback_item_ids.get(moment.moment_id) == self.state.playback.item_id), None)
+
     def native_delivery(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Project present authority without changing immutable semantic state."""
         flow_ids = {item.moment_id for item in self.state.session_flow.items if item.moment_id}
@@ -4086,10 +4097,7 @@ class DJSessionBroadcastEngine:
             if self.state.runtime_state is SessionRuntimeState.ACTIVE
             and moment.moment_id not in self.content_pending_moment_ids | self.deleted_moment_ids
             and (include_owner_only or moment.presentation_intent.visibility is not DJMomentVisibility.OWNER_ONLY)]
-        from .settings_confirmation import context as settings_context
-        latest = next((moment.moment_id for moment in reversed(self.state.dj_moments)
-                       if settings_context(moment) is not None
-                       or self._moment_playback_item_ids.get(moment.moment_id) == self.state.playback.item_id), None)
+        latest = self.current_delivery_candidate_id()
         current = next((entry["moment_id"] for entry in entries
                         if entry["moment_id"] == latest and entry["current_display_allowed"]
                         and latest not in self._invalidated_current_moment_ids), None)
@@ -5119,6 +5127,7 @@ class SessionRuntimeManager:
         artwork_url: str = "",
         album_uri: str = "",
         target_name: str = "",
+        volume_percent: int | None = None,
         duration_ms: int | None = None,
         position_ms: int | None = None,
         up_next: dict[str, Any] | None = None,
@@ -5129,7 +5138,8 @@ class SessionRuntimeManager:
         """Apply one normalized observation to its active Runtime only."""
         projection = RendererSafePlaybackProjection.from_observation(
             state=state, media_identity=media_identity, title=title, artist=artist,
-            album=album, artwork_url=artwork_url, target_name=target_name, duration_ms=duration_ms,
+            album=album, artwork_url=artwork_url, target_name=target_name, volume_percent=volume_percent,
+            duration_ms=duration_ms,
             position_ms=position_ms,
             up_next=up_next,
         )
