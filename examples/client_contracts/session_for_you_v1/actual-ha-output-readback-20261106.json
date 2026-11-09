@@ -1,24 +1,11 @@
 {
   "cases": {
-    "authenticated_dismissal_no_effects_polls_remain_hidden": "PASS",
-    "de_genuine_start_prepares_three_genres_polling_no_provider_or_effects": "PASS",
-    "duplicate_original_turn_never_starts_twice": "PASS",
     "en_confirmed_original_output_beats_lagging_inventory_same_mix_once": "PASS",
-    "en_genuine_start_prepares_three_genres_polling_no_provider_or_effects": "PASS",
     "en_old_paused_track_is_not_mix_confirmation": "PASS",
     "en_unconfirmed_output_no_mix_no_transfer_retry": "PASS",
-    "es_genuine_start_prepares_three_genres_polling_no_provider_or_effects": "PASS",
-    "expired_choice_cannot_start_or_transfer_output": "PASS",
-    "explicit_refresh_updates_same_card_without_playback": "PASS",
-    "fr_genuine_start_prepares_three_genres_polling_no_provider_or_effects": "PASS",
-    "genre_before_speaker_one_flow_bubble_then_same_mix_no_second_genre": "PASS",
-    "known_speaker_exact_mix_one_play_confirmation_closes_card": "PASS",
     "nl_confirmed_original_output_beats_lagging_inventory_same_mix_once": "PASS",
-    "nl_genuine_start_prepares_three_genres_polling_no_provider_or_effects": "PASS",
     "nl_old_paused_track_is_not_mix_confirmation": "PASS",
-    "nl_unconfirmed_output_no_mix_no_transfer_retry": "PASS",
-    "old_session_refresh_cannot_rebind_or_replace_new_offer": "PASS",
-    "watch_no_card_or_startup_actions": "PASS"
+    "nl_unconfirmed_output_no_mix_no_transfer_retry": "PASS"
   },
   "examples": [
     {

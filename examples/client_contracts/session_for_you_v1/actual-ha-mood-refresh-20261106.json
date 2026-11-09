@@ -1,26 +1,13 @@
 {
   "cases": {
-    "authenticated_dismissal_no_effects_polls_remain_hidden": "PASS",
-    "de_genuine_start_prepares_three_genres_polling_no_provider_or_effects": "PASS",
-    "duplicate_original_turn_never_starts_twice": "PASS",
     "en_confirmed_settings3_mood_one_offer_no_playback_or_retry": "PASS",
     "en_explicit_welcome_mood_session_only_not_stored_default": "PASS",
-    "en_genuine_start_prepares_three_genres_polling_no_provider_or_effects": "PASS",
     "en_original_speaker_then_exact_mix_once_and_duplicate_no_second_effect": "PASS",
     "en_speaker_continuation_original_ids_and_original_lease": "PASS",
-    "es_genuine_start_prepares_three_genres_polling_no_provider_or_effects": "PASS",
-    "expired_choice_cannot_start_or_transfer_output": "PASS",
-    "explicit_refresh_updates_same_card_without_playback": "PASS",
-    "fr_genuine_start_prepares_three_genres_polling_no_provider_or_effects": "PASS",
-    "genre_before_speaker_one_flow_bubble_then_same_mix_no_second_genre": "PASS",
-    "known_speaker_exact_mix_one_play_confirmation_closes_card": "PASS",
     "nl_confirmed_settings3_mood_one_offer_no_playback_or_retry": "PASS",
     "nl_explicit_welcome_mood_session_only_not_stored_default": "PASS",
-    "nl_genuine_start_prepares_three_genres_polling_no_provider_or_effects": "PASS",
     "nl_original_speaker_then_exact_mix_once_and_duplicate_no_second_effect": "PASS",
-    "nl_speaker_continuation_original_ids_and_original_lease": "PASS",
-    "old_session_refresh_cannot_rebind_or_replace_new_offer": "PASS",
-    "watch_no_card_or_startup_actions": "PASS"
+    "nl_speaker_continuation_original_ids_and_original_lease": "PASS"
   },
   "examples": [
     {
