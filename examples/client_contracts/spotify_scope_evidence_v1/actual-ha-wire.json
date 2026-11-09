@@ -1,6 +1,6 @@
 {
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "023c9dead5ed4c12f3e9747d35daceb17e2169ee6253292b02098bbfc71eb911",
+  "raw_receipt_sha256": "43be12868200a9e5bbe1d02d76bb16337efac509cf4f80f8c0b0fb6c2e77a481",
   "receipt": {
     "actual_ha_store_readback": true,
     "cases": {
@@ -45,7 +45,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-09T08:37:49.165678+00:00",
+            "observed_at": "2026-11-09T09:22:17.789336+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -89,7 +89,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-09T08:37:49.168189+00:00",
+            "observed_at": "2026-11-09T09:22:17.795405+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -132,7 +132,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-09T08:37:49.169961+00:00",
+            "observed_at": "2026-11-09T09:22:17.800803+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -162,7 +162,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-09T08:37:49.171596+00:00",
+            "observed_at": "2026-11-09T09:22:17.805284+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -192,7 +192,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": [],
-            "observed_at": "2026-11-09T08:37:49.173264+00:00",
+            "observed_at": "2026-11-09T09:22:17.810947+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -234,7 +234,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-09T08:37:49.178098+00:00",
+            "observed_at": "2026-11-09T09:22:17.822917+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -276,7 +276,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-09T08:37:49.204725+00:00",
+            "observed_at": "2026-11-09T09:22:17.859342+00:00",
             "source": "authorization_code",
             "status": "known",
             "version": 1
@@ -318,7 +318,7 @@
           "granted_scope_evidence": {
             "client_id_sha256": "3ba3f5f43b92602683c19aee62a20342b084dd5971ddd33808d81a328879a547",
             "granted_scopes": null,
-            "observed_at": "2026-11-09T08:37:49.205577+00:00",
+            "observed_at": "2026-11-09T09:22:17.860049+00:00",
             "source": "authorization_code",
             "status": "unknown",
             "version": 1
@@ -350,7 +350,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-09T08:37:49.206198+00:00",
+            "observed_at": "2026-11-09T09:22:17.860589+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -395,7 +395,7 @@
             "granted_scopes": [
               "user-read-playback-state"
             ],
-            "observed_at": "2026-11-09T08:37:49.206198+00:00",
+            "observed_at": "2026-11-09T09:22:17.860589+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1
@@ -450,7 +450,7 @@
               "user-read-recently-played",
               "user-top-read"
             ],
-            "observed_at": "2026-11-09T08:37:49.209084+00:00",
+            "observed_at": "2026-11-09T09:22:17.863435+00:00",
             "source": "refresh_token",
             "status": "known",
             "version": 1

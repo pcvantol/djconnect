@@ -365,7 +365,7 @@
   "original_raw_location": "/Volumes/Shared Data/tmp/pcvantol/core-rich-band-answers-20261102/actual-regression-0-bandrun3/persona-story-full-r3-regression-regression-all20-20261102/batch0/once/source-origin-ha-receipt.json",
   "original_admission_sha256": "10ec1594d4c0a29206b8486133528053b23930e432029bf1876eb572315fe7a3",
   "harness": "scripts/verification/verify_installation_once_journal_ha.py",
-  "harness_sha256": "8cdfbbc36eb505a64b80a4f237409a8417313b5915e6170ece75541fb56aaec1",
+  "harness_sha256": "bde8511736936753a81f3d3542e4a1bfc276c3b8b7a7eb0b984d457b2a809bfc",
   "parent_causal_RED": {
     "sha": "351e5870946c0ac020ec01137fdb14a90960a827",
     "same_final_harness_sha256": "8756f3a9167929e14be8c90a090ce5ae78fc3bbee5663c3ed7b3cf6ffcde3398",

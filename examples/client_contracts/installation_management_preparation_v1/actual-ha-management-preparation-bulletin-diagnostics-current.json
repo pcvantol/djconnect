@@ -1,175 +1,5 @@
 {
-  "actual_HA_auth_users_tokens_middleware": true,
-  "cases": [
-    {
-      "body_sha256": "f0068aba2b4eae4279792874bfbda556f26cb93b4954c93d2803c66ac23d9063",
-      "case": "paired bearer is not HA auth",
-      "status": 401
-    },
-    {
-      "body_sha256": "4acef3f4c044a2bd8ed7ff09f00c46d7d6113b151dec1ba9a3a2f44078df0274",
-      "case": "real nonadmin HA user",
-      "status": 403
-    },
-    {
-      "body_sha256": "4acef3f4c044a2bd8ed7ff09f00c46d7d6113b151dec1ba9a3a2f44078df0274",
-      "case": "real system HA user",
-      "status": 403
-    },
-    {
-      "body_sha256": "4acef3f4c044a2bd8ed7ff09f00c46d7d6113b151dec1ba9a3a2f44078df0274",
-      "case": "explicit LLAT rejection",
-      "status": 403
-    },
-    {
-      "body_sha256": "371e83cecc176575e813ad3a347030abab89c1c90e7900eec20c9d65285408b5",
-      "case": "actual normal admin preparation",
-      "status": 200
-    },
-    {
-      "body_sha256": "ab06ecbb42373c584ce9607e2d32c6d5efa1d9f7f54fdf955fab231b0e5aa1fe",
-      "case": "same original operation not reissued",
-      "status": 409
-    },
-    {
-      "body_sha256": "2942aa1a09e795034e2b5dd3f84f46402d04c29243ccbe1cbc86d94d28cf1660",
-      "case": "same refresh second independent preparation",
-      "status": 200
-    },
-    {
-      "case": "actual synchronous refresh revoke fence",
-      "pass": true
-    },
-    {
-      "body_sha256": "03759793caecc9e63afd9c867d8d624750442c6a55b2f04bfa1cb3676dab1144",
-      "case": "prepare before admin ABA",
-      "status": 200
-    },
-    {
-      "case": "actual HA admin removal/readd ABA remains retired",
-      "pass": true
-    },
-    {
-      "body_sha256": "cbdd99f4e597e52fb823d5e82315902b077087ae512004bf4e30219ed334c549",
-      "case": "query rejected",
-      "status": 400
-    },
-    {
-      "body_sha256": "cbdd99f4e597e52fb823d5e82315902b077087ae512004bf4e30219ed334c549",
-      "case": "closed request rejects owner bool",
-      "status": 400
-    },
-    {
-      "body_sha256": "cbdd99f4e597e52fb823d5e82315902b077087ae512004bf4e30219ed334c549",
-      "case": "duplicate original version rejected",
-      "status": 400
-    },
-    {
-      "body_sha256": "16bc0681bd6adb374d4e549d9c2ec2df2b4cf8f7a5f324781336c386ab025624",
-      "case": "oversize body rejected",
-      "status": 413
-    },
-    {
-      "body_sha256": "cbdd99f4e597e52fb823d5e82315902b077087ae512004bf4e30219ed334c549",
-      "case": "boolean version rejected",
-      "status": 400
-    },
-    {
-      "body_sha256": "cbdd99f4e597e52fb823d5e82315902b077087ae512004bf4e30219ed334c549",
-      "case": "noncanonical operation rejected",
-      "status": 400
-    },
-    {
-      "body_sha256": "cbdd99f4e597e52fb823d5e82315902b077087ae512004bf4e30219ed334c549",
-      "case": "invalid UTF8 rejected",
-      "status": 400
-    },
-    {
-      "body_sha256": "c7dde0abbe9625e831d3c9dc8adef7626a54e1f030bbe80cc681dc84afb94bc7",
-      "case": "duplicate bearer refused",
-      "status": 401
-    },
-    {
-      "body_sha256": "5500e25982a93ee789d07cc38dd9df4f30dfa0a91b5b543a8b8d62a124d61855",
-      "case": "prepare before configuration",
-      "status": 200
-    },
-    {
-      "case": "selected configuration rejects and remains retired after restore",
-      "pass": true
-    },
-    {
-      "body_sha256": "fe40d92e492520d5c9e2af829640a4779452566dbe6960de34cc66bf49e3b4a4",
-      "case": "prepare before runtime",
-      "status": 200
-    },
-    {
-      "case": "selected runtime rejects and remains retired after restore",
-      "pass": true
-    },
-    {
-      "body_sha256": "43922458c9633c2e16798e67462eb10ec3e67ac11817566be8c6cef68e4de71b",
-      "case": "prepare before entry_state",
-      "status": 200
-    },
-    {
-      "case": "selected entry_state rejects and remains retired after restore",
-      "pass": true
-    },
-    {
-      "case": "real refresh revoke during body await rejects late reply",
-      "pass": true
-    },
-    {
-      "case": "actual request cancellation during body await leaves no authority",
-      "pass": true
-    },
-    {
-      "body_sha256": "9b9c8785e5068b48d3a6fffb0d9ba54c57acf125807c05e6b9475067372f244e",
-      "case": "prepare before HA config ABA",
-      "status": 200
-    },
-    {
-      "case": "actual HA public configuration ABA cannot restore original mapping identity",
-      "pass": true
-    },
-    {
-      "body_sha256": "30163ffb25ac4b07e6fb897e66296e03d275abdfe45461d03c905a40645e7228",
-      "case": "prepare before real temporary entry flow",
-      "status": 200
-    },
-    {
-      "case": "real OptionsFlow failed temporary entry ABA retires pending and prepared management",
-      "pass": true
-    },
-    {
-      "body_sha256": "def25de70f016f704cf76cbf39b07245e257f65937e6bf3b1cf05c7515156016",
-      "case": "prepare before runtime setter A",
-      "status": 200
-    },
-    {
-      "body_sha256": "64c6ff224f8b371773ff9e44bcfec1e2ef393346b2ce113493251b7f98384bc4",
-      "case": "prepare before runtime setter B",
-      "status": 200
-    },
-    {
-      "case": "runtime setter ABA retires all siblings despite cleanup failure",
-      "pass": true
-    },
-    {
-      "body_sha256": "384cd49f4e236f12db72af3c8faeaad4cd5cdad1cfe8267a05b4470021dcf5fb",
-      "case": "fixed original local clock",
-      "status": 200
-    },
-    {
-      "case": "exact original wall and mono expiry closes",
-      "pass": true
-    }
-  ],
   "classification": "ACTUAL_ISOLATED_HA_ADMIN_PREPARATION_TESTS_ONLY",
-  "native_or_push_acceptance": false,
-  "provider_or_device_effect": false,
-  "real_service_key_or_custody_effect": false,
   "source_sha256": {
     "custom_components/djconnect/AGENTS.md": "8fb8891e3a2cca055067fbbacafe6c189f38bc00c514a6bf6984639a182a70cf",
     "custom_components/djconnect/__init__.py": "f8467d2383c931c2228e6726c361963fb44f21d5616e8aab37d521c38b4d8fc8",
@@ -486,5 +316,175 @@
     "custom_components/djconnect/watch_preference_client.py": "19676ad4ec37c6e525839dec06ec95ae976db5b598ffdc9f8829456b6962a057",
     "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
     "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
-  }
+  },
+  "cases": [
+    {
+      "case": "paired bearer is not HA auth",
+      "status": 401,
+      "body_sha256": "f0068aba2b4eae4279792874bfbda556f26cb93b4954c93d2803c66ac23d9063"
+    },
+    {
+      "case": "real nonadmin HA user",
+      "status": 403,
+      "body_sha256": "4acef3f4c044a2bd8ed7ff09f00c46d7d6113b151dec1ba9a3a2f44078df0274"
+    },
+    {
+      "case": "real system HA user",
+      "status": 403,
+      "body_sha256": "4acef3f4c044a2bd8ed7ff09f00c46d7d6113b151dec1ba9a3a2f44078df0274"
+    },
+    {
+      "case": "explicit LLAT rejection",
+      "status": 403,
+      "body_sha256": "4acef3f4c044a2bd8ed7ff09f00c46d7d6113b151dec1ba9a3a2f44078df0274"
+    },
+    {
+      "case": "actual normal admin preparation",
+      "status": 200,
+      "body_sha256": "520e78329387148bde1063eee42b22c4f0f28902492c5aa51ef801a69286f502"
+    },
+    {
+      "case": "same original operation not reissued",
+      "status": 409,
+      "body_sha256": "ab06ecbb42373c584ce9607e2d32c6d5efa1d9f7f54fdf955fab231b0e5aa1fe"
+    },
+    {
+      "case": "same refresh second independent preparation",
+      "status": 200,
+      "body_sha256": "7f7d34c9f83537fe91e30cf370a58a5e1e3556408c4a9f5028b6b517e2071289"
+    },
+    {
+      "case": "actual synchronous refresh revoke fence",
+      "pass": true
+    },
+    {
+      "case": "prepare before admin ABA",
+      "status": 200,
+      "body_sha256": "20c983a34a22c677ffb51cdc49a991d8b6a5ae80cb85670cb4ffb33b0e95a8a0"
+    },
+    {
+      "case": "actual HA admin removal/readd ABA remains retired",
+      "pass": true
+    },
+    {
+      "case": "query rejected",
+      "status": 400,
+      "body_sha256": "cbdd99f4e597e52fb823d5e82315902b077087ae512004bf4e30219ed334c549"
+    },
+    {
+      "case": "closed request rejects owner bool",
+      "status": 400,
+      "body_sha256": "cbdd99f4e597e52fb823d5e82315902b077087ae512004bf4e30219ed334c549"
+    },
+    {
+      "case": "duplicate original version rejected",
+      "status": 400,
+      "body_sha256": "cbdd99f4e597e52fb823d5e82315902b077087ae512004bf4e30219ed334c549"
+    },
+    {
+      "case": "oversize body rejected",
+      "status": 413,
+      "body_sha256": "16bc0681bd6adb374d4e549d9c2ec2df2b4cf8f7a5f324781336c386ab025624"
+    },
+    {
+      "case": "boolean version rejected",
+      "status": 400,
+      "body_sha256": "cbdd99f4e597e52fb823d5e82315902b077087ae512004bf4e30219ed334c549"
+    },
+    {
+      "case": "noncanonical operation rejected",
+      "status": 400,
+      "body_sha256": "cbdd99f4e597e52fb823d5e82315902b077087ae512004bf4e30219ed334c549"
+    },
+    {
+      "case": "invalid UTF8 rejected",
+      "status": 400,
+      "body_sha256": "cbdd99f4e597e52fb823d5e82315902b077087ae512004bf4e30219ed334c549"
+    },
+    {
+      "case": "duplicate bearer refused",
+      "status": 401,
+      "body_sha256": "c7dde0abbe9625e831d3c9dc8adef7626a54e1f030bbe80cc681dc84afb94bc7"
+    },
+    {
+      "case": "prepare before configuration",
+      "status": 200,
+      "body_sha256": "9f46f100675046132cb7ca9073a52528badc60c38b597b903884a2f049361348"
+    },
+    {
+      "case": "selected configuration rejects and remains retired after restore",
+      "pass": true
+    },
+    {
+      "case": "prepare before runtime",
+      "status": 200,
+      "body_sha256": "4eb23ddf7dccd00da4a1e1c42f1e47e06a5b4b9dfa0deb13b781364523b5bc2d"
+    },
+    {
+      "case": "selected runtime rejects and remains retired after restore",
+      "pass": true
+    },
+    {
+      "case": "prepare before entry_state",
+      "status": 200,
+      "body_sha256": "8c7b16b7ee492a8acb347c9ad503d5052ed6cafe161a60f11d58c645f2a3523e"
+    },
+    {
+      "case": "selected entry_state rejects and remains retired after restore",
+      "pass": true
+    },
+    {
+      "case": "real refresh revoke during body await rejects late reply",
+      "pass": true
+    },
+    {
+      "case": "actual request cancellation during body await leaves no authority",
+      "pass": true
+    },
+    {
+      "case": "prepare before HA config ABA",
+      "status": 200,
+      "body_sha256": "cf4031120beee56b855b20c66599e0bd6d6b6f6fd465893ea8fdb35b0fd07fc0"
+    },
+    {
+      "case": "actual HA public configuration ABA cannot restore original mapping identity",
+      "pass": true
+    },
+    {
+      "case": "prepare before real temporary entry flow",
+      "status": 200,
+      "body_sha256": "503c1ce2a3f8ec81153fc53a1f97f61dde094e8d682d5b23aa6586ea42ea37be"
+    },
+    {
+      "case": "real OptionsFlow failed temporary entry ABA retires pending and prepared management",
+      "pass": true
+    },
+    {
+      "case": "prepare before runtime setter A",
+      "status": 200,
+      "body_sha256": "cfe58818e91e637f0b0910e9fca1cc213ff02194dd431b321031e72ce36e4173"
+    },
+    {
+      "case": "prepare before runtime setter B",
+      "status": 200,
+      "body_sha256": "efe20ef1c4534bfd903ee978d9b042cac38cb9cd81a22d6bc98e6131ce9d70c0"
+    },
+    {
+      "case": "runtime setter ABA retires all siblings despite cleanup failure",
+      "pass": true
+    },
+    {
+      "case": "fixed original local clock",
+      "status": 200,
+      "body_sha256": "962c2b6e8fa5f687c3072b41df57f0b85bb095c01c34a62b768fa6212211ffb7"
+    },
+    {
+      "case": "exact original wall and mono expiry closes",
+      "pass": true
+    }
+  ],
+  "actual_HA_auth_users_tokens_middleware": true,
+  "real_service_key_or_custody_effect": false,
+  "provider_or_device_effect": false,
+  "native_or_push_acceptance": false
 }
