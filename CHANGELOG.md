@@ -100,6 +100,10 @@ All24requests/ninegates preserved; automation PAUSED.
 - Keep storage, protocol, checkpoint, memory and report formats unchanged; this
   is a version-boundary release, not a data migration or authority change.
 
+## 4.0.0
+
+- Publish the stable Home Assistant integration with the existing 4.0 compatibility contract.
+
 ## 4.0.0-rc.1
 
 - Start the coordinated DJConnect Platform 4.0 release-candidate train.
