@@ -49,6 +49,38 @@ class DisplayProjectionTests(unittest.TestCase):
         self.assertNotIn('untrusted_excerpt',result)
         self.assertNotIn('owner_id',result)
 
+    def test_shared_horizon_uses_current_forecast_text_and_rechecks_expiry(self):
+        self.prepared()
+        broadcast = self.session.broadcast
+        forecast = broadcast.forecast
+        forecast.clock = lambda: 101
+        forecast.wall_clock = lambda: 1_800_000_000
+        forecast.accept_observation()
+        playback = broadcast.state.playback
+        self.assertTrue(forecast.update({
+            "has_current": True, "supported": True, "title": playback.title,
+            "artist": playback.artist, "album": playback.album or playback.title,
+            "source_url": "https://owner.invalid/private",
+            "guidance": "quiet",
+        }, locale="nl", persona="radio_dj", current_item_id=playback.item_id,
+            imagery=({"url": "https://owner.invalid/image"},)))
+        snapshot = self.snapshot()
+        card = snapshot["horizon"]
+        self.assertEqual(set(card), {"valid_until", "sections"})
+        self.assertEqual(card["valid_until"], forecast.value["valid_until"])
+        self.assertTrue(all(set(section) == {"title", "text"} for section in card["sections"]))
+        self.assertNotIn("owner.invalid", json.dumps(card))
+        guard = self.projection.projection_release_guard(self.session, self.display, self.state, snapshot)
+        with patch("time.monotonic", return_value=101):
+            self.assertTrue(guard())
+            broadcast.state = replace(broadcast.state, playback=replace(playback, item_id="next-item"))
+            self.assertFalse(guard())
+            self.assertNotIn("horizon", self.snapshot())
+            broadcast.state = replace(broadcast.state, playback=playback)
+            forecast.clock = lambda: forecast.deadline
+            self.assertFalse(guard())
+        self.assertNotIn("horizon", self.snapshot())
+
     def test_pending_content_erasure_withdraws_cached_guard_and_shared_text(self):
         moment = self.prepared()
         snapshot = self.snapshot()

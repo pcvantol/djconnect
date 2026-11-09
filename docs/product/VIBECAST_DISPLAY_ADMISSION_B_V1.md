@@ -326,7 +326,7 @@ never infer them from Profile defaults or rewrite a published Moment's original
 Persona/Mood. No settings/default snapshot, settings revision, voice, gender,
 announcement_output, provider/pipeline or device preference appears here. These
 three presentation labels confer no settings read/write capability.
-No Planner/Horizon, owner Flow conversation, Ask DJ/history/DNA, account/device/
+No private Planner/Horizon payload, owner Flow conversation, Ask DJ/history/DNA, account/device/
 Profile IDs, prompts, source payloads or private native deliveries are serialized.
 Unknown fields are denied. Display reads never generate a Moment or provider call.
 
@@ -334,8 +334,12 @@ Unknown fields are denied. Display reads never generate a Moment or provider cal
 rights. Revalidate current publication qualification, audience, channel, locale,
 source/account/edition/subject and original deadline before projection and again
 after any await. Source withdrawal invalidates live items and queued projections.
-Forecast is included only when its text/media are independently qualified for
-this share; otherwise absent, not copied from private owner projection.
+The optional `horizon` field carries the current forecast's `valid_until`
+and up to three localized `{title, text}` sections. Core realizes those
+sections from accepted guidance and exact current shared playback. Queue
+entries, images, links and owner fields stay private. Core checks freshness,
+source authority and the current recording again before releasing the snapshot.
+The screen clears Horizon when its forecast expires or loses authority.
 
 No owner session_media/speech/image URL or private Discovery grant is forwarded.
 Shared media needs a separate display-purpose object/source/subject/account/
