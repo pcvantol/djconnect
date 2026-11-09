@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 import hashlib
 import re
 import secrets
+import time
 from typing import Callable
 
 from .display_admission import DisplayAdmissionError
@@ -35,6 +36,22 @@ class DisplayLiveHub:
         self.peak_reserved_bytes = 0
         self.peak_projections = 0
         self.peak_preauth = 0
+        self._observation_revision = 0
+
+    def live_displays(self, profile_id, session_id):
+        return tuple(sorted(
+            (connection.display.display_id, connection.display.share_id, connection.generation)
+            for connection in self.connections.values()
+            if connection.display.owner.profile_id == profile_id
+            and connection.active.session_id == session_id
+            and connection.current()
+        ))
+
+    def next_observation_revision(self):
+        self._observation_revision = max(
+            self._observation_revision + 1, time.monotonic_ns() // 1000,
+        )
+        return self._observation_revision
 
     def reserve_projection(self, display_id):
         size = 2 * MAX_FRAME_BYTES

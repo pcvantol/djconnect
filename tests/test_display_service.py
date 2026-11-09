@@ -4,7 +4,7 @@ from io import BytesIO
 import secrets
 import unittest
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 from tests import test_display_authority as authority_tests
 
@@ -32,10 +32,10 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
         self.origin_patch.stop()
         await self.fixture.asyncTearDown()
 
-    async def call(self, action, data=None, *, origins=None, headers=None):
+    async def call(self, action, data=None, *, origins=None, headers=None, identity=None):
         body = {"contract_version": 1, **(data or {})}
         if action.startswith("owner/"):
-            body["identity"] = self.fixture.identity
+            body["identity"] = self.fixture.identity if identity is None else identity
         return await self.service.post(action, body,
             headers=self.fixture.headers if headers is None else headers,
             origins=[self.origin] if origins is None else origins, source="unit-peer")
@@ -147,6 +147,132 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
             approved.release()
         self.assertFalse(self.manager._display_admission._claims)
         self.assertEqual(len(self.manager._display_admission._shares), 1)
+
+    async def test_profile_devices_observe_and_stop_only_the_current_live_connection(self):
+        import aiohttp
+
+        with patch.object(aiohttp, "WSMsgType", create=True):
+            from custom_components.djconnect import display_live
+
+        entries = {self.fixture.entry.entry_id: self.fixture.entry}
+        self.fixture.hass.config_entries.async_get_entry = entries.get
+        await self.fixture.storage.async_create_profile("Other", profile_id="profile-b",
+                                                       default_backend_id="later_manual")
+        other_session = await self.manager.async_start(owner_profile_id="profile-b")
+
+        async def paired_device(serial, profile):
+            device_id = f"djconnect-ios-{serial}"
+            identity = {"device_id": device_id, "client_type": "ios"}
+            token = f"fixture-{serial}"
+            headers = {"Authorization": f"Bearer {token}"}
+            await self.fixture.storage.async_upsert_device(device_id, "ios", linked_profile_id=profile)
+            entry = SimpleNamespace(entry_id=serial, data={**identity, "device_token": token},
+                                    options={}, disabled_by=None, state="loaded")
+            entries[serial] = entry
+            self.fixture.hass.data["djconnect"][serial] = SimpleNamespace(
+                entry=entry, device_token=token, config=identity, device_status=identity,
+                authorize_device_request=lambda request_headers, device_id=None, client_type=None: (
+                    request_headers == headers and identity == {"device_id": device_id, "client_type": client_type}
+                ),
+            )
+            return {"identity": identity, "headers": headers}
+
+        second = await paired_device("ABCDEF123457", "profile-a")
+        other = await paired_device("ABCDEF123458", "profile-b")
+        state = self.manager._display_admission
+        hub = display_live.display_live_hub(self.manager)
+        active = self.fixture.active
+        await self.manager.async_update_playback_projection(
+            owner_profile_id="profile-a", session_id=active.session_id,
+            state="playing", media_identity="spotify:track:fixture", title="Track",
+        )
+        playback = active.broadcast.state.playback
+        first = (await self.admitted()).payload
+        share = {key: first[key] for key in ("share_id", "share_generation")}
+        second_screen = (await self.admitted({"mode": "existing", **share})).payload
+        context = await self.call("owner/context", **second)
+        self.assertEqual(context.payload["share_id"], share["share_id"])
+        self.assertEqual(context.payload["live_display_status"]["displays"], [])
+
+        def connect(payload):
+            display = state._displays[payload["display_id"]]
+            if previous := hub.connections.get(display.display_id):
+                previous.invalidate()
+            display.connection_generation += 1
+            connection = display_live._Connection(
+                self.fixture.hass, hub, display, active, self.origin,
+                SimpleNamespace(closed=False), SimpleNamespace(transport=Mock()),
+            )
+            hub.connections[display.display_id] = connection
+            display.invalidated = connection.invalidate
+            return connection
+
+        def target(context, connection):
+            return {"session_id": active.session_id, "share_id": connection.display.share_id,
+                    "issuer_epoch": context.payload["issuer_epoch"],
+                    "display_id": connection.display.display_id, "connection_generation": connection.generation}
+
+        with patch.object(display_live, "selected_ha_origin", return_value=self.origin):
+            original = connect(first)
+            unrelated = connect(second_screen)
+            observed = await self.call("owner/context", **second)
+            observed.release()
+            displays = observed.payload["live_display_status"]["displays"]
+            self.assertEqual({item["display_id"] for item in displays},
+                             {first["display_id"], second_screen["display_id"]})
+            self.assertTrue(all(set(item) == {"display_id", "share_id", "connection_generation"} for item in displays))
+            foreign = await self.call("owner/context", **other)
+            self.assertEqual(foreign.payload["live_display_status"]["displays"], [])
+            self.assertNotIn("share_id", foreign.payload)
+            with self.assertRaises(self.module.DisplayAdmissionError):
+                await self.call("owner/revoke", target(observed, original)
+                                | {"session_id": other_session.session_id}, **other)
+
+            replacement = connect(first)
+            with self.assertRaises(self.module.DisplayAdmissionError):
+                observed.release()
+            with self.assertRaises(self.module.DisplayAdmissionError):
+                await self.call("owner/revoke", target(observed, original), **second)
+            self.assertTrue(replacement.current())
+            fresh = await self.call("owner/context", **second)
+            incomplete = target(fresh, replacement)
+            del incomplete["issuer_epoch"]
+            with self.assertRaises(self.module.DisplayAdmissionError) as missing:
+                await self.call("owner/revoke", incomplete, **second)
+            self.assertEqual(missing.exception.status, 400)
+            with self.assertRaises(self.module.DisplayAdmissionError):
+                await self.call("owner/revoke", target(fresh, replacement)
+                                | {"issuer_epoch": secrets.token_urlsafe(32)}, **second)
+            with self.assertRaises(self.module.DisplayAdmissionError) as wrong_share:
+                await self.call("owner/revoke", target(fresh, replacement)
+                                | {"share_id": secrets.token_urlsafe(32)}, **second)
+            self.assertEqual(wrong_share.exception.status, 409)
+            stopped = await self.call("owner/revoke", target(fresh, replacement), **second)
+            stopped.release()
+            self.assertFalse(replacement.current())
+            replacement.request.transport.close.assert_called_once()
+            self.assertTrue(unrelated.current())
+            self.assertIs(self.manager.current_active("profile-a"), active)
+            self.assertEqual(active.broadcast.state.playback, playback)
+            with self.assertRaises(self.module.DisplayAdmissionError):
+                fresh.release()
+            after = (await self.call("owner/context")).payload
+            self.assertEqual(after["share_id"], share["share_id"])
+            self.assertEqual(after["live_display_status"]["displays"],
+                             [{"display_id": unrelated.display.display_id, "share_id": second_screen["share_id"],
+                               "connection_generation": unrelated.generation}])
+            self.assertGreater(after["live_display_status"]["observation_revision"],
+                               stopped.payload["observation_revision"])
+            unrelated.ws.closed = True
+            disconnected = (await self.call("owner/context", **second)).payload
+            self.assertEqual(disconnected["live_display_status"]["displays"], [])
+            self.assertIn(unrelated.display.display_id, state._displays)
+            last = connect(second_screen)
+            observed_last = await self.call("owner/context", **second)
+            await self.call("owner/revoke", target(observed_last, last), **second)
+            inactive = (await self.call("owner/context")).payload
+            self.assertEqual(inactive["live_display_status"]["displays"], [])
+            self.assertEqual(inactive["share_id"], share["share_id"])
 
     async def test_snapshot_is_closed_owner_private_free_and_does_not_renew_lease(self):
         result = await self.admitted()
