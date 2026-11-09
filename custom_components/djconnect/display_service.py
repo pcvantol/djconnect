@@ -134,6 +134,7 @@ class DisplayAdmissionService:
                 result = {"session_id": active.session_id if active else None,
                     "display_entry_url": selected + ENTRY_PATH,
                     "route_trust": "paired_owner_response",
+                    "output_status_consent_supported": True,
                     "issuer_epoch": state.issuer_epoch,
                     "limits": {"claim_seconds": 120, "lease_seconds": 60,
                                "share_seconds_default": 7200, "displays_per_share": 8}}

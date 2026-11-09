@@ -198,6 +198,7 @@ main { height:auto; min-width:0 }
 
 /* The admitted Session display keeps playback separate from its scrolling Flow. */
 .shared-flow[hidden], .flow-live[hidden] { display:none }
+.shared-flow-live main { padding-block:clamp(1rem,3vh,2.25rem); gap:clamp(.7rem,1.5vh,1.25rem) }
 .shared-flow-live .stage {
   display:grid;
   grid-template-columns:minmax(0,1fr);
@@ -208,26 +209,78 @@ main { height:auto; min-width:0 }
 }
 .shared-flow-live .now-playing {
   display:grid;
-  grid-template-columns:auto minmax(0,1fr) auto;
-  align-items:center;
-  gap:.15rem 1rem;
+  grid-template-columns:auto minmax(0,1fr);
+  grid-template-rows:auto auto auto 1fr auto auto;
+  align-items:start;
+  gap:.2rem clamp(.7rem,2vw,1.75rem);
   text-align:left;
   width:100%;
   max-width:none;
-  padding:.8rem 1rem;
-  border:var(--card-border);
-  border-radius:32px;
-  corner-shape:squircle;
-  background:#222740;
-  box-sizing:border-box;
 }
-.shared-flow-live .now-playing > :is(.eyebrow,.track,.artist,.album-name) { grid-column:2; margin:0 }
-.shared-flow-live .now-playing .track { font-size:clamp(1.2rem,3vw,2.6rem); line-height:1.12 }
-.shared-flow-live .now-playing .artist { font-size:clamp(.9rem,2vw,1.4rem) }
-.shared-flow-live .now-playing .artwork-card { grid-column:1; grid-row:1 / span 4; width:clamp(3rem,8vw,6rem) }
+.shared-flow-live .now-playing > :is(.track,.artist,.album-name,.display-meter,.display-timing,.display-output) { grid-column:2; margin:0 }
+.shared-flow-live .now-playing .eyebrow { display:none }
+.shared-flow-live .now-playing .track { font-size:clamp(1.2rem,3vw,2.6rem); line-height:1.12; max-width:none }
+.shared-flow-live .now-playing :is(.artist,.album-name) { font-size:clamp(.9rem,2vw,1.4rem); color:#d7d3e4 }
+.shared-flow-live .now-playing .artwork-card { grid-column:1; grid-row:1 / span 6; width:clamp(3rem,min(30vw,29vh),18rem) }
 .shared-flow-live .now-playing .artwork { width:100% }
-.shared-flow-live .now-playing .spotify-source { grid-column:3; grid-row:1 / span 4 }
+.display-meter:not([hidden]),.display-timing:not([hidden]),.display-output:not([hidden]) { display:flex; align-items:center; gap:.75rem; min-width:0 }
+.display-meter { align-self:center }
+.display-meter progress { flex:1; min-width:0; height:.38rem; accent-color:#fff }
+.display-meter progress::-webkit-progress-value { background:#fff }
+.display-meter progress::-moz-progress-bar { background:#fff }
+.display-timing,.display-output { justify-content:space-between; min-height:1.4rem; color:#d7d3e4; font-size:clamp(.75rem,1.5vw,1.1rem) }
+.display-timing #time,.display-output #display-volume { margin-inline-start:auto; white-space:nowrap }
+.display-output > span:not([hidden]) { display:flex; align-items:center; gap:.4rem; min-width:0 }
+.display-output svg { flex:none; width:1.15em; height:1.15em; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round }
+#display-speaker-label { overflow-wrap:anywhere }
+.display-equalizer { display:flex; align-items:end; gap:3px; flex:none; height:1.4rem }
+.display-equalizer i { width:3px; height:72%; border-radius:2px; background:currentColor; transform-origin:bottom }
+.display-equalizer i:nth-child(2) { height:46%; animation-delay:-.18s }
+.display-equalizer i:nth-child(3) { height:100%; animation-delay:-.4s }
+.display-equalizer i:nth-child(4) { height:60%; animation-delay:-.62s }
+@media (prefers-reduced-motion:no-preference) {
+  .display-equalizer.playing i { animation-name:display-equalize; animation-duration:.8s; animation-timing-function:ease-in-out; animation-iteration-count:infinite; animation-direction:alternate }
+}
+@keyframes display-equalize { from { transform:scaleY(.35) } to { transform:scaleY(1) } }
 .shared-flow-live .waiting-brand, .shared-flow-live .cards { display:none }
+.shared-flow-live .shared-flow,.shared-flow-live .cards { grid-area:2 / 1 }
+.shared-flow-live.display-spotlight .shared-flow { opacity:0; visibility:hidden }
+.shared-flow-live.display-spotlight .cards {
+  position:relative; inset:auto; display:block; align-content:start; width:100%; max-height:none; min-height:0; overflow-y:auto;
+}
+.spotlight-avatar { display:none; --avatar-start:#3285ff; --avatar-mid:#843df5; --avatar-end:#cb27f5 }
+.shared-flow-live.display-spotlight .moment-card:not([hidden]) {
+  display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:clamp(.65rem,2.5vw,1.7rem); border-radius:32px;
+}
+.shared-flow-live.display-spotlight .spotlight-avatar {
+  display:block; width:clamp(2.8rem,10vw,8rem);
+}
+.spotlight-avatar[data-mood="chill"] { --avatar-start:#4da3ff; --avatar-mid:#7b61ff; --avatar-end:#d184ff }
+.spotlight-avatar[data-mood="groove"] { --avatar-start:#06c7ad; --avatar-mid:#169bc8; --avatar-end:#10b981 }
+.spotlight-avatar[data-mood="energy"] { --avatar-start:#ddff00; --avatar-mid:#00b8ff; --avatar-end:#39ff78 }
+.spotlight-avatar[data-mood="party"] { --avatar-start:#ff287f; --avatar-mid:#aa38f5; --avatar-end:#f43dce }
+.spotlight-avatar stop:first-child { stop-color:var(--avatar-start) }
+.spotlight-avatar stop:nth-child(2) { stop-color:var(--avatar-mid) }
+.spotlight-avatar stop:last-child { stop-color:var(--avatar-end) }
+.spotlight-avatar-back { fill:#0b0918 }
+@media (prefers-reduced-motion:no-preference) {
+  .display-spotlight .spotlight-wave rect {
+    transform-box:fill-box; transform-origin:center;
+    animation:spotlight-pulse .7s ease-in-out infinite alternate;
+  }
+  .spotlight-wave rect:nth-child(2n) { animation-delay:-.35s }
+  .spotlight-wave rect:nth-child(3n) { animation-delay:-.18s }
+}
+@media (forced-colors:active) {
+  .spotlight-avatar stop { stop-color:CanvasText!important }
+  .spotlight-avatar-back { fill:Canvas }
+}
+@keyframes spotlight-pulse { from { transform:scaleY(.45) } to { transform:scaleY(1) } }
+.shared-flow-live.display-spotlight .moment-summary { font-size:clamp(1.3rem,3.15vw,2.8rem) }
+.shared-flow-live.display-spotlight .moment-detail { max-height:none; mask-image:none }
+@media (prefers-reduced-motion:no-preference) {
+  .shared-flow-live:not(.display-spotlight) .shared-flow { transition:opacity .35s ease }
+}
 .shared-flow { min-height:0; position:relative; font-family:system-ui,-apple-system,sans-serif }
 .flow-viewport { height:100%; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; overflow-anchor:none }
 .flow-viewport:focus-visible { outline:2px solid #b5c8ff; outline-offset:-3px; border-radius:18px }
@@ -244,8 +297,10 @@ main { height:auto; min-width:0 }
   line-height:1.45;
   padding:.75em 1em;
 }
+.flow-with-artwork { display:grid; grid-template-columns:clamp(2.5rem,7vw,5rem) minmax(0,1fr); align-items:start; gap:.75em }
+.flow-artwork { display:block; width:100%; aspect-ratio:1; object-fit:contain; border-radius:.65rem }
 .flow-card p { margin:.25em 0 0; white-space:pre-wrap; overflow-wrap:anywhere }
-.flow-card.flow-age-0 { border-radius:32px; font-size:clamp(1.15rem,2.65vw,2.2rem); font-weight:650 }
+.flow-card.flow-age-0 { border-radius:32px; font-size:clamp(1.15rem,2.45vw,2rem); font-weight:650; line-height:1.3 }
 .flow-card.flow-age-1 { font-size:clamp(1.02rem,2.15vw,1.65rem); font-weight:550 }
 .flow-card.flow-age-2 { font-size:clamp(.95rem,1.8vw,1.35rem) }
 .flow-kind { font-size:.68em; font-weight:650; color:#d9deff }

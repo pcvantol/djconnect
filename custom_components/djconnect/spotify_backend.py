@@ -142,6 +142,7 @@ class SpotifyPlaybackObservation:
     catalog: dict[str, Any] = field(default_factory=dict)
     # Private Stage1 identity; display names are not unique output identities.
     target_id: str = field(default="", repr=False)
+    volume_percent: int | None = None
 
 
 async def handle_spotify_command(
@@ -732,6 +733,7 @@ class SpotifyBackend:
             album=str(playback.get("album_name") or ""),
             artwork_url=str(playback.get("album_image_url") or ""),
             target_name=str(device.get("name") or ""),
+            volume_percent=playback.get("volume_percent"),
             target_id=device.get("id") if isinstance(device.get("id"), str) else "",
             duration_ms=_int_or_none(playback.get("duration_ms")),
             position_ms=_int_or_none(playback.get("progress_ms")),

@@ -59,6 +59,7 @@ class _Claim:
     share_id: str = ""
     display_id: str = ""
     approval_key: tuple = ()
+    include_output_status: bool = False
 
 
 @dataclass(slots=True, repr=False)
@@ -81,6 +82,7 @@ class _Display:
     lease_revision: int = 0
     connection_generation: int = 0
     invalidated: Callable[[], None] | None = None
+    include_output_status: bool = False
 
 
 def _digest(value: str) -> str:
@@ -224,12 +226,13 @@ class DisplayAdmissionState:
                 (share.get("consent") is not True or type(lifetime) is not int or not 120 <= lifetime <= 28800)):
             raise DisplayAdmissionError("display_code_invalid", 400)
         allowed = {"mode", "consent", "lifetime_seconds"} if mode == "create" else {"mode", "share_id", "share_generation"}
-        if set(share) - allowed or (mode == "existing" and
+        include_output_status = share.get("include_output_status", False)
+        if type(include_output_status) is not bool or set(share) - (allowed | {"include_output_status"}) or (mode == "existing" and
                 (not isinstance(share.get("share_id"), str) or type(share.get("share_generation")) is not int)):
             raise DisplayAdmissionError("display_code_invalid", 400)
         key = (owner.profile_id, owner.session_id, owner.entry_id, owner.stamp, issuer_epoch,
                claim_id, browser_generation, code, mode, share.get("share_id"), share.get("share_generation"),
-               lifetime if mode == "create" else None)
+               lifetime if mode == "create" else None, include_output_status)
         claim = self._claims.get(claim_id)
         if claim is None:
             for display in self._displays.values():
@@ -270,6 +273,7 @@ class DisplayAdmissionState:
         self._shares[selected.share_id] = selected
         claim.owner, claim.share_id = owner, selected.share_id
         claim.display_id, claim.approval_key = display_id, key
+        claim.include_output_status = include_output_status
         return self._summary(selected, claim.display_id)
 
     def _browser_claim(self, *, issuer_epoch: str, claim_id: str, claim_secret: str,
@@ -294,7 +298,8 @@ class DisplayAdmissionState:
         share = self._shares[claim.share_id]
         token = "djcd_" + secrets.token_urlsafe(32)
         display = _Display(claim.display_id, _digest(token), claim.owner, claim.share_id,
-                           claim.claim_id, claim.approval_key, min(self._clock() + LEASE_TTL, share.deadline))
+                           claim.claim_id, claim.approval_key, min(self._clock() + LEASE_TTL, share.deadline),
+                           include_output_status=claim.include_output_status)
         self._displays[display.display_id] = display
         del self._claims[claim.claim_id]
         return {"success": True, "state": "admitted", "contract_version": 1,

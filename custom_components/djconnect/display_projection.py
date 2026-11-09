@@ -36,9 +36,9 @@ def public_citation(source):
     return result
 
 
-def _flow_deadline(boundary, proof):
+def _flow_deadline(boundary, expires_at):
     return boundary.published_monotonic + (
-        datetime.fromisoformat(proof["display_expires_at"]) - datetime.fromisoformat(boundary.published_at)
+        datetime.fromisoformat(expires_at) - datetime.fromisoformat(boundary.published_at)
     ).total_seconds()
 
 
@@ -58,7 +58,7 @@ def projection_release_guard(active, authority, state, snapshot):
         if moment.moment_id in current_ids:
             deadlines.append(boundary.published_monotonic + moment.presentation_intent.maximum_duration_seconds)
         if moment.moment_id in flow:
-            deadlines.append(_flow_deadline(boundary, flow[moment.moment_id]))
+            deadlines.append(_flow_deadline(boundary, flow[moment.moment_id]["flow_expires_at"]))
         if isinstance(moment.source_fact, QualifiedSessionFact):
             deadlines.append(source_deadline(moment.source_fact))
         from .public_artist_narration import ResearchMomentAcceptance
@@ -105,8 +105,9 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
     Only latest bounded, currently display-qualified publications are examined.
     The existing native qualification validates exact source field/provider/
     license/subject, attribution, original publication/source clocks and proof.
-    B additionally requires actual shared channel/audience, current playback and
-    Flow membership. Its current owner/source stamp fences withdrawn accounts.
+    B also requires a shared channel/audience and active Flow membership.
+    Current playback gates the spotlight. The current owner/source stamp
+    fences withdrawn accounts for both surfaces.
     """
     now = time.monotonic() if now is None else now
     wall = datetime.now(timezone.utc) if wall is None else wall
@@ -124,7 +125,7 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
     if locale not in {"en", "nl", "de", "fr", "es"}:
         raise DisplayAdmissionError("display_context_changed", 409)
     playback = current.playback
-    # Owner media URLs, target/output, queue and account data stay private.
+    # Owner media URLs, output IDs, queue and account data stay private.
     public_playback = {"state": playback.state}
     if playback.state in {"playing", "paused"} and playback.item_id:
         public_playback.update(item_id=playback.item_id, title=playback.title,
@@ -135,7 +136,13 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
                 public_playback[field] = value
         if re.fullmatch(r"https://open\.spotify\.com/track/[A-Za-z0-9]{22}", playback.source_url):
             public_playback["source_url"] = playback.source_url
+        if authority.include_output_status:
+            if playback.target_name:
+                public_playback["output_label"] = playback.target_name
+            if playback.volume_percent is not None:
+                public_playback["volume_percent"] = playback.volume_percent
     flow_ids = {item.moment_id for item in current.session_flow.items if item.moment_id}
+    current_candidate = broadcast.current_delivery_candidate_id()
     moments = []
     flow = []
     for moment in current.dj_moments[-64:]:
@@ -159,9 +166,18 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
         kind = _label(moment.moment_type)
         proactive = (kind in {"artist", "album", "track", "genre"} and isinstance(moment.source_fact, QualifiedSessionFact)
                      or kind == "music_announcement" or kind == "dj_bulletin")
+        source_fact = moment.source_fact
+        # Qualified Spotify metadata can remain in the consented, active screen
+        # feed with its original attribution and source deadline.
+        retained_in_flow = (proof["active_flow_display_allowed"]
+                            or (isinstance(source_fact, QualifiedSessionFact)
+                                and source_fact.provider == "Spotify"
+                                and source_fact.license == "Spotify metadata display"))
+        flow_expires_at = (proof["source_expires_at"] if retained_in_flow else proof["display_expires_at"])
         flow_allowed = (proactive and moment.observed_playback is None
-                        and (display_current or proof["active_flow_display_allowed"])
-                        and now < _flow_deadline(boundary, proof))
+                        and (display_current or retained_in_flow)
+                        and flow_expires_at is not None
+                        and now < _flow_deadline(boundary, flow_expires_at))
         if not display_current and not flow_allowed:
             continue
         # Keep published text and attribution byte-for-byte. Do not export generic
@@ -181,20 +197,22 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
             # Only public citation fields; no excerpts, evidence spans, proof,
             # retrieval/owner metadata or model context cross this audience.
             item['sources'] = [public_citation(s) for s in sources]
+        if kind == "dj_bulletin":
+            from .bulletin_runtime import sources as bulletin_sources
+            item = {**item, "sources": bulletin_sources(moment)}
         if display_current:
             moments.append(item)
         if flow_allowed:
-            if kind == "dj_bulletin":
-                from .bulletin_runtime import sources as bulletin_sources
-                item = {**item, "sources": bulletin_sources(moment)}
-            flow.append((boundary.published_monotonic, item))
+            flow.append((boundary.published_monotonic, {**item, "flow_expires_at": flow_expires_at}))
     flow.sort(key=lambda publication: publication[0])
+    moments = moments[-24:]
+    current_moment_id = next((item["moment_id"] for item in moments if item["moment_id"] == current_candidate), None)
     result = {"contract_version": 1, "issuer_epoch": state.issuer_epoch,
         "display_id": authority.display_id, "share_id": share.share_id,
         "share_generation": share.generation, "session_id": active.session_id,
         "lease_revision": authority.lease_revision,
         "session": {"session_id": active.session_id, "runtime_state": "active", "locale": locale},
-        "playback": public_playback, "dj_moments": moments[-24:],
+        "playback": public_playback, "dj_moments": moments, "current_moment_id": current_moment_id,
         "shared_flow": [item for _, item in flow[-12:]],
         "broadcast": {"snapshot_watermark": broadcast.delivery_sequence}}
     labels = {"mood": current.selected_mood, "persona": current.dj_persona, "presence": current.selected_presence}

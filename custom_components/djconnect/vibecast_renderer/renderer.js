@@ -133,11 +133,13 @@
     const seconds = Number.isFinite(rawDuration) && rawDuration > 0 ? Math.min(90, rawDuration) : 25;
     const admission=bulletin && read(projection,["native_delivery","admissions"]);
     const original=Array.isArray(admission) ? admission.find(a=>a.moment_id === item.moment_id) : null;
-    if (bulletin && (!original || original.qualification !== "qualified" ||
+    if (bulletin && !displayHost && (!original || original.qualification !== "qualified" ||
         !(original.current_display_allowed || original.active_flow_display_allowed))) return null;
-    const explicitExpiry = Date.parse((bulletin ? original.display_expires_at : item.display_expires_at) || "");
+    const explicitExpiry = Date.parse((bulletin && !displayHost ? original.display_expires_at : item.display_expires_at) || "");
     if (bulletin && (!stamped || !Number.isFinite(explicitExpiry))) return null;
-    const expiry = Math.min((stamped ? created : firstSeen.get(key)) + seconds*1000,
+    const sourceExpiry = item.source_expires_at == null ? Infinity : Date.parse(item.source_expires_at);
+    const expiry = displayHost ? Math.min(explicitExpiry,sourceExpiry) :
+      Math.min((stamped ? created : firstSeen.get(key)) + seconds*1000,
       Number.isFinite(explicitExpiry) ? explicitExpiry : Infinity,
       bulletin ? Math.min(...citations.map(s=>Date.parse(s.published_at)+7200000)) : Infinity);
     return now < expiry ? {key, created:stamped ? created : firstSeen.get(key), expiry, summary,
@@ -175,7 +177,8 @@
     const now = Date.now();
     const deadlines = [current,previous].filter(card => card && card.expiry > now).map(card => card.expiry);
     if (deadlines.length) expiryTimer = window.setTimeout(
-      () => { renderCards(false); reportPresentation(); }, Math.max(0,Math.min(...deadlines)-Date.now()+25)
+      () => { if (displayHost) renderSpotlight(); else renderCards(false); reportPresentation(); },
+      Math.max(0,Math.min(...deadlines)-Date.now()+(displayHost ? 0 : 25))
     );
   }
   function showPrevious(card, animate=false) {
@@ -193,6 +196,7 @@
     }
   }
   function fitBubble() {
+    if (displayHost) return;
     const stage=document.querySelector && document.querySelector(".stage"), now=document.querySelector && document.querySelector(".now-playing"), shell=e("moment-card"), detail=e("moment-detail");
     if (!stage || !now || !shell || shell.hidden) return;
     const region=stage.getBoundingClientRect(), content=now.getBoundingClientRect();
@@ -267,7 +271,7 @@
       if (exitTimer) window.clearTimeout(exitTimer); exitTimer=undefined;
       shell.classList && shell.classList.remove("fresh","exiting");
       if (lastPlacedKey !== card.key) { placementCount++; lastPlacedKey=card.key; }
-      togglePlacement(placementCount % 2 === 0);
+      if (!displayHost) togglePlacement(placementCount % 2 === 0);
       if (animate && !reduceMotion()) {
         void shell.offsetWidth;
         shell.classList && shell.classList.add("fresh");
@@ -275,7 +279,7 @@
     }
     fitBubble();
     clearTimer("scroll");
-    if ((detail && detail.textContent) && !reduceMotion() && detail.scrollHeight > detail.clientHeight) {
+    if (!displayHost && (detail && detail.textContent) && !reduceMotion() && detail.scrollHeight > detail.clientHeight) {
       const step = Math.max(24,parseFloat(getComputedStyle(detail).lineHeight) || 28);
       const advance = () => {
         if ((current && current.key) !== card.key) return;
@@ -313,6 +317,25 @@
     current = latest; lastShownAt = latest.created;
     showPrevious(previous, animate); showCurrent(latest, animate);
   }
+  function renderSpotlight() {
+    const id = projection.current_moment_id;
+    const item = playback().state === "playing" && typeof id === "string"
+      && Array.isArray(projection.dj_moments) && projection.dj_moments.find(moment=>moment?.moment_id === id);
+    const card = item ? cardFor(item) : null;
+    document.body.classList.toggle("display-spotlight",!!card);
+    if (!card) {
+      if (current) clearCards();
+      return;
+    }
+    e("spotlight-avatar").dataset.mood=read(projection,["session","selected_mood"]) || "";
+    if (current?.key !== card.key) {
+      current = card;
+      showCurrent(card,false);
+    } else {
+      current = card;
+      scheduleCardExpiry();
+    }
+  }
   const flowLabels = {
     en:["Session Flow", "Back to live"],
     nl:["Sessieflow", "Terug naar live"],
@@ -322,18 +345,8 @@
   };
   const flowRows = new Map();
   let followFlow = true, manualFlowScroll = false, flowExpiry;
-  function liveOffset(viewport) {
-    const end = Math.max(0,viewport.scrollHeight - viewport.clientHeight);
-    const newest = e("flow-cards").lastElementChild;
-    if (!newest) return end;
-    const start = newest.getBoundingClientRect().top - viewport.getBoundingClientRect().top + viewport.scrollTop;
-    return Math.max(0,Math.min(end,start-6));
-  }
   function atLiveEdge(viewport) {
-    return viewport.scrollTop >= liveOffset(viewport)-4;
-  }
-  function followNewest(viewport, animate) {
-    viewport.scrollTo({top:liveOffset(viewport),behavior:animate && !reduceMotion() ? "smooth" : "auto"});
+    return viewport.scrollTop <= 4;
   }
   function renderFlow() {
     if (!displayHost) return false;
@@ -356,25 +369,25 @@
     live.textContent=labels[1];
     const time=Date.now();
     const items=projection.shared_flow.slice(-12).filter(item=>item && typeof item.moment_id==="string"
-      && typeof item.content==="string" && item.content && Date.parse(item.display_expires_at)>time);
+      && typeof item.content==="string" && item.content && Date.parse(item.flow_expires_at ?? item.display_expires_at)>time).reverse();
     const firstVisible = followFlow ? null : Array.from(list.children).find(row=>
       row.getBoundingClientRect().bottom > viewport.getBoundingClientRect().top);
     const priorTop=firstVisible ? firstVisible.getBoundingClientRect().top : 0;
-    const newest=items[items.length-1];
-    const newPublication=!!newest && !flowRows.has(newest.moment_id);
     const currentKeys=new Set(items.map(item=>item.moment_id));
     for (const [id,row] of flowRows) {
       if (!currentKeys.has(id)) { row.remove();flowRows.delete(id); }
     }
+    const cover = displayArtwork && displayArtwork.item_id === projection.playback?.item_id ? displayArtwork : null;
     items.forEach((item,index)=>{
       let row=flowRows.get(item.moment_id);
       if (!row) {
         row=document.createElement("li");
-        const label=document.createElement("span"), content=document.createElement("p");
+        const label=document.createElement("span"), content=document.createElement("p"), body=document.createElement("div");
         label.className="flow-kind";
         label.textContent=text.types[item.type] || item.title || "";
         content.textContent=item.content;
-        row.append(label,content);
+        body.append(label,content);
+        row.appendChild(body);
         const citations = item.type==="dj_bulletin" ? bulletinCitations(item.sources) : qualifiedCitations(item.sources);
         const attribution = item.source_attribution;
         const sources = citations || (attribution && attribution.provider && publicCitationURL(attribution.url) ? [attribution] : []);
@@ -389,20 +402,34 @@
             link.rel="noopener noreferrer";
             links.appendChild(link);
           }
-          row.appendChild(links);
+          body.appendChild(links);
         }
         flowRows.set(item.moment_id,row);
       }
-      row.className="flow-card flow-age-"+Math.min(3,items.length-1-index);
+      const showCover = cover && item.playback_item_id === cover.item_id
+        && (item.type === "album" || item.type === "track");
+      let image = row.querySelector(".flow-artwork");
+      if (showCover) {
+        if (!image) {
+          image = document.createElement("img");
+          image.className = "flow-artwork";
+          image.alt = "";
+          row.insertBefore(image,row.firstElementChild);
+        }
+        if (image.getAttribute("src") !== cover.url) image.src = cover.url;
+      } else if (image) {
+        image.remove();
+      }
+      row.className="flow-card flow-age-"+Math.min(3,index)+(showCover ? " flow-with-artwork" : "");
       if (list.children[index] !== row) list.insertBefore(row,list.children[index] || null);
     });
-    if (followFlow && newPublication) followNewest(viewport,items.length>1);
+    if (followFlow) viewport.scrollTop=0;
     if (firstVisible && firstVisible.isConnected) {
       viewport.scrollTop+=firstVisible.getBoundingClientRect().top-priorTop;
     }
     live.hidden=followFlow || !items.length;
     if (items.length) {
-      const expiry=Math.min(...items.map(item=>Date.parse(item.display_expires_at)));
+      const expiry=Math.min(...items.map(item=>Date.parse(item.flow_expires_at ?? item.display_expires_at)));
       flowExpiry=window.setTimeout(renderFlow,Math.max(0,expiry-Date.now()));
     }
     return true;
@@ -426,7 +453,7 @@
       if (!Object.prototype.hasOwnProperty.call(steps,event.key) || event.altKey || event.ctrlKey || event.metaKey) return;
       event.preventDefault();
       startManual();
-      viewport.scrollTop=event.key==="End" ? liveOffset(viewport) : viewport.scrollTop+steps[event.key];
+      viewport.scrollTop+=steps[event.key];
     });
     viewport.addEventListener("scroll",()=>{
       if (!manualFlowScroll) return;
@@ -437,10 +464,34 @@
     live.addEventListener("click",()=>{
       followFlow=true;
       manualFlowScroll=false;
-      followNewest(viewport,true);
+      viewport.scrollTo({top:0,behavior:"auto"});
       viewport.focus({preventScroll:true});
       live.hidden=true;
     });
+  }
+  const outputLabels = {
+    en:["Speaker","Volume","Playback progress"], nl:["Speaker","Volume","Voortgang"],
+    de:["Lautsprecher","Lautstärke","Wiedergabefortschritt"],
+    fr:["Enceinte","Volume","Progression de la lecture"],
+    es:["Altavoz","Volumen","Progreso de reproducción"]
+  };
+  function renderDisplayPlayback(p, hasProgress) {
+    const [speakerLabel, volumeLabel, progressLabel] = outputLabels[root.lang] || outputLabels.en;
+    const active = !!p.title && (p.state==="playing" || p.state==="paused");
+    const output = active && typeof p.output_label==="string" ? p.output_label : "";
+    const volume = active && Number.isInteger(p.volume_percent) && p.volume_percent>=0 && p.volume_percent<=100
+      ? p.volume_percent+"%" : "";
+    e("display-meter").hidden=!active;
+    e("display-timing").hidden=!active || (!hasProgress && e("spotify-source").hidden);
+    e("display-equalizer").classList.toggle("playing",active && p.state==="playing");
+    e("progress").setAttribute("aria-label",progressLabel);
+    e("display-output").hidden=!(output || volume);
+    e("display-speaker").hidden=!output;
+    e("display-volume").hidden=!volume;
+    e("display-speaker-label").textContent=output;
+    e("display-volume-label").textContent=volume;
+    e("display-speaker").setAttribute("aria-label",speakerLabel+": "+output);
+    e("display-volume").setAttribute("aria-label",volumeLabel+": "+volume);
   }
   function render(animate=false) {
     useLanguage(); updateClock();
@@ -480,7 +531,11 @@
     e("progress").hidden = !active;
     if (active) { e("progress").max=p.duration_ms; e("progress").value=p.position_ms; e("time").textContent=`${format(p.position_ms)} / ${format(p.duration_ms)}`; }
     else e("time").textContent="";
-    if (!renderFlow()) renderCards(animate);
+    if (displayHost) {
+      renderDisplayPlayback(p,active);
+      renderFlow();
+      renderSpotlight();
+    } else renderCards(animate);
     reportPresentation();
   }
   function apply(snapshot) {
@@ -590,6 +645,8 @@
   window.addEventListener("djconnect-host-stop",stopHost);
   window.addEventListener("beforeunload",stopHost);
   if (displayHost) {
+    e("display-meter").appendChild(e("progress"));
+    e("display-timing").append(e("spotify-source"),e("time"));
     connectFlowControls();
     window.addEventListener("djconnect-display-clear",stopHost);
     window.addEventListener("djconnect-display-artwork",({detail}) => {

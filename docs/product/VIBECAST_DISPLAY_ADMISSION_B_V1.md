@@ -359,14 +359,44 @@ fence checks the source, playback item, display, share and original deadlines
 again before sending bytes. The display host alone creates the object URL
 and clears it on track change, withdrawal, disconnect or expiry.
 
+### Read-only playback output
+
+Paired owner context advertises `output_status_consent_supported: true`.
+When explicitly chosen in owner approval, the `share` object may include
+`include_output_status: true` in either create or existing mode. The choice
+applies to that display only, defaults to false and is bound to the approval
+transaction. Joining an existing share does not inherit another display's
+choice. A current playing or paused snapshot can then include
+`playback.output_label` and an observed integer `playback.volume_percent` from
+0 to 100. Unknown values are omitted. No output IDs or controls are exposed.
+
+The display presents these values as text beside the playback progress and
+a decorative equalizer. The equalizer animates only during playback and
+honors reduced-motion preferences.
+
 ### Shared Session Flow
 
 The optional `shared_flow` list contains up to twelve currently qualified
 proactive DJ contributions ordered by original publication. Each card carries
-its original display deadline and follows current source and share consent.
-Owner conversation, user interactions, playback observations and private
-Moments remain outside this projection. The display shows the newest card
-prominently and preserves the reading position when the viewer scrolls back.
+its original spotlight deadline in `display_expires_at` and its feed deadline in
+`flow_expires_at`. Active Flow retention uses the original source deadline for
+qualified retained contributions and qualified Spotify metadata shown with its
+attribution. Removal from the active Flow, source withdrawal and loss of
+share consent still remove the card. Owner conversation, user interactions,
+playback observations and private Moments remain outside this projection.
+The display shows the newest contribution at the top and renders older cards
+more subtly below it. New publications preserve the viewer's reading position.
+
+### Temporary DJ spotlight
+
+The snapshot's `current_moment_id` identifies the same current contribution
+as native delivery, provided the contribution is in the shared screen
+projection. It is null when the DJ is quiet or the current contribution is
+private. The display shows that contribution below Now Playing until its
+original display/source deadline or withdrawal. The Flow is visually hidden
+during the spotlight and fades back at the preserved reading position.
+The decorative DJ avatar uses the confirmed session mood palette. Reduced-motion
+preferences disable the fade and avatar animation.
 
 ## Failure codes and real acceptance before delivery
 

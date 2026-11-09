@@ -128,6 +128,22 @@ class DisplayAuthorityTests(unittest.TestCase):
             self.assertFalse(self.manager._shares)
         self.approve(claim)
 
+    def test_output_status_consent_is_display_specific_and_cannot_change_on_retry(self):
+        claim, browser = self.claim()
+        choice = {"mode": "create", "consent": True, "include_output_status": True}
+        approval = self.approve(claim, share=choice)
+        self.assertEqual(self.approve(claim, share=choice), approval)
+        with self.assertRaises(state.DisplayAdmissionError):
+            self.approve(claim, share={**choice, "include_output_status": False})
+        first = self.manager.collect(**browser)
+        self.assertTrue(self.manager.authorize(**self.grant(first)).include_output_status)
+        other, other_browser = self.claim("other")
+        with self.assertRaises(state.DisplayAdmissionError):
+            self.approve(other, share={**self.share(approval), "include_output_status": 1})
+        self.approve(other, share=self.share(approval))
+        second = self.manager.collect(**other_browser)
+        self.assertFalse(self.manager.authorize(**self.grant(second)).include_output_status)
+
     def test_profile_session_share_and_issuer_fences(self):
         claim, browser = self.claim()
         approval = self.approve(claim)

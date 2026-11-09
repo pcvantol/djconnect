@@ -321,7 +321,8 @@ class PlaybackObservationManager:
             media_identity=item, title=str(playback.get("track_name") or playback.get("title") or ""),
             artist=str(playback.get("artist_name") or playback.get("artist") or ""), album=str(playback.get("album_name") or ""),
             artwork_url=register_image_proxy_url(self._hass, playback.get("album_image_url", "")),
-            target_name=str(device.get("name") or ""), duration_ms=playback.get("duration_ms"),
+            target_name=str(device.get("name") or ""), volume_percent=playback.get("volume_percent"),
+            duration_ms=playback.get("duration_ms"),
             position_ms=playback.get("progress_ms"), forecast_authority=authority,
             original_status=original_status)
         await turn.guard()
@@ -435,6 +436,7 @@ class PlaybackObservationManager:
                     self._hass, getattr(result, "artwork_url", "")
                 ),
                 target_name=getattr(result, "target_name", ""),
+                volume_percent=getattr(result, "volume_percent", None),
                 duration_ms=getattr(result, "duration_ms", None),
                 position_ms=getattr(result, "position_ms", None),
                 forecast_authority=forecast_authority,

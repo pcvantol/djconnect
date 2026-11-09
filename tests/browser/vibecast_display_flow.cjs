@@ -42,17 +42,20 @@ async function main() {
       "The mix puts the drums up front, with the backing vocals just behind them."
     ];
     const cards=Array.from({length:11},(_,index)=>({
-      moment_id:"published-"+index,type:"album",
+      moment_id:"published-"+index,type:index===5 ? "genre" : "album",
+      playback_item_id:index===6 ? "previous" : "current",
       content:index===10 ? music[0].repeat(15) : music[index%music.length],
-      display_expires_at:new Date(Date.now()+40000).toISOString()
+      display_expires_at:new Date(Date.now()-1000).toISOString(),
+      flow_expires_at:new Date(Date.now()+40000).toISOString()
     }));
-    function snapshot(count) {
+    function snapshot(count, itemId="current", state="playing", output={output_label:"Living room",volume_percent:37}, spotlight={}) {
       socket.send(JSON.stringify({type:"snapshot",contract_version:1,connection_generation:1,snapshot:{
         ...binding,contract_version:1,session:{session_id:"session",runtime_state:"active",locale:"en"},
-        playback:{state:"playing",item_id:"current",title:"Current recording",artist:"Artist",album:"Album"},
+        playback:{state,item_id:itemId,title:"Current recording",artist:"Artist",album:"Album",
+          duration_ms:240000,position_ms:60000,...output},
         artwork:{item_id:"current",reference:"a".repeat(64),
-          expires_at:cards[0].display_expires_at},
-        shared_flow:cards.slice(0,count),dj_moments:[{content:"Legacy card must stay out of the Flow"}]}}));
+          expires_at:cards[0].flow_expires_at},
+        shared_flow:cards.slice(0,count),dj_moments:[{content:"Legacy card must stay out of the Flow"}],...spotlight}}));
     }
     await page.goto(origin+"/djconnect/vibecast/display");
     await page.waitForFunction(()=>document.querySelector("#handoff")?.textContent.includes("Reconnecting") ||
@@ -61,35 +64,96 @@ async function main() {
     assert.ok(socket);
     snapshot(8);
     const viewport=page.locator("#flow-viewport"), rows=page.locator(".flow-card");
-    const atEdge=()=>viewport.evaluate(e=>e.scrollHeight-e.clientHeight-e.scrollTop<=4);
+    const atEdge=()=>viewport.evaluate(e=>e.scrollTop<=4);
     await rows.nth(7).waitFor();
     const albumCover=page.locator("#artwork");
     await page.waitForFunction(()=>document.querySelector("#artwork").naturalWidth>0);
     const coverUrl=await albumCover.getAttribute("src");
     assert.match(coverUrl,/^blob:/);
+    const contributionCover=rows.first().locator(".flow-artwork");
+    await contributionCover.waitFor();
+    assert.equal(await contributionCover.getAttribute("src"),coverUrl);
+    assert.equal(await rows.nth(2).locator(".flow-artwork").count(),0);
+    assert.equal(await rows.nth(1).locator(".flow-artwork").count(),0);
     assert.equal(await rows.count(),8);
     assert.equal(await atEdge(),true);
+    assert.equal(await page.locator(".now-playing").evaluate(node=>getComputedStyle(node).backgroundColor),"rgba(0, 0, 0, 0)");
+    assert.equal(await page.locator("#display-speaker-label").textContent(),"Living room");
+    assert.equal(await page.locator("#display-volume-label").textContent(),"37%");
+    assert.equal(await page.locator("#display-output :is(button,input)").count(),0);
+    assert.equal(await page.locator("#display-meter progress").count(),1);
+    assert.equal(await page.locator("#time").textContent(),"1:00 / 4:00");
+    const equalizer=page.locator("#display-equalizer i").first();
+    assert.equal(await equalizer.evaluate(node=>getComputedStyle(node).animationName),"none");
+    await page.emulateMedia({reducedMotion:"no-preference"});
+    assert.equal(await equalizer.evaluate(node=>getComputedStyle(node).animationName),"display-equalize");
+    snapshot(8,"current","paused",{volume_percent:0});
+    await page.waitForFunction(()=>document.querySelector("#display-volume-label").textContent==="0%");
+    assert.equal(await equalizer.evaluate(node=>getComputedStyle(node).animationName),"none");
+    await page.emulateMedia({reducedMotion:"reduce"});
+    snapshot(8);
     assert.equal(await viewport.getAttribute("tabindex"),"0");
     const top=await page.locator("#title").boundingBox();
-    const styles=await rows.evaluateAll(items=>items.slice(-4).map(row=>{
+    const styles=await rows.evaluateAll(items=>items.slice(0,4).map(row=>{
       const style=getComputedStyle(row);
       return {font:parseFloat(style.fontSize),radius:style.borderTopLeftRadius,border:style.borderTopColor};
     }));
-    assert.deepEqual(styles.map(item=>item.radius),["18px","18px","18px","32px"]);
-    assert.ok(styles.every((item,index)=>index===0 || styles[index-1].font<item.font));
-    assert.match(styles[3].border,/255, 255, 255, 0.32/);
+    assert.deepEqual(styles.map(item=>item.radius),["32px","18px","18px","18px"]);
+    assert.ok(styles.every((item,index)=>index===0 || styles[index-1].font>item.font));
+    assert.match(styles[0].border,/255, 255, 255, 0.32/);
+    const coverBounds=await albumCover.boundingBox();
+    const viewportBounds=await viewport.boundingBox();
+    assert.ok(coverBounds.width>=170 && viewportBounds.height>=180);
+    assert.ok((await rows.nth(1).boundingBox()).y < viewportBounds.y+viewportBounds.height);
     await viewport.focus();
-    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowDown");
     await page.waitForFunction(()=>!document.querySelector("#flow-live").hidden);
-    await page.keyboard.press("Home");
-    await page.waitForFunction(()=>document.querySelector("#flow-viewport").scrollTop===0);
+    const readingRow=await viewport.evaluateHandle(e=>[...e.querySelectorAll(".flow-card")]
+      .find(row=>row.getBoundingClientRect().bottom>e.getBoundingClientRect().top));
+    const readingTop=await readingRow.evaluate(row=>row.getBoundingClientRect().top);
     const live=page.getByRole("button",{name:"Back to live"});
     await live.waitFor();
     assert.equal(await atEdge(),false);
+    await page.emulateMedia({reducedMotion:"no-preference"});
+    const spotlight=page.locator("#moment-card");
+    const readingScroll=await viewport.evaluate(node=>node.scrollTop);
+    const moment={moment_id:"active-spotlight",type:"album",content:"Current DJ spotlight",
+      created_at:new Date(Date.now()-10000).toISOString(),display_expires_at:new Date(Date.now()+2200).toISOString(),
+      presentation_intent:{maximum_duration_seconds:1}};
+    snapshot(8,"current","playing",undefined,{current_moment_id:moment.moment_id,dj_moments:[moment],session_presentation:{mood:"groove"}});
+    await spotlight.waitFor();
+    const avatar=spotlight.locator("#spotlight-avatar");
+    await avatar.waitFor();
+    assert.equal(await avatar.getAttribute("data-mood"),"groove");
+    assert.equal(await avatar.locator("stop").first().evaluate(node=>getComputedStyle(node).stopColor),"rgb(6, 199, 173)");
+    const wave=avatar.locator(".spotlight-wave rect").first();
+    assert.equal(await wave.evaluate(node=>getComputedStyle(node).animationName),"spotlight-pulse");
+    await page.emulateMedia({reducedMotion:"reduce"});
+    assert.equal(await wave.evaluate(node=>getComputedStyle(node).animationName),"none");
+    await page.emulateMedia({reducedMotion:"no-preference"});
+    assert.equal(await spotlight.locator("#moment").textContent(),"Current DJ spotlight");
+    if(process.env.DJC_SPOTLIGHT_SCREENSHOT) await page.screenshot({path:process.env.DJC_SPOTLIGHT_SCREENSHOT});
+    await viewport.waitFor({state:"hidden"});
+    const nowPlaying=await page.locator(".now-playing").boundingBox();
+    const spotlightGap=(await spotlight.boundingBox()).y-nowPlaying.y-nowPlaying.height;
+    assert.ok(spotlightGap>=0 && spotlightGap<30);
+    assert.equal((await page.locator("#title").boundingBox()).y,top.y);
+    await spotlight.waitFor({state:"hidden"});
+    await viewport.waitFor({state:"visible"});
+    assert.equal(await page.locator("#shared-flow").evaluate(node=>getComputedStyle(node).transitionDuration),"0.35s");
+    assert.equal(await viewport.evaluate(node=>node.scrollTop),readingScroll);
+    const nextMoment={...moment,moment_id:"next-spotlight",display_expires_at:new Date(Date.now()+10000).toISOString()};
+    snapshot(8,"current","playing",undefined,{current_moment_id:nextMoment.moment_id,dj_moments:[nextMoment]});
+    await spotlight.waitFor();
+    snapshot(8,"current","playing",undefined,{current_moment_id:null,dj_moments:[nextMoment]});
+    await spotlight.waitFor({state:"hidden"});
+    await viewport.waitFor({state:"visible"});
+    assert.equal(await viewport.evaluate(node=>node.scrollTop),readingScroll);
+    await page.emulateMedia({reducedMotion:"reduce"});
     snapshot(9);
     await rows.nth(8).waitFor({state:"attached"});
     assert.equal(await atEdge(),false);
-    assert.equal(await viewport.evaluate(e=>e.scrollTop),0);
+    assert.ok(Math.abs(await readingRow.evaluate(row=>row.getBoundingClientRect().top)-readingTop)<=2);
     assert.equal((await page.locator("#title").boundingBox()).y,top.y);
     assert.equal(await albumCover.getAttribute("src"),coverUrl);
     await live.click();
@@ -99,25 +163,31 @@ async function main() {
     assert.equal(await atEdge(),true);
     assert.equal(await page.getByText("Legacy card must stay out of the Flow").count(),0);
     await viewport.hover();
-    await page.mouse.wheel(0,-220);
+    await page.mouse.wheel(0,220);
     await live.waitFor();
     assert.equal(await atEdge(),false);
     await viewport.focus();
-    await page.keyboard.press("End");
+    await page.keyboard.press("Home");
     await live.waitFor({state:"hidden"});
     assert.equal(await atEdge(),true);
     if(process.env.DJC_FLOW_SCREENSHOT) await page.screenshot({path:process.env.DJC_FLOW_SCREENSHOT});
     snapshot(11);
     await rows.nth(10).waitFor();
-    const newestTop=(await rows.nth(10).boundingBox()).y;
+    const newestTop=(await rows.first().boundingBox()).y;
     const paneTop=(await viewport.boundingBox()).y;
     assert.ok(newestTop>=paneTop && newestTop<paneTop+12);
+    cards[0].flow_expires_at=new Date(Date.now()-1000).toISOString();
+    snapshot(11);
+    await page.waitForFunction(()=>document.querySelectorAll(".flow-card").length===10);
+    snapshot(11,"next-recording");
+    await contributionCover.waitFor({state:"detached"});
+    assert.equal(await rows.locator(".flow-artwork").count(),0);
     socket.close({code:1008});
     await viewport.waitFor({state:"hidden"});
     assert.equal(await rows.count(),0);
     await albumCover.waitFor({state:"hidden"});
     assert.equal(await albumCover.getAttribute("src"),null);
-    console.log("WebKit: Flow cards, fixed track bar, keyboard and wheel reading, live return, album cover and withdrawal PASS");
+    console.log("Browser: Flow cards, fixed track bar, scrolling, timed DJ spotlight, silence, matching artwork and withdrawal PASS");
   } finally {
     await browser.close();
   }
