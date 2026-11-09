@@ -77,14 +77,15 @@ READS = ("artist", "recording", "release", "album_tracks", "queue", "forecast",
          "previous_track", "other_album", "artist", "artist", "artist_tracks")
 
 
-def cases():
+def cases(languages=None):
     return [{"id": f"semantic-{locale}-{index}", "language": locale, "question": question,
              "read": READS[index], "selected": index == 8, "unqualified_subject_capture": index == 9}
-            for locale, questions in WORDS.items() for index, question in enumerate(questions)]
+            for locale, questions in WORDS.items() if languages is None or locale in languages
+            for index, question in enumerate(questions)]
 
 
-def manifest_digest():
-    return hashlib.sha256(json.dumps(cases(), sort_keys=True).encode()).hexdigest()
+def manifest_digest(languages=None):
+    return hashlib.sha256(json.dumps(cases(languages), sort_keys=True).encode()).hexdigest()
 
 
 def expected_plan(case):
@@ -95,7 +96,7 @@ def expected_plan(case):
             **({"artist": "Armin van Buuren"} if reference == "named" else {})}
 
 
-async def run(*, hass, ask, call, start, end, selected_reference, state, tracks, model_receipts, mutations):
+async def run(*, hass, ask, call, start, end, selected_reference, state, tracks, model_receipts, mutations, languages=None):
     from scripts.verification.askdj_contextual_golden import ACTIVE_CASE
     active, _, _ = await start("semantic")
     # Freeze this lab's external observation cadence before changing its provider
@@ -107,7 +108,7 @@ async def run(*, hass, ask, call, start, end, selected_reference, state, tracks,
     selection = await selected_reference(active)
     rows = []
     try:
-        for case in cases():
+        for case in cases(languages):
             await call("ask_dj/history/clear", {}, label=case["id"] + "-clear")
             # Selected A must still resolve A while provider currently reports B.
             state["index"] = 1 if case["selected"] else 0
@@ -170,7 +171,7 @@ async def run(*, hass, ask, call, start, end, selected_reference, state, tracks,
         await end(active, "semantic")
     return {"status": "PASS" if all(r["status"] == "PASS" for r in rows) else "FAIL",
             "qualification": "REAL_HA_SEMANTIC_CONTEXT_READS", "cases": rows,
-            "manifest_sha256": manifest_digest(), "maximum_paid_attempts": len(cases()) + 2,
+            "manifest_sha256": manifest_digest(languages), "maximum_paid_attempts": len(cases(languages)) + 2,
             "setup_paid_model_calls": sum(c.get("case_id") == "semantic-start" for c in model_receipts),
             "model_calls": model_receipts, "paid_model_calls": len(model_receipts),
             "native": "NOT_RUN", "installed": "NOT_RUN", "audible": "NOT_RUN",
