@@ -21,13 +21,25 @@ MAX_OUTPUT_TOKENS = 3000
 SETUP_CASE = "ASKDJ-GOLDEN-SETUP-published-credit"
 
 
-def cases():
+RELEASE_LANGUAGES = ("en", "nl")
+
+
+def release_languages(value):
+    if value is None:
+        return None
+    if value != ",".join(RELEASE_LANGUAGES):
+        raise ValueError("invalid_askdj_release_languages")
+    return RELEASE_LANGUAGES
+
+
+def cases(languages=None):
     return [
         {"id": f"ASKDJ-GOLDEN-001-{locale}-{kind}", "language": locale,
          "question": questions[index], "expected_person": person,
          "retain_selection": retained, "require_biography_source": retained,
          "reference_key": "selected_entry" if kind == "playback-partial" else "selected_moment"}
         for locale, questions in LANGUAGES.items()
+        if languages is None or locale in languages
         for index, kind, person, retained in (
             (0, "partial", "Peter Luts", True),
             (0, "playback-partial", "Peter Luts", True),
@@ -37,8 +49,8 @@ def cases():
     ]
 
 
-def manifest_digest():
-    return hashlib.sha256(json.dumps(cases(), sort_keys=True).encode()).hexdigest()
+def manifest_digest(languages=None):
+    return hashlib.sha256(json.dumps(cases(languages), sort_keys=True).encode()).hexdigest()
 
 
 def check_response(case, response, selection):
@@ -104,23 +116,24 @@ def check_response(case, response, selection):
     return failures
 
 
-async def run(*, ask, call, start, end, playback_reference, mutations, model_receipts):
+async def run(*, ask, call, start, end, playback_reference, mutations, model_receipts, languages=None):
     """Hook into the existing isolated HA harness after ordinary pairing."""
+    expected_cases = cases(languages)
     setup_start = len(model_receipts)
     rows = []
     setup_findings = []
     def report():
         setup = [r for r in model_receipts if r.get("case_id") == SETUP_CASE]
         return {"schema_version": 1, "suite": "askdj_contextual_golden_v1",
-                "manifest_sha256": manifest_digest(), "cases": rows,
+                "manifest_sha256": manifest_digest(languages), "cases": rows,
                 "setup_paid_model_calls": len(setup), "setup_findings": setup_findings,
                 "paid_model_calls": len(model_receipts),
                 "usage": [{k: r.get(k) for k in ("case_id", "model", "attempted", "completed", "input_tokens", "output_tokens",
                                                      "maximum_output_tokens", "terminal_event", "incomplete_reason")}
                           for r in model_receipts],
-                "status": "PASS" if not setup_findings and len(rows) == len(cases())
+                "status": "PASS" if not setup_findings and len(rows) == len(expected_cases)
                           and all(r["status"] == "PASS" for r in rows)
-                          and 0 < len(model_receipts) <= MAX_MODEL_CALLS else "FAIL",
+                          and 0 < len(model_receipts) <= 2 * len(expected_cases) + 2 else "FAIL",
                 "native_installed_hardware": "NOT_RUN"}
     try:
         active, moment, _ = await start("contextual-golden")
@@ -135,7 +148,7 @@ async def run(*, ask, call, start, end, playback_reference, mutations, model_rec
     selection = {"session_id": active.session_id, "moment_id": moment.moment_id}
     playback = await playback_reference(active)
     try:
-        for case in cases():
+        for case in expected_cases:
             await call("ask_dj/history/clear", {}, label=case["id"] + "-clear")
             before = len(mutations)
             before_models = len(model_receipts)

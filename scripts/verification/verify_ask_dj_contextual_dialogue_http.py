@@ -88,6 +88,7 @@ def hashes():
     files.append(ROOT / 'tools/verification/askdj_catalogue_variations.py')
     files.append(ROOT / 'scripts/verification/askdj_semantic_read_golden.py')
     files.append(ROOT / 'scripts/verification/askdj_contextual_quality.py')
+    files.append(ROOT / 'scripts/verification/askdj_contextual_golden.py')
     files.append(ROOT / 'scripts/verification/askdj_example_catalogue_golden.py')
     files.append(ROOT / 'scripts/verification/askdj_catalogue_provider_fixture.py')
     files.append(ROOT / 'custom_components/djconnect/ask_dj/examples_v1.json')
@@ -156,6 +157,8 @@ async def main(*, qualification_profile='legacy_low'):
     if (qualification_profile != LEGACY_REASONING_PROFILE
             and os.environ.get('DJC_SAFETY_PROBE') != 'catalogue_golden'):
         raise ValueError('qualification_profile_outside_catalogue')
+    from scripts.verification.askdj_contextual_golden import release_languages
+    release_scope = release_languages(os.environ.get('DJC_ASKDJ_RELEASE_LANGUAGES'))
     lab_started = time.monotonic()
     initial_source_hashes = hashes()
     access = json.load(sys.stdin)
@@ -170,12 +173,13 @@ async def main(*, qualification_profile='legacy_low'):
             and variation_base is None and variation_corpus is None
             and not os.environ.get('DJC_CATALOGUE_CASES')):
         from scripts.verification.catalogue_progress import CatalogueProgress
-        from scripts.verification.askdj_example_catalogue_golden import cases, chain_cases, manifest_digest
+        from scripts.verification.askdj_example_catalogue_golden import cases, chain_cases, manifest_digest, scoped_cases
         catalogue_progress = CatalogueProgress(Path('/lab/catalogue-progress.json'),
-            case_ids=[c['id'] for c in cases() + chain_cases()], manifest=manifest_digest())
+            case_ids=[c['id'] for c in scoped_cases(cases() + chain_cases(), release_scope)],
+            manifest=manifest_digest(languages=release_scope))
     if variation_base is not None:
         from tools.verification.askdj_catalogue_variations import require_base
-        require_base(variation_base, initial_source_hashes)
+        require_base(variation_base, initial_source_hashes, languages=release_scope)
         assert os.environ.get('DJC_SAFETY_PROBE') == 'catalogue_golden'
         assert not os.environ.get('DJC_CATALOGUE_CASES') and variation_corpus is None
     import httpx
@@ -453,7 +457,7 @@ async def main(*, qualification_profile='legacy_low'):
                       16 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" and os.environ.get("DJC_PUBLIC_STYLE_MATRIX") == "1" else
                       10 if os.environ.get("DJC_SAFETY_PROBE") == "public_research" else
                       MAX_MODEL_CALLS if os.environ.get("DJC_SAFETY_PROBE") in {"contextual_golden", "contextual_quality"} else
-                      len(semantic_cases()) + 2 if os.environ.get("DJC_SAFETY_PROBE") == "semantic_reads" else
+                      len(semantic_cases(release_scope)) + 2 if os.environ.get("DJC_SAFETY_PROBE") == "semantic_reads" else
                       6 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" and any(
                           os.environ.get(flag)=='1' for flag in ('DJC_RESEARCHED_PRODUCER','DJC_RESEARCHED_COMPOSER')) else
                       18 if os.environ.get("DJC_SAFETY_PROBE") == "narration_golden" and os.environ.get("DJC_RESEARCHED_ARTIST") == "1" else
@@ -720,11 +724,12 @@ async def main(*, qualification_profile='legacy_low'):
             "wake_word_id": None,
         }
         lab_pipelines = [settings]
-        if os.environ.get("DJC_PROSODY_FIVE_LANGUAGES") == "1":
+        if release_scope or os.environ.get("DJC_PROSODY_FIVE_LANGUAGES") == "1":
             lab_pipelines += [{**settings, "id": "own-prosody-" + language,
                                "language": language, "tts_language": locale}
                               for language, locale in (("nl", "nl-NL"), ("de", "de-DE"),
-                                                       ("fr", "fr-FR"), ("es", "es-ES"))]
+                                                       ("fr", "fr-FR"), ("es", "es-ES"))
+                              if release_scope is None or language in release_scope]
         await PipelineStore(
             h, STORAGE_VERSION, STORAGE_KEY, minor_version=STORAGE_VERSION_MINOR
         ).async_save({"items": lab_pipelines, "preferred_item": settings["id"]})
@@ -1875,7 +1880,9 @@ async def main(*, qualification_profile='legacy_low'):
                             "fr": "Content de te retrouver. La musique a de la place pour respirer, et je suis là pour te tenir compagnie. Profitons ensemble de la suite.",
                             "es": "Qué gusto tenerte aquí. La música tiene espacio para respirar y yo estoy aquí para acompañarte. Disfrutemos juntos de lo que sigue.",
                         }
-                        if os.environ.get("DJC_PROSODY_FIVE_LANGUAGES") != "1":
+                        if release_scope:
+                            samples = {language: samples[language] for language in release_scope}
+                        elif os.environ.get("DJC_PROSODY_FIVE_LANGUAGES") != "1":
                             samples = {"en": samples["en"]}
                         for locale, sample in samples.items():
                             _, selected_voice = speech_processor.configured_processor(h,
@@ -2108,14 +2115,14 @@ async def main(*, qualification_profile='legacy_low'):
                                 ACTIVE_CASE.reset(active_token)
                         try:
                             corpus=await generate(variation_base,source_hashes=initial_source_hashes,
-                                ask=generate_or_review)
+                                ask=generate_or_review, languages=release_scope)
                         except (ValueError, TypeError, KeyError):
                             Path('/lab/catalogue-variation-generation-FAIL.json').write_text(jsonlib({
                                 'status':'FAIL','model_calls':model_receipts,
                                 'source_unchanged':hashes()==initial_source_hashes})+'\n')
                             raise
                         assert hashes()==initial_source_hashes
-                        assert len(model_receipts)==10 and all(r.get('completed') is True for r in model_receipts)
+                        assert len(model_receipts)==2 * len(release_scope or ('en', 'nl', 'de', 'fr', 'es')) and all(r.get('completed') is True for r in model_receipts)
                         Path('/lab/catalogue-variations.json').write_text(jsonlib(corpus)+'\n')
                         Path('/lab/catalogue-variation-generation.json').write_text(jsonlib({
                             'status':'GENERATED_NOT_PRODUCT_QUALIFIED','source_hashes':initial_source_hashes,
@@ -2128,7 +2135,7 @@ async def main(*, qualification_profile='legacy_low'):
                         report = await run(hass=h, call=call, start=start, end=end,
                             state=state, provider_calls=provider_calls, model_receipts=model_receipts,
                             judge_language=judge_language, corpus=variation_corpus,
-                            progress=catalogue_progress)
+                            progress=catalogue_progress, languages=release_scope)
                     report['public_review_rejections'] = public_rejections
                     report['public_grounding_observations'] = public_grounding_observations
                     report['artist_public_inputs'] = artist_public_inputs
@@ -2161,7 +2168,7 @@ async def main(*, qualification_profile='legacy_low'):
                         return {"session_id": active.session_id, "entry_id": entry["entry_id"]}
                     report = await run(hass=h, ask=ask, call=call, start=start, end=end,
                         selected_reference=selected_reference, state=state, tracks=tracks,
-                        model_receipts=model_receipts, mutations=mutations)
+                        model_receipts=model_receipts, mutations=mutations, languages=release_scope)
                     report.update(source_hashes=initial_source_hashes, source_unchanged=hashes() == initial_source_hashes,
                         pairing="ordinary_device_token_minted_persisted", core_transports=receipts,
                         provider_calls=provider_calls, effects=mutations)
@@ -2318,7 +2325,7 @@ async def main(*, qualification_profile='legacy_low'):
                         return {"session_id": active.session_id, "entry_id": entry["entry_id"]}
                     report = await run(ask=ask, call=call, start=start, end=end,
                                        playback_reference=playback_reference,
-                                       mutations=mutations, model_receipts=model_receipts)
+                                       mutations=mutations, model_receipts=model_receipts, languages=release_scope)
                     report["source_hashes"] = hashes()
                     Path(os.environ.get("DJC_OUTPUT", "/lab/golden-contextual.json")).write_text(
                         json.dumps(report, indent=2) + "\n")
@@ -2523,6 +2530,8 @@ async def main(*, qualification_profile='legacy_low'):
                 }
                 style_cases = []
                 for language, (first, follow) in examples.items():
+                    if release_scope is not None and language not in release_scope:
+                        continue
                     for persona in ("home_dj", "radio_dj", "club_dj", "festival_dj"):
                         case = language + "-" + persona
                         result = await ask(

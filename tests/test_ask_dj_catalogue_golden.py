@@ -151,7 +151,7 @@ class CatalogueGoldenTest(unittest.TestCase):
             self.assertIn('ask_dj/examples_v1.json',source)
             self.assertIn('catalogue_golden',source)
         self.assertIn("'catalogue_golden': ('catalogue-golden.json', 1800)",runner)
-        self.assertIn('validate_catalogue(raw, source_hashes=expected_source_hashes())',runner)
+        self.assertIn('validate_catalogue(raw, source_hashes=expected_source_hashes(),',runner)
         self.assertFalse(golden.validate_report({},source_hashes={}))
         self.assertFalse(golden.validate_report({'status':'PASS','cases':[]},source_hashes={}))
 
@@ -184,10 +184,10 @@ class CatalogueGoldenTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_catalogue_rows(changed)
 
-    def receipt_fixture(self):
+    def receipt_fixture(self, languages=None):
         """Explicit report-validator fixture, never an executed product receipt."""
         rows, http, calls = [], [], []
-        for case in golden.cases()+golden.chain_cases():
+        for case in golden.scoped_cases(golden.cases()+golden.chain_cases(), languages):
             body = self.response(case)
             body.update(text=golden.CURRENT+' '+golden.ARTIST+' 2008-05-06',
                 is_generated_text=True, knowledge_basis='fetched_public_music_research_v1', resolved_media={'uri':golden.ALBUM},
@@ -244,7 +244,7 @@ class CatalogueGoldenTest(unittest.TestCase):
         return {'qualification':'REAL_PAIRED_HA_EXACT_CATALOGUE_QUESTIONS_V1',
             'configured_maximum_tokens':golden.MAX_OUTPUT_TOKENS, 'configured_reasoning_effort':golden.REASONING_EFFORT,
             'status':'PASS','source_hashes':{'test':'explicit_fixture'}, 'source_unchanged':True,
-            'pairing':'ordinary_device_token_minted_persisted','manifest_sha256':golden.manifest_digest(),
+            'pairing':'ordinary_device_token_minted_persisted','manifest_sha256':golden.manifest_digest(languages=languages),
             'cases':rows,'model_calls':calls,'paid_model_calls':len(calls),'core_transports':http}
 
     def test_receipt_rejects_missing_duplicate_wrong_question_and_unpaid_claims(self):
