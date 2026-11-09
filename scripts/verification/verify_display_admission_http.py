@@ -288,6 +288,7 @@ async def main():
             sid = started["session"]["session_id"]
             context = await post("owner/context", {}, owner=True, origin=None)
             assert context["session_id"] == sid
+            assert context["live_display_status"]["screen_slot"] == {"version": 1, "state": "available"}
             checks.append("existing_session_start_and_native_owner_context")
             nonce = secrets.token_urlsafe(32)
             claim = await post("claim", {"browser_nonce": nonce})
@@ -469,14 +470,14 @@ async def main():
                 assert response.status == 201, multi_started
                 multi_sid = multi_started["session"]["session_id"]
                 viewers, readers = [], []
-                frame_counts, last_moods = [0] * 8, [None] * 8
+                frame_counts, last_moods = [0], [None]
                 hub = display_live_hub(manager)
                 began = time.monotonic()
                 rss_before = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
                 peak_tasks, peak_connections, renew_count = 0, 0, 0
                 changes, next_renew = 0, 20
                 try:
-                    for index in range(9):
+                    for index in range(2):
                         nonce = secrets.token_urlsafe(32)
                         new_claim = await post("claim", {"browser_nonce": nonce}, record=False)
                         fields = {name: new_claim[name] for name in (
@@ -486,12 +487,12 @@ async def main():
                             "share_generation": viewers[0][0]["share_generation"]})
                         before = set(manager._display_admission._displays)
                         approved = await post("owner/approve", fields | {"session_id": multi_sid,
-                            "share": share}, owner=True, expected=429 if index == 8 else 200, record=False)
+                            "share": share}, owner=True, expected=409 if index == 1 else 200, record=False)
                         browser = {name: new_claim[name] for name in (
                             "issuer_epoch", "claim_id", "claim_secret", "browser_generation")}
-                        if index == 8:
-                            assert approved["error"] == "display_capacity"
-                            assert set(manager._display_admission._displays) == before and len(before) == 8
+                        if index == 1:
+                            assert approved["error"] == "display_slot_occupied"
+                            assert set(manager._display_admission._displays) == before and len(before) == 1
                             await post("cancel", browser | {"browser_nonce": nonce}, record=False)
                             break
                         accepted = await post("collect", browser | {"browser_nonce": nonce}, record=False)
@@ -506,7 +507,7 @@ async def main():
                         assert first["snapshot"]["session_id"] == multi_sid
                         assert first["snapshot"]["display_id"] == accepted["display_id"]
                         frame_counts[index] = 1
-                    assert len(hub.connections) == len(viewers) == 8
+                    assert len(hub.connections) == len(viewers) == 1
                     assert hub.preauth == 0 and not hub.sources
 
                     async def drain(index, viewer):
@@ -540,9 +541,9 @@ async def main():
                             until = time.monotonic() + 5
                             while any(value != mood for value in last_moods) and time.monotonic() < until:
                                 await asyncio.sleep(0.02)
-                            assert last_moods == [mood] * 8
+                            assert last_moods == [mood]
                             changes += 1
-                        assert len(hub.connections) == 8
+                        assert len(hub.connections) == 1
                         assert not any(reader.done() for reader in readers)
                         assert hub.preauth == 0 and hub.projections <= 8
                         assert hub.reserved_bytes <= 4 * 1024 * 1024
@@ -562,18 +563,18 @@ async def main():
                     for _, binding, headers, _ in viewers:
                         await post("snapshot", binding, headers=headers, expected=401, record=False)
                     assert not any(call["request_path"].startswith("/api/djconnect/v1/display/") for call in calls)
-                    multi_receipt = {"state": "MEASURED_EIGHT_VIEWERS_ONE_SHARE",
-                        "elapsed_seconds": round(time.monotonic()-began, 3), "viewers": 8,
+                    multi_receipt = {"state": "MEASURED_ONE_VIEWER_PROFILE_SESSION",
+                        "elapsed_seconds": round(time.monotonic()-began, 3), "viewers": 1,
                         "frames_per_viewer": frame_counts, "renewal_commits": renew_count,
                         "confirmed_mood_updates_all_viewers": changes,
-                        "ninth_admission": "429_no_eviction", "peak_connections": peak_connections,
+                        "second_admission": "409_no_eviction", "peak_connections": peak_connections,
                         "peak_reserved_bytes": hub.peak_reserved_bytes, "peak_projections": hub.peak_projections,
-                        "peak_tasks_including_8_probe_readers": peak_tasks,
+                        "peak_tasks_including_one_probe_reader": peak_tasks,
                         "rss_highwater_before_kib": rss_before,
                         "rss_highwater_after_kib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
-                        "session_end": "all_8_connections_and_reservations_released_all_grants_denied",
+                        "session_end": "reservation_released_and_grant_denied",
                         "scope": "one share, networkless actual HA transport; not global64 capacity or native/browser acceptance"}
-                    checks.append("eight_real_live_viewers_ninth_denied_no_eviction_renew_Broadcast_end_release")
+                    checks.append("one_real_live_viewer_second_denied_no_eviction_renew_Broadcast_end_release")
                 finally:
                     for reader in readers:
                         reader.cancel()

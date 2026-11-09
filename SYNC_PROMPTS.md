@@ -1,3 +1,11 @@
+## 2026-11-09 — One HA VibeCast screen per Profile and Session
+
+Core atomically reserves one slot on approval. Apple consumes the version 1
+`live_display_status.screen_slot` on paired owner context. Only `available`
+opens the picker. Reserved and live slots expose the same exact stop target,
+including generation zero before connection. An authenticated fresh read
+confirms availability after stop, expiry or cancellation.
+
 ## 2026-11-09 — Paired Profile VibeCast screen status
 
 Core owns the current Home Assistant display connection. Apple reads `live_display_status`

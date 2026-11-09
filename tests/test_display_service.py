@@ -1,4 +1,5 @@
 """B adapter unit chain with normal request helpers; not live HA proof."""
+import asyncio
 import importlib
 from io import BytesIO
 import secrets
@@ -148,6 +149,52 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(self.manager._display_admission._claims)
         self.assertEqual(len(self.manager._display_admission._shares), 1)
 
+    async def test_competing_approvals_reserve_only_one_screen(self):
+        claims = [(await self.call("claim", {"browser_nonce": secrets.token_urlsafe(32)})).payload
+                  for _ in range(2)]
+        barrier = asyncio.Barrier(2)
+
+        async def approve(claim):
+            fields = {key: claim[key] for key in ("issuer_epoch", "claim_id", "browser_generation", "code")}
+            await barrier.wait()
+            return await self.call("owner/approve", fields | {
+                "session_id": self.fixture.active.session_id,
+                "share": {"mode": "create", "consent": True},
+            })
+
+        results = await asyncio.gather(*(approve(claim) for claim in claims), return_exceptions=True)
+        failure, = [result for result in results if isinstance(result, Exception)]
+        self.assertIsInstance(failure, self.module.DisplayAdmissionError)
+        self.assertEqual((failure.status, failure.code), (409, "display_slot_occupied"))
+        approved, = [result for result in results if not isinstance(result, Exception)]
+        state = self.manager._display_admission
+        self.assertEqual(sum(claim.owner is not None for claim in state._claims.values()), 1)
+        self.assertEqual(state.screen_reservation("profile-a", self.fixture.active.session_id),
+                         (approved.payload["display_id"], approved.payload["share_id"], 0))
+
+    async def test_reserved_claim_can_stop_before_collect(self):
+        nonce = secrets.token_urlsafe(32)
+        claim = (await self.call("claim", {"browser_nonce": nonce})).payload
+        fields = {key: claim[key] for key in ("issuer_epoch", "claim_id", "browser_generation", "code")}
+        session_id = self.fixture.active.session_id
+        approval = await self.call("owner/approve", fields | {"session_id": session_id,
+            "share": {"mode": "create", "consent": True}})
+        owner = (await self.call("owner/context")).payload
+        slot = owner["live_display_status"]["screen_slot"]
+        self.assertEqual(slot["state"], "reserved")
+        self.assertEqual(slot["display"]["connection_generation"], 0)
+        stopped = await self.call("owner/revoke", slot["display"] | {
+            "session_id": session_id, "issuer_epoch": owner["issuer_epoch"],
+        })
+        self.assertGreater(stopped.payload["observation_revision"],
+                           owner["live_display_status"]["observation_revision"])
+        after = (await self.call("owner/context")).payload
+        self.assertEqual(after["share_id"], approval.payload["share_id"])
+        self.assertEqual(after["live_display_status"]["screen_slot"], {"version": 1, "state": "available"})
+        with self.assertRaises(self.module.DisplayAdmissionError):
+            await self.call("collect", {key: claim[key] for key in (
+                "issuer_epoch", "claim_id", "claim_secret", "browser_generation")} | {"browser_nonce": nonce})
+
     async def test_profile_devices_observe_and_stop_only_the_current_live_connection(self):
         import aiohttp
 
@@ -198,10 +245,14 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
         playback = active.broadcast.state.playback
         first = (await self.admitted()).payload
         share = {key: first[key] for key in ("share_id", "share_generation")}
-        second_screen = (await self.admitted({"mode": "existing", **share})).payload
         context = await self.call("owner/context", **second)
         self.assertEqual(context.payload["share_id"], share["share_id"])
         self.assertEqual(context.payload["live_display_status"]["displays"], [])
+        self.assertEqual(context.payload["live_display_status"]["screen_slot"], {
+            "version": 1, "state": "reserved", "display": {
+                "display_id": first["display_id"], "share_id": share["share_id"], "connection_generation": 0,
+            },
+        })
 
         def connect(payload):
             display = state._displays[payload["display_id"]]
@@ -223,12 +274,11 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
 
         with patch.object(display_live, "selected_ha_origin", return_value=self.origin):
             original = connect(first)
-            unrelated = connect(second_screen)
             observed = await self.call("owner/context", **second)
             observed.release()
             displays = observed.payload["live_display_status"]["displays"]
             self.assertEqual({item["display_id"] for item in displays},
-                             {first["display_id"], second_screen["display_id"]})
+                             {first["display_id"]})
             self.assertTrue(all(set(item) == {"display_id", "share_id", "connection_generation"} for item in displays))
             foreign = await self.call("owner/context", **other)
             self.assertEqual(foreign.payload["live_display_status"]["displays"], [])
@@ -260,22 +310,26 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
             stopped.release()
             self.assertFalse(replacement.current())
             replacement.request.transport.close.assert_called_once()
-            self.assertTrue(unrelated.current())
             self.assertIs(self.manager.current_active("profile-a"), active)
             self.assertEqual(active.broadcast.state.playback, playback)
             with self.assertRaises(self.module.DisplayAdmissionError):
                 fresh.release()
             after = (await self.call("owner/context")).payload
             self.assertEqual(after["share_id"], share["share_id"])
-            self.assertEqual(after["live_display_status"]["displays"],
-                             [{"display_id": unrelated.display.display_id, "share_id": second_screen["share_id"],
-                               "connection_generation": unrelated.generation}])
+            self.assertEqual(after["live_display_status"]["displays"], [])
+            self.assertEqual(after["live_display_status"]["screen_slot"], {"version": 1, "state": "available"})
             self.assertGreater(after["live_display_status"]["observation_revision"],
                                stopped.payload["observation_revision"])
+            second_screen = (await self.admitted({"mode": "existing", **share})).payload
+            unrelated = connect(second_screen)
             unrelated.ws.closed = True
             disconnected = (await self.call("owner/context", **second)).payload
             self.assertEqual(disconnected["live_display_status"]["displays"], [])
             self.assertIn(unrelated.display.display_id, state._displays)
+            self.assertEqual(disconnected["live_display_status"]["screen_slot"]["state"], "reserved")
+            await self.call("owner/revoke", target(observed, unrelated), **second)
+            self.assertFalse(unrelated.current())
+            second_screen = (await self.admitted({"mode": "existing", **share})).payload
             last = connect(second_screen)
             observed_last = await self.call("owner/context", **second)
             await self.call("owner/revoke", target(observed_last, last), **second)
@@ -372,13 +426,8 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
         binding, headers = await display_credentials()
         state = self.manager._display_admission
         share = state._shares[state._displays[binding["display_id"]].share_id]
-        other, other_headers = await display_credentials({
-            "mode": "existing", "share_id": share.share_id, "share_generation": share.generation,
-        })
         first_bytes = await prepare(await observe("A" * 22), "red")
         first = (await snapshot(binding, headers))["artwork"]
-        with self.assertRaises(self.module.DisplayAdmissionError):
-            await self.call("artwork", other | {"reference": first["reference"]}, headers=other_headers)
         media = await self.call("artwork", binding | {"reference": first["reference"]}, headers=headers)
         response = _FencedResponse(media)
         self.assertEqual(response.body, first_bytes)
@@ -407,6 +456,11 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
                 media.release()
         finally:
             media.complete()
+        other, other_headers = await display_credentials({
+            "mode": "existing", "share_id": share.share_id, "share_generation": share.generation,
+        })
+        with self.assertRaises(self.module.DisplayAdmissionError):
+            await self.call("artwork", other | {"reference": second["reference"]}, headers=other_headers)
 
     async def test_simultaneous_snapshot_reserves_before_projection_until_body_completes(self):
         result = await self.admitted()

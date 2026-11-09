@@ -12,7 +12,7 @@ import re
 import hashlib
 from typing import Callable
 
-from .display_admission import DisplayAdmissionError
+from .display_admission import DisplayAdmissionError, MAX_PER_PROFILE_SESSION
 from .display_authority import resolve_display_owner
 from .display_origin import selected_ha_origin, ENTRY_PATH
 
@@ -58,7 +58,8 @@ def _shape(action, payload):
         if key in {"contract_version", "identity", "share"}:
             continue
         if key in {"renew_sequence", "connection_generation"}:
-            if type(value) is not int or not 1 <= value <= 2**53 - 1:
+            minimum = 0 if key == "connection_generation" else 1
+            if type(value) is not int or not minimum <= value <= 2**53 - 1:
                 raise DisplayAdmissionError("display_code_invalid", 400)
         elif not isinstance(value, str) or not 0 < len(value) <= 256:
             raise DisplayAdmissionError("display_code_invalid", 400)
@@ -139,11 +140,20 @@ class DisplayAdmissionService:
                 active_id = active.session_id if active else None
                 hub = display_live_hub(self.manager)
                 live_displays = hub.live_displays(owner.profile_id, active_id)
+                reservation = state.screen_reservation(owner.profile_id, active_id) if active else None
+                screen_slot = {"version": 1, "state": "available" if active else "unavailable"}
+                if reservation is not None:
+                    display_id, share_id, generation = reservation
+                    screen_slot.update(
+                        state="live" if reservation in live_displays else "reserved",
+                        display={"display_id": display_id, "share_id": share_id,
+                                 "connection_generation": generation})
 
                 def context_current():
                     now_active = self.manager.current_active(owner.profile_id)
                     return (owner.valid() and now_active is active
-                            and hub.live_displays(owner.profile_id, active_id) == live_displays)
+                            and hub.live_displays(owner.profile_id, active_id) == live_displays
+                            and (not active or state.screen_reservation(owner.profile_id, active_id) == reservation))
 
                 guard = context_current
                 result = {"session_id": active.session_id if active else None,
@@ -154,12 +164,13 @@ class DisplayAdmissionService:
                     "live_display_status": {
                         "version": 1,
                         "observation_revision": hub.next_observation_revision(),
+                        "screen_slot": screen_slot,
                         "displays": [{"display_id": display_id, "share_id": share_id,
                                       "connection_generation": generation}
                                      for display_id, share_id, generation in live_displays],
                     },
                     "limits": {"claim_seconds": 120, "lease_seconds": 60,
-                               "share_seconds_default": 7200, "displays_per_share": 8}}
+                               "share_seconds_default": 7200, "displays_per_share": MAX_PER_PROFILE_SESSION}}
                 share = next((share for share in state._shares.values()
                     if active and share.owner.session_id == active.session_id
                     and share.deadline > state._clock() and share.owner.valid()), None)
@@ -193,8 +204,8 @@ class DisplayAdmissionService:
                         raise DisplayAdmissionError("display_context_changed", 403)
                     hub = display_live_hub(self.manager)
                     if (args.pop("issuer_epoch") != state.issuer_epoch
-                            or (args["display_id"], args["share_id"], generation) not in
-                            hub.live_displays(owner.profile_id, active.session_id)):
+                            or (args["display_id"], args["share_id"], generation) !=
+                            state.screen_reservation(owner.profile_id, active.session_id)):
                         raise DisplayAdmissionError("display_context_changed", 409)
                     paired_owner = owner
 
@@ -278,15 +289,23 @@ class DisplayAdmissionService:
                     def guard():
                         return (self.manager.current_active(display.owner.profile_id) is active
                             and content_current())
-                else:
-                    result = getattr(state, action)(**args) or {}
-                if action == "renew":
-                    display = state._displays[args["display_id"]]
+                elif action == "renew":
+                    from .display_delivery import display_live_hub
+
+                    display = state.authorize(token=args["token"], display_id=args["display_id"],
+                                              issuer_epoch=args["issuer_epoch"])
+                    connection = display_live_hub(self.manager).connections.get(display.display_id)
+                    # A disconnected grant can reconnect until its existing deadline.
+                    # Renewal without a current writer cannot prolong the reservation.
+                    result = state.renew(**args, extend=connection is not None and connection.current())
+
                     def guard():
                         return (state._displays.get(display.display_id) is display
                                             and display.owner.valid() and display.lease_deadline > state._clock()
                                             and (share := state._shares.get(display.share_id)) is not None
                                             and share.owner.valid() and share.deadline > state._clock())
+                else:
+                    result = getattr(state, action)(**args) or {}
             epoch = state.issuer_epoch
             wall = datetime.now(timezone.utc)
             result = {"success": True, "contract_version": 1, **result}

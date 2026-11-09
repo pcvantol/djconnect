@@ -126,7 +126,7 @@ of authority it stays invalid, even if current fields later revert.
 | Failed approvals |5 per claim and10 per current owner per60s; generic errors, no enumeration |
 | Throttle bookkeeping |256 unexpired owner-window entries; deny new keys at capacity, no eviction/reset |
 | Active shares | One per Runtime,16 globally; explicit owner consent only |
-| Active/approved display reservations |8 per share,64 globally, included in capacity before collection |
+| Active/approved display reservations |1 per Profile and active Session, 64 globally, reserved before collection |
 | Share absolute lifetime | Explicit owner choice120–28,800s, default7,200s; never beyond Session end |
 | Display online lease |60s, renewal request at20s; bounded by original share expiry and current authority |
 | HTTP JSON / WSS preauth |4KiB body/message; first authentication within5s;16 preauth sockets globally,2 per source |
@@ -219,6 +219,25 @@ successful stop, and clear the state on a change of installation, pairing,
 Profile, Session or issuer epoch. Refresh authenticated context after a stale
 stop. This status covers HA display grants only. It does not use central
 Rendezvous transactions or sender-local Cast status as a live screen signal.
+
+### One external screen per Profile and Session
+
+The optional `live_display_status.screen_slot` has `version:1` and state
+`available`, `reserved`, `live` or `unavailable`. Only an explicit
+`available` permits a new choice. The slot is independent of the separate
+share permission and of the live-only list. Reserved and live slots carry a
+stop target with `display_id`, `share_id` and `connection_generation`.
+Generation zero identifies a reservation that has yet to connect. A disconnected
+grant keeps its existing lease as a reconnect window. Only a current writer can
+extend that lease.
+
+A fresh approval reserves the slot under the Runtime lock. Another approval
+for the same Profile and Session returns `display_slot_occupied` (409);
+repeating the same successful approval returns the original reservation.
+Collection and connection transfer the reservation without opening another slot.
+A stop with the current target generation removes the reservation and invalidates
+the writer, while preserving playback, Session and share permission. After any
+stop outcome, clients use a fresh paired observation before showing the picker.
 
 ### Claim and approval
 
@@ -465,7 +484,7 @@ TLS/proxy acceptance and A remain separately open until actually measured.
 
 ## Eight-display bounded transport qualification — 17 October
 
-The [actual eight-viewer receipt](../../examples/client_contracts/vibecast_display_admission_v1/b-eight-viewer-qualification-v1.json)
+The historical [eight-viewer receipt](../../examples/client_contracts/vibecast_display_admission_v1/b-eight-viewer-qualification-v1.json)
 pins the networkless HA image and probe5528aa75; production integration bytes
 remain equal to producer3cb9cf12. Source/probe hashes were frozen throughout and
 independently reread after execution. Enable DJC_DISPLAY_MULTI_CLIENT=1 with
@@ -474,7 +493,7 @@ and the earlier26 HTTP/WSS fixture capture remain unchanged. No client identity,
 grant, key, URL secret or private payload is retained in this aggregate receipt.
 
 Ordinary pairing and a fresh Session create one explicitly consented share.
-Eight separately approved/collected display principals open eight real WSS
+Before the single-screen policy, eight separately approved/collected display principals opened eight real WSS
 connections. A ninth ordinary approval returns429/display_capacity while the
 original eight principals/connections survive. The probe drains frames and uses
 normal authorized Mood and renewal routes; it never injects Runtime events.
