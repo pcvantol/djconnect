@@ -1,5 +1,6 @@
 """Shared allowlist qualification over actual unit Runtime/Moment publications."""
 from dataclasses import replace
+from datetime import datetime, timezone
 import importlib
 import json
 import secrets
@@ -141,6 +142,41 @@ class DisplayProjectionTests(unittest.TestCase):
         self.assertEqual(self.snapshot()["shared_flow"], [])
         broadcast.deleted_moment_ids.remove(moment.moment_id)
         self.assertEqual(self.snapshot(now=1901)["shared_flow"], [])
+
+    def test_shared_flow_cover_follows_original_track_and_source_authority(self):
+        moment = self.prepared()
+        delivery = importlib.import_module("custom_components.djconnect.display_delivery")
+        broadcast = self.session.broadcast
+        item_id = broadcast._moment_delivery_boundaries[moment.moment_id].playback_item_id
+        share = self.state._shares[self.display.share_id]
+        source_live = True
+        asset = delivery.DisplayArtwork(
+            "original", item_id, "https://open.spotify.com/track/" + "a" * 22,
+            b"original cover", "image/png", 102, datetime.now(timezone.utc).isoformat(),
+            400, "2026-11-09T20:00:00+00:00", lambda: source_live,
+            frozenset({(share.share_id, share.generation)}), lambda: False)
+        broadcast.display_flow_artwork = {item_id: asset}
+        broadcast.invalidate_current_delivery()
+        broadcast.state = replace(broadcast.state, playback=replace(broadcast.state.playback, item_id="next"))
+
+        snapshot = self.snapshot()
+        cover = snapshot["shared_flow"][0]["artwork"]
+        self.assertEqual(cover["item_id"], item_id)
+        self.assertEqual(cover["source_url"], asset.source_url)
+        self.assertNotIn("artwork", snapshot)
+        guard = self.projection.projection_release_guard(self.session, self.display, self.state, snapshot)
+        with patch("time.monotonic", return_value=101):
+            self.assertTrue(guard())
+            source_live = False
+            self.assertFalse(guard())
+        self.assertNotIn("artwork", self.snapshot()["shared_flow"][0])
+        source_live = True
+        share.generation += 1
+        self.assertNotIn("artwork", self.snapshot()["shared_flow"][0])
+        share.generation -= 1
+        with patch.object(self.state, "_clock", return_value=asset.flow_deadline):
+            self.assertIsNone(delivery.qualified_artwork(
+                self.session, self.display, self.state, flow_item_id=item_id))
 
     def test_shared_album_outlives_the_spotlight_but_not_its_original_source(self):
         moment = self.prepared()

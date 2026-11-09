@@ -54,6 +54,8 @@ def projection_release_guard(active, authority, state, snapshot):
     broadcast = active.broadcast
     sequence = snapshot["broadcast"]["snapshot_watermark"]
     content_epoch = broadcast.content_epoch
+    from .display_delivery import artwork_descriptor
+
     current_ids = {item["moment_id"] for item in snapshot["dj_moments"]}
     flow = {item["moment_id"]: item for item in snapshot.get("shared_flow", ())}
     selected_ids = current_ids | flow.keys()
@@ -93,9 +95,12 @@ def projection_release_guard(active, authority, state, snapshot):
             return False
         artwork = snapshot.get("artwork")
         if artwork is not None:
-            from .display_delivery import artwork_descriptor
             if artwork_descriptor(active, authority, state) != artwork:
                 return False
+        if any(item.get("artwork") != artwork_descriptor(
+                active, authority, state, flow_item_id=item["playback_item_id"])
+               for item in flow.values() if item.get("artwork") is not None):
+            return False
         if "horizon" in snapshot and _shared_horizon(broadcast) != snapshot["horizon"]:
             return False
         from .bulletin_runtime import admitted as bulletin_admitted
@@ -233,6 +238,10 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
     if horizon is not None:
         result["horizon"] = horizon
     from .display_delivery import artwork_descriptor
+    for item in result["shared_flow"]:
+        flow_artwork = artwork_descriptor(active, authority, state, flow_item_id=item["playback_item_id"] or "")
+        if flow_artwork is not None:
+            item["artwork"] = flow_artwork
     artwork = artwork_descriptor(active, authority, state)
     if artwork is not None:
         result["artwork"] = artwork

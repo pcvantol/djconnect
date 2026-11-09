@@ -23,7 +23,7 @@ async function main() {
         expires_in:120,issuer_epoch:"epoch",claim_id:"claim",claim_secret:"secret",browser_generation:"generation"}});
       if(endpoint==="artwork") {
         assert.equal(route.request().headers().authorization,"Bearer "+grant);
-        assert.equal(route.request().postDataJSON().reference,"a".repeat(64));
+        assert.ok(["a".repeat(64),"b".repeat(64)].includes(route.request().postDataJSON().reference));
         return route.fulfill({body:cover,contentType:"image/png",
           headers:{"Content-Length":String(cover.length)}});
       }
@@ -42,12 +42,15 @@ async function main() {
       "The mix puts the drums up front, with the backing vocals just behind them."
     ];
     const cards=Array.from({length:11},(_,index)=>({
-      moment_id:"published-"+index,type:index===5 ? "genre" : "album",
+      moment_id:"published-"+index,type:index===5 ? "genre" : index===6 ? "music_announcement" : "album",
       playback_item_id:index===6 ? "previous" : "current",
       content:index===10 ? music[0].repeat(15) : music[index%music.length],
       display_expires_at:new Date(Date.now()-1000).toISOString(),
       flow_expires_at:new Date(Date.now()+40000).toISOString()
     }));
+    const previousTrack="https://open.spotify.com/track/"+"B".repeat(22);
+    cards[6].artwork={item_id:"previous",reference:"b".repeat(64),source_url:previousTrack,
+      expires_at:cards[6].flow_expires_at};
     function snapshot(count, itemId="current", state="playing", output={output_label:"Living room",volume_percent:37}, spotlight={}) {
       socket.send(JSON.stringify({type:"snapshot",contract_version:1,connection_generation:1,snapshot:{
         ...binding,contract_version:1,session:{session_id:"session",runtime_state:"active",locale:"en"},
@@ -73,8 +76,13 @@ async function main() {
     const contributionCover=rows.first().locator(".flow-artwork");
     await contributionCover.waitFor();
     assert.equal(await contributionCover.getAttribute("src"),coverUrl);
-    assert.equal(await rows.nth(2).locator(".flow-artwork").count(),0);
-    assert.equal(await rows.nth(1).locator(".flow-artwork").count(),0);
+    assert.equal(await rows.nth(2).locator(".flow-artwork").getAttribute("src"),coverUrl);
+    const previousCover=rows.nth(1).locator(".flow-artwork");
+    await previousCover.waitFor();
+    const previousUrl=await previousCover.getAttribute("src");
+    assert.match(previousUrl,/^blob:/);
+    assert.notEqual(previousUrl,coverUrl);
+    assert.equal(await rows.nth(1).locator(".flow-artwork-link").getAttribute("href"),previousTrack);
     assert.equal(await rows.count(),8);
     assert.equal(await atEdge(),true);
     assert.equal(await page.locator(".now-playing").evaluate(node=>getComputedStyle(node).backgroundColor),"rgba(0, 0, 0, 0)");
@@ -181,7 +189,12 @@ async function main() {
     await page.waitForFunction(()=>document.querySelectorAll(".flow-card").length===10);
     snapshot(11,"next-recording");
     await contributionCover.waitFor({state:"detached"});
-    assert.equal(await rows.locator(".flow-artwork").count(),0);
+    const retainedCover=rows.locator('a[href="'+previousTrack+'"] img');
+    assert.equal(await retainedCover.getAttribute("src"),previousUrl);
+    assert.equal(await rows.locator(".flow-artwork").count(),1);
+    cards[6].flow_expires_at=new Date(Date.now()-1000).toISOString();
+    snapshot(11,"next-recording");
+    await retainedCover.waitFor({state:"detached"});
     socket.close({code:1008});
     await viewport.waitFor({state:"hidden"});
     assert.equal(await rows.count(),0);

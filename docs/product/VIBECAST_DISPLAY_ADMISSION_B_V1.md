@@ -346,9 +346,9 @@ only its own registered object URLs are renderable and all are revoked/decoded
 buffers cleared on expiry/withdrawal/end. No arbitrary blob URL allowance, direct
 provider hotlink, token query, asset persistence or automatic speech generation.
 
-### Current album cover
+### Playback and Flow covers
 
-The normal Spotify observer can prepare one current edition cover in memory
+The normal Spotify observer can prepare the current track edition cover in memory
 while a display is admitted. Reuse the bounded Session artwork decoder. Pin the authenticated source account,
 current playback item and the exact Spotify CDN image observed for that item. Display reads consume prepared bytes only.
 
@@ -358,6 +358,15 @@ origin and grant checks as snapshot, plus the exact reference. The release
 fence checks the source, playback item, display, share and original deadlines
 again before sending bytes. The display host alone creates the object URL
 and clears it on track change, withdrawal, disconnect or expiry.
+
+A qualified Flow contribution can carry the cover captured for its published
+playback item, regardless of contribution type. Up to twelve prepared covers
+stay in Session memory for at most thirty minutes from observation, for shares
+that were active when the cover was captured. Flow references require the
+original source authority and a currently eligible contribution in the shared
+Flow. Cover links lead to the corresponding Spotify track. The host revokes
+the image when its last matching Flow card expires or leaves the projection.
+Contributions without a qualified cover remain readable.
 
 ### Read-only playback output
 

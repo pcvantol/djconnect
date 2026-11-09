@@ -79,7 +79,7 @@ class SourceWitness:
     settings: tuple
     _revoked: list = field(default_factory=lambda: [False], repr=False)
 
-    def current(self, ending=None):
+    def current(self, ending=None, *, historical=False):
         try:
             from .domain.storage import STORE_KEY
             owner, sid = self.observed.owner_profile_id, self.observed.session_id
@@ -99,7 +99,7 @@ class SourceWitness:
                 and self.observed.integration_runtime.entry.data is self.data
                 and self.observed.integration_runtime.entry.options is self.options
                 and self.observed.visual_source is self.visual_source
-                and self.observed.command_revision == self.command
+                and (historical or self.observed.command_revision == self.command)
                 and ((ending is None and marker is None
                       and (owner, sid) not in self.manager._visual_ending)
                      or (ending is not None and marker is ending))

@@ -223,7 +223,8 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
                   patch.object(image_proxy, "session_images", return_value=SimpleNamespace(decode=decoder))):
                 await _prepare_artwork(hass, state, self.fixture.active.broadcast, playback.item_id,
                                playback.source_url, cdn,
-                               lambda: True, lambda: True, state._clock() + 60)
+                               lambda: True, lambda: True,
+                               lambda: {(share.share_id, share.generation)}, state._clock())
             return body
 
         async def snapshot(binding, headers):

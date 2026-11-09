@@ -4,7 +4,7 @@
   const displayHost = window.DJC_VIBECAST_MODE === "display";
   let haOrigin = "", sessionId = staticHost || displayHost ? null : params.get("session_id"), broadcastToken = staticHost || displayHost ? null : params.get("broadcast_token");
   const endpoint = path => haOrigin + path;
-  let displayArtwork=null;
+  let displayArtwork=new Map();
   const asset = value => haOrigin && String(value || "").startsWith("/") ? haOrigin + value : value;
   const read = (value, path) => path.reduce((current,key) => current && current[key],value);
   function togglePlacement(below) { const stage=document.querySelector && document.querySelector(".stage"); if (stage && stage.classList) stage.classList.toggle("bubble-below",below); }
@@ -377,7 +377,7 @@
     for (const [id,row] of flowRows) {
       if (!currentKeys.has(id)) { row.remove();flowRows.delete(id); }
     }
-    const cover = displayArtwork && displayArtwork.item_id === playback().item_id ? displayArtwork : null;
+    const currentCover = displayArtwork.get(read(projection,["artwork","reference"]));
     items.forEach((item,index)=>{
       let row=flowRows.get(item.moment_id);
       if (!row) {
@@ -406,19 +406,30 @@
         }
         flowRows.set(item.moment_id,row);
       }
+      const cover = item.artwork ? displayArtwork.get(item.artwork.reference) : currentCover;
+      const source = read(item,["artwork","source_url"]) || playback().source_url || "";
       const showCover = cover && item.playback_item_id === cover.item_id
-        && (item.type === "album" || item.type === "track");
-      let image = row.querySelector(".flow-artwork");
+        && (!item.artwork || /^https:\/\/open\.spotify\.com\/track\/[A-Za-z0-9]{22}$/.test(source));
+      let artLink = row.querySelector(".flow-artwork-link");
       if (showCover) {
-        if (!image) {
-          image = document.createElement("img");
+        if (!artLink) {
+          artLink = document.createElement("a");
+          artLink.className = "flow-artwork-link";
+          artLink.target = "_blank";
+          artLink.rel = "noopener noreferrer";
+          artLink.setAttribute("aria-label","Spotify");
+          const image = document.createElement("img");
           image.className = "flow-artwork";
           image.alt = "";
-          row.insertBefore(image,row.firstElementChild);
+          artLink.appendChild(image);
+          row.insertBefore(artLink,row.firstElementChild);
         }
+        if (/^https:\/\/open\.spotify\.com\/track\/[A-Za-z0-9]{22}$/.test(source))artLink.href = source;
+        else artLink.removeAttribute("href");
+        const image = artLink.firstElementChild;
         if (image.getAttribute("src") !== cover.url) image.src = cover.url;
-      } else if (image) {
-        image.remove();
+      } else if (artLink) {
+        artLink.remove();
       }
       row.className="flow-card flow-age-"+Math.min(3,index)+(showCover ? " flow-with-artwork" : "");
       if (list.children[index] !== row) list.insertBefore(row,list.children[index] || null);
@@ -513,8 +524,9 @@
     const validSpotify=String(p.source_url || "").startsWith("https://open.spotify.com/track/");
     e("spotify-source").hidden=!validSpotify;
     if (validSpotify) e("spotify-source").href=p.source_url; else e("spotify-source").removeAttribute("href");
+    const cover = displayArtwork.get(read(projection,["artwork","reference"]));
     const art = displayHost
-      ? (displayArtwork && displayArtwork.item_id === p.item_id ? displayArtwork.url : "")
+      ? (cover && cover.item_id === p.item_id ? cover.url : "")
       : asset(p.artwork_url || "");
     e("artwork").hidden = !art;
     const artworkCard = e("artwork-card");
@@ -650,7 +662,8 @@
     connectFlowControls();
     window.addEventListener("djconnect-display-clear",stopHost);
     window.addEventListener("djconnect-display-artwork",({detail}) => {
-      displayArtwork=detail && String(detail.url).startsWith("blob:") ? detail : null;
+      displayArtwork=new Map((Array.isArray(detail) ? detail : []).filter(cover=>String(cover.url).startsWith("blob:"))
+        .map(({reference,item_id,url})=>[reference,{item_id,url}]));
       render(false);
     });
     window.addEventListener("djconnect-display-snapshot",({detail}) => {
