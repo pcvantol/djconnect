@@ -3,18 +3,18 @@
   "use strict";
   const language=(navigator.language || "en").slice(0,2);
   const words={
-    en:{approve:"Enter these six digits in your paired DJConnect app. Approve this read-only screen.",waiting:"Waiting for approval",retry:"Request a new code",expired:"This screen’s access has expired. Approve it again in DJConnect.",unavailable:"Cannot reach DJConnect. Check the external HTTPS address and connection.",denied:"Screen access was withdrawn or the session ended.",reconnect:"Reconnecting…",close:"Close this screen",capacity:"Too many screens or requests. Try again shortly."},
-    nl:{approve:"Voer deze zes cijfers in je gekoppelde DJConnect-app in. Geef dit scherm alleen-lezen toegang.",waiting:"Wachten op goedkeuring",retry:"Nieuwe code aanvragen",expired:"De toegang van dit scherm is verlopen. Keur het opnieuw goed in DJConnect.",unavailable:"DJConnect is niet bereikbaar. Controleer het externe HTTPS-adres en de verbinding.",denied:"De schermtoegang is ingetrokken of de sessie is beëindigd.",reconnect:"Opnieuw verbinden…",close:"Dit scherm sluiten",capacity:"Te veel schermen of verzoeken. Probeer het zo opnieuw."},
-    de:{approve:"Gib diese sechs Ziffern in deiner gekoppelten DJConnect-App ein. Erlaube diesem Bildschirm nur Lesezugriff.",waiting:"Warten auf Genehmigung",retry:"Neuen Code anfordern",expired:"Der Zugriff dieses Bildschirms ist abgelaufen. Genehmige ihn erneut in DJConnect.",unavailable:"DJConnect ist nicht erreichbar. Prüfe die externe HTTPS-Adresse und die Verbindung.",denied:"Der Bildschirmzugriff wurde entzogen oder die Session beendet.",reconnect:"Verbindung wird wiederhergestellt…",close:"Diesen Bildschirm schließen",capacity:"Zu viele Bildschirme oder Anfragen. Versuche es gleich erneut."},
-    fr:{approve:"Saisissez ces six chiffres dans votre app DJConnect associée. Autorisez cet écran en lecture seule.",waiting:"En attente d’autorisation",retry:"Demander un nouveau code",expired:"L’accès de cet écran a expiré. Autorisez-le à nouveau dans DJConnect.",unavailable:"DJConnect est inaccessible. Vérifiez l’adresse HTTPS externe et la connexion.",denied:"L’accès de l’écran a été retiré ou la session est terminée.",reconnect:"Reconnexion…",close:"Fermer cet écran",capacity:"Trop d’écrans ou de demandes. Réessayez dans un instant."},
-    es:{approve:"Introduce estos seis dígitos en tu app DJConnect vinculada. Autoriza esta pantalla en modo de solo lectura.",waiting:"Esperando autorización",retry:"Solicitar un código nuevo",expired:"El acceso de esta pantalla ha caducado. Autorízala de nuevo en DJConnect.",unavailable:"No se puede acceder a DJConnect. Comprueba la dirección HTTPS externa y la conexión.",denied:"Se ha retirado el acceso de la pantalla o ha terminado la sesión.",reconnect:"Reconectando…",close:"Cerrar esta pantalla",capacity:"Demasiadas pantallas o solicitudes. Vuelve a intentarlo en un momento."}
+    en:{approve:"Enter these six digits in your paired DJConnect app. Approve this read-only screen.",waiting:"Waiting for approval",retry:"Request a new code",expired:"This screen’s access has expired. Approve it again in DJConnect.",unavailable:"Cannot reach DJConnect. Check the external HTTPS address and connection.",denied:"Screen access was withdrawn or the session ended.",reconnect:"Reconnecting…",capacity:"Too many screens or requests. Try again shortly."},
+    nl:{approve:"Voer deze zes cijfers in je gekoppelde DJConnect-app in. Geef dit scherm alleen-lezen toegang.",waiting:"Wachten op goedkeuring",retry:"Nieuwe code aanvragen",expired:"De toegang van dit scherm is verlopen. Keur het opnieuw goed in DJConnect.",unavailable:"DJConnect is niet bereikbaar. Controleer het externe HTTPS-adres en de verbinding.",denied:"De schermtoegang is ingetrokken of de sessie is beëindigd.",reconnect:"Opnieuw verbinden…",capacity:"Te veel schermen of verzoeken. Probeer het zo opnieuw."},
+    de:{approve:"Gib diese sechs Ziffern in deiner gekoppelten DJConnect-App ein. Erlaube diesem Bildschirm nur Lesezugriff.",waiting:"Warten auf Genehmigung",retry:"Neuen Code anfordern",expired:"Der Zugriff dieses Bildschirms ist abgelaufen. Genehmige ihn erneut in DJConnect.",unavailable:"DJConnect ist nicht erreichbar. Prüfe die externe HTTPS-Adresse und die Verbindung.",denied:"Der Bildschirmzugriff wurde entzogen oder die Session beendet.",reconnect:"Verbindung wird wiederhergestellt…",capacity:"Zu viele Bildschirme oder Anfragen. Versuche es gleich erneut."},
+    fr:{approve:"Saisissez ces six chiffres dans votre app DJConnect associée. Autorisez cet écran en lecture seule.",waiting:"En attente d’autorisation",retry:"Demander un nouveau code",expired:"L’accès de cet écran a expiré. Autorisez-le à nouveau dans DJConnect.",unavailable:"DJConnect est inaccessible. Vérifiez l’adresse HTTPS externe et la connexion.",denied:"L’accès de l’écran a été retiré ou la session est terminée.",reconnect:"Reconnexion…",capacity:"Trop d’écrans ou de demandes. Réessayez dans un instant."},
+    es:{approve:"Introduce estos seis dígitos en tu app DJConnect vinculada. Autoriza esta pantalla en modo de solo lectura.",waiting:"Esperando autorización",retry:"Solicitar un código nuevo",expired:"El acceso de esta pantalla ha caducado. Autorízala de nuevo en DJConnect.",unavailable:"No se puede acceder a DJConnect. Comprueba la dirección HTTPS externa y la conexión.",denied:"Se ha retirado el acceso de la pantalla o ha terminado la sesión.",reconnect:"Reconectando…",capacity:"Demasiadas pantallas o solicitudes. Vuelve a intentarlo en un momento."}
   };
   const outcomes={
-    en:{closed:"This screen is closed. Closing it does not end the DJ session.",newcode:"Access could not be confirmed. Request a new code and approve this screen again.",configuration:"Check the external HTTPS address in Home Assistant and reopen this screen from your paired DJConnect app."},
-    nl:{closed:"Dit scherm is gesloten. De DJ-sessie wordt hierdoor niet beëindigd.",newcode:"De toegang kon niet worden bevestigd. Vraag een nieuwe code aan en keur dit scherm opnieuw goed.",configuration:"Controleer het externe HTTPS-adres in Home Assistant en open dit scherm opnieuw vanuit je gekoppelde DJConnect-app."},
-    de:{closed:"Dieser Bildschirm ist geschlossen. Dadurch wird die DJ-Session nicht beendet.",newcode:"Der Zugriff konnte nicht bestätigt werden. Fordere einen neuen Code an und genehmige den Bildschirm erneut.",configuration:"Prüfe die externe HTTPS-Adresse in Home Assistant und öffne den Bildschirm erneut über deine gekoppelte DJConnect-App."},
-    fr:{closed:"Cet écran est fermé. Sa fermeture ne met pas fin à la session DJ.",newcode:"L’accès n’a pas pu être confirmé. Demandez un nouveau code et autorisez à nouveau cet écran.",configuration:"Vérifiez l’adresse HTTPS externe dans Home Assistant et rouvrez cet écran depuis votre app DJConnect associée."},
-    es:{closed:"Esta pantalla está cerrada. Cerrarla no termina la sesión DJ.",newcode:"No se ha podido confirmar el acceso. Solicita un código nuevo y vuelve a autorizar esta pantalla.",configuration:"Comprueba la dirección HTTPS externa en Home Assistant y vuelve a abrir esta pantalla desde tu app DJConnect vinculada."}
+    en:{newcode:"Access could not be confirmed. Request a new code and approve this screen again.",configuration:"Check the external HTTPS address in Home Assistant and reopen this screen from your paired DJConnect app."},
+    nl:{newcode:"De toegang kon niet worden bevestigd. Vraag een nieuwe code aan en keur dit scherm opnieuw goed.",configuration:"Controleer het externe HTTPS-adres in Home Assistant en open dit scherm opnieuw vanuit je gekoppelde DJConnect-app."},
+    de:{newcode:"Der Zugriff konnte nicht bestätigt werden. Fordere einen neuen Code an und genehmige den Bildschirm erneut.",configuration:"Prüfe die externe HTTPS-Adresse in Home Assistant und öffne den Bildschirm erneut über deine gekoppelte DJConnect-App."},
+    fr:{newcode:"L’accès n’a pas pu être confirmé. Demandez un nouveau code et autorisez à nouveau cet écran.",configuration:"Vérifiez l’adresse HTTPS externe dans Home Assistant et rouvrez cet écran depuis votre app DJConnect associée."},
+    es:{newcode:"No se ha podido confirmar el acceso. Solicita un código nuevo y vuelve a autorizar esta pantalla.",configuration:"Comprueba la dirección HTTPS externa en Home Assistant y vuelve a abrir esta pantalla desde tu app DJConnect vinculada."}
   };
   const text={...(words[language] || words.en),...(outcomes[language] || outcomes.en)}, panel=document.getElementById("handoff");
   function failureText(error,collecting=false){
@@ -100,7 +100,7 @@
   function binding(){return {issuer_epoch:grant.issuer_epoch,display_id:grant.display_id};}
   function expired(){return !grant || now()>=lease;}
   function watchLease(g){
-    later(()=>{if(g!==generation || !grant)return;if(expired())terminal(text.expired);else watchLease(g);},Math.max(1,Math.min(1000,lease-now())));
+    later(()=>{if(g!==generation || !grant)return;if(expired())void begin();else watchLease(g);},Math.max(1,Math.min(1000,lease-now())));
   }
   async function renew(g,renewSequence){
     if(g!==generation || expired() || renewalBusy)return;
@@ -114,6 +114,7 @@
       later(()=>renew(g,sequence+1),20000);
     }catch(error){
       if(g!==generation)return;
+      if(error.code==="display_grant_invalid" || error.code==="display_lease_expired")return begin();
       if([401,403,404,409,410].includes(error.status))return terminal(failureText(error));
       clearContent();show(text.reconnect);later(()=>renew(g,renewSequence),2000);
     }finally{if(g===generation)renewalBusy=false;}
@@ -141,9 +142,9 @@
       }catch(_){terminal(text.denied);}
     };
     current.onclose=event=>{
-      if(g!==generation || socket!==current)return;socket=null;clearContent();
-      if(expired())return terminal(text.expired);
-      if(event.code===1008)return terminal(text.denied);
+      if(g!==generation || socket!==current)return;socket=null;
+      if(expired() || event.code===1008)return begin();
+      clearContent();
       show(text.reconnect);later(()=>connect(g),1500);
     };
     current.onerror=()=>{if(current===socket)current.close();};
@@ -165,7 +166,7 @@
     }catch(error){if(g===generation)terminal(failureText(error,true));}
   }
   async function begin(){
-    stopped=false;cancelWork();claim=null;grant=null;const g=generation;
+    stopped=false;cancelWork();claim=null;grant=null;lease=0;const g=generation;
     if(location.protocol!=="https:" || location.search || location.hash || !crypto.getRandomValues)return show(text.unavailable,"",true);
     show(text.waiting);
     try{
@@ -178,19 +179,11 @@
     }catch(error){if(g===generation)show(failureText(error),"",true);}
   }
   function stop(){stopped=true;cancelWork();claim=null;grant=null;lease=0;panel.hidden=true;panel.textContent="";}
-  const closeButton=document.createElement("button");closeButton.textContent=text.close;
-  closeButton.onclick=()=>{
-    const oldGrant=grant,oldClaim=claim;stop();
-    if(oldGrant)post("leave",{issuer_epoch:oldGrant.issuer_epoch,display_id:oldGrant.display_id},oldGrant.grant_token).catch(()=>{});
-    else if(oldClaim)post("cancel",oldClaim).catch(()=>{});
-    show(text.closed,"",true);
-  };
-  document.querySelector("header").append(closeButton);
   window.addEventListener("beforeunload",stop);
   window.addEventListener("djconnect-host-stop",stop);
   window.addEventListener("offline",()=>{if(grant){clearContent();show(text.reconnect);requests.forEach(c=>c.abort());if(socket)socket.close();}});
   window.addEventListener("online",()=>{if(grant && !expired() && !socket)connect(generation);});
-  window.addEventListener("pageshow",()=>{if(grant){clearContent();if(expired())terminal(text.expired);else if(socket)socket.close();else connect(generation);}});
-  document.addEventListener("visibilitychange",()=>{if(document.hidden){clearContent();if(socket)socket.close();}else if(grant){if(expired())terminal(text.expired);else if(!socket)connect(generation);}});
+  window.addEventListener("pageshow",()=>{if(grant){clearContent();if(expired())void begin();else if(socket)socket.close();else connect(generation);}});
+  document.addEventListener("visibilitychange",()=>{if(document.hidden){clearContent();if(socket)socket.close();}else if(grant){if(expired())void begin();else if(!socket)connect(generation);}});
   begin();
 })();
