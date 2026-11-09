@@ -3,11 +3,11 @@
   "use strict";
   const language=(navigator.language || "en").slice(0,2);
   const words={
-    en:{approve:"Enter these six digits in your paired DJConnect app. Approve this read-only screen.",waiting:"Waiting for approval",retry:"Request a new code",expired:"This screen’s access has expired. Approve it again in DJConnect.",unavailable:"Cannot reach DJConnect. Check the external HTTPS address and connection.",denied:"Screen access was withdrawn or the session ended.",reconnect:"Reconnecting…",capacity:"Too many screens or requests. Try again shortly."},
-    nl:{approve:"Voer deze zes cijfers in je gekoppelde DJConnect-app in. Geef dit scherm alleen-lezen toegang.",waiting:"Wachten op goedkeuring",retry:"Nieuwe code aanvragen",expired:"De toegang van dit scherm is verlopen. Keur het opnieuw goed in DJConnect.",unavailable:"DJConnect is niet bereikbaar. Controleer het externe HTTPS-adres en de verbinding.",denied:"De schermtoegang is ingetrokken of de sessie is beëindigd.",reconnect:"Opnieuw verbinden…",capacity:"Te veel schermen of verzoeken. Probeer het zo opnieuw."},
-    de:{approve:"Gib diese sechs Ziffern in deiner gekoppelten DJConnect-App ein. Erlaube diesem Bildschirm nur Lesezugriff.",waiting:"Warten auf Genehmigung",retry:"Neuen Code anfordern",expired:"Der Zugriff dieses Bildschirms ist abgelaufen. Genehmige ihn erneut in DJConnect.",unavailable:"DJConnect ist nicht erreichbar. Prüfe die externe HTTPS-Adresse und die Verbindung.",denied:"Der Bildschirmzugriff wurde entzogen oder die Session beendet.",reconnect:"Verbindung wird wiederhergestellt…",capacity:"Zu viele Bildschirme oder Anfragen. Versuche es gleich erneut."},
-    fr:{approve:"Saisissez ces six chiffres dans votre app DJConnect associée. Autorisez cet écran en lecture seule.",waiting:"En attente d’autorisation",retry:"Demander un nouveau code",expired:"L’accès de cet écran a expiré. Autorisez-le à nouveau dans DJConnect.",unavailable:"DJConnect est inaccessible. Vérifiez l’adresse HTTPS externe et la connexion.",denied:"L’accès de l’écran a été retiré ou la session est terminée.",reconnect:"Reconnexion…",capacity:"Trop d’écrans ou de demandes. Réessayez dans un instant."},
-    es:{approve:"Introduce estos seis dígitos en tu app DJConnect vinculada. Autoriza esta pantalla en modo de solo lectura.",waiting:"Esperando autorización",retry:"Solicitar un código nuevo",expired:"El acceso de esta pantalla ha caducado. Autorízala de nuevo en DJConnect.",unavailable:"No se puede acceder a DJConnect. Comprueba la dirección HTTPS externa y la conexión.",denied:"Se ha retirado el acceso de la pantalla o ha terminado la sesión.",reconnect:"Reconectando…",capacity:"Demasiadas pantallas o solicitudes. Vuelve a intentarlo en un momento."}
+    en:{approve:"Choose ‘Share VibeCast Screen’ in the app and enter the code below.",retry:"Try again",expired:"This screen’s access has expired. Approve it again in DJConnect.",unavailable:"Cannot reach DJConnect. Check the external HTTPS address and connection.",denied:"Screen access was withdrawn or the session ended.",reconnect:"Reconnecting…",capacity:"Too many screens or requests. Try again shortly."},
+    nl:{approve:"Kies 'VibeCast scherm delen' in de app.\nVul onderstaande code in.",retry:"Opnieuw proberen",expired:"De toegang van dit scherm is verlopen. Keur het opnieuw goed in DJConnect.",unavailable:"DJConnect is niet bereikbaar. Controleer het externe HTTPS-adres en de verbinding.",denied:"De schermtoegang is ingetrokken of de sessie is beëindigd.",reconnect:"Opnieuw verbinden…",capacity:"Te veel schermen of verzoeken. Probeer het zo opnieuw."},
+    de:{approve:"Wähle in der App „VibeCast-Bildschirm teilen“ und gib den unten stehenden Code ein.",retry:"Erneut versuchen",expired:"Der Zugriff dieses Bildschirms ist abgelaufen. Genehmige ihn erneut in DJConnect.",unavailable:"DJConnect ist nicht erreichbar. Prüfe die externe HTTPS-Adresse und die Verbindung.",denied:"Der Bildschirmzugriff wurde entzogen oder die Session beendet.",reconnect:"Verbindung wird wiederhergestellt…",capacity:"Zu viele Bildschirme oder Anfragen. Versuche es gleich erneut."},
+    fr:{approve:"Choisis « Partager l’écran VibeCast » dans l’app et saisis le code ci-dessous.",retry:"Réessayer",expired:"L’accès de cet écran a expiré. Autorisez-le à nouveau dans DJConnect.",unavailable:"DJConnect est inaccessible. Vérifiez l’adresse HTTPS externe et la connexion.",denied:"L’accès de l’écran a été retiré ou la session est terminée.",reconnect:"Reconnexion…",capacity:"Trop d’écrans ou de demandes. Réessayez dans un instant."},
+    es:{approve:"Elige «Compartir pantalla VibeCast» en la app e introduce el código que aparece abajo.",retry:"Volver a intentar",expired:"El acceso de esta pantalla ha caducado. Autorízala de nuevo en DJConnect.",unavailable:"No se puede acceder a DJConnect. Comprueba la dirección HTTPS externa y la conexión.",denied:"Se ha retirado el acceso de la pantalla o ha terminado la sesión.",reconnect:"Reconectando…",capacity:"Demasiadas pantallas o solicitudes. Vuelve a intentarlo en un momento."}
   };
   const outcomes={
     en:{newcode:"Access could not be confirmed. Request a new code and approve this screen again.",configuration:"Check the external HTTPS address in Home Assistant and reopen this screen from your paired DJConnect app."},
@@ -16,7 +16,24 @@
     fr:{newcode:"L’accès n’a pas pu être confirmé. Demandez un nouveau code et autorisez à nouveau cet écran.",configuration:"Vérifiez l’adresse HTTPS externe dans Home Assistant et rouvrez cet écran depuis votre app DJConnect associée."},
     es:{newcode:"No se ha podido confirmar el acceso. Solicita un código nuevo y vuelve a autorizar esta pantalla.",configuration:"Comprueba la dirección HTTPS externa en Home Assistant y vuelve a abrir esta pantalla desde tu app DJConnect vinculada."}
   };
-  const text={...(words[language] || words.en),...(outcomes[language] || outcomes.en)}, panel=document.getElementById("handoff");
+  const copyLabels={
+    en:["Copy pairing code","Code copied","Could not copy code"],
+    nl:["Koppelcode kopiëren","Code gekopieerd","Kopiëren is niet gelukt"],
+    de:["Kopplungscode kopieren","Code kopiert","Code konnte nicht kopiert werden"],
+    fr:["Copier le code d’association","Code copié","Impossible de copier le code"],
+    es:["Copiar el código de vinculación","Código copiado","No se pudo copiar el código"]
+  };
+  const panel=document.getElementById("handoff");
+  let sessionLocale="", text;
+  function selectLocale(locale){
+    const selected=typeof locale==="string" && /^(en|nl|de|fr|es)$/.test(locale) ? locale : "";
+    const labels=selected || language;
+    text={...(words[labels] || words.en),...(outcomes[labels] || outcomes.en)};
+    if(selected===sessionLocale)return;
+    sessionLocale=selected;
+    window.dispatchEvent(new CustomEvent("djconnect-display-locale",{detail:selected}));
+  }
+  selectLocale("");
   function failureText(error,collecting=false){
     if(error.status===429)return text.capacity;
     if(error.code==="display_external_url_unavailable" || error.code==="display_tls_required" || error.code==="display_origin_denied")return text.configuration;
@@ -118,9 +135,45 @@
     }finally{artworkBusy=false;}
   }
   function show(message,code="",retry=false){
-    panel.textContent=""; const caption=document.createElement("span");caption.textContent=message;panel.append(caption);
-    if(code){const value=document.createElement("strong");value.textContent=code;value.setAttribute("aria-label",code.split("").join(" "));panel.append(value);}
-    if(retry){const button=document.createElement("button");button.textContent=text.retry;button.onclick=begin;panel.append(button);}
+    const pending=code===null;
+    panel.textContent="";
+    const caption=document.createElement("span");
+    caption.textContent=message;
+    if(pending)caption.className="handoff-placeholder";
+    panel.append(caption);
+    if(code || pending){
+      const block=document.createElement("div");
+      block.className=pending?"handoff-code handoff-placeholder":"handoff-code";
+      const value=document.createElement("strong");
+      value.textContent=code ?? "\u00a0";
+      if(code)value.setAttribute("aria-label",code.split("").join(" "));
+      block.append(value);
+      if(code && navigator.clipboard?.writeText){
+        const [copy,copied,failed]=copyLabels[sessionLocale || language] || copyLabels.en;
+        const button=document.createElement("button");
+        button.type="button";
+        button.className="handoff-copy";
+        button.title=copy;
+        button.setAttribute("aria-label",copy);
+        button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6H7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2M9 4h6v4H9z"/><path class="copy-check" d="m9 14 2 2 4-4"/></svg>';
+        button.onclick=async()=>{
+          if(!claim || now()>=claimDeadline)return;
+          try{
+            await navigator.clipboard.writeText(code);
+            button.classList.add("copied");
+            button.title=copied;
+          }catch(_){button.title=failed;}
+          button.setAttribute("aria-label",button.title);
+        };
+        block.append(button);
+      }
+      panel.append(block);
+    }
+    if(retry){
+      const button=document.createElement("button");
+      button.type="button";button.className="handoff-retry";button.textContent=text.retry;
+      button.onclick=()=>begin();panel.append(button);
+    }
     panel.hidden=false;
   }
   function cancelWork(){
@@ -183,6 +236,8 @@
             || snapshot.session_id!==grant.session_id || !Number.isSafeInteger(frame.connection_generation)
             || frame.connection_generation<connectionGeneration)throw new Error("binding");
         connectionGeneration=frame.connection_generation;
+        if(snapshot.session && snapshot.session.session_id===grant.session_id
+            && snapshot.session.runtime_state==="active")selectLocale(snapshot.session.locale);
         // The renderer receives only the Core's explicit shared allowlist.
         window.dispatchEvent(new CustomEvent("djconnect-display-snapshot",{detail:snapshot}));
         void updateArtwork(snapshot);panel.hidden=true;
@@ -198,39 +253,51 @@
   }
   async function collect(g){
     if(g!==generation || !claim)return;
-    if(now()>=claimDeadline)return terminal(text.expired);
+    if(now()>=claimDeadline)return begin();
     try{
       const {value,started}=await post("collect",claim);
       if(g!==generation || !claim)return;
-      if(now()>=claimDeadline)return terminal(text.expired);
+      if(now()>=claimDeadline)return begin();
       if(value.state==="pending"){later(()=>collect(g),1000);return;}
       if(value.state!=="admitted" || typeof value.grant_token!=="string" || !/^djcd_[A-Za-z0-9_-]{43}$/.test(value.grant_token)
           || !(value.lease_expires_in>0 && value.lease_expires_in<=60) || !value.capabilities || value.capabilities.owner_controls!==false
           || value.capabilities.session_end!==false)throw new Error("contract");
       grant=value;claim=null;lease=started+value.lease_expires_in*1000;sequence=0;connectionGeneration=0;
       if(expired())return terminal(text.expired);
+      selectLocale(value.session_locale);
       show(text.reconnect);watchLease(g);connect(g);later(()=>renew(g,1),20000);
-    }catch(error){if(g===generation)terminal(failureText(error,true));}
+    }catch(error){
+      if(g!==generation)return;
+      if(now()>=claimDeadline)return begin();
+      terminal(failureText(error,true));
+    }
   }
-  async function begin(){
-    stopped=false;cancelWork();claim=null;grant=null;lease=0;const g=generation;
+  async function begin(allowCapacityRetry=true){
+    stopped=false;selectLocale("");cancelWork();claim=null;grant=null;lease=0;const g=generation;
     if(location.protocol!=="https:" || location.search || location.hash || !crypto.getRandomValues)return show(text.unavailable,"",true);
-    show(text.waiting);
+    show(text.approve,null);
     try{
       const browser_nonce=nonce(),{value,started}=await post("claim",{browser_nonce});
       if(g!==generation || stopped)return;
       if(value.contract_version!==1 || !/^[0-9]{6}$/.test(value.code) || !(value.expires_in>0 && value.expires_in<=120))throw new Error("contract");
       claim={issuer_epoch:value.issuer_epoch,claim_id:value.claim_id,claim_secret:value.claim_secret,
         browser_generation:value.browser_generation,browser_nonce};claimDeadline=started+value.expires_in*1000;
-      show(text.approve,value.code);collect(g);
-    }catch(error){if(g===generation)show(failureText(error),"",true);}
+      show(text.approve,value.code);
+      later(()=>{if(g===generation && claim)void begin();},Math.max(0,claimDeadline-now()));
+      void collect(g);
+    }catch(error){
+      if(g!==generation)return;
+      if(allowCapacityRetry && error.code==="display_capacity"){
+        later(()=>begin(false),800);
+      }else show(failureText(error),"",true);
+    }
   }
-  function stop(){stopped=true;cancelWork();claim=null;grant=null;lease=0;panel.hidden=true;panel.textContent="";}
-  window.addEventListener("beforeunload",stop);
+  function stop(){stopped=true;selectLocale("");cancelWork();claim=null;grant=null;lease=0;panel.hidden=true;panel.textContent="";}
+  window.addEventListener("pagehide",stop);
   window.addEventListener("djconnect-host-stop",stop);
   window.addEventListener("offline",()=>{if(grant){clearContent();show(text.reconnect);requests.forEach(c=>c.abort());if(socket)socket.close();}});
   window.addEventListener("online",()=>{if(grant && !expired() && !socket)connect(generation);});
-  window.addEventListener("pageshow",()=>{if(grant){clearContent();if(expired())void begin();else if(socket)socket.close();else connect(generation);}});
+  window.addEventListener("pageshow",event=>{if(event.persisted && stopped)return begin();if(grant){clearContent();if(expired())void begin();else if(socket)socket.close();else connect(generation);}});
   document.addEventListener("visibilitychange",()=>{if(document.hidden){clearContent();if(socket)socket.close();}else if(grant){if(expired())void begin();else if(!socket)connect(generation);}});
   begin();
 })();
