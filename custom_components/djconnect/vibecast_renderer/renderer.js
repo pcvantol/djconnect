@@ -4,18 +4,26 @@
   const displayHost = window.DJC_VIBECAST_MODE === "display";
   let haOrigin = "", sessionId = staticHost || displayHost ? null : params.get("session_id"), broadcastToken = staticHost || displayHost ? null : params.get("broadcast_token");
   const endpoint = path => haOrigin + path;
-  let displayArtwork=new Map();
+  let displayArtwork=new Map(), displayLocale="";
   const asset = value => haOrigin && String(value || "").startsWith("/") ? haOrigin + value : value;
   const read = (value, path) => path.reduce((current,key) => current && current[key],value);
   function togglePlacement(below) { const stage=document.querySelector && document.querySelector(".stage"); if (stage && stage.classList) stage.classList.toggle("bubble-below",below); }
   const e = id => document.getElementById(id), root = document.documentElement;
+  const browserTheme = e("browser-theme-color");
+  let browserTint;
+  function setBrowserTheme(color) {
+    if (browserTheme && browserTheme.content !== color) {
+      browserTheme.content = color;
+      root.style.setProperty("--browser-edge",color);
+    }
+  }
   const compatibility={en:"This display needs a compatible DJConnect session",nl:"Dit scherm vereist een compatibele DJConnect-sessie",de:"Dieses Display benötigt eine kompatible DJConnect-Session",fr:"Cet écran nécessite une session DJConnect compatible",es:"Esta pantalla necesita una sesión DJConnect compatible"};
   const copy = {
-    en:{idle:"Idle",connecting:"Connecting",live:"Live",unavailable:"No active session",waiting:"Waiting for a session",ambient:"Ambient session",types:{dj_bulletin:"DJ Bulletin",track:"Track",artist:"Artist",album:"Album",genre:"Genre",recommendation:"Recommendation",transition:"Transition",session:"Session"}},
-    nl:{idle:"Inactief",connecting:"Verbinden",live:"Live",unavailable:"Geen actieve sessie",waiting:"Wachten op een sessie",ambient:"Ambient sessie",types:{dj_bulletin:"DJ Bulletin",track:"Nummer",artist:"Artiest",album:"Album",genre:"Genre",recommendation:"Aanbeveling",transition:"Overgang",session:"Sessie"}},
-    de:{idle:"Inaktiv",connecting:"Verbinden",live:"Live",unavailable:"Keine aktive Session",waiting:"Warten auf eine Session",ambient:"Ambient-Session",types:{dj_bulletin:"DJ-Bulletin",track:"Titel",artist:"Künstler",album:"Album",genre:"Genre",recommendation:"Empfehlung",transition:"Übergang",session:"Session"}},
-    fr:{idle:"Inactif",connecting:"Connexion",live:"En direct",unavailable:"Aucune session active",waiting:"En attente d’une session",ambient:"Session d’ambiance",types:{dj_bulletin:"Bulletin du DJ",track:"Titre",artist:"Artiste",album:"Album",genre:"Genre",recommendation:"Suggestion",transition:"Transition",session:"Session"}},
-    es:{idle:"Inactivo",connecting:"Conectando",live:"En directo",unavailable:"No hay sesión activa",waiting:"Esperando una sesión",ambient:"Sesión ambiental",types:{dj_bulletin:"Boletín del DJ",track:"Canción",artist:"Artista",album:"Álbum",genre:"Género",recommendation:"Recomendación",transition:"Transición",session:"Sesión"}}
+    en:{idle:"Idle",connecting:"Connecting",live:"Live",unavailable:"No active session",waiting:"Waiting for a session",ambient:"Ambient session",types:{music_announcement:"Music announcement",dj_bulletin:"DJ Bulletin",track:"Track",artist:"Artist",album:"Album",genre:"Genre",recommendation:"Recommendation",transition:"Transition",session:"Session"}},
+    nl:{idle:"Inactief",connecting:"Verbinden",live:"Live",unavailable:"Geen actieve sessie",waiting:"Wachten op een sessie",ambient:"Ambient sessie",types:{music_announcement:"Muziekaankondiging",dj_bulletin:"DJ Bulletin",track:"Nummer",artist:"Artiest",album:"Album",genre:"Genre",recommendation:"Aanbeveling",transition:"Overgang",session:"Sessie"}},
+    de:{idle:"Inaktiv",connecting:"Verbinden",live:"Live",unavailable:"Keine aktive Session",waiting:"Warten auf eine Session",ambient:"Ambient-Session",types:{music_announcement:"Musikansage",dj_bulletin:"DJ-Bulletin",track:"Titel",artist:"Künstler",album:"Album",genre:"Genre",recommendation:"Empfehlung",transition:"Übergang",session:"Session"}},
+    fr:{idle:"Inactif",connecting:"Connexion",live:"En direct",unavailable:"Aucune session active",waiting:"En attente d’une session",ambient:"Session d’ambiance",types:{music_announcement:"Annonce musicale",dj_bulletin:"Bulletin du DJ",track:"Titre",artist:"Artiste",album:"Album",genre:"Genre",recommendation:"Suggestion",transition:"Transition",session:"Session"}},
+    es:{idle:"Inactivo",connecting:"Conectando",live:"En directo",unavailable:"No hay sesión activa",waiting:"Esperando una sesión",ambient:"Sesión ambiental",types:{music_announcement:"Anuncio musical",dj_bulletin:"Boletín del DJ",track:"Canción",artist:"Artista",album:"Álbum",genre:"Género",recommendation:"Recomendación",transition:"Transición",session:"Sesión"}}
   };
   let language = (navigator.language || "en").slice(0,2), text = copy[language] || copy.en;
   let projection = {}, socket, reconnectTimer, expiryTimer, scrollTimer, exitTimer, attempts = 0, ended = false;
@@ -31,14 +39,22 @@
   const firstSeen = new Map();
   const previousSourceLabels={en:"MusicBrainz · earlier recording",nl:"MusicBrainz · eerdere opname",de:"MusicBrainz · frühere Aufnahme",fr:"MusicBrainz · enregistrement précédent",es:"MusicBrainz · grabación anterior"};
   const nextLabels={en:"Up next",nl:"Hierna",de:"Als Nächstes",fr:"À suivre",es:"A continuación"};
+  const buildLabels={en:"VibeCast version",nl:"VibeCast versie",de:"VibeCast-Version",fr:"Version de VibeCast",es:"Versión de VibeCast"};
+  const makerLabels={en:"Show your DJ session on this screen.",nl:"Toon je DJ-sessie op dit scherm.",de:"Zeige deine DJ-Session auf diesem Bildschirm.",fr:"Affiche ta session DJ sur cet écran.",es:"Muestra tu sesión DJ en esta pantalla."};
   const artistWebsiteLabels={en:"Artist website",nl:"Artiestenwebsite",de:"Künstlerwebsite",fr:"Site de l’artiste",es:"Sitio del artista"};
   function updateClock() {
-    if (e("clock")) e("clock").textContent = new Date().toLocaleTimeString(root.lang,{hour:"2-digit",minute:"2-digit",hour12:false});
+    const now=new Date();
+    const clock=e("clock"), date=e("clock-date");
+    if (clock) clock.textContent=now.toLocaleTimeString(root.lang,{hour:"2-digit",minute:"2-digit",hour12:false});
+    if (date) {
+      const label=now.toLocaleDateString(root.lang,{weekday:"long",day:"numeric",month:"long"});
+      if (date.textContent!==label) date.textContent=label;
+    }
     const expiry=Date.parse(read(projection,["playback","up_next","expires_at"]) || "");
     if (e("up-next") && Number.isFinite(expiry) && Date.now() >= expiry) e("up-next").hidden=true;
   }
   window.setInterval && window.setInterval(updateClock,1000);
-  root.lang = copy[language] ? language : "en";
+  useLanguage();
   const playback = () => projection.playback && typeof projection.playback === "object" ? projection.playback : {};
   const theme = mood => ({chill:"#7d8dff",groove:"#c07dff",energy:"#ff806b",party:"#ffce55"}[mood] || "#9f7cff");
   const format = value => Number.isFinite(value) && value >= 0 ? `${Math.floor(value/60000)}:${String(Math.floor(value/1000)%60).padStart(2,"0")}` : "";
@@ -50,8 +66,14 @@
   }
   function useLanguage() {
     const requested = String(read(projection,["session","locale"]) || "").slice(0,2).toLowerCase();
-    const selected = copy[requested] ? requested : (copy[language] ? language : "en");
+    const selected = copy[requested] ? requested : (displayLocale || (copy[language] ? language : "en"));
+    const changed=root.lang!==selected;
     text = copy[selected]; root.lang = selected;
+    const buildLabel=e("renderer-build-label");
+    if (buildLabel) buildLabel.textContent=buildLabels[selected];
+    const maker=e("waiting-maker-label");
+    if (maker) maker.textContent=makerLabels[selected];
+    return changed;
   }
   function keyFor(item) {
     return String(item.moment_id || `${item.playback_item_id || ""}|${item.type || ""}|${item.created_at || ""}|${item.summary || item.content || item.title || ""}`);
@@ -293,7 +315,7 @@
     }
     scheduleCardExpiry();
   }
-  function renderCards(animate) {
+  function renderCards(animate, languageChanged) {
     const p = playback(), item = p.item_id || "";
     if (item !== playbackItem) {
       playbackItem = item; lastShownAt = -Infinity; clearCards();
@@ -311,13 +333,17 @@
       previous=null; showPrevious(null);
     }
     if (!latest) { if (!exitTimer) clearCards(); return; }
-    if ((current && current.key) === latest.key) { showPrevious(previous); scheduleCardExpiry(); return; }
+    if ((current && current.key) === latest.key) {
+      showPrevious(previous);
+      if (languageChanged) showCurrent(latest,false); else scheduleCardExpiry();
+      return;
+    }
     if (latest.created < lastShownAt) return;
     previous = animate && current && current.itemId === latest.itemId && cards.some(card=>card.key === current.key) ? current : null;
     current = latest; lastShownAt = latest.created;
     showPrevious(previous, animate); showCurrent(latest, animate);
   }
-  function renderSpotlight() {
+  function renderSpotlight(languageChanged=false) {
     const id = projection.current_moment_id;
     const item = playback().state === "playing" && typeof id === "string"
       && Array.isArray(projection.dj_moments) && projection.dj_moments.find(moment=>moment && moment.moment_id === id);
@@ -327,8 +353,8 @@
       if (current) clearCards();
       return;
     }
-    e("spotlight-avatar").dataset.mood=read(projection,["session","selected_mood"]) || "";
-    if (!current || current.key !== card.key) {
+    e("moment-card").dataset.mood=read(projection,["session","selected_mood"]) || "";
+    if (!current || current.key !== card.key || languageChanged) {
       current = card;
       showCurrent(card,false);
     } else {
@@ -343,6 +369,39 @@
     fr:["Fil de la session", "Revenir au direct"],
     es:["Flujo de la sesión", "Volver al directo"]
   };
+  const horizonLabels = {
+    en:["The next few minutes","Music and contributions may change."],
+    nl:["De komende minuten","Muziek en bijdragen kunnen veranderen."],
+    de:["Die nächsten Minuten","Musik und Beiträge können sich ändern."],
+    fr:["Les prochaines minutes","La musique et les interventions peuvent changer."],
+    es:["Los próximos minutos","La música y las intervenciones pueden cambiar."]
+  };
+  let horizonExpiry;
+  function renderHorizon(active) {
+    const panels=e("session-panels"), card=e("horizon-card"), sections=e("horizon-sections");
+    if (!panels || !card || !sections) return;
+    panels.hidden=!active;
+    if (horizonExpiry) window.clearTimeout(horizonExpiry);
+    const [title,notice]=horizonLabels[root.lang] || horizonLabels.en;
+    e("horizon-card-title").textContent=title;
+    e("horizon-notice").textContent=notice;
+    clearChildren(sections);
+    const horizon=active && projection.horizon;
+    const expires=Date.parse(horizon && horizon.valid_until);
+    const items=horizon && Array.isArray(horizon.sections) ? horizon.sections.slice(0,3).filter(section=>
+      section && typeof section.title==="string" && typeof section.text==="string" && section.text) : [];
+    card.hidden=!(expires>Date.now() && items.length);
+    if (card.hidden) return;
+    card.dataset.mood=read(projection,["session","selected_mood"]) || "";
+    for (const item of items) {
+      const section=document.createElement("section"), label=document.createElement("h3"), text=document.createElement("p");
+      label.textContent=item.title;
+      text.textContent=item.text;
+      section.append(label,text);
+      sections.appendChild(section);
+    }
+    horizonExpiry=window.setTimeout(()=>renderHorizon(active),Math.max(0,expires-Date.now()));
+  }
   const flowRows = new Map();
   let followFlow = true, manualFlowScroll = false, flowExpiry;
   function atLiveEdge(viewport) {
@@ -382,11 +441,21 @@
       let row=flowRows.get(item.moment_id);
       if (!row) {
         row=document.createElement("li");
-        const label=document.createElement("span"), content=document.createElement("p"), body=document.createElement("div");
+        const meta=document.createElement("div"), label=document.createElement("span");
+        const content=document.createElement("p"), body=document.createElement("div");
+        meta.className="flow-meta";
         label.className="flow-kind";
-        label.textContent=text.types[item.type] || item.title || "";
+        meta.appendChild(label);
+        const publishedAt=item.published_at || item.created_at;
+        const published=new Date(Date.parse(publishedAt || ""));
+        if (Number.isFinite(published.getTime())) {
+          const stamp=document.createElement("time");
+          stamp.dateTime=publishedAt;
+          stamp.textContent=`${String(published.getHours()).padStart(2,"0")}:${String(published.getMinutes()).padStart(2,"0")}`;
+          meta.appendChild(stamp);
+        }
         content.textContent=item.content;
-        body.append(label,content);
+        body.append(meta,content);
         row.appendChild(body);
         const citations = item.type==="dj_bulletin" ? bulletinCitations(item.sources) : qualifiedCitations(item.sources);
         const attribution = item.source_attribution;
@@ -406,6 +475,7 @@
         }
         flowRows.set(item.moment_id,row);
       }
+      row.querySelector(".flow-kind").textContent=text.types[item.type] || item.title || "";
       const cover = item.artwork ? displayArtwork.get(item.artwork.reference) : currentCover;
       const source = read(item,["artwork","source_url"]) || playback().source_url || "";
       const showCover = cover && item.playback_item_id === cover.item_id
@@ -481,31 +551,80 @@
     });
   }
   const outputLabels = {
-    en:["Speaker","Volume","Playback progress"], nl:["Speaker","Volume","Voortgang"],
-    de:["Lautsprecher","Lautstärke","Wiedergabefortschritt"],
-    fr:["Enceinte","Volume","Progression de la lecture"],
-    es:["Altavoz","Volumen","Progreso de reproducción"]
+    en:["Speaker","Playback progress"], nl:["Speaker","Voortgang"],
+    de:["Lautsprecher","Wiedergabefortschritt"],
+    fr:["Enceinte","Progression de la lecture"],
+    es:["Altavoz","Progreso de reproducción"]
   };
   function renderDisplayPlayback(p, hasProgress) {
-    const [speakerLabel, volumeLabel, progressLabel] = outputLabels[root.lang] || outputLabels.en;
+    const [speakerLabel, progressLabel] = outputLabels[root.lang] || outputLabels.en;
     const active = !!p.title && (p.state==="playing" || p.state==="paused");
     const output = active && typeof p.output_label==="string" ? p.output_label : "";
-    const volume = active && Number.isInteger(p.volume_percent) && p.volume_percent>=0 && p.volume_percent<=100
-      ? p.volume_percent+"%" : "";
     e("display-meter").hidden=!active;
-    e("display-timing").hidden=!active || (!hasProgress && e("spotify-source").hidden);
+    e("display-timing").hidden=!active || e("spotify-source").hidden;
+    e("time").hidden=!active || !hasProgress;
     e("display-equalizer").classList.toggle("playing",active && p.state==="playing");
     e("progress").setAttribute("aria-label",progressLabel);
-    e("display-output").hidden=!(output || volume);
+    e("display-output").hidden=!output;
     e("display-speaker").hidden=!output;
-    e("display-volume").hidden=!volume;
     e("display-speaker-label").textContent=output;
-    e("display-volume-label").textContent=volume;
     e("display-speaker").setAttribute("aria-label",speakerLabel+": "+output);
-    e("display-volume").setAttribute("aria-label",volumeLabel+": "+volume);
+  }
+  const sessionIconGroups = [
+    ["mood","selected_mood",{
+      chill:"M15 16a8 8 0 0 1-7-11 8 8 0 1 0 11 11z M16 3v4m-2-2h4m2 4v2m-1-1h2",
+      groove:"M3 10v4m4-7v10m5-14v18m5-14v10m4-7v4",
+      energy:"m13 2-9 12h7l-1 8 10-12h-7z",
+      party:"m4 20 4-12 8 8z M10 10l2-5m2 7 6-3m-2 7 3 1M17 3v4m-2-2h4"
+    }],
+    ["persona","dj_persona",{
+      home_dj:"m3 11 9-8 9 8M5 10v10h14V10m-9 10v-6h4v6",
+      radio_dj:"M5 8l13-5M5 8h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2zm4 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm6-4h3m-3 4h3",
+      club_dj:"M21 12a9 9 0 1 0-18 0 9 9 0 0 0 18 0zm-7 0a2 2 0 1 0-4 0 2 2 0 0 0 4 0zm2-6 2 2",
+      festival_dj:"M7 14a4 4 0 1 1 6-5l-6 5zm0 0-4 6 2 1 6-7m6-8 4-1v9m0 0a2 1.5 0 1 0-4 0 2 1.5 0 0 0 4 0z"
+    }],
+    ["presence","selected_presence",{
+      music_only:"M10 17V6l9-2v11m-9 2a3 2 0 1 0-6 0 3 2 0 0 0 6 0zm9-2a3 2 0 1 0-6 0 3 2 0 0 0 6 0z",
+      occasional:"M5 5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-8l-6 4v-4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z",
+      balanced:"M4 4h10a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H8l-4 3v-3a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm14 5h2a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2v3l-4-3h-4a2 2 0 0 1-2-2",
+      presenter:"M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3zm-6 7v1a6 6 0 0 0 12 0v-1m-6 7v4m-3 0h6"
+    }]
+  ];
+  // Labels follow the four glyph choices in each group, in Apple UI order.
+  const sessionIconCopy = {
+    en:[["Mood","Chill","Groove","Energy","Party"],["DJ character","Home DJ","Radio DJ","Club DJ","Festival DJ"],["DJ presence","Music only","Occasionally","Balanced","Presenter"]],
+    nl:[["Stemming","Rustig","Groove","Energie","Feest"],["DJ karakter","Thuis-dj","Radio-dj","Club-dj","Festival-dj"],["DJ aanwezigheid","Alleen muziek","Af en toe","Gebalanceerd","Presentator"]],
+    de:[["Stimmung","Entspannt","Groove","Energie","Party"],["DJ-Charakter","DJ zu Hause","Radio-DJ","Club-DJ","Festival-DJ"],["DJ-Präsenz","Nur Musik","Gelegentlich","Ausgewogen","Moderator"]],
+    fr:[["Ambiance","Détente","Groove","Énergie","Fête"],["Caractère du DJ","DJ à la maison","DJ radio","DJ de club","DJ de festival"],["Présence du DJ","Musique uniquement","De temps en temps","Équilibré","Présentateur"]],
+    es:[["Ambiente","Tranquilo","Groove","Energía","Fiesta"],["Carácter del DJ","DJ en casa","DJ de radio","DJ de club","DJ de festival"],["Presencia del DJ","Solo música","De vez en cuando","Equilibrado","Presentador"]]
+  };
+  function renderSessionIcons() {
+    const group=e("session-icons");
+    if (!group) return;
+    const labels=sessionIconCopy[root.lang] || sessionIconCopy.en;
+    let visible=false;
+    sessionIconGroups.forEach(([name,key,glyphs],index)=>{
+      const icon=e("session-"+name+"-icon");
+      if (!icon || !icon.firstElementChild) return;
+      const value=snapshotAccepted && !ended ? read(projection,["session",key]) : null;
+      const glyphIndex=Object.keys(glyphs).indexOf(value);
+      if (glyphIndex<0) {
+        icon.setAttribute("hidden","");
+        icon.firstElementChild.removeAttribute("d");
+        icon.removeAttribute("aria-label");
+        return;
+      }
+      icon.removeAttribute("hidden");
+      visible=true;
+      icon.firstElementChild.setAttribute("d",glyphs[value]);
+      icon.setAttribute("aria-label",labels[index][0]+": "+labels[index][glyphIndex+1]);
+    });
+    group.hidden=!visible;
   }
   function render(animate=false) {
-    useLanguage(); updateClock();
+    const languageChanged=useLanguage(); updateClock();
+    if (snapshotAccepted && !ended) e("state").textContent=text.live;
+    renderSessionIcons();
     const p = playback(), mood = read(projection,["session","selected_mood"]);
     document.body.classList.toggle("idle",!p.title);
     e("mood").textContent = mood || text.ambient;
@@ -532,22 +651,27 @@
     const artworkCard = e("artwork-card");
     if (artworkCard) artworkCard.hidden = !art;
     if (art !== lastArtwork) {
+      browserTint=undefined;
+      if (root.removeAttribute) root.removeAttribute("data-art-palette");
+      for (const key of ["--tone1","--tone2","--tone3","--track-background"]) root.style.removeProperty && root.style.removeProperty(key);
+      root.style.setProperty("--accent",theme(mood));
       if (art) e("artwork").src = art;
       else e("artwork").removeAttribute("src");
       lastArtwork = art;
     }
+    setBrowserTheme(p.title ? browserTint || "#141222" : "#191b3a");
     e("artwork").alt = art ? (p.album || p.title || "") : "";
     root.style.setProperty("--art",art ? `url("${art.split('"').join('%22')}")` : "none");
-    if (!art) { root.style.setProperty("--accent",theme(mood)); for (const key of ["--tone1","--tone2","--tone3"]) root.style.removeProperty && root.style.removeProperty(key); }
+    if (!art) root.style.setProperty("--accent",theme(mood));
     const active = Number.isFinite(p.duration_ms) && Number.isFinite(p.position_ms) && p.duration_ms > 0;
     e("progress").hidden = !active;
     if (active) { e("progress").max=p.duration_ms; e("progress").value=p.position_ms; e("time").textContent=`${format(p.position_ms)} / ${format(p.duration_ms)}`; }
     else e("time").textContent="";
     if (displayHost) {
       renderDisplayPlayback(p,active);
-      renderFlow();
-      renderSpotlight();
-    } else renderCards(animate);
+      renderHorizon(renderFlow());
+      renderSpotlight(languageChanged);
+    } else renderCards(animate,languageChanged);
     reportPresentation();
   }
   function apply(snapshot) {
@@ -591,6 +715,7 @@
       const ctx=canvas.getContext("2d",{willReadFrequently:true}); ctx.drawImage(image,0,0,24,24);
       const pixels=ctx.getImageData(0,0,24,24).data, buckets=new Map();
       for (let i=0;i<pixels.length;i+=4) {
+        if (pixels[i+3] < 128) continue;
         const channels=[pixels[i],pixels[i+1],pixels[i+2]];
         const key=channels.map(c=>Math.round(c/32)*32).join(",");
         const bucket=buckets.get(key) || {count:0,total:[0,0,0]}; bucket.count++;
@@ -598,8 +723,22 @@
       }
       const tones=[...buckets.values()].sort((a,b)=>b.count-a.count).slice(0,3).map(b=>b.total.map(c=>Math.round(c/b.count)));
       if (identity !== lastArtwork) return;
-      tones.forEach((rgb,index)=>root.style.setProperty(`--tone${index+1}`,`rgb(${rgb.map(c=>Math.round(c*.5)).join(" ")})`));
-      if (tones[0]) root.style.setProperty("--accent",`rgb(${tones[0].map(c=>Math.max(100,c)).join(" ")})`);
+      if (!tones.length) return;
+      for (let index=0; index<3; index++) {
+        const rgb=tones[index] || tones[0];
+        root.style.setProperty(`--tone${index+1}`,`rgb(${rgb.map(c=>Math.round(c*.5)).join(" ")})`);
+      }
+      // Keep the cover hue while limiting the luminance behind light text.
+      const dominant=tones[0];
+      const luminance=dominant.reduce((sum,channel,index)=>
+        sum+[.2126,.7152,.0722][index]*Math.pow(channel/255,2.2),0);
+      const shade=Math.min(.68,Math.pow(.11/luminance,1/2.2));
+      const trackBackground=dominant.map(channel=>Math.round(channel*shade));
+      root.style.setProperty("--track-background",`rgb(${trackBackground.join(", ")})`);
+      browserTint=`rgb(${trackBackground.map(channel=>Math.round(channel*.48)).join(", ")})`;
+      setBrowserTheme(browserTint);
+      root.style.setProperty("--accent",`rgb(${tones[0].map(c=>Math.max(100,c)).join(" ")})`);
+      root.setAttribute("data-art-palette","");
     } catch (_) { /* Same-origin proxy unavailable: keep the neutral palette. */ }
   });
   const url = () => `${haOrigin ? haOrigin.replace(/^https:/,"wss:").replace(/^http:/,"ws:") : (window.location.protocol === "https:" ? "wss:" : "ws:")+"//"+window.location.host}/api/djconnect/v1/session/broadcast/ws/${encodeURIComponent(sessionId)}?broadcast_token=${encodeURIComponent(broadcastToken)}`;
@@ -627,6 +766,7 @@
     active.onclose=() => {
       if (active !== socket || ended || reconnectTimer) return;
       snapshotAccepted=false; reportStatus("recovering");
+      renderSessionIcons();
       reconnectTimer=window.setTimeout(() => { reconnectTimer=undefined; attempts++; connect(); },Math.min(1000*2**attempts,5000));
     };
     active.onerror=() => active.close();
@@ -657,9 +797,15 @@
   window.addEventListener("djconnect-host-stop",stopHost);
   window.addEventListener("beforeunload",stopHost);
   if (displayHost) {
-    e("display-meter").appendChild(e("progress"));
-    e("display-timing").append(e("spotify-source"),e("time"));
+    e("shared-flow").appendChild(e("moment-cards"));
+    e("display-meter").append(e("progress"),e("time"));
+    e("display-timing").appendChild(e("spotify-source"));
     connectFlowControls();
+    window.addEventListener("djconnect-display-locale",({detail}) => {
+      displayLocale=typeof detail==="string" && /^(en|nl|de|fr|es)$/.test(detail) ? detail : "";
+      render(false);
+      if (!snapshotAccepted) e("state").textContent=text.connecting;
+    });
     window.addEventListener("djconnect-display-clear",stopHost);
     window.addEventListener("djconnect-display-artwork",({detail}) => {
       displayArtwork=new Map((Array.isArray(detail) ? detail : []).filter(cover=>String(cover.url).startsWith("blob:"))

@@ -12,7 +12,7 @@ from pathlib import Path
 import subprocess
 
 SOURCES = ("template.html", "style.css", "renderer.js", "local-host.js", "cast-host.js", "../brand/mark-40.png")
-VERSION = "1.1.4"
+VERSION = "4.0.0"
 
 
 class InlineScripts(HTMLParser):
@@ -54,6 +54,7 @@ def source_pin(hashes: dict[str, str]) -> str:
 def render(root: Path, host: str) -> str:
     source = root / "custom_components/djconnect/vibecast_renderer"
     text = (source / "template.html").read_text()
+    text = text.replace("@@HANDOFF_HIDDEN@@", "" if host == "display" else " hidden")
     text = text.replace("@@BUILD_VERSION@@", VERSION)
     text = text.replace("@@SOURCE_PIN@@", source_pin(source_hashes(source)))
     micro = base64.b64encode((source / "../brand/mark-40.png").read_bytes()).decode("ascii")
@@ -188,7 +189,8 @@ def verify(
             else:
                 parser = InlineScripts()
                 page = path.read_text()
-                expected_footer = f'Rendererversie {VERSION} ({source_pin(manifest["sources"])})'
+                expected_footer = (f'<span id="renderer-build-label">VibeCast versie</span> '
+                                   f'{VERSION} ({source_pin(manifest["sources"])})')
                 if f'<span id="renderer-build">{expected_footer}</span>' not in page:
                     errors.append("renderer_build_label_mismatch:" + name)
                 parser.feed(page)

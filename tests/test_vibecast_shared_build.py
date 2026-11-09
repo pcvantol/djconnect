@@ -35,12 +35,12 @@ class SharedVibeCastBuildTest(unittest.TestCase):
             self.assertIn(brand_uri, local)
             self.assertIn(brand_uri, static)
             inputs = ROOT / "custom_components/djconnect/vibecast_renderer"
-            label = f"Rendererversie {build.VERSION} ({build.source_pin(build.source_hashes(inputs))})"
+            label = f'<span id="renderer-build-label">VibeCast versie</span> {build.VERSION} ({build.source_pin(build.source_hashes(inputs))})'
             for page in (local, static):
                 self.assertIn(f'<span id="renderer-build">{label}</span>', page)
                 self.assertIn(f'<link rel="icon" type="image/png" href="{brand_uri}">', page)
                 self.assertIn("<title>DJConnect VibeCast</title>", page)
-                self.assertIn("Powered by DJConnect", page)
+                self.assertIn("Show your DJ session on this screen.", page)
                 self.assertEqual(page.count('href="https://djconnect.dev/"'), 1)
             self.assertNotIn("gstatic.com", local)
             self.assertIn("addCustomMessageListener", static)

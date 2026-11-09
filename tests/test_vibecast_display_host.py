@@ -26,6 +26,7 @@ for(const scenario of ["late-pending","late-admitted","revoked","disconnected","
     return value;
   }
   const panel=element(),header=element();
+  const digits=()=>panel.children.find(child=>child.className==="handoff-code")?.children.find(child=>child.tag==="strong");
   const response=value=>({ok:true,status:200,text:async()=>JSON.stringify({success:true,...value})});
   const context={navigator:{language:"en",onLine:true},performance:{now:()=>time},
     location:{protocol:"https:",origin:"https://ha.example.test",search:"",hash:""},
@@ -48,7 +49,7 @@ for(const scenario of ["late-pending","late-admitted","revoked","disconnected","
     }};
   vm.runInNewContext(source,context);
   await new Promise(setImmediate);
-  assert.equal(panel.children.some(child=>child.tag==="strong"),true);
+  assert.equal(digits()?.textContent,"123456");
   assert.equal(header.children.length,0);
   if(!scenario.startsWith("late-")){
     resolveCollect(response({state:"admitted",grant_token:"djcd_"+"A".repeat(43),lease_expires_in:60,
@@ -74,7 +75,7 @@ for(const scenario of ["late-pending","late-admitted","revoked","disconnected","
     assert.ok(clears>previousClears);
     assert.equal(socket,previousSocket);
     assert.equal(claims,2);
-    assert.equal(panel.children.find(child=>child.tag==="strong").textContent,"654321");
+    assert.equal(digits()?.textContent,"654321");
     assert.equal(panel.children.some(child=>child.tag==="button"),false);
     previousClose({code:1008});
     assert.equal(claims,2);
@@ -83,12 +84,8 @@ for(const scenario of ["late-pending","late-admitted","revoked","disconnected","
   time=120001;
   resolveCollect(response({state:scenario.slice(5),grant_token:"djcd_"+"A".repeat(43),lease_expires_in:60}));
   await new Promise(setImmediate);
-  assert.match(panel.children[0].textContent,/access has expired/);
-  assert.equal(panel.children.some(child=>child.tag==="strong"),false);
-  const retry=panel.children.find(child=>child.tag==="button");
-  assert.equal(retry.textContent,"Request a new code");
+  assert.equal(digits()?.textContent,"654321");
   assert.equal(socket,undefined);
-  await retry.onclick();
   assert.equal(claims,2);
 }
 '''.replace("SOURCE_PATH", json.dumps(str(source)))
