@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Any
 
 from .const import API_SESSION_BROADCAST
+from .display_authority import DISPLAY_OWNER_CLIENT_TYPES
 from .paired_live_contract import paired_live_capability
 
 
@@ -22,6 +23,7 @@ def session_broadcast_transport_capabilities() -> dict[str, Any]:
             "entry_path": "/djconnect/vibecast/display",
             "requires_external_https": True,
             "owner_authentication": "paired_device_bearer",
+            "owner_client_types": list(DISPLAY_OWNER_CLIENT_TYPES),
             "display_authentication": "dedicated_display_bearer",
             "read_only": True,
             "rendezvous_a": False,

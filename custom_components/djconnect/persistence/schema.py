@@ -71,6 +71,25 @@ HOST_WAKE_ATTEMPT_DDL = (
     "PRIMARY KEY(parent_purpose_id,ordinal),UNIQUE(parent_purpose_id,kind,semantic_hash))"
 )
 
+NATIVE_PAIR_RETIREMENT_DDL = (
+    "CREATE TABLE djconnect_native_pair_retirements ("
+    "event_id TEXT PRIMARY KEY,local_binding TEXT NOT NULL,"
+    "origin TEXT NOT NULL,original TEXT NOT NULL CHECK(length(original)<=4096),"
+    "consent_revision INTEGER NOT NULL CHECK(consent_revision BETWEEN 1 AND 9007199254740991),"
+    "publisher_origin TEXT NOT NULL,withdrawn INTEGER NOT NULL DEFAULT 0 CHECK(withdrawn IN (0,1)),"
+    "delivered INTEGER NOT NULL DEFAULT 0 CHECK(delivered IN (0,1)),"
+    "FOREIGN KEY(local_binding) REFERENCES djconnect_surface_pairs(binding))"
+)
+
+NATIVE_WIDGET_CONSENT_DDL = (
+    "CREATE TABLE djconnect_native_widget_consent ("
+    "local_binding TEXT NOT NULL,operation_id TEXT NOT NULL CHECK(length(operation_id)=36),"
+    "enabled INTEGER NOT NULL CHECK(enabled IN (0,1)),"
+    "revision INTEGER NOT NULL CHECK(revision BETWEEN 1 AND 9007199254740991),"
+    "PRIMARY KEY(local_binding,operation_id),UNIQUE(local_binding,revision),"
+    "FOREIGN KEY(local_binding) REFERENCES djconnect_surface_pairs(binding))"
+)
+
 MIGRATIONS = (
     Migration(1, "0001_persistence_metadata", "8c52f0c7"),
     Migration(2, "0002_migration_identity", "b0b063e2"),
@@ -95,9 +114,13 @@ MIGRATIONS = (
         hashlib.sha256(RICH_PURPOSE_DDL.encode()).hexdigest()[:8]),
     Migration(21, "0021_host_wake_child_once",
         hashlib.sha256((HOST_WAKE_CHILD_DDL + HOST_WAKE_ATTEMPT_DDL).encode()).hexdigest()[:8]),
+    Migration(22, "0022_native_pair_retirement",
+        hashlib.sha256((NATIVE_PAIR_RETIREMENT_DDL + NATIVE_WIDGET_CONSENT_DDL).encode()).hexdigest()[:8]),
 )
 CURRENT_SCHEMA_VERSION = MIGRATIONS[-1].version
 REQUIRED_TABLES = {
+    "djconnect_native_widget_consent": {"local_binding", "operation_id", "enabled", "revision"},
+    "djconnect_native_pair_retirements": {"event_id", "local_binding", "origin", "original", "consent_revision", "publisher_origin", "withdrawn", "delivered"},
     "djconnect_host_wake_children": {"parent_purpose_id", "native_operation_id", "generation", "native_revision",
         "parent_binding_hash", "prepare_request_hash", "created_ms", "original_hash", "role_hash", "expires_ms",
         "phase", "cas_revision", "consumed_attempts"},
@@ -491,6 +514,9 @@ def apply_migration(transaction: ProviderTransaction, version: int) -> None:
     elif version == 21:
         transaction.execute(HOST_WAKE_CHILD_DDL)
         transaction.execute(HOST_WAKE_ATTEMPT_DDL)
+    elif version == 22:
+        transaction.execute(NATIVE_PAIR_RETIREMENT_DDL)
+        transaction.execute(NATIVE_WIDGET_CONSENT_DDL)
     timestamp = datetime.now(UTC).isoformat()
     transaction.execute(
         "INSERT OR REPLACE INTO djconnect_schema_metadata "

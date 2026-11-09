@@ -11,7 +11,7 @@ class BulletinManualSpeechContractTests(unittest.TestCase):
     def test_actual_paired_manual_use_denial_and_withdrawal_join_current_source(self):
         wire = json.loads((ROOT / "examples/client_contracts/bulletin_manual_speech_v1/actual-ha-wire.json").read_text())
         self.assertTrue(wire["source_before_after_equal"])
-        self.assertEqual(len(wire["source_pins"]), 308)
+        self.assertEqual(len(wire["source_pins"]), 315)
         for name, digest in wire["source_pins"].items():
             self.assertEqual(hashlib.sha256((ROOT / name).read_bytes()).hexdigest(), digest, name)
         for name, digest in wire["harness_pins"].items():

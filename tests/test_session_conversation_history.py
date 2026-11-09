@@ -68,6 +68,79 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         await self.service.async_close()
         self.tmp.cleanup()
 
+    async def test_flow_prefers_only_readable_announcement_for_exact_playback_occurrence(self):
+        from custom_components.djconnect.session_history_projection import HistoryQueryError
+        from custom_components.djconnect.track_start_announcement import AnnouncementState
+
+        owner = "profile-a"
+        session = await self.manager.async_start(owner_profile_id=owner)
+        sid = session.session_id
+        now = 100.0
+        tracker = AnnouncementState(lambda: now)
+        uri = "spotify:track:" + "A" * 22
+
+        async def observe(position):
+            def capture():
+                return tracker.observe(
+                    state="playing", media_uri=uri, title="Same track", artist="Artist",
+                    position_ms=position, duration_ms=180000, authorize=lambda: True,
+                )
+            await self.manager.async_update_playback_projection(
+                owner_profile_id=owner, session_id=sid, state="playing",
+                media_identity=uri, title="Same track", artist="Artist", position_ms=position,
+                capture_occurrence=capture,
+            )
+
+        await observe(0)
+        occurrence = tracker.current_occurrence.occurrence_id
+        await self.repo.async_append_entries(owner, sid, [{
+            "kind": "dj_moment", "reference_id": "moment-other",
+            "body": {"moment_id": "moment-other", "moment_type": "dj_bulletin",
+                     "text": "Other contribution", "archive_basis": "runtime_authored_direction_v1"},
+        }])
+        first = await self.queries.async_timeline_page(owner, sid, limit=1)
+        fallback_id = first["entries"][0]["entry_id"]
+        self.assertEqual(first["entries"][0]["kind"], "playback_observed")
+
+        self.assertTrue(await self.repo.async_accept_moment(owner, sid, "moment-announcement", {
+            "kind": "dj_moment", "reference_id": "moment-announcement",
+            "body": {"moment_id": "moment-announcement", "moment_type": "music_announcement",
+                     "text": "The actual narrative", "archive_basis": "owner_metadata_narration_v1",
+                     "music_announcement": {"schema_version": 1, "occurrence_id": occurrence}},
+        }))
+        with self.assertRaisesRegex(HistoryQueryError, "invalid_history_cursor"):
+            await self.queries.async_timeline_page(owner, sid, limit=1, cursor=first["next_cursor"])
+        fresh = await self.queries.async_timeline_page(owner, sid, limit=1)
+        rows = await self.repo.async_entry_records(owner, sid)
+        self.assertEqual(rows[0]["reference_id"], occurrence)
+        self.assertEqual(fresh["entries"][0].get("moment_id"), "moment-other", rows)
+        next_page = await self.queries.async_timeline_page(owner, sid, limit=1, cursor=fresh["next_cursor"])
+        self.assertEqual(next_page["entries"][0]["moment_id"], "moment-announcement")
+        tail = await self.queries.async_timeline_window(owner, sid, window="tail")
+        self.assertEqual(tail["scanned_order_min"], first["entries"][0]["order"])
+        self.assertNotIn(fallback_id, [entry["entry_id"] for entry in tail["entries"]])
+
+        now += 178
+        await observe(178000)
+        now += 3
+        await observe(1000)
+        self.assertNotEqual(tracker.current_occurrence.occurrence_id, occurrence)
+        fresh = await self.queries.async_timeline_page(owner, sid)
+        self.assertEqual([entry["kind"] for entry in fresh["entries"]],
+                         ["dj_moment", "dj_moment", "playback_observed"])
+        stored = await self.repo.async_entry_records(owner, sid, kind="playback_observed")
+        self.assertEqual([row["reference_id"] for row in stored],
+                         [occurrence, tracker.current_occurrence.occurrence_id])
+
+        async def source_visible(_owner, row):
+            return row["reference_id"] != "moment-announcement"
+
+        self.queries._source_validator = source_visible
+        withdrawn = await self.queries.async_timeline_page(owner, sid)
+        self.assertEqual([entry["kind"] for entry in withdrawn["entries"]],
+                         ["playback_observed", "dj_moment", "dj_publication", "playback_observed"])
+        self.assertEqual(withdrawn["entries"][0]["entry_id"], fallback_id)
+
     async def test_four_retention_bases_and_silent_receipts_match_pinned_consumer_fixture(self):
         import json
         import hashlib
@@ -79,6 +152,9 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         frozen_v2 = ROOT/'examples/client_contracts/session_conversation_history/retention-bases-v2.json'
         self.assertEqual(hashlib.sha256(frozen_v2.read_bytes()).hexdigest(),
             'da5d8674dc49adb1cc0fabcca51d4f8b730d31f1179462160d1f68aa97e19b14')
+        prior_music = ROOT/FIXTURE.with_name('retention-bases-v2-music-announcement-20261105.json')
+        self.assertEqual(hashlib.sha256(prior_music.read_bytes()).hexdigest(),
+            'ceddfaf9a7422d204de8872ea401df0772969e2554ff5ac7008f7c035dd6201e')
         produced = await build_connected(self.service)
         self.assertEqual(produced,json.loads((ROOT/FIXTURE).read_text()))
         # Evolving speech source pins must not rewrite the delivered schema2

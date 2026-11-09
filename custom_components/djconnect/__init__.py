@@ -1867,6 +1867,7 @@ def register_http_views(hass: HomeAssistant) -> None:
         from .surface_registration_http import registration_views
         from .direct_rich_http import rich_views
         from .host_wake_http import host_wake_views
+        from .native_pair_enrollment_http import native_pair_enrollment_views
         from .installation_management import InstallationManagementPrepareView
         from .hybrid_transport import HybridActionsView, HybridContextView, HybridOperationView, HybridOperationStatusView, HybridRecoveryView
         from .display_transport import transition_views
@@ -1880,6 +1881,7 @@ def register_http_views(hass: HomeAssistant) -> None:
             *surface_views(hass),
             *registration_views(hass),
             *host_wake_views(hass),
+            *native_pair_enrollment_views(hass),
             *rich_views(hass),
             *transition_views(hass), DisplayLiveView(hass), DisplayShellView(hass),
             HybridActionsView(hass), HybridContextView(hass), HybridOperationView(hass),
@@ -1991,7 +1993,10 @@ def register_http_views(hass: HomeAssistant) -> None:
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     from .profile_observation import bootstrap_from_integration_setup
+    from .native_widget_runtime import select_from_runtime
+
     bootstrap_from_integration_setup(hass)
+    await select_from_runtime(hass)
     register_http_views(hass)
     return True
 
@@ -3303,6 +3308,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await async_initialize_persistence(hass)
         from .direct_rich_runtime import setup_service
         setup_service(hass)
+        from .native_pair_enrollment import retirement_delivery_service
+        native_enrollment = retirement_delivery_service(hass)
+        if native_enrollment is not None:
+            native_enrollment.start_retirement_delivery()
     except Exception as exc:  # noqa: BLE001
         _LOGGER.error("DJConnect persistence bootstrap failed: %s", exc.__class__.__name__)
         return False
@@ -3497,6 +3506,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     await handoff_manager.clear()
             else:
                 await _async_clear_all_server_state(hass)
+            from .native_pair_enrollment import retirement_delivery_service
+            native_enrollment = retirement_delivery_service(hass)
+            if native_enrollment is not None:
+                native_enrollment.stop_retirement_delivery()
             await async_shutdown_persistence(hass, preserve_for_reload=retired or entry.entry_id in hass.data[DOMAIN].get(_ENTRY_RELOAD_PRESERVE_KEY, set()))
     return unloaded
 

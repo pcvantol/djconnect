@@ -177,6 +177,36 @@ class HistoricalProjectionRepository(PersistenceRepository):
 
         return await self._async_in_transaction(read)
 
+    async def async_feed_announcements(
+        self, owner: str, session_id: str, occurrences: list[str]
+    ) -> list[dict]:
+        """Read only published announcement candidates for a bounded feed scan."""
+        if not occurrences:
+            return []
+
+        def read(tx):
+            rows = tx.fetchall(
+                """SELECT entry_id,session_id,entry_order,kind,reference_id,body,
+                          occurred_at,retained_until,visibility,revoked_at
+                   FROM djconnect_session_entries AS entry
+                   WHERE owner_profile_id=? AND session_id=? AND kind='dj_moment'
+                     AND visibility='owner' AND COALESCE(revoked_at, '')=''
+                     AND CASE WHEN json_valid(body) THEN
+                         json_extract(body,'$.music_announcement.occurrence_id') END
+                         IN (SELECT value FROM json_each(?))
+                     AND NOT EXISTS (
+                         SELECT 1 FROM djconnect_history_deletion_targets AS deletion
+                         WHERE deletion.owner_profile_id=entry.owner_profile_id
+                           AND deletion.session_id=entry.session_id)
+                   ORDER BY entry_order DESC LIMIT 251""",
+                (owner, session_id, json.dumps(occurrences)),
+            )
+            keys = ("entry_id", "session_id", "order", "kind", "reference_id", "body",
+                    "occurred_at", "retained_until", "visibility", "revoked_at")
+            return [dict(zip(keys, row)) for row in rows]
+
+        return await self._async_in_transaction(read)
+
     async def async_entry_record(
         self, owner_profile_id: str, session_id: str, entry_id: str, *, moment_id: str | None = None
     ) -> dict | None:
@@ -311,9 +341,9 @@ class HistoricalProjectionRepository(PersistenceRepository):
                     "SELECT entry_id,body FROM djconnect_session_entries WHERE session_id=? AND kind='playback_observed' ORDER BY entry_order DESC LIMIT 1",
                     (session_id,),
                 )
-                if previous and json.loads(previous[1]).get("item_id") == item["body"].get(
-                    "item_id"
-                ):
+                from ..session_history_projection import is_playback_occurrence
+                if (previous and not is_playback_occurrence(item["reference_id"])
+                    and json.loads(previous[1]).get("item_id") == item["body"].get("item_id")):
                     ids.append(str(previous[0]))
                     continue
             order += 1

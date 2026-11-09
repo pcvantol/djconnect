@@ -1,0 +1,435 @@
+{
+  "audible": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "legacy_mixed_page": {
+    "body": {
+      "error": "history_contract_upgrade_required",
+      "required_history_contract_version": 2,
+      "success": false,
+      "supported_history_contract_versions": [
+        1,
+        2
+      ]
+    },
+    "http_status": 409
+  },
+  "native": "NOT_RUN",
+  "qualification": "ACTUAL_SQLITE_QUERY_TAIL_AND_REPRESENTATION_FROM_SYNTHETIC_ADMITTED_ROWS",
+  "refused_rows": {
+    "expired": true,
+    "revoked": true,
+    "shared_visibility": true,
+    "unknown_basis": true
+  },
+  "source_pins": {
+    "custom_components/djconnect/historical_projection_query.py": "07c62926331916f3345a5e48e12c22857f2b8ffedd032da3a5bba375d85519cb",
+    "custom_components/djconnect/history_entry_contract.py": "2cb333b1a9f8fce4471449857f735aa28f462e78d5ae95f952fa48ad8d17628f",
+    "custom_components/djconnect/session_history_projection.py": "95387276680be232cdb98f20877ff79a1180c12517132ec8b0b5f6c761993514",
+    "custom_components/djconnect/session_speech.py": "d9465f78a2b249a0ed796f81a33ea1d37cdff740a5e5a414ccf15af23106a87a"
+  },
+  "tail_window": {
+    "anchor_entry_id": null,
+    "coverage": "bounded_saved_entry_window",
+    "entries": [
+      {
+        "archive_basis": "cc0_normalized_fields_v1",
+        "current_display_allowed": false,
+        "entry_id": "entry-52daba00c5cc5e5699c7c0d1b3e186bd",
+        "historical_view_only": true,
+        "kind": "dj_moment",
+        "locale": "en",
+        "moment_id": "moment-basis-1",
+        "moment_type": "album",
+        "mood": "chill",
+        "occurred_at": "2026-10-18T12:00:00+00:00",
+        "order": 1,
+        "persona": "radio_dj",
+        "persona_revision": 0,
+        "retained_until": "9999-12-31T00:00:00+00:00",
+        "session_id": "session-basis-contract",
+        "session_speech": {
+          "attribution": [
+            {
+              "license": "CC0-1.0",
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "autoplay_eligible": false,
+          "cache_policy": "private,no-store",
+          "expires_at": "9999-12-31T00:00:00+00:00",
+          "locale": "en",
+          "manual_allowed": true,
+          "mood": "chill",
+          "persona": "radio_dj",
+          "persona_revision": 0,
+          "presentation_revision": "aeb5274f94c4f76d901f4fc9",
+          "processor_qualification_required": true,
+          "processors": [
+            "local_on_device",
+            "ha_configured"
+          ],
+          "reason": null,
+          "reference": {
+            "entry_id": "entry-52daba00c5cc5e5699c7c0d1b3e186bd",
+            "session_id": "session-basis-contract"
+          },
+          "schema_version": 1,
+          "segments": [
+            {
+              "ordinal": 1,
+              "speaker_role": "dj",
+              "text": "A synthetic retained contribution for contract decoding."
+            }
+          ],
+          "session_id": "session-basis-contract",
+          "source_expires_at": "9999-12-31T00:00:00+00:00",
+          "source_id": "entry-52daba00c5cc5e5699c7c0d1b3e186bd",
+          "source_kind": "retained_dj_contribution",
+          "state": "available",
+          "style_basis": "accepted_contribution",
+          "text_revision": "e7c86803852b18a129b437e2"
+        },
+        "source_attribution": {
+          "license": "CC0-1.0",
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001"
+        },
+        "summary": "Synthetic album",
+        "text": "A synthetic retained contribution for contract decoding."
+      },
+      {
+        "archive_basis": "runtime_authored_direction_v1",
+        "current_display_allowed": false,
+        "entry_id": "entry-f9b6ac4a53a3542796b77d59fead3218",
+        "historical_view_only": true,
+        "kind": "dj_moment",
+        "locale": "en",
+        "moment_id": "moment-basis-2",
+        "moment_type": "session",
+        "mood": "chill",
+        "occurred_at": "2026-10-18T12:00:00+00:00",
+        "order": 2,
+        "persona": "radio_dj",
+        "persona_revision": 0,
+        "retained_until": "9999-12-31T00:00:00+00:00",
+        "session_id": "session-basis-contract",
+        "session_speech": {
+          "attribution": [],
+          "autoplay_eligible": false,
+          "cache_policy": "private,no-store",
+          "expires_at": "9999-12-31T00:00:00+00:00",
+          "locale": "en",
+          "manual_allowed": true,
+          "mood": "chill",
+          "persona": "radio_dj",
+          "persona_revision": 0,
+          "presentation_revision": "0f9fb3f5d8ddf26f74255f08",
+          "processor_qualification_required": true,
+          "processors": [
+            "local_on_device",
+            "ha_configured"
+          ],
+          "reason": null,
+          "reference": {
+            "entry_id": "entry-f9b6ac4a53a3542796b77d59fead3218",
+            "session_id": "session-basis-contract"
+          },
+          "schema_version": 1,
+          "segments": [
+            {
+              "ordinal": 1,
+              "speaker_role": "dj",
+              "text": "A synthetic retained contribution for contract decoding."
+            }
+          ],
+          "session_id": "session-basis-contract",
+          "source_expires_at": "9999-12-31T00:00:00+00:00",
+          "source_id": "entry-f9b6ac4a53a3542796b77d59fead3218",
+          "source_kind": "retained_dj_contribution",
+          "state": "available",
+          "style_basis": "accepted_contribution",
+          "text_revision": "e7c86803852b18a129b437e2"
+        },
+        "source_attribution": {},
+        "summary": "Synthetic album",
+        "text": "A synthetic retained contribution for contract decoding."
+      },
+      {
+        "archive_basis": "owner_metadata_narration_v1",
+        "current_display_allowed": false,
+        "entry_id": "entry-35e1618ce1fa5e2e814c64b0dec7de86",
+        "historical_view_only": true,
+        "kind": "dj_moment",
+        "locale": "en",
+        "moment_id": "moment-basis-3",
+        "moment_type": "album",
+        "mood": "chill",
+        "occurred_at": "2026-10-18T12:00:00+00:00",
+        "order": 3,
+        "persona": "radio_dj",
+        "persona_revision": 0,
+        "provider": "Spotify",
+        "retained_until": "9999-12-31T00:00:00+00:00",
+        "session_id": "session-basis-contract",
+        "session_speech": {
+          "attribution": [
+            {
+              "license": "Spotify metadata display",
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/AAAAAAAAAAAAAAAAAAAAAA"
+            }
+          ],
+          "autoplay_eligible": false,
+          "cache_policy": "private,no-store",
+          "expires_at": "9999-12-31T00:00:00+00:00",
+          "locale": "en",
+          "manual_allowed": true,
+          "mood": "chill",
+          "persona": "radio_dj",
+          "persona_revision": 0,
+          "presentation_revision": "6aeb135d5d5b970f2af3a101",
+          "processor_qualification_required": true,
+          "processors": [
+            "local_on_device",
+            "ha_configured"
+          ],
+          "reason": null,
+          "reference": {
+            "entry_id": "entry-35e1618ce1fa5e2e814c64b0dec7de86",
+            "session_id": "session-basis-contract"
+          },
+          "schema_version": 1,
+          "segments": [
+            {
+              "ordinal": 1,
+              "speaker_role": "dj",
+              "text": "A synthetic retained contribution for contract decoding."
+            }
+          ],
+          "session_id": "session-basis-contract",
+          "source_expires_at": "9999-12-31T00:00:00+00:00",
+          "source_id": "entry-35e1618ce1fa5e2e814c64b0dec7de86",
+          "source_kind": "retained_dj_contribution",
+          "state": "available",
+          "style_basis": "accepted_contribution",
+          "text_revision": "e7c86803852b18a129b437e2"
+        },
+        "source_attribution": {
+          "license": "Spotify metadata display",
+          "provider": "Spotify",
+          "url": "https://open.spotify.com/album/AAAAAAAAAAAAAAAAAAAAAA"
+        },
+        "summary": "Synthetic album",
+        "text": "A synthetic retained contribution for contract decoding."
+      },
+      {
+        "archive_basis": "public_artist_narration_v1",
+        "current_display_allowed": false,
+        "dialogue_subjects": [
+          {
+            "name": "Synthetic artist",
+            "role": "Group"
+          }
+        ],
+        "entry_id": "entry-0fd45049cc2d510da56273f8d8ab703a",
+        "historical_view_only": true,
+        "kind": "dj_moment",
+        "locale": "en",
+        "moment_id": "moment-basis-4",
+        "moment_type": "artist",
+        "mood": "chill",
+        "occurred_at": "2026-10-18T12:00:00+00:00",
+        "order": 4,
+        "persona": "radio_dj",
+        "persona_revision": 0,
+        "qualified_fact_attribution": {
+          "license": "CC0-1.0",
+          "provider": "MusicBrainz",
+          "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001"
+        },
+        "qualified_fact_text": "Synthetic public normalized fact.",
+        "retained_until": "9999-12-31T00:00:00+00:00",
+        "session_id": "session-basis-contract",
+        "session_speech": {
+          "attribution": [
+            {
+              "kind": "source",
+              "language": "en",
+              "license": "CC-BY-SA-4.0",
+              "provider": "Wikipedia",
+              "revision_url": "https://en.wikipedia.org/w/index.php?oldid=1",
+              "url": "https://en.wikipedia.org/wiki/Example"
+            },
+            {
+              "kind": "source",
+              "license": "CC0-1.0",
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001"
+            }
+          ],
+          "autoplay_eligible": false,
+          "cache_policy": "private,no-store",
+          "expires_at": "9999-12-31T00:00:00+00:00",
+          "locale": "en",
+          "manual_allowed": true,
+          "mood": "chill",
+          "persona": "radio_dj",
+          "persona_revision": 0,
+          "presentation_revision": "5e86301f99a78bdbf40d6916",
+          "processor_qualification_required": true,
+          "processors": [
+            "local_on_device",
+            "ha_configured"
+          ],
+          "reason": null,
+          "reference": {
+            "entry_id": "entry-0fd45049cc2d510da56273f8d8ab703a",
+            "session_id": "session-basis-contract"
+          },
+          "schema_version": 1,
+          "segments": [
+            {
+              "ordinal": 1,
+              "speaker_role": "dj",
+              "text": "A synthetic retained contribution for contract decoding."
+            }
+          ],
+          "session_id": "session-basis-contract",
+          "source_expires_at": "9999-12-31T00:00:00+00:00",
+          "source_id": "entry-0fd45049cc2d510da56273f8d8ab703a",
+          "source_kind": "retained_dj_contribution",
+          "state": "available",
+          "style_basis": "accepted_contribution",
+          "text_revision": "e7c86803852b18a129b437e2"
+        },
+        "source_attribution": {
+          "license": "CC-BY-SA-4.0",
+          "provider": "Wikipedia",
+          "revision_url": "https://en.wikipedia.org/w/index.php?oldid=1",
+          "url": "https://en.wikipedia.org/wiki/Example"
+        },
+        "sources": [
+          {
+            "kind": "source",
+            "language": "en",
+            "license": "CC-BY-SA-4.0",
+            "provider": "Wikipedia",
+            "revision_url": "https://en.wikipedia.org/w/index.php?oldid=1",
+            "url": "https://en.wikipedia.org/wiki/Example"
+          },
+          {
+            "kind": "source",
+            "license": "CC0-1.0",
+            "provider": "MusicBrainz",
+            "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000001"
+          }
+        ],
+        "summary": "Synthetic album",
+        "text": "A synthetic retained contribution for contract decoding."
+      },
+      {
+        "content_state": "unavailable",
+        "current_display_allowed": false,
+        "entry_id": "entry-dd29b03f84c85831a8ae50192794f55c",
+        "historical_view_only": true,
+        "kind": "dj_publication",
+        "moment_id": "moment-basis-5",
+        "moment_type": "album",
+        "occurred_at": "2026-10-18T12:00:00+00:00",
+        "order": 5,
+        "retained_until": "9999-12-31T00:00:00+00:00",
+        "session_id": "session-basis-contract",
+        "speech_available": false,
+        "text": null,
+        "unavailable_reason": "source_retention_not_qualified"
+      },
+      {
+        "content_state": "silence",
+        "current_display_allowed": false,
+        "entry_id": "entry-63d9d284103950969c32717cbd8b9adc",
+        "historical_view_only": true,
+        "kind": "dj_silence",
+        "moment_id": "moment-basis-6",
+        "moment_type": "silence",
+        "occurred_at": "2026-10-18T12:00:00+00:00",
+        "order": 6,
+        "retained_until": "9999-12-31T00:00:00+00:00",
+        "session_id": "session-basis-contract",
+        "speech_available": false,
+        "text": null
+      }
+    ],
+    "history_contract_version": 2,
+    "next_cursor": null,
+    "revision": "6:ACTIVE:0:0::retention:1:0",
+    "scan_complete": true,
+    "scanned_order_max": 6,
+    "scanned_order_min": 1,
+    "schema_version": 2,
+    "session": {
+      "created_at": "2026-10-18T12:00:00+00:00",
+      "ended_at": "",
+      "history_coverage": "saved_entries_only_no_retrospective_observations",
+      "interrupted_at": "",
+      "lifecycle_status": "ACTIVE",
+      "read_only": false,
+      "revision": "6:ACTIVE:0:0::retention:1:0",
+      "session_id": "session-basis-contract",
+      "started_at": "2026-10-18T12:00:00+00:00",
+      "summary": {
+        "as_of": "2026-10-18T12:00:00+00:00",
+        "moments_published": {
+          "as_of": "2026-10-18T12:00:00+00:00",
+          "basis": "semantic_publication_commit",
+          "coverage": "complete",
+          "revision": "6:ACTIVE:0:0::retention:1:0",
+          "state": "provisional",
+          "value": 0
+        },
+        "mood": {
+          "as_of": "2026-10-18T12:00:00+00:00",
+          "basis": "confirmed_symbolic_mood_elapsed_intervals",
+          "coverage": "unknown",
+          "revision": "6:ACTIVE:0:0::retention:1:0",
+          "state": "provisional",
+          "value": null
+        },
+        "schema_version": "djconnect-session-history-summary/1",
+        "session_revision": "6:ACTIVE:0:0::retention:1:0",
+        "state": "provisional",
+        "tracks_observed": {
+          "as_of": "2026-10-18T12:00:00+00:00",
+          "basis": "accepted_playback_observed_entries",
+          "coverage": "complete",
+          "observation_scope": "stage_1_media_identity_changes_not_occurrences",
+          "revision": "6:ACTIVE:0:0::retention:1:0",
+          "state": "provisional",
+          "value": 0
+        }
+      }
+    },
+    "success": true,
+    "window": "tail",
+    "window_limit": 20
+  },
+  "withdrawn_same_identity": {
+    "content_state": "unavailable",
+    "current_display_allowed": false,
+    "entry_id": "entry-35e1618ce1fa5e2e814c64b0dec7de86",
+    "historical_view_only": true,
+    "kind": "dj_publication",
+    "locale": "en",
+    "moment_id": "moment-basis-3",
+    "moment_type": "album",
+    "occurred_at": "2026-10-18T12:00:00+00:00",
+    "order": 3,
+    "persona": "radio_dj",
+    "persona_revision": 0,
+    "retained_until": "9999-12-31T00:00:00+00:00",
+    "session_id": "session-basis-contract",
+    "speech_available": false,
+    "text": null,
+    "unavailable_reason": "source_withdrawn"
+  }
+}

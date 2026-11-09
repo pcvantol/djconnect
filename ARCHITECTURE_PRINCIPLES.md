@@ -16,6 +16,14 @@ Interaction / Request
   -> Renderer
 ```
 
+## Native push enrollment
+
+Apple push enrollment follows ordinary pairing and explicit opt-in for each
+device and channel. Core owns the paired device and its consent lifecycle.
+The central API verifies that scope, issues and revokes the credentials, and
+owns delivery to APNs. Apple owns native targets and rendering. Qualify the
+same flow on HA-dev and production. See [automatic Apple enrollment](docs/product/NATIVE_SURFACE_PUSH_V1.md#automatic-enrollment-for-apple-push).
+
 ## Primary domain concepts
 
 ### Profile

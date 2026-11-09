@@ -13,7 +13,7 @@ class SpotifyScopeQualificationTests(unittest.TestCase):
         self.assertTrue(proof['source_before_after_equal'])
         self.assertTrue(receipt['source_unchanged'])
         self.assertTrue(receipt['actual_ha_store_readback'])
-        self.assertEqual(len(proof['source_pins']),308)
+        self.assertEqual(len(proof['source_pins']),315)
         for name,expected in {**proof['source_pins'],**receipt['harness_pins']}.items():
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(),expected,name)
         self.assertEqual(len(receipt['cases']),14)

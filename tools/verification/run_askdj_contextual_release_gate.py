@@ -13,16 +13,17 @@ from tempfile import TemporaryDirectory
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-from scripts.verification.askdj_contextual_golden import MAX_MODEL_CALLS, MAX_OUTPUT_TOKENS, SETUP_CASE, cases, manifest_digest  # noqa: E402
+from scripts.verification.askdj_contextual_golden import MAX_OUTPUT_TOKENS, SETUP_CASE, cases, manifest_digest  # noqa: E402
 
 IMAGE = "ghcr.io/home-assistant/home-assistant@sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4"
 MAX_SECONDS = 600
 
 
-def validate_report(report, candidate):
+def validate_report(report, candidate, *, languages=None):
     """No omitted cases, anonymous fixture receipt, or zero-paid-call PASS."""
     if not isinstance(report, dict) or report.get("schema_version") != 1:
         return False
+    expected_cases = cases(languages)
     rows = report.get("cases")
     calls = report.get("paid_model_calls")
     usage = report.get("usage")
@@ -30,19 +31,19 @@ def validate_report(report, candidate):
     return (
         report.get("candidate_sha") == candidate
         and report.get("suite") == "askdj_contextual_golden_v1"
-        and report.get("manifest_sha256") == manifest_digest()
+        and report.get("manifest_sha256") == manifest_digest(languages)
         and isinstance(rows, list)
         and all(isinstance(r, dict) for r in rows)
-        and [r.get("id") for r in rows] == [c["id"] for c in cases()]
+        and [r.get("id") for r in rows] == [c["id"] for c in expected_cases]
         and all(r.get("status") == "PASS" and r.get("findings") == [] for r in rows)
-        and type(calls) is int and len(cases()) <= calls <= MAX_MODEL_CALLS
+        and type(calls) is int and len(expected_cases) <= calls <= 2 * len(expected_cases) + 2
         and all(type(r.get("paid_attempts")) is int and 1 <= r["paid_attempts"] <= 2 for r in rows)
         and type(setup) is int and 0 <= setup <= 2
         and report.get("setup_findings", []) == []
         and sum(r["paid_attempts"] for r in rows) + setup == calls
         and isinstance(usage, list) and len(usage) == calls
         and sum(isinstance(u, dict) and u.get("case_id") == SETUP_CASE for u in usage) == setup
-        and all(isinstance(u, dict) and u.get("case_id") in {SETUP_CASE, *(c["id"] for c in cases())} for u in usage)
+        and all(isinstance(u, dict) and u.get("case_id") in {SETUP_CASE, *(c["id"] for c in expected_cases)} for u in usage)
         and all(sum(u.get("case_id") == row["id"] for u in usage if isinstance(u, dict)) == row["paid_attempts"] for row in rows)
         and all(isinstance(r, dict) and r.get("model") == "gpt-6-luna"
                 and r.get("attempted") is True and r.get("completed") is True

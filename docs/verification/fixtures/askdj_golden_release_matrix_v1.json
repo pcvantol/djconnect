@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
   "suite": "askdj_release_matrix_v1",
+  "release_languages": ["en", "nl"],
   "existing_single_turn_cases": "examples/ask_dj_e2e_cases.json",
   "additional_route_contracts": {
     "artist_fun_queue": {
@@ -7966,9 +7967,9 @@
         },
         {
           "id": "ASKDJ-CATALOGUE-all-locales-actual-acceptance",
-          "question": "Run all70exact questions and30speaker/album/dedup steps through ordinary paired Ask DJ",
+          "question": "Run the 28 exact EN/NL questions and 12 EN/NL speaker/album/dedup steps through ordinary paired Ask DJ",
           "expected_answer": "All actual identity, whole-context playback, locale, narration, source and no-extra-effect assertions pass; missing/skipped/unsupported routes fail. No chip-ID execution alias or hidden prompt rewriting.",
-          "model_policy": "up to392bounded HA agent attempts including90 separate answer-language assessments; zero STT/TTS; no model retry/fallback",
+          "model_policy": "bounded HA agent attempts including 36 separate answer-language assessments; zero STT/TTS; no model retry/fallback",
           "owning_tests": [
             {
               "file": "tests/test_ask_dj_catalogue_golden.py",
@@ -7982,7 +7983,7 @@
           "id": "ASKDJ-CATALOGUE-generated-variants-actual-execution",
           "question": "After complete current base PASS, generate and independently meaning-review paraphrases, spoken questions and typos; run all frozen variations and conversation continuations.",
           "expected_answer": "Original independent identity/effect/permission/locale/source/narration oracles remain unchanged. Failed base, stale evidence or changed meaning spends zero generation calls. Generated text is not product PASS. Every failed variation is retained and requires a product fix and actual rerun; no selective replacement.",
-          "model_policy": "Generation only after full base PASS; max10HA calls with separate meaning review. Frozen100step variation execution max392calls; duplicate zero new effects/model calls.",
+          "model_policy": "Generation only after exact EN/NL base PASS; max4 HA calls with separate meaning review. Execute the 40 frozen EN/NL steps; duplicate zero new effects/model calls.",
           "owning_tests": [
             {
               "file": "tests/test_ask_dj_catalogue_variations.py",
@@ -9975,12 +9976,9 @@
     ],
     "languages": [
       "en",
-      "nl",
-      "de",
-      "fr",
-      "es"
+      "nl"
     ],
-    "paid_tts_attempt_cap": 21,
+    "paid_tts_attempt_cap": 9,
     "audible_review": "separate; audio bytes or duration do not prove intended expression"
   },
   "reported_issues": [

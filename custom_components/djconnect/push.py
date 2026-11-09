@@ -493,7 +493,9 @@ async def _post_relay(
         return {"success": False, "error": "push_relay_unavailable"}
 
 
-def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[str, Any]) -> dict[str, Any]:
+def _registration_payload(
+    runtime: Any, *, user_id: str | None, payload: dict[str, Any]
+) -> dict[str, Any]:
     # Native WidgetKit/ActivityKit tokens have distinct topic/lifecycle owners.
     # Silently accepting their metadata here would overwrite the app alert row.
     if any(key in payload for key in ('token_role', 'widget_kind', 'activity_id', 'surface_target')):
@@ -508,6 +510,7 @@ def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[st
         or not push_environment
     ):
         return {}
+    bundle_id = _clean_text(payload.get("app_bundle_id"), 200)
     return {
         "ha_install_id": ensure_ha_install_id(runtime),
         "ha_user_hash": _hash_value(user_id),
@@ -515,10 +518,11 @@ def _registration_payload(runtime: Any, *, user_id: str | None, payload: dict[st
         "client_type": client_type,
         "apns_token": push_token,
         "apns_environment": _relay_environment(push_environment),
-        "app_bundle_id": _clean_text(payload.get("app_bundle_id"), 200),
+        "app_bundle_id": bundle_id,
         "app_version": _clean_text(payload.get("app_version"), 64),
         "locale": _clean_text(payload.get("locale"), 32),
-        "categories": _clean_categories(payload.get("categories") or payload.get("notification_categories")),
+        # Moment preferences require a separately signed, versioned operation.
+        "categories": ["ask_dj"],
     }
 
 
@@ -732,15 +736,6 @@ def _valid_push_token(value: Any) -> bool:
     if not token:
         return False
     return not any(char.isspace() or char in "<>" for char in token)
-
-
-def _clean_categories(value: Any) -> list[str]:
-    if not isinstance(value, list):
-        return ["ask_dj"]
-    cleaned = {_clean_text(item, 64) for item in value}
-    if "ask_dj" in cleaned or cleaned & {EVENT_ASK_DJ_RESPONSE, EVENT_ASK_DJ_CONFIRM}:
-        return ["ask_dj"]
-    return ["ask_dj"]
 
 
 def _clean_environment(value: Any) -> str:

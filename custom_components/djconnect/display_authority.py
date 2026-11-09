@@ -6,7 +6,9 @@ import json
 import re
 
 from .display_admission import DisplayAdmissionError, DisplayOwnerBinding
-from .const import DOMAIN
+from .const import CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_RASPBERRY_PI, DOMAIN
+
+DISPLAY_OWNER_CLIENT_TYPES = (CLIENT_TYPE_IOS, CLIENT_TYPE_MACOS, CLIENT_TYPE_RASPBERRY_PI)
 
 
 def _fingerprint(value) -> str:
@@ -28,7 +30,7 @@ async def resolve_display_owner(hass, identity, headers, manager, *, session_id=
 
     if (not isinstance(identity, dict) or set(identity) != {"device_id", "client_type"}
             or not isinstance(identity.get("client_type"), str)
-            or identity.get("client_type") not in {"ios", "macos"}
+            or identity.get("client_type") not in DISPLAY_OWNER_CLIENT_TYPES
             or not isinstance(identity.get("device_id"), str)
             or validate_required_client_type(identity) is None):
         raise DisplayAdmissionError("display_code_invalid", 400)

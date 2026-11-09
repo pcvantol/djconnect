@@ -30,11 +30,18 @@ class SharedVibeCastBuildTest(unittest.TestCase):
             self.assertIn(core, static)
             import base64
 
-            brand = (ROOT / "custom_components/djconnect/brand/icon.png").read_bytes()
+            brand = (ROOT / "custom_components/djconnect/brand/mark-40.png").read_bytes()
             brand_uri = "data:image/png;base64," + base64.b64encode(brand).decode()
             self.assertIn(brand_uri, local)
             self.assertIn(brand_uri, static)
-            self.assertNotIn("@@BRAND_ICON@@", local)
+            inputs = ROOT / "custom_components/djconnect/vibecast_renderer"
+            label = f"Rendererversie {build.VERSION} ({build.source_pin(build.source_hashes(inputs))})"
+            for page in (local, static):
+                self.assertIn(f'<span id="renderer-build">{label}</span>', page)
+                self.assertIn(f'<link rel="icon" type="image/png" href="{brand_uri}">', page)
+                self.assertIn("<title>DJConnect VibeCast</title>", page)
+                self.assertIn("Powered by DJConnect", page)
+                self.assertEqual(page.count('href="https://djconnect.dev/"'), 1)
             self.assertNotIn("gstatic.com", local)
             self.assertIn("addCustomMessageListener", static)
             self.assertNotIn("getCastMessageBus", static)
@@ -73,15 +80,14 @@ class SharedVibeCastBuildTest(unittest.TestCase):
             build["build"](root, two, source_revision="b" * 40)
             for name in ["local/vibecast.html", "cast/index.html"]:
                 self.assertNotEqual((one / name).read_bytes(), (two / name).read_bytes())
-            for brand_name in ["icon.png", "mark-40.png"]:
-                icon = root / "custom_components/djconnect/brand" / brand_name
-                key = "../brand/" + brand_name
-                old_brand_hash = build["build"](root, one, source_revision="b" * 40)["sources"][key]
-                icon.write_bytes(icon.read_bytes() + b"changed-brand-input")
-                new = build["build"](root, two, source_revision="b" * 40)
-                self.assertNotEqual(old_brand_hash, new["sources"][key])
-                for name in ["local/vibecast.html", "cast/index.html"]:
-                    self.assertNotEqual((one / name).read_bytes(), (two / name).read_bytes())
+            icon = root / "custom_components/djconnect/brand/mark-40.png"
+            key = "../brand/mark-40.png"
+            old_brand_hash = build["build"](root, one, source_revision="b" * 40)["sources"][key]
+            icon.write_bytes(icon.read_bytes() + b"changed-brand-input")
+            new = build["build"](root, two, source_revision="b" * 40)
+            self.assertNotEqual(old_brand_hash, new["sources"][key])
+            for name in ["local/vibecast.html", "cast/index.html"]:
+                self.assertNotEqual((one / name).read_bytes(), (two / name).read_bytes())
             (two / "cast/index.html").unlink()
             self.assertIn("missing_or_changed_asset:cast/index.html", build["verify"](two))
 

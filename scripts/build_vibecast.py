@@ -11,8 +11,8 @@ import re
 from pathlib import Path
 import subprocess
 
-SOURCES = ("template.html", "style.css", "renderer.js", "local-host.js", "cast-host.js", "../brand/icon.png", "../brand/mark-40.png")
-VERSION = "1.1.3"
+SOURCES = ("template.html", "style.css", "renderer.js", "local-host.js", "cast-host.js", "../brand/mark-40.png")
+VERSION = "1.1.4"
 
 
 class InlineScripts(HTMLParser):
@@ -41,11 +41,21 @@ def digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def source_hashes(source: Path) -> dict[str, str]:
+    return {name: digest((source / name).read_bytes()) for name in SOURCES}
+
+
+def source_pin(hashes: dict[str, str]) -> str:
+    # Generated HTML is committed. A source-input digest avoids a circular Git SHA.
+    canonical = json.dumps(hashes, sort_keys=True, separators=(",", ":")).encode()
+    return digest(canonical)[:8]
+
+
 def render(root: Path, host: str) -> str:
     source = root / "custom_components/djconnect/vibecast_renderer"
     text = (source / "template.html").read_text()
-    brand_icon = base64.b64encode((source / "../brand/icon.png").read_bytes()).decode("ascii")
-    text = text.replace("@@BRAND_ICON@@", "data:image/png;base64," + brand_icon)
+    text = text.replace("@@BUILD_VERSION@@", VERSION)
+    text = text.replace("@@SOURCE_PIN@@", source_pin(source_hashes(source)))
     micro = base64.b64encode((source / "../brand/mark-40.png").read_bytes()).decode("ascii")
     text = text.replace("@@BRAND_MICRO@@", "data:image/png;base64," + micro)
     text = text.replace("@@STYLE@@", (source / "style.css").read_text())
@@ -70,7 +80,7 @@ def render(root: Path, host: str) -> str:
 
 def build(root: Path, output: Path, *, source_revision: str) -> dict:
     source = root / "custom_components/djconnect/vibecast_renderer"
-    hashes = {name: digest((source / name).read_bytes()) for name in SOURCES}
+    hashes = source_hashes(source)
     files = {}
     for host, name in [("local", "vibecast.html"), ("cast", "index.html")]:
         path = output / host / name
@@ -108,7 +118,7 @@ def build_display(root: Path, output: Path, *, source_revision: str) -> dict:
     (output / "index.html").write_bytes(page)
     manifest = {"schema_version": 1, "display_contract_version": 1, "source_revision": source_revision,
         "sources": {name: digest((source / name).read_bytes()) for name in (
-            "template.html", "style.css", "renderer.js", "display-host.js", "../brand/icon.png", "../brand/mark-40.png")},
+            "template.html", "style.css", "renderer.js", "display-host.js", "../brand/mark-40.png")},
         "files": {"index.html": digest(page)}, "private_runtime_data_in_build": False,
         "transport": "selected-ha-same-origin-display-b-v1", "legacy_cast_contract": "unchanged-1.1"}
     (output / "manifest.json").write_text(json.dumps(manifest, sort_keys=True, indent=2) + "\n")
@@ -177,7 +187,11 @@ def verify(
                 errors.append("missing_or_changed_asset:" + name)
             else:
                 parser = InlineScripts()
-                parser.feed(path.read_text())
+                page = path.read_text()
+                expected_footer = f'Rendererversie {VERSION} ({source_pin(manifest["sources"])})'
+                if f'<span id="renderer-build">{expected_footer}</span>' not in page:
+                    errors.append("renderer_build_label_mismatch:" + name)
+                parser.feed(page)
                 script = parser.scripts[0]
                 if name.startswith("cast/"):
                     script = script.removeprefix('window.DJC_VIBECAST_MODE = "cast";\n')
