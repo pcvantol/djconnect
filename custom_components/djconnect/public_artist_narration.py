@@ -566,7 +566,8 @@ async def realize(brief, *, ask, admission, debug=None):
         projection['editorial_focus'] = {'kind':'documented_album_story', 'album':subject,
             'artist':identity[5], 'episode_span_ids':album_spans,
             'authority':'telling_focus_only_full_original_context_remains_evidence'}
-    style = instructions(persona=brief.persona, mood=brief.mood, locale=brief.locale)
+    style = instructions(persona=brief.persona, mood=brief.mood, locale=brief.locale,
+                         allow_explicit_appreciation=not credit)
     prompt = style + (
         " Tell one useful connected artist story using ONLY the admitted public evidence. "
         "This is the listener's personal DJ, not a biography card or a report on databases. "
@@ -634,8 +635,8 @@ async def realize(brief, *, ask, admission, debug=None):
            "When an occasion or pronoun is ambiguous, omit that detail and tell only the directly evidenced joint musical activity. "
            "Delivery: the shared Persona/Mood instructions above are the sole voice owner. "
            "Let those shape the telling's perspective, order and rhythm, without an additional sentence recipe. "
-           "Weave the host's present interest into the documented musical activity itself; a neutral metadata list with a warm sentence added later is insufficient. "
-           "Present interest is the host's viewpoint, never a claim about the artist's feelings or the listener's taste. "
+           "Let the documented action carry the interest. Put the participants and the named work "
+           "in the action itself. Finish that sentence there, without an opinion clause or a claim about the event's importance. "
            if credit else "")
         + ("For this Album contribution, make the named album the heart of the story. Include at least "
            "one substantive documented album detail from its work-marked original paragraph, such as "

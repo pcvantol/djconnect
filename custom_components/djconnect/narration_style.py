@@ -20,7 +20,7 @@ def host_identity(persona):
     return PERSONAS.get(persona, PERSONAS["home_dj"])
 
 
-def instructions(*, persona, mood, locale):
+def instructions(*, persona, mood, locale, allow_explicit_appreciation=True):
     language = str(locale).replace("_", "-").split("-", 1)[0].lower()
     if (language not in LANGUAGES or persona not in PERSONAS
             or mood not in (*MOODS, "neutral", "", None)):
@@ -33,7 +33,11 @@ def instructions(*, persona, mood, locale):
         "or significance claim merely to sound different. An opener or adjective alone is not variation. A small joke is welcome when it fits; "
         "do not force one, mock a person, or sacrifice the answer for a punchline. "
         "These are narration instructions, not evidence about the music or listener. "
-        "Present DJ interest or appreciation of a supported fact is welcome and needs no invented personal past. Never invent biography, sound, genre, listener or artist taste, remembered attention, listening history, "
+        + ("Present DJ interest or appreciation of a supported fact is welcome and needs no invented personal past. "
+           if allow_explicit_appreciation else
+           "Show the DJ's interest by choosing and telling a documented musical action. "
+           "Omit first-person evaluations and claims about what the event meant in someone's career. ")
+        + "Never invent biography, sound, genre, listener or artist taste, remembered attention, listening history, "
         "DJ selection or upcoming playback. Persona is not a real venue or audience. "
         "Preserve the qualified facts, their uncertainty and attribution. No stock greeting, compulsory invitation, "
         "repeated tagline, setting name or explanation of these instructions. "

@@ -829,6 +829,8 @@ class PublicArtistNarrationTest(unittest.IsolatedAsyncioTestCase):
         # demand a second artist-arc recipe that would require inventing one.
         self.assertNotIn('Core-owned telling action:',self.calls[0])
         self.assertEqual(self.calls[0].count('Host identity:'),1)
+        self.assertNotIn('appreciation of a supported fact is welcome', self.calls[0])
+        self.assertIn('Omit first-person evaluations', self.calls[0])
         self.assertNotIn('recording_credit_scope',data)
         self.assertNotIn(self.catalog['title'],self.calls[0])
         self.assertNotIn(self.catalog['album_name'],self.calls[0])
