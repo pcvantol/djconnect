@@ -8,7 +8,7 @@
   },
   "harness_sha256": "6cb913e6f752dd79dbf1b427af315145a110dc1e2f247804971904f9245f80a1",
   "live_provider_or_native_acceptance": false,
-  "receipt_sha256": "1dceb389c422aa852f9e332c4c7e3f8118fa7f65b65eec3435a0908ca27344fe",
+  "receipt_sha256": "d6135c15d85c980780c10a38dbcdb8c418d7e927493c992d4ec33b70cd881851",
   "red_causal_before": "Catalogue fallback discarded exact provider artwork",
   "source_before_after_equal": true,
   "source_pins": {
@@ -105,7 +105,7 @@
     "custom_components/djconnect/display_live.py": "cee266339189bdae25ff5437e4733f9a11d6587e6b8ff8eecd5571a0087cc244",
     "custom_components/djconnect/display_origin.py": "6be2d0f0bacec09a47a91f854a249cb40c90379690cf15e28db70f6885b7015c",
     "custom_components/djconnect/display_projection.py": "233200fc9bd44cd70893ec66719a2446209f96b9fb36e10d02cff1bbf26ee4fd",
-    "custom_components/djconnect/display_service.py": "287a0e7f049e2e1564ca56eac87022a9dbeaa45e2a2ea50318e3dc0547840fa4",
+    "custom_components/djconnect/display_service.py": "44203c3618df5f471b523a51ebd12b4becef397f0acf8bbb9849ed2527ac3cc1",
     "custom_components/djconnect/display_shell.py": "04d7ede7655643ea251f224326fd1c010f441933beb734c31d65515869960bc7",
     "custom_components/djconnect/display_transport.py": "7079bd9692e08e188ecae4e5fcbbe97725a876b75addfd0918c236780168bda5",
     "custom_components/djconnect/dj.py": "2c7a11d596a72907d66aee361ecd4bc5e5e8a9d6fb592aece046db79aeabc772",
@@ -339,7 +339,7 @@
           "provider": "spotify",
           "source_url": "https://open.spotify.com/album/HHHHHHHHHHHHHHHHHHHHHH"
         },
-        "image_expires_at": 1794249512.0843801,
+        "image_expires_at": 1794249910.0091329,
         "image_url": "/api/djconnect/v1/image_proxy/disc-<opaque-redacted>",
         "kind": "track",
         "quality_band": "medium",

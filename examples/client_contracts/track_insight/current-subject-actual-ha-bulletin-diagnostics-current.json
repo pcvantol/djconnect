@@ -96,7 +96,7 @@
     "custom_components/djconnect/display_live.py": "cee266339189bdae25ff5437e4733f9a11d6587e6b8ff8eecd5571a0087cc244",
     "custom_components/djconnect/display_origin.py": "6be2d0f0bacec09a47a91f854a249cb40c90379690cf15e28db70f6885b7015c",
     "custom_components/djconnect/display_projection.py": "233200fc9bd44cd70893ec66719a2446209f96b9fb36e10d02cff1bbf26ee4fd",
-    "custom_components/djconnect/display_service.py": "287a0e7f049e2e1564ca56eac87022a9dbeaa45e2a2ea50318e3dc0547840fa4",
+    "custom_components/djconnect/display_service.py": "44203c3618df5f471b523a51ebd12b4becef397f0acf8bbb9849ed2527ac3cc1",
     "custom_components/djconnect/display_shell.py": "04d7ede7655643ea251f224326fd1c010f441933beb734c31d65515869960bc7",
     "custom_components/djconnect/display_transport.py": "7079bd9692e08e188ecae4e5fcbbe97725a876b75addfd0918c236780168bda5",
     "custom_components/djconnect/dj.py": "2c7a11d596a72907d66aee361ecd4bc5e5e8a9d6fb592aece046db79aeabc772",
@@ -346,7 +346,7 @@
   "responses": {
     "current": {
       "id": "track_insight_46f2f86799b7612de36684bd",
-      "created_at": "2026-11-09T18:23:30.268911+00:00",
+      "created_at": "2026-11-09T18:30:08.285688+00:00",
       "source": "current_detail",
       "language": "nl",
       "mood_context": null,
@@ -413,13 +413,13 @@
         "schema_version": 1,
         "media_identity": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
         "observation_id": "<opaque-observation-redacted>",
-        "expires_at": 1794248640.2678695,
+        "expires_at": 1794249038.2850053,
         "expires_in": 29
       }
     },
     "on_demand_credit": {
-      "id": "track_insight_3b37684fd8aca7c61be3c60a",
-      "created_at": "2026-11-09T18:23:30.324269+00:00",
+      "id": "track_insight_81a91ea1a3bb4bfdcaeb6c5e",
+      "created_at": "2026-11-09T18:30:08.363590+00:00",
       "source": "current_detail",
       "language": "nl",
       "mood_context": null,
@@ -483,14 +483,14 @@
       },
       "cache": {
         "hit": false,
-        "key": "3b37684fd8aca7c61be3c60a"
+        "key": "81a91ea1a3bb4bfdcaeb6c5e"
       },
       "subject": {
         "mode": "current",
         "schema_version": 1,
         "media_identity": "spotify:track:BBBBBBBBBBBBBBBBBBBBBB",
         "observation_id": "<opaque-observation-redacted>",
-        "expires_at": 1794248640.322332,
+        "expires_at": 1794249038.3606744,
         "expires_in": 29
       }
     },

@@ -182,6 +182,15 @@ class DisplayServiceTests(unittest.IsolatedAsyncioTestCase):
         state = self.manager._display_admission
         hub = display_live.display_live_hub(self.manager)
         active = self.fixture.active
+        # Two independently paired entries may resolve different playback
+        # runtimes even while they are authorized for the same Profile.
+        provider = patch("custom_components.djconnect.profile_backend.profile_backend_runtime",
+                         side_effect=lambda _hass, runtime, **_kwargs: runtime)
+        provider.start()
+        self.addCleanup(provider.stop)
+        self.manager._history_source_contexts.setdefault(active.session_id, {})["provider_entry_id"] = (
+            self.fixture.entry.entry_id
+        )
         await self.manager.async_update_playback_projection(
             owner_profile_id="profile-a", session_id=active.session_id,
             state="playing", media_identity="spotify:track:fixture", title="Track",

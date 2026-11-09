@@ -5,19 +5,19 @@
     "scripts/verification/verify_session_artwork_http.py": "3b4ba06e185d9eef18de42b5c509c2e1932203e9265a9b090b6492f6dd73be8f"
   },
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "3b6d5df10a1bf359d999dcc52b07a88290417b9c85ed0654512cd0a236973122",
+  "raw_receipt_sha256": "07ffc590afc730351148124a4382dad823b785350b3102182166b2374fd47262",
   "receipt": {
     "after": {
       "contract_version": 1,
-      "grant_id": "aNpwNS5ShSoBmQX0pwg1Ub0lO9dg59h6",
+      "grant_id": "hszFWQzeFkMmjmInkc_59XyfjtC8yAQE",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_eligible_context",
           "state": "unavailable"
         },
-        "as_of": "2026-11-09T18:24:19.575835+00:00",
-        "binding_id": "2fa8f1058b92054ae8c479692f47b135",
+        "as_of": "2026-11-09T18:30:58.235036+00:00",
+        "binding_id": "0175853c99ec7f3b788731e5049afd9b",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -31,28 +31,28 @@
           "state": "unavailable"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-09T18:25:54.640337+00:00",
-        "generation": "de7d985b3000a79d5c09cbea29231ba9",
+        "expires_at": "2026-11-09T18:32:33.336542+00:00",
+        "generation": "466f3c426d5b40ad5856ae49eb38af03",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-c42673dc49174f9392d68bcbeb6876d4"
+          "session_id": "session-be7908c3fcd141e98231606b04ca47a1"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-09T18:23:54.640337+00:00",
+        "observed_at": "2026-11-09T18:30:33.336542+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "754d4c4a00df9f6a14ce3bf631df7d0a",
+        "revision": "9dca28558520b55a11a3d93bbc42875e",
         "schema_version": 3,
-        "session_id": "session-c42673dc49174f9392d68bcbeb6876d4",
+        "session_id": "session-be7908c3fcd141e98231606b04ca47a1",
         "state": "active",
         "surface": "widget"
       },
@@ -60,15 +60,15 @@
     },
     "before": {
       "contract_version": 1,
-      "grant_id": "aNpwNS5ShSoBmQX0pwg1Ub0lO9dg59h6",
+      "grant_id": "hszFWQzeFkMmjmInkc_59XyfjtC8yAQE",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_matching_subject",
           "state": "unavailable"
         },
-        "as_of": "2026-11-09T18:23:54.642722+00:00",
-        "binding_id": "2fa8f1058b92054ae8c479692f47b135",
+        "as_of": "2026-11-09T18:30:33.337884+00:00",
+        "binding_id": "0175853c99ec7f3b788731e5049afd9b",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -77,10 +77,10 @@
           "scope": "current_surface_only"
         },
         "contribution": {
-          "expires_at": "2026-11-09T18:24:19.504677+00:00",
-          "moment_id": "moment-4899d605f0ce8acf167558b71b00d56a",
+          "expires_at": "2026-11-09T18:30:58.172998+00:00",
+          "moment_id": "moment-eba429225d9f0b78fb3e6788e9ac4639",
           "persona": "home_dj",
-          "published_at": "2026-11-09T18:23:54.504677+00:00",
+          "published_at": "2026-11-09T18:30:33.172998+00:00",
           "rights": {
             "external_relay": false,
             "os_snapshot": true,
@@ -96,28 +96,28 @@
           "state": "available"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-09T18:25:54.640337+00:00",
-        "generation": "de7d985b3000a79d5c09cbea29231ba9",
+        "expires_at": "2026-11-09T18:32:33.336542+00:00",
+        "generation": "466f3c426d5b40ad5856ae49eb38af03",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-c42673dc49174f9392d68bcbeb6876d4"
+          "session_id": "session-be7908c3fcd141e98231606b04ca47a1"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-09T18:23:54.640337+00:00",
+        "observed_at": "2026-11-09T18:30:33.336542+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "754d4c4a00df9f6a14ce3bf631df7d0a",
+        "revision": "9dca28558520b55a11a3d93bbc42875e",
         "schema_version": 3,
-        "session_id": "session-c42673dc49174f9392d68bcbeb6876d4",
+        "session_id": "session-be7908c3fcd141e98231606b04ca47a1",
         "state": "active",
         "surface": "widget"
       },
@@ -240,7 +240,7 @@
       "custom_components/djconnect/display_live.py": "cee266339189bdae25ff5437e4733f9a11d6587e6b8ff8eecd5571a0087cc244",
       "custom_components/djconnect/display_origin.py": "6be2d0f0bacec09a47a91f854a249cb40c90379690cf15e28db70f6885b7015c",
       "custom_components/djconnect/display_projection.py": "233200fc9bd44cd70893ec66719a2446209f96b9fb36e10d02cff1bbf26ee4fd",
-      "custom_components/djconnect/display_service.py": "287a0e7f049e2e1564ca56eac87022a9dbeaa45e2a2ea50318e3dc0547840fa4",
+      "custom_components/djconnect/display_service.py": "44203c3618df5f471b523a51ebd12b4becef397f0acf8bbb9849ed2527ac3cc1",
       "custom_components/djconnect/display_shell.py": "04d7ede7655643ea251f224326fd1c010f441933beb734c31d65515869960bc7",
       "custom_components/djconnect/display_transport.py": "7079bd9692e08e188ecae4e5fcbbe97725a876b75addfd0918c236780168bda5",
       "custom_components/djconnect/dj.py": "2c7a11d596a72907d66aee361ecd4bc5e5e8a9d6fb592aece046db79aeabc772",
@@ -463,7 +463,7 @@
       "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
       "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
     },
-    "waited_real_seconds": 24.91168622970581
+    "waited_real_seconds": 24.884898233413697
   },
   "source_before_after_equal": true,
   "source_pins": {
@@ -560,7 +560,7 @@
     "custom_components/djconnect/display_live.py": "cee266339189bdae25ff5437e4733f9a11d6587e6b8ff8eecd5571a0087cc244",
     "custom_components/djconnect/display_origin.py": "6be2d0f0bacec09a47a91f854a249cb40c90379690cf15e28db70f6885b7015c",
     "custom_components/djconnect/display_projection.py": "233200fc9bd44cd70893ec66719a2446209f96b9fb36e10d02cff1bbf26ee4fd",
-    "custom_components/djconnect/display_service.py": "287a0e7f049e2e1564ca56eac87022a9dbeaa45e2a2ea50318e3dc0547840fa4",
+    "custom_components/djconnect/display_service.py": "44203c3618df5f471b523a51ebd12b4becef397f0acf8bbb9849ed2527ac3cc1",
     "custom_components/djconnect/display_shell.py": "04d7ede7655643ea251f224326fd1c010f441933beb734c31d65515869960bc7",
     "custom_components/djconnect/display_transport.py": "7079bd9692e08e188ecae4e5fcbbe97725a876b75addfd0918c236780168bda5",
     "custom_components/djconnect/dj.py": "2c7a11d596a72907d66aee361ecd4bc5e5e8a9d6fb592aece046db79aeabc772",
