@@ -490,6 +490,27 @@ facts/links/readability/expiry/end with genuinely admitted display credentials.
 External provider boundaries alone may be fixtures. Native Apple/TV, public
 TLS/proxy acceptance and A remain separately open until actually measured.
 
+### Manual shared Flow and artwork checks
+
+Record the exact installed HA-dev source and verify it in Safari on the
+Mac mini with an owner-approved display. Start playback and observe at
+least two real proactive DJ publications. Check that the track bar and
+its authorized album cover stay fixed while the Flow scrolls independently.
+Check publication order and that the newest card is most prominent.
+At the live edge, a new card should scroll into view. With Reduce Motion
+enabled, it should appear immediately without an animated transition.
+
+Test TV remote arrows, laptop mouse wheel, laptop trackpad and iPad touch
+separately. For each input, scroll back and check that the reading position
+holds when another contribution arrives. Return to the live edge or use
+the return-to-live control, then verify that the next contribution scrolls
+into view. Send an Ask DJ request and confirm its question and reply stay
+out of the Flow. Check that playback-only updates add no card and that
+cards and artwork disappear when their authorization expires or is revoked.
+
+Record browser and input results separately from the HA-dev installation
+receipt. These checks are pending until observed on the stated target.
+
 ## Eight-display bounded transport qualification — 17 October
 
 The historical [eight-viewer receipt](../../examples/client_contracts/vibecast_display_admission_v1/b-eight-viewer-qualification-v1.json)
