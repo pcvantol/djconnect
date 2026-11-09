@@ -2,25 +2,25 @@
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
   "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
-  "manifest_id": "release-4.0.0-rc.2-api-worker-1b75d268-closed-storage-20261109",
+  "manifest_id": "release-4.0.0-api-worker-59af9700-20261109",
   "platform_version": "4.0",
-  "release_version": "4.0.0-rc.2",
+  "release_version": "4.0.0",
   "release_profile": "INTERNAL_RELEASE",
   "generated_at": "2026-11-09",
   "approval": {
     "state": "APPROVED",
     "approved_at": "2026-11-09",
-    "authority_record": "Peter explicitly said \u201cdeploy hem\u201d after the report of merged API #236, as reported by the VibeCast receiver owner handoff from thread 01a1414f-ee02-7962-9e07-ebb741c002b7.",
-    "approved_statement": "Deploy the closed VibeCast storage release for API main 1b75d268d9023740c10f89616761232c9e3b9357 using official artifact 13691862682 with TAR SHA-256 fed97608e8acb8ce22e5a898abea621ecfc6d053ebde41d35f05f5ac07aae8e0. Public VibeCast dispatch stays closed."
+    "authority_record": "Peter requested stable 4.0.0 rollout of all release components and environments in the VibeCast Codex conversation 01a1a063-78f2-77b2-8d12-47f3c8fb973d.",
+    "approved_statement": "Deploy the stable API 4.0.0 main artifact bound by this manifest to the existing production Worker. Keep public VibeCast dispatch closed."
   },
   "repositories": [
     {
       "repository": "pcvantol/djconnect-api",
-      "source_sha": "1b75d268d9023740c10f89616761232c9e3b9357",
-      "tree": "d67ba6dd3ab2944d91e89bbdf3fe90f6f2d8d781",
-      "version": "4.0.0-rc.2",
-      "validate_run": "42656792943",
-      "artifact_run": "42657126367"
+      "source_sha": "59af9700061b34e44a9d8a7a4ca480e846b5f717",
+      "tree": "62c0152ed5fdd65d806c3af33a44249ebda2dce8",
+      "version": "4.0.0",
+      "validate_run": "42683210592",
+      "artifact_run": "42683504006"
     }
   ],
   "required_targets": [
@@ -33,9 +33,9 @@
     {
       "owner": "pcvantol/djconnect-api",
       "target": "cloudflare_workers_production",
-      "artifact_id": "13691862682",
-      "artifact_sha256": "fed97608e8acb8ce22e5a898abea621ecfc6d053ebde41d35f05f5ac07aae8e0",
-      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/42657126367"
+      "artifact_id": "13703731773",
+      "artifact_sha256": "90eebaef16ad0412c200961f6ea8e2aa0025a90d81b599de9bfb73b7562047bd",
+      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/42683504006"
     }
   ],
   "migration_boundary": {
@@ -44,27 +44,29 @@
     "manual_ddl": [],
     "application_dml": false,
     "durable_objects": {
-      "initial_tag": null,
-      "initial_namespace_count": 0,
-      "permitted_first_tag": "djc-rendezvous-sqlite-v1",
-      "new_sqlite_bindings": {
+      "initial_tag": "djc-rendezvous-sqlite-v1",
+      "initial_namespace_count": 5,
+      "expected_tag": "djc-rendezvous-sqlite-v1",
+      "expected_namespace_count": 5,
+      "existing_sqlite_bindings": {
         "REQUEST_ADMISSION": "RequestAdmission",
         "ADMISSION_STATE": "AllocationBudget",
         "ALLOCATION_INDEX": "AllocationIndex",
         "ENROLLMENT_COORDINATOR": "EnrollmentCoordinator",
         "COMPOSED_TRANSACTIONS": "BudgetedTransactionCoordinator"
       },
-      "capture_namespace_ids_after_apply": true,
+      "namespace_identity_sha256": "75d9ba4309ce91b2f44b2c1db0edea823da632a562096cd9731229f7df8322da",
+      "new_sqlite_bindings": {},
       "namespace_deletions": [],
       "namespace_renames": [],
       "namespace_transfers": []
     }
   },
   "rollback": {
-    "source_sha": "6ee7de6331c4d8e114e35be518f0921aa4314040",
-    "deployment_id": "04acd7e6-660d-405b-ae50-a32cb680311d",
-    "worker_version_id": "bb2674d3-245a-4894-92d2-9421f218bd96",
-    "eligible_only_before_durable_object_migration": true
+    "source_sha": "1b75d268d9023740c10f89616761232c9e3b9357",
+    "deployment_id": "4c73579f-9779-48a1-aa64-3a07f75b639b",
+    "worker_version_id": "7fd3adcf-12a1-4c1d-b482-4e6af3006986",
+    "eligible_only_if_no_migration_and_namespace_identity_unchanged": true
   },
   "separate_finalization": {
     "state": "PENDING",
@@ -75,9 +77,9 @@
     ]
   },
   "execution": {
-    "preflight": "Refresh the exact Worker deployment and service identity, tag, namespace inventory, routes and D1 pending state. Require the recorded baseline and zero pending D1 migrations.",
-    "deployment": "Use the protected manifest-bound workflow with the official main artifact. Allow only the first five SQLite namespaces. Keep public VibeCast dispatch closed.",
-    "smoke": "Independently verify the exact live release SHA, health, the five SQLite namespace identities, migration tag, zero pending D1 and closed routes. Public rendezvous create OPTIONS remains HTTP 503."
+    "preflight": "Require the recorded Worker version, route, existing tag and namespace identity, unchanged Wrangler configuration and zero pending D1 migrations.",
+    "deployment": "Use the protected workflow and exact official main artifact. Preserve all namespace identities and the closed public VibeCast policy.",
+    "smoke": "Independently verify the production health version and SHA, zero pending D1, unchanged route, migration tag and namespace identity, and the closed public VibeCast route."
   },
   "next_authorized_action": "After protected Core manifest delivery and fresh production preflight, dispatch the exact API artifact through the protected workflow and run separate production smoke.",
   "target_identity": {
@@ -92,70 +94,19 @@
     "preview_urls": false
   },
   "worker_payload": {
-    "sha256": "5322e547d5d390fe0993db0d5035aaa114a983cc0e67a11abec5f5996f4710a6",
-    "bytes": 1468718,
+    "sha256": "e8713ca464f75c37105ffe877547a31ba3e7cee4ce2feae5049d3ba453e11827",
+    "bytes": 1469119,
     "wrangler_sha256": "e42eead0bab919b9d78d0922cfab7bf5ab837666bda8a6a488e225604185ea81"
   },
   "recovery": {
-    "mode": "CONTROLLED_FORWARD_REAPPLY",
-    "approval": "OWNER_APPROVED",
-    "candidate_source_sha": "1b75d268d9023740c10f89616761232c9e3b9357",
-    "candidate_artifact_id": "13691862682",
-    "candidate_artifact_sha256": "fed97608e8acb8ce22e5a898abea621ecfc6d053ebde41d35f05f5ac07aae8e0",
-    "eligible_observations": [
-      "Original Worker version selected, no migration tag and no Durable Object namespaces. Existing production configuration matches the recorded baseline.",
-      "Exact migration tag and all five expected SQLite namespaces verified; the candidate has not been fully applied and existing production configuration is preserved."
-    ],
+    "mode": "SAME_SCHEMA_WORKER_ROLLBACK",
+    "preservation": "Preserve the migration tag, all five namespace identities, bindings, alarms and original expirations.",
     "stop_conditions": [
-      "Mixed state, unverifiable or changed namespace identity, unexpected tag, route or D1 state.",
-      "Candidate fully applied and required smoke fails."
-    ],
-    "preservation": "Keep existing namespace IDs, bindings, class implementations, alarms and original expirations.",
-    "evidence": {
-      "official_artifact_vs_production": {
-        "live_source": "6ee7de6331c4d8e114e35be518f0921aa4314040",
-        "live_bundle_sha256": "732174960c9af148e89b88fd25eafe6c09756f6a7054cf6d84ec1ea620b204a8",
-        "official_source": "1b75d268d9023740c10f89616761232c9e3b9357",
-        "official_artifact_id": "13691862682",
-        "official_artifact_sha256": "fed97608e8acb8ce22e5a898abea621ecfc6d053ebde41d35f05f5ac07aae8e0",
-        "normalized_bundle_sha256": "d98d14b20d66b09d7cf12fb89000964d78f35a7cc552fae58158df207e24ae3c",
-        "normalized_bundles_identical": true,
-        "configuration_delta": "Five SQLite bindings and one migration entry only",
-        "migration_tag": null,
-        "new_namespaces": 0,
-        "scope": "READ_ONLY_OFFICIAL_PACKAGE_AND_PRODUCTION_COMPARISON"
-      },
-      "official_live_comparison_receipt_sha256": "adae4567e4b8d1cec1721105af13b2ec6465d78c3d2d2fd25a97e757eac72985",
-      "wrangler_service_preflight": {
-        "migration_tag": null,
-        "production_namespace_count": 0,
-        "custom_routes": [
-          {
-            "hostname": "api.djconnect.dev",
-            "service": "djconnect-api",
-            "enabled": true,
-            "previews_enabled": false
-          }
-        ],
-        "workers_dev": false,
-        "preview_urls": false
-      },
-      "wrangler_service_preflight_receipt_sha256": "3f4c6b8b77b5f3c68a0787e5b376d042aa4ab8bc510b14452d65c6f583ba622c",
-      "bundle_normalization": [
-        "embedded release source SHA",
-        "source map comment"
-      ]
-    },
-    "authority_record": {
-      "owner": "Peter",
-      "approved_at": "2026-11-09",
-      "statement": "Akkoord met dit herstelpad",
-      "reported_by": "API owner handoff from thread 01a15afc-c690-7783-8a49-93b7d0de4baa",
-      "scope": "Controlled forward reapply of the exact closed storage artifact only, subject to the recorded recovery observations and stop conditions."
-    }
+      "Unexpected migration, namespace, D1 or route state."
+    ]
   },
   "review_baseline": {
-    "core_main_sha": "7ff231ad02a8152a1380256b8753e66fe4953756",
-    "superseded_manifest_blob": "8db947af417ffac0f8acb696836516f1d3dbe1d5"
+    "core_main_sha": "036ce06a1d6413703d2d34010c051bbc9ba15973",
+    "superseded_manifest_blob": "589db9b6baa88c5cabfea4ad074c761c1c70f4f4"
   }
 }
