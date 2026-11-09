@@ -383,7 +383,7 @@ class WidgetActualHAContractTests(unittest.TestCase):
         self.assertEqual(wire['ha_sdk_version'], '2026.10.0')
         current = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-requalification-bulletin-diagnostics-current.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
-        self.assertEqual(len(current['source_pins']), 309)
+        self.assertEqual(len(current['source_pins']), 315)
         self.assertEqual(current['harness'], wire['harness'])
         self.assertEqual(current['harness_sha256'], wire['harness_sha256'])
         extension = current['receipt']['extension']

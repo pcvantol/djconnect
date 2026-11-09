@@ -1,6 +1,6 @@
 {
   "harness_pins": {
-    "scripts/verification/passive_observation_sequence_lab.py": "e981491e637d9bd46fb7a3f2f61f18b0e37536643d06ddc9990c71b32b2c07c7",
+    "scripts/verification/passive_observation_sequence_lab.py": "52bf98ce25ea1d8ff0ec984cc04daff6a661d00b8edbdf7c945b2789ff7516ed",
     "scripts/verification/verify_passive_observation_http.py": "89a31758fb00a768ca0812e182fdfb4428f70567d99a43a8b7711aa3539990ff",
     "scripts/verification/verify_session_artwork_http.py": "3b4ba06e185d9eef18de42b5c509c2e1932203e9265a9b090b6492f6dd73be8f"
   },
