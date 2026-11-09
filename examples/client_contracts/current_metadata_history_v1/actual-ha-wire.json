@@ -5,7 +5,7 @@
     "scripts/verification/verify_current_metadata_history_http.py": "a5293884f7e82e7ded4ee21f9af674b420093da4ca67eda7eec6649a56c473f0",
     "scripts/verification/verify_session_conversation_history_http.py": "f05595c35ab21a2a87c5210ad4ec2d19cec341a7192827bdc7873a064727b068"
   },
-  "raw_receipt_sha256": "a7b43d74a0ae2efae4d6b01f63c2cfd62d6896839f184aae3ceba35ec68a704a",
+  "raw_receipt_sha256": "d3b708432aad0174f8192a7e34c6126f588ea8649366150afb7be6b2cf4ee531",
   "receipt": {
     "actual_home_assistant": true,
     "cases": {
@@ -28,10 +28,10 @@
         "entries": [
           {
             "current_display_allowed": false,
-            "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
+            "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
             "historical_view_only": true,
             "kind": "playback_observed",
-            "occurred_at": "2026-11-08T20:56:15.996008+00:00",
+            "occurred_at": "2026-11-09T07:38:21.464157+00:00",
             "order": 1,
             "playback": {
               "album": "",
@@ -45,7 +45,7 @@
             },
             "requires_spotify_attribution": true,
             "retained_until": "9999-12-31T00:00:00+00:00",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "session_media": {
               "artwork": {
                 "active_flow_display_allowed": false,
@@ -54,17 +54,17 @@
                 "reason": "not_prepared",
                 "state": "unavailable"
               },
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
               "revision": "not_prepared",
               "schema_version": 1,
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "text": "Fixture track · Fixture artist"
           },
           {
             "client_message_id": "actual-mac-identification",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "current_display_allowed": false,
             "effective_style": {
@@ -75,17 +75,17 @@
               "persona_revision": 0,
               "response_style": "balanced"
             },
-            "entry_id": "entry-dc8236a8b63857ffab48f7aadf3b443c",
+            "entry_id": "entry-355adca2f21f5e93b8f3d90114f5c45f",
             "historical_view_only": true,
             "input_type": "text",
             "kind": "conversation_user",
             "links": [],
-            "occurred_at": "2026-11-08T20:56:16.103754Z",
+            "occurred_at": "2026-11-09T07:38:21.604136Z",
             "order": 2,
-            "origin_message_id": "server-085ca251-40cb-473a-b7e3-5d1d43ea6cad",
+            "origin_message_id": "server-ff1d7ed2-9a1c-4996-a723-000ec5b29157",
             "retained_until": "9999-12-31T00:00:00+00:00",
             "role": "user",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "sources": [],
             "speech_processing_basis": null,
             "text": "Wie is dit?",
@@ -94,7 +94,7 @@
           {
             "client_message_id": "actual-mac-identification",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "current_display_allowed": false,
             "effective_style": {
@@ -105,7 +105,7 @@
               "persona_revision": 0,
               "response_style": "balanced"
             },
-            "entry_id": "entry-2c85208bf72b5aa1a481e04181773997",
+            "entry_id": "entry-803a718c2e6b54e080abc0d2b58b417e",
             "historical_view_only": true,
             "input_type": "text",
             "kind": "conversation_dj",
@@ -117,12 +117,12 @@
                 "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
               }
             ],
-            "occurred_at": "2026-11-08T20:56:16.103783Z",
+            "occurred_at": "2026-11-09T07:38:21.604157Z",
             "order": 3,
-            "origin_message_id": "server-2c98a8d0-2b6a-46b8-9cfe-3da61c5d9f19",
+            "origin_message_id": "server-d3971d8b-78a9-46f2-a04b-dc0050ad205a",
             "retained_until": "9999-12-31T00:00:00+00:00",
             "role": "assistant",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "session_media": {
               "artwork": {
                 "active_flow_display_allowed": false,
@@ -131,10 +131,10 @@
                 "reason": "not_prepared",
                 "state": "unavailable"
               },
-              "entry_id": "entry-2c85208bf72b5aa1a481e04181773997",
+              "entry_id": "entry-803a718c2e6b54e080abc0d2b58b417e",
               "revision": "not_prepared",
               "schema_version": 1,
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "session_speech": {
               "attribution": [
@@ -153,7 +153,7 @@
               "mood": null,
               "persona": "home_dj",
               "persona_revision": 0,
-              "presentation_revision": "0d98fead2a6eaed197853155",
+              "presentation_revision": "a37f6b9da9685215636cba6f",
               "processor_qualification_required": true,
               "processors": [
                 "local_on_device",
@@ -161,8 +161,8 @@
               ],
               "reason": null,
               "reference": {
-                "entry_id": "entry-2c85208bf72b5aa1a481e04181773997",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-803a718c2e6b54e080abc0d2b58b417e",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "schema_version": 1,
               "segments": [
@@ -172,9 +172,9 @@
                   "text": "Dit is Fixture artist, met Fixture track."
                 }
               ],
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
               "source_expires_at": "9999-12-31T00:00:00+00:00",
-              "source_id": "entry-2c85208bf72b5aa1a481e04181773997",
+              "source_id": "entry-803a718c2e6b54e080abc0d2b58b417e",
               "source_kind": "retained_dj_contribution",
               "state": "available",
               "style_basis": "accepted_contribution",
@@ -195,7 +195,7 @@
           {
             "client_message_id": "actual-watch-voice",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "current_display_allowed": false,
             "effective_style": {
@@ -206,17 +206,17 @@
               "persona_revision": 0,
               "response_style": "balanced"
             },
-            "entry_id": "entry-bf1e189bbbf154d381bdb9b16f4e3019",
+            "entry_id": "entry-a73165c6188958c991fcfade3f194913",
             "historical_view_only": true,
             "input_type": "voice",
             "kind": "conversation_user",
             "links": [],
-            "occurred_at": "2026-11-08T20:56:16.180970Z",
+            "occurred_at": "2026-11-09T07:38:21.666371Z",
             "order": 4,
-            "origin_message_id": "server-543d99a1-1858-486c-b41f-01f0a86e2115",
+            "origin_message_id": "server-28e8ca8c-ba5a-4ac0-b080-0239e7ad27ec",
             "retained_until": "9999-12-31T00:00:00+00:00",
             "role": "user",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "sources": [],
             "speech_processing_basis": null,
             "text": "Wie is dit?",
@@ -225,7 +225,7 @@
           {
             "client_message_id": "actual-watch-voice",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "current_display_allowed": false,
             "effective_style": {
@@ -236,7 +236,7 @@
               "persona_revision": 0,
               "response_style": "balanced"
             },
-            "entry_id": "entry-1700aaf74a145fdaba5e88cfdf953738",
+            "entry_id": "entry-2c874f6fb747594295a766f02f87dd7d",
             "historical_view_only": true,
             "input_type": "voice",
             "kind": "conversation_dj",
@@ -248,12 +248,12 @@
                 "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
               }
             ],
-            "occurred_at": "2026-11-08T20:56:16.180988Z",
+            "occurred_at": "2026-11-09T07:38:21.666398Z",
             "order": 5,
-            "origin_message_id": "server-3da121e1-e464-47e6-9ec5-9a0706e55375",
+            "origin_message_id": "server-3933c701-d17c-49da-8891-b38a617d5524",
             "retained_until": "9999-12-31T00:00:00+00:00",
             "role": "assistant",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "session_media": {
               "artwork": {
                 "active_flow_display_allowed": false,
@@ -262,10 +262,10 @@
                 "reason": "not_prepared",
                 "state": "unavailable"
               },
-              "entry_id": "entry-1700aaf74a145fdaba5e88cfdf953738",
+              "entry_id": "entry-2c874f6fb747594295a766f02f87dd7d",
               "revision": "not_prepared",
               "schema_version": 1,
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "session_speech": {
               "attribution": [
@@ -284,7 +284,7 @@
               "mood": null,
               "persona": "home_dj",
               "persona_revision": 0,
-              "presentation_revision": "94d6ebd9431de6dadeadbc2a",
+              "presentation_revision": "9adbcf626b032368b936de33",
               "processor_qualification_required": true,
               "processors": [
                 "local_on_device",
@@ -292,8 +292,8 @@
               ],
               "reason": null,
               "reference": {
-                "entry_id": "entry-1700aaf74a145fdaba5e88cfdf953738",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-2c874f6fb747594295a766f02f87dd7d",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "schema_version": 1,
               "segments": [
@@ -303,9 +303,9 @@
                   "text": "Dit is Fixture artist, met Fixture track."
                 }
               ],
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
               "source_expires_at": "9999-12-31T00:00:00+00:00",
-              "source_id": "entry-1700aaf74a145fdaba5e88cfdf953738",
+              "source_id": "entry-2c874f6fb747594295a766f02f87dd7d",
               "source_kind": "retained_dj_contribution",
               "state": "available",
               "style_basis": "accepted_contribution",
@@ -326,48 +326,48 @@
         ],
         "history_contract_version": 2,
         "next_cursor": null,
-        "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+        "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
         "scan_complete": true,
         "scanned_order_max": 5,
         "scanned_order_min": 1,
         "schema_version": 2,
         "session": {
-          "created_at": "2026-11-08T20:56:15.980804+00:00",
+          "created_at": "2026-11-09T07:38:21.446450+00:00",
           "ended_at": "",
           "history_coverage": "saved_entries_only_no_retrospective_observations",
           "interrupted_at": "",
           "lifecycle_status": "ACTIVE",
           "read_only": false,
-          "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
-          "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
-          "started_at": "2026-11-08T20:56:15.990099+00:00",
+          "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
+          "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
+          "started_at": "2026-11-09T07:38:21.457459+00:00",
           "summary": {
-            "as_of": "2026-11-08T20:56:16.262060+00:00",
+            "as_of": "2026-11-09T07:38:21.729966+00:00",
             "moments_published": {
-              "as_of": "2026-11-08T20:56:16.262060+00:00",
+              "as_of": "2026-11-09T07:38:21.729966+00:00",
               "basis": "semantic_publication_commit",
               "coverage": "complete",
-              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
               "state": "provisional",
               "value": 0
             },
             "mood": {
-              "as_of": "2026-11-08T20:56:16.262060+00:00",
+              "as_of": "2026-11-09T07:38:21.729966+00:00",
               "basis": "confirmed_symbolic_mood_elapsed_intervals",
               "coverage": "unknown",
-              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
               "state": "provisional",
               "value": null
             },
             "schema_version": "djconnect-session-history-summary/1",
-            "session_revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+            "session_revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
             "state": "provisional",
             "tracks_observed": {
-              "as_of": "2026-11-08T20:56:16.262060+00:00",
+              "as_of": "2026-11-09T07:38:21.729966+00:00",
               "basis": "accepted_playback_observed_entries",
               "coverage": "complete",
               "observation_scope": "stage_1_media_identity_changes_not_occurrences",
-              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
               "state": "provisional",
               "value": 1
             }
@@ -391,20 +391,20 @@
           "client_id": "djconnect-macos-ABCDEF123456",
           "client_message_id": "actual-mac-identification",
           "client_type": "macos",
-          "created_at": "2026-11-08T20:56:16.103783Z",
+          "created_at": "2026-11-09T07:38:21.604157Z",
           "exchange_id": "actual-mac-identification",
           "exchange_order": 1,
           "historical_entry_references": [
             {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             }
           ],
-          "id": "server-2c98a8d0-2b6a-46b8-9cfe-3da61c5d9f19",
+          "id": "server-d3971d8b-78a9-46f2-a04b-dc0050ad205a",
           "images": [],
           "intent": {
             "category": "informational",
@@ -432,7 +432,7 @@
             ],
             "autoplay_eligible": false,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-08T20:57:16.080342+00:00",
+            "expires_at": "2026-11-09T07:39:21.578509+00:00",
             "locale": "nl",
             "manual_allowed": true,
             "persona": "home_dj",
@@ -455,7 +455,7 @@
                 "text": "Dit is Fixture artist, met Fixture track."
               }
             ],
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "source_id": "turn-ba810db230fb543db9d2b2278a616df6",
             "source_kind": "accepted_ask_dj",
             "state": "available",
@@ -464,12 +464,12 @@
           "session_turn": {
             "captured_playback_item_id": "02e3d582594577327c335fc0",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "dependency_entries": [
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               }
             ],
             "dependency_moments": [],
@@ -484,12 +484,12 @@
             },
             "explicit_playback_request": false,
             "implicit_playback_entry": {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "input_type": "text",
             "profile_id": "artwork-profile",
-            "request_digest": "9a3a82987c8258f2cebe8085cb2759474f8e9b370b4fb205a55948a94fa029f4",
+            "request_digest": "fdd75fdd1f5899a5074a07b36b18615caffb5ef4507a7cfe0eea2aac5df4974d",
             "turn_id": "turn-ba810db230fb543db9d2b2278a616df6"
           },
           "sources": [
@@ -514,11 +514,11 @@
         "client_message_id": "actual-mac-identification",
         "conversation": {
           "context": {
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
           },
           "entry_ids": [
-            "entry-dc8236a8b63857ffab48f7aadf3b443c",
-            "entry-2c85208bf72b5aa1a481e04181773997"
+            "entry-355adca2f21f5e93b8f3d90114f5c45f",
+            "entry-803a718c2e6b54e080abc0d2b58b417e"
           ],
           "history_scope": "profile",
           "input_type": "text",
@@ -566,20 +566,20 @@
             "client_id": "djconnect-macos-ABCDEF123456",
             "client_message_id": "actual-mac-identification",
             "client_type": "macos",
-            "created_at": "2026-11-08T20:56:16.103754Z",
+            "created_at": "2026-11-09T07:38:21.604136Z",
             "exchange_id": "actual-mac-identification",
             "exchange_order": 0,
             "historical_entry_references": [
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               }
             ],
-            "id": "server-085ca251-40cb-473a-b7e3-5d1d43ea6cad",
+            "id": "server-ff1d7ed2-9a1c-4996-a723-000ec5b29157",
             "images": [],
             "links": [],
             "playback_actions": [],
@@ -587,12 +587,12 @@
             "session_turn": {
               "captured_playback_item_id": "02e3d582594577327c335fc0",
               "context": {
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "dependency_entries": [
                 {
-                  "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                  "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                  "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                  "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
                 }
               ],
               "dependency_moments": [],
@@ -607,12 +607,12 @@
               },
               "explicit_playback_request": false,
               "implicit_playback_entry": {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "input_type": "text",
               "profile_id": "artwork-profile",
-              "request_digest": "9a3a82987c8258f2cebe8085cb2759474f8e9b370b4fb205a55948a94fa029f4",
+              "request_digest": "fdd75fdd1f5899a5074a07b36b18615caffb5ef4507a7cfe0eea2aac5df4974d",
               "turn_id": "turn-ba810db230fb543db9d2b2278a616df6"
             },
             "sources": [],
@@ -631,20 +631,20 @@
             "client_id": "djconnect-macos-ABCDEF123456",
             "client_message_id": "actual-mac-identification",
             "client_type": "macos",
-            "created_at": "2026-11-08T20:56:16.103783Z",
+            "created_at": "2026-11-09T07:38:21.604157Z",
             "exchange_id": "actual-mac-identification",
             "exchange_order": 1,
             "historical_entry_references": [
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               }
             ],
-            "id": "server-2c98a8d0-2b6a-46b8-9cfe-3da61c5d9f19",
+            "id": "server-d3971d8b-78a9-46f2-a04b-dc0050ad205a",
             "images": [],
             "intent": {
               "category": "informational",
@@ -672,7 +672,7 @@
               ],
               "autoplay_eligible": false,
               "cache_policy": "private,no-store",
-              "expires_at": "2026-11-08T20:57:16.080342+00:00",
+              "expires_at": "2026-11-09T07:39:21.578509+00:00",
               "locale": "nl",
               "manual_allowed": true,
               "persona": "home_dj",
@@ -695,7 +695,7 @@
                   "text": "Dit is Fixture artist, met Fixture track."
                 }
               ],
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
               "source_id": "turn-ba810db230fb543db9d2b2278a616df6",
               "source_kind": "accepted_ask_dj",
               "state": "available",
@@ -704,12 +704,12 @@
             "session_turn": {
               "captured_playback_item_id": "02e3d582594577327c335fc0",
               "context": {
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "dependency_entries": [
                 {
-                  "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                  "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                  "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                  "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
                 }
               ],
               "dependency_moments": [],
@@ -724,12 +724,12 @@
               },
               "explicit_playback_request": false,
               "implicit_playback_entry": {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "input_type": "text",
               "profile_id": "artwork-profile",
-              "request_digest": "9a3a82987c8258f2cebe8085cb2759474f8e9b370b4fb205a55948a94fa029f4",
+              "request_digest": "fdd75fdd1f5899a5074a07b36b18615caffb5ef4507a7cfe0eea2aac5df4974d",
               "turn_id": "turn-ba810db230fb543db9d2b2278a616df6"
             },
             "sources": [
@@ -747,7 +747,7 @@
         ],
         "owner_profile_id": "artwork-profile",
         "playback_actions": [],
-        "server_time": "2026-11-08T20:56:16.108388Z",
+        "server_time": "2026-11-09T07:38:21.609323Z",
         "session_speech": {
           "attribution": [
             {
@@ -759,7 +759,7 @@
           ],
           "autoplay_eligible": false,
           "cache_policy": "private,no-store",
-          "expires_at": "2026-11-08T20:57:16.080342+00:00",
+          "expires_at": "2026-11-09T07:39:21.578509+00:00",
           "locale": "nl",
           "manual_allowed": true,
           "persona": "home_dj",
@@ -782,7 +782,7 @@
               "text": "Dit is Fixture artist, met Fixture track."
             }
           ],
-          "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+          "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
           "source_id": "turn-ba810db230fb543db9d2b2278a616df6",
           "source_kind": "accepted_ask_dj",
           "state": "available",
@@ -805,20 +805,20 @@
           "client_id": "djconnect-macos-ABCDEF123456",
           "client_message_id": "actual-mac-identification",
           "client_type": "macos",
-          "created_at": "2026-11-08T20:56:16.103754Z",
+          "created_at": "2026-11-09T07:38:21.604136Z",
           "exchange_id": "actual-mac-identification",
           "exchange_order": 0,
           "historical_entry_references": [
             {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             }
           ],
-          "id": "server-085ca251-40cb-473a-b7e3-5d1d43ea6cad",
+          "id": "server-ff1d7ed2-9a1c-4996-a723-000ec5b29157",
           "images": [],
           "links": [],
           "playback_actions": [],
@@ -826,12 +826,12 @@
           "session_turn": {
             "captured_playback_item_id": "02e3d582594577327c335fc0",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "dependency_entries": [
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               }
             ],
             "dependency_moments": [],
@@ -846,12 +846,12 @@
             },
             "explicit_playback_request": false,
             "implicit_playback_entry": {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "input_type": "text",
             "profile_id": "artwork-profile",
-            "request_digest": "9a3a82987c8258f2cebe8085cb2759474f8e9b370b4fb205a55948a94fa029f4",
+            "request_digest": "fdd75fdd1f5899a5074a07b36b18615caffb5ef4507a7cfe0eea2aac5df4974d",
             "turn_id": "turn-ba810db230fb543db9d2b2278a616df6"
           },
           "sources": [],
@@ -865,10 +865,10 @@
         "entries": [
           {
             "current_display_allowed": false,
-            "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
+            "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
             "historical_view_only": true,
             "kind": "playback_observed",
-            "occurred_at": "2026-11-08T20:56:15.996008+00:00",
+            "occurred_at": "2026-11-09T07:38:21.464157+00:00",
             "order": 1,
             "playback": {
               "album": "",
@@ -882,7 +882,7 @@
             },
             "requires_spotify_attribution": true,
             "retained_until": "9999-12-31T00:00:00+00:00",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "session_media": {
               "artwork": {
                 "active_flow_display_allowed": false,
@@ -891,17 +891,17 @@
                 "reason": "not_prepared",
                 "state": "unavailable"
               },
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
               "revision": "not_prepared",
               "schema_version": 1,
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "text": "Fixture track · Fixture artist"
           },
           {
             "client_message_id": "actual-mac-identification",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "current_display_allowed": false,
             "effective_style": {
@@ -912,17 +912,17 @@
               "persona_revision": 0,
               "response_style": "balanced"
             },
-            "entry_id": "entry-dc8236a8b63857ffab48f7aadf3b443c",
+            "entry_id": "entry-355adca2f21f5e93b8f3d90114f5c45f",
             "historical_view_only": true,
             "input_type": "text",
             "kind": "conversation_user",
             "links": [],
-            "occurred_at": "2026-11-08T20:56:16.103754Z",
+            "occurred_at": "2026-11-09T07:38:21.604136Z",
             "order": 2,
-            "origin_message_id": "server-085ca251-40cb-473a-b7e3-5d1d43ea6cad",
+            "origin_message_id": "server-ff1d7ed2-9a1c-4996-a723-000ec5b29157",
             "retained_until": "9999-12-31T00:00:00+00:00",
             "role": "user",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "sources": [],
             "speech_processing_basis": null,
             "text": "Wie is dit?",
@@ -931,7 +931,7 @@
           {
             "client_message_id": "actual-mac-identification",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "current_display_allowed": false,
             "effective_style": {
@@ -942,7 +942,7 @@
               "persona_revision": 0,
               "response_style": "balanced"
             },
-            "entry_id": "entry-2c85208bf72b5aa1a481e04181773997",
+            "entry_id": "entry-803a718c2e6b54e080abc0d2b58b417e",
             "historical_view_only": true,
             "input_type": "text",
             "kind": "conversation_dj",
@@ -954,12 +954,12 @@
                 "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
               }
             ],
-            "occurred_at": "2026-11-08T20:56:16.103783Z",
+            "occurred_at": "2026-11-09T07:38:21.604157Z",
             "order": 3,
-            "origin_message_id": "server-2c98a8d0-2b6a-46b8-9cfe-3da61c5d9f19",
+            "origin_message_id": "server-d3971d8b-78a9-46f2-a04b-dc0050ad205a",
             "retained_until": "9999-12-31T00:00:00+00:00",
             "role": "assistant",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "session_media": {
               "artwork": {
                 "active_flow_display_allowed": false,
@@ -968,10 +968,10 @@
                 "reason": "not_prepared",
                 "state": "unavailable"
               },
-              "entry_id": "entry-2c85208bf72b5aa1a481e04181773997",
+              "entry_id": "entry-803a718c2e6b54e080abc0d2b58b417e",
               "revision": "not_prepared",
               "schema_version": 1,
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "session_speech": {
               "attribution": [
@@ -990,7 +990,7 @@
               "mood": null,
               "persona": "home_dj",
               "persona_revision": 0,
-              "presentation_revision": "0d98fead2a6eaed197853155",
+              "presentation_revision": "a37f6b9da9685215636cba6f",
               "processor_qualification_required": true,
               "processors": [
                 "local_on_device",
@@ -998,8 +998,8 @@
               ],
               "reason": null,
               "reference": {
-                "entry_id": "entry-2c85208bf72b5aa1a481e04181773997",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-803a718c2e6b54e080abc0d2b58b417e",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "schema_version": 1,
               "segments": [
@@ -1009,9 +1009,9 @@
                   "text": "Dit is Fixture artist, met Fixture track."
                 }
               ],
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
               "source_expires_at": "9999-12-31T00:00:00+00:00",
-              "source_id": "entry-2c85208bf72b5aa1a481e04181773997",
+              "source_id": "entry-803a718c2e6b54e080abc0d2b58b417e",
               "source_kind": "retained_dj_contribution",
               "state": "available",
               "style_basis": "accepted_contribution",
@@ -1032,7 +1032,7 @@
           {
             "client_message_id": "actual-watch-voice",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "current_display_allowed": false,
             "effective_style": {
@@ -1043,17 +1043,17 @@
               "persona_revision": 0,
               "response_style": "balanced"
             },
-            "entry_id": "entry-bf1e189bbbf154d381bdb9b16f4e3019",
+            "entry_id": "entry-a73165c6188958c991fcfade3f194913",
             "historical_view_only": true,
             "input_type": "voice",
             "kind": "conversation_user",
             "links": [],
-            "occurred_at": "2026-11-08T20:56:16.180970Z",
+            "occurred_at": "2026-11-09T07:38:21.666371Z",
             "order": 4,
-            "origin_message_id": "server-543d99a1-1858-486c-b41f-01f0a86e2115",
+            "origin_message_id": "server-28e8ca8c-ba5a-4ac0-b080-0239e7ad27ec",
             "retained_until": "9999-12-31T00:00:00+00:00",
             "role": "user",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "sources": [],
             "speech_processing_basis": null,
             "text": "Wie is dit?",
@@ -1062,7 +1062,7 @@
           {
             "client_message_id": "actual-watch-voice",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "current_display_allowed": false,
             "effective_style": {
@@ -1073,7 +1073,7 @@
               "persona_revision": 0,
               "response_style": "balanced"
             },
-            "entry_id": "entry-1700aaf74a145fdaba5e88cfdf953738",
+            "entry_id": "entry-2c874f6fb747594295a766f02f87dd7d",
             "historical_view_only": true,
             "input_type": "voice",
             "kind": "conversation_dj",
@@ -1085,12 +1085,12 @@
                 "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
               }
             ],
-            "occurred_at": "2026-11-08T20:56:16.180988Z",
+            "occurred_at": "2026-11-09T07:38:21.666398Z",
             "order": 5,
-            "origin_message_id": "server-3da121e1-e464-47e6-9ec5-9a0706e55375",
+            "origin_message_id": "server-3933c701-d17c-49da-8891-b38a617d5524",
             "retained_until": "9999-12-31T00:00:00+00:00",
             "role": "assistant",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "session_media": {
               "artwork": {
                 "active_flow_display_allowed": false,
@@ -1099,10 +1099,10 @@
                 "reason": "not_prepared",
                 "state": "unavailable"
               },
-              "entry_id": "entry-1700aaf74a145fdaba5e88cfdf953738",
+              "entry_id": "entry-2c874f6fb747594295a766f02f87dd7d",
               "revision": "not_prepared",
               "schema_version": 1,
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "session_speech": {
               "attribution": [
@@ -1121,7 +1121,7 @@
               "mood": null,
               "persona": "home_dj",
               "persona_revision": 0,
-              "presentation_revision": "94d6ebd9431de6dadeadbc2a",
+              "presentation_revision": "9adbcf626b032368b936de33",
               "processor_qualification_required": true,
               "processors": [
                 "local_on_device",
@@ -1129,8 +1129,8 @@
               ],
               "reason": null,
               "reference": {
-                "entry_id": "entry-1700aaf74a145fdaba5e88cfdf953738",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-2c874f6fb747594295a766f02f87dd7d",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "schema_version": 1,
               "segments": [
@@ -1140,9 +1140,9 @@
                   "text": "Dit is Fixture artist, met Fixture track."
                 }
               ],
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
               "source_expires_at": "9999-12-31T00:00:00+00:00",
-              "source_id": "entry-1700aaf74a145fdaba5e88cfdf953738",
+              "source_id": "entry-2c874f6fb747594295a766f02f87dd7d",
               "source_kind": "retained_dj_contribution",
               "state": "available",
               "style_basis": "accepted_contribution",
@@ -1163,48 +1163,48 @@
         ],
         "history_contract_version": 2,
         "next_cursor": null,
-        "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+        "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
         "scan_complete": true,
         "scanned_order_max": 5,
         "scanned_order_min": 1,
         "schema_version": 2,
         "session": {
-          "created_at": "2026-11-08T20:56:15.980804+00:00",
+          "created_at": "2026-11-09T07:38:21.446450+00:00",
           "ended_at": "",
           "history_coverage": "saved_entries_only_no_retrospective_observations",
           "interrupted_at": "",
           "lifecycle_status": "ACTIVE",
           "read_only": false,
-          "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
-          "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
-          "started_at": "2026-11-08T20:56:15.990099+00:00",
+          "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
+          "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
+          "started_at": "2026-11-09T07:38:21.457459+00:00",
           "summary": {
-            "as_of": "2026-11-08T20:56:16.203026+00:00",
+            "as_of": "2026-11-09T07:38:21.685634+00:00",
             "moments_published": {
-              "as_of": "2026-11-08T20:56:16.203026+00:00",
+              "as_of": "2026-11-09T07:38:21.685634+00:00",
               "basis": "semantic_publication_commit",
               "coverage": "complete",
-              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
               "state": "provisional",
               "value": 0
             },
             "mood": {
-              "as_of": "2026-11-08T20:56:16.203026+00:00",
+              "as_of": "2026-11-09T07:38:21.685634+00:00",
               "basis": "confirmed_symbolic_mood_elapsed_intervals",
               "coverage": "unknown",
-              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
               "state": "provisional",
               "value": null
             },
             "schema_version": "djconnect-session-history-summary/1",
-            "session_revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+            "session_revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
             "state": "provisional",
             "tracks_observed": {
-              "as_of": "2026-11-08T20:56:16.203026+00:00",
+              "as_of": "2026-11-09T07:38:21.685634+00:00",
               "basis": "accepted_playback_observed_entries",
               "coverage": "complete",
               "observation_scope": "stage_1_media_identity_changes_not_occurrences",
-              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
               "state": "provisional",
               "value": 1
             }
@@ -1226,24 +1226,24 @@
           "client_id": "djconnect-watchos-AABBCC123456",
           "client_message_id": "actual-watch-voice",
           "client_type": "watchos",
-          "created_at": "2026-11-08T20:56:16.180988Z",
+          "created_at": "2026-11-09T07:38:21.666398Z",
           "exchange_id": "actual-watch-voice",
           "exchange_order": 1,
           "historical_entry_references": [
             {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             }
           ],
-          "id": "server-3da121e1-e464-47e6-9ec5-9a0706e55375",
+          "id": "server-3933c701-d17c-49da-8891-b38a617d5524",
           "images": [],
           "intent": {
             "category": "informational",
@@ -1271,7 +1271,7 @@
             ],
             "autoplay_eligible": true,
             "cache_policy": "private,no-store",
-            "expires_at": "2026-11-08T20:57:16.130883+00:00",
+            "expires_at": "2026-11-09T07:39:21.627895+00:00",
             "locale": "nl",
             "manual_allowed": true,
             "persona": "home_dj",
@@ -1294,7 +1294,7 @@
                 "text": "Dit is Fixture artist, met Fixture track."
               }
             ],
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "source_id": "turn-b8cfbfa907ee5aa387e2cdfe9278dfbb",
             "source_kind": "accepted_ask_dj",
             "state": "available",
@@ -1303,16 +1303,16 @@
           "session_turn": {
             "captured_playback_item_id": "02e3d582594577327c335fc0",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "dependency_entries": [
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               }
             ],
             "dependency_moments": [],
@@ -1329,12 +1329,12 @@
             },
             "explicit_playback_request": false,
             "implicit_playback_entry": {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "input_type": "voice",
             "profile_id": "artwork-profile",
-            "request_digest": "181365176f4b5b970eaef5687fd6cd2e2fbf6acda2479cb441f407ecd6c4b0c1",
+            "request_digest": "2aaddf1f7d97d83f39374ba1709d129ebb3bea7cd7915bf9ee5c4648a53a3311",
             "turn_id": "turn-b8cfbfa907ee5aa387e2cdfe9278dfbb"
           },
           "sources": [
@@ -1357,11 +1357,11 @@
         "client_message_id": "actual-watch-voice",
         "conversation": {
           "context": {
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
           },
           "entry_ids": [
-            "entry-bf1e189bbbf154d381bdb9b16f4e3019",
-            "entry-1700aaf74a145fdaba5e88cfdf953738"
+            "entry-a73165c6188958c991fcfade3f194913",
+            "entry-2c874f6fb747594295a766f02f87dd7d"
           ],
           "history_scope": "profile",
           "input_type": "voice",
@@ -1409,24 +1409,24 @@
             "client_id": "djconnect-watchos-AABBCC123456",
             "client_message_id": "actual-watch-voice",
             "client_type": "watchos",
-            "created_at": "2026-11-08T20:56:16.180970Z",
+            "created_at": "2026-11-09T07:38:21.666371Z",
             "exchange_id": "actual-watch-voice",
             "exchange_order": 0,
             "historical_entry_references": [
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               }
             ],
-            "id": "server-543d99a1-1858-486c-b41f-01f0a86e2115",
+            "id": "server-28e8ca8c-ba5a-4ac0-b080-0239e7ad27ec",
             "images": [],
             "links": [],
             "playback_actions": [],
@@ -1434,16 +1434,16 @@
             "session_turn": {
               "captured_playback_item_id": "02e3d582594577327c335fc0",
               "context": {
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "dependency_entries": [
                 {
-                  "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                  "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                  "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                  "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
                 },
                 {
-                  "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                  "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                  "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                  "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
                 }
               ],
               "dependency_moments": [],
@@ -1460,12 +1460,12 @@
               },
               "explicit_playback_request": false,
               "implicit_playback_entry": {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "input_type": "voice",
               "profile_id": "artwork-profile",
-              "request_digest": "181365176f4b5b970eaef5687fd6cd2e2fbf6acda2479cb441f407ecd6c4b0c1",
+              "request_digest": "2aaddf1f7d97d83f39374ba1709d129ebb3bea7cd7915bf9ee5c4648a53a3311",
               "turn_id": "turn-b8cfbfa907ee5aa387e2cdfe9278dfbb"
             },
             "sources": [],
@@ -1482,24 +1482,24 @@
             "client_id": "djconnect-watchos-AABBCC123456",
             "client_message_id": "actual-watch-voice",
             "client_type": "watchos",
-            "created_at": "2026-11-08T20:56:16.180988Z",
+            "created_at": "2026-11-09T07:38:21.666398Z",
             "exchange_id": "actual-watch-voice",
             "exchange_order": 1,
             "historical_entry_references": [
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               }
             ],
-            "id": "server-3da121e1-e464-47e6-9ec5-9a0706e55375",
+            "id": "server-3933c701-d17c-49da-8891-b38a617d5524",
             "images": [],
             "intent": {
               "category": "informational",
@@ -1527,7 +1527,7 @@
               ],
               "autoplay_eligible": true,
               "cache_policy": "private,no-store",
-              "expires_at": "2026-11-08T20:57:16.130883+00:00",
+              "expires_at": "2026-11-09T07:39:21.627895+00:00",
               "locale": "nl",
               "manual_allowed": true,
               "persona": "home_dj",
@@ -1550,7 +1550,7 @@
                   "text": "Dit is Fixture artist, met Fixture track."
                 }
               ],
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
               "source_id": "turn-b8cfbfa907ee5aa387e2cdfe9278dfbb",
               "source_kind": "accepted_ask_dj",
               "state": "available",
@@ -1559,16 +1559,16 @@
             "session_turn": {
               "captured_playback_item_id": "02e3d582594577327c335fc0",
               "context": {
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "dependency_entries": [
                 {
-                  "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                  "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                  "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                  "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
                 },
                 {
-                  "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                  "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                  "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                  "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
                 }
               ],
               "dependency_moments": [],
@@ -1585,12 +1585,12 @@
               },
               "explicit_playback_request": false,
               "implicit_playback_entry": {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "input_type": "voice",
               "profile_id": "artwork-profile",
-              "request_digest": "181365176f4b5b970eaef5687fd6cd2e2fbf6acda2479cb441f407ecd6c4b0c1",
+              "request_digest": "2aaddf1f7d97d83f39374ba1709d129ebb3bea7cd7915bf9ee5c4648a53a3311",
               "turn_id": "turn-b8cfbfa907ee5aa387e2cdfe9278dfbb"
             },
             "sources": [
@@ -1609,7 +1609,7 @@
         "owner_profile_id": "artwork-profile",
         "playback_actions": [],
         "recognized_text": "Wie is dit?",
-        "server_time": "2026-11-08T20:56:16.191395Z",
+        "server_time": "2026-11-09T07:38:21.676711Z",
         "session_speech": {
           "attribution": [
             {
@@ -1621,7 +1621,7 @@
           ],
           "autoplay_eligible": true,
           "cache_policy": "private,no-store",
-          "expires_at": "2026-11-08T20:57:16.130883+00:00",
+          "expires_at": "2026-11-09T07:39:21.627895+00:00",
           "locale": "nl",
           "manual_allowed": true,
           "persona": "home_dj",
@@ -1644,7 +1644,7 @@
               "text": "Dit is Fixture artist, met Fixture track."
             }
           ],
-          "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+          "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
           "source_id": "turn-b8cfbfa907ee5aa387e2cdfe9278dfbb",
           "source_kind": "accepted_ask_dj",
           "state": "available",
@@ -1668,24 +1668,24 @@
           "client_id": "djconnect-watchos-AABBCC123456",
           "client_message_id": "actual-watch-voice",
           "client_type": "watchos",
-          "created_at": "2026-11-08T20:56:16.180970Z",
+          "created_at": "2026-11-09T07:38:21.666371Z",
           "exchange_id": "actual-watch-voice",
           "exchange_order": 0,
           "historical_entry_references": [
             {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             }
           ],
-          "id": "server-543d99a1-1858-486c-b41f-01f0a86e2115",
+          "id": "server-28e8ca8c-ba5a-4ac0-b080-0239e7ad27ec",
           "images": [],
           "links": [],
           "playback_actions": [],
@@ -1693,16 +1693,16 @@
           "session_turn": {
             "captured_playback_item_id": "02e3d582594577327c335fc0",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "dependency_entries": [
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               {
-                "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               }
             ],
             "dependency_moments": [],
@@ -1719,12 +1719,12 @@
             },
             "explicit_playback_request": false,
             "implicit_playback_entry": {
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "input_type": "voice",
             "profile_id": "artwork-profile",
-            "request_digest": "181365176f4b5b970eaef5687fd6cd2e2fbf6acda2479cb441f407ecd6c4b0c1",
+            "request_digest": "2aaddf1f7d97d83f39374ba1709d129ebb3bea7cd7915bf9ee5c4648a53a3311",
             "turn_id": "turn-b8cfbfa907ee5aa387e2cdfe9278dfbb"
           },
           "sources": [],
@@ -1738,10 +1738,10 @@
         "entries": [
           {
             "current_display_allowed": false,
-            "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
+            "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
             "historical_view_only": true,
             "kind": "playback_observed",
-            "occurred_at": "2026-11-08T20:56:15.996008+00:00",
+            "occurred_at": "2026-11-09T07:38:21.464157+00:00",
             "order": 1,
             "playback": {
               "album": "",
@@ -1755,7 +1755,7 @@
             },
             "requires_spotify_attribution": true,
             "retained_until": "9999-12-31T00:00:00+00:00",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "session_media": {
               "artwork": {
                 "active_flow_display_allowed": false,
@@ -1764,17 +1764,17 @@
                 "reason": "not_prepared",
                 "state": "unavailable"
               },
-              "entry_id": "entry-7c904c89bf63522caaf4f637522f2ae8",
+              "entry_id": "entry-3cdde53da125536da49bf2ebb61452dd",
               "revision": "not_prepared",
               "schema_version": 1,
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "text": "Fixture track · Fixture artist"
           },
           {
             "client_message_id": "actual-mac-identification",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "current_display_allowed": false,
             "effective_style": {
@@ -1785,17 +1785,17 @@
               "persona_revision": 0,
               "response_style": "balanced"
             },
-            "entry_id": "entry-dc8236a8b63857ffab48f7aadf3b443c",
+            "entry_id": "entry-355adca2f21f5e93b8f3d90114f5c45f",
             "historical_view_only": true,
             "input_type": "text",
             "kind": "conversation_user",
             "links": [],
-            "occurred_at": "2026-11-08T20:56:16.103754Z",
+            "occurred_at": "2026-11-09T07:38:21.604136Z",
             "order": 2,
-            "origin_message_id": "server-085ca251-40cb-473a-b7e3-5d1d43ea6cad",
+            "origin_message_id": "server-ff1d7ed2-9a1c-4996-a723-000ec5b29157",
             "retained_until": "9999-12-31T00:00:00+00:00",
             "role": "user",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "sources": [],
             "speech_processing_basis": null,
             "text": "Wie is dit?",
@@ -1804,7 +1804,7 @@
           {
             "client_message_id": "actual-mac-identification",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "current_display_allowed": false,
             "effective_style": {
@@ -1815,7 +1815,7 @@
               "persona_revision": 0,
               "response_style": "balanced"
             },
-            "entry_id": "entry-2c85208bf72b5aa1a481e04181773997",
+            "entry_id": "entry-803a718c2e6b54e080abc0d2b58b417e",
             "historical_view_only": true,
             "input_type": "text",
             "kind": "conversation_dj",
@@ -1827,12 +1827,12 @@
                 "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
               }
             ],
-            "occurred_at": "2026-11-08T20:56:16.103783Z",
+            "occurred_at": "2026-11-09T07:38:21.604157Z",
             "order": 3,
-            "origin_message_id": "server-2c98a8d0-2b6a-46b8-9cfe-3da61c5d9f19",
+            "origin_message_id": "server-d3971d8b-78a9-46f2-a04b-dc0050ad205a",
             "retained_until": "9999-12-31T00:00:00+00:00",
             "role": "assistant",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "session_media": {
               "artwork": {
                 "active_flow_display_allowed": false,
@@ -1841,10 +1841,10 @@
                 "reason": "not_prepared",
                 "state": "unavailable"
               },
-              "entry_id": "entry-2c85208bf72b5aa1a481e04181773997",
+              "entry_id": "entry-803a718c2e6b54e080abc0d2b58b417e",
               "revision": "not_prepared",
               "schema_version": 1,
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "session_speech": {
               "attribution": [
@@ -1863,7 +1863,7 @@
               "mood": null,
               "persona": "home_dj",
               "persona_revision": 0,
-              "presentation_revision": "0d98fead2a6eaed197853155",
+              "presentation_revision": "a37f6b9da9685215636cba6f",
               "processor_qualification_required": true,
               "processors": [
                 "local_on_device",
@@ -1871,8 +1871,8 @@
               ],
               "reason": null,
               "reference": {
-                "entry_id": "entry-2c85208bf72b5aa1a481e04181773997",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-803a718c2e6b54e080abc0d2b58b417e",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "schema_version": 1,
               "segments": [
@@ -1882,9 +1882,9 @@
                   "text": "Dit is Fixture artist, met Fixture track."
                 }
               ],
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
               "source_expires_at": "9999-12-31T00:00:00+00:00",
-              "source_id": "entry-2c85208bf72b5aa1a481e04181773997",
+              "source_id": "entry-803a718c2e6b54e080abc0d2b58b417e",
               "source_kind": "retained_dj_contribution",
               "state": "available",
               "style_basis": "accepted_contribution",
@@ -1905,7 +1905,7 @@
           {
             "client_message_id": "actual-watch-voice",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "current_display_allowed": false,
             "effective_style": {
@@ -1916,17 +1916,17 @@
               "persona_revision": 0,
               "response_style": "balanced"
             },
-            "entry_id": "entry-bf1e189bbbf154d381bdb9b16f4e3019",
+            "entry_id": "entry-a73165c6188958c991fcfade3f194913",
             "historical_view_only": true,
             "input_type": "voice",
             "kind": "conversation_user",
             "links": [],
-            "occurred_at": "2026-11-08T20:56:16.180970Z",
+            "occurred_at": "2026-11-09T07:38:21.666371Z",
             "order": 4,
-            "origin_message_id": "server-543d99a1-1858-486c-b41f-01f0a86e2115",
+            "origin_message_id": "server-28e8ca8c-ba5a-4ac0-b080-0239e7ad27ec",
             "retained_until": "9999-12-31T00:00:00+00:00",
             "role": "user",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "sources": [],
             "speech_processing_basis": null,
             "text": "Wie is dit?",
@@ -1935,7 +1935,7 @@
           {
             "client_message_id": "actual-watch-voice",
             "context": {
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "current_display_allowed": false,
             "effective_style": {
@@ -1946,7 +1946,7 @@
               "persona_revision": 0,
               "response_style": "balanced"
             },
-            "entry_id": "entry-1700aaf74a145fdaba5e88cfdf953738",
+            "entry_id": "entry-2c874f6fb747594295a766f02f87dd7d",
             "historical_view_only": true,
             "input_type": "voice",
             "kind": "conversation_dj",
@@ -1958,12 +1958,12 @@
                 "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
               }
             ],
-            "occurred_at": "2026-11-08T20:56:16.180988Z",
+            "occurred_at": "2026-11-09T07:38:21.666398Z",
             "order": 5,
-            "origin_message_id": "server-3da121e1-e464-47e6-9ec5-9a0706e55375",
+            "origin_message_id": "server-3933c701-d17c-49da-8891-b38a617d5524",
             "retained_until": "9999-12-31T00:00:00+00:00",
             "role": "assistant",
-            "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+            "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
             "session_media": {
               "artwork": {
                 "active_flow_display_allowed": false,
@@ -1972,10 +1972,10 @@
                 "reason": "not_prepared",
                 "state": "unavailable"
               },
-              "entry_id": "entry-1700aaf74a145fdaba5e88cfdf953738",
+              "entry_id": "entry-2c874f6fb747594295a766f02f87dd7d",
               "revision": "not_prepared",
               "schema_version": 1,
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
             },
             "session_speech": {
               "attribution": [
@@ -1994,7 +1994,7 @@
               "mood": null,
               "persona": "home_dj",
               "persona_revision": 0,
-              "presentation_revision": "94d6ebd9431de6dadeadbc2a",
+              "presentation_revision": "9adbcf626b032368b936de33",
               "processor_qualification_required": true,
               "processors": [
                 "local_on_device",
@@ -2002,8 +2002,8 @@
               ],
               "reason": null,
               "reference": {
-                "entry_id": "entry-1700aaf74a145fdaba5e88cfdf953738",
-                "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1"
+                "entry_id": "entry-2c874f6fb747594295a766f02f87dd7d",
+                "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d"
               },
               "schema_version": 1,
               "segments": [
@@ -2013,9 +2013,9 @@
                   "text": "Dit is Fixture artist, met Fixture track."
                 }
               ],
-              "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
+              "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
               "source_expires_at": "9999-12-31T00:00:00+00:00",
-              "source_id": "entry-1700aaf74a145fdaba5e88cfdf953738",
+              "source_id": "entry-2c874f6fb747594295a766f02f87dd7d",
               "source_kind": "retained_dj_contribution",
               "state": "available",
               "style_basis": "accepted_contribution",
@@ -2036,48 +2036,48 @@
         ],
         "history_contract_version": 2,
         "next_cursor": null,
-        "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+        "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
         "scan_complete": true,
         "scanned_order_max": 5,
         "scanned_order_min": 1,
         "schema_version": 2,
         "session": {
-          "created_at": "2026-11-08T20:56:15.980804+00:00",
+          "created_at": "2026-11-09T07:38:21.446450+00:00",
           "ended_at": "",
           "history_coverage": "saved_entries_only_no_retrospective_observations",
           "interrupted_at": "",
           "lifecycle_status": "ACTIVE",
           "read_only": false,
-          "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
-          "session_id": "session-67e0ae99d6d94a5cb98a689e617bb0e1",
-          "started_at": "2026-11-08T20:56:15.990099+00:00",
+          "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
+          "session_id": "session-c9f4f3b95d004984b66fd6a577b09c5d",
+          "started_at": "2026-11-09T07:38:21.457459+00:00",
           "summary": {
-            "as_of": "2026-11-08T20:56:16.233777+00:00",
+            "as_of": "2026-11-09T07:38:21.709591+00:00",
             "moments_published": {
-              "as_of": "2026-11-08T20:56:16.233777+00:00",
+              "as_of": "2026-11-09T07:38:21.709591+00:00",
               "basis": "semantic_publication_commit",
               "coverage": "complete",
-              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
               "state": "provisional",
               "value": 0
             },
             "mood": {
-              "as_of": "2026-11-08T20:56:16.233777+00:00",
+              "as_of": "2026-11-09T07:38:21.709591+00:00",
               "basis": "confirmed_symbolic_mood_elapsed_intervals",
               "coverage": "unknown",
-              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
               "state": "provisional",
               "value": null
             },
             "schema_version": "djconnect-session-history-summary/1",
-            "session_revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+            "session_revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
             "state": "provisional",
             "tracks_observed": {
-              "as_of": "2026-11-08T20:56:16.233777+00:00",
+              "as_of": "2026-11-09T07:38:21.709591+00:00",
               "basis": "accepted_playback_observed_entries",
               "coverage": "complete",
               "observation_scope": "stage_1_media_identity_changes_not_occurrences",
-              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:09bbe6ac32000ce4e69d41591e1e09f1cae983a801090993d2ff58f700bdddd8",
+              "revision": "5:ACTIVE:0:0:cd493488b942110d:retention:1:0:delete:5141f15e4903d56b0143c9f975bad83b3829b68ba062468e919fec73940c46c3",
               "state": "provisional",
               "value": 1
             }
@@ -2198,7 +2198,7 @@
       "custom_components/djconnect/ask_dj/artist_tracks.py": "45047d54f079952d6486fded5b1eae7dbce5cfc41a9cef4f0acf3bf39695cdf4",
       "custom_components/djconnect/ask_dj/band_story.py": "070589b2eed6311843f91a0aff993eb02faea74b37e69a46169f2f7c59226433",
       "custom_components/djconnect/ask_dj/biographical_dates.py": "70584e2a80bf8e14eb7d31728959e143d02d22743833bd7090ae2202d7eb299c",
-      "custom_components/djconnect/ask_dj/dialogue.py": "9723eaab82a70cb3c700365589862ee0d80ce4845849a5412d51fa5f60b2b2fd",
+      "custom_components/djconnect/ask_dj/dialogue.py": "6c99eba0d421de899a420d6560d6758cfafc64d9cfc71e3bb4fc9b6fff29a4e6",
       "custom_components/djconnect/ask_dj/example_catalogue.py": "1cf64d63736bdf859ee2bb11323830c983412db41a1f198941532d9e885b6cc7",
       "custom_components/djconnect/ask_dj/example_catalogue_data.py": "2686951e64ee5cff59f5e188f753165def71eb4d244574bb2e07cf3a3a4fe85f",
       "custom_components/djconnect/ask_dj/examples_v1.json": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
@@ -2209,7 +2209,7 @@
       "custom_components/djconnect/ask_dj/observations.py": "79c45e4a6fb17a6d818adf3ef3948c743ec926af68a5f0429e032b089310747c",
       "custom_components/djconnect/ask_dj/person_age.py": "20b3018c2c7b46935dfabc46c1b9d307d14f1dab777ace9e8327a367ed00b139",
       "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
-      "custom_components/djconnect/ask_dj/public_research.py": "1a7605bf081eab4a70d95bbdc2eb0edf6c2a8546cb1f0f22ded264f33e2a7a37",
+      "custom_components/djconnect/ask_dj/public_research.py": "b6de77261724a89cf7353896000471429f49312d7042e13ee9b5e4ab39be0cff",
       "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
       "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
       "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",
@@ -2352,7 +2352,7 @@
       "custom_components/djconnect/music_intent.py": "1c23fbc72358fefa64c409d5334bddb97230216fac1943233a10fec0c333e7f1",
       "custom_components/djconnect/musicbrainz_rate.py": "6e40f3c605fbd73dc246630cd4a1b60d7fb89b03344663d6102007d63846453a",
       "custom_components/djconnect/narration_brief.py": "ca492fec0b8f50e8947ab2a546967263d8b1c50182c2a433d8e45e6a14a640dc",
-      "custom_components/djconnect/narration_style.py": "145dd89eee8072f5797aac994f5a9620c4aba6947d0d4707dfb9bc9ce9d216f8",
+      "custom_components/djconnect/narration_style.py": "94119082c4b88e64afc8d0c1c753737463fda492275d986a7a0ccf1f40c65a86",
       "custom_components/djconnect/native_moment_delivery.py": "6d6077ba410a45dd47bc64133d9646b67051c5dccf04739c01cb562c6f586c5f",
       "custom_components/djconnect/number.py": "57dd84220fbb1903708c9c4a0f850d699919aabbe4300dcce252fb0f205e3e7b",
       "custom_components/djconnect/official_artist_research.py": "b1a7aa235f6a9a350c6923af85422e95726732633cf139da05deb446d1992106",
@@ -2391,7 +2391,7 @@
       "custom_components/djconnect/profile_privacy.py": "80a539a327c8d6c4650e0936ea0440800d0b0d8c71aff6c073520f343db77d88",
       "custom_components/djconnect/profile_settings.py": "6c16c324d09f58df8d7e96bd75fa3c63a03d0962632275caaa2168e0d4fed1d8",
       "custom_components/djconnect/prompts/dj_persona.md": "dc9047cbadf58a7d5a89e5555ea93f5ef427c5b0ad79f3018ca57e02c9f61b1a",
-      "custom_components/djconnect/public_artist_narration.py": "1dd32045e6ed5b8c7ec5d4feb98e8c2d75f60bd9d0f55c81d309c2e5d422fae8",
+      "custom_components/djconnect/public_artist_narration.py": "1b8063130718c358bd868d618269cfc2fc1fe8d931ca3d50c6b47720b8095a2a",
       "custom_components/djconnect/push.py": "908403b0cbab5dc26c622fbaaf793dfc801ead070c3ca025649ba2830f2442e6",
       "custom_components/djconnect/queue_forecast.py": "55ca52487e145375daec582fc59d6a2ef9c858801e80e4ea8228e22425ee10fb",
       "custom_components/djconnect/repairs.py": "34b76242db66cd22a4b778710c8349cbc1e5d1001b29eeb72a45126ed67be02f",
@@ -2513,7 +2513,7 @@
     "custom_components/djconnect/ask_dj/artist_tracks.py": "45047d54f079952d6486fded5b1eae7dbce5cfc41a9cef4f0acf3bf39695cdf4",
     "custom_components/djconnect/ask_dj/band_story.py": "070589b2eed6311843f91a0aff993eb02faea74b37e69a46169f2f7c59226433",
     "custom_components/djconnect/ask_dj/biographical_dates.py": "70584e2a80bf8e14eb7d31728959e143d02d22743833bd7090ae2202d7eb299c",
-    "custom_components/djconnect/ask_dj/dialogue.py": "9723eaab82a70cb3c700365589862ee0d80ce4845849a5412d51fa5f60b2b2fd",
+    "custom_components/djconnect/ask_dj/dialogue.py": "6c99eba0d421de899a420d6560d6758cfafc64d9cfc71e3bb4fc9b6fff29a4e6",
     "custom_components/djconnect/ask_dj/example_catalogue.py": "1cf64d63736bdf859ee2bb11323830c983412db41a1f198941532d9e885b6cc7",
     "custom_components/djconnect/ask_dj/example_catalogue_data.py": "2686951e64ee5cff59f5e188f753165def71eb4d244574bb2e07cf3a3a4fe85f",
     "custom_components/djconnect/ask_dj/examples_v1.json": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
@@ -2524,7 +2524,7 @@
     "custom_components/djconnect/ask_dj/observations.py": "79c45e4a6fb17a6d818adf3ef3948c743ec926af68a5f0429e032b089310747c",
     "custom_components/djconnect/ask_dj/person_age.py": "20b3018c2c7b46935dfabc46c1b9d307d14f1dab777ace9e8327a367ed00b139",
     "custom_components/djconnect/ask_dj/profile.py": "88843b457ff8374199c650f37ffe8274b2edcb88ab4f7cc6aee1595f6d349530",
-    "custom_components/djconnect/ask_dj/public_research.py": "1a7605bf081eab4a70d95bbdc2eb0edf6c2a8546cb1f0f22ded264f33e2a7a37",
+    "custom_components/djconnect/ask_dj/public_research.py": "b6de77261724a89cf7353896000471429f49312d7042e13ee9b5e4ab39be0cff",
     "custom_components/djconnect/ask_dj/read_copy.py": "3376737f7f96546837c0352fadc9bb193904c335cc1837b56b962b30751c61b7",
     "custom_components/djconnect/ask_dj/recent_history.py": "bdaafde32b1fd64627e7a026497449adf827d70ddf32203b8661dde9965494ed",
     "custom_components/djconnect/ask_dj/recent_presentation.py": "44c01faa5193fee420984828cf134f44fe6fc78b370b25a9585bfcea1a329cb3",
@@ -2667,7 +2667,7 @@
     "custom_components/djconnect/music_intent.py": "1c23fbc72358fefa64c409d5334bddb97230216fac1943233a10fec0c333e7f1",
     "custom_components/djconnect/musicbrainz_rate.py": "6e40f3c605fbd73dc246630cd4a1b60d7fb89b03344663d6102007d63846453a",
     "custom_components/djconnect/narration_brief.py": "ca492fec0b8f50e8947ab2a546967263d8b1c50182c2a433d8e45e6a14a640dc",
-    "custom_components/djconnect/narration_style.py": "145dd89eee8072f5797aac994f5a9620c4aba6947d0d4707dfb9bc9ce9d216f8",
+    "custom_components/djconnect/narration_style.py": "94119082c4b88e64afc8d0c1c753737463fda492275d986a7a0ccf1f40c65a86",
     "custom_components/djconnect/native_moment_delivery.py": "6d6077ba410a45dd47bc64133d9646b67051c5dccf04739c01cb562c6f586c5f",
     "custom_components/djconnect/number.py": "57dd84220fbb1903708c9c4a0f850d699919aabbe4300dcce252fb0f205e3e7b",
     "custom_components/djconnect/official_artist_research.py": "b1a7aa235f6a9a350c6923af85422e95726732633cf139da05deb446d1992106",
@@ -2706,7 +2706,7 @@
     "custom_components/djconnect/profile_privacy.py": "80a539a327c8d6c4650e0936ea0440800d0b0d8c71aff6c073520f343db77d88",
     "custom_components/djconnect/profile_settings.py": "6c16c324d09f58df8d7e96bd75fa3c63a03d0962632275caaa2168e0d4fed1d8",
     "custom_components/djconnect/prompts/dj_persona.md": "dc9047cbadf58a7d5a89e5555ea93f5ef427c5b0ad79f3018ca57e02c9f61b1a",
-    "custom_components/djconnect/public_artist_narration.py": "1dd32045e6ed5b8c7ec5d4feb98e8c2d75f60bd9d0f55c81d309c2e5d422fae8",
+    "custom_components/djconnect/public_artist_narration.py": "1b8063130718c358bd868d618269cfc2fc1fe8d931ca3d50c6b47720b8095a2a",
     "custom_components/djconnect/push.py": "908403b0cbab5dc26c622fbaaf793dfc801ead070c3ca025649ba2830f2442e6",
     "custom_components/djconnect/queue_forecast.py": "55ca52487e145375daec582fc59d6a2ef9c858801e80e4ea8228e22425ee10fb",
     "custom_components/djconnect/repairs.py": "34b76242db66cd22a4b778710c8349cbc1e5d1001b29eeb72a45126ed67be02f",
