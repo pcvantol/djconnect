@@ -19,7 +19,7 @@ MAX_CLAIMS = 64
 MAX_PER_SOURCE = 3
 MAX_SHARES = 16
 MAX_DISPLAYS = 64
-MAX_PER_SHARE = 8
+MAX_PER_PROFILE_SESSION = 1
 
 
 class DisplayAdmissionError(ValueError):
@@ -137,6 +137,24 @@ class DisplayAdmissionState:
                 self._drop_display(display_id)
         self._attempts = {key: item for key, item in self._attempts.items() if item[1] > now}
 
+    def screen_reservation(self, profile_id: str, session_id: str) -> tuple[str, str, int] | None:
+        """Read the current reservation without pruning during response release."""
+        now = self._clock()
+        scope = (profile_id, session_id)
+        for record in (*self._displays.values(), *self._claims.values()):
+            owner = record.owner
+            if owner is None or (owner.profile_id, owner.session_id) != scope:
+                continue
+            share = self._shares.get(record.share_id)
+            if share is None or share.deadline <= now or not share.owner.valid() or not owner.valid():
+                continue
+            if isinstance(record, _Display):
+                if record.lease_deadline > now:
+                    return record.display_id, record.share_id, record.connection_generation
+            elif record.deadline > now:
+                return record.display_id, record.share_id, 0
+        return None
+
     def clear(self) -> None:
         for display_id in tuple(self._displays):
             self._drop_display(display_id)
@@ -249,6 +267,8 @@ class DisplayAdmissionState:
             if claim.failures >= 5:
                 del self._claims[claim_id]
             raise DisplayAdmissionError("display_claim_unavailable", 404)
+        if self.screen_reservation(owner.profile_id, owner.session_id) is not None:
+            raise DisplayAdmissionError("display_slot_occupied", 409)
         reservations = len(self._displays) + sum(c.owner is not None for c in self._claims.values())
         if reservations >= MAX_DISPLAYS:
             raise DisplayAdmissionError("display_capacity", 429)
@@ -265,10 +285,6 @@ class DisplayAdmissionState:
                 raise DisplayAdmissionError("display_share_unavailable", 404)
             if share.get("share_generation") != selected.generation:
                 raise DisplayAdmissionError("display_context_changed", 409)
-        count = sum(d.share_id == selected.share_id for d in self._displays.values())
-        count += sum(c.share_id == selected.share_id for c in self._claims.values())
-        if count >= MAX_PER_SHARE:
-            raise DisplayAdmissionError("display_capacity", 429)
         display_id = secrets.token_urlsafe(32)
         self._shares[selected.share_id] = selected
         claim.owner, claim.share_id = owner, selected.share_id
@@ -320,13 +336,14 @@ class DisplayAdmissionState:
             raise DisplayAdmissionError("display_grant_invalid", 401)
         return display
 
-    def renew(self, *, renew_sequence: int, **binding) -> dict:
+    def renew(self, *, renew_sequence: int, extend: bool = True, **binding) -> dict:
         display = self.authorize(**binding)
         if type(renew_sequence) is not int or renew_sequence < 1:
             raise DisplayAdmissionError("display_context_changed", 409)
         if renew_sequence == display.lease_revision + 1:
-            share = self._shares[display.share_id]
-            display.lease_deadline = min(self._clock() + LEASE_TTL, share.deadline)
+            if extend:
+                share = self._shares[display.share_id]
+                display.lease_deadline = min(self._clock() + LEASE_TTL, share.deadline)
             display.lease_revision = renew_sequence
         elif renew_sequence != display.lease_revision:
             raise DisplayAdmissionError("display_context_changed", 409)

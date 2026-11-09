@@ -140,6 +140,7 @@ class DisplayAuthorityTests(unittest.TestCase):
         other, other_browser = self.claim("other")
         with self.assertRaises(state.DisplayAdmissionError):
             self.approve(other, share={**self.share(approval), "include_output_status": 1})
+        self.manager.leave(**self.grant(first))
         self.approve(other, share=self.share(approval))
         second = self.manager.collect(**other_browser)
         self.assertFalse(self.manager.authorize(**self.grant(second)).include_output_status)
@@ -156,17 +157,29 @@ class DisplayAuthorityTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(state.DisplayAdmissionError):
                 self.manager.authorize(**(self.grant(admitted) | change))
 
-    def test_reservations_count_toward_share_capacity_before_collection(self):
-        claim, _browser = self.claim()
+    def test_one_reservation_per_profile_and_session_before_and_after_collection(self):
+        claim, browser = self.claim()
         approval = self.approve(claim)
-        for number in range(7):
-            other, _b = self.claim("source-" + str(number))
-            self.approve(other, share=self.share(approval))
-        other, _b = self.claim("ninth")
-        with self.assertRaises(state.DisplayAdmissionError) as failure:
-            self.approve(other, share=self.share(approval))
-        self.assertEqual(failure.exception.status, 429)
-        self.assertIsNone(self.manager._claims[other["claim_id"]].owner)
+        second = self.owner_for("two")
+        other, other_browser = self.claim("another-source")
+        separate, _ = self.claim("separate-profile")
+        self.approve(separate, owner=self.owner_for("three", profile="other", session="other-session"))
+        reserved = (approval["display_id"], approval["share_id"], 0)
+        self.assertEqual(self.manager.screen_reservation("profile", "session"), reserved)
+        for share in (self.share(approval), {"mode": "create", "consent": True}):
+            with self.assertRaises(state.DisplayAdmissionError) as failure:
+                self.approve(other, owner=second, share=share)
+            self.assertEqual((failure.exception.status, failure.exception.code), (409, "display_slot_occupied"))
+        admitted = self.manager.collect(**browser)
+        self.assertEqual(self.manager.screen_reservation("profile", "session"), reserved)
+        self.assertEqual(self.manager.collect(**other_browser)["state"], "pending")
+        self.now += 20
+        self.manager.renew(renew_sequence=1, extend=False, **self.grant(admitted))
+        self.now += 40
+        self.assertIsNone(self.manager.screen_reservation("profile", "session"))
+        self.approve(other, owner=second, share=self.share(approval))
+        with self.assertRaises(state.DisplayAdmissionError):
+            self.manager.authorize(**self.grant(admitted))
 
     def test_read_is_pure_and_renew_retry_preserves_committed_deadline(self):
         claim, browser = self.claim()
@@ -210,10 +223,11 @@ class DisplayAuthorityTests(unittest.TestCase):
         approval = self.approve(claim)
         first = self.manager.collect(**browser)
         other, second_browser = self.claim("another-source")
+        self.manager.leave(**self.grant(first))
         self.approve(other, owner=self.owner_for("two"), share=self.share(approval))
         second = self.manager.collect(**second_browser)
         self.manager.revoke_entry("two")
-        self.manager.authorize(**self.grant(first))
+        self.assertIn(approval["share_id"], self.manager._shares)
         with self.assertRaises(state.DisplayAdmissionError):
             self.manager.authorize(**self.grant(second))
         self.manager.revoke_entry("one")
