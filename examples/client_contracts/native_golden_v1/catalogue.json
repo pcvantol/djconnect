@@ -20935,6 +20935,63 @@
       "driver": null,
       "entry_id": null,
       "expected": {
+        "original_assertion": "authenticated_dismissal_no_effects_polls_remain_hidden"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "authenticated_dismissal_no_effects_polls_remain_hidden",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "de_genuine_start_prepares_three_genres_polling_no_provider_or_effects"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "de_genuine_start_prepares_three_genres_polling_no_provider_or_effects",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "duplicate_original_turn_never_starts_twice"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "duplicate_original_turn_never_starts_twice",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
         "original_assertion": "en_confirmed_settings3_mood_one_offer_no_playback_or_retry"
       },
       "expected_route_effect": null,
@@ -20959,6 +21016,25 @@
       "expected_route_effect": null,
       "family": "existing_producer_contract",
       "id": "en_explicit_welcome_mood_session_only_not_stored_default",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "en_genuine_start_prepares_three_genres_polling_no_provider_or_effects"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "en_genuine_start_prepares_three_genres_polling_no_provider_or_effects",
       "kind": "producer_fixture",
       "language": null,
       "model_policy": null,
@@ -21011,6 +21087,120 @@
       "driver": null,
       "entry_id": null,
       "expected": {
+        "original_assertion": "es_genuine_start_prepares_three_genres_polling_no_provider_or_effects"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "es_genuine_start_prepares_three_genres_polling_no_provider_or_effects",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "expired_choice_cannot_start_or_transfer_output"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "expired_choice_cannot_start_or_transfer_output",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "explicit_refresh_updates_same_card_without_playback"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "explicit_refresh_updates_same_card_without_playback",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "fr_genuine_start_prepares_three_genres_polling_no_provider_or_effects"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "fr_genuine_start_prepares_three_genres_polling_no_provider_or_effects",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "genre_before_speaker_one_flow_bubble_then_same_mix_no_second_genre"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "genre_before_speaker_one_flow_bubble_then_same_mix_no_second_genre",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "known_speaker_exact_mix_one_play_confirmation_closes_card"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "known_speaker_exact_mix_one_play_confirmation_closes_card",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
         "original_assertion": "nl_confirmed_settings3_mood_one_offer_no_playback_or_retry"
       },
       "expected_route_effect": null,
@@ -21035,6 +21225,25 @@
       "expected_route_effect": null,
       "family": "existing_producer_contract",
       "id": "nl_explicit_welcome_mood_session_only_not_stored_default",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "nl_genuine_start_prepares_three_genres_polling_no_provider_or_effects"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "nl_genuine_start_prepares_three_genres_polling_no_provider_or_effects",
       "kind": "producer_fixture",
       "language": null,
       "model_policy": null,
@@ -21087,11 +21296,125 @@
       "driver": null,
       "entry_id": null,
       "expected": {
+        "original_assertion": "old_session_refresh_cannot_rebind_or_replace_new_offer"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "old_session_refresh_cannot_rebind_or_replace_new_offer",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "watch_no_card_or_startup_actions"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "watch_no_card_or_startup_actions",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "authenticated_dismissal_no_effects_polls_remain_hidden"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "authenticated_dismissal_no_effects_polls_remain_hidden",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "de_genuine_start_prepares_three_genres_polling_no_provider_or_effects"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "de_genuine_start_prepares_three_genres_polling_no_provider_or_effects",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "duplicate_original_turn_never_starts_twice"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "duplicate_original_turn_never_starts_twice",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
         "original_assertion": "en_confirmed_original_output_beats_lagging_inventory_same_mix_once"
       },
       "expected_route_effect": null,
       "family": "existing_producer_contract",
       "id": "en_confirmed_original_output_beats_lagging_inventory_same_mix_once",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "en_genuine_start_prepares_three_genres_polling_no_provider_or_effects"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "en_genuine_start_prepares_three_genres_polling_no_provider_or_effects",
       "kind": "producer_fixture",
       "language": null,
       "model_policy": null,
@@ -21144,11 +21467,144 @@
       "driver": null,
       "entry_id": null,
       "expected": {
+        "original_assertion": "es_genuine_start_prepares_three_genres_polling_no_provider_or_effects"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "es_genuine_start_prepares_three_genres_polling_no_provider_or_effects",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "expired_choice_cannot_start_or_transfer_output"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "expired_choice_cannot_start_or_transfer_output",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "explicit_refresh_updates_same_card_without_playback"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "explicit_refresh_updates_same_card_without_playback",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "fr_genuine_start_prepares_three_genres_polling_no_provider_or_effects"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "fr_genuine_start_prepares_three_genres_polling_no_provider_or_effects",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "genre_before_speaker_one_flow_bubble_then_same_mix_no_second_genre"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "genre_before_speaker_one_flow_bubble_then_same_mix_no_second_genre",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "known_speaker_exact_mix_one_play_confirmation_closes_card"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "known_speaker_exact_mix_one_play_confirmation_closes_card",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
         "original_assertion": "nl_confirmed_original_output_beats_lagging_inventory_same_mix_once"
       },
       "expected_route_effect": null,
       "family": "existing_producer_contract",
       "id": "nl_confirmed_original_output_beats_lagging_inventory_same_mix_once",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "nl_genuine_start_prepares_three_genres_polling_no_provider_or_effects"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "nl_genuine_start_prepares_three_genres_polling_no_provider_or_effects",
       "kind": "producer_fixture",
       "language": null,
       "model_policy": null,
@@ -21187,6 +21643,44 @@
       "expected_route_effect": null,
       "family": "existing_producer_contract",
       "id": "nl_unconfirmed_output_no_mix_no_transfer_retry",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "old_session_refresh_cannot_rebind_or_replace_new_offer"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "old_session_refresh_cannot_rebind_or_replace_new_offer",
+      "kind": "producer_fixture",
+      "language": null,
+      "model_policy": null,
+      "native_mapping": "PENDING_EXPLICIT_NATIVE_DRIVER",
+      "question": null,
+      "requires": [
+        "real_disposable_fixture_not_offline_receipt"
+      ],
+      "source": "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json"
+    },
+    {
+      "driver": null,
+      "entry_id": null,
+      "expected": {
+        "original_assertion": "watch_no_card_or_startup_actions"
+      },
+      "expected_route_effect": null,
+      "family": "existing_producer_contract",
+      "id": "watch_no_card_or_startup_actions",
       "kind": "producer_fixture",
       "language": null,
       "model_policy": null,
@@ -21440,7 +21934,7 @@
     "mapping_states": {
       "OUTSIDE_SELECTED_LOCALES": 396,
       "PENDING_EXPLICIT_LOCALE": 272,
-      "PENDING_EXPLICIT_NATIVE_DRIVER": 26,
+      "PENDING_EXPLICIT_NATIVE_DRIVER": 52,
       "PENDING_NATIVE_OWNER_MAPPING": 237,
       "SOURCE_BOUND_ORDINARY_ASK_DJ": 40,
       "SOURCE_BOUND_PURE_HELP_GET": 28
@@ -21460,9 +21954,9 @@
     "docs/verification/fixtures/askdj_golden_release_matrix_v1.json": "880f471c9246562df0d4b6db4f4196967cc29d2e228f480dbc8381f699bc10bc",
     "docs/verification/fixtures/dj_moment_persona_mood_golden_v1.json": "ea5fed1e1fd7a5646d8ac902904116f74ef25a249823bb8a50c5b4bd9f950c06",
     "examples/ask_dj_e2e_cases.json": "b5234d0a0766991f5f9af53d5738d8344d082c2224380a7b6ef9ac1daf2749d4",
-    "examples/client_contracts/music_announcement_v1/actual-ha-wire.json": "79a6ec960ae0b30adbe9fcde024543a846fb65508d7d263197b7501ef2c82bb0",
-    "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json": "18362dc2f43a1c9549e17ab8c1c1db9215796d2577d9276799930cd01cf1fd56",
-    "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json": "78624d9f56e396df3f238874f7147174ded6d6f1a09661716922366ce2c72952",
+    "examples/client_contracts/music_announcement_v1/actual-ha-wire.json": "d286d8efd9778f1fcf8683f9b38ddd4ed804f091dd8c8ce6dbc927c81b293d05",
+    "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json": "f4a7f18d872df4dfcbe50b7e70f70886bdaa300409e65be1d55df825353d401a",
+    "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json": "231ac4f673dc9de36148a36359bd269b78f720c3c78d585607fdeb2dde442dd6",
     "scripts/verification/askdj_example_catalogue_golden.py": "f8d1cb41d7e0f5479954e37d08d448766e48b21988788dcff659058d04a2aa57",
     "tools/verification/native_client_golden_contract.py": "68bd32d6a044c42100e6ec063e595e10467be4f1566b6b2579539c669b5906f8"
   }
