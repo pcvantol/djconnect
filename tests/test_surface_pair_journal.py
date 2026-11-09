@@ -65,7 +65,14 @@ class PairJournalTests(unittest.IsolatedAsyncioTestCase):
             lambda tx: tx.fetchone("PRAGMA synchronous")[0]), 1)
 
     async def test_non_WAL_mode_is_rejected_without_repair_or_record(self):
-        await asyncio.to_thread(self.provider._connection.execute, "PRAGMA journal_mode=DELETE")
+        def switch_to_delete():
+            cursor = self.provider._connection.execute("PRAGMA journal_mode=DELETE")
+            try:
+                return cursor.fetchone()[0]
+            finally:
+                cursor.close()
+
+        self.assertEqual(await asyncio.to_thread(switch_to_delete), "delete")
         with self.assertRaises(PersistenceError):
             await self.record()
         self.assertEqual(await self.rows(), [])

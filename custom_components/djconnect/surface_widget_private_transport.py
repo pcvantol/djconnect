@@ -4,16 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import json
-import os
-from pathlib import Path
 import re
-import stat
 import time
 
 from .surface_issuer_owner import DNS_HOST, IssuerOwnerCapture
 from .surface_issuer_transport import IssuerHTTPS
 from .surface_issuer_wire import PREFIX, signing_bytes
-from .surface_push_contract import SurfacePushError, require
+from .surface_push_contract import require
 from .surface_push_purpose import SurfacePurposeCredential
 
 _REDEEM = "/v1/push/surface/enrollment/redeem"
@@ -109,83 +106,3 @@ class PrivateWidgetHTTPS(IssuerHTTPS):
             guard=require_current, deadline=deadline)
         require_current()
         return result
-
-
-ACCESS_FILE_ENV = "DJCONNECT_WIDGET_HA_DEV_ACCESS_FILE"
-_WIDGET_ORIGIN = "https://widget-ha-dev.djconnect.dev"
-_MAX_BYTES = 2048
-
-
-def _unique_fields(pairs):
-    result = dict(pairs)
-    if len(result) != len(pairs):
-        raise ValueError("duplicate credential field")
-    return result
-
-
-def load_widget_access_file(path: str) -> tuple[str, str, int]:
-    """Run off the HA event loop. Never expose file data or parse errors."""
-    try:
-        if not Path(path).is_absolute():
-            raise ValueError
-        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-        with os.fdopen(fd, "rb") as credential_file:
-            info = os.fstat(credential_file.fileno())
-            if (
-                not stat.S_ISREG(info.st_mode)
-                or info.st_uid != os.geteuid()
-                or stat.S_IMODE(info.st_mode) not in (0o400, 0o600)
-                or not 0 < info.st_size <= _MAX_BYTES
-            ):
-                raise ValueError
-            raw = credential_file.read(_MAX_BYTES + 1)
-        if len(raw) != info.st_size:
-            raise ValueError
-        document = json.loads(raw.decode("utf-8"), object_pairs_hook=_unique_fields)
-        if type(document) is not dict or document.keys() != {
-            "client_id", "client_secret", "expires_at_ms",
-        }:
-            raise ValueError
-        client_id, client_secret = document["client_id"], document["client_secret"]
-        expires_at_ms = document["expires_at_ms"]
-        if type(expires_at_ms) is not int or not 0 < expires_at_ms <= 2**53 - 1:
-            raise ValueError
-        return client_id, client_secret, expires_at_ms
-    except (OSError, ValueError, RecursionError):
-        raise SurfacePushError("surface_widget_access_invalid", 503) from None
-
-
-class WidgetAccessCustody:
-    """One selected generation per HA service, with irreversible retirement."""
-
-    def __init__(self, *, wall_ms=None, monotonic=time.monotonic):
-        self._wall_ms = wall_ms or (lambda: time.time_ns() // 1_000_000)
-        self._monotonic = monotonic
-        self._generation = None
-        self._sealed = False
-
-    def bind(self, client_id, client_secret, expires_at_ms):
-        if self._sealed:
-            raise SurfacePushError("surface_widget_access_changed", 503)
-        self._sealed = True
-        remaining_ms = expires_at_ms - self._wall_ms()
-        if remaining_ms <= 0:
-            raise SurfacePushError("surface_widget_access_changed", 503)
-        deadline = self._monotonic() + remaining_ms / 1000
-        generation = self._generation = object()
-
-        def current_generation():
-            if self._wall_ms() >= expires_at_ms or self._monotonic() >= deadline:
-                self.retire()
-            return self._generation
-
-        return PrivateWidgetHTTPS(
-            WidgetAccessBinding(
-                _WIDGET_ORIGIN, generation, current_generation, client_id, client_secret,
-            ),
-            monotonic=self._monotonic,
-        )
-
-    def retire(self):
-        self._sealed = True
-        self._generation = None

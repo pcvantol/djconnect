@@ -103,6 +103,37 @@ renewed budget or cached-secret recovery. Preserve global counters for the same
 actual key across re-pair and management epochs. Missing genuine management,
 clock, persistence, native or provider facts leaves positive enrollment closed.
 
+## WidgetKit consent and automatic credential candidate
+
+After ordinary pairing, Core may obtain and persist its own installation
+credential. The application makes no operator or credential provisioning
+request. The paired bootstrap response confirms durable storage only.
+Push starts off. Each device chooses WidgetKit, Live Activities, Moments
+and Watch Smart Stack independently wherever the channel is supported.
+The device's WidgetKit choice does not grant a retained Session read,
+a push destination or delivery admission.
+
+The first HA-dev candidate uses the paired bearer, `X-DJConnect-Device-ID`
+and `X-DJConnect-Client-Type` at
+`/api/djconnect/v1/push/native/consent/widgetkit`. GET returns
+`{contract_version: 1, enabled: false, revision: 0}` for an original
+pair with no explicit choice. POST takes exactly `contract_version`,
+`enabled`, `operation_id` (canonical UUIDv4) and `expected_revision`.
+It returns the committed choice and revision with the same `operation_id`.
+Every new accepted intent advances the revision, including an explicit off
+intent on a scope already off. An identical replay returns its original
+result, while conflicting content or a stale new request returns HTTP 409.
+The application reads current state after POST before it starts first-key
+work, including when reconciling a lost reply.
+
+Consent is stored under the original pairing and a replacement pair starts
+off. A consent write fences open first-key operations. Delivery requires
+separate exact owner, target and publication admission, and verification of
+provider-side withdrawal. The first-key and consent candidate stays closed
+until HA-dev selects its private machine authority. A local Core consent
+receipt does not attest an Apple device, authorize any other channel or
+prove provider delivery.
+
 ## Qualification and ownership
 
 Core owns committed pairing/epoch, actual scope and automatic server trigger;
