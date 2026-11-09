@@ -48,7 +48,7 @@ class _Connection:
         display = self.display
         share = state._shares.get(display.share_id)
         current_active = self.hub.manager.current_active(display.owner.profile_id)
-        return (not self.closed and display.owner.valid() and selected_ha_origin(self.hass) == self.origin
+        return (not self.closed and not self.ws.closed and selected_ha_origin(self.hass) == self.origin
             and state.issuer_epoch == self.epoch and state._displays.get(display.display_id) is display
             and display.connection_generation == self.generation and display.owner.valid()
             and share is not None and share.owner.valid() and share.deadline > state._clock()

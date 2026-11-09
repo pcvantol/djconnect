@@ -23,7 +23,8 @@ _SHAPES = {
     "owner/resolve": ({"identity", "code"}, set()),
     "owner/approve": ({"identity", "session_id", "issuer_epoch", "claim_id",
                        "browser_generation", "code", "share"}, set()),
-    "owner/revoke": ({"identity", "session_id", "share_id"}, {"display_id"}),
+    "owner/revoke": ({"identity", "session_id", "share_id"},
+                     {"display_id", "issuer_epoch", "connection_generation"}),
     "claim": ({"browser_nonce"}, set()),
     "collect": (_BROWSER, set()), "cancel": (_BROWSER, set()),
     "renew": (_GRANT | {"renew_sequence"}, set()),
@@ -50,10 +51,13 @@ def _shape(action, payload):
     fields = set(payload) - {"contract_version"}
     if not required <= fields or fields - required - optional:
         raise DisplayAdmissionError("display_code_invalid", 400)
+    if action == "owner/revoke" and fields & {"issuer_epoch", "connection_generation"}:
+        if not {"issuer_epoch", "connection_generation", "display_id"} <= fields:
+            raise DisplayAdmissionError("display_code_invalid", 400)
     for key, value in payload.items():
         if key in {"contract_version", "identity", "share"}:
             continue
-        if key == "renew_sequence":
+        if key in {"renew_sequence", "connection_generation"}:
             if type(value) is not int or not 1 <= value <= 2**53 - 1:
                 raise DisplayAdmissionError("display_code_invalid", 400)
         elif not isinstance(value, str) or not 0 < len(value) <= 256:
@@ -99,9 +103,13 @@ class DisplayAdmissionService:
         if tuple(origins) != (selected,) and not (owner_action and not origins):
             raise DisplayAdmissionError("display_origin_denied", 403)
         owner = None
+        targeted_stop = action == "owner/revoke" and "connection_generation" in payload
         if owner_action:
+            # A sibling paired device may resolve its playback provider through
+            # a different entry. The live writer validates the original source.
+            owner_session = "" if targeted_stop else payload.get("session_id", "")
             _context, owner = await resolve_display_owner(self.hass, payload["identity"],
-                headers, self.manager, session_id=payload.get("session_id", ""))
+                headers, self.manager, session_id=owner_session)
             original_owner = owner
             origin_revoked = False
             def origin_bound_owner():
@@ -125,17 +133,31 @@ class DisplayAdmissionService:
             def complete():
                 return None
             if action == "owner/context":
+                from .display_delivery import display_live_hub
+
                 active = self.manager.current_active(owner.profile_id)
                 active_id = active.session_id if active else None
+                hub = display_live_hub(self.manager)
+                live_displays = hub.live_displays(owner.profile_id, active_id)
+
                 def context_current():
                     now_active = self.manager.current_active(owner.profile_id)
-                    return owner.valid() and (now_active.session_id if now_active else None) == active_id
+                    return (owner.valid() and now_active is active
+                            and hub.live_displays(owner.profile_id, active_id) == live_displays)
+
                 guard = context_current
                 result = {"session_id": active.session_id if active else None,
                     "display_entry_url": selected + ENTRY_PATH,
                     "route_trust": "paired_owner_response",
                     "output_status_consent_supported": True,
                     "issuer_epoch": state.issuer_epoch,
+                    "live_display_status": {
+                        "version": 1,
+                        "observation_revision": hub.next_observation_revision(),
+                        "displays": [{"display_id": display_id, "share_id": share_id,
+                                      "connection_generation": generation}
+                                     for display_id, share_id, generation in live_displays],
+                    },
                     "limits": {"claim_seconds": 120, "lease_seconds": 60,
                                "share_seconds_default": 7200, "displays_per_share": 8}}
                 share = next((share for share in state._shares.values()
@@ -161,8 +183,29 @@ class DisplayAdmissionService:
                                     and (approved_id in state._displays or any(c.display_id == approved_id
                                         and c.deadline > state._clock() for c in state._claims.values())))
             elif action == "owner/revoke":
-                state.revoke(owner=owner, **args)
+                generation = args.pop("connection_generation", None)
                 result = {}
+                if generation is not None:
+                    from .display_delivery import display_live_hub
+
+                    active = self.manager.current_active(owner.profile_id)
+                    if active is None or active.session_id != payload["session_id"]:
+                        raise DisplayAdmissionError("display_context_changed", 403)
+                    hub = display_live_hub(self.manager)
+                    if (args.pop("issuer_epoch") != state.issuer_epoch
+                            or (args["display_id"], args["share_id"], generation) not in
+                            hub.live_displays(owner.profile_id, active.session_id)):
+                        raise DisplayAdmissionError("display_context_changed", 409)
+                    paired_owner = owner
+
+                    def stop_authority_current():
+                        return (paired_owner.valid()
+                                and self.manager.current_active(paired_owner.profile_id) is active)
+                    owner = replace(owner, session_id=active.session_id, current=stop_authority_current)
+                    guard = owner.valid
+                state.revoke(owner=owner, **args)
+                if generation is not None:
+                    result["observation_revision"] = hub.next_observation_revision()
             elif action == "claim":
                 result = state.create_claim(source=source, **args)
                 claim = state._claims[result["claim_id"]]

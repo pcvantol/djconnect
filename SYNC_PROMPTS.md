@@ -1,3 +1,12 @@
+## 2026-11-09 — Paired Profile VibeCast screen status
+
+Core owns the current Home Assistant display connection. Apple reads `live_display_status`
+version 1 on the paired owner context. Each row provides its display ID, share ID and
+connection generation. For a targeted stop, send that row with the observed Session and
+issuer epoch to owner revoke. Refresh paired context after a stale or uncertain stop.
+Keep unknown separate from known empty and discard older reads. This applies to HA
+displays and leaves share permission, playback and other screens intact.
+
 ## 2026-11-09 — VibeCast read-only output and DJ spotlight
 
 Paired owner context advertises optional `output_status_consent_supported`.

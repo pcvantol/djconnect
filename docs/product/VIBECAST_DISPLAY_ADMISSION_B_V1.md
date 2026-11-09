@@ -194,6 +194,34 @@ bearer remains in Authorization, never body/query. Context includes version and
 paired identity, plus the current session_id when available. POST reads perform
 no write, renewal, provider lookup or publication.
 
+### Live screen status for paired devices
+
+A successful `owner/context` can advertise `live_display_status` with
+`version:1`, `observation_revision` and `displays`. Each list entry carries only
+`display_id`, its `share_id` and `connection_generation`. The top-level `session_id` and
+`issuer_epoch` scope the observation. The list comes from the current authorised
+WebSocket writers for the resolved Profile and Session. Share permission remains
+in the separate existing share fields. A successful empty list means there are
+no connected displays in scope. An absent or failed observation means unknown.
+Pending approvals and disconnected or expired grants do not count. The status
+describes Core transport and does not assert that the physical screen is visible.
+
+To stop a listed display, send `issuer_epoch` and `connection_generation` together
+with the existing `owner/revoke` fields `identity`, `session_id`, `share_id`,
+`display_id` and `contract_version`. Core checks the current Profile, Session,
+share, epoch and connection before invalidating the target. A stale target
+returns `display_context_changed` (409). Other screens, playback and share
+permission remain available. Legacy revoke requests retain their existing semantics.
+
+The targeted stop returns an `observation_revision` in the same ordering as
+context reads. Clients discard older responses after a newer observation or
+successful stop, and clear the state on a change of installation, pairing,
+Profile, Session or issuer epoch. Refresh authenticated context after a stale
+stop. This status covers HA display grants only. It does not use central
+Rendezvous transactions or sender-local Cast status as a live screen signal.
+
+### Claim and approval
+
 Claim request is `{contract_version, browser_nonce}`. Response is
 `{success, contract_version, issuer_epoch, claim_id, claim_secret, code,
 browser_generation, expires_at, expires_in}`. No Profile, Session, device list,
