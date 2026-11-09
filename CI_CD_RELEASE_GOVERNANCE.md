@@ -117,6 +117,9 @@ qualification receipts remain intact. A scoped pass makes no real-quality
 claim for German, French or Spanish. It also makes no installed, native or
 audible acceptance claim.
 
+The [Core 4.0.0 external TestFlight roadmap decision](docs/roadmap/CORE_4_0_EXTERNAL_TESTFLIGHT.md)
+records a separate, exact-candidate beta package and its deferred qualifications.
+
 ## Release hygiene checklist
 
 Before release:
