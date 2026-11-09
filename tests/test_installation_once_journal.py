@@ -31,9 +31,9 @@ class OriginalActualOnceProofTests(unittest.TestCase):
         for name, digest in raw["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         digest = hashlib.sha256((root / proof["harness"]).read_bytes()).hexdigest()
-        self.assertEqual(digest, proof["harness_sha256"])
+        self.assertEqual(digest, raw["current_harness_sha256"])
         # The old parent counterproof retains its exact schema19 harness. The
-        # current schema21 assertion has its own new actual HA receipt; do not
+        # current schema22 assertion has its own actual HA receipt; do not
         # relabel the old RED as an execution of changed source.
         historical = root / "tests/fixtures/installation_principal/once-ha-schema19-original.py.txt"
         self.assertEqual(hashlib.sha256(historical.read_bytes()).hexdigest(),

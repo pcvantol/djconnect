@@ -1,9 +1,33 @@
 {
-  "state": "PASS",
-  "source_origin_DATA_only": true,
+  "actual_key_or_sign_effect": "NOT_RUN",
   "af201_native_mapping": "NOT_IMPLEMENTED",
-  "installed_native_provider": "NOT_RUN",
+  "cases": [
+    "actual_loaded_HA_original_persistence_schema19_WAL_no_live_factory",
+    "two_real_SQL_journals_same_original_only_one_acknowledged_handle",
+    "duplicate_and_equal_SQL_cannot_recreate_terminal_or_effect_permission",
+    "positive_owner_withdrawn_original_reserved_negative_terminal_still_settles",
+    "matching_bootstrap_intent_DATA_does_not_supply_independent_API_ack",
+    "actual_commit_lost_ack_retains_consumed_row_without_handle_or_reissue",
+    "retired_and_unknown_rows_consume_capacity_no_TTL_or_reset",
+    "original_storage_port_loss_cannot_borrow_fresh_owner"
+  ],
+  "current_harness_sha256": "8cdfbbc36eb505a64b80a4f237409a8417313b5915e6170ece75541fb56aaec1",
   "external_boundary": "Synthetic Spotify/CDN and fixture config entries/Profile selection; actual product component setup, committed Store, pair/session HTTP, manager/factory, observer and SQL18",
+  "frozen_design_sha256": "7b44758c5f7bba76dd3f61b042a776330ee25697523d3bd05248a5697f76db4b",
+  "ha_credentials_issued": 0,
+  "installation_once_metadata_only": true,
+  "installation_principal_DATA_only": true,
+  "installed_native_provider": "NOT_RUN",
+  "native_or_provider": "NOT_RUN",
+  "ordinary_pairing": true,
+  "preceding_installation_codec_cases": [
+    "actual_HA_import_and_eleven_closed_families_six_statuses_exact_public_DATA",
+    "complete_original_primitive_bootstrap_relation_not_actual_install_or_permission",
+    "pending_withdrawal_and_known_result_variants_exact_DATA_no_registry_CAS_claim",
+    "owning_API_original_public_R1_body_domain_JWKpin_and_hashes_exact_no_signature_action",
+    "actual_HA_parser_limits_and_wrong_original_relation_reject",
+    "actual_original_paired_HTTP_roles_stay_503_no_registration_or_effect"
+  ],
   "preceding_source_origin_cases": [
     "actual_component_bootstrap_committed_Profile_HTTP_Session_ACTIVE_and_observer_source_origin",
     "duplicate_start_and_new_sample_do_not_mint_or_renew_original_source_origin",
@@ -25,31 +49,9 @@
     "full_actual_source_journal_preserves_original_terminal_and_ordinary_Session_baseline",
     "actual_request_cancellation_after_prepare_commit_preserves_original_SQL_OPENING_and_terminal_no_reissue"
   ],
-  "installation_principal_DATA_only": true,
+  "raw_receipt_sha256": "dce0b7b6daa6bbd526c7fd9dd301d28a90ffe6952079587960b25b340ba01124",
   "registry_CAS_or_once_or_signer_qualification": "LOCAL_METADATA_ONCE_ONLY_NOT_REGISTRY_OR_SIGNER",
-  "native_or_provider": "NOT_RUN",
-  "frozen_design_sha256": "7b44758c5f7bba76dd3f61b042a776330ee25697523d3bd05248a5697f76db4b",
-  "synthetic_fixture_sha256": "5a5eb360c21aaf8da7f7883c4bd9c1e6b05f4d9e62d149eaec25b39045470153",
-  "preceding_installation_codec_cases": [
-    "actual_HA_import_and_eleven_closed_families_six_statuses_exact_public_DATA",
-    "complete_original_primitive_bootstrap_relation_not_actual_install_or_permission",
-    "pending_withdrawal_and_known_result_variants_exact_DATA_no_registry_CAS_claim",
-    "owning_API_original_public_R1_body_domain_JWKpin_and_hashes_exact_no_signature_action",
-    "actual_HA_parser_limits_and_wrong_original_relation_reject",
-    "actual_original_paired_HTTP_roles_stay_503_no_registration_or_effect"
-  ],
-  "cases": [
-    "actual_loaded_HA_original_persistence_schema19_WAL_no_live_factory",
-    "two_real_SQL_journals_same_original_only_one_acknowledged_handle",
-    "duplicate_and_equal_SQL_cannot_recreate_terminal_or_effect_permission",
-    "positive_owner_withdrawn_original_reserved_negative_terminal_still_settles",
-    "matching_bootstrap_intent_DATA_does_not_supply_independent_API_ack",
-    "actual_commit_lost_ack_retains_consumed_row_without_handle_or_reissue",
-    "retired_and_unknown_rows_consume_capacity_no_TTL_or_reset",
-    "original_storage_port_loss_cannot_borrow_fresh_owner"
-  ],
-  "installation_once_metadata_only": true,
-  "actual_key_or_sign_effect": "NOT_RUN",
+  "source_origin_DATA_only": true,
   "source_sha256": {
     "custom_components/djconnect/AGENTS.md": "8fb8891e3a2cca055067fbbacafe6c189f38bc00c514a6bf6984639a182a70cf",
     "custom_components/djconnect/__init__.py": "f8467d2383c931c2228e6726c361963fb44f21d5616e8aab37d521c38b4d8fc8",
@@ -367,6 +369,6 @@
     "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
     "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
   },
-  "ordinary_pairing": true,
-  "ha_credentials_issued": 0
+  "state": "PASS",
+  "synthetic_fixture_sha256": "5a5eb360c21aaf8da7f7883c4bd9c1e6b05f4d9e62d149eaec25b39045470153"
 }
