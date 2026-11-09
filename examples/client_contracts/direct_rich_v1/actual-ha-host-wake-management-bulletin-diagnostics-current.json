@@ -1,6 +1,5 @@
 {
-  "status": "PASS",
-  "classification": "DIRECT_RICH_ACTUAL_ISOLATED_HA_SOURCE_ONLY",
+  "actual_operator_enrollment_native_clock_or_APNs_GO": false,
   "cases": [
     "actual_paired_Profile_SQL21_HTTP_authorize_and_independent_role_credentials",
     "twelve_reads_same_original_frame_no_publication_or_purpose_renewal",
@@ -12,28 +11,32 @@
     "actual_HA_wrong_Session_native_operation_and_surface_denied_before_child_fence",
     "actual_HA_Session_end_child_retirement_preserves_original_negative_metadata_only"
   ],
-  "original_prepared_covers": 1,
-  "schema_version": 22,
-  "original_purpose_retained": true,
-  "read_reissues": 0,
-  "model_calls": 0,
-  "actual_operator_enrollment_native_clock_or_APNs_GO": false,
+  "classification": "DIRECT_RICH_ACTUAL_ISOLATED_HA_SOURCE_ONLY",
   "clock_observation_only": {
     "monotonic": {
+      "adjustable": false,
       "implementation": "clock_gettime(CLOCK_MONOTONIC)",
       "monotonic": true,
-      "adjustable": false,
       "resolution": 1e-09
     }
   },
+  "current_harness_sha256": "1a27969b8fd4512c8cf014418a344f4c141b857ce31f200ffbc98e260e945308",
+  "ha_credentials_issued": 0,
   "host_wake_management": {
-    "before": "initial_reserved",
+    "actual_issuer_operator_enrollment_clock_or_provider_permission": false,
     "after": "withdrawn",
     "attempts": 1,
+    "before": "initial_reserved",
     "remote_API_or_native_ack": false,
-    "role_request_hash": "EXPLICIT_SYNTHETIC_JOURNAL_DATA_NOT_RECEIVED_AUTHORITY",
-    "actual_issuer_operator_enrollment_clock_or_provider_permission": false
+    "role_request_hash": "EXPLICIT_SYNTHETIC_JOURNAL_DATA_NOT_RECEIVED_AUTHORITY"
   },
+  "model_calls": 0,
+  "ordinary_pairing": true,
+  "original_prepared_covers": 1,
+  "original_purpose_retained": true,
+  "raw_receipt_sha256": "7f8adffbf35a04a8b2c34c85bccf9cd538286953eb0411aeeb658635078170cf",
+  "read_reissues": 0,
+  "schema_version": 22,
   "source_sha256": {
     "custom_components/djconnect/AGENTS.md": "8fb8891e3a2cca055067fbbacafe6c189f38bc00c514a6bf6984639a182a70cf",
     "custom_components/djconnect/__init__.py": "f8467d2383c931c2228e6726c361963fb44f21d5616e8aab37d521c38b4d8fc8",
@@ -351,6 +354,5 @@
     "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
     "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
   },
-  "ordinary_pairing": true,
-  "ha_credentials_issued": 0
+  "status": "PASS"
 }
