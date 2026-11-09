@@ -241,7 +241,15 @@ stop outcome, clients use a fresh paired observation before showing the picker.
 
 ### Claim and approval
 
-Claim request is `{contract_version, browser_nonce}`. Response is
+Claim request is `{contract_version, browser_nonce}` with optional `request_id`.
+The display page keeps a random 256-bit request ID in the current browser
+history entry. A same-source reload can use it to replace a pending,
+unapproved claim while keeping the original code, deadline and failure count.
+Replacement issues a new browser nonce binding, secret and generation.
+An approved claim cannot be resumed this way. The history entry contains
+neither a code nor a collect secret or display grant.
+
+The response is
 `{success, contract_version, issuer_epoch, claim_id, claim_secret, code,
 browser_generation, expires_at, expires_in}`. No Profile, Session, device list,
 media, owner token or grant. Six digits identify a claim but cannot poll/collect.

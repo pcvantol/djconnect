@@ -17,9 +17,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import vm from "node:vm";
 const source=fs.readFileSync(SOURCE_PATH,"utf8");
-for(const scenario of ["late-pending","late-admitted","revoked","disconnected","expired","renew-denied"]){
+for(const scenario of ["late-pending","late-admitted","revoked","disconnected","expired","renew-denied","reload"]){
   let time=0, resolveCollect, claims=0, socket, serial=0, clears=0;
   const timers=new Map();
+  const history={state:null,replaceState(state){this.state=state}};
   function element(tag="span"){
     const value={tag,children:[],hidden:false,append(child){this.children.push(child)},setAttribute(){}};
     Object.defineProperty(value,"textContent",{get(){return this._text || ""},set(text){this._text=text;this.children=[]}});
@@ -37,12 +38,16 @@ for(const scenario of ["late-pending","late-admitted","revoked","disconnected","
     },
     setTimeout:(fn,delay)=>{timers.set(++serial,{fn,delay});return serial},clearTimeout:id=>timers.delete(id),
     document:{getElementById:()=>panel,createElement:element,querySelector:()=>header,addEventListener(){}},
-    window:{addEventListener(){},dispatchEvent(event){if(event.type==="djconnect-display-clear")clears++}},
+    window:{history,addEventListener(){},dispatchEvent(event){if(event.type==="djconnect-display-clear")clears++}},
     fetch:async (path,options)=>{
       if(path.endsWith("/claim")){
         assert.equal(options.headers.Authorization,undefined);
-        assert.equal(JSON.parse(options.body).browser_nonce,Buffer.alloc(32,claims+1).toString("base64url"));
-        return response({contract_version:1,code:++claims===1?"123456":"654321",expires_in:120,
+        const body=JSON.parse(options.body);
+        assert.equal(body.browser_nonce,Buffer.alloc(32,claims+1).toString("base64url"));
+        assert.equal(body.request_id,Buffer.alloc(32,1).toString("base64url"));
+        claims++;
+        const resumed=scenario==="reload" && claims===2;
+        return response({contract_version:1,code:claims===1 || resumed?"123456":"654321",expires_in:resumed?75:120,
         issuer_epoch:"epoch",claim_id:"claim",claim_secret:"secret",browser_generation:"generation"});}
       if(path.endsWith("/renew"))return {ok:false,status:401,text:async()=>JSON.stringify({error:"display_grant_invalid"})};
       return new Promise(resolve=>{resolveCollect=resolve});
@@ -51,6 +56,22 @@ for(const scenario of ["late-pending","late-admitted","revoked","disconnected","
   await new Promise(setImmediate);
   assert.equal(digits()?.textContent,"123456");
   assert.equal(header.children.length,0);
+  if(scenario==="reload"){
+    time=45000;
+    timers.clear();
+    vm.runInNewContext(source,context);
+    await new Promise(setImmediate);
+    assert.equal(claims,2);
+    assert.equal(digits()?.textContent,"123456");
+    const rotation=[...timers.values()].find(timer=>timer.delay===75000);
+    assert.ok(rotation);
+    time=120000;
+    rotation.fn();
+    await new Promise(setImmediate);
+    assert.equal(claims,3);
+    assert.equal(digits()?.textContent,"654321");
+    continue;
+  }
   if(!scenario.startsWith("late-")){
     resolveCollect(response({state:"admitted",grant_token:"djcd_"+"A".repeat(43),lease_expires_in:60,
       capabilities:{owner_controls:false,session_end:false}}));
