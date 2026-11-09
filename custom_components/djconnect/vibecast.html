@@ -357,7 +357,7 @@ main { height:auto; min-width:0 }
   </div>
   <button id="flow-live" class="flow-live" type="button" hidden></button>
 </section></section><footer><section id="up-next" class="up-next" hidden><img id="next-art" alt=""><div><span id="next-label" class="up-next-label"></span><strong id="next-title"></strong><span id="next-artist"></span></div></section><progress id="progress" max="1" value="0" hidden></progress><div class="meta"><span id="time"></span></div></footer></main>
-<footer class="renderer-footer"><span id="renderer-build">Rendererversie 1.1.4 (2d5cc528)</span><a href="https://djconnect.dev/" rel="noreferrer">djconnect.dev</a></footer>
+<footer class="renderer-footer"><span id="renderer-build">Rendererversie 1.1.4 (0839d6bf)</span><a href="https://djconnect.dev/" rel="noreferrer">djconnect.dev</a></footer>
 <script>(() => {
   const params = new URLSearchParams(window.location.search);
   const staticHost = window.DJC_VIBECAST_MODE === "cast";
@@ -680,7 +680,7 @@ main { height:auto; min-width:0 }
   function renderSpotlight() {
     const id = projection.current_moment_id;
     const item = playback().state === "playing" && typeof id === "string"
-      && Array.isArray(projection.dj_moments) && projection.dj_moments.find(moment=>moment?.moment_id === id);
+      && Array.isArray(projection.dj_moments) && projection.dj_moments.find(moment=>moment && moment.moment_id === id);
     const card = item ? cardFor(item) : null;
     document.body.classList.toggle("display-spotlight",!!card);
     if (!card) {
@@ -688,7 +688,7 @@ main { height:auto; min-width:0 }
       return;
     }
     e("spotlight-avatar").dataset.mood=read(projection,["session","selected_mood"]) || "";
-    if (current?.key !== card.key) {
+    if (!current || current.key !== card.key) {
       current = card;
       showCurrent(card,false);
     } else {
@@ -729,7 +729,7 @@ main { height:auto; min-width:0 }
     live.textContent=labels[1];
     const time=Date.now();
     const items=projection.shared_flow.slice(-12).filter(item=>item && typeof item.moment_id==="string"
-      && typeof item.content==="string" && item.content && Date.parse(item.flow_expires_at ?? item.display_expires_at)>time).reverse();
+      && typeof item.content==="string" && item.content && Date.parse(item.flow_expires_at == null ? item.display_expires_at : item.flow_expires_at)>time).reverse();
     const firstVisible = followFlow ? null : Array.from(list.children).find(row=>
       row.getBoundingClientRect().bottom > viewport.getBoundingClientRect().top);
     const priorTop=firstVisible ? firstVisible.getBoundingClientRect().top : 0;
@@ -737,7 +737,7 @@ main { height:auto; min-width:0 }
     for (const [id,row] of flowRows) {
       if (!currentKeys.has(id)) { row.remove();flowRows.delete(id); }
     }
-    const cover = displayArtwork && displayArtwork.item_id === projection.playback?.item_id ? displayArtwork : null;
+    const cover = displayArtwork && displayArtwork.item_id === playback().item_id ? displayArtwork : null;
     items.forEach((item,index)=>{
       let row=flowRows.get(item.moment_id);
       if (!row) {
@@ -789,7 +789,7 @@ main { height:auto; min-width:0 }
     }
     live.hidden=followFlow || !items.length;
     if (items.length) {
-      const expiry=Math.min(...items.map(item=>Date.parse(item.flow_expires_at ?? item.display_expires_at)));
+      const expiry=Math.min(...items.map(item=>Date.parse(item.flow_expires_at == null ? item.display_expires_at : item.flow_expires_at)));
       flowExpiry=window.setTimeout(renderFlow,Math.max(0,expiry-Date.now()));
     }
     return true;

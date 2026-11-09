@@ -1,5 +1,5 @@
 {
-  "raw_receipt_sha256": "e827fb08e9b2851ee29c7bded7525a9a2ebce98836e8f60df8a0c8c1ba6c8b62",
+  "raw_receipt_sha256": "0c94e04564cae69a101cd9c9b6c79c36b95fec445b2bf193affbfdb916a2042a",
   "receipt": {
     "capability": {
       "authentication": "paired_device_bearer",
@@ -67,18 +67,18 @@
                 "fr": "Pochette de Fixture track",
                 "nl": "Hoes van Fixture track"
               },
-              "asset_id": "y6jcqAKkc5CdaWr0AdpRUoiWm7PY34yR",
+              "asset_id": "0M3fvbT5ODoXlcDsOesNeX-_BdTmiQnC",
               "attribution": {
                 "mark": "spotify",
                 "provider": "Spotify",
                 "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
               },
-              "captured_at": "2026-11-09T11:05:08.852903+00:00",
+              "captured_at": "2026-11-09T11:10:43.543288+00:00",
               "crop_allowed": false,
-              "expires_at": "2026-11-09T11:07:08.794969+00:00",
+              "expires_at": "2026-11-09T11:12:43.477757+00:00",
               "height": 64,
-              "image_path": "/api/djconnect/v1/session/surface/image/session-541348cb4411446abaf64f83b641acb9/y6jcqAKkc5CdaWr0AdpRUoiWm7PY34yR",
-              "media_revision": "93499744de5b4accf6d325a6",
+              "image_path": "/api/djconnect/v1/session/surface/image/session-68113eaca9ff4e65bd223d95bd844681/0M3fvbT5ODoXlcDsOesNeX-_BdTmiQnC",
+              "media_revision": "4bf5e7408a5ee91d8a85d5d3",
               "rights": {
                 "external_relay": false,
                 "os_snapshot": true,
@@ -102,8 +102,8 @@
             "reason": "qualified",
             "state": "available"
           },
-          "as_of": "2026-11-09T11:05:08.858246+00:00",
-          "binding_id": "6c8670f5be61cff3f6f56bd0ad859281",
+          "as_of": "2026-11-09T11:10:43.548133+00:00",
+          "binding_id": "e9c82755c65e36b6776fddf7b4e228f5",
           "cache_policy": {
             "locked_display": false,
             "maximum_seconds": 120,
@@ -112,10 +112,10 @@
             "scope": "current_surface_only"
           },
           "contribution": {
-            "expires_at": "2026-11-09T11:05:33.738047+00:00",
-            "moment_id": "moment-6c61ec6f52284c8b9ea21c3d0d54b596",
+            "expires_at": "2026-11-09T11:11:08.420321+00:00",
+            "moment_id": "moment-bc3a53712e7adf95b24f61e14dd49ba1",
             "persona": "home_dj",
-            "published_at": "2026-11-09T11:05:08.738047+00:00",
+            "published_at": "2026-11-09T11:10:43.420321+00:00",
             "rights": {
               "external_relay": false,
               "os_snapshot": true,
@@ -131,15 +131,15 @@
             "state": "available"
           },
           "delivery_sequence": 11,
-          "expires_at": "2026-11-09T11:07:08.852994+00:00",
-          "generation": "62ede5f97babd60e4c7b6833d30fd2fa",
+          "expires_at": "2026-11-09T11:12:43.543391+00:00",
+          "generation": "9e8df20dc1f66d051df64e8d6cf0c9e4",
           "latest_contribution": {
-            "expires_at": "2026-11-09T11:07:08.852994+00:00",
-            "moment_id": "moment-6c61ec6f52284c8b9ea21c3d0d54b596",
+            "expires_at": "2026-11-09T11:12:43.543391+00:00",
+            "moment_id": "moment-bc3a53712e7adf95b24f61e14dd49ba1",
             "persona": "home_dj",
-            "published_at": "2026-11-09T11:05:08.738047+00:00",
+            "published_at": "2026-11-09T11:10:43.420321+00:00",
             "purpose": "retained_latest",
-            "retained_expires_at": "2026-11-09T11:35:08.738047+00:00",
+            "retained_expires_at": "2026-11-09T11:40:43.420321+00:00",
             "rights": {
               "external_relay": false,
               "os_snapshot": true,
@@ -160,7 +160,7 @@
           },
           "navigation": {
             "kind": "open_session",
-            "session_id": "session-541348cb4411446abaf64f83b641acb9"
+            "session_id": "session-68113eaca9ff4e65bd223d95bd844681"
           },
           "now_playing": {
             "album": "Fixture album",
@@ -170,15 +170,15 @@
               "provider": "Spotify",
               "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
             },
-            "expires_at": "2026-11-09T11:07:08.794969+00:00",
+            "expires_at": "2026-11-09T11:12:43.477757+00:00",
             "item_id": "02e3d582594577327c335fc0",
-            "observed_at": "2026-11-09T11:05:08.794969+00:00",
+            "observed_at": "2026-11-09T11:10:43.477757+00:00",
             "progress": {
               "duration_ms": 240000,
-              "expires_at": "2026-11-09T11:07:08.794969+00:00",
-              "observed_at": "2026-11-09T11:05:08.794969+00:00",
+              "expires_at": "2026-11-09T11:12:43.477757+00:00",
+              "observed_at": "2026-11-09T11:10:43.477757+00:00",
               "playback_state": "playing",
-              "position_ms": 20308,
+              "position_ms": 20316,
               "schema_version": 1
             },
             "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
@@ -190,13 +190,13 @@
             "reason": "qualified",
             "state": "available"
           },
-          "observed_at": "2026-11-09T11:05:08.852994+00:00",
+          "observed_at": "2026-11-09T11:10:43.543391+00:00",
           "persona": "home_dj",
           "playback_state": "playing",
           "presence": "balanced",
-          "revision": "e80e234bb9f67884ec0d230650ef0f3c",
+          "revision": "543c57aba4d645865600c3173bf1611a",
           "schema_version": 4,
-          "session_id": "session-541348cb4411446abaf64f83b641acb9",
+          "session_id": "session-68113eaca9ff4e65bd223d95bd844681",
           "state": "active",
           "surface": "widget"
         }
@@ -213,18 +213,18 @@
                 "fr": "Pochette de Fixture track",
                 "nl": "Hoes van Fixture track"
               },
-              "asset_id": "y6jcqAKkc5CdaWr0AdpRUoiWm7PY34yR",
+              "asset_id": "0M3fvbT5ODoXlcDsOesNeX-_BdTmiQnC",
               "attribution": {
                 "mark": "spotify",
                 "provider": "Spotify",
                 "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
               },
-              "captured_at": "2026-11-09T11:05:08.852903+00:00",
+              "captured_at": "2026-11-09T11:10:43.543288+00:00",
               "crop_allowed": false,
-              "expires_at": "2026-11-09T11:07:08.794969+00:00",
+              "expires_at": "2026-11-09T11:12:43.477757+00:00",
               "height": 64,
-              "image_path": "/api/djconnect/v1/session/surface/image/session-541348cb4411446abaf64f83b641acb9/y6jcqAKkc5CdaWr0AdpRUoiWm7PY34yR",
-              "media_revision": "93499744de5b4accf6d325a6",
+              "image_path": "/api/djconnect/v1/session/surface/image/session-68113eaca9ff4e65bd223d95bd844681/0M3fvbT5ODoXlcDsOesNeX-_BdTmiQnC",
+              "media_revision": "4bf5e7408a5ee91d8a85d5d3",
               "rights": {
                 "external_relay": false,
                 "os_snapshot": true,
@@ -248,8 +248,8 @@
             "reason": "qualified",
             "state": "available"
           },
-          "as_of": "2026-11-09T11:05:48.794969+00:00",
-          "binding_id": "34d2d7c32a62c081fccc369f2a87b862",
+          "as_of": "2026-11-09T11:11:23.477757+00:00",
+          "binding_id": "1f6b494f6514b90a649d6f53f5b256b2",
           "cache_policy": {
             "locked_display": false,
             "maximum_seconds": 120,
@@ -263,15 +263,15 @@
             "state": "unavailable"
           },
           "delivery_sequence": 11,
-          "expires_at": "2026-11-09T11:07:08.852994+00:00",
-          "generation": "5beb6c3b9ed263ebca3949eb683b9f98",
+          "expires_at": "2026-11-09T11:12:43.543391+00:00",
+          "generation": "28845ef37578bdd04d502cfee869d39b",
           "latest_contribution": {
-            "expires_at": "2026-11-09T11:07:08.852994+00:00",
-            "moment_id": "moment-6c61ec6f52284c8b9ea21c3d0d54b596",
+            "expires_at": "2026-11-09T11:12:43.543391+00:00",
+            "moment_id": "moment-bc3a53712e7adf95b24f61e14dd49ba1",
             "persona": "home_dj",
-            "published_at": "2026-11-09T11:05:08.738047+00:00",
+            "published_at": "2026-11-09T11:10:43.420321+00:00",
             "purpose": "retained_latest",
-            "retained_expires_at": "2026-11-09T11:35:08.738047+00:00",
+            "retained_expires_at": "2026-11-09T11:40:43.420321+00:00",
             "rights": {
               "external_relay": false,
               "os_snapshot": true,
@@ -292,7 +292,7 @@
           },
           "navigation": {
             "kind": "open_session",
-            "session_id": "session-541348cb4411446abaf64f83b641acb9"
+            "session_id": "session-68113eaca9ff4e65bd223d95bd844681"
           },
           "now_playing": {
             "album": "Fixture album",
@@ -302,15 +302,15 @@
               "provider": "Spotify",
               "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
             },
-            "expires_at": "2026-11-09T11:07:08.794969+00:00",
+            "expires_at": "2026-11-09T11:12:43.477757+00:00",
             "item_id": "02e3d582594577327c335fc0",
-            "observed_at": "2026-11-09T11:05:08.794969+00:00",
+            "observed_at": "2026-11-09T11:10:43.477757+00:00",
             "progress": {
               "duration_ms": 240000,
-              "expires_at": "2026-11-09T11:07:08.794969+00:00",
-              "observed_at": "2026-11-09T11:05:08.794969+00:00",
+              "expires_at": "2026-11-09T11:12:43.477757+00:00",
+              "observed_at": "2026-11-09T11:10:43.477757+00:00",
               "playback_state": "playing",
-              "position_ms": 20308,
+              "position_ms": 20316,
               "schema_version": 1
             },
             "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
@@ -322,13 +322,13 @@
             "reason": "qualified",
             "state": "available"
           },
-          "observed_at": "2026-11-09T11:05:08.852994+00:00",
+          "observed_at": "2026-11-09T11:10:43.543391+00:00",
           "persona": "home_dj",
           "playback_state": "playing",
           "presence": "balanced",
-          "revision": "abbd700e3b9f055c9dc09360b723c84e",
+          "revision": "053e32d8376f59921df669a025e43c18",
           "schema_version": 4,
-          "session_id": "session-541348cb4411446abaf64f83b641acb9",
+          "session_id": "session-68113eaca9ff4e65bd223d95bd844681",
           "state": "active",
           "surface": "widget"
         }
@@ -341,8 +341,8 @@
             "reason": "original_deadline_expired",
             "state": "unavailable"
           },
-          "as_of": "2026-11-09T11:07:38.794969+00:00",
-          "binding_id": "34d2d7c32a62c081fccc369f2a87b862",
+          "as_of": "2026-11-09T11:13:13.477757+00:00",
+          "binding_id": "1f6b494f6514b90a649d6f53f5b256b2",
           "cache_policy": {
             "locked_display": false,
             "maximum_seconds": 120,
@@ -356,15 +356,15 @@
             "state": "unavailable"
           },
           "delivery_sequence": 12,
-          "expires_at": "2026-11-09T11:09:38.794969+00:00",
-          "generation": "5beb6c3b9ed263ebca3949eb683b9f98",
+          "expires_at": "2026-11-09T11:15:13.477757+00:00",
+          "generation": "28845ef37578bdd04d502cfee869d39b",
           "latest_contribution": {
-            "expires_at": "2026-11-09T11:09:38.794969+00:00",
-            "moment_id": "moment-6c61ec6f52284c8b9ea21c3d0d54b596",
+            "expires_at": "2026-11-09T11:15:13.477757+00:00",
+            "moment_id": "moment-bc3a53712e7adf95b24f61e14dd49ba1",
             "persona": "home_dj",
-            "published_at": "2026-11-09T11:05:08.738047+00:00",
+            "published_at": "2026-11-09T11:10:43.420321+00:00",
             "purpose": "retained_latest",
-            "retained_expires_at": "2026-11-09T11:35:08.738047+00:00",
+            "retained_expires_at": "2026-11-09T11:40:43.420321+00:00",
             "rights": {
               "external_relay": false,
               "os_snapshot": true,
@@ -385,7 +385,7 @@
           },
           "navigation": {
             "kind": "open_session",
-            "session_id": "session-541348cb4411446abaf64f83b641acb9"
+            "session_id": "session-68113eaca9ff4e65bd223d95bd844681"
           },
           "now_playing": {
             "album": "Fixture album",
@@ -395,13 +395,13 @@
               "provider": "Spotify",
               "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
             },
-            "expires_at": "2026-11-09T11:09:38.794969+00:00",
+            "expires_at": "2026-11-09T11:15:13.477757+00:00",
             "item_id": "02e3d582594577327c335fc0",
-            "observed_at": "2026-11-09T11:07:38.794969+00:00",
+            "observed_at": "2026-11-09T11:13:13.477757+00:00",
             "progress": {
               "duration_ms": 240000,
-              "expires_at": "2026-11-09T11:09:38.794969+00:00",
-              "observed_at": "2026-11-09T11:07:38.794969+00:00",
+              "expires_at": "2026-11-09T11:15:13.477757+00:00",
+              "observed_at": "2026-11-09T11:13:13.477757+00:00",
               "playback_state": "playing",
               "position_ms": 1150,
               "schema_version": 1
@@ -415,13 +415,13 @@
             "reason": "qualified",
             "state": "available"
           },
-          "observed_at": "2026-11-09T11:07:38.794969+00:00",
+          "observed_at": "2026-11-09T11:13:13.477757+00:00",
           "persona": "home_dj",
           "playback_state": "playing",
           "presence": "balanced",
-          "revision": "b7bbd004758f591890e7f4b2d344739e",
+          "revision": "4ff1e85fc2500de6df7daa0d53da65e0",
           "schema_version": 4,
-          "session_id": "session-541348cb4411446abaf64f83b641acb9",
+          "session_id": "session-68113eaca9ff4e65bd223d95bd844681",
           "state": "active",
           "surface": "widget"
         }
@@ -734,13 +734,13 @@
       "custom_components/djconnect/update.py": "d6a1ea30a3a33e04e8668dd6b11b6720d5b8f531b1160ac8771a16742179c7a5",
       "custom_components/djconnect/use_cases.py": "e5e265916e3e47d548646b2d6bab29822b6e80b6e27845686b5aac375ed4b484",
       "custom_components/djconnect/verification_clock.py": "7d2383659ea419abf747bbd5e2f3cd382e9e13d1ae5946d331fd3d9412bacf0e",
-      "custom_components/djconnect/vibecast.html": "9d3bd8fb71beb49e07f16a5b156b371b1ae5916f83ba7ac48c87d80cfb74bbd4",
+      "custom_components/djconnect/vibecast.html": "ea23e7ca5ebeae337f72282a78b110ec5696dee1d89c423edf413346c33203d8",
       "custom_components/djconnect/vibecast.py": "afe141de6ab48c43bbc54ca745d8a7fb4d4a78326b6907f96825d1f81b743ed6",
-      "custom_components/djconnect/vibecast_display.html": "39a1094b74e0f3f8f0715a45da9d56d973effbd442c30c74fedfc83b2770bc18",
+      "custom_components/djconnect/vibecast_display.html": "c76f616e4ee8e7e6fcb82c2be438a4176917405802bd1319f22e0db115a79df2",
       "custom_components/djconnect/vibecast_renderer/cast-host.js": "b3b15f607735918f83d130b6afffb460f6d7a808e3c69228ece9b947816be52b",
       "custom_components/djconnect/vibecast_renderer/display-host.js": "1e508087c148102ba1217b7d7e0329b8dc4a88ea23f1750e60e92ccb849b799d",
       "custom_components/djconnect/vibecast_renderer/local-host.js": "3ad7033ca34badacaa3b0ca2d52e960fbeb5f130236d49050722441105314975",
-      "custom_components/djconnect/vibecast_renderer/renderer.js": "b7ba0732cc4bb18227f068b16649749e8a92d5b552d125e1ef5c230f96305e42",
+      "custom_components/djconnect/vibecast_renderer/renderer.js": "a292901f0c03e988b9dd5459db892859f95e337e49979f05b5a031a134516ae2",
       "custom_components/djconnect/vibecast_renderer/style.css": "2afec51f51782460a9301c2fec4ddac2060ce5f66fe487f194cf28623866321d",
       "custom_components/djconnect/vibecast_renderer/template.html": "d798da982a865749a119accf2622a0d86f67a6be6b76ed4c1088415a9ef02633",
       "custom_components/djconnect/visual_director.py": "17eb7db9b903fc4341cb0e881c6935b5d4bd2dccc76dd32d41a715eab73c22ec",
@@ -1054,13 +1054,13 @@
     "custom_components/djconnect/update.py": "d6a1ea30a3a33e04e8668dd6b11b6720d5b8f531b1160ac8771a16742179c7a5",
     "custom_components/djconnect/use_cases.py": "e5e265916e3e47d548646b2d6bab29822b6e80b6e27845686b5aac375ed4b484",
     "custom_components/djconnect/verification_clock.py": "7d2383659ea419abf747bbd5e2f3cd382e9e13d1ae5946d331fd3d9412bacf0e",
-    "custom_components/djconnect/vibecast.html": "9d3bd8fb71beb49e07f16a5b156b371b1ae5916f83ba7ac48c87d80cfb74bbd4",
+    "custom_components/djconnect/vibecast.html": "ea23e7ca5ebeae337f72282a78b110ec5696dee1d89c423edf413346c33203d8",
     "custom_components/djconnect/vibecast.py": "afe141de6ab48c43bbc54ca745d8a7fb4d4a78326b6907f96825d1f81b743ed6",
-    "custom_components/djconnect/vibecast_display.html": "39a1094b74e0f3f8f0715a45da9d56d973effbd442c30c74fedfc83b2770bc18",
+    "custom_components/djconnect/vibecast_display.html": "c76f616e4ee8e7e6fcb82c2be438a4176917405802bd1319f22e0db115a79df2",
     "custom_components/djconnect/vibecast_renderer/cast-host.js": "b3b15f607735918f83d130b6afffb460f6d7a808e3c69228ece9b947816be52b",
     "custom_components/djconnect/vibecast_renderer/display-host.js": "1e508087c148102ba1217b7d7e0329b8dc4a88ea23f1750e60e92ccb849b799d",
     "custom_components/djconnect/vibecast_renderer/local-host.js": "3ad7033ca34badacaa3b0ca2d52e960fbeb5f130236d49050722441105314975",
-    "custom_components/djconnect/vibecast_renderer/renderer.js": "b7ba0732cc4bb18227f068b16649749e8a92d5b552d125e1ef5c230f96305e42",
+    "custom_components/djconnect/vibecast_renderer/renderer.js": "a292901f0c03e988b9dd5459db892859f95e337e49979f05b5a031a134516ae2",
     "custom_components/djconnect/vibecast_renderer/style.css": "2afec51f51782460a9301c2fec4ddac2060ce5f66fe487f194cf28623866321d",
     "custom_components/djconnect/vibecast_renderer/template.html": "d798da982a865749a119accf2622a0d86f67a6be6b76ed4c1088415a9ef02633",
     "custom_components/djconnect/visual_director.py": "17eb7db9b903fc4341cb0e881c6935b5d4bd2dccc76dd32d41a715eab73c22ec",

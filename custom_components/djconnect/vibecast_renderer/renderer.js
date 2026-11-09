@@ -320,7 +320,7 @@
   function renderSpotlight() {
     const id = projection.current_moment_id;
     const item = playback().state === "playing" && typeof id === "string"
-      && Array.isArray(projection.dj_moments) && projection.dj_moments.find(moment=>moment?.moment_id === id);
+      && Array.isArray(projection.dj_moments) && projection.dj_moments.find(moment=>moment && moment.moment_id === id);
     const card = item ? cardFor(item) : null;
     document.body.classList.toggle("display-spotlight",!!card);
     if (!card) {
@@ -328,7 +328,7 @@
       return;
     }
     e("spotlight-avatar").dataset.mood=read(projection,["session","selected_mood"]) || "";
-    if (current?.key !== card.key) {
+    if (!current || current.key !== card.key) {
       current = card;
       showCurrent(card,false);
     } else {
@@ -369,7 +369,7 @@
     live.textContent=labels[1];
     const time=Date.now();
     const items=projection.shared_flow.slice(-12).filter(item=>item && typeof item.moment_id==="string"
-      && typeof item.content==="string" && item.content && Date.parse(item.flow_expires_at ?? item.display_expires_at)>time).reverse();
+      && typeof item.content==="string" && item.content && Date.parse(item.flow_expires_at == null ? item.display_expires_at : item.flow_expires_at)>time).reverse();
     const firstVisible = followFlow ? null : Array.from(list.children).find(row=>
       row.getBoundingClientRect().bottom > viewport.getBoundingClientRect().top);
     const priorTop=firstVisible ? firstVisible.getBoundingClientRect().top : 0;
@@ -377,7 +377,7 @@
     for (const [id,row] of flowRows) {
       if (!currentKeys.has(id)) { row.remove();flowRows.delete(id); }
     }
-    const cover = displayArtwork && displayArtwork.item_id === projection.playback?.item_id ? displayArtwork : null;
+    const cover = displayArtwork && displayArtwork.item_id === playback().item_id ? displayArtwork : null;
     items.forEach((item,index)=>{
       let row=flowRows.get(item.moment_id);
       if (!row) {
@@ -429,7 +429,7 @@
     }
     live.hidden=followFlow || !items.length;
     if (items.length) {
-      const expiry=Math.min(...items.map(item=>Date.parse(item.flow_expires_at ?? item.display_expires_at)));
+      const expiry=Math.min(...items.map(item=>Date.parse(item.flow_expires_at == null ? item.display_expires_at : item.flow_expires_at)));
       flowExpiry=window.setTimeout(renderFlow,Math.max(0,expiry-Date.now()));
     }
     return true;
