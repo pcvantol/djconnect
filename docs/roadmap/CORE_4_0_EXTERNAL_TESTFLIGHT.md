@@ -22,5 +22,19 @@ and matching evidence. Deployment and installed smoke require their own
 target binding. Apple signing, external TestFlight distribution, native
 acceptance and audible acceptance require their own evidence.
 
+## Deferred work on Dutch composer contributions
+
+[Core PR #1539][credit-pr] was closed without merging on 9 November 2026.
+The candidate is preserved at
+`5637c7e1ab7f6ac8cd5384478af61d8bae8de822` on
+`codex/askdj-credit-telling-nl`. The factual and Dutch-language reviews
+passed on the last candidate. Style review withheld publication, so
+editorial acceptance remains open.
+
+Resume from the preserved branch. Obtain live editorial acceptance for
+both the selected Dutch contribution and its follow-up on the exact
+candidate before reopening the change for merge or marking it qualified.
+
+[credit-pr]: https://github.com/pcvantol/djconnect/pull/1539
 [golden]: https://github.com/pcvantol/djconnect/actions/runs/42693949233/artifacts/13709630115
 [ci]: https://github.com/pcvantol/djconnect/actions/runs/42692912767
