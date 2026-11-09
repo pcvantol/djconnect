@@ -1,3 +1,127 @@
+## 2026-11-08 — Finalize Core VibeCast Pi sender support
+
+### Repository Status
+
+Core PR [#1531](https://github.com/pcvantol/djconnect/pull/1531) merged as
+`12fc0ef00a81d8b95091522a4b05f8de61314728`. The signed main tree
+`3fc9e3fd0dd2d1c494e05d717b8cac98e5e84be6` matches the qualified PR head
+`5d8bd82f87c485c48ad4695ba5d9eaff5b95bd69`.
+[Trusted Delivery](https://github.com/pcvantol/djconnect/actions/runs/42523009693),
+[main HA validation and coverage](https://github.com/pcvantol/djconnect/actions/runs/42524520093)
+and [main CodeQL](https://github.com/pcvantol/djconnect/actions/runs/42524520112) passed.
+
+### Management Summary
+
+VibeCast display admission B v1 admits a normally paired Raspberry Pi app as a
+sender alongside iOS and macOS. The external browser display shows a six-digit
+code. Resolving the code does not start sharing. Explicit owner approval binds
+the screen to the active session and Profile. Withdrawal closes display access
+while the DJ session continues.
+
+Forty-five isolated HA checks and the dedicated Raspberry Pi HTTPS/WSS scenario
+passed. The local Core test suite ran 4,764 tests with 11 skips. The dedicated
+scenario used ephemeral pairing and made zero provider calls. It covered
+one-time collection, Profile changes, read-only display grants and withdrawal.
+
+### HA-dev Readback
+
+HA-dev installed a QA composition based on the signed main commit. Its package
+SHA-256 is `3469c19d122d2f790243313b3102c7dc81fcf4a916ac64b09bbd1a0302ac9299`.
+Configuration check and startup passed. All 309 installed file digests matched
+the manifest, including the retained Watch changes. Profile defaults were
+unchanged. Both VibeCast pages returned HTTPS 200 and capabilities listed
+`ios`, `macos` and `raspberry_pi` for admission B v1. Rollback evidence was retained.
+
+### Roadmap Position and Remaining Acceptance
+
+The Core producer is available to the Pi consumer tracked under
+[Pi #104](https://github.com/pcvantol/djconnect-pi/issues/104). The reachable
+physical Pi10 still runs rc.6. The native sender controls and physical display
+pairing, rendering and withdrawal await a separately qualified Pi build.
+The public Rendezvous route has a separate admission contract. Production
+publication is outside this Finalization.
+
+### Repository and Workspace State
+
+Core source is merged and the installed HA-dev producer is verified. The
+separate Finalization and its main checks must pass before recording
+`MERGED_RECONCILED`. Retain the QA package, receipts, prior installation
+and Pi lane work. Workspace cleanup is assessed separately.
+
+## 2026-11-08 — Finalize VibeCast 1.1.4 Core source
+
+### Repository Status
+
+Core PR [#1535](https://github.com/pcvantol/djconnect/pull/1535) merged as
+`c624392c9fb7d8b23bf9a57c6674840c7798b16a`. The signed merge matches the
+qualified candidate `c91ee641da9314ce71a769aed45c7122e4b63aef` at tree
+`c8aadd0758bf8c96375048642948a74dd49a5bff`. The candidate passed technical PR
+checks and [Owner Authorization](https://github.com/pcvantol/djconnect/actions/runs/42492342504).
+The isolated Finalization checkout was based on the same commit as remote main.
+
+The [main validation jobs](https://github.com/pcvantol/djconnect/actions/runs/42492405310)
+passed tests, HACS, hassfest, dependency audit, Ruff and Bandit. Main CodeQL,
+Golden Qualification, brand reproducibility, the consumer boundary and Help
+preflight passed. Post-merge coverage evidence and TDE observation also
+completed successfully.
+
+### Management Summary
+
+VibeCast 1.1.4 keeps Spotify album art and track metadata visible above the
+scrolling shared Session Flow. The feed prefers the published music announcement
+for the matching playback occurrence. Local and Cast builds use the same
+renderer. Candidate qualification covered 45 isolated Home Assistant scenarios,
+eight browser combinations and a combined WebKit pass. Two package builds
+matched byte for byte, and the isolated receiver importer passed.
+
+The [receiver intake](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6723049558)
+records the supplying revision, original verifier and package digests.
+The Cast archive SHA-256 is
+`11c41ab9bbe2f8fe9d2a3bf4aca4eb86c3cd4ab6caafc4fafe8f8239de19e418`.
+The manifest SHA-256 is
+`cfb608e93bffe6b5d66022879550741bc3da93fc881881f155a057e586f20f10`.
+
+### Roadmap Position
+
+Generation 2 Product Development / Phase 1 Platform Qualification. This
+increment reconciles the VibeCast Core source delivery.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+The [canonical roadmap](docs/roadmap/v1/djconnect-platform-v1.json) retains the
+settings consumer follow-through. The entries below confer no assignment.
+
+1. **SETTINGS::APPLE::EDITOR — One Jouw DJ editor and shared Session quick controls** — Planned / NOT_ISSUED. Canonical edge SETTINGS-4 follows the completed Core producer. Consumer qualification and a separate owning assignment remain required.
+
+2. **SETTINGS::PI::ADOPTION — Pi allowed shared Session settings and legacy disposition** — Planned / NOT_ISSUED. Canonical edge SETTINGS-6 follows the completed Core producer. Consumer qualification and a separate owning assignment remain required.
+
+3. **SETTINGS::ESP32::ADOPTION — ESP32 Assist/voice/settings compatibility and legacy disposition** — Planned / NOT_ISSUED. Canonical edge SETTINGS-8 follows the completed Core producer. Consumer qualification and a separate owning assignment remain required.
+
+4. **SETTINGS::VIBECAST::COMPAT — Shared renderer allowed Session fields without Profile preferences** — Planned / NOT_ISSUED. Canonical edge SETTINGS-10 follows the completed Core producer. Consumer qualification and a separate owning assignment remain required.
+
+5. **SETTINGS::WEBSITE::COPY — Six-parameter scope/help and obsolete settings copy audit** — Planned / NOT_ISSUED. Canonical edge SETTINGS-12 follows the completed Core producer. Consumer qualification and a separate owning assignment remain required.
+
+### Blocked Items
+
+A read-only comparison on HA-dev found that both installed VibeCast pages
+differ from #1535. The installation and HTTPS readback remain open. Physical
+Safari and Cast acceptance require the installed build and separate device
+evidence. Receiver adoption awaits an intake receipt from the receiver lane.
+
+### Deferred Items
+
+Production publication is outside this delivery.
+
+### Repository State
+
+Repository State: `MERGED_UNRECONCILED` until this Finalization merges and
+its protected main checks pass.
+
+### Workspace State
+
+`NOT_READY` pending Finalization and local workspace cleanup. Candidate and
+rollback evidence remain available. Stale branch cleanup is pending.
+
 ## 2026-11-07 — Finalize WidgetKit machine access for HA-dev
 
 ### Repository Status

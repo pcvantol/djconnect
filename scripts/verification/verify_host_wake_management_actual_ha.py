@@ -98,7 +98,7 @@ async def qualify(self, client, identity, headers):
     with patch.object(self.manager, "async_end", new=end_with_negative_child):
         result = await original_qualify(self, client, identity, headers)
     assert observed == {"before": "initial_reserved", "after": "withdrawn", "attempts": 1}
-    assert result["schema_version"] == 21
+    assert result["schema_version"] == 22
     result["cases"].extend([
         "actual_HA_original_paired_committed_Profile_child_SQL21_once_metadata",
         "actual_HA_wrong_Session_native_operation_and_surface_denied_before_child_fence",

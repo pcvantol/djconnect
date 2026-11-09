@@ -129,7 +129,12 @@ async def main():
     hass.http = HomeAssistantHTTP(hass, None, None, None, ["127.0.0.1"], 0, [], "modern")
     await hass.http.async_initialize(cors_origins=[], use_x_forwarded_for=False,
         login_threshold=-1, is_ban_enabled=False, use_x_frame_options=True)
-    identity = {"device_id": "djconnect-ios-ABCDEF123456", "client_type": "ios"}
+    owner_type = os.environ.get("DJC_DISPLAY_OWNER_CLIENT", "ios")
+    owner_device = {
+        "ios": "djconnect-ios-ABCDEF123456",
+        "raspberry_pi": "djconnect-raspberry-pi-ABCDEF123456",
+    }[owner_type]
+    identity = {"device_id": owner_device, "client_type": owner_type}
     slot = entry("display-owner", {**identity, "pair_code": "123456", "profile_id": "profile-a",
         "music_backend": "spotify_direct", "music_account_id": "fixture-account",
         "spotify_client_id": "fixture-client", "spotify_refresh_token": "fixture-never-sent"})
@@ -150,7 +155,7 @@ async def main():
     profile = storage.household.profiles["profile-a"]
     await storage.async_update_profile("profile-a", preferences=replace(profile.preferences,
                                                                        default_music_account_id="fixture-account"))
-    await storage.async_upsert_device(identity["device_id"], "ios", linked_profile_id="profile-a")
+    await storage.async_upsert_device(identity["device_id"], owner_type, linked_profile_id="profile-a")
     service = await async_initialize_persistence(hass)
     manager = SessionRuntimeManager(PersistentSessionRepository(service), HistoricalProjectionRepository(service))
     hass.data["djconnect"]["session_runtime_manager"] = manager

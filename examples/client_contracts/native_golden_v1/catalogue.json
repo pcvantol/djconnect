@@ -108,7 +108,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Vrije formulering en typefouten in alle vijf talen gaan via \u00e9\u00e9n HA-agentinterpretatie naar echte Core catalogusreads.",
+      "expected": "Vrije formulering en typefouten in alle vijf talen gaan via één HA-agentinterpretatie naar echte Core catalogusreads.",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-search-choice-play",
       "id": "ASKDJ-FLOW-artist-hits-free-wording",
@@ -138,7 +138,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "E\u00e9n korte gelokaliseerde intro en \u00e9\u00e9n lijst playback_actions met tien album-/playlistkaarten, art, type en play. Geen titelopsomming of dubbele items.",
+      "expected": "Eén korte gelokaliseerde intro en één lijst playback_actions met tien album-/playlistkaarten, art, type en play. Geen titelopsomming of dubbele items.",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-search-choice-play",
       "id": "ASKDJ-FLOW-search-choice-play-step-10",
@@ -153,7 +153,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Exact geaccepteerde intro via prepare1 \u00e9n Settings3/prepare3 en priv\u00e9-audio; behoud referentie/revisies/provider/stem. Geen extra zoekopdracht of dialoog.",
+      "expected": "Exact geaccepteerde intro via prepare1 én Settings3/prepare3 en privé-audio; behoud referentie/revisies/provider/stem. Geen extra zoekopdracht of dialoog.",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-search-choice-play",
       "id": "ASKDJ-FLOW-search-choice-play-step-11",
@@ -288,7 +288,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "E\u00e9n werkelijk ander catalogusalbum met album-URI, artwork waar beschikbaar en afspeelactie; nul playback vooraf.",
+      "expected": "Eén werkelijk ander catalogusalbum met album-URI, artwork waar beschikbaar en afspeelactie; nul playback vooraf.",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-albums-versions-playlists",
       "id": "ASKDJ-FLOW-albums-versions-playlists-step-5",
@@ -318,7 +318,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "De genoemde eerdere albumkeuze behoudt album-kind, ook zonder het woord album; context_uri in provider-PUT, geen uris met \u00e9\u00e9n track.",
+      "expected": "De genoemde eerdere albumkeuze behoudt album-kind, ook zonder het woord album; context_uri in provider-PUT, geen uris met één track.",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-albums-versions-playlists",
       "id": "ASKDJ-FLOW-albums-versions-playlists-step-7",
@@ -348,7 +348,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "E\u00e9n korte caption; bovenaan het exacte album met hoes en Speel album, daaronder de afzonderlijke nummers met dezelfde geproxiede editiehoes en eigen bevroren playactie. Geen dubbele tekstlijst. Albumknop start context_uri; nummerknop alleen zijn URI. Informatieve vraag en verlopen knoppen muteren niets.",
+      "expected": "Eén korte caption; bovenaan het exacte album met hoes en Speel album, daaronder de afzonderlijke nummers met dezelfde geproxiede editiehoes en eigen bevroren playactie. Geen dubbele tekstlijst. Albumknop start context_uri; nummerknop alleen zijn URI. Informatieve vraag en verlopen knoppen muteren niets.",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-albums-versions-playlists",
       "id": "ASKDJ-REGRESSION-album-header-and-track-art-play",
@@ -356,7 +356,7 @@
       "language": null,
       "model_policy": "zero",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Welke nummers staan op dit album? Speel daarna het album of \u00e9\u00e9n getoond nummer via zijn knop.",
+      "question": "Welke nummers staan op dit album? Speel daarna het album of één getoond nummer via zijn knop.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -408,7 +408,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Huidige geautoriseerde artiest \u00e9n opname, zonder LLM of playbackeffect; onbekend alleen als de actuele context werkelijk ontbreekt.",
+      "expected": "Huidige geautoriseerde artiest én opname, zonder LLM of playbackeffect; onbekend alleen als de actuele context werkelijk ontbreekt.",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-current-previous",
       "id": "ASKDJ-FLOW-current-previous-explicit-current-artist-words",
@@ -1218,7 +1218,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Opt-in2 behoudt alle toegelaten tekst, bronvermelding en stabiele volgorde. Compatibele oude pagina\u2019s blijven schema1; een onrepresenteerbare pagina geeft expliciet upgrade-required zonder vervalste provenance, gedeeltelijke Flow of pairingreset. Cursors kruisen nooit versies; source/privacy gelden nog.",
+      "expected": "Opt-in2 behoudt alle toegelaten tekst, bronvermelding en stabiele volgorde. Compatibele oude pagina’s blijven schema1; een onrepresenteerbare pagina geeft expliciet upgrade-required zonder vervalste provenance, gedeeltelijke Flow of pairingreset. Cursors kruisen nooit versies; source/privacy gelden nog.",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-history-private",
       "id": "ASKDJ-FLOW-history-entry-negotiation",
@@ -1353,7 +1353,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Zelfde onderwerp; active/paused/standalone en Presence-Off; geen proactieve mutaties; vier server-side Presence-keuzes en talkative\u2192presenter migratie met behouden historie/budgetten",
+      "expected": "Zelfde onderwerp; active/paused/standalone en Presence-Off; geen proactieve mutaties; vier server-side Presence-keuzes en talkative→presenter migratie met behouden historie/budgetten",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-style-lifecycle",
       "id": "ASKDJ-FLOW-style-lifecycle-step-2",
@@ -1413,7 +1413,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Precies \u00e9\u00e9n duurzame persoonlijke opening met de oorspronkelijke drie keuzes en hun betekenis; opslagretry gebruikt hetzelfde voorbereide antwoord; geen automatische spraak bij Alleen muziek.",
+      "expected": "Precies één duurzame persoonlijke opening met de oorspronkelijke drie keuzes en hun betekenis; opslagretry gebruikt hetzelfde voorbereide antwoord; geen automatische spraak bij Alleen muziek.",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-style-lifecycle",
       "id": "ASKDJ-FLOW-session-opening-owner",
@@ -1571,7 +1571,7 @@
       "language": "nl",
       "model_policy": "Ordinary generation plus independent source/role/style review; no extra call or acceptance from removing a prompt conflict.",
       "native_mapping": "PENDING_NATIVE_OWNER_MAPPING",
-      "question": "Vertel bij deze bijdrage de compositiecredit en \u00e9\u00e9n gedocumenteerde activiteit van dezelfde componist, zonder er een verzonnen verband van te maken.",
+      "question": "Vertel bij deze bijdrage de compositiecredit en één gedocumenteerde activiteit van dezelfde componist, zonder er een verzonnen verband van te maken.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -1946,7 +1946,7 @@
       "language": null,
       "model_policy": "bounded_interpretation_then_accepted_expression",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "I want to hear / Ich m\u00f6chte h\u00f6ren / Je veux \u00e9couter / Quiero escuchar Nirvana",
+      "question": "I want to hear / Ich möchte hören / Je veux écouter / Quiero escuchar Nirvana",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -1961,14 +1961,14 @@
       "language": null,
       "model_policy": "zero_new_dialogue_calls",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Ik wil nirvana horen \u2014 Nederlandstalig verzoek, Engelstalige runtime-default, zoekfout",
+      "question": "Ik wil nirvana horen — Nederlandstalig verzoek, Engelstalige runtime-default, zoekfout",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Gerichte artist-phrase-zoekopdracht; exacte naam uit maximaal tien kandidaten, juiste artistcredit en \u00e9\u00e9n dispatch per afzonderlijke turn. Geen verwante artiest of tribute.",
+      "expected": "Gerichte artist-phrase-zoekopdracht; exacte naam uit maximaal tien kandidaten, juiste artistcredit en één dispatch per afzonderlijke turn. Geen verwante artiest of tribute.",
       "expected_route_effect": null,
       "family": "ASKDJ-REGRESSION-explicit-listening-wish",
       "id": "ASKDJ-REGRESSION-explicit-listening-wish-step-4",
@@ -2006,7 +2006,7 @@
       "language": null,
       "model_policy": "zero",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Speel Nirvana; provider geeft Guns N\u2019 Roses terug",
+      "question": "Speel Nirvana; provider geeft Guns N’ Roses terug",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -2051,14 +2051,14 @@
       "language": null,
       "model_policy": "post_dispatch_expression_only",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Ik wil Nirvana horen \u2192 kies speaker",
+      "question": "Ik wil Nirvana horen → kies speaker",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Originele URI-A ondanks gewijzigde zoekresultaten en ge\u00efnjecteerde payload; geen tweede search.",
+      "expected": "Originele URI-A ondanks gewijzigde zoekresultaten en geïnjecteerde payload; geen tweede search.",
       "expected_route_effect": null,
       "family": "ASKDJ-REGRESSION-speaker-preserves-request",
       "id": "ASKDJ-REGRESSION-speaker-preserves-request-step-2",
@@ -2066,7 +2066,7 @@
       "language": null,
       "model_policy": "post_dispatch_expression_only",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Speel nummer Lithium van Nirvana \u2192 kies speaker",
+      "question": "Speel nummer Lithium van Nirvana → kies speaker",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -2081,7 +2081,7 @@
       "language": null,
       "model_policy": "post_dispatch_expression_only",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Speel album Nevermind van Nirvana \u2192 kies speaker",
+      "question": "Speel album Nevermind van Nirvana → kies speaker",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -2096,7 +2096,7 @@
       "language": null,
       "model_policy": "post_dispatch_expression_only",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Speel playlist Nirvana Favorites \u2192 kies speaker",
+      "question": "Speel playlist Nirvana Favorites → kies speaker",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -2126,7 +2126,7 @@
       "language": null,
       "model_policy": "post_dispatch_expression_only",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Speel Nirvana; PUT204 maar readback nog Guns N\u2019 Roses",
+      "question": "Speel Nirvana; PUT204 maar readback nog Guns N’ Roses",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -2148,7 +2148,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "E\u00e9n transfer en \u00e9\u00e9n muziekstart. Een herhaalde tap is geen nieuw verzoek.",
+      "expected": "Eén transfer en één muziekstart. Een herhaalde tap is geen nieuw verzoek.",
       "expected_route_effect": null,
       "family": "ASKDJ-REGRESSION-speaker-choice-dedup",
       "id": "ASKDJ-REGRESSION-speaker-choice-dedup-step-1",
@@ -2186,7 +2186,7 @@
       "language": null,
       "model_policy": "bounded",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Speel Nirvana terwijl oude context Patience/Guns N\u2019 Roses bevat",
+      "question": "Speel Nirvana terwijl oude context Patience/Guns N’ Roses bevat",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -2298,7 +2298,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Alleen exact onafhankelijk ondersteunde originele prefix met marker, anders functionele fallback; nooit valse bronclaim. Alleen exacte losse slotbronregels van werkelijk gefetchte bronnen worden v\u00f3\u00f3r dezelfde onafhankelijke beoordeling gededupliceerd; inlineclaims, onbekende URLs en twijfelachtige markup blijven inhoud.",
+      "expected": "Alleen exact onafhankelijk ondersteunde originele prefix met marker, anders functionele fallback; nooit valse bronclaim. Alleen exacte losse slotbronregels van werkelijk gefetchte bronnen worden vóór dezelfde onafhankelijke beoordeling gededupliceerd; inlineclaims, onbekende URLs en twijfelachtige markup blijven inhoud.",
       "expected_route_effect": null,
       "family": "ASKDJ-REGRESSION-research-grounding-boundary",
       "id": "ASKDJ-REGRESSION-research-grounding-boundary-step-2",
@@ -2336,7 +2336,7 @@
       "language": null,
       "model_policy": "same_two_call_generation_and_independent_grounding",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Wie is deze muzikant? \u2014 opnameactiviteit, producerrol en ongedateerde gebeurtenisvolgorde",
+      "question": "Wie is deze muzikant? — opnameactiviteit, producerrol en ongedateerde gebeurtenisvolgorde",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -2351,14 +2351,14 @@
       "language": null,
       "model_policy": "two",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Wie is Brian Eno? \u2014 feiten, redactionele episodefocus en atomaire bronpassages",
+      "question": "Wie is Brian Eno? — feiten, redactionele episodefocus en atomaire bronpassages",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Alleen ASCIIrandspaties in interne claimsegmenten mogen worden genormaliseerd. Dezelfde exacte oorspronkelijke tekst of beoordeeld prefix bereikt response/historie/TTS; quotes en woordinhoud blijven exact. Geen visuele beroepsvernauwing, JSONreparatie of extra modelcall. Bij mislukte beoordeling meldt Core niet dat bronnen ontbreken. De ongekwalificeerde Core-fallback eindigt met \u00e9\u00e9n neutrale verduidelijkende vervolgvraag in de gevraagde taal, niet met een verzoek dezelfde vraag te herhalen. Dit voegt geen feiten, bronclaim, effect of modelcall toe en blijft falen voor echte antwoordkwaliteit.",
+      "expected": "Alleen ASCIIrandspaties in interne claimsegmenten mogen worden genormaliseerd. Dezelfde exacte oorspronkelijke tekst of beoordeeld prefix bereikt response/historie/TTS; quotes en woordinhoud blijven exact. Geen visuele beroepsvernauwing, JSONreparatie of extra modelcall. Bij mislukte beoordeling meldt Core niet dat bronnen ontbreken. De ongekwalificeerde Core-fallback eindigt met één neutrale verduidelijkende vervolgvraag in de gevraagde taal, niet met een verzoek dezelfde vraag te herhalen. Dit voegt geen feiten, bronclaim, effect of modelcall toe en blijft falen voor echte antwoordkwaliteit.",
       "expected_route_effect": null,
       "family": "ASKDJ-REGRESSION-research-grounding-boundary",
       "id": "ASKDJ-REGRESSION-research-grounding-boundary-step-6",
@@ -2403,7 +2403,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Vaste gelokaliseerde neutrale voorbeeldzin met bevestigde HA-stem/gender en output; geen Moment, historie- of playbackwijziging. Tekst-only, ambigu\u00eb settings, gewijzigde eigenaar/provider/target en oorspronkelijke expiry weigeren; dubbele operatie zendt niet opnieuw.",
+      "expected": "Vaste gelokaliseerde neutrale voorbeeldzin met bevestigde HA-stem/gender en output; geen Moment, historie- of playbackwijziging. Tekst-only, ambiguë settings, gewijzigde eigenaar/provider/target en oorspronkelijke expiry weigeren; dubbele operatie zendt niet opnieuw.",
       "expected_route_effect": null,
       "family": "ASKDJ-REGRESSION-speech-functional-failure",
       "id": "ASKDJ-REGRESSION-speech-functional-failure-step-3",
@@ -2433,7 +2433,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "End wacht niet op model; geen late tekst, teller of stijlgeheugen na be\u00ebindiging.",
+      "expected": "End wacht niet op model; geen late tekst, teller of stijlgeheugen na beëindiging.",
       "expected_route_effect": null,
       "family": "ASKDJ-REGRESSION-durable-runtime-expression",
       "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-2",
@@ -2441,14 +2441,14 @@
       "language": null,
       "model_policy": "external_expression_fixture_two_call_owner_contract",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Be\u00ebindig een sessie tijdens de verhalende generatie.",
+      "question": "Beëindig een sessie tijdens de verhalende generatie.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
     {
       "driver": null,
       "entry_id": null,
-      "expected": "E\u00e9n semantische commit en precies \u00e9\u00e9n gepubliceerd expression-frame/ID; herhaling voegt niets toe.",
+      "expected": "Eén semantische commit en precies één gepubliceerd expression-frame/ID; herhaling voegt niets toe.",
       "expected_route_effect": null,
       "family": "ASKDJ-REGRESSION-durable-runtime-expression",
       "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-3",
@@ -2546,14 +2546,14 @@
       "language": null,
       "model_policy": "external_expression_fixture_two_call_owner_contract",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Laat de werkelijke SQLite-transactie v\u00f3\u00f3r commit falen in gewone coordinator-, legacy-, Silence- en fallbackroutes.",
+      "question": "Laat de werkelijke SQLite-transactie vóór commit falen in gewone coordinator-, legacy-, Silence- en fallbackroutes.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
     {
       "driver": null,
       "entry_id": null,
-      "expected": "End/reopen zonder Runtime-herstel, exacte tekst en actuele stem, \u00e9\u00e9n journaldispatch; oude mediagrants ingetrokken; onafhankelijkeCC0rechten behouden; automatische historie en gesprekken geweigerd, text_only nul extra effecten.",
+      "expected": "End/reopen zonder Runtime-herstel, exacte tekst en actuele stem, één journaldispatch; oude mediagrants ingetrokken; onafhankelijkeCC0rechten behouden; automatische historie en gesprekken geweigerd, text_only nul extra effecten.",
       "expected_route_effect": null,
       "family": "ASKDJ-REGRESSION-durable-runtime-expression",
       "id": "ASKDJ-REGRESSION-durable-runtime-expression-step-10",
@@ -2651,7 +2651,7 @@
       "language": null,
       "model_policy": "qualified_ha_agent_read_plan_only",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Be\u00ebindig sessie terwijl interpretatie loopt",
+      "question": "Beëindig sessie terwijl interpretatie loopt",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -2718,7 +2718,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "E\u00e9n kort letterlijk Persona/Mood-antwoord; geen Ask DJ, Flow, model, bronlookup, muziekmutatie of proactief budget.",
+      "expected": "Eén kort letterlijk Persona/Mood-antwoord; geen Ask DJ, Flow, model, bronlookup, muziekmutatie of proactief budget.",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-explicit-persona-touch",
       "id": "ASKDJ-FLOW-explicit-persona-touch-step-1",
@@ -2733,7 +2733,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Hetzelfde receipt; hoogstens \u00e9\u00e9n pending/playing, geen queue; cooldown en6/600s behouden na annuleren.",
+      "expected": "Hetzelfde receipt; hoogstens één pending/playing, geen queue; cooldown en6/600s behouden na annuleren.",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-explicit-persona-touch",
       "id": "ASKDJ-FLOW-explicit-persona-touch-step-2",
@@ -2793,7 +2793,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Native client bewijst \u00e9\u00e9n toegankelijke tijdelijke overlay, werkelijke start/stop, lifecycle,5talen en geen blijvende kaart; nog OPEN.",
+      "expected": "Native client bewijst één toegankelijke tijdelijke overlay, werkelijke start/stop, lifecycle,5talen en geen blijvende kaart; nog OPEN.",
       "expected_route_effect": null,
       "family": "ASKDJ-FLOW-explicit-persona-touch",
       "id": "ASKDJ-FLOW-explicit-persona-touch-step-6",
@@ -2801,7 +2801,7 @@
       "language": null,
       "model_policy": "zero",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Tik eenmaal/dubbel/driemaal en hoor/annuleer de echte cli\u00ebntreactie",
+      "question": "Tik eenmaal/dubbel/driemaal en hoor/annuleer de echte cliëntreactie",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -2816,7 +2816,7 @@
       "language": null,
       "model_policy": "zero",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Annuleer v\u00f3\u00f3r verwerking en herhaal na herstart",
+      "question": "Annuleer vóór verwerking en herhaal na herstart",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3286,7 +3286,7 @@
       "language": "es",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Mu\u00e9strame \u00e1lbumes de Volbeat",
+      "question": "Muéstrame álbumes de Volbeat",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3476,7 +3476,7 @@
       "language": "es",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "\u00bfQu\u00e9 playlists tengo?",
+      "question": "¿Qué playlists tengo?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3533,7 +3533,7 @@
       "language": "de",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Welche Songs habe ich in der letzten Stunde geh\u00f6rt?",
+      "question": "Welche Songs habe ich in der letzten Stunde gehört?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3552,7 +3552,7 @@
       "language": "fr",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Quels titres ai-je \u00e9cout\u00e9s durant la derni\u00e8re heure ?",
+      "question": "Quels titres ai-je écoutés durant la dernière heure ?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3571,7 +3571,7 @@
       "language": "es",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "\u00bfQu\u00e9 canciones escuch\u00e9 en la \u00faltima hora?",
+      "question": "¿Qué canciones escuché en la última hora?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3628,7 +3628,7 @@
       "language": "de",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Was l\u00e4uft gerade?",
+      "question": "Was läuft gerade?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3647,7 +3647,7 @@
       "language": "fr",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Qu\u2019est-ce qui passe maintenant ?",
+      "question": "Qu’est-ce qui passe maintenant ?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3666,7 +3666,7 @@
       "language": "es",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "\u00bfQu\u00e9 est\u00e1 sonando ahora?",
+      "question": "¿Qué está sonando ahora?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3723,7 +3723,7 @@
       "language": "de",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Wann wurde dieser Song ver\u00f6ffentlicht?",
+      "question": "Wann wurde dieser Song veröffentlicht?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3761,7 +3761,7 @@
       "language": "es",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "\u00bfCu\u00e1ndo sali\u00f3 esta canci\u00f3n?",
+      "question": "¿Cuándo salió esta canción?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3818,7 +3818,7 @@
       "language": "de",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Erz\u00e4hl etwas \u00fcber diesen K\u00fcnstler",
+      "question": "Erzähl etwas über diesen Künstler",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3856,7 +3856,7 @@
       "language": "es",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Cu\u00e9ntame sobre este artista",
+      "question": "Cuéntame sobre este artista",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -3951,7 +3951,7 @@
       "language": "es",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "\u00bfQu\u00e9 otras canciones hay en este \u00e1lbum?",
+      "question": "¿Qué otras canciones hay en este álbum?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4046,7 +4046,7 @@
       "language": "es",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "\u00bfQu\u00e9 altavoces hay?",
+      "question": "¿Qué altavoces hay?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4122,7 +4122,7 @@
       "language": "fr",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Qu\u2019y a-t-il dans la file d\u2019attente ?",
+      "question": "Qu’y a-t-il dans la file d’attente ?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4141,7 +4141,7 @@
       "language": "es",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "\u00bfQu\u00e9 hay en la cola?",
+      "question": "¿Qué hay en la cola?",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4217,7 +4217,7 @@
       "language": "fr",
       "model_policy": "ordinary_route_zero_or_bounded_real_HA_agent_no_model_fallback",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Montre l\u2019aper\u00e7u",
+      "question": "Montre l’aperçu",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4559,7 +4559,7 @@
       "language": "de",
       "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Ja, dieses Album m\u00f6chte ich h\u00f6ren.",
+      "question": "Ja, dieses Album möchte ich hören.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4578,7 +4578,7 @@
       "language": "de",
       "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Ja, dieses Album m\u00f6chte ich h\u00f6ren.",
+      "question": "Ja, dieses Album möchte ich hören.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4673,7 +4673,7 @@
       "language": "fr",
       "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Oui, je veux \u00e9couter cet album.",
+      "question": "Oui, je veux écouter cet album.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4692,7 +4692,7 @@
       "language": "fr",
       "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Oui, je veux \u00e9couter cet album.",
+      "question": "Oui, je veux écouter cet album.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4730,7 +4730,7 @@
       "language": "es",
       "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Reproducir aqu\u00ed",
+      "question": "Reproducir aquí",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4749,7 +4749,7 @@
       "language": "es",
       "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Reproducir aqu\u00ed",
+      "question": "Reproducir aquí",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4768,7 +4768,7 @@
       "language": "es",
       "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "Mu\u00e9strame \u00e1lbumes de Volbeat",
+      "question": "Muéstrame álbumes de Volbeat",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4787,7 +4787,7 @@
       "language": "es",
       "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "S\u00ed, quiero escuchar ese \u00e1lbum.",
+      "question": "Sí, quiero escuchar ese álbum.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4806,7 +4806,7 @@
       "language": "es",
       "model_policy": "ordinary_route_only_duplicate_zero_new_calls",
       "native_mapping": "OUTSIDE_SELECTED_LOCALES",
-      "question": "S\u00ed, quiero escuchar ese \u00e1lbum.",
+      "question": "Sí, quiero escuchar ese álbum.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4819,9 +4819,9 @@
       "id": "ASKDJ-CATALOGUE-all-locales-actual-acceptance",
       "kind": "canonical_step",
       "language": null,
-      "model_policy": "up to392bounded HA agent attempts including90 separate answer-language assessments; zero STT/TTS; no model retry/fallback",
+      "model_policy": "bounded HA agent attempts including 36 separate answer-language assessments; zero STT/TTS; no model retry/fallback",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Run all70exact questions and30speaker/album/dedup steps through ordinary paired Ask DJ",
+      "question": "Run the 28 exact EN/NL questions and 12 EN/NL speaker/album/dedup steps through ordinary paired Ask DJ",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4834,7 +4834,7 @@
       "id": "ASKDJ-CATALOGUE-generated-variants-actual-execution",
       "kind": "canonical_step",
       "language": null,
-      "model_policy": "Generation only after full base PASS; max10HA calls with separate meaning review. Frozen100step variation execution max392calls; duplicate zero new effects/model calls.",
+      "model_policy": "Generation only after exact EN/NL base PASS; max4 HA calls with separate meaning review. Execute the 40 frozen EN/NL steps; duplicate zero new effects/model calls.",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
       "question": "After complete current base PASS, generate and independently meaning-review paraphrases, spoken questions and typos; run all frozen variations and conversation continuations.",
       "requires": [],
@@ -4851,7 +4851,7 @@
       "language": null,
       "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Selected contribution \u2192 Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: research plan is closed and selected public context is authority.",
+      "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: research plan is closed and selected public context is authority.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4866,7 +4866,7 @@
       "language": null,
       "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Selected contribution \u2192 Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: generic more researches selected composer and preserves follow up without playback.",
+      "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: generic more researches selected composer and preserves follow up without playback.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4881,7 +4881,7 @@
       "language": null,
       "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Selected contribution \u2192 Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: generic affordance all locales and dynamic angles.",
+      "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: generic affordance all locales and dynamic angles.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4896,7 +4896,7 @@
       "language": null,
       "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Selected contribution \u2192 Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: failed subject plan never searches an unrelated artist.",
+      "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: failed subject plan never searches an unrelated artist.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4911,7 +4911,7 @@
       "language": null,
       "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Selected contribution \u2192 Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: open exploration all five locales preserves actual subject and style.",
+      "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: open exploration all five locales preserves actual subject and style.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4926,7 +4926,7 @@
       "language": null,
       "model_policy": "Declared model/provider fixtures; bounded production owner route; no actual quality claim.",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Selected contribution \u2192 Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: freeworded typo question uses llm and qualified context.",
+      "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo. Case: freeworded typo question uses llm and qualified context.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -4971,7 +4971,7 @@
       "language": null,
       "model_policy": "Required actual HA Assist editorial pilot in scripts/verification/askdj_contextual_quality.py, real public sources and independently reviewed actual returned text; required in current WIP.",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Selected contribution \u2192 Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo.",
+      "question": "Selected contribution → Tell me more; typed composer/producer/artist or generic public subject; five locales, paraphrase and typo.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -5458,7 +5458,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "Echte paired handler wist Store en SQLite v\u00f3\u00f3r receipt; exacte herhaling geeft alleen oorspronkelijke uitkomst.",
+      "expected": "Echte paired handler wist Store en SQLite vóór receipt; exacte herhaling geeft alleen oorspronkelijke uitkomst.",
       "expected_route_effect": null,
       "family": "ASKDJ-REGRESSION-owner-archive-deletion",
       "id": "ASKDJ-REGRESSION-owner-archive-deletion-step-1",
@@ -5466,7 +5466,7 @@
       "language": null,
       "model_policy": "zero",
       "native_mapping": "PENDING_EXPLICIT_LOCALE",
-      "question": "Wis \u00e9\u00e9n bevestigde eerdere Session met haar exacte detailrevisie.",
+      "question": "Wis één bevestigde eerdere Session met haar exacte detailrevisie.",
       "requires": [],
       "source": "docs/verification/fixtures/askdj_golden_release_matrix_v1.json"
     },
@@ -5488,7 +5488,7 @@
     {
       "driver": null,
       "entry_id": null,
-      "expected": "De hele operatie weigert v\u00f3\u00f3r enige doelinhoud wordt gewist.",
+      "expected": "De hele operatie weigert vóór enige doelinhoud wordt gewist.",
       "expected_route_effect": null,
       "family": "ASKDJ-REGRESSION-owner-archive-deletion",
       "id": "ASKDJ-REGRESSION-owner-archive-deletion-step-3",
@@ -21457,13 +21457,13 @@
   "source_pins": {
     "custom_components/djconnect/ask_dj/examples_v1.json": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
     "docs/verification/NATIVE_CLIENT_GOLDEN_CONTRACT_V1.md": "f8836420ada5ac69e01620f060baa948ed4c01e9392b6977827fe32ccd738b3f",
-    "docs/verification/fixtures/askdj_golden_release_matrix_v1.json": "0f21f97b8931580460113ba152dc60b3b020b765b0f52f8a5d4b3d57468ba046",
+    "docs/verification/fixtures/askdj_golden_release_matrix_v1.json": "880f471c9246562df0d4b6db4f4196967cc29d2e228f480dbc8381f699bc10bc",
     "docs/verification/fixtures/dj_moment_persona_mood_golden_v1.json": "ea5fed1e1fd7a5646d8ac902904116f74ef25a249823bb8a50c5b4bd9f950c06",
     "examples/ask_dj_e2e_cases.json": "b5234d0a0766991f5f9af53d5738d8344d082c2224380a7b6ef9ac1daf2749d4",
-    "examples/client_contracts/music_announcement_v1/actual-ha-wire.json": "7ffa6396b89566b159a0b2f418904cb672484eb5e454d3ebbecbb82ed8a29150",
-    "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json": "5807495d3eeb1a55f8779264742d2de8bc0acd49654a72c7e9bee9c4b6e3afec",
-    "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json": "945d075cc0bd0886a5b87765332d8df398e3afb055051f423eaa54abcd4c3607",
-    "scripts/verification/askdj_example_catalogue_golden.py": "b25cb9374b52a4fec22267a1bb83ad4081c8e6dc740504dffd5c7ad196d9a76f",
+    "examples/client_contracts/music_announcement_v1/actual-ha-wire.json": "015dc7cad7e665e4205e88cacbec4f9cffd8cda5b3a969119c3bad8d4a79e7d9",
+    "examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json": "c9d6e6e0221831a7d40787e586181e51ab5ebda165a39e0906c7694fd1bde29f",
+    "examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json": "692657c077c7235916c5043c87119e46b3d4f3eab3709d6383c3e60d3cba9e43",
+    "scripts/verification/askdj_example_catalogue_golden.py": "f8d1cb41d7e0f5479954e37d08d448766e48b21988788dcff659058d04a2aa57",
     "tools/verification/native_client_golden_contract.py": "68bd32d6a044c42100e6ec063e595e10467be4f1566b6b2579539c669b5906f8"
   }
 }

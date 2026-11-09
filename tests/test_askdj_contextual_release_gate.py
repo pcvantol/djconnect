@@ -314,6 +314,16 @@ class ContextualReleaseGateTest(unittest.TestCase):
                                                   'action_id': 'frozen-' + char} for i, char in enumerate(('e', 'f'))]
                                               if c['read'] == 'artist_tracks' else []}} for c in expected]}
         self.assertTrue(matrix.validate_semantic_report(good))
+        locales = matrix.RELEASE_LANGUAGES
+        self.assertFalse(matrix.validate_semantic_report(good, languages=locales))
+        scoped_ids = {case['id'] for case in cases(locales)}
+        scoped = {**good, 'manifest_sha256': manifest_digest(locales), 'paid_model_calls': len(scoped_ids),
+                  'cases': [row for row in good['cases'] if row['id'] in scoped_ids],
+                  'model_calls': [row for row in good['model_calls'] if row['case_id'] in scoped_ids],
+                  'core_transports': [row for row in good['core_transports'] if row['case'] in scoped_ids]}
+        self.assertTrue(matrix.validate_semantic_report(scoped, languages=locales))
+        self.assertFalse(matrix.validate_semantic_report({**scoped, 'cases': scoped['cases'][:-1]}, languages=locales))
+
         for change in (
             lambda r: r['cases'].pop(),
             lambda r: r['model_calls'][0].update(attempted=False),
@@ -446,6 +456,17 @@ class ContextualReleaseGateTest(unittest.TestCase):
         good.update(setup_paid_model_calls=2, setup_findings=[], paid_model_calls=22)
         good['usage'].extend([deepcopy(setup), deepcopy(setup)])
         self.assertTrue(RUNNER.validate_report(good, 'a' * 40))
+        locales = GOLDEN.RELEASE_LANGUAGES
+        ids = {row['id'] for row in GOLDEN.cases(locales)}
+        scoped = {**good, 'manifest_sha256': GOLDEN.manifest_digest(locales),
+                  'cases': [row for row in good['cases'] if row['id'] in ids],
+                  'usage': [row for row in good['usage'] if row['case_id'] in ids | {GOLDEN.SETUP_CASE}],
+                  'paid_model_calls': len(ids) + 2}
+        self.assertEqual(len(ids), 8)
+        self.assertTrue(RUNNER.validate_report(scoped, 'a' * 40, languages=locales))
+        self.assertFalse(RUNNER.validate_report(good, 'a' * 40, languages=locales))
+        self.assertFalse(RUNNER.validate_report(scoped, 'a' * 40))
+
         for mutate in (
             lambda r: r.update(setup_paid_model_calls=3),
             lambda r: r.update(setup_findings=['selected_publication_unavailable']),
@@ -694,6 +715,14 @@ class ContextualReleaseGateTest(unittest.TestCase):
         inventory=load('issue_inventory','tools/verification/askdj_release_inventory.py')
         matrix=json.loads((ROOT/'docs/verification/fixtures/askdj_golden_release_matrix_v1.json').read_text())
         self.assertIn('ASKDJ-ISSUE-research-unsupported-fact',inventory.release_blockers(matrix))
+        scoped_matrix = deepcopy(matrix)
+        scoped_matrix['reported_issues'].append({**next(r for r in matrix['reported_issues'] if
+            r['id'] == 'ASKDJ-ISSUE-research-unsupported-fact'), 'id': 'fixture-de-only', 'language': 'de'})
+        self.assertIn('fixture-de-only', inventory.release_blockers(scoped_matrix))
+        scoped = inventory.release_blockers(scoped_matrix, languages=('en', 'nl'))
+        self.assertNotIn('fixture-de-only', scoped)
+        self.assertIn('ASKDJ-ISSUE-research-unsupported-fact', scoped)
+
         for change in ('missing','duplicate','unbound','invalid','step_unbound','step_duplicate','step_unknown'):
             changed=deepcopy(matrix)
             if change=='missing':
@@ -823,6 +852,12 @@ class ContextualReleaseGateTest(unittest.TestCase):
             for r in rows:
                 (Path(directory) / f"prosody-{r['language']}-{r['mood']}.mp3").write_bytes(bytes(1000))
             self.assertTrue(matrix.validate_prosody_report(raw, directory))
+            locales = matrix.RELEASE_LANGUAGES
+            scoped = {**raw, 'mood_prosody': [row for row in rows if row['language'] in locales],
+                      'paid_tts_attempts': 9}
+            self.assertTrue(matrix.validate_prosody_report(scoped, directory, languages=locales))
+            self.assertFalse(matrix.validate_prosody_report(raw, directory, languages=locales))
+
             for changed in (
                 {**raw, 'mood_prosody': rows[:-1]}, {**raw, 'paid_tts_attempts': 0},
                 {**raw, 'source_unchanged': False}, {**raw, 'source_hashes': {}},

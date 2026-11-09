@@ -15,7 +15,8 @@ class HostWakeChildMigrationTests(unittest.IsolatedAsyncioTestCase):
         # Explicit reconstruction from unchanged migrations1..20. This is not
         # an original installed HA20 database or an operational backup receipt.
         legacy = PersistenceService(path, SQLitePersistenceProvider())
-        required = {k: v for k, v in schema.REQUIRED_TABLES.items() if not k.startswith("djconnect_host_wake_")}
+        required = {k: v for k, v in schema.REQUIRED_TABLES.items() if not k.startswith("djconnect_host_wake_")
+                    and k not in {"djconnect_native_pair_retirements", "djconnect_native_widget_consent"}}
         try:
             with patch.object(service_module, "CURRENT_SCHEMA_VERSION", 20), \
                     patch.object(service_module, "MIGRATIONS", schema.MIGRATIONS[:20]), \
@@ -32,13 +33,47 @@ class HostWakeChildMigrationTests(unittest.IsolatedAsyncioTestCase):
         finally:
             await legacy.async_close()
 
+    async def test_actual21_to_current_adds_retirement_outbox(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "migration.sqlite"
+            await self.legacy20(path)
+            previous = PersistenceService(path, SQLitePersistenceProvider())
+            try:
+                with patch.object(service_module, "CURRENT_SCHEMA_VERSION", 21), \
+                        patch.object(service_module, "MIGRATIONS", schema.MIGRATIONS[:21]), \
+                        patch.object(service_module, "REQUIRED_TABLES", {
+                            k: v for k, v in schema.REQUIRED_TABLES.items()
+                            if k not in {"djconnect_native_pair_retirements", "djconnect_native_widget_consent"}
+                        }):
+                    await previous.async_initialize()
+                old_history = await previous.async_in_transaction(lambda tx:
+                    tx.fetchall("SELECT * FROM djconnect_schema_migrations ORDER BY schema_version"))
+            finally:
+                await previous.async_close()
+            current = PersistenceService(path, SQLitePersistenceProvider())
+            try:
+                self.assertEqual((await current.async_initialize()).schema_version, schema.CURRENT_SCHEMA_VERSION)
+                history, retirement_count = await current.async_in_transaction(lambda tx: (
+                    tx.fetchall("SELECT * FROM djconnect_schema_migrations ORDER BY schema_version"),
+                    tx.fetchone("SELECT count(*) FROM djconnect_native_pair_retirements")[0]))
+                self.assertEqual(history[:21], old_history)
+                self.assertEqual(retirement_count, 0)
+            finally:
+                await current.async_close()
+
     async def test_actual20_to21_preserves_old_rows_and_migration_identities(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "migration.sqlite"
             old_rows, old_history = await self.legacy20(path)
             current = PersistenceService(path, SQLitePersistenceProvider())
             try:
-                readiness = await current.async_initialize()
+                with patch.object(service_module, "CURRENT_SCHEMA_VERSION", 21), \
+                        patch.object(service_module, "MIGRATIONS", schema.MIGRATIONS[:21]), \
+                        patch.object(service_module, "REQUIRED_TABLES", {
+                            k: v for k, v in schema.REQUIRED_TABLES.items()
+                            if k not in {"djconnect_native_pair_retirements", "djconnect_native_widget_consent"}
+                        }):
+                    readiness = await current.async_initialize()
                 self.assertEqual(readiness.schema_version, 21)
                 rows, history, children = await current.async_in_transaction(lambda tx: (
                     tx.fetchall("SELECT * FROM djconnect_rich_purposes"),

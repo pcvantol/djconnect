@@ -1,12 +1,14 @@
 """Closed HTTP adapter tests with a scoped synthetic aiohttp module; zero network."""
 import asyncio
+import base64
+import json
 import sys
 import types
 import unittest
 from unittest.mock import patch
 
 from tests.test_surface_issuer_owner import capture
-from custom_components.djconnect.surface_issuer_transport import IssuerHTTPS
+from custom_components.djconnect.surface_issuer_transport import FirstKeyHTTPS, IssuerHTTPS
 from custom_components.djconnect.surface_issuer_wire import PREFIX
 from custom_components.djconnect.surface_push_contract import SurfacePushError
 
@@ -90,6 +92,86 @@ class IssuerHTTPBoundaryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.timeout, [{'total': 10.0}])
         self.assertEqual(self.closed, 2)
         self.assertGreaterEqual(self.guard_count, 6)
+
+    async def test_first_key_register_can_send_maximum_attestation(self):
+        proof = base64.b64encode(bytes(16_384)).decode("ascii")
+        body = {"apple_proof": {"kind": "attestation", "proof_b64": proof}}
+        transport = FirstKeyHTTPS(self.original.origin, machine_headers=lambda _: {
+            "CF-Access-Client-Id": "fixture-client", "CF-Access-Client-Secret": "fixture-secret",
+        }, monotonic=lambda: 100.0)
+        await transport.post_first_key("register", body,
+            "djci_example", currentness={"fixture": True}, guard=self.guard, deadline=110.0)
+        url, request = self.calls[0]
+        self.assertEqual(url, self.original.origin + "/v1/push/native/key/register")
+        self.assertEqual(request["headers"]["Authorization"], "Bearer djci_example")
+        self.assertEqual(request["headers"]["X-DJC-First-Key-Currentness"], '{"fixture":true}')
+        self.assertFalse(request["allow_redirects"])
+        self.assertEqual(json.loads(request["data"]), body)
+        self.assertGreater(len(request["data"]), 16_384)
+
+    async def test_first_key_limits_apply_to_the_entire_serialized_request(self):
+        transport = FirstKeyHTTPS(self.original.origin, machine_headers=lambda _: {
+            "CF-Access-Client-Id": "fixture-client", "CF-Access-Client-Secret": "fixture-secret",
+        }, monotonic=lambda: 100.0)
+        for action, limit in (("register", 32_768), ("challenge", 16_384),
+                ("status/challenge", 16_384), ("status", 16_384)):
+            with self.subTest(action=action):
+                await transport.post_first_key(action,
+                    {"pad": "x" * (limit - 10)}, "djci_example", currentness={"fixture": True},
+                    guard=self.guard, deadline=110.0)
+                self.assertEqual(len(self.calls[-1][1]["data"]), limit)
+                sent = len(self.calls)
+                with self.assertRaises(SurfacePushError) as error:
+                    await transport.post_first_key(action,
+                        {"pad": "x" * (limit - 9)}, "djci_example", currentness={"fixture": True},
+                        guard=self.guard, deadline=110.0)
+                self.assertEqual(error.exception.status, 413)
+                self.assertEqual(len(self.calls), sent)
+
+    async def test_retirement_requires_its_own_machine_identity(self):
+        body = {"event_id": "fixture"}
+        transport = FirstKeyHTTPS(self.original.origin, monotonic=lambda: 100.0)
+        with self.assertRaisesRegex(SurfacePushError, "native_machine_authority_unavailable"):
+            await transport.post_retirement(body, guard=self.guard, deadline=110.0)
+        self.assertEqual(self.calls, [])
+        selected_origins = []
+
+        def machine_headers(origin):
+            selected_origins.append(origin)
+            return {"CF-Access-Client-Id": "fixture-client",
+                    "CF-Access-Client-Secret": "fixture-secret"}
+
+        transport = FirstKeyHTTPS(self.original.origin, machine_headers=machine_headers,
+                                   monotonic=lambda: 100.0)
+        await transport.post_retirement(body, guard=self.guard, deadline=110.0)
+        url, request = self.calls[0]
+        self.assertEqual(selected_origins, [self.original.origin])
+        self.assertEqual(url, self.original.origin + "/v1/push/native/key/retire")
+        self.assertEqual(request["data"], b'{"event_id":"fixture"}')
+        self.assertIn("CF-Access-Client-Id", request["headers"])
+        self.assertNotIn("Authorization", request["headers"])
+        self.assertFalse(request["allow_redirects"])
+
+    async def test_first_key_owner_change_rejects_response(self):
+        transport = FirstKeyHTTPS(self.original.origin, machine_headers=lambda _: {
+            "CF-Access-Client-Id": "fixture-client", "CF-Access-Client-Secret": "fixture-secret",
+        }, monotonic=lambda: 100.0)
+        current = True
+
+        def guard():
+            if not current:
+                raise SurfacePushError("pairing_changed", 403)
+
+        async def retire():
+            nonlocal current
+            current = False
+
+        self.on_read = retire
+        with self.assertRaisesRegex(SurfacePushError, "pairing_changed"):
+            await transport.post_first_key("register", {}, "djci_example", currentness={"fixture": True},
+                guard=guard, deadline=110.0)
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(self.closed, 2)
 
     async def test_compression_and_nonjson_rejected_before_any_body_read(self):
         for headers in ({'Content-Type': 'text/html'},
