@@ -24,23 +24,41 @@
     es:["Copiar el código de vinculación","Código copiado","No se pudo copiar el código"]
   };
   const panel=document.getElementById("handoff");
-  let sessionLocale="", text;
+  const selector=document.getElementById("display-language");
+  const localeKey="djconnect-vibecast-language";
+  const languageLabels={en:"Language",nl:"Taal",de:"Sprache",fr:"Langue",es:"Idioma"};
+  const validLocale=value=>typeof value==="string" && /^(en|nl|de|fr|es)$/.test(value);
+  let preference="", sessionLocale="", effectiveLocale="", text, handoff;
+  try {
+    const saved=window.localStorage.getItem(localeKey);
+    if(validLocale(saved))preference=saved;
+  }catch(_){ /* Keep this page usable when browser storage is blocked. */ }
   function selectLocale(locale){
-    const selected=typeof locale==="string" && /^(en|nl|de|fr|es)$/.test(locale) ? locale : "";
-    const labels=selected || language;
-    text={...(words[labels] || words.en),...(outcomes[labels] || outcomes.en)};
-    if(selected===sessionLocale)return;
-    sessionLocale=selected;
+    sessionLocale=validLocale(locale) ? locale : "";
+    const selected=preference || sessionLocale || (validLocale(language) ? language : "en");
+    if(selected===effectiveLocale)return;
+    effectiveLocale=selected;
+    text={...words[selected],...outcomes[selected]};
+    selector.value=selected;
+    selector.setAttribute("aria-label",languageLabels[selected]);
     window.dispatchEvent(new CustomEvent("djconnect-display-locale",{detail:selected}));
+    if(handoff && !panel.hidden)show(...handoff);
   }
+  selector.addEventListener("change",()=>{
+    if(!validLocale(selector.value))return;
+    preference=selector.value;
+    try{window.localStorage.setItem(localeKey,preference);}catch(_){ /* Memory-only preference. */ }
+    selectLocale(sessionLocale);
+  });
   selectLocale("");
+  selector.hidden=false;
   function failureText(error,collecting=false){
-    if(error.status===429)return text.capacity;
-    if(error.code==="display_external_url_unavailable" || error.code==="display_tls_required" || error.code==="display_origin_denied")return text.configuration;
-    if(error.status===410 || error.code==="display_lease_expired")return text.expired;
-    if(collecting && (error.status===404 || !error.status))return text.newcode;
-    if([401,403,404,409].includes(error.status))return text.denied;
-    return text.unavailable;
+    if(error.status===429)return "capacity";
+    if(error.code==="display_external_url_unavailable" || error.code==="display_tls_required" || error.code==="display_origin_denied")return "configuration";
+    if(error.status===410 || error.code==="display_lease_expired")return "expired";
+    if(collecting && (error.status===404 || !error.status))return "newcode";
+    if([401,403,404,409].includes(error.status))return "denied";
+    return "unavailable";
   }
   let generation=0, claim=null, grant=null, socket=null, stopped=false, sequence=0;
   let lease=0, claimDeadline=0, renewalBusy=false, connectionGeneration=0;
@@ -62,6 +80,7 @@
   }
   function later(fn,delay){const timer=setTimeout(()=>{timers.delete(timer);fn();},delay);timers.add(timer);return timer;}
   function clearContent(){clearArtwork();window.dispatchEvent(new Event("djconnect-display-clear"));}
+  let claimCanResume=false;
   const artwork=new Map();
   let wantedArtwork=new Map(), artworkBusy=false;
   function publishArtwork(){
@@ -145,10 +164,11 @@
     }finally{artworkBusy=false;}
   }
   function show(message,code="",retry=false){
+    handoff=[message,code,retry];
     const pending=code===null;
     panel.textContent="";
     const caption=document.createElement("span");
-    caption.textContent=message;
+    caption.textContent=text[message];
     if(pending)caption.className="handoff-placeholder";
     panel.append(caption);
     if(code || pending){
@@ -159,7 +179,7 @@
       if(code)value.setAttribute("aria-label",code.split("").join(" "));
       block.append(value);
       if(code && navigator.clipboard?.writeText){
-        const [copy,copied,failed]=copyLabels[sessionLocale || language] || copyLabels.en;
+        const [copy,copied,failed]=copyLabels[effectiveLocale];
         const button=document.createElement("button");
         button.type="button";
         button.className="handoff-copy";
@@ -191,7 +211,15 @@
     if(socket){const old=socket;socket=null;old.onclose=null;old.close();}
     renewalBusy=false;clearContent();
   }
-  function terminal(message){cancelWork();claim=null;grant=null;lease=0;show(message,"",true);}
+  function releaseClaim(){
+    if(!claim)return;
+    const body=JSON.stringify({contract_version:1,...claim});
+    claim=null;
+    // Let HA release the code even when a reload destroys this page.
+    void fetch("/api/djconnect/v1/display/cancel",{method:"POST",credentials:"omit",cache:"no-store",
+      redirect:"error",keepalive:true,headers:{"Content-Type":"application/json"},body}).catch(()=>{});
+  }
+  function terminal(message){cancelWork();releaseClaim();grant=null;lease=0;show(message,"",true);}
   async function post(action,body,bearer=""){
     const controller=new AbortController(), started=now();requests.add(controller);
     // Bounds the whole browser DNS/TLS/request path, distinct from HA's fixed
@@ -219,14 +247,14 @@
     try{
       const {value,started}=await post("renew",{...binding(),renew_sequence:renewSequence},grant.grant_token);
       if(g!==generation || expired() || navigator.onLine===false)return;
-      if(value.lease_revision!==renewSequence || !(value.lease_expires_in>0 && value.lease_expires_in<=60))return terminal(text.denied);
+      if(value.lease_revision!==renewSequence || !(value.lease_expires_in>0 && value.lease_expires_in<=60))return terminal("denied");
       sequence=renewSequence;lease=started+value.lease_expires_in*1000;
       later(()=>renew(g,sequence+1),20000);
     }catch(error){
       if(g!==generation)return;
       if(error.code==="display_grant_invalid" || error.code==="display_lease_expired")return begin();
       if([401,403,404,409,410].includes(error.status))return terminal(failureText(error));
-      clearContent();show(text.reconnect);later(()=>renew(g,renewSequence),2000);
+      clearContent();show("reconnect");later(()=>renew(g,renewSequence),2000);
     }finally{if(g===generation)renewalBusy=false;}
   }
   function connect(g){
@@ -251,13 +279,13 @@
         // The renderer receives only the Core's explicit shared allowlist.
         window.dispatchEvent(new CustomEvent("djconnect-display-snapshot",{detail:snapshot}));
         void updateArtwork(snapshot);panel.hidden=true;
-      }catch(_){terminal(text.denied);}
+      }catch(_){terminal("denied");}
     };
     current.onclose=event=>{
       if(g!==generation || socket!==current)return;socket=null;
       if(expired() || event.code===1008)return begin();
       clearContent();
-      show(text.reconnect);later(()=>connect(g),1500);
+      show("reconnect");later(()=>connect(g),1500);
     };
     current.onerror=()=>{if(current===socket)current.close();};
   }
@@ -273,9 +301,9 @@
           || !(value.lease_expires_in>0 && value.lease_expires_in<=60) || !value.capabilities || value.capabilities.owner_controls!==false
           || value.capabilities.session_end!==false)throw new Error("contract");
       grant=value;claim=null;lease=started+value.lease_expires_in*1000;sequence=0;connectionGeneration=0;
-      if(expired())return terminal(text.expired);
+      if(expired())return terminal("expired");
       selectLocale(value.session_locale);
-      show(text.reconnect);watchLease(g);connect(g);later(()=>renew(g,1),20000);
+      show("reconnect");watchLease(g);connect(g);later(()=>renew(g,1),20000);
     }catch(error){
       if(g!==generation)return;
       if(now()>=claimDeadline)return begin();
@@ -283,30 +311,40 @@
     }
   }
   async function begin(allowCapacityRetry=true){
-    stopped=false;selectLocale("");cancelWork();claim=null;grant=null;lease=0;const g=generation;
-    if(location.protocol!=="https:" || location.search || location.hash || !crypto.getRandomValues)return show(text.unavailable,"",true);
-    show(text.approve,null);
+    stopped=false;selectLocale("");cancelWork();
+    // The server decides when the original window ends, even if our timer fires early.
+    if(claimCanResume)claim=null;else releaseClaim();
+    grant=null;lease=0;const g=generation;
+    if(location.protocol!=="https:" || location.search || location.hash || !crypto.getRandomValues)return show("unavailable","",true);
+    show("approve",null);
     try{
-      const requestId=claimRequestId(), browser_nonce=nonce();
+      const requestId=claimRequestId();
+      claimCanResume=Boolean(requestId);
+      const browser_nonce=nonce();
       const {value,started}=await post("claim",requestId ? {browser_nonce,request_id:requestId} : {browser_nonce});
       if(g!==generation || stopped)return;
       if(value.contract_version!==1 || !/^[0-9]{6}$/.test(value.code) || !(value.expires_in>0 && value.expires_in<=120))throw new Error("contract");
       claim={issuer_epoch:value.issuer_epoch,claim_id:value.claim_id,claim_secret:value.claim_secret,
         browser_generation:value.browser_generation,browser_nonce};claimDeadline=started+value.expires_in*1000;
-      show(text.approve,value.code);
+      show("approve",value.code);
       later(()=>{if(g===generation && claim)void begin();},Math.max(0,claimDeadline-now()));
       void collect(g);
     }catch(error){
       if(g!==generation)return;
+      // On reload, the previous page's cancellation can arrive just after the claim.
       if(allowCapacityRetry && error.code==="display_capacity"){
         later(()=>begin(false),800);
       }else show(failureText(error),"",true);
     }
   }
-  function stop(){stopped=true;selectLocale("");cancelWork();claim=null;grant=null;lease=0;panel.hidden=true;panel.textContent="";}
-  window.addEventListener("pagehide",stop);
-  window.addEventListener("djconnect-host-stop",stop);
-  window.addEventListener("offline",()=>{if(grant){clearContent();show(text.reconnect);requests.forEach(c=>c.abort());if(socket)socket.close();}});
+  function stop(preserveClaim=false){
+    stopped=true;selectLocale("");cancelWork();
+    if(preserveClaim && claimCanResume)claim=null;else releaseClaim();
+    grant=null;lease=0;panel.hidden=true;panel.textContent="";
+  }
+  window.addEventListener("pagehide",()=>stop(true));
+  window.addEventListener("djconnect-host-stop",()=>stop());
+  window.addEventListener("offline",()=>{if(grant){clearContent();show("reconnect");requests.forEach(c=>c.abort());if(socket)socket.close();}});
   window.addEventListener("online",()=>{if(grant && !expired() && !socket)connect(generation);});
   window.addEventListener("pageshow",event=>{if(event.persisted && stopped)return begin();if(grant){clearContent();if(expired())void begin();else if(socket)socket.close();else connect(generation);}});
   document.addEventListener("visibilitychange",()=>{if(document.hidden){clearContent();if(socket)socket.close();}else if(grant){if(expired())void begin();else if(!socket)connect(generation);}});

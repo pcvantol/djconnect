@@ -39,6 +39,18 @@ header { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); g
 #state { color:#fff; letter-spacing:.08em }
 .session-status,.session-icons { display:flex; align-items:center; gap:clamp(.45rem,1.1vw,.9rem) }
 .session-status { grid-column:3; justify-self:end }
+header .session-status:has(.display-language:not([hidden])) {
+  display:grid; grid-template-columns:minmax(0,1fr) auto; justify-items:end; column-gap:.4rem; row-gap:.35rem;
+  width:100%; min-width:0;
+}
+.display-language {
+  grid-column:1 / -1; justify-self:end; max-inline-size:100%; min-inline-size:0;
+  color:#f4f5ff; background:#243047; border:1px solid #71839e; border-radius:2rem;
+  padding:.35em .45em; font:inherit; font-size:clamp(.72rem,2.9vw,.95rem);
+  letter-spacing:normal; text-transform:none; color-scheme:dark;
+}
+.display-language:focus-visible { outline:2px solid currentColor; outline-offset:2px }
+
 .session-icons { color:#fff }
 .session-icons[hidden],.session-icons svg[hidden] { display:none }
 .session-icons svg { flex:none; width:clamp(1rem,2vw,1.5rem); height:auto; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round }
@@ -544,7 +556,13 @@ main { height:auto; min-width:0 }
   <svg id="session-mood-icon" viewBox="0 0 24 24" role="img" focusable="false" hidden><path/></svg>
   <svg id="session-persona-icon" viewBox="0 0 24 24" role="img" focusable="false" hidden><path/></svg>
   <svg id="session-presence-icon" viewBox="0 0 24 24" role="img" focusable="false" hidden><path/></svg>
-</span><span id="state" data-testid="connection-state">Idle</span></div></header><section class="stage"><div class="now-playing"><div class="waiting-brand"><svg class="hero-symbol" viewBox="0 0 96 80" width="96" height="80" aria-hidden="true" focusable="false">
+</span><span id="state" data-testid="connection-state">Idle</span><select id="display-language" class="display-language" aria-label="Language" hidden>
+  <option value="en" lang="en">English</option>
+  <option value="nl" lang="nl">Nederlands</option>
+  <option value="de" lang="de">Deutsch</option>
+  <option value="fr" lang="fr">Français</option>
+  <option value="es" lang="es">Español</option>
+</select></div></header><section class="stage"><div class="now-playing"><div class="waiting-brand"><svg class="hero-symbol" viewBox="0 0 96 80" width="96" height="80" aria-hidden="true" focusable="false">
   <defs>
     <linearGradient id="receiver-symbol-gradient" x1="10" y1="8" x2="87" y2="73" gradientUnits="userSpaceOnUse">
       <stop stop-color="#62d8f2"/><stop offset=".55" stop-color="#8aa7ff"/><stop offset="1" stop-color="#c392ff"/>
@@ -695,7 +713,7 @@ main { height:auto; min-width:0 }
 </aside>
 </div></section><footer><section id="up-next" class="up-next" hidden><img id="next-art" alt=""><div><span id="next-label" class="up-next-label"></span><strong id="next-title"></strong><span id="next-artist"></span></div></section><progress id="progress" max="1" value="0" hidden></progress><div class="meta"><span id="time"></span></div></footer></main>
 <footer class="renderer-footer">
-  <span id="renderer-build"><span id="renderer-build-label">VibeCast versie</span> 4.0.0 (70da6ad1)</span>
+  <span id="renderer-build"><span id="renderer-build-label">VibeCast versie</span> 4.0.0 (5609cb96)</span>
   <a href="https://djconnect.dev/" rel="noreferrer">
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m9 15 6-6m-5 0h5v5"/></svg>
     djconnect.dev
@@ -770,7 +788,7 @@ main { height:auto; min-width:0 }
   }
   function useLanguage() {
     const requested = String(read(projection,["session","locale"]) || "").slice(0,2).toLowerCase();
-    const selected = copy[requested] ? requested : (displayLocale || (copy[language] ? language : "en"));
+    const selected = displayLocale || (copy[requested] ? requested : (copy[language] ? language : "en"));
     const changed=root.lang!==selected;
     text = copy[selected]; root.lang = selected;
     const buildLabel=e("renderer-build-label");
@@ -1479,7 +1497,7 @@ main { height:auto; min-width:0 }
   e("state").textContent=text.idle;
   e("title").textContent=text.waiting;
   e("mood").textContent=text.ambient;
-  if (sessionId && broadcastToken) connect(); else e("state").textContent=text.unavailable;
+  if (sessionId && broadcastToken) connect(); else if (!displayHost) e("state").textContent=text.unavailable;
   window.addEventListener("djconnect-handoff",({detail}) => {
     if (displayHost) return;
     if (!(detail && detail.session_id) || !(detail && detail.broadcast_token)) return;
@@ -1507,8 +1525,10 @@ main { height:auto; min-width:0 }
     connectFlowControls();
     window.addEventListener("djconnect-display-locale",({detail}) => {
       displayLocale=typeof detail==="string" && /^(en|nl|de|fr|es)$/.test(detail) ? detail : "";
+      const state=e("state");
+      const status=["idle","connecting","unavailable","live"].find(key=>text[key]===state.textContent);
       render(false);
-      if (!snapshotAccepted) e("state").textContent=text.connecting;
+      if (!snapshotAccepted && status) state.textContent=text[status];
     });
     window.addEventListener("djconnect-display-clear",stopHost);
     window.addEventListener("djconnect-display-artwork",({detail}) => {
@@ -1552,23 +1572,41 @@ main { height:auto; min-width:0 }
     es:["Copiar el código de vinculación","Código copiado","No se pudo copiar el código"]
   };
   const panel=document.getElementById("handoff");
-  let sessionLocale="", text;
+  const selector=document.getElementById("display-language");
+  const localeKey="djconnect-vibecast-language";
+  const languageLabels={en:"Language",nl:"Taal",de:"Sprache",fr:"Langue",es:"Idioma"};
+  const validLocale=value=>typeof value==="string" && /^(en|nl|de|fr|es)$/.test(value);
+  let preference="", sessionLocale="", effectiveLocale="", text, handoff;
+  try {
+    const saved=window.localStorage.getItem(localeKey);
+    if(validLocale(saved))preference=saved;
+  }catch(_){ /* Keep this page usable when browser storage is blocked. */ }
   function selectLocale(locale){
-    const selected=typeof locale==="string" && /^(en|nl|de|fr|es)$/.test(locale) ? locale : "";
-    const labels=selected || language;
-    text={...(words[labels] || words.en),...(outcomes[labels] || outcomes.en)};
-    if(selected===sessionLocale)return;
-    sessionLocale=selected;
+    sessionLocale=validLocale(locale) ? locale : "";
+    const selected=preference || sessionLocale || (validLocale(language) ? language : "en");
+    if(selected===effectiveLocale)return;
+    effectiveLocale=selected;
+    text={...words[selected],...outcomes[selected]};
+    selector.value=selected;
+    selector.setAttribute("aria-label",languageLabels[selected]);
     window.dispatchEvent(new CustomEvent("djconnect-display-locale",{detail:selected}));
+    if(handoff && !panel.hidden)show(...handoff);
   }
+  selector.addEventListener("change",()=>{
+    if(!validLocale(selector.value))return;
+    preference=selector.value;
+    try{window.localStorage.setItem(localeKey,preference);}catch(_){ /* Memory-only preference. */ }
+    selectLocale(sessionLocale);
+  });
   selectLocale("");
+  selector.hidden=false;
   function failureText(error,collecting=false){
-    if(error.status===429)return text.capacity;
-    if(error.code==="display_external_url_unavailable" || error.code==="display_tls_required" || error.code==="display_origin_denied")return text.configuration;
-    if(error.status===410 || error.code==="display_lease_expired")return text.expired;
-    if(collecting && (error.status===404 || !error.status))return text.newcode;
-    if([401,403,404,409].includes(error.status))return text.denied;
-    return text.unavailable;
+    if(error.status===429)return "capacity";
+    if(error.code==="display_external_url_unavailable" || error.code==="display_tls_required" || error.code==="display_origin_denied")return "configuration";
+    if(error.status===410 || error.code==="display_lease_expired")return "expired";
+    if(collecting && (error.status===404 || !error.status))return "newcode";
+    if([401,403,404,409].includes(error.status))return "denied";
+    return "unavailable";
   }
   let generation=0, claim=null, grant=null, socket=null, stopped=false, sequence=0;
   let lease=0, claimDeadline=0, renewalBusy=false, connectionGeneration=0;
@@ -1590,6 +1628,7 @@ main { height:auto; min-width:0 }
   }
   function later(fn,delay){const timer=setTimeout(()=>{timers.delete(timer);fn();},delay);timers.add(timer);return timer;}
   function clearContent(){clearArtwork();window.dispatchEvent(new Event("djconnect-display-clear"));}
+  let claimCanResume=false;
   const artwork=new Map();
   let wantedArtwork=new Map(), artworkBusy=false;
   function publishArtwork(){
@@ -1673,10 +1712,11 @@ main { height:auto; min-width:0 }
     }finally{artworkBusy=false;}
   }
   function show(message,code="",retry=false){
+    handoff=[message,code,retry];
     const pending=code===null;
     panel.textContent="";
     const caption=document.createElement("span");
-    caption.textContent=message;
+    caption.textContent=text[message];
     if(pending)caption.className="handoff-placeholder";
     panel.append(caption);
     if(code || pending){
@@ -1687,7 +1727,7 @@ main { height:auto; min-width:0 }
       if(code)value.setAttribute("aria-label",code.split("").join(" "));
       block.append(value);
       if(code && navigator.clipboard?.writeText){
-        const [copy,copied,failed]=copyLabels[sessionLocale || language] || copyLabels.en;
+        const [copy,copied,failed]=copyLabels[effectiveLocale];
         const button=document.createElement("button");
         button.type="button";
         button.className="handoff-copy";
@@ -1719,7 +1759,15 @@ main { height:auto; min-width:0 }
     if(socket){const old=socket;socket=null;old.onclose=null;old.close();}
     renewalBusy=false;clearContent();
   }
-  function terminal(message){cancelWork();claim=null;grant=null;lease=0;show(message,"",true);}
+  function releaseClaim(){
+    if(!claim)return;
+    const body=JSON.stringify({contract_version:1,...claim});
+    claim=null;
+    // Let HA release the code even when a reload destroys this page.
+    void fetch("/api/djconnect/v1/display/cancel",{method:"POST",credentials:"omit",cache:"no-store",
+      redirect:"error",keepalive:true,headers:{"Content-Type":"application/json"},body}).catch(()=>{});
+  }
+  function terminal(message){cancelWork();releaseClaim();grant=null;lease=0;show(message,"",true);}
   async function post(action,body,bearer=""){
     const controller=new AbortController(), started=now();requests.add(controller);
     // Bounds the whole browser DNS/TLS/request path, distinct from HA's fixed
@@ -1747,14 +1795,14 @@ main { height:auto; min-width:0 }
     try{
       const {value,started}=await post("renew",{...binding(),renew_sequence:renewSequence},grant.grant_token);
       if(g!==generation || expired() || navigator.onLine===false)return;
-      if(value.lease_revision!==renewSequence || !(value.lease_expires_in>0 && value.lease_expires_in<=60))return terminal(text.denied);
+      if(value.lease_revision!==renewSequence || !(value.lease_expires_in>0 && value.lease_expires_in<=60))return terminal("denied");
       sequence=renewSequence;lease=started+value.lease_expires_in*1000;
       later(()=>renew(g,sequence+1),20000);
     }catch(error){
       if(g!==generation)return;
       if(error.code==="display_grant_invalid" || error.code==="display_lease_expired")return begin();
       if([401,403,404,409,410].includes(error.status))return terminal(failureText(error));
-      clearContent();show(text.reconnect);later(()=>renew(g,renewSequence),2000);
+      clearContent();show("reconnect");later(()=>renew(g,renewSequence),2000);
     }finally{if(g===generation)renewalBusy=false;}
   }
   function connect(g){
@@ -1779,13 +1827,13 @@ main { height:auto; min-width:0 }
         // The renderer receives only the Core's explicit shared allowlist.
         window.dispatchEvent(new CustomEvent("djconnect-display-snapshot",{detail:snapshot}));
         void updateArtwork(snapshot);panel.hidden=true;
-      }catch(_){terminal(text.denied);}
+      }catch(_){terminal("denied");}
     };
     current.onclose=event=>{
       if(g!==generation || socket!==current)return;socket=null;
       if(expired() || event.code===1008)return begin();
       clearContent();
-      show(text.reconnect);later(()=>connect(g),1500);
+      show("reconnect");later(()=>connect(g),1500);
     };
     current.onerror=()=>{if(current===socket)current.close();};
   }
@@ -1801,9 +1849,9 @@ main { height:auto; min-width:0 }
           || !(value.lease_expires_in>0 && value.lease_expires_in<=60) || !value.capabilities || value.capabilities.owner_controls!==false
           || value.capabilities.session_end!==false)throw new Error("contract");
       grant=value;claim=null;lease=started+value.lease_expires_in*1000;sequence=0;connectionGeneration=0;
-      if(expired())return terminal(text.expired);
+      if(expired())return terminal("expired");
       selectLocale(value.session_locale);
-      show(text.reconnect);watchLease(g);connect(g);later(()=>renew(g,1),20000);
+      show("reconnect");watchLease(g);connect(g);later(()=>renew(g,1),20000);
     }catch(error){
       if(g!==generation)return;
       if(now()>=claimDeadline)return begin();
@@ -1811,30 +1859,40 @@ main { height:auto; min-width:0 }
     }
   }
   async function begin(allowCapacityRetry=true){
-    stopped=false;selectLocale("");cancelWork();claim=null;grant=null;lease=0;const g=generation;
-    if(location.protocol!=="https:" || location.search || location.hash || !crypto.getRandomValues)return show(text.unavailable,"",true);
-    show(text.approve,null);
+    stopped=false;selectLocale("");cancelWork();
+    // The server decides when the original window ends, even if our timer fires early.
+    if(claimCanResume)claim=null;else releaseClaim();
+    grant=null;lease=0;const g=generation;
+    if(location.protocol!=="https:" || location.search || location.hash || !crypto.getRandomValues)return show("unavailable","",true);
+    show("approve",null);
     try{
-      const requestId=claimRequestId(), browser_nonce=nonce();
+      const requestId=claimRequestId();
+      claimCanResume=Boolean(requestId);
+      const browser_nonce=nonce();
       const {value,started}=await post("claim",requestId ? {browser_nonce,request_id:requestId} : {browser_nonce});
       if(g!==generation || stopped)return;
       if(value.contract_version!==1 || !/^[0-9]{6}$/.test(value.code) || !(value.expires_in>0 && value.expires_in<=120))throw new Error("contract");
       claim={issuer_epoch:value.issuer_epoch,claim_id:value.claim_id,claim_secret:value.claim_secret,
         browser_generation:value.browser_generation,browser_nonce};claimDeadline=started+value.expires_in*1000;
-      show(text.approve,value.code);
+      show("approve",value.code);
       later(()=>{if(g===generation && claim)void begin();},Math.max(0,claimDeadline-now()));
       void collect(g);
     }catch(error){
       if(g!==generation)return;
+      // On reload, the previous page's cancellation can arrive just after the claim.
       if(allowCapacityRetry && error.code==="display_capacity"){
         later(()=>begin(false),800);
       }else show(failureText(error),"",true);
     }
   }
-  function stop(){stopped=true;selectLocale("");cancelWork();claim=null;grant=null;lease=0;panel.hidden=true;panel.textContent="";}
-  window.addEventListener("pagehide",stop);
-  window.addEventListener("djconnect-host-stop",stop);
-  window.addEventListener("offline",()=>{if(grant){clearContent();show(text.reconnect);requests.forEach(c=>c.abort());if(socket)socket.close();}});
+  function stop(preserveClaim=false){
+    stopped=true;selectLocale("");cancelWork();
+    if(preserveClaim && claimCanResume)claim=null;else releaseClaim();
+    grant=null;lease=0;panel.hidden=true;panel.textContent="";
+  }
+  window.addEventListener("pagehide",()=>stop(true));
+  window.addEventListener("djconnect-host-stop",()=>stop());
+  window.addEventListener("offline",()=>{if(grant){clearContent();show("reconnect");requests.forEach(c=>c.abort());if(socket)socket.close();}});
   window.addEventListener("online",()=>{if(grant && !expired() && !socket)connect(generation);});
   window.addEventListener("pageshow",event=>{if(event.persisted && stopped)return begin();if(grant){clearContent();if(expired())void begin();else if(socket)socket.close();else connect(generation);}});
   document.addEventListener("visibilitychange",()=>{if(document.hidden){clearContent();if(socket)socket.close();}else if(grant){if(expired())void begin();else if(!socket)connect(generation);}});
