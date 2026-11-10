@@ -555,7 +555,19 @@ class ContextualReleaseGateTest(unittest.TestCase):
         jobs = yaml.safe_load((ROOT/'.github/workflows/home-assistant-release-artifact.yml').read_text())['jobs']
         package, source = jobs['package'], jobs['reconcile']
         self.assertEqual(package['needs'], 'paid-contextual-golden')
-        self.assertNotIn('always()', package['if'])
+        self.assertIn('!cancelled()', package['if'])
+        self.assertIn("needs.paid-contextual-golden.result == 'success'", package['if'])
+        self.assertIn("needs.paid-contextual-golden.result == 'failure'", package['if'])
+        self.assertIn("github.event.workflow_run.event == 'push'", package['if'])
+        steps = {step.get('name'): step for step in package['steps']}
+        evidence = steps['Download exact-candidate Ask DJ evidence for the 4.0.0 deferral']
+        gate = steps['Verify the temporary Ask DJ deferral']
+        self.assertEqual(evidence['with']['name'],
+                         'askdj-contextual-golden-' + '$' + '{{ github.event.workflow_run.head_sha }}')
+        self.assertEqual(gate['if'], "needs.paid-contextual-golden.result == 'failure'")
+        self.assertLess(package['steps'].index(gate),
+                        package['steps'].index(steps['Package the exact integration artifact']))
+        self.assertNotIn('continue-on-error', gate)
         self.assertEqual(source['needs'], ['paid-contextual-golden', 'package'])
         self.assertIn('always()', source['if'])
         for condition in ("github.event.workflow_run.conclusion == 'success'", "github.event.workflow_run.head_branch == 'main'"):

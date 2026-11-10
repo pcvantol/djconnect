@@ -9,9 +9,13 @@ suites, 112 single-turn cases and 560 proactive cases passed for that
 candidate. The 60 Help cases are included in the single-turn count.
 
 The findings keep their open status in the Ask DJ qualification inventory.
-The real-model qualification remains outstanding. Resolve the findings
-and complete the full EN/NL qualification before the regular Home Assistant
-release. The standard artifact and HACS gates continue to apply there.
+The real-model qualification remains outstanding. For the standard Core
+4.0.0 artifact, the maintainer deferred the same 68 findings on 10 November
+2026. Standard main CI and all 50 deterministic owner contracts must pass.
+The artifact workflow checks the exact candidate, the reviewed set of findings
+and the integration version, and records the deferral and report digest in its
+receipt. The exception expires on 10 December 2026 at 00:00 UTC. Resolve the
+findings and complete the full EN/NL qualification before the next release.
 
 The beta exception covers one exact Core candidate for an external
 TestFlight test environment. The dedicated manual workflow verifies the
