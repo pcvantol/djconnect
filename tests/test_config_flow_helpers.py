@@ -565,7 +565,7 @@ class ConfigFlowHelperTest(unittest.TestCase):
             pipeline = types.SimpleNamespace(id='chosen', conversation_engine='conversation.test')
             withdrawn = False
 
-            async def held_commit():
+            async def held_commit(_pairing):
                 commit_started.set()
                 await release_commit.wait()
 
@@ -2435,6 +2435,8 @@ class ConfigFlowHelperTest(unittest.TestCase):
                 )
                 self.device_status["device_id"] = "djconnect-lilygo-90B70990A994"
                 self.device_status["local_url"] = "http://djconnect-lilygo-90B70990A994.local"
+                return {"success": True, "paired": True, "client_type": "esp32",
+                        "device_id": self.device_status["device_id"]}
 
         package.DJConnectRuntime = Runtime
         try:

@@ -1437,6 +1437,7 @@ def _mark_backend_specific_pending_state_stale(runtime: Any, revision: int) -> N
 async def _async_pair_before_create(hass: Any, data: dict[str, Any]) -> None:
     """Pair the ESP before HA creates a successful config entry."""
     from custom_components.djconnect import DJConnectRuntime
+    from .client_identity import device_id_matches_client_type
 
     entry = SimpleNamespace(
         entry_id="config-flow-pairing",
@@ -1454,10 +1455,20 @@ async def _async_pair_before_create(hass: Any, data: dict[str, Any]) -> None:
     if data.get(CONF_LOCAL_URL):
         runtime.device_status["local_url"] = data[CONF_LOCAL_URL]
 
-    await runtime.pair_device(hass)
+    confirmation = await runtime.pair_device(hass)
+
+    real_device_id = runtime.device_status.get("device_id") or runtime.pairing_device_id
+    if data.get(CONF_CLIENT_TYPE, DEFAULT_CLIENT_TYPE) == CLIENT_TYPE_ESP32 and (
+        not isinstance(confirmation, dict)
+        or confirmation.get("success") is not True
+        or confirmation.get("paired") is not True
+        or confirmation.get(CONF_CLIENT_TYPE) != CLIENT_TYPE_ESP32
+        or not device_id_matches_client_type(real_device_id, CLIENT_TYPE_ESP32, allow_setup_slot=False)
+        or confirmation.get(CONF_DEVICE_ID) != real_device_id
+    ):
+        raise RuntimeError("ESP pairing did not confirm the expected device identity")
 
     data[CONF_DEVICE_TOKEN] = runtime.device_token
-    real_device_id = runtime.device_status.get("device_id") or runtime.pairing_device_id
     if real_device_id:
         data[CONF_DEVICE_ID] = real_device_id
     local_url = runtime.device_status.get("local_url")
@@ -2635,7 +2646,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ):
                 raise ProfileStorageValidationError("profile_name_exists")
 
-    async def _async_commit_profile_draft(self) -> None:
+    async def _async_commit_profile_draft(self, pairing: dict[str, Any]) -> None:
         """Serialize onboarding commits and persist one validated household update."""
         if not self._profile_input:
             return
@@ -2651,7 +2662,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             binding = await _ensure_profile_platform_setup(
                 self.hass,
                 profile_input=self._profile_input,
-                pairing=self._pairing,
+                pairing=pairing,
                 backend=self._backend,
                 spotify=self._spotify,
                 manager=staged,
@@ -2735,7 +2746,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, data: dict[str, Any], user_input: dict[str, Any]
     ) -> FlowResult:
         try:
-            await self._async_commit_profile_draft()
+            await self._async_commit_profile_draft(data)
         except ProfileStorageValidationError as exc:
             if str(exc) == "profile_state_changed":
                 return self.async_show_form(step_id="voice", data_schema=await _voice_schema(self.hass,

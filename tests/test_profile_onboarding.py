@@ -6,6 +6,7 @@ import asyncio
 import importlib
 import types
 import unittest
+from unittest.mock import patch
 
 from tests.test_config_flow_helpers import install_homeassistant_stubs
 
@@ -158,6 +159,59 @@ class ProfileOnboardingTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(manager.household.music_backends, before.music_backends)
         self.assertEqual(manager.household.music_accounts, before.music_accounts)
         self.assertEqual(manager.household.fallback, before.fallback)
+
+    async def test_manual_esp32_uses_callback_identity_for_selected_profile(self):
+        from custom_components.djconnect.use_cases import music_backend_metadata
+
+        device_id = "djconnect-lilygo-t-embed-s3-90B70990A994"
+        confirmed = {"success": True, "paired": True, "client_type": "esp32", "device_id": device_id}
+        for outcome in (
+            confirmed,
+            {**confirmed, "success": False},
+            {**confirmed, "device_id": "djconnect-lilygo-t-embed-s3-111111111111"},
+            {"success": True},
+            RuntimeError("pairing HTTP 400"),
+        ):
+            with self.subTest(outcome=outcome):
+                flow = self.flow()
+                flow._pairing = {"client_type": "esp32", "device_name": "LilyGO",
+                                 "local_url": "http://192.0.2.10:8080", "pair_code": "123456",
+                                 "device_token": "synthetic-pairing-token"}
+                manager, profile, owner, _ = await self.provider_profile(flow)
+                before = manager.household
+                test = self
+
+                class Runtime:
+                    def __init__(self, entry):
+                        self.device_status = {}
+
+                    async def pair_device(self, hass):
+                        test.assertIsNone(self.pairing_device_id)
+                        test.assertEqual(manager.household, before)
+                        self.device_status["device_id"] = device_id
+                        if isinstance(outcome, Exception):
+                            raise outcome
+                        return outcome
+
+                await flow.async_step_profile_choice({"profile_id": profile.profile_id})
+                with (patch("custom_components.djconnect.DJConnectRuntime", Runtime, create=True),
+                      patch("custom_components.djconnect.surface_registration.retire_runtime", autospec=True)):
+                    result = await flow.async_step_voice({})
+                if outcome is not confirmed:
+                    self.assertEqual(result["errors"], {"base": "repair_pairing_failed"})
+                    self.assertEqual(manager.household, before)
+                    continue
+                self.assertEqual(result["type"], "create_entry")
+                data = result["data"]
+                self.assertEqual(data["device_id"], device_id)
+                self.assertEqual(data["profile_id"], profile.profile_id)
+                self.assertEqual(data["profile_backend_entry_id"], owner.entry_id)
+                self.assertNotIn("spotify_refresh_token", data)
+                self.assertEqual(manager.household.devices[device_id].linked_profile_id, profile.profile_id)
+                self.assertEqual(set(manager.household.devices) - set(before.devices), {device_id})
+                entry = types.SimpleNamespace(entry_id="esp-entry", data=data, options={})
+                runtime = types.SimpleNamespace(entry=entry, config=data)
+                self.assertTrue(music_backend_metadata(flow.hass, runtime)["music_backend_available"])
 
     async def test_music_assistant_reuse_keeps_existing_player_connection(self):
         flow = self.flow()
