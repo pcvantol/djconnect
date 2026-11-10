@@ -11,7 +11,9 @@ and choose your session mood through an available client or Assist.
 Install DJConnect, restart Home Assistant if prompted, then open
 **Settings → Devices & services → Add integration → DJConnect**.
 
-For **4.0.0**, set up an Assist pipeline with an available conversation agent.
+DJConnect **4.0.0** requires **Home Assistant 2026.11.1 or later**. Set up an
+Assist pipeline with a conversation agent, plus speech-to-text and text-to-speech
+for voice.
 Choose Spotify Direct, Music Assistant, or Later / manual in the wizard.
 Follow the setup guide for pairing and music connection instructions.
 

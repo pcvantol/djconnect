@@ -15,13 +15,16 @@ DEEPLINK = "https://my.home-assistant.io/redirect/marketplace_repository/?owner=
 
 class HacsUserDocumentationTest(unittest.TestCase):
     def test_hacs_still_uses_readme_and_source_documentation(self):
-        self.assertIs(json.loads((ROOT / "hacs.json").read_text())["render_readme"], True)
+        hacs = json.loads((ROOT / "hacs.json").read_text())
+        self.assertIs(hacs["render_readme"], True)
+        self.assertEqual(hacs["homeassistant"], "2026.11.1")
         manifest = json.loads((ROOT / "custom_components/djconnect/manifest.json").read_text())
         self.assertEqual(manifest["documentation"], "https://github.com/pcvantol/djconnect")
         self.assertEqual(manifest["version"], "4.0.0")
         for name in ("README.md", "info.md"):
             text = (ROOT / name).read_text()
             self.assertIn(manifest["version"], text)
+            self.assertIn(hacs["homeassistant"], text)
             self.assertTrue(text.startswith("# DJConnect\n"))
             self.assertNotRegex(text, r"\bv?[123]\.\d+\.\d+\b|docs/verification/|Custom repositories")
             self.assertIn(DEEPLINK, text)
@@ -100,6 +103,7 @@ class HacsUserDocumentationTest(unittest.TestCase):
                 self.assertNotRegex(guide, r"\bv?[123]\.\d+\.\d+\b|stable-3\.")
                 for term in (
                     "4.0.0",
+                    "2026.11.1",
                     "Spotify Direct",
                     "Music Assistant",
                     "Client ID",

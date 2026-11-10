@@ -6,7 +6,7 @@ Votre DJ musical personnel dans Home Assistant. Demandez de la musique, profitez
 
 ## Avant de commencer
 
-Ce guide concerne DJConnect **4.0.0**. Utilisez un pipeline Assist avec un agent de conversation disponible. La voix est facultative pendant la configuration.
+DJConnect **4.0.0** nécessite Home Assistant **2026.11.1 ou une version ultérieure**. Utilisez un pipeline Assist avec un agent de conversation disponible. Pour la voix, configurez la reconnaissance et la synthèse vocales.
 
 ## Prérequis
 

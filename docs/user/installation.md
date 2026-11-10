@@ -6,7 +6,7 @@ Ask for music, enjoy DJ contributions and choose your session mood.
 
 ## Before you start
 
-- Install Home Assistant. Configure an Assist pipeline with an available
+- Use Home Assistant **2026.11.1 or later**. Configure an Assist pipeline with an available
   conversation agent. An empty choice uses the preferred pipeline; repair an
   unavailable selected agent. STT and TTS are optional for setup.
 - For speech, configure an available HA speech route or use a client's actually

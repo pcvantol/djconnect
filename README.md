@@ -15,8 +15,9 @@ a DJConnect app, or a supported device.
 
 ## Before you start
 
-- Set up a Home Assistant Assist pipeline with an available conversation agent.
-  STT/TTS are optional for setup. Configure speech if you want to use voice.
+- Use **Home Assistant 2026.11.1 or later**. Set up an Assist pipeline with an
+  available conversation agent. For the full voice experience, configure
+  speech-to-text (STT) and text-to-speech (TTS). STT/TTS are optional for setup.
 - Choose a music connection. Spotify Direct needs Spotify Premium, your own
   Spotify Developer app Client ID, and an external HTTPS Home Assistant URL.
   Music Assistant needs a configured installation and a usable player.

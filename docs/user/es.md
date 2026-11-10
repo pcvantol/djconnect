@@ -6,7 +6,7 @@ Tu DJ musical personal en Home Assistant. Pide música, disfruta de las interven
 
 ## Antes de empezar
 
-Esta guía es para DJConnect **4.0.0**. Usa una canalización de Assist con un agente de conversación disponible. La voz es opcional durante la configuración.
+DJConnect **4.0.0** requiere Home Assistant **2026.11.1 o posterior**. Usa una canalización de Assist con un agente de conversación disponible. Para el uso por voz, configura el reconocimiento y la síntesis de voz.
 
 ## Requisitos
 

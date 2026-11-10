@@ -6,7 +6,7 @@ Dein persönlicher Musik-DJ in Home Assistant. Wünsche dir Musik, höre DJ-Beit
 
 ## Vor dem Start
 
-Diese Anleitung gilt für DJConnect **4.0.0**. Verwende eine Assist-Pipeline mit einem verfügbaren Konversationsagenten. Sprache ist bei der Einrichtung optional.
+DJConnect **4.0.0** benötigt Home Assistant **2026.11.1 oder neuer**. Verwende eine Assist-Pipeline mit einem verfügbaren Konversationsagenten. Richte für die Sprachsteuerung Spracherkennung und Sprachausgabe ein.
 
 ## Voraussetzungen
 

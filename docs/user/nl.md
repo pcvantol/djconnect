@@ -6,7 +6,7 @@ Je persoonlijke muziek-DJ in Home Assistant. Vraag muziek aan, geniet van DJ-bij
 
 ## Voor je begint
 
-Deze handleiding is voor DJConnect **4.0.0**. Gebruik een Assist-pipeline met een beschikbare conversation-agent. Spraak is optioneel bij het instellen.
+DJConnect **4.0.0** vereist Home Assistant **2026.11.1 of nieuwer**. Gebruik een Assist-pipeline met een beschikbare conversation-agent. Stel voor spraak zowel spraak-naar-tekst als tekst-naar-spraak in.
 
 ## Nodig
 
