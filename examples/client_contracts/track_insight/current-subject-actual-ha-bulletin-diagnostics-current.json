@@ -302,9 +302,9 @@
     "custom_components/djconnect/verification_clock.py": "7d2383659ea419abf747bbd5e2f3cd382e9e13d1ae5946d331fd3d9412bacf0e",
     "custom_components/djconnect/vibecast.html": "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9",
     "custom_components/djconnect/vibecast.py": "afe141de6ab48c43bbc54ca745d8a7fb4d4a78326b6907f96825d1f81b743ed6",
-    "custom_components/djconnect/vibecast_display.html": "63bcd02320f09c0f8a10e0e629b9c670f384683b78c70ce52074140ec3052611",
+    "custom_components/djconnect/vibecast_display.html": "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c",
     "custom_components/djconnect/vibecast_renderer/cast-host.js": "b3b15f607735918f83d130b6afffb460f6d7a808e3c69228ece9b947816be52b",
-    "custom_components/djconnect/vibecast_renderer/display-host.js": "50c2b599a386a4ad5b8e6818ae7e3d268fec8be7db63773ce0cbfd1d2c1a17bf",
+    "custom_components/djconnect/vibecast_renderer/display-host.js": "46c40746065e7cfd392031959a0a64b4de3a8c460c8e56ca431a79d7c3609010",
     "custom_components/djconnect/vibecast_renderer/local-host.js": "3ad7033ca34badacaa3b0ca2d52e960fbeb5f130236d49050722441105314975",
     "custom_components/djconnect/vibecast_renderer/renderer.js": "6f14ecf2f56c45b5469e95f7edfe3b7408595c5291c6553193798afcb5c1f407",
     "custom_components/djconnect/vibecast_renderer/style.css": "1b95ac634fb637ff3ec44b09cde8c50ffc74af6b445988bd502e9c5ecb2b054c",
@@ -346,7 +346,7 @@
   "responses": {
     "current": {
       "id": "track_insight_46f2f86799b7612de36684bd",
-      "created_at": "2026-11-10T17:50:40.050722+00:00",
+      "created_at": "2026-11-10T17:56:13.657555+00:00",
       "source": "current_detail",
       "language": "nl",
       "mood_context": null,
@@ -413,13 +413,13 @@
         "schema_version": 1,
         "media_identity": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
         "observation_id": "<opaque-observation-redacted>",
-        "expires_at": 1794333070.0471468,
+        "expires_at": 1794333403.6562772,
         "expires_in": 29
       }
     },
     "on_demand_credit": {
-      "id": "track_insight_5e002116a9da7e6116703574",
-      "created_at": "2026-11-10T17:50:40.192481+00:00",
+      "id": "track_insight_a6a9b601a55e57418c77c318",
+      "created_at": "2026-11-10T17:56:13.793988+00:00",
       "source": "current_detail",
       "language": "nl",
       "mood_context": null,
@@ -483,14 +483,14 @@
       },
       "cache": {
         "hit": false,
-        "key": "5e002116a9da7e6116703574"
+        "key": "a6a9b601a55e57418c77c318"
       },
       "subject": {
         "mode": "current",
         "schema_version": 1,
         "media_identity": "spotify:track:BBBBBBBBBBBBBBBBBBBBBB",
         "observation_id": "<opaque-observation-redacted>",
-        "expires_at": 1794333070.189982,
+        "expires_at": 1794333403.789928,
         "expires_in": 29
       }
     },

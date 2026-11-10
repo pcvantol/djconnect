@@ -49,7 +49,7 @@
     "full_actual_source_journal_preserves_original_terminal_and_ordinary_Session_baseline",
     "actual_request_cancellation_after_prepare_commit_preserves_original_SQL_OPENING_and_terminal_no_reissue"
   ],
-  "raw_receipt_sha256": "d8dd608a3f30aa1d26a7fa80e1901b7b3d8fc43e4ad817d3f8aeca737ddebaca",
+  "raw_receipt_sha256": "8fc48be971e1a640325e676a9125514956ce9a5831fb8cb264745cb928a4f481",
   "registry_CAS_or_once_or_signer_qualification": "LOCAL_METADATA_ONCE_ONLY_NOT_REGISTRY_OR_SIGNER",
   "source_origin_DATA_only": true,
   "source_sha256": {
@@ -352,9 +352,9 @@
     "custom_components/djconnect/verification_clock.py": "7d2383659ea419abf747bbd5e2f3cd382e9e13d1ae5946d331fd3d9412bacf0e",
     "custom_components/djconnect/vibecast.html": "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9",
     "custom_components/djconnect/vibecast.py": "afe141de6ab48c43bbc54ca745d8a7fb4d4a78326b6907f96825d1f81b743ed6",
-    "custom_components/djconnect/vibecast_display.html": "63bcd02320f09c0f8a10e0e629b9c670f384683b78c70ce52074140ec3052611",
+    "custom_components/djconnect/vibecast_display.html": "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c",
     "custom_components/djconnect/vibecast_renderer/cast-host.js": "b3b15f607735918f83d130b6afffb460f6d7a808e3c69228ece9b947816be52b",
-    "custom_components/djconnect/vibecast_renderer/display-host.js": "50c2b599a386a4ad5b8e6818ae7e3d268fec8be7db63773ce0cbfd1d2c1a17bf",
+    "custom_components/djconnect/vibecast_renderer/display-host.js": "46c40746065e7cfd392031959a0a64b4de3a8c460c8e56ca431a79d7c3609010",
     "custom_components/djconnect/vibecast_renderer/local-host.js": "3ad7033ca34badacaa3b0ca2d52e960fbeb5f130236d49050722441105314975",
     "custom_components/djconnect/vibecast_renderer/renderer.js": "6f14ecf2f56c45b5469e95f7edfe3b7408595c5291c6553193798afcb5c1f407",
     "custom_components/djconnect/vibecast_renderer/style.css": "1b95ac634fb637ff3ec44b09cde8c50ffc74af6b445988bd502e9c5ecb2b054c",

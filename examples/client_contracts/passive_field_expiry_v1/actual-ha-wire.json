@@ -5,19 +5,19 @@
     "scripts/verification/verify_session_artwork_http.py": "3b4ba06e185d9eef18de42b5c509c2e1932203e9265a9b090b6492f6dd73be8f"
   },
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "66131ba0102012af67ddeae5e2e3d2e5501df9454e8a0cb74aa1674517c4684d",
+  "raw_receipt_sha256": "2d39083744135648d0d2cf600039e081e8c6c537c519e80586fd9318d3670cfe",
   "receipt": {
     "after": {
       "contract_version": 1,
-      "grant_id": "u2PLmAFry1bOS6NvwYZbbjwwJAgSugfY",
+      "grant_id": "tspAzhi2cw--PsIhUnLfq4n9g84ILG4A",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_eligible_context",
           "state": "unavailable"
         },
-        "as_of": "2026-11-10T17:51:23.333153+00:00",
-        "binding_id": "f5110142f7feace1a4ea3750579fc6ab",
+        "as_of": "2026-11-10T17:57:01.723971+00:00",
+        "binding_id": "053c9d44bc48378c34d92ab9534efd1b",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -31,28 +31,28 @@
           "state": "unavailable"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-10T17:52:58.586622+00:00",
-        "generation": "a87785531858fbafbf2327709f8687c2",
+        "expires_at": "2026-11-10T17:58:36.979397+00:00",
+        "generation": "239c2b295fba33d067d9d134421de9d8",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-88c3befea74e44f1854390dad030fdc8"
+          "session_id": "session-461655cd2aac4594ad3b62a49822defb"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-10T17:50:58.586622+00:00",
+        "observed_at": "2026-11-10T17:56:36.979397+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "76d9a89de168c8b99ec38fc4b8097d35",
+        "revision": "1e25cb06c4460cbbbe3c6ef43a117181",
         "schema_version": 3,
-        "session_id": "session-88c3befea74e44f1854390dad030fdc8",
+        "session_id": "session-461655cd2aac4594ad3b62a49822defb",
         "state": "active",
         "surface": "widget"
       },
@@ -60,15 +60,15 @@
     },
     "before": {
       "contract_version": 1,
-      "grant_id": "u2PLmAFry1bOS6NvwYZbbjwwJAgSugfY",
+      "grant_id": "tspAzhi2cw--PsIhUnLfq4n9g84ILG4A",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_matching_subject",
           "state": "unavailable"
         },
-        "as_of": "2026-11-10T17:50:58.588726+00:00",
-        "binding_id": "f5110142f7feace1a4ea3750579fc6ab",
+        "as_of": "2026-11-10T17:56:36.980955+00:00",
+        "binding_id": "053c9d44bc48378c34d92ab9534efd1b",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -77,10 +77,10 @@
           "scope": "current_surface_only"
         },
         "contribution": {
-          "expires_at": "2026-11-10T17:51:23.273247+00:00",
-          "moment_id": "moment-efca5c29cf682d94db53fe646a5d0540",
+          "expires_at": "2026-11-10T17:57:01.662906+00:00",
+          "moment_id": "moment-a00c25135bcf0d6855be6f4711039dc9",
           "persona": "home_dj",
-          "published_at": "2026-11-10T17:50:58.273247+00:00",
+          "published_at": "2026-11-10T17:56:36.662906+00:00",
           "rights": {
             "external_relay": false,
             "os_snapshot": true,
@@ -96,28 +96,28 @@
           "state": "available"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-10T17:52:58.586622+00:00",
-        "generation": "a87785531858fbafbf2327709f8687c2",
+        "expires_at": "2026-11-10T17:58:36.979397+00:00",
+        "generation": "239c2b295fba33d067d9d134421de9d8",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-88c3befea74e44f1854390dad030fdc8"
+          "session_id": "session-461655cd2aac4594ad3b62a49822defb"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-10T17:50:58.586622+00:00",
+        "observed_at": "2026-11-10T17:56:36.979397+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "76d9a89de168c8b99ec38fc4b8097d35",
+        "revision": "1e25cb06c4460cbbbe3c6ef43a117181",
         "schema_version": 3,
-        "session_id": "session-88c3befea74e44f1854390dad030fdc8",
+        "session_id": "session-461655cd2aac4594ad3b62a49822defb",
         "state": "active",
         "surface": "widget"
       },
@@ -446,9 +446,9 @@
       "custom_components/djconnect/verification_clock.py": "7d2383659ea419abf747bbd5e2f3cd382e9e13d1ae5946d331fd3d9412bacf0e",
       "custom_components/djconnect/vibecast.html": "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9",
       "custom_components/djconnect/vibecast.py": "afe141de6ab48c43bbc54ca745d8a7fb4d4a78326b6907f96825d1f81b743ed6",
-      "custom_components/djconnect/vibecast_display.html": "63bcd02320f09c0f8a10e0e629b9c670f384683b78c70ce52074140ec3052611",
+      "custom_components/djconnect/vibecast_display.html": "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c",
       "custom_components/djconnect/vibecast_renderer/cast-host.js": "b3b15f607735918f83d130b6afffb460f6d7a808e3c69228ece9b947816be52b",
-      "custom_components/djconnect/vibecast_renderer/display-host.js": "50c2b599a386a4ad5b8e6818ae7e3d268fec8be7db63773ce0cbfd1d2c1a17bf",
+      "custom_components/djconnect/vibecast_renderer/display-host.js": "46c40746065e7cfd392031959a0a64b4de3a8c460c8e56ca431a79d7c3609010",
       "custom_components/djconnect/vibecast_renderer/local-host.js": "3ad7033ca34badacaa3b0ca2d52e960fbeb5f130236d49050722441105314975",
       "custom_components/djconnect/vibecast_renderer/renderer.js": "6f14ecf2f56c45b5469e95f7edfe3b7408595c5291c6553193798afcb5c1f407",
       "custom_components/djconnect/vibecast_renderer/style.css": "1b95ac634fb637ff3ec44b09cde8c50ffc74af6b445988bd502e9c5ecb2b054c",
@@ -463,7 +463,7 @@
       "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
       "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
     },
-    "waited_real_seconds": 24.734051752090455
+    "waited_real_seconds": 24.729884672164918
   },
   "source_before_after_equal": true,
   "source_pins": {
@@ -766,9 +766,9 @@
     "custom_components/djconnect/verification_clock.py": "7d2383659ea419abf747bbd5e2f3cd382e9e13d1ae5946d331fd3d9412bacf0e",
     "custom_components/djconnect/vibecast.html": "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9",
     "custom_components/djconnect/vibecast.py": "afe141de6ab48c43bbc54ca745d8a7fb4d4a78326b6907f96825d1f81b743ed6",
-    "custom_components/djconnect/vibecast_display.html": "63bcd02320f09c0f8a10e0e629b9c670f384683b78c70ce52074140ec3052611",
+    "custom_components/djconnect/vibecast_display.html": "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c",
     "custom_components/djconnect/vibecast_renderer/cast-host.js": "b3b15f607735918f83d130b6afffb460f6d7a808e3c69228ece9b947816be52b",
-    "custom_components/djconnect/vibecast_renderer/display-host.js": "50c2b599a386a4ad5b8e6818ae7e3d268fec8be7db63773ce0cbfd1d2c1a17bf",
+    "custom_components/djconnect/vibecast_renderer/display-host.js": "46c40746065e7cfd392031959a0a64b4de3a8c460c8e56ca431a79d7c3609010",
     "custom_components/djconnect/vibecast_renderer/local-host.js": "3ad7033ca34badacaa3b0ca2d52e960fbeb5f130236d49050722441105314975",
     "custom_components/djconnect/vibecast_renderer/renderer.js": "6f14ecf2f56c45b5469e95f7edfe3b7408595c5291c6553193798afcb5c1f407",
     "custom_components/djconnect/vibecast_renderer/style.css": "1b95ac634fb637ff3ec44b09cde8c50ffc74af6b445988bd502e9c5ecb2b054c",
