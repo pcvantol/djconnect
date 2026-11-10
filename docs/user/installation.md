@@ -20,8 +20,8 @@ Ask for music, enjoy DJ contributions and choose your session mood.
 
 ## Install
 
-1. [Open DJConnect](https://my.home-assistant.io/redirect/marketplace_repository/?owner=pcvantol&repository=djconnect&category=integration). On Home Assistant 2026.11, you can also use **Settings → Marketplace → Add from link**.
-   Enter `pcvantol/djconnect` and select **Integration** if asked.
+1. [Open DJConnect](https://my.home-assistant.io/redirect/marketplace_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration). On Home Assistant 2026.11, you can also use **Settings → Marketplace → Add from link**.
+   Enter `djconnect-music-dj/djconnect` and select **Integration** if asked.
 2. Install DJConnect. Restart Home Assistant if prompted.
 3. Open **Settings → Devices & services → Add integration → DJConnect**.
 

@@ -1,6 +1,6 @@
 # DJConnect
 
-<img src="https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png" alt="DJConnect" width="64" height="64">
+<img src="https://raw.githubusercontent.com/djconnect-music-dj/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png" alt="DJConnect" width="64" height="64">
 
 **Your music. Your DJ.**
 
@@ -8,7 +8,7 @@ DJConnect brings a personal music DJ to Home Assistant. Set up version **4.0.0**
 to ask for music, control playback, and hear DJ contributions through Assist,
 a DJConnect app, or a supported device.
 
-[Open DJConnect in Home Assistant Marketplace](https://my.home-assistant.io/redirect/marketplace_repository/?owner=pcvantol&repository=djconnect&category=integration)
+[Open DJConnect in Home Assistant Marketplace](https://my.home-assistant.io/redirect/marketplace_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration)
 
 [English](docs/user/installation.md) · [Nederlands](docs/user/nl.md) ·
 [Deutsch](docs/user/de.md) · [Français](docs/user/fr.md) · [Español](docs/user/es.md)
@@ -27,8 +27,8 @@ a DJConnect app, or a supported device.
 
 ## Install
 
-1. [Open DJConnect in Marketplace](https://my.home-assistant.io/redirect/marketplace_repository/?owner=pcvantol&repository=djconnect&category=integration). To add it manually on Home Assistant 2026.11, go to
-   **Settings → Marketplace → Add from link**, enter `pcvantol/djconnect`,
+1. [Open DJConnect in Marketplace](https://my.home-assistant.io/redirect/marketplace_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration). To add it manually on Home Assistant 2026.11, go to
+   **Settings → Marketplace → Add from link**, enter `djconnect-music-dj/djconnect`,
    and select **Integration** if asked.
 2. Install **DJConnect**.
 3. Restart Home Assistant if prompted.

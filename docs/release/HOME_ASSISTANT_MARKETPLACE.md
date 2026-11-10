@@ -14,7 +14,7 @@ store for each version. DJConnect is a community integration with the
    without ignored checks and the hassfest job in Core CI. Complete the standard
    Core release qualification before publishing.
 2. Publish a full GitHub integration release from that commit in
-   `pcvantol/djconnect`. Use the existing integration tag convention
+   `djconnect-music-dj/djconnect`. Use the existing integration tag convention
    (`v4.0.0` for version `4.0.0`). The store uses the tagged source tree, with
    `hacs.json` at its root and `custom_components/djconnect/` inside it. Include
    public release notes and any upgrade instructions.
@@ -35,7 +35,7 @@ store for each version. DJConnect is a community integration with the
 ## Submit to the shared catalog
 
 From a personal maintainer fork of `hacs/default`, branch from `master` and add
-`"pcvantol/djconnect"` alphabetically to the JSON list in `integration`. Submit
+`"djconnect-music-dj/djconnect"` alphabetically to the JSON list in `integration`. Submit
 the completed catalog PR template with the full integration release URL, a
 passing HACS run without ignored checks, and a passing hassfest run. Check the
 listing after acceptance and catalog refresh. The repository link is the

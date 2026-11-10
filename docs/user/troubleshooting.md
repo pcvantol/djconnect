@@ -13,7 +13,7 @@
 
 For other problems, check the chosen music backend and playback target in options.
 Use HA integration diagnostics when reporting a fault; keep private credentials
-out of reports. [Report an issue](https://github.com/pcvantol/djconnect/issues/new/choose).
+out of reports. [Report an issue](https://github.com/djconnect-music-dj/djconnect/issues/new/choose).
 Administrators can use the [entity/support reference](../technical/ENTITIES_AND_SUPPORT.md)
 and [push diagnostics](../technical/PUSH_NOTIFICATIONS.md).
 

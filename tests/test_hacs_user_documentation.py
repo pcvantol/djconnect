@@ -9,8 +9,8 @@ import unittest
 from urllib.parse import parse_qs, urlsplit, unquote
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSET = "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png"
-DEEPLINK = "https://my.home-assistant.io/redirect/marketplace_repository/?owner=pcvantol&repository=djconnect&category=integration"
+ASSET = "https://raw.githubusercontent.com/djconnect-music-dj/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png"
+DEEPLINK = "https://my.home-assistant.io/redirect/marketplace_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration"
 
 
 class HacsUserDocumentationTest(unittest.TestCase):
@@ -34,7 +34,7 @@ class HacsUserDocumentationTest(unittest.TestCase):
             self.assertIn("Add integration", text)
         self.assertEqual(
             parse_qs(urlsplit(DEEPLINK).query),
-            {"owner": ["pcvantol"], "repository": ["djconnect"], "category": ["integration"]},
+            {"owner": ["djconnect-music-dj"], "repository": ["djconnect"], "category": ["integration"]},
         )
 
     def test_compact_theme_independent_approved_brand_is_identical_on_both_surfaces(self):

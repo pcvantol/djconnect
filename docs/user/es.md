@@ -19,7 +19,7 @@ DJConnect **4.0.0** requiere Home Assistant **2026.11.1 o posterior**. Usa una c
 
 ## Instalar e iniciar
 
-1. Abre DJConnect con el enlace de abajo o desde **Ajustes → Marketplace → Añadir desde un enlace**. Introduce `pcvantol/djconnect` y selecciona **Integración** si se solicita. Instala DJConnect y reinicia Home Assistant si se indica.
+1. Abre DJConnect con el enlace de abajo o desde **Ajustes → Marketplace → Añadir desde un enlace**. Introduce `djconnect-music-dj/djconnect` y selecciona **Integración** si se solicita. Instala DJConnect y reinicia Home Assistant si se indica.
 2. Abre **Ajustes → Dispositivos y servicios → Añadir integración → DJConnect**.
 3. Elige Assist, dispositivo local o aplicación. Bluetooth solo configura, si hace
    falta, el WiFi de un ESP32; después se realiza el emparejamiento.
@@ -40,4 +40,4 @@ Si falta Assist, comprueba el agente de conversación de tu canalización de Ass
 comprueba la URI exacta. Si falla el emparejamiento, comprueba LAN y código. Si el
 icono de HA es genérico, vuelve a descargar desde Marketplace, reinicia HA y actualiza la interfaz.
 
-[DJConnect](https://my.home-assistant.io/redirect/marketplace_repository/?owner=pcvantol&repository=djconnect&category=integration) · [Repository](https://github.com/pcvantol/djconnect) · [English / en](installation.md)
+[DJConnect](https://my.home-assistant.io/redirect/marketplace_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration) · [Repository](https://github.com/djconnect-music-dj/djconnect) · [English / en](installation.md)
