@@ -282,7 +282,12 @@ browser_generation, browser_nonce}`. A pending collect returns only pending.
 First valid approved collect atomically creates one `djcd_` display bearer and
 returns `{state:"admitted", display_id, grant_token, issuer_epoch, session_id,
 share_id, share_generation, lease_revision:0, lease_expires_at,
-share_expires_at, capabilities}`. No owner/end/invitation credential.
+share_expires_at, capabilities}`. An admitted response may also include
+`session_locale` from the exact approved active Session, limited to
+`en`, `nl`, `de`, `fr` and `es`. The browser language governs pairing.
+After admission, the bound snapshot's `session.locale` supplies the screen
+language. Published Moment text remains unchanged.
+No owner/end/invitation credential.
 Capabilities explicitly deny all owner/guest effects. Collection consumes claim
 authority once; token hash/purpose and the full private binding remain server-side.
 Lost one-time collection requires fresh admission; no plaintext token replay
@@ -381,8 +386,16 @@ never infer them from Profile defaults or rewrite a published Moment's original
 Persona/Mood. No settings/default snapshot, settings revision, voice, gender,
 announcement_output, provider/pipeline or device preference appears here. These
 three presentation labels confer no settings read/write capability.
-No Planner/Horizon, owner Flow conversation, Ask DJ/history/DNA, account/device/
-Profile IDs, prompts, source payloads or private native deliveries are serialized.
+Optional `horizon` contains only `valid_until` and up to three localized
+`{title, text}` sections. It expresses the current authored Forecast for the
+shared track and Session presentation. Core checks source authority, freshness
+and track identity again before release. The receiver clears Horizon on expiry,
+when playback no longer matches and there is no replacement, or when display
+authority ends.
+
+Raw Planner state, queue data, media, links and owner fields are excluded from
+`horizon`. Owner Flow conversation, Ask DJ/history/DNA, account/device/Profile
+IDs, prompts, source payloads and private native deliveries are not serialized.
 Unknown fields are denied. Display reads never generate a Moment or provider call.
 
 `SESSION_SHARED`/`PUBLIC_BROADCAST` labels alone are not proof of audience/source
