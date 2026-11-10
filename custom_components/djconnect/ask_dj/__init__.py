@@ -3021,6 +3021,20 @@ async def _informational_assist_response(
                                 and public_research.public_url(s.revision_url)],
                             'text_source': 'core', 'is_generated_text': False,
                             'knowledge_basis': 'public_concert_calendar_v1'}
+                activity = public_research.band_activity_answer(original_sources, subject, language)
+                if activity:
+                    activity_answer, activity_source = activity
+
+                    def original_activity_delivery_guard():
+                        if public_research.band_activity_answer(original_sources, subject, language) != activity:
+                            raise DialogueError('conversation_context_changed', 409)
+
+                    turn.delivery_validators.append(original_activity_delivery_guard)
+                    await turn.guard()
+                    return {'success': True, 'text': activity_answer, 'dj_text': activity_answer,
+                            'images': [], 'sources': [activity_source.metadata()],
+                            'text_source': 'core', 'is_generated_text': False,
+                            'knowledge_basis': 'public_band_activity_v1'}
             if research_angle == "age":
                 from .exploration import band_age_question
                 original_research = json.loads(json.dumps(turn.public_research, ensure_ascii=False))
@@ -5134,7 +5148,9 @@ def _artist_from_concert_question(
         return ""
     explicit = _explicit_artist_from_concert_question(text)
     if explicit:
-        return explicit
+        from .public_research import contextual_concert_question
+        # Resolve a conversational pronoun through the guarded dialogue path.
+        return "" if contextual_concert_question(text) else explicit
     if any(
         phrase in normalized
         for phrase in (

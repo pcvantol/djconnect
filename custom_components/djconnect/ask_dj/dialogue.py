@@ -755,6 +755,9 @@ def valid_uri(value) -> bool:
 
 def references_topic(text: str) -> bool:
     from .exploration import more_request
+    from .public_research import contextual_concert_question
+    if contextual_concert_question(text):
+        return True
     if more_request(text):
         return True
     if re.search(

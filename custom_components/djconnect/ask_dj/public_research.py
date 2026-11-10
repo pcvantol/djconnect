@@ -386,6 +386,42 @@ def concert_calendar_answer(sources, subject, language):
     return copy.get(language, copy['en']).format(subject=subject, **record)
 
 
+def band_activity_answer(sources, subject, language):
+    """Report a documented historical activity period without inferring tour status."""
+    patterns = {
+        'nl': r'was een [\w -]{0,100}(?:band|groep) uit [\w ,()-]{1,100}, actief van (\d{4}) tot (\d{4})',
+        'en': r'was an? [\w -]{0,100}(?:band|music group) from [\w ,()-]{1,100}, active from (\d{4}) to (\d{4})',
+    }
+    evidence = []
+    today = datetime.now(UTC)
+    for source in sources:
+        if (type(source) is not PublicSource or source.provider != 'Wikipedia'
+                or source.title.casefold() != subject.casefold()
+                or urlsplit(source.url).hostname != source.language + '.wikipedia.org'
+                or not source.revision_url or source.language not in patterns):
+            continue
+        lead = (_sentences(source.text) or [''])[0]
+        match = re.fullmatch(re.escape(subject) + ' ' + patterns[source.language] + r'\.', lead, re.I)
+        try:
+            expiry = datetime.fromisoformat(source.expires_at)
+        except (TypeError, ValueError):
+            continue
+        if (match and expiry.tzinfo is not None and expiry > today
+                and 1900 <= int(match[1]) <= int(match[2]) < today.year):
+            evidence.append((match[2], source))
+    if len({year for year, _ in evidence}) != 1:
+        return None
+    year, source = evidence[0]
+    copy = {
+        'nl': 'Volgens Wikipedia was {subject} actief tot {year}. Ik kon geen komende optredens bevestigen.',
+        'en': 'According to Wikipedia, {subject} was active until {year}. I couldn’t confirm any upcoming shows.',
+        'de': 'Laut Wikipedia war {subject} bis {year} aktiv. Ich konnte keine bevorstehenden Auftritte bestätigen.',
+        'fr': 'Selon Wikipédia, {subject} a été actif jusqu’en {year}. Je n’ai pu confirmer aucun concert à venir.',
+        'es': 'Según Wikipedia, {subject} estuvo en activo hasta {year}. No pude confirmar ningún concierto próximo.',
+    }
+    return copy.get(language, copy['en']).format(subject=subject, year=year), source
+
+
 class PageText(HTMLParser):
     def __init__(self, *, omit_headings=False):
         super().__init__(convert_charrefs=True)
@@ -1208,7 +1244,10 @@ def direct_question(text):
         ('members', r'(?:wie zijn (?:de )?(?:muzikanten|bandleden|leden) van(?: (?:de )?band)?|uit welke (?:muzikanten|bandleden|leden) bestaat|wie zitten er in de band\s*,|who are (?:the )?members of|wer sind die mitglieder von|qui sont les membres de|quiénes son los miembros de)\s+(.+?)'),
         ('formation', r'(?:wanneer (?:is|werd)|when was|wann wurde|quand a été|cuándo fue)\s+(.+?)\s+(?:opgericht|formed|founded|gegründet|fondé|fundado)(?:,?\s*(?:welk jaar|in welk jaar|which year))?'),
         ('current_events', r'(?:treedt|treden)\s+(.+?)\s+(?:nog |weer |nog samen |samen )?op'),
-        ('current_events', r'(?:does|do)\s+(.+?)\s+still perform(?: together)?'),
+        ('current_events', r'(?:does|do)\s+(.+?)\s+still (?:perform|tour)(?: together)?'),
+        ('current_events', r'(?:is|zijn)\s+(.+?)\s+uit elkaar'),
+        ('current_events', r'zijn\s+(ze|zij)\s+gestopt'),
+        ('current_events', r'(?:heeft|hebben)\s+(.+?)\s+(?:nog |binnenkort )?(?:concerten|optredens)(?: gepland| binnenkort)?'),
     )
     for kind, pattern in patterns:
         match = re.fullmatch(pattern + r'\s*[?!]*', str(text).strip().lstrip('¿¡'), re.I)
@@ -1218,6 +1257,14 @@ def direct_question(text):
                 name = name.rstrip('.')
             return kind, name
     return '', ''
+
+
+def contextual_concert_question(text):
+    from .dialogue import deictic_subject
+    kind, subject = direct_question(text)
+    return kind == 'current_events' and (
+        deictic_subject(subject) or subject.casefold() in {'ze', 'zij', 'they'}
+    )
 
 
 def public_name_slot(name):
@@ -1236,7 +1283,7 @@ def explicit_public_subject(text):
 
     _, direct = direct_question(text)
     if direct:
-        return direct if not deictic_subject(direct) else None
+        return None if deictic_subject(direct) or contextual_concert_question(text) else direct
     named = explicit_subject(text)
     # These patterns extract only the public musical subject, not the surrounding
     # private conversational question. Context remains the first choice for
