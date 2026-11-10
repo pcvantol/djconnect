@@ -2,24 +2,24 @@
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
   "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
-  "manifest_id": "release-4.0.0-api-worker-b87a3ea-vibecast-testflight-20261110",
-  "generated_at": "2026-11-10T10:12:55.945175+00:00",
+  "manifest_id": "release-4.0.0-api-worker-38f0d79b-vibecast-always-on-20261110",
+  "generated_at": "2026-11-10T14:10:08Z",
   "platform_version": "4.0",
   "release_version": "4.0.0",
   "release_profile": "INTERNAL_RELEASE",
   "approval": {
     "state": "APPROVED",
-    "authority_record": "Peter van Tol confirmed “ja” on 2026-11-10 in Core Codex thread 01a1a063-78f2-77b2-8d12-47f3c8fb973d in direct response to the request to deploy API artifact 13752564786 through the protected workflow for TestFlight build 40522 from 13:30 to 15:00 CET.",
-    "approved_statement": "Deploy only the immutable API artifact 13752564786 through the protected Cloudflare production workflow for the finite TestFlight build 40522 trial on 2026-11-10 from 13:30 to 15:00 CET."
+    "authority_record": "On 2026-11-10 Peter van Tol requested removal of the VibeCast test window and instructed “En zorg dat api de release versie deployed nu” in Codex thread 01a1afa0-1a54-7a50-8c7c-a51d99961119. The exact artifact for that release was selected from the successful protected API main build.",
+    "approved_statement": "Deploy the always-on VibeCast API release through the protected production workflow using only the immutable artifact bound in this manifest."
   },
   "repositories": [
     {
       "repository": "pcvantol/djconnect-api",
-      "source_sha": "b87a3eadec93b5b8150f28e4224b7192473c0109",
-      "tree": "ca1811208a26fcb44a1f2de6aa0fad4b6d9aa880",
+      "source_sha": "38f0d79b35e2b09e4cf35aed3b0b2ffe29cc7715",
+      "tree": "0b0dd595311c66510892c3637899a9ba97f84531",
       "version": "4.0.0",
-      "validate_run": "42794879604",
-      "artifact_run": "42795159581"
+      "validate_run": "42830431479",
+      "artifact_run": "42830829924"
     }
   ],
   "required_targets": [
@@ -32,9 +32,9 @@
     {
       "owner": "pcvantol/djconnect-api",
       "target": "cloudflare_workers_production",
-      "artifact_id": "13752564786",
-      "artifact_sha256": "8a1e8e05ea06a60592c2f7528178ac6300ea20f9bec9bf40b901795a57e63ac7",
-      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/42795159581"
+      "artifact_id": "13770394143",
+      "artifact_sha256": "0930d008f93d43a7fd6da570369aafd03f6dacd184ddf7f581c892916a8373e8",
+      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/42830829924"
     }
   ],
   "target_identity": {
@@ -49,20 +49,9 @@
     "preview_urls": false
   },
   "worker_payload": {
-    "sha256": "9a305eeca2727b19fc829e0052bd62833c0c3dea2f7e980c30f848bee331d551",
-    "bytes": 1480266,
-    "wrangler_sha256": "e0243d727047d61b1bdfa326ac500984a827e229da351e05c50fababb869c94a"
-  },
-  "trial": {
-    "origin": "https://vibecast.tv",
-    "service_origin": "https://api.djconnect.dev",
-    "min_build": 40522,
-    "max_build": 40522,
-    "start_ms": 1794313800000,
-    "end_ms": 1794319200000,
-    "qr_cutoff_ms": 1794319080000,
-    "assertion_policy": "ios-testflight/1",
-    "capacity_policy": "private-household/1"
+    "sha256": "4175d573a036f026489211321d8377985b7faa116859f518773ec2c9e3c88c44",
+    "bytes": 1480735,
+    "wrangler_sha256": "e78d6760c1335121c471ce7f95c3f443c858400ddc4dce8faa479bc84507d5d8"
   },
   "migration_boundary": {
     "preflight_pending": [],
@@ -98,13 +87,13 @@
     ]
   },
   "rollback": {
-    "source_sha": "3f0fe6354217a5db0f63f2a8c095866f1064c069",
-    "deployment_id": "490277b1-4975-4492-b79b-d2a4377b2614",
-    "worker_version_id": "4264444f-4327-4bc0-9340-1e12e59215e7",
-    "schema": "Retain D1 through migration 0013 and all five Durable Object namespaces. Restore only the prior Worker version under protected authorization."
+    "source_sha": "b87a3eadec93b5b8150f28e4224b7192473c0109",
+    "deployment_id": "e1dfa5c6-ccc8-407b-acdf-24b4e1ad4bf0",
+    "worker_version_id": "70472dce-5029-4bc2-8902-ece24226ab73",
+    "schema": "Preserve D1 through migration 0013 and all five Durable Object namespaces. Restore only the prior Worker version under protected authorization. Its dated VibeCast route is closed after the trial."
   },
   "prepared_secret_version": {
-    "worker_version_id": "f30ba4bb-5b56-4234-afca-31db69c4ebb5",
+    "worker_version_id": "70472dce-5029-4bc2-8902-ece24226ab73",
     "required_names": [
       "RECEIPT_ACTIVE_KEY",
       "RENDEZVOUS_IP_HASH_KEY"
@@ -113,22 +102,32 @@
   },
   "execution": {
     "preflight": "Refresh the active Worker, storage and routing, effective cron and migration ledger. Verify both required secret names on the release version before sending it traffic. Bind the approved Core revision and immutable API main artifact.",
-    "deployment": "Promote only the verified release version for the finite trial. Leave D1 and Durable Object identities as observed. Stop on drift or an expired trial.",
-    "smoke": "Verify exact live release SHA, closed route before and after the window, direct browser preflight and rejected same-zone and cross-zone Worker requests. Verify with TestFlight 40522 and HA-dev that only the approved browser can receive the display, then revoke it while playback continues."
+    "deployment": "Deploy the verified always-on release with the existing D1 and Durable Object identities. Stop if the live baseline or artifact differs from the verified values.",
+    "smoke": "Verify exact live release SHA, direct VibeCast browser preflight and a new 120-second QR. Separately verify on physical TestFlight 40525 that the paired owner explicitly authorizes the screen, only the claiming browser can fetch it, and revocation preserves playback."
   },
   "separate_finalization": {
     "state": "PENDING",
     "requires": [
       "Exact deployment and readback receipts",
-      "Independent storage, cron and expiry readback",
-      "Physical TestFlight 40522 and HA-dev acceptance"
+      "Independent storage, cron and 120-second QR readback",
+      "Physical iPhone and iPad TestFlight 40525 and paired Home Assistant acceptance"
     ]
   },
   "review_baseline": {
-    "core_sha": "52b5da2e79d406f19afdaee1b685c97a29b7f1e3",
-    "api_pr": 245,
-    "api_pr_head": "bcbe42329cb5e0fca61d27306c1f105cdd7fc1b3",
+    "core_sha": "2d3a6f5c911093a59057d234f0a94efe0ed218f1",
+    "api_pr": 246,
+    "api_pr_head": "7dcfcfe80c8d629c1e9bdc42924afa3506b1f25b",
     "api_artifact_verified": true
   },
-  "next_authorized_action": "Complete protected Core review and merge, verify the release secrets and live baseline, then dispatch the exact artifact before the trial expires."
+  "next_authorized_action": "Complete protected Core review and merge, dispatch the exact API artifact and verify the live SHA and browser route.",
+  "rendezvous": {
+    "origin": "https://vibecast.tv",
+    "service_origin": "https://api.djconnect.dev",
+    "availability": "always-on/1",
+    "min_build": 40522,
+    "assertion_policy": "ios-testflight/1",
+    "release_revision": 2,
+    "qr_lifetime_ms": 120000,
+    "owner_screen_consent": "REQUIRED"
+  }
 }
