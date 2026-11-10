@@ -15,12 +15,15 @@
   <svg id="session-presence-icon" viewBox="0 0 24 24" role="img" focusable="false" hidden><path/></svg>
 </span><span id="state" data-testid="connection-state">Idle</span></div></header><section class="stage"><div class="now-playing"><div class="waiting-brand"><svg class="hero-symbol" viewBox="0 0 96 80" width="96" height="80" aria-hidden="true" focusable="false">
   <defs>
+    <linearGradient id="receiver-symbol-gradient" x1="10" y1="8" x2="87" y2="73" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#62d8f2"/><stop offset=".55" stop-color="#8aa7ff"/><stop offset="1" stop-color="#c392ff"/>
+    </linearGradient>
     <g id="receiver-symbol-strokes" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M55 57H15a6 6 0 0 1-6-6V20a6 6 0 0 1 6-6h53a6 6 0 0 1 6 6v20"/>
-      <path d="M27 66h28"/>
-      <path d="M60 53a19 19 0 0 1 28 0M66 60a11 11 0 0 1 16 0"/>
+      <path d="M51 58H13a5 5 0 0 1-5-5V18a5 5 0 0 1 5-5h58a5 5 0 0 1 5 5v25"/>
+      <path d="M26 69h29"/>
+      <path d="M60 56a21 21 0 0 1 30 0M65 62a14 14 0 0 1 20 0"/>
     </g>
-    <circle id="receiver-symbol-dot" cx="74" cy="66" r="2.6"/>
+    <circle id="receiver-symbol-dot" cx="75" cy="69" r="3"/>
     <path id="receiver-symbol-light-sector" d="M48 40L127.936 36.789A80 80 0 0 1 127.936 43.211Z"/>
     <mask id="receiver-symbol-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="96" height="80">
       <use href="#receiver-symbol-strokes" stroke="white"/>
@@ -32,8 +35,8 @@
       <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-  <use class="hero-symbol-strokes" href="#receiver-symbol-strokes" stroke="#f7f8ff"/>
-  <use class="hero-symbol-dot" href="#receiver-symbol-dot" fill="#f7f8ff"/>
+  <use class="hero-symbol-strokes" href="#receiver-symbol-strokes" stroke="url(#receiver-symbol-gradient)"/>
+  <use class="hero-symbol-dot" href="#receiver-symbol-dot" fill="#c6b5ff"/>
   <g class="hero-symbol-glow" filter="url(#receiver-symbol-bloom)">
     <g mask="url(#receiver-symbol-mask)">
       <g class="hero-symbol-light" fill="white">
