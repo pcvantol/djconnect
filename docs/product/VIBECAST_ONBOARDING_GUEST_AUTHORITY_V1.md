@@ -108,6 +108,46 @@ necessarily reaches HA/proxy; configure no-referrer/no-store and no third-party
 assets. Invitation links are bearer-equivalent until redeemed, not harmless
 public labels. QR screenshots can admit others until expiry/rotation.
 
+## Proposed exception for resuming a public QR
+
+Status: awaiting a Core owner decision on residual browser storage. The
+memory-only default applies until the exception is accepted for an exact
+Receiver revision. This scope is for the public A bootstrap only. It does not
+authorize storage of B display credentials, guest grants or application state.
+
+* Use the original top-level tab and navigation entry with exclusive ownership.
+  An authenticated poll must confirm the same transaction before the QR is
+  shown. A reload does not mint a replacement or extend the original 120-second
+  deadline. Unknown consume outcomes, including a post-commit HTTP 503, retain
+  the consume fence and permit only poll reconciliation.
+* Limit page-session storage to the entry, an opaque tab marker and the
+  AES-GCM wrapping key. Limit the IndexedDB record to a browser-managed
+  nonextractable RSA key, the sealed claim and QR, bounded poll and consume
+  state inside that seal, the nonce and expiry. Bind the seal to the exact
+  origin, tab and entry. Treat the raw wrapping key as secret even though it
+  is scoped to the page session. Exclude HA URLs, destination envelopes,
+  account credentials, grants and session content from both stores.
+* Reject expired, invalid or unverifiable records before any poll or display.
+  Clear on terminal status or verified handoff, and sweep expired records
+  while active and on the next bootstrap initialization. Storage or locking
+  failures must fail closed. The 120-second authority limit does not
+  guarantee deletion at 120 seconds. After close or crash, an expired record
+  can remain in origin storage until a later cleanup. Any approval must
+  explicitly cover this residual sealed record and nonextractable key.
+  Do not describe this as secure erasure or isolation from same-origin scripts.
+
+Receiver [PR #58](https://github.com/pcvantol/djconnect-vibecast-receiver/pull/58)
+at `3717a94030b97728e96442716e2ee3199993363b` passed 102 bootstrap tests
+and eight targeted Chromium/WebKit reload tests. In a synthetic loopback
+test with the same storage module, native macOS Safari 27.2 restored the
+original tab on reload. Duplicate Tab produced a history navigation with
+no page-session marker. Reload of that copy after closing the original
+was refused. Separate Chromium/WebKit probes retained the expired sealed
+record and private key after closing the tab. The loopback evidence does
+not qualify live receiver acceptance, mobile Safari or OS session restore.
+Any public release requires exact-revision browser evidence and separate
+live acceptance. The API trial for build 40522 is independent of this exception.
+
 ## A then B, not one generic pairing
 
 ```mermaid
