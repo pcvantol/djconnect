@@ -97,7 +97,7 @@ for(const scenario of ["late-pending","late-admitted","revoked","disconnected","
     assert.equal(selector.value,"en");
     selector.value="nl";
     changeLanguage();
-    assert.match(panel.children[0].textContent,/Kies 'VibeCast scherm delen'/);
+    assert.match(panel.children[0].textContent,/Kies 'VibeCast sessie starten'/);
     assert.equal(code().textContent,"123456");
     assert.equal(claims,1);
     assert.equal(cancellations.length,0);
