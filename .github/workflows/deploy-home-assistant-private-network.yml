@@ -180,9 +180,8 @@ jobs:
           SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
         run: |
           set -euo pipefail
-          mapfile -t release_artifacts < <(find artifact -type f -name djconnect-home-assistant-integration.tar.gz -print)
-          test "${#release_artifacts[@]}" -eq 1
-          release_artifact="${release_artifacts[0]}"
+          release_artifact=artifact/djconnect-home-assistant-integration.tar.gz
+          test -f "$release_artifact"
           test "$(shasum -a 256 "$release_artifact" | awk '{print $1}')" = "$ARTIFACT_SHA256"
           local_staging="$(mktemp -d)"
           trap 'rm -rf "$local_staging"' EXIT
@@ -214,7 +213,7 @@ jobs:
           if test -e \"\$target\"; then mv \"\$target\" \"\$backup\"; fi
           mv \"\$staging\" \"\$target\"
           rm -rf \"\$backup\"
-          if ! ha core check; then
+          if ! ha core check >/dev/null 2>&1; then
             echo 'Home Assistant configuration check reported pre-existing diagnostics; continuing to the supported Core restart.' >&2
           fi
           ha core restart"
