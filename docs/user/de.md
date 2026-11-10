@@ -6,10 +6,7 @@ Dein persönlicher Musik-DJ in Home Assistant. Wünsche dir Musik, höre DJ-Beit
 
 ## Version auswählen
 
-Diese Quelle beschreibt den Kandidaten **4.0.0**, keine installierte Veröffentlichung.
-Prüfe die installierte Version. **3.3.1** verlangt eine Assist-Pipeline mit **STT und TTS**.
-Der Kandidat benötigt einen verfügbaren Conversation-Agent; Sprache ist bei der
-Einrichtung optional. Nur verfügbare Sprachwege werden angeboten.
+Diese Anleitung gilt für DJConnect **4.0.0**. Verwende eine Assist-Pipeline mit einem verfügbaren Konversationsagenten. Sprache ist bei der Einrichtung optional.
 
 ## Voraussetzungen
 
@@ -17,13 +14,12 @@ Einrichtung optional. Nur verfügbare Sprachwege werden angeboten.
 - Spotify Direct: Premium, die **Client ID** deiner eigenen Spotify-Developer-App
   und eine externe **HTTPS**-URL von HA. Nabu Casa wird empfohlen, ist aber nicht Pflicht.
 - Music Assistant: eingerichtete Installation und nutzbarer Player, ohne Spotify
-  Client ID oder Spotify OAuth in DJConnect. **Later / manual** gibt es in beiden Versionen.
+  Client ID oder Spotify OAuth in DJConnect. **Later / manual** verschiebt die Musikeinrichtung.
 - Lokale Geräte im selben LAN koppeln; ESP32 benötigt 2,4-GHz-WLAN.
 
 ## Installieren und starten
 
-1. Öffne DJConnect über den Link unten. Nutze ab Home Assistant 2026.11 **Einstellungen → Marketplace**, bei älteren Versionen HACS. Füge das Repository bei Bedarf als **Integration** hinzu unter
-   **Benutzerdefinierte Repositories**. Installiere DJConnect und starte HA neu.
+1. Öffne DJConnect über den Link unten oder unter **Einstellungen → Marketplace → Per Link hinzufügen**. Gib `pcvantol/djconnect` ein und wähle bei Bedarf **Integration**. Installiere DJConnect und starte Home Assistant neu, falls du dazu aufgefordert wirst.
 2. Öffne **Einstellungen → Geräte & Dienste → Integration hinzufügen → DJConnect**.
 3. Wähle Assist, lokales Gerät oder App. Bluetooth richtet optional nur das WLAN
    eines ESP32 ein; anschließend folgt die Kopplung.
@@ -31,7 +27,6 @@ Einrichtung optional. Nur verfügbare Sprachwege werden angeboten.
    sechsstelliger Nummer, ESP32/Pi lokal. Abgelaufene Codes erneuern.
 5. In 4.0 zuerst ein **Profile** auswählen oder erstellen. Wiederverwendung behält
    die Musikverbindung. Ein neues Profile wählt Spotify Direct, Music Assistant oder Later.
-   In 3.3.1 wird zuerst das Backend ausgewählt und danach ein neues Profile angelegt.
 6. Für Spotify eine App im Spotify Developer Dashboard erstellen. Die **genaue
    Redirect-URI aus dem Assistenten** dort eintragen, Client ID eingeben (kein Client Secret)
    und die Autorisierung abschließen. Nach Änderung der externen HA-URL die URI
@@ -44,6 +39,6 @@ Einrichtung optional. Nur verfügbare Sprachwege werden angeboten.
 
 Fehlt Assist, prüfe die Anforderungen deiner Version. Kehrt Spotify nicht zurück,
 prüfe die genaue Redirect-URI. Bei Kopplungsfehlern LAN und Code prüfen. Bei einem
-allgemeinen HA-Symbol erneut über den Marketplace oder HACS herunterladen, HA neu starten und Ansicht erneuern.
+allgemeinen HA-Symbol erneut über den Marketplace herunterladen, HA neu starten und Ansicht erneuern.
 
-[DJConnect](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration) · [Repository](https://github.com/pcvantol/djconnect) · [English / en](installation.md)
+[DJConnect](https://my.home-assistant.io/redirect/marketplace_repository/?owner=pcvantol&repository=djconnect&category=integration) · [Repository](https://github.com/pcvantol/djconnect) · [English / en](installation.md)

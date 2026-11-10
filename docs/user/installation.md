@@ -1,16 +1,14 @@
-# Install and start — 4.0.0 candidate
+# Install and start — 4.0.0
 
 **Your music. Your DJ.** DJConnect is your personal music DJ in Home Assistant.
 Ask for music, enjoy DJ contributions and choose your session mood.
-This guide describes the candidate source, not a public installation claim.
-For installed 3.3.1 use the [stable guide](stable-3.3.1.md).
 [Other languages](README.md).
 
 ## Before you start
 
 - Install Home Assistant. Configure an Assist pipeline with an available
   conversation agent. An empty choice uses the preferred pipeline; repair an
-  unavailable selected agent. STT and TTS are optional for this candidate's setup.
+  unavailable selected agent. STT and TTS are optional for setup.
 - For speech, configure an available HA speech route or use a client's actually
   offered device route. Text-only remains useful when no speech route is configured.
 - Spotify Direct needs Premium, your own Developer Client ID and external HTTPS.
@@ -23,10 +21,9 @@ For installed 3.3.1 use the [stable guide](stable-3.3.1.md).
 
 ## Install
 
-1. [Open DJConnect](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration). On Home Assistant 2026.11 or later, use **Settings → Marketplace**. On earlier versions, use HACS.
-   If needed, add `https://github.com/pcvantol/djconnect` under **Custom repositories**, category
-   **Integration**.
-2. Install DJConnect and restart Home Assistant.
+1. [Open DJConnect](https://my.home-assistant.io/redirect/marketplace_repository/?owner=pcvantol&repository=djconnect&category=integration). On Home Assistant 2026.11, you can also use **Settings → Marketplace → Add from link**.
+   Enter `pcvantol/djconnect` and select **Integration** if asked.
+2. Install DJConnect. Restart Home Assistant if prompted.
 3. Open **Settings → Devices & services → Add integration → DJConnect**.
 
 ## Follow the wizard
@@ -46,4 +43,4 @@ For installed 3.3.1 use the [stable guide](stable-3.3.1.md).
    Backend switching is available later in integration options; Profile reuse
    and switching are different actions.
 
-[Help](troubleshooting.md) · [Stable 3.3.1](stable-3.3.1.md) · [All documentation](../README.md).
+[Help](troubleshooting.md) · [All documentation](../README.md).

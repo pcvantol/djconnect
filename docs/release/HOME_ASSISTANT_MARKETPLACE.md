@@ -26,8 +26,8 @@ store for each version. DJConnect is a community integration with the
    separate from public Marketplace release evidence.
 4. On an isolated Home Assistant 2026.11 instance, open the repository link and
    add it as a custom integration repository. Confirm the offered version,
-   install it, check the DJConnect brand and setup wizard, and verify an update
-   from the supported older integration release preserves its configuration.
+   install it, check the DJConnect brand and setup wizard, and verify a Marketplace-managed installation preserves the existing DJConnect
+   configuration on the test instance.
    Retain the observed release tag and installed version with the smoke evidence.
 
 [Marketplace release and update behavior](https://contributors.home-assistant.io/marketplace/guides/releases/)
