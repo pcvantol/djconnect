@@ -4,11 +4,11 @@ This guide is for the published [integration v3.3.1](https://github.com/pcvantol
 not an onboarding package or the 4.0 candidate. Historical source/tag stays unchanged.
 [Five-language setup](README.md) · [Candidate guide](installation.md).
 
-1. Install Home Assistant and HACS. Configure an Assist pipeline with **both STT
+1. Install Home Assistant. Configure an Assist pipeline with **both STT
    and TTS**: the 3.3.1 setup preflight requires them even if your intended client
    use is textual. The 4.0 candidate has a different conversation-agent prerequisite.
-2. [Open HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration), or add
-   `https://github.com/pcvantol/djconnect` as category **Integration** in Custom repositories.
+2. [Open DJConnect](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration). Use **Settings → Marketplace** on Home Assistant 2026.11 or later, or HACS on earlier versions.
+   If needed, add `https://github.com/pcvantol/djconnect` as category **Integration** in Custom repositories.
    Select the integration release, install DJConnect and restart Home Assistant.
 3. Open **Settings → Devices & services → Add integration → DJConnect**.
 4. Choose Assist, local device or app; Bluetooth can provision ESP32 WiFi before pairing.

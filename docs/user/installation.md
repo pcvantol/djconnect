@@ -8,7 +8,7 @@ For installed 3.3.1 use the [stable guide](stable-3.3.1.md).
 
 ## Before you start
 
-- Install Home Assistant and HACS. Configure an Assist pipeline with an available
+- Install Home Assistant. Configure an Assist pipeline with an available
   conversation agent. An empty choice uses the preferred pipeline; repair an
   unavailable selected agent. STT and TTS are optional for this candidate's setup.
 - For speech, configure an available HA speech route or use a client's actually
@@ -23,8 +23,8 @@ For installed 3.3.1 use the [stable guide](stable-3.3.1.md).
 
 ## Install
 
-1. [Open DJConnect in HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration). Alternatively add
-   `https://github.com/pcvantol/djconnect` under **Custom repositories**, category
+1. [Open DJConnect](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration). On Home Assistant 2026.11 or later, use **Settings → Marketplace**. On earlier versions, use HACS.
+   If needed, add `https://github.com/pcvantol/djconnect` under **Custom repositories**, category
    **Integration**.
 2. Install DJConnect and restart Home Assistant.
 3. Open **Settings → Devices & services → Add integration → DJConnect**.

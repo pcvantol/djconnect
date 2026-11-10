@@ -7,13 +7,13 @@ Votre DJ musical personnel dans Home Assistant. Demandez de la musique, profitez
 ## Choisir la version
 
 Cette source décrit le candidat **4.0.0**, pas une version installée.
-Vérifiez la version dans HACS. **3.3.1** exige un pipeline Assist avec **STT et TTS**.
+Vérifiez la version installée. **3.3.1** exige un pipeline Assist avec **STT et TTS**.
 Le candidat exige un agent de conversation disponible ; la voix est optionnelle
 pour la configuration. Seuls les parcours vocaux disponibles sont proposés.
 
 ## Prérequis
 
-- Home Assistant et HACS ; Assist ne nécessite pas d’appareil couplé séparément.
+- Home Assistant ; Assist ne nécessite pas d’appareil couplé séparément.
 - Spotify Direct : Premium, le **Client ID** de votre propre application Spotify
   Developer et une URL HA externe **HTTPS**. Nabu Casa est recommandé, sans être obligatoire.
 - Music Assistant : installation configurée et lecteur utilisable, sans Client ID
@@ -22,7 +22,7 @@ pour la configuration. Seuls les parcours vocaux disponibles sont proposés.
 
 ## Installer et démarrer
 
-1. Ouvrez le lien HACS ci-dessous ou ajoutez le dépôt comme **Integration** dans
+1. Ouvrez DJConnect avec le lien ci-dessous. À partir de Home Assistant 2026.11, utilisez **Paramètres → Marketplace**. Pour une version antérieure, utilisez HACS. Si nécessaire, ajoutez le dépôt comme **Integration** dans
    **Dépôts personnalisés**. Installez DJConnect puis redémarrez HA.
 2. Ouvrez **Paramètres → Appareils et services → Ajouter une intégration → DJConnect**.
 3. Choisissez Assist, appareil local ou application. Bluetooth configure uniquement
@@ -44,6 +44,6 @@ pour la configuration. Seuls les parcours vocaux disponibles sont proposés.
 
 Assist absent : vérifiez les prérequis de votre version. Spotify ne revient pas :
 vérifiez l’URI exacte. Échec de couplage : vérifiez LAN et code. Icône HA générique :
-téléchargez de nouveau dans HACS, redémarrez HA et actualisez l’interface.
+téléchargez à nouveau via le Marketplace ou HACS, redémarrez HA et actualisez l’interface.
 
-[HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration) · [Repository](https://github.com/pcvantol/djconnect) · [English / en](installation.md)
+[DJConnect](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration) · [Repository](https://github.com/pcvantol/djconnect) · [English / en](installation.md)

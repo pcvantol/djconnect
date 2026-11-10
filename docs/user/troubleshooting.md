@@ -9,7 +9,7 @@
 3. **A local client cannot pair.** Check the same LAN, current six-digit code
    and ESP32's 2.4 GHz WiFi. Follow the app's displayed route rather than guessing
    a hostname from a code. Re-open pairing after a code expires.
-4. **The HA icon is generic.** Redownload DJConnect through HACS, restart HA and
+4. **The HA icon is generic.** Redownload DJConnect through the Marketplace or HACS, restart HA and
    refresh the browser/app cache. This does not change which integration version is installed.
 
 For other problems, check the chosen music backend and playback target in options.
