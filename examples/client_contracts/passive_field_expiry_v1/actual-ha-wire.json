@@ -5,19 +5,19 @@
     "scripts/verification/verify_session_artwork_http.py": "3b4ba06e185d9eef18de42b5c509c2e1932203e9265a9b090b6492f6dd73be8f"
   },
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "648195d831fea8da9647403e3d7cf267f6b9dcd2f4b7d198ed69e6d38a96ae7c",
+  "raw_receipt_sha256": "66131ba0102012af67ddeae5e2e3d2e5501df9454e8a0cb74aa1674517c4684d",
   "receipt": {
     "after": {
       "contract_version": 1,
-      "grant_id": "N_wCcm1FeWTg8B6juDDpg90o70dS5UUG",
+      "grant_id": "u2PLmAFry1bOS6NvwYZbbjwwJAgSugfY",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_eligible_context",
           "state": "unavailable"
         },
-        "as_of": "2026-11-10T09:29:21.202557+00:00",
-        "binding_id": "ba7ea469cb9ce845ecb0a9b4f9740021",
+        "as_of": "2026-11-10T17:51:23.333153+00:00",
+        "binding_id": "f5110142f7feace1a4ea3750579fc6ab",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -31,28 +31,28 @@
           "state": "unavailable"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-10T09:30:56.679995+00:00",
-        "generation": "2be466f437afe091e5f1e30885db2c6b",
+        "expires_at": "2026-11-10T17:52:58.586622+00:00",
+        "generation": "a87785531858fbafbf2327709f8687c2",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-471c3d2cef9f43c8b1b7ad3a8e0c3ed3"
+          "session_id": "session-88c3befea74e44f1854390dad030fdc8"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-10T09:28:56.679995+00:00",
+        "observed_at": "2026-11-10T17:50:58.586622+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "7cd260880dd0df15816e457a7b880a4f",
+        "revision": "76d9a89de168c8b99ec38fc4b8097d35",
         "schema_version": 3,
-        "session_id": "session-471c3d2cef9f43c8b1b7ad3a8e0c3ed3",
+        "session_id": "session-88c3befea74e44f1854390dad030fdc8",
         "state": "active",
         "surface": "widget"
       },
@@ -60,15 +60,15 @@
     },
     "before": {
       "contract_version": 1,
-      "grant_id": "N_wCcm1FeWTg8B6juDDpg90o70dS5UUG",
+      "grant_id": "u2PLmAFry1bOS6NvwYZbbjwwJAgSugfY",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_matching_subject",
           "state": "unavailable"
         },
-        "as_of": "2026-11-10T09:28:56.681521+00:00",
-        "binding_id": "ba7ea469cb9ce845ecb0a9b4f9740021",
+        "as_of": "2026-11-10T17:50:58.588726+00:00",
+        "binding_id": "f5110142f7feace1a4ea3750579fc6ab",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -77,10 +77,10 @@
           "scope": "current_surface_only"
         },
         "contribution": {
-          "expires_at": "2026-11-10T09:29:21.142408+00:00",
-          "moment_id": "moment-6bd4d8f2c3e86c343bdc79b45a901e5c",
+          "expires_at": "2026-11-10T17:51:23.273247+00:00",
+          "moment_id": "moment-efca5c29cf682d94db53fe646a5d0540",
           "persona": "home_dj",
-          "published_at": "2026-11-10T09:28:56.142408+00:00",
+          "published_at": "2026-11-10T17:50:58.273247+00:00",
           "rights": {
             "external_relay": false,
             "os_snapshot": true,
@@ -96,28 +96,28 @@
           "state": "available"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-10T09:30:56.679995+00:00",
-        "generation": "2be466f437afe091e5f1e30885db2c6b",
+        "expires_at": "2026-11-10T17:52:58.586622+00:00",
+        "generation": "a87785531858fbafbf2327709f8687c2",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-471c3d2cef9f43c8b1b7ad3a8e0c3ed3"
+          "session_id": "session-88c3befea74e44f1854390dad030fdc8"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-10T09:28:56.679995+00:00",
+        "observed_at": "2026-11-10T17:50:58.586622+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "7cd260880dd0df15816e457a7b880a4f",
+        "revision": "76d9a89de168c8b99ec38fc4b8097d35",
         "schema_version": 3,
-        "session_id": "session-471c3d2cef9f43c8b1b7ad3a8e0c3ed3",
+        "session_id": "session-88c3befea74e44f1854390dad030fdc8",
         "state": "active",
         "surface": "widget"
       },
@@ -153,7 +153,7 @@
       "custom_components/djconnect/album_narration.py": "6bde5f567f521f96b0e685b4f562fc625aab5484ef05bb83ddb3b02bb836f18b",
       "custom_components/djconnect/announcement_policy.py": "046b5362490e6d581177fe9456473613e164e10fc9baf4739a5b516b8c95bea7",
       "custom_components/djconnect/announcements.py": "4e34b4b46395f8922482ea6d685867dfa69fb43560e4291c88721849acc192c9",
-      "custom_components/djconnect/api_handlers.py": "aaff107197fddd2521bcab07367835c7764a069f47cf3ce25eda474821f7ce51",
+      "custom_components/djconnect/api_handlers.py": "7c204d198093227d45775ff26f47c81f46ac7d61becf437080c4e64fc19160a3",
       "custom_components/djconnect/artist_photo.py": "7906f54674d68cad45dc10281b07fdd339c39117b962fd182cba9119b93d5ac7",
       "custom_components/djconnect/artist_review_words.py": "e0e54572d173d04e2b79093e532d1bc55d264435298ee4628c5a92fd636efc2c",
       "custom_components/djconnect/ask_dj/__init__.py": "f55613d742601418268d03f26fb558b56229465f45e3514b22ce49b3ed8bcf14",
@@ -356,7 +356,7 @@
       "custom_components/djconnect/presence_policy.py": "31f33c4e70cc2d144045a2fa3d949e9282251c772fe3deb256f45d6dbe3b9f83",
       "custom_components/djconnect/presentation_composer.py": "bc16ebcf1c9e2fd2d53d8c7ba488b2e174771501d08030589af972baff5355a5",
       "custom_components/djconnect/processor.py": "6e1138e9205fb9ac80ab0cc2d454e3f9619249e7e59ea35e9e192f96f2713017",
-      "custom_components/djconnect/profile_backend.py": "4b19f7b37dac97573fd4dbccd3fe2973aeac236e5783a2d08ccdb360d38f3ad4",
+      "custom_components/djconnect/profile_backend.py": "9096f816d66d7d2cb1b1c38b35c78e738ccad760382c96e869be48b934ab0933",
       "custom_components/djconnect/profile_context.py": "20cd040046af8276b3314596ff653148c856d3f3a9ed70fe3ad0c73490b6d851",
       "custom_components/djconnect/profile_export.py": "69146e56bfef2bc0983a9499acaa0ff54fa9c9664010d1e75e1c2acae10a316d",
       "custom_components/djconnect/profile_observation.py": "6f2b7897f68172fb6600f3e0be2197404da880aaac8ab23dcc2abf7826269b1c",
@@ -393,7 +393,7 @@
       "custom_components/djconnect/speech_feedback.py": "d5ced0209a34324cc98adab1bfee5663cfce9e45c720b673ef06ef41b95df671",
       "custom_components/djconnect/speech_processor.py": "0c347f8049b1586a15d0386d08ab4719cbdfd19c33ec4aa1f81d61369da1790c",
       "custom_components/djconnect/spotify.py": "9b3678ed3cba8d29bdfc11f7f06cf42b7ba7cc7aa46e8d0032305c46cba4129d",
-      "custom_components/djconnect/spotify_backend.py": "1c40cd95a38d7e2d706ebb5ae294518f8df03c1e304176665fa47f3ac865ac27",
+      "custom_components/djconnect/spotify_backend.py": "22a550da195378042169b09b88a1a9fd056d69338ceab5be38ae969eec562eea",
       "custom_components/djconnect/spotify_connection_repair.py": "558a9b550599776bd88a2d94bc082d6fb4b45afc6882e04e9011a41b53ca9ef3",
       "custom_components/djconnect/spotify_oauth.py": "38a28235e9bff336fb5ae3406ed591cd742a699c65673017ca5aaeb01f1db3ff",
       "custom_components/djconnect/strings.json": "e25e730a3bf1645d164cf2037cb66e97bf3c537a0a72e23731846386ac248fa2",
@@ -463,7 +463,7 @@
       "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
       "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
     },
-    "waited_real_seconds": 24.51071195602417
+    "waited_real_seconds": 24.734051752090455
   },
   "source_before_after_equal": true,
   "source_pins": {
@@ -473,7 +473,7 @@
     "custom_components/djconnect/album_narration.py": "6bde5f567f521f96b0e685b4f562fc625aab5484ef05bb83ddb3b02bb836f18b",
     "custom_components/djconnect/announcement_policy.py": "046b5362490e6d581177fe9456473613e164e10fc9baf4739a5b516b8c95bea7",
     "custom_components/djconnect/announcements.py": "4e34b4b46395f8922482ea6d685867dfa69fb43560e4291c88721849acc192c9",
-    "custom_components/djconnect/api_handlers.py": "aaff107197fddd2521bcab07367835c7764a069f47cf3ce25eda474821f7ce51",
+    "custom_components/djconnect/api_handlers.py": "7c204d198093227d45775ff26f47c81f46ac7d61becf437080c4e64fc19160a3",
     "custom_components/djconnect/artist_photo.py": "7906f54674d68cad45dc10281b07fdd339c39117b962fd182cba9119b93d5ac7",
     "custom_components/djconnect/artist_review_words.py": "e0e54572d173d04e2b79093e532d1bc55d264435298ee4628c5a92fd636efc2c",
     "custom_components/djconnect/ask_dj/__init__.py": "f55613d742601418268d03f26fb558b56229465f45e3514b22ce49b3ed8bcf14",
@@ -676,7 +676,7 @@
     "custom_components/djconnect/presence_policy.py": "31f33c4e70cc2d144045a2fa3d949e9282251c772fe3deb256f45d6dbe3b9f83",
     "custom_components/djconnect/presentation_composer.py": "bc16ebcf1c9e2fd2d53d8c7ba488b2e174771501d08030589af972baff5355a5",
     "custom_components/djconnect/processor.py": "6e1138e9205fb9ac80ab0cc2d454e3f9619249e7e59ea35e9e192f96f2713017",
-    "custom_components/djconnect/profile_backend.py": "4b19f7b37dac97573fd4dbccd3fe2973aeac236e5783a2d08ccdb360d38f3ad4",
+    "custom_components/djconnect/profile_backend.py": "9096f816d66d7d2cb1b1c38b35c78e738ccad760382c96e869be48b934ab0933",
     "custom_components/djconnect/profile_context.py": "20cd040046af8276b3314596ff653148c856d3f3a9ed70fe3ad0c73490b6d851",
     "custom_components/djconnect/profile_export.py": "69146e56bfef2bc0983a9499acaa0ff54fa9c9664010d1e75e1c2acae10a316d",
     "custom_components/djconnect/profile_observation.py": "6f2b7897f68172fb6600f3e0be2197404da880aaac8ab23dcc2abf7826269b1c",
@@ -713,7 +713,7 @@
     "custom_components/djconnect/speech_feedback.py": "d5ced0209a34324cc98adab1bfee5663cfce9e45c720b673ef06ef41b95df671",
     "custom_components/djconnect/speech_processor.py": "0c347f8049b1586a15d0386d08ab4719cbdfd19c33ec4aa1f81d61369da1790c",
     "custom_components/djconnect/spotify.py": "9b3678ed3cba8d29bdfc11f7f06cf42b7ba7cc7aa46e8d0032305c46cba4129d",
-    "custom_components/djconnect/spotify_backend.py": "1c40cd95a38d7e2d706ebb5ae294518f8df03c1e304176665fa47f3ac865ac27",
+    "custom_components/djconnect/spotify_backend.py": "22a550da195378042169b09b88a1a9fd056d69338ceab5be38ae969eec562eea",
     "custom_components/djconnect/spotify_connection_repair.py": "558a9b550599776bd88a2d94bc082d6fb4b45afc6882e04e9011a41b53ca9ef3",
     "custom_components/djconnect/spotify_oauth.py": "38a28235e9bff336fb5ae3406ed591cd742a699c65673017ca5aaeb01f1db3ff",
     "custom_components/djconnect/strings.json": "e25e730a3bf1645d164cf2037cb66e97bf3c537a0a72e23731846386ac248fa2",

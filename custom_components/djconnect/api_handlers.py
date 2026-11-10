@@ -1268,10 +1268,22 @@ def _unexpected_backend_error_result(
     exc: Exception,
 ) -> tuple[dict[str, Any], int]:
     """Map expected and unexpected backend exceptions to legacy responses."""
-    from .spotify_backend import SpotifyOutputError
+    from .spotify_backend import SpotifyBackendError, SpotifyOutputError
     from .domain.storage import ProfileStorageValidationError
     if normalized_command in {"set_volume", "volume_delta"}:
         return _volume_command_error_result(runtime, data, command, normalized_command, exc=exc)
+    if (
+        normalized_command in {"save_current_track", "set_current_track_favorite", "toggle_current_track_favorite"}
+        and isinstance(exc, SpotifyBackendError)
+        and exc.http_status == 429
+    ):
+        result = {
+            **_error_payload("spotify_rate_limited"),
+            "error_scope": "command",
+            "retry_automatically": False,
+            "retry_after_seconds": exc.retry_after,
+        }
+        return _backend_error_result(runtime, data, command, normalized_command, result, 200)
     if isinstance(exc, SpotifyOutputError):
         from .playback_request import failure
         from .ask_dj import _response_language

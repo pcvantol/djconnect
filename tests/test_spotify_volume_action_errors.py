@@ -108,6 +108,19 @@ class SpotifyVolumeActionErrorTests(unittest.TestCase):
         self.assertEqual(runtime.last_playback['title'], 'retained-track')
         return response, calls
 
+    def test_favorite_rate_limit_preserves_global_backend_health(self):
+        response, calls = self.invoke(
+            "set_current_track_favorite",
+            exception=self.spotify.SpotifyBackendError("Rate limited", http_status=429, retry_after=120),
+            value=True,
+        )
+        self.assertEqual(calls, ["set_current_track_favorite"])
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(response["payload"]["error"], "spotify_rate_limited")
+        self.assertEqual(response["payload"]["retry_after_seconds"], 120)
+        self.assertFalse(response["payload"]["retry_automatically"])
+        self.assertNotIn("backend_available", response["payload"])
+
     def test_both_commands_keep_global_health_and_dj_state_for_action_failures(self):
         for command in ('set_volume', 'volume_delta'):
             for health in (True, False):
