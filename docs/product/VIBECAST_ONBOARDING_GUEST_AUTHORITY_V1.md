@@ -149,6 +149,36 @@ not qualify live receiver acceptance, mobile Safari or OS session restore.
 Any public release requires exact-revision browser evidence and separate
 live acceptance. The API trial for build 40522 is independent of this exception.
 
+## Approved Core exception for replacing an expired public QR on reload
+
+Core approves the public A bootstrap behavior in Receiver
+[PR #60](https://github.com/djconnect-music-dj/djconnect-vibecast-receiver/pull/60)
+at head `882d5610c35a1394f8b5ef35515e51b7e6d7b0d4`, merged as
+`045cd6a3d88c385572cacacefdef0c37369b48e3`. This is a narrow extension of the
+storage exception above.
+
+* An explicit reload may request a fresh transaction in the visible original
+  top-level tab and navigation entry under the exclusive browser lock. Both
+  the original server expiry and the original browser monotonic deadline must
+  have elapsed. Before expiry, only the original invitation may be resumed
+  under the authenticated poll rules above.
+* The replacement requires a settled local record with no poll in flight or
+  unreconciled and no consume attempt still marked as started. A lost consume
+  response or a post-commit HTTP 503 retains that fence. An expired record
+  cannot itself be polled, consumed or displayed.
+* Delete the old IndexedDB record and discard its wrapping key before
+  preparing fresh invitation material. After expiry cleanup the page session
+  may retain a one-use restart marker with only the two original deadlines
+  alongside the existing tab and entry markers. Discard the restart marker
+  before creating the replacement. Missing or invalid state, failed cleanup
+  or missing lock ownership fails closed. The replacement uses a new key,
+  claim and transaction with its own 120-second lifetime.
+
+B display admission, device credentials and guest grants remain outside this
+exception. Production promotion still requires independent API confirmation
+of server-side expiry and single-use consume, exact-revision browser evidence
+and separate live acceptance.
+
 ## A then B, not one generic pairing
 
 ```mermaid
