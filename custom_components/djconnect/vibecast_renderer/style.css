@@ -35,6 +35,18 @@ header { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); g
 #state { color:#fff; letter-spacing:.08em }
 .session-status,.session-icons { display:flex; align-items:center; gap:clamp(.45rem,1.1vw,.9rem) }
 .session-status { grid-column:3; justify-self:end }
+header .session-status:has(.display-language:not([hidden])) {
+  display:grid; grid-template-columns:minmax(0,1fr) auto; justify-items:end; column-gap:.4rem; row-gap:.35rem;
+  width:100%; min-width:0;
+}
+.display-language {
+  grid-column:1 / -1; justify-self:end; max-inline-size:100%; min-inline-size:0;
+  color:#f4f5ff; background:#243047; border:1px solid #71839e; border-radius:2rem;
+  padding:.35em .45em; font:inherit; font-size:clamp(.72rem,2.9vw,.95rem);
+  letter-spacing:normal; text-transform:none; color-scheme:dark;
+}
+.display-language:focus-visible { outline:2px solid currentColor; outline-offset:2px }
+
 .session-icons { color:#fff }
 .session-icons[hidden],.session-icons svg[hidden] { display:none }
 .session-icons svg { flex:none; width:clamp(1rem,2vw,1.5rem); height:auto; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round }

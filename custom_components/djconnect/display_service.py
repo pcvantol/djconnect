@@ -227,9 +227,16 @@ class DisplayAdmissionService:
                 result = getattr(state, action)(**args) or {}
                 if action == "collect" and result.get("state") == "admitted":
                     display = state._displays[result["display_id"]]
+                    active = self.manager.current_active(display.owner.profile_id)
+                    locale = active.locale if active is not None and active.session_id == display.owner.session_id else None
+                    if locale in {"en", "nl", "de", "fr", "es"}:
+                        result["session_locale"] = locale
                     def guard():
+                        current = self.manager.current_active(display.owner.profile_id)
                         return (state._displays.get(display.display_id) is display
                                             and display.owner.valid() and display.lease_deadline > state._clock()
+                                            and ("session_locale" not in result or (current is not None
+                                                and current.session_id == display.owner.session_id and current.locale == locale))
                                             and (share := state._shares.get(display.share_id)) is not None
                                             and share.owner.valid() and share.deadline > state._clock())
             else:

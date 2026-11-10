@@ -66,7 +66,7 @@
   }
   function useLanguage() {
     const requested = String(read(projection,["session","locale"]) || "").slice(0,2).toLowerCase();
-    const selected = copy[requested] ? requested : (displayLocale || (copy[language] ? language : "en"));
+    const selected = displayLocale || (copy[requested] ? requested : (copy[language] ? language : "en"));
     const changed=root.lang!==selected;
     text = copy[selected]; root.lang = selected;
     const buildLabel=e("renderer-build-label");
@@ -775,7 +775,7 @@
   e("state").textContent=text.idle;
   e("title").textContent=text.waiting;
   e("mood").textContent=text.ambient;
-  if (sessionId && broadcastToken) connect(); else e("state").textContent=text.unavailable;
+  if (sessionId && broadcastToken) connect(); else if (!displayHost) e("state").textContent=text.unavailable;
   window.addEventListener("djconnect-handoff",({detail}) => {
     if (displayHost) return;
     if (!(detail && detail.session_id) || !(detail && detail.broadcast_token)) return;
@@ -803,8 +803,10 @@
     connectFlowControls();
     window.addEventListener("djconnect-display-locale",({detail}) => {
       displayLocale=typeof detail==="string" && /^(en|nl|de|fr|es)$/.test(detail) ? detail : "";
+      const state=e("state");
+      const status=["idle","connecting","unavailable","live"].find(key=>text[key]===state.textContent);
       render(false);
-      if (!snapshotAccepted) e("state").textContent=text.connecting;
+      if (!snapshotAccepted && status) state.textContent=text[status];
     });
     window.addEventListener("djconnect-display-clear",stopHost);
     window.addEventListener("djconnect-display-artwork",({detail}) => {

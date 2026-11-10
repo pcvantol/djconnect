@@ -217,7 +217,8 @@ def shared_snapshot(active, authority, state, *, now=None, wall=None):
         if display_current:
             moments.append(item)
         if flow_allowed:
-            flow.append((boundary.published_monotonic, {**item, "flow_expires_at": flow_expires_at}))
+            flow.append((boundary.published_monotonic, {**item, "published_at": boundary.published_at,
+                                                        "flow_expires_at": flow_expires_at}))
     flow.sort(key=lambda publication: publication[0])
     moments = moments[-24:]
     current_moment_id = next((item["moment_id"] for item in moments if item["moment_id"] == current_candidate), None)

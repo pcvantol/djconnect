@@ -642,14 +642,42 @@ def _manual_backend_text(hass: HomeAssistant, translations: dict[str, str]) -> s
     return translations.get(language, translations["en"])
 
 
-def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
+def music_backend_metadata(
+    hass: HomeAssistant, runtime: Any, *, tolerate_unavailable_connection: bool = False
+) -> dict[str, Any]:
     """Return the client-visible selected music backend contract."""
     backend = _active_backend_name(runtime)
     if backend not in MUSIC_BACKEND_NAMES and backend != MUSIC_BACKEND_LATER_MANUAL:
         backend = DEFAULT_MUSIC_BACKEND
-    adapter = _selected_backend(hass, runtime)
+    from .domain.storage import ProfileStorageValidationError
     from .profile_backend import profile_backend_runtime
-    connection_runtime = profile_backend_runtime(hass, runtime)
+
+    selection = {
+        "music_backend": backend,
+        "music_backend_name": (
+            _manual_backend_text(hass, MUSIC_BACKEND_MANUAL_NAMES)
+            if backend == MUSIC_BACKEND_LATER_MANUAL
+            else MUSIC_BACKEND_NAMES[backend]
+        ),
+        "music_backend_revision": _int_revision(
+            getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND_REVISION)
+        ),
+    }
+
+    try:
+        adapter = _selected_backend(hass, runtime)
+        connection_runtime = profile_backend_runtime(hass, runtime)
+    except ProfileStorageValidationError as exc:
+        if not tolerate_unavailable_connection or str(exc) != "profile_connection_unavailable":
+            raise
+        return {
+            **selection,
+            "music_backend_available": False,
+            "music_backend_capabilities": dict(MusicBackendCapabilities().__dict__),
+            "music_backend_observation_capabilities": dict(MusicBackendObservationCapabilities().__dict__),
+            "music_target_player": {},
+            "music_backend_error": {"code": "profile_connection_unavailable"},
+        }
     target_player = {}
     if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
         player_id = str(
@@ -686,16 +714,8 @@ def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
             "message": "The selected Music Assistant player is not configured.",
         }
     return {
-        "music_backend": backend,
-        "music_backend_name": (
-            _manual_backend_text(hass, MUSIC_BACKEND_MANUAL_NAMES)
-            if backend == MUSIC_BACKEND_LATER_MANUAL
-            else MUSIC_BACKEND_NAMES[backend]
-        ),
+        **selection,
         "music_backend_available": available,
-        "music_backend_revision": _int_revision(
-            getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND_REVISION)
-        ),
         "music_backend_capabilities": dict(adapter.capabilities.__dict__),
         "music_backend_observation_capabilities": dict(adapter.observation_capabilities.__dict__),
         "music_target_player": target_player,

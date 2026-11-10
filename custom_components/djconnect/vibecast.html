@@ -39,6 +39,18 @@ header { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); g
 #state { color:#fff; letter-spacing:.08em }
 .session-status,.session-icons { display:flex; align-items:center; gap:clamp(.45rem,1.1vw,.9rem) }
 .session-status { grid-column:3; justify-self:end }
+header .session-status:has(.display-language:not([hidden])) {
+  display:grid; grid-template-columns:minmax(0,1fr) auto; justify-items:end; column-gap:.4rem; row-gap:.35rem;
+  width:100%; min-width:0;
+}
+.display-language {
+  grid-column:1 / -1; justify-self:end; max-inline-size:100%; min-inline-size:0;
+  color:#f4f5ff; background:#243047; border:1px solid #71839e; border-radius:2rem;
+  padding:.35em .45em; font:inherit; font-size:clamp(.72rem,2.9vw,.95rem);
+  letter-spacing:normal; text-transform:none; color-scheme:dark;
+}
+.display-language:focus-visible { outline:2px solid currentColor; outline-offset:2px }
+
 .session-icons { color:#fff }
 .session-icons[hidden],.session-icons svg[hidden] { display:none }
 .session-icons svg { flex:none; width:clamp(1rem,2vw,1.5rem); height:auto; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round }
@@ -544,14 +556,23 @@ main { height:auto; min-width:0 }
   <svg id="session-mood-icon" viewBox="0 0 24 24" role="img" focusable="false" hidden><path/></svg>
   <svg id="session-persona-icon" viewBox="0 0 24 24" role="img" focusable="false" hidden><path/></svg>
   <svg id="session-presence-icon" viewBox="0 0 24 24" role="img" focusable="false" hidden><path/></svg>
-</span><span id="state" data-testid="connection-state">Idle</span></div></header><section class="stage"><div class="now-playing"><div class="waiting-brand"><svg class="hero-symbol" viewBox="0 0 96 80" width="96" height="80" aria-hidden="true" focusable="false">
+</span><span id="state" data-testid="connection-state">Idle</span><select id="display-language" class="display-language" aria-label="Language" hidden>
+  <option value="en" lang="en">English</option>
+  <option value="nl" lang="nl">Nederlands</option>
+  <option value="de" lang="de">Deutsch</option>
+  <option value="fr" lang="fr">Français</option>
+  <option value="es" lang="es">Español</option>
+</select></div></header><section class="stage"><div class="now-playing"><div class="waiting-brand"><svg class="hero-symbol" viewBox="0 0 96 80" width="96" height="80" aria-hidden="true" focusable="false">
   <defs>
+    <linearGradient id="receiver-symbol-gradient" x1="10" y1="8" x2="87" y2="73" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#62d8f2"/><stop offset=".55" stop-color="#8aa7ff"/><stop offset="1" stop-color="#c392ff"/>
+    </linearGradient>
     <g id="receiver-symbol-strokes" fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M55 57H15a6 6 0 0 1-6-6V20a6 6 0 0 1 6-6h53a6 6 0 0 1 6 6v20"/>
-      <path d="M27 66h28"/>
-      <path d="M60 53a19 19 0 0 1 28 0M66 60a11 11 0 0 1 16 0"/>
+      <path d="M51 58H13a5 5 0 0 1-5-5V18a5 5 0 0 1 5-5h58a5 5 0 0 1 5 5v25"/>
+      <path d="M26 69h29"/>
+      <path d="M60 56a21 21 0 0 1 30 0M65 62a14 14 0 0 1 20 0"/>
     </g>
-    <circle id="receiver-symbol-dot" cx="74" cy="66" r="2.6"/>
+    <circle id="receiver-symbol-dot" cx="75" cy="69" r="3"/>
     <path id="receiver-symbol-light-sector" d="M48 40L127.936 36.789A80 80 0 0 1 127.936 43.211Z"/>
     <mask id="receiver-symbol-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="96" height="80">
       <use href="#receiver-symbol-strokes" stroke="white"/>
@@ -563,8 +584,8 @@ main { height:auto; min-width:0 }
       <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-  <use class="hero-symbol-strokes" href="#receiver-symbol-strokes" stroke="#f7f8ff"/>
-  <use class="hero-symbol-dot" href="#receiver-symbol-dot" fill="#f7f8ff"/>
+  <use class="hero-symbol-strokes" href="#receiver-symbol-strokes" stroke="url(#receiver-symbol-gradient)"/>
+  <use class="hero-symbol-dot" href="#receiver-symbol-dot" fill="#c6b5ff"/>
   <g class="hero-symbol-glow" filter="url(#receiver-symbol-bloom)">
     <g mask="url(#receiver-symbol-mask)">
       <g class="hero-symbol-light" fill="white">
@@ -692,7 +713,7 @@ main { height:auto; min-width:0 }
 </aside>
 </div></section><footer><section id="up-next" class="up-next" hidden><img id="next-art" alt=""><div><span id="next-label" class="up-next-label"></span><strong id="next-title"></strong><span id="next-artist"></span></div></section><progress id="progress" max="1" value="0" hidden></progress><div class="meta"><span id="time"></span></div></footer></main>
 <footer class="renderer-footer">
-  <span id="renderer-build"><span id="renderer-build-label">VibeCast versie</span> 4.0.0 (98ee0e10)</span>
+  <span id="renderer-build"><span id="renderer-build-label">VibeCast versie</span> 4.0.0 (5609cb96)</span>
   <a href="https://djconnect.dev/" rel="noreferrer">
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m9 15 6-6m-5 0h5v5"/></svg>
     djconnect.dev
@@ -766,7 +787,7 @@ main { height:auto; min-width:0 }
   }
   function useLanguage() {
     const requested = String(read(projection,["session","locale"]) || "").slice(0,2).toLowerCase();
-    const selected = copy[requested] ? requested : (displayLocale || (copy[language] ? language : "en"));
+    const selected = displayLocale || (copy[requested] ? requested : (copy[language] ? language : "en"));
     const changed=root.lang!==selected;
     text = copy[selected]; root.lang = selected;
     const buildLabel=e("renderer-build-label");
@@ -1475,7 +1496,7 @@ main { height:auto; min-width:0 }
   e("state").textContent=text.idle;
   e("title").textContent=text.waiting;
   e("mood").textContent=text.ambient;
-  if (sessionId && broadcastToken) connect(); else e("state").textContent=text.unavailable;
+  if (sessionId && broadcastToken) connect(); else if (!displayHost) e("state").textContent=text.unavailable;
   window.addEventListener("djconnect-handoff",({detail}) => {
     if (displayHost) return;
     if (!(detail && detail.session_id) || !(detail && detail.broadcast_token)) return;
@@ -1503,8 +1524,10 @@ main { height:auto; min-width:0 }
     connectFlowControls();
     window.addEventListener("djconnect-display-locale",({detail}) => {
       displayLocale=typeof detail==="string" && /^(en|nl|de|fr|es)$/.test(detail) ? detail : "";
+      const state=e("state");
+      const status=["idle","connecting","unavailable","live"].find(key=>text[key]===state.textContent);
       render(false);
-      if (!snapshotAccepted) e("state").textContent=text.connecting;
+      if (!snapshotAccepted && status) state.textContent=text[status];
     });
     window.addEventListener("djconnect-display-clear",stopHost);
     window.addEventListener("djconnect-display-artwork",({detail}) => {
