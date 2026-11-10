@@ -42,7 +42,7 @@ class VibeCastDocsTest(unittest.TestCase):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         sync_prompts = (ROOT / "SYNC_PROMPTS.md").read_text(encoding="utf-8")
 
-        self.assertIn("docs/README.md", readme)
+        self.assertIn("docs/user/installation.md", readme)
         self.assertIn("API_CONTRACT.md", (ROOT / "docs/README.md").read_text())
         self.assertIn("Clients poll:", sync_prompts)
         self.assertIn("GET /api/djconnect/v1/vibecast", sync_prompts)
