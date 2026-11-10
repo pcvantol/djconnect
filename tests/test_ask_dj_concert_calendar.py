@@ -88,6 +88,41 @@ class ConcertCalendarTests(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(r.concert_calendar_answer((item,), 'Example Band', 'en'))
         self.assertIsNone(r.concert_calendar_answer((source,), 'Other Band', 'en'))
 
+    async def test_band_activity_followup_uses_previous_public_artist(self):
+        from custom_components.djconnect.ask_dj import public_research as r
+        from urllib.parse import parse_qs, urlsplit
+
+        f = shared.SharedDialogueTest()
+        await f.asyncSetUp()
+        try:
+            f.reply = 'Example Band is a music band.'
+            await f.request('Who is Example Band?', identifier='band-context')
+            calls = []
+
+            async def fetched(owner, url, **kwargs):
+                await owner.guard()
+                owner.requests += 1
+                calls.append(url)
+                if wikipedia_api_fixture(url):
+                    self.assertEqual(parse_qs(urlsplit(url).query).get('titles'), ['Example Band'])
+                    return 200, json.dumps({'query': {'pages': [{'title': 'Example Band',
+                        'extract': 'Example Band was een rockband uit Voorbeeldstad, actief van 1996 tot 2009.',
+                        'pageprops': {}, 'revisions': [{'revid': 123}]}]}}), url
+                return 200, 'User-agent: *\nDisallow: /', url
+
+            with patch.object(r.PublicFetch, 'request', fetched):
+                for index, question in enumerate(('Treden ze nog op?', 'Zijn ze gestopt?',
+                                                   'Hebben ze concerten gepland?')):
+                    with self.subTest(question=question):
+                        result, status = await f.request(question, identifier=f'band-followup-{index}', language='nl')
+                        self.assertEqual(status, 200, result)
+                        self.assertEqual(result.get('knowledge_basis'), 'public_band_activity_v1', (result, calls))
+                        self.assertIn('actief tot 2009', result['text'])
+                        self.assertIn('geen komende optredens bevestigen', result['text'])
+            self.assertEqual(f.effects, [])
+        finally:
+            await f.asyncTearDown()
+
     async def _shared_calendar(self, *, expire=False):
         f = shared.SharedDialogueTest()
         await f.asyncSetUp()
