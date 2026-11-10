@@ -38,14 +38,14 @@ Complete earlier bodies below retain their historical scope.
 Your personal music DJ in Home Assistant. Ask for music and enjoy DJ contributions
 from an available DJConnect app, supported device or Home Assistant Assist.
 
-**[Open DJConnect in HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration)**
+**[Open DJConnect in Home Assistant Marketplace](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration)**
 
 [English](docs/user/installation.md) · [Nederlands](docs/user/nl.md) ·
 [Deutsch](docs/user/de.md) · [Français](docs/user/fr.md) · [Español](docs/user/es.md)
 
 > This branch describes **4.0.0**, a candidate, not an installed-release claim.
 > Installed **3.3.1**? Follow the [stable setup guide](docs/user/stable-3.3.1.md).
-> Check your installed version in HACS before following the wizard steps.
+> Check your installed version in Home Assistant before following the wizard steps.
 
 Help examples in English and Dutch use your connected server’s current availability. You can always ask in your own words. See [Help scope and release evidence](docs/verification/HELP_EN_NL_LIVE_PUBLICATION_20261026.md).
 
@@ -57,7 +57,7 @@ Help examples in English and Dutch use your connected server’s current availab
 
 ## What you need
 
-- **Home Assistant and HACS**, plus a configured Assist pipeline. The 4.0 candidate
+- **Home Assistant**, plus a configured Assist pipeline. The 4.0 candidate
   needs an available conversation agent; STT/TTS are optional for setup. Stable
   3.3.1 needs a pipeline with both STT and TTS: see its versioned guide.
 - **Choose a music route:** Spotify Direct needs Spotify Premium, your own Spotify
@@ -70,10 +70,10 @@ Help examples in English and Dutch use your connected server’s current availab
 
 ## Install
 
-1. [Open HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration). If needed, use
-   **Custom repositories**, add `https://github.com/pcvantol/djconnect` and select
+1. [Open DJConnect](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration). Use **Settings → Marketplace** on Home Assistant 2026.11 or later, or HACS on earlier versions.
+   If needed, open **Custom repositories**, add `https://github.com/pcvantol/djconnect` and select
    category **Integration**.
-2. Install **DJConnect** from HACS.
+2. Install **DJConnect**.
 3. **Restart Home Assistant.**
 4. Go to **Settings → Devices & services → Add integration → DJConnect**.
 
@@ -98,7 +98,7 @@ Help examples in English and Dutch use your connected server’s current availab
 - **Spotify login does not return:** copy the exact redirect URI from the wizard
   into Spotify Developer Dashboard; update it and reauthorize after an external URL change.
 - **Local pairing fails:** check the LAN and use the current six-digit code.
-- **Generic HA icon:** redownload in HACS, restart HA and refresh the frontend cache.
+- **Generic HA icon:** redownload from the Marketplace or HACS, restart HA and refresh the frontend cache.
 
 [More help](docs/user/troubleshooting.md) · [Documentation](docs/README.md) ·
 [Website](https://djconnect.dev) · [Source](https://github.com/pcvantol/djconnect)

@@ -11,6 +11,9 @@
       "service_uuid": "7f705000-9f8f-4f1a-9b5f-570071fd0001"
     }
   ],
+  "categories": [
+    "media_entertainment.music_radio_services"
+  ],
   "codeowners": [
     "@pcvantol"
   ],

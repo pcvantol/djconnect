@@ -7,13 +7,13 @@ Je persoonlijke muziek-DJ in Home Assistant. Vraag muziek aan, geniet van DJ-bij
 ## Kies je versie
 
 Deze bron beschrijft kandidaat **4.0.0**, geen geïnstalleerde release.
-Controleer de versie in HACS. In **3.3.1** is een Assist-pipeline met **STT én TTS**
+Controleer de geïnstalleerde versie. In **3.3.1** is een Assist-pipeline met **STT én TTS**
 verplicht. De kandidaat vraagt een beschikbare conversation-agent; spraak is
 optioneel bij het instellen. Alleen beschikbare spraakroutes worden aangeboden.
 
 ## Nodig
 
-- Home Assistant en HACS. Voor Assist is geen apart gekoppeld apparaat nodig.
+- Home Assistant. Voor Assist is geen apart gekoppeld apparaat nodig.
 - Spotify Direct: Premium, je eigen Spotify Developer-app **Client ID** en een
   externe **HTTPS**-URL van HA. Nabu Casa is aanbevolen, niet verplicht.
 - Music Assistant: geconfigureerd en een bruikbare speler; geen Spotify Client ID
@@ -22,7 +22,7 @@ optioneel bij het instellen. Alleen beschikbare spraakroutes worden aangeboden.
 
 ## Installeren en starten
 
-1. Open de HACS-link hieronder, of voeg de repository als **Integration** toe bij
+1. Open DJConnect via de link hieronder. Gebruik **Instellingen → Marketplace** vanaf Home Assistant 2026.11, of HACS op oudere versies. Voeg de repository zo nodig als **Integration** toe bij
    **Aangepaste repositories**. Installeer DJConnect en herstart Home Assistant.
 2. Open **Instellingen → Apparaten & diensten → Integratie toevoegen → DJConnect**.
 3. Kies Assist, lokaal apparaat of app. Bluetooth kan optioneel alleen de WiFi
@@ -43,6 +43,6 @@ optioneel bij het instellen. Alleen beschikbare spraakroutes worden aangeboden.
 
 Assist ontbreekt? Controleer de voorwaarden voor jouw versie. Spotify keert niet
 terug? Controleer de exacte redirect-URI. Koppeling mislukt? Controleer LAN en code.
-Generiek HA-pictogram? Download opnieuw in HACS, herstart en ververs de frontend.
+Generiek HA-pictogram? Download opnieuw via Marketplace of HACS, herstart en ververs de frontend.
 
-[HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration) · [Repository](https://github.com/pcvantol/djconnect) · [English / en](installation.md)
+[DJConnect](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration) · [Repository](https://github.com/pcvantol/djconnect) · [English / en](installation.md)

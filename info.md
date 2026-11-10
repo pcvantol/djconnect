@@ -9,10 +9,10 @@ and choose your session mood through an available client or Assist.
 
 Help examples in English and Dutch appear when DJConnect can confirm they are available. You can always ask in your own words. [About Help](https://github.com/pcvantol/djconnect/blob/main/docs/product/ASK_DJ_EXAMPLE_CATALOGUE_V1.md).
 
-**[Install with HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration)**, restart Home Assistant, then open
+**[Open DJConnect in Home Assistant Marketplace](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration)** (HACS on older Home Assistant versions). Install DJConnect, restart Home Assistant, then open
 **Settings → Devices & services → Add integration → DJConnect**.
 
-This branch describes candidate **4.0.0**; check your installed HACS version.
+This branch describes candidate **4.0.0**; check your installed integration version.
 Stable **3.3.1** requires Assist STT + TTS; the candidate requires an available
 conversation agent and makes speech optional for setup. Spotify Direct needs
 Premium, your Developer Client ID and external HTTPS. Music Assistant needs a
