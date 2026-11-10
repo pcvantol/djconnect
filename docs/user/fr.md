@@ -4,7 +4,7 @@
 
 Votre DJ musical personnel dans Home Assistant. Demandez de la musique, profitez des interventions du DJ et choisissez l’ambiance de votre session.
 
-## Choisir la version
+## Avant de commencer
 
 Ce guide concerne DJConnect **4.0.0**. Utilisez un pipeline Assist avec un agent de conversation disponible. La voix est facultative pendant la configuration.
 
@@ -25,7 +25,7 @@ Ce guide concerne DJConnect **4.0.0**. Utilisez un pipeline Assist avec un agent
    le WiFi d’un ESP32, si nécessaire ; le couplage vient ensuite.
 4. Assist ignore le couplage. Si nécessaire : iPhone/Watch par QR, macOS avec l’URL HA et le code à six chiffres
    affichés, ESP32/Pi localement. Renouvelez un code expiré.
-5. En 4.0, choisissez ou créez d’abord un **Profile**. La réutilisation conserve sa
+5. Choisissez ou créez un **Profile**. La réutilisation conserve sa
    connexion musicale. Un nouveau Profile choisit Spotify Direct, Music Assistant ou Later.
 6. Pour Spotify, créez une application dans Spotify Developer Dashboard. Copiez
    l’**URI de redirection exacte du guide de configuration** dans cette application,
@@ -37,7 +37,7 @@ Ce guide concerne DJConnect **4.0.0**. Utilisez un pipeline Assist avec un agent
 
 ## Aide
 
-Assist absent : vérifiez les prérequis de votre version. Spotify ne revient pas :
+Assist absent : vérifiez l’agent de conversation de votre pipeline Assist. Spotify ne revient pas :
 vérifiez l’URI exacte. Échec de couplage : vérifiez LAN et code. Icône HA générique :
 téléchargez à nouveau via le Marketplace, redémarrez HA et actualisez l’interface.
 

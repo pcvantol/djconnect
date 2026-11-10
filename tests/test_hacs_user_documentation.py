@@ -116,6 +116,15 @@ class HacsUserDocumentationTest(unittest.TestCase):
         self.assertIn("exact redirect URI shown by the current wizard", spotify)
         self.assertIn("reauthorize", spotify)
 
+    def test_current_user_guides_have_no_legacy_setup_or_engineering_links(self):
+        for path in sorted((ROOT / "docs/user").glob("*.md")):
+            with self.subTest(page=path.name):
+                self.assertNotRegex(
+                    path.read_text(),
+                    r"(?i)\bv?[123]\.\d+\.\d+\b|4\.0\.0-rc|hacs_repository|"
+                    r"custom repositories|docs/verification/|candidate|kandidaat|kandidat|candidat",
+                )
+
     def test_pairing_precedes_profile_in_each_actual_wizard_journey(self):
         cases = [
             ("README.md", "## Start your first session"),

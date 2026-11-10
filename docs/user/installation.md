@@ -16,8 +16,7 @@ Ask for music, enjoy DJ contributions and choose your session mood.
 - Music Assistant needs a configured installation and usable player, without
   DJConnect Spotify credentials. **Later / manual** defers the music connection.
 - Assist needs no separately paired DJConnect device. For local pairing, keep HA
-  and the client on the same LAN; ESP32 requires 2.4 GHz WiFi. Use an already
-  available DJConnect app or supported device; this is not an app-store release notice.
+  and the client on the same LAN; ESP32 requires 2.4 GHz WiFi. Use a DJConnect app or a supported device for local pairing.
 
 ## Install
 

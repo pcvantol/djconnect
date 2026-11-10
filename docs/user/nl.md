@@ -4,7 +4,7 @@
 
 Je persoonlijke muziek-DJ in Home Assistant. Vraag muziek aan, geniet van DJ-bijdragen en kies de mood van je sessie.
 
-## Kies je versie
+## Voor je begint
 
 Deze handleiding is voor DJConnect **4.0.0**. Gebruik een Assist-pipeline met een beschikbare conversation-agent. Spraak is optioneel bij het instellen.
 
@@ -25,7 +25,7 @@ Deze handleiding is voor DJConnect **4.0.0**. Gebruik een Assist-pipeline met ee
    van een ESP32 instellen; daarna volgt de koppeling.
 4. Assist slaat koppelen over. Volg zo nodig de koppeling: iPhone/Watch via QR, macOS met de getoonde HA-URL
    en zescijferige code, ESP32/Pi lokaal. Gebruik een nieuwe code als de oude verloopt.
-5. In 4.0 kies of maak je eerst een **Profile**. Hergebruik behoudt de bestaande
+5. Kies of maak een **Profile**. Hergebruik behoudt de bestaande
    muziekverbinding. Een nieuw Profile kiest Spotify Direct, Music Assistant of Later.
 6. Voor Spotify maak je een app in Spotify Developer Dashboard. Kopieer de **exacte
    redirect-URI uit de wizard** naar die app, vul de Client ID in (geen Client Secret)
@@ -36,7 +36,7 @@ Deze handleiding is voor DJConnect **4.0.0**. Gebruik een Assist-pipeline met ee
 
 ## Hulp
 
-Assist ontbreekt? Controleer de voorwaarden voor jouw versie. Spotify keert niet
+Assist ontbreekt? Controleer de conversation-agent in je Assist-pipeline. Spotify keert niet
 terug? Controleer de exacte redirect-URI. Koppeling mislukt? Controleer LAN en code.
 Generiek HA-pictogram? Download opnieuw via de Marktplaats, herstart en ververs de frontend.
 

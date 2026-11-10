@@ -31,7 +31,9 @@ were not confirmed.
 
 ## HA Updates
 
-`DOCUMENTED_ONLY` HA is a HACS custom integration. Version is `3.2.50` in code.
+DJConnect Core 4.0.0 is a custom integration distributed through Home Assistant
+Marketplace. The integration version is declared in `custom_components/djconnect/manifest.json`.
+See [installation and setup](../user/installation.md).
 
 ## Central API
 
