@@ -163,14 +163,23 @@ jobs:
           artifact_url="$(jq -r --arg artifact "$ARTIFACT_ID" '.artifact_bindings[] | select(.target == "home_assistant_pi5" and (.artifact_id | tostring) == $artifact) | .artifact_url' "$manifest")"
           expected_url="https://github.com/${GITHUB_REPOSITORY}/releases/download/internal-ha-${CANDIDATE_SHA}/djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
           test "$artifact_url" = "$expected_url"
-          printf 'artifact_url=%s\n' "$artifact_url" >> "$GITHUB_OUTPUT"
+          artifact_run="$(jq -er --arg sha "$CANDIDATE_SHA" '.repositories[] | select(.repository == "pcvantol/djconnect" and .source_sha == $sha) | .artifact_run' "$manifest")"
+          printf '%s' "$artifact_run" | grep -Eq '^[0-9]+$'
+          gh run view "$artifact_run" --repo "$GITHUB_REPOSITORY" --json headSha,workflowName |
+            jq -e --arg sha "$CANDIDATE_SHA" '.headSha == $sha and .workflowName == "Home Assistant release artifact"' >/dev/null
+          printf 'artifact_run=%s\n' "$artifact_run" >> "$GITHUB_OUTPUT"
       - name: Download manifest-bound artifact
         env:
-          ARTIFACT_URL: ${{ steps.artifact.outputs.artifact_url }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          ARTIFACT_RUN: ${{ steps.artifact.outputs.artifact_run }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           mkdir -p artifact
-          curl --fail --silent --show-error --location "$ARTIFACT_URL" --output artifact/djconnect-home-assistant-integration.tar.gz
+          gh run download "$ARTIFACT_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "djconnect-home-assistant-integration-$CANDIDATE_SHA" --dir artifact
+          mv "artifact/djconnect-home-assistant-integration-$CANDIDATE_SHA.tar.gz" \
+            artifact/djconnect-home-assistant-integration.tar.gz
       - name: Install exact integration artifact and restart Home Assistant OS Core
         env:
           ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
