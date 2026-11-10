@@ -40,12 +40,16 @@ def client_type_uses_local_device_api(client_type: Any) -> bool:
     }
 
 
-def device_id_matches_client_type(device_id: Any, client_type: Any) -> bool:
+def device_id_matches_client_type(
+    device_id: Any, client_type: Any, *, allow_setup_slot: bool = True
+) -> bool:
     """Match only currently supported canonical IDs, including ESP setup slots."""
     device = str(device_id or "").strip()
     client = str(client_type or "").strip()
     if client == CLIENT_TYPE_ESP32:
-        return bool(re.fullmatch(r"djconnect-\d{6}|djconnect-(?:lilygo-t-embed-s3|esp32-s3-box-3|lilygo)-[0-9A-Fa-f]{12}", device))
+        if allow_setup_slot and re.fullmatch(r"djconnect-\d{6}", device):
+            return True
+        return bool(re.fullmatch(r"djconnect-(?:lilygo-t-embed-s3|esp32-s3-box-3|lilygo)-[0-9A-Fa-f]{12}", device))
     if client not in CLIENT_TYPES:
         return False
     prefix = "raspberry-pi" if client == CLIENT_TYPE_RASPBERRY_PI else client
