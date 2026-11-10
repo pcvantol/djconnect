@@ -2952,6 +2952,71 @@ class VoiceHttpHelperTest(unittest.TestCase):
         )
         self.assertEqual(runtime.device_status["ha_pairing_status"], "paired")
 
+    def test_status_view_preserves_esp32_pairing_when_profile_binding_is_unavailable(self) -> None:
+        from unittest.mock import Mock, patch
+
+        from custom_components.djconnect.const import DOMAIN
+        from custom_components.djconnect.domain.storage import ProfilePlatformStorage, STORE_KEY
+
+        device_id = "djconnect-lilygo-t-embed-s3-90B70990A994"
+        storage = ProfilePlatformStorage()
+        profile = asyncio.run(storage.async_create_profile("Test profile"))
+        asyncio.run(storage.async_upsert_device("djconnect-123456", "esp32",
+                                               linked_profile_id=profile.profile_id))
+        config = {
+            "device_id": device_id,
+            "client_type": "esp32",
+            "profile_id": profile.profile_id,
+            "profile_backend_entry_id": "other-provider",
+            "music_backend": "spotify_direct",
+        }
+        entry = types.SimpleNamespace(entry_id="esp-entry", data=config, options={})
+        runtime = types.SimpleNamespace(
+            entry=entry, config=config, device_token="paired-token", pairing_device_id=device_id,
+            device_status={"device_id": device_id, "ha_pairing_status": "paired"},
+            last_playback={"has_playback": True, "title": "cached track"},
+            authorize_device_request=lambda headers, body_device_id=None:
+                headers.get("Authorization") == "Bearer paired-token" and body_device_id == device_id,
+            device_language=lambda: "nl", update=Mock(),
+        )
+        other_provider = types.SimpleNamespace(
+            config={"spotify_client_id": "other-client", "spotify_refresh_token": "other-secret"},
+        )
+        hass = types.SimpleNamespace(data={DOMAIN: {
+            "esp-entry": runtime, STORE_KEY: storage, "other-provider": other_provider,
+        }})
+
+        class Request:
+            app = {"hass": hass}
+
+            def __init__(self, token):
+                self.headers = {"Authorization": f"Bearer {token}", "X-DJConnect-Device-ID": device_id}
+
+            async def json(self):
+                return {"device_id": device_id, "client_type": "esp32",
+                        "firmware": "4.0.1", "ha_pairing_status": "paired"}
+
+        view = self.http.DJConnectStatusView(hass)
+        with patch.object(self.http, "_current_spotify_credentials_for_status") as credentials:
+            denied = self.response_envelope(asyncio.run(view.post(Request("wrong-token"))))
+            result = self.response_envelope(asyncio.run(view.post(Request("paired-token"))))
+            credentials.assert_not_called()
+
+        self.assertEqual(denied["status_code"], 401)
+        self.assertEqual(result["status_code"], 200)
+        payload = result["payload"]
+        self.assertTrue(payload["success"])
+        self.assertFalse(payload["backend_available"])
+        self.assertFalse(payload["music_backend_available"])
+        self.assertEqual(payload["music_backend_error"]["code"], "profile_connection_unavailable")
+        self.assertEqual(payload["music_target_player"], {})
+        self.assertEqual(payload["playback"], {"has_playback": False})
+        self.assertFalse(any(payload["music_backend_capabilities"].values()))
+        self.assertFalse(any(payload["music_backend_observation_capabilities"].values()))
+        self.assertEqual(runtime.device_status["ha_pairing_status"], "paired")
+        self.assertEqual(runtime.device_token, "paired-token")
+        self.assertEqual(runtime.last_playback, {})
+
     def test_status_view_unknown_pairing_status_does_not_replace_paired(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
 
