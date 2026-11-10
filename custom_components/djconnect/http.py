@@ -2907,7 +2907,7 @@ async def _status_response(
     }
     response.update(_bootstrap_metadata(hass, runtime))
     response.update(_ask_dj_capabilities(runtime, client_type=client_type))
-    response.update(music_backend_metadata(hass, runtime))
+    response.update(music_backend_metadata(hass, runtime, tolerate_unavailable_connection=True))
     response.update(await _push_status(hass, runtime, user_id=_request_user_id(request), device_id=status_update.get("device_id"), client_type=client_type))
     if music_dna_key:
         response["music_dna_key"] = music_dna_key
@@ -2929,6 +2929,12 @@ async def _status_backend_availability(
     hass: Any, runtime: Any, response: dict[str, Any], client_type: str
 ) -> bool:
     """Populate canonical playback evidence and return backend availability."""
+    if (response.get("music_backend_error") or {}).get("code") == "profile_connection_unavailable":
+        # This caller has no qualified provider. Skip both playback and the
+        # legacy Spotify credential lookup and discard any cached playback.
+        runtime.last_playback = {}
+        response.update(_status_playback_unavailable_payload())
+        return False
     if _client_status_uses_backend_playback(client_type):
         response.update(await _status_playback_payload(hass, runtime))
         return bool(response.get("backend_available"))
