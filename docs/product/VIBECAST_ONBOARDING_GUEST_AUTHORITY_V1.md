@@ -108,12 +108,13 @@ necessarily reaches HA/proxy; configure no-referrer/no-store and no third-party
 assets. Invitation links are bearer-equivalent until redeemed, not harmless
 public labels. QR screenshots can admit others until expiry/rotation.
 
-## Proposed exception for resuming a public QR
+## Approved storage exception for resuming a public QR
 
-Status: awaiting a Core owner decision on residual browser storage. The
-memory-only default applies until the exception is accepted for an exact
-Receiver revision. This scope is for the public A bootstrap only. It does not
-authorize storage of B display credentials, guest grants or application state.
+On 10 November 2026, the Core owner approved the bounded residual storage
+described below for Receiver PR #58 at
+`3717a94030b97728e96442716e2ee3199993363b`. The approval covers the public A
+bootstrap on that revision. The memory-only default remains in force outside
+this scope, including B display credentials, guest grants and application state.
 
 * Use the original top-level tab and navigation entry with exclusive ownership.
   An authenticated poll must confirm the same transaction before the QR is
@@ -132,8 +133,8 @@ authorize storage of B display credentials, guest grants or application state.
   while active and on the next bootstrap initialization. Storage or locking
   failures must fail closed. The 120-second authority limit does not
   guarantee deletion at 120 seconds. After close or crash, an expired record
-  can remain in origin storage until a later cleanup. Any approval must
-  explicitly cover this residual sealed record and nonextractable key.
+  can remain in origin storage until a later cleanup. The owner accepted
+  this residual sealed record and nonextractable key until the next visit.
   Do not describe this as secure erasure or isolation from same-origin scripts.
 
 Receiver [PR #58](https://github.com/pcvantol/djconnect-vibecast-receiver/pull/58)
