@@ -51,7 +51,16 @@ jobs:
           TARGET_REPOSITORY: ${{ inputs.repository }}
         run: |
           case "$TARGET_REPOSITORY" in
+            djconnect-music-dj/djconnect-windows)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-windows" >> "$GITHUB_OUTPUT"
+              ;;
+            djconnect-music-dj/djconnect-api)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-api" >> "$GITHUB_OUTPUT"
+              ;;
             pcvantol/djconnect|pcvantol/djconnect-api|pcvantol/djconnect-app|pcvantol/djconnect-app-releases|pcvantol/djconnect-esp32|pcvantol/djconnect-firmware|pcvantol/djconnect-pi|pcvantol/djconnect-pi-releases|pcvantol/djconnect-website|pcvantol/djconnect-windows)
+              echo "repository_owner=pcvantol" >> "$GITHUB_OUTPUT"
               echo "repository_name=${TARGET_REPOSITORY#pcvantol/}" >> "$GITHUB_OUTPUT"
               ;;
             *)
@@ -60,13 +69,22 @@ jobs:
               ;;
           esac
       - id: app-token
-        if: github.repository == 'pcvantol/djconnect'
+        if: github.repository == 'pcvantol/djconnect' && steps.target.outputs.repository_owner == 'pcvantol'
         name: Mint scoped central authorization token
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ vars.DJCONNECT_TRUSTED_DELIVERY_APP_ID }}
           private-key: ${{ secrets.DJCONNECT_TRUSTED_DELIVERY_PRIVATE_KEY }}
           owner: pcvantol
+          repositories: ${{ steps.target.outputs.repository_name }}
+      - id: org-app-token
+        if: github.repository == 'pcvantol/djconnect' && steps.target.outputs.repository_owner == 'djconnect-music-dj'
+        name: Mint scoped organization authorization token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: '5695866'
+          private-key: ${{ secrets.DJCONNECT_ORG_OWNER_AUTHORIZATION_PRIVATE_KEY }}
+          owner: djconnect-music-dj
           repositories: ${{ steps.target.outputs.repository_name }}
       - name: Collect Trusted Delivery authorization request
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -77,7 +95,7 @@ jobs:
           TARGET_SHA: ${{ inputs.candidate_sha }}
           TARGET_PR: ${{ inputs.pr_number }}
         with:
-          github-token: ${{ steps.app-token.outputs.token || github.token }}
+          github-token: ${{ steps.org-app-token.outputs.token || steps.app-token.outputs.token || github.token }}
           script: |
             const fs = require("fs");
             const [targetOwner, targetRepo] = process.env.TARGET_REPOSITORY.split("/");
@@ -87,6 +105,8 @@ jobs:
             if (!/^[0-9a-f]{40}$/.test(process.env.TARGET_SHA)) throw new Error("candidate_sha must be a full SHA");
             if (context.actor !== process.env.OWNER_LOGIN) throw new Error("GitHub actor is not the configured repository owner");
             const pr = await github.rest.pulls.get({owner: targetOwner, repo: targetRepo, pull_number: Number(process.env.TARGET_PR)});
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-api" && pr.data.base.repo.id !== 1275206655) throw new Error("target API repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-windows" && pr.data.base.repo.id !== 1278888172) throw new Error("target Windows repository ID does not match");
             if (pr.data.base.ref !== process.env.TARGET_BRANCH || pr.data.head.sha !== process.env.TARGET_SHA) throw new Error("branch or candidate SHA does not match the current pull request");
             const statuses = await github.rest.repos.listCommitStatusesForRef({owner: targetOwner, repo: targetRepo, ref: process.env.TARGET_SHA});
             const ownerStatus = statuses.data
@@ -122,7 +142,7 @@ jobs:
           TARGET_REPOSITORY: ${{ inputs.repository }}
           TARGET_SHA: ${{ inputs.candidate_sha }}
         with:
-          github-token: ${{ steps.app-token.outputs.token || github.token }}
+          github-token: ${{ steps.org-app-token.outputs.token || steps.app-token.outputs.token || github.token }}
           script: |
             const [targetOwner, targetRepo] = process.env.TARGET_REPOSITORY.split("/");
             await github.rest.repos.createCommitStatus({owner: targetOwner, repo: targetRepo, sha: process.env.TARGET_SHA, context: "Owner Authorization", state: "success", description: "HIGH_RISK authorized for this exact SHA", target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`});
