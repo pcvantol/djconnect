@@ -5,19 +5,19 @@
     "scripts/verification/verify_session_artwork_http.py": "3b4ba06e185d9eef18de42b5c509c2e1932203e9265a9b090b6492f6dd73be8f"
   },
   "native_installed_acceptance": "NOT_RUN",
-  "raw_receipt_sha256": "0619fe11bb1b517fac54c44a6030307fcc46af3c3d77f9a7ece11946c73987ed",
+  "raw_receipt_sha256": "648195d831fea8da9647403e3d7cf267f6b9dcd2f4b7d198ed69e6d38a96ae7c",
   "receipt": {
     "after": {
       "contract_version": 1,
-      "grant_id": "DnlKAzK0hO-pZSDzFtRCMo--RWn3o_pZ",
+      "grant_id": "N_wCcm1FeWTg8B6juDDpg90o70dS5UUG",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_eligible_context",
           "state": "unavailable"
         },
-        "as_of": "2026-11-10T09:11:00.062635+00:00",
-        "binding_id": "e2a17a6c1cee7477c42d071d09593e45",
+        "as_of": "2026-11-10T09:29:21.202557+00:00",
+        "binding_id": "ba7ea469cb9ce845ecb0a9b4f9740021",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -31,28 +31,28 @@
           "state": "unavailable"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-10T09:12:35.093168+00:00",
-        "generation": "7b830e780bf0417a56f8739cde85ff13",
+        "expires_at": "2026-11-10T09:30:56.679995+00:00",
+        "generation": "2be466f437afe091e5f1e30885db2c6b",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-521cdaa4ff5c4d919b28bd466e56715c"
+          "session_id": "session-471c3d2cef9f43c8b1b7ad3a8e0c3ed3"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-10T09:10:35.093168+00:00",
+        "observed_at": "2026-11-10T09:28:56.679995+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "58c67e1ab285fc004c22a21f92c45e4b",
+        "revision": "7cd260880dd0df15816e457a7b880a4f",
         "schema_version": 3,
-        "session_id": "session-521cdaa4ff5c4d919b28bd466e56715c",
+        "session_id": "session-471c3d2cef9f43c8b1b7ad3a8e0c3ed3",
         "state": "active",
         "surface": "widget"
       },
@@ -60,15 +60,15 @@
     },
     "before": {
       "contract_version": 1,
-      "grant_id": "DnlKAzK0hO-pZSDzFtRCMo--RWn3o_pZ",
+      "grant_id": "N_wCcm1FeWTg8B6juDDpg90o70dS5UUG",
       "passive_session": {
         "artwork": [],
         "artwork_status": {
           "reason": "no_matching_subject",
           "state": "unavailable"
         },
-        "as_of": "2026-11-10T09:10:35.095412+00:00",
-        "binding_id": "e2a17a6c1cee7477c42d071d09593e45",
+        "as_of": "2026-11-10T09:28:56.681521+00:00",
+        "binding_id": "ba7ea469cb9ce845ecb0a9b4f9740021",
         "cache_policy": {
           "locked_display": false,
           "maximum_seconds": 120,
@@ -77,10 +77,10 @@
           "scope": "current_surface_only"
         },
         "contribution": {
-          "expires_at": "2026-11-10T09:10:59.949569+00:00",
-          "moment_id": "moment-43c1bc6071e0585bf2a9bcfe103c07b3",
+          "expires_at": "2026-11-10T09:29:21.142408+00:00",
+          "moment_id": "moment-6bd4d8f2c3e86c343bdc79b45a901e5c",
           "persona": "home_dj",
-          "published_at": "2026-11-10T09:10:34.949569+00:00",
+          "published_at": "2026-11-10T09:28:56.142408+00:00",
           "rights": {
             "external_relay": false,
             "os_snapshot": true,
@@ -96,28 +96,28 @@
           "state": "available"
         },
         "delivery_sequence": 13,
-        "expires_at": "2026-11-10T09:12:35.093168+00:00",
-        "generation": "7b830e780bf0417a56f8739cde85ff13",
+        "expires_at": "2026-11-10T09:30:56.679995+00:00",
+        "generation": "2be466f437afe091e5f1e30885db2c6b",
         "mood": {
           "revision": 0,
           "value": "groove"
         },
         "navigation": {
           "kind": "open_session",
-          "session_id": "session-521cdaa4ff5c4d919b28bd466e56715c"
+          "session_id": "session-471c3d2cef9f43c8b1b7ad3a8e0c3ed3"
         },
         "now_playing": null,
         "now_playing_status": {
           "reason": "source_not_qualified",
           "state": "unavailable"
         },
-        "observed_at": "2026-11-10T09:10:35.093168+00:00",
+        "observed_at": "2026-11-10T09:28:56.679995+00:00",
         "persona": "home_dj",
         "playback_state": "idle",
         "presence": "balanced",
-        "revision": "58c67e1ab285fc004c22a21f92c45e4b",
+        "revision": "7cd260880dd0df15816e457a7b880a4f",
         "schema_version": 3,
-        "session_id": "session-521cdaa4ff5c4d919b28bd466e56715c",
+        "session_id": "session-471c3d2cef9f43c8b1b7ad3a8e0c3ed3",
         "state": "active",
         "surface": "widget"
       },
@@ -204,9 +204,9 @@
       "custom_components/djconnect/capability_contract.py": "6e4d2e827bdd981a06ef465f46590f0e0f1bb32a1f9360415dd492dba6576218",
       "custom_components/djconnect/central_api.py": "78cd4645d9fd1979bbc33e500c525bffc23ae45deaeef02b129adb418674b9e6",
       "custom_components/djconnect/ci_qualification_report.py": "a45c358669fea9cfb57a601a109443c722e10d91b067eacbb550a11cd264229b",
-      "custom_components/djconnect/client_identity.py": "31543e0cf3ed7aa8322af24d0835c0fecf77974db0d8a07c7908d9deff7588cd",
+      "custom_components/djconnect/client_identity.py": "ba6385f45a6c6e588884a9fa5a08c937b405304ce017ce8c55f66ea46e75808a",
       "custom_components/djconnect/client_retirement.py": "42bb54178f5c1655e600b21a6ccc954811d37e2a1f91f5318f7b97da6d69bca3",
-      "custom_components/djconnect/config_flow.py": "a0a8b032403b0c628cfb6d0d8f177d52a1201576495203a851cf86db2c8ed497",
+      "custom_components/djconnect/config_flow.py": "7aa1115bbe60113150961f5d1bfde9dbac0930c93cdd112f85f8bd7d6f859d9f",
       "custom_components/djconnect/const.py": "d05b3134995585be295142c66553a48b75bb053ff0d1af1bcfba9a6bbca465e4",
       "custom_components/djconnect/content_deletion.py": "f48385f86d2b5d7b4f05d53f01c78fff2c072045ba51d6479c1049a33d3014c8",
       "custom_components/djconnect/content_deletion_api.py": "a92955d93cafc4f172c379e2c43e6a43a0b2d902cce3a51b6d26e5de38895c99",
@@ -463,7 +463,7 @@
       "custom_components/djconnect/wav_util.py": "06841ae5e471e20b2c234c2214eebb14dc764bf3a59acd9cd4767fdef3cc7c45",
       "custom_components/djconnect/websocket_api.py": "8d0579d457d2943b23b34e5b1ec44626760d4315c7cc10f518425bb10b453d3f"
     },
-    "waited_real_seconds": 24.903711605072022
+    "waited_real_seconds": 24.51071195602417
   },
   "source_before_after_equal": true,
   "source_pins": {
@@ -524,9 +524,9 @@
     "custom_components/djconnect/capability_contract.py": "6e4d2e827bdd981a06ef465f46590f0e0f1bb32a1f9360415dd492dba6576218",
     "custom_components/djconnect/central_api.py": "78cd4645d9fd1979bbc33e500c525bffc23ae45deaeef02b129adb418674b9e6",
     "custom_components/djconnect/ci_qualification_report.py": "a45c358669fea9cfb57a601a109443c722e10d91b067eacbb550a11cd264229b",
-    "custom_components/djconnect/client_identity.py": "31543e0cf3ed7aa8322af24d0835c0fecf77974db0d8a07c7908d9deff7588cd",
+    "custom_components/djconnect/client_identity.py": "ba6385f45a6c6e588884a9fa5a08c937b405304ce017ce8c55f66ea46e75808a",
     "custom_components/djconnect/client_retirement.py": "42bb54178f5c1655e600b21a6ccc954811d37e2a1f91f5318f7b97da6d69bca3",
-    "custom_components/djconnect/config_flow.py": "a0a8b032403b0c628cfb6d0d8f177d52a1201576495203a851cf86db2c8ed497",
+    "custom_components/djconnect/config_flow.py": "7aa1115bbe60113150961f5d1bfde9dbac0930c93cdd112f85f8bd7d6f859d9f",
     "custom_components/djconnect/const.py": "d05b3134995585be295142c66553a48b75bb053ff0d1af1bcfba9a6bbca465e4",
     "custom_components/djconnect/content_deletion.py": "f48385f86d2b5d7b4f05d53f01c78fff2c072045ba51d6479c1049a33d3014c8",
     "custom_components/djconnect/content_deletion_api.py": "a92955d93cafc4f172c379e2c43e6a43a0b2d902cce3a51b6d26e5de38895c99",

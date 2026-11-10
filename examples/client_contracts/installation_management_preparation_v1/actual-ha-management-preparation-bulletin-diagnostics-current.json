@@ -58,9 +58,9 @@
     "custom_components/djconnect/capability_contract.py": "6e4d2e827bdd981a06ef465f46590f0e0f1bb32a1f9360415dd492dba6576218",
     "custom_components/djconnect/central_api.py": "78cd4645d9fd1979bbc33e500c525bffc23ae45deaeef02b129adb418674b9e6",
     "custom_components/djconnect/ci_qualification_report.py": "a45c358669fea9cfb57a601a109443c722e10d91b067eacbb550a11cd264229b",
-    "custom_components/djconnect/client_identity.py": "31543e0cf3ed7aa8322af24d0835c0fecf77974db0d8a07c7908d9deff7588cd",
+    "custom_components/djconnect/client_identity.py": "ba6385f45a6c6e588884a9fa5a08c937b405304ce017ce8c55f66ea46e75808a",
     "custom_components/djconnect/client_retirement.py": "42bb54178f5c1655e600b21a6ccc954811d37e2a1f91f5318f7b97da6d69bca3",
-    "custom_components/djconnect/config_flow.py": "a0a8b032403b0c628cfb6d0d8f177d52a1201576495203a851cf86db2c8ed497",
+    "custom_components/djconnect/config_flow.py": "7aa1115bbe60113150961f5d1bfde9dbac0930c93cdd112f85f8bd7d6f859d9f",
     "custom_components/djconnect/const.py": "d05b3134995585be295142c66553a48b75bb053ff0d1af1bcfba9a6bbca465e4",
     "custom_components/djconnect/content_deletion.py": "f48385f86d2b5d7b4f05d53f01c78fff2c072045ba51d6479c1049a33d3014c8",
     "custom_components/djconnect/content_deletion_api.py": "a92955d93cafc4f172c379e2c43e6a43a0b2d902cce3a51b6d26e5de38895c99",
@@ -341,7 +341,7 @@
     {
       "case": "actual normal admin preparation",
       "status": 200,
-      "body_sha256": "1563a1f9098942814880eda4e2acc69500770dd66aab618faedae6a9680527e3"
+      "body_sha256": "5b9a0e1ce4629577157d41fc0ec1d2ba8007154a5f29a5cde22bc7c3d374b494"
     },
     {
       "case": "same original operation not reissued",
@@ -351,7 +351,7 @@
     {
       "case": "same refresh second independent preparation",
       "status": 200,
-      "body_sha256": "d451db015fedb2f7d3ee8e80e3a335983c16af29c9d3f53c85567cfb6a3a09d4"
+      "body_sha256": "5abb51a70c4b9776eb09acaf6c935f3145e4933d2a3f760ce2457e199f0607d0"
     },
     {
       "case": "actual synchronous refresh revoke fence",
@@ -360,7 +360,7 @@
     {
       "case": "prepare before admin ABA",
       "status": 200,
-      "body_sha256": "c5357bd4071b1625c125c3d14b7624a418505a4066031d6308a95c0051552efd"
+      "body_sha256": "8755c860fa6f8490938aefe21c1d6664e19cab36e4f3a27f243f8e3ed6ecc675"
     },
     {
       "case": "actual HA admin removal/readd ABA remains retired",
@@ -409,7 +409,7 @@
     {
       "case": "prepare before configuration",
       "status": 200,
-      "body_sha256": "0ebb0e27225ded6caa7d159bda35b32133143f8af27a38fbc79297cd74af0699"
+      "body_sha256": "09559ccea0c5841b7a74bb207d419ca0db512903e8504f42b873a83ba8c57ec1"
     },
     {
       "case": "selected configuration rejects and remains retired after restore",
@@ -418,7 +418,7 @@
     {
       "case": "prepare before runtime",
       "status": 200,
-      "body_sha256": "79bf9d9bd68acc9af468eadaa8fb4288d4f1e5ff8aeb55a8adce7be0404a450c"
+      "body_sha256": "e6d90eafc49ed6ac695419f07f5ed55cd34de9c483639db55c5d0e130c4e621d"
     },
     {
       "case": "selected runtime rejects and remains retired after restore",
@@ -427,7 +427,7 @@
     {
       "case": "prepare before entry_state",
       "status": 200,
-      "body_sha256": "32406759a80636710677b5cb3832b982adcf4f5525e10293bf5f53f2f9a66139"
+      "body_sha256": "5e1691cec7399d1b0bfca196fb41c9563aa9bcb98abfbc7b9e1d7f956f81b944"
     },
     {
       "case": "selected entry_state rejects and remains retired after restore",
@@ -444,7 +444,7 @@
     {
       "case": "prepare before HA config ABA",
       "status": 200,
-      "body_sha256": "0b88317b259d1daa736dc4dbd3ecc44d85ebe1b116ced326dada2fee3a5faf91"
+      "body_sha256": "68bd3d1fcd3afcb48690ae7bab08b1525b8eda5cf8c5670e65fad74cef8f3aa8"
     },
     {
       "case": "actual HA public configuration ABA cannot restore original mapping identity",
@@ -453,7 +453,7 @@
     {
       "case": "prepare before real temporary entry flow",
       "status": 200,
-      "body_sha256": "bc8c631db8b2a5e3f2ae0343e44673477d84402a5ff2d9ed21ff0ee26f20b121"
+      "body_sha256": "287b268ba0b0019561e393b0cd5f9ccaf499b10bf029d2d228f892a9139e8042"
     },
     {
       "case": "real OptionsFlow failed temporary entry ABA retires pending and prepared management",
@@ -462,12 +462,12 @@
     {
       "case": "prepare before runtime setter A",
       "status": 200,
-      "body_sha256": "860d41c4a3de5cf2528adc8ced7c6c631d649ae26b2d2d6d082fb96e1ade3d7e"
+      "body_sha256": "174a461d0e647177743bf7f33638ab0a921c7557e7f6a842b186831caceb23e9"
     },
     {
       "case": "prepare before runtime setter B",
       "status": 200,
-      "body_sha256": "e5a9541d5d17f637ab2aae600f5d66fb5def5ca6743459a9b69df460b06c2321"
+      "body_sha256": "867fe83039a2e65b951fa5c4398d406a782ce64cd82185d5fa5fc4cb586cd266"
     },
     {
       "case": "runtime setter ABA retires all siblings despite cleanup failure",
@@ -476,7 +476,7 @@
     {
       "case": "fixed original local clock",
       "status": 200,
-      "body_sha256": "1b325c4e8d79188f5bbda8a6d6e157ad7a22b71dc5c1f13fc802301e44cfe486"
+      "body_sha256": "32d78fdb498d1c12f849751d7ccfd5f70d642faf76b9ecb55658a4e11ba10743"
     },
     {
       "case": "exact original wall and mono expiry closes",
