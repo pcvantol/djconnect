@@ -26,6 +26,21 @@ and matching evidence. Deployment and installed smoke require their own
 target binding. Apple signing, external TestFlight distribution, native
 acceptance and audible acceptance require their own evidence.
 
+## Resume the deferred Golden qualification
+
+The [archived Golden branch][golden-archive] preserves the original work at
+`48dddcc44fba41ce9115c99ba939ee9293de43c9`. Core main already contains the
+three relevant repairs: the source fixture honors resolver authorization,
+publication setup counts against the model budget, and failed receipts
+retain truncated-response diagnostics. The archive also contains an older
+HA-dev debug build and its receipts. Start the next qualification from current
+Core main and use the archive only as historical evidence.
+
+Work through the open findings in the release report and run the complete
+EN/NL real-model qualification for the exact candidate. Record the results
+and bind them to that candidate before using the standard Home Assistant
+release path. The external TestFlight receipt does not close these findings.
+
 ## Deferred work on Dutch composer contributions
 
 [Core PR #1539][credit-pr] was closed without merging on 9 November 2026.
@@ -42,3 +57,4 @@ candidate before reopening the change for merge or marking it qualified.
 [credit-pr]: https://github.com/pcvantol/djconnect/pull/1539
 [golden]: https://github.com/pcvantol/djconnect/actions/runs/42693949233/artifacts/13709630115
 [ci]: https://github.com/pcvantol/djconnect/actions/runs/42692912767
+[golden-archive]: https://github.com/pcvantol/djconnect/tree/48dddcc44fba41ce9115c99ba939ee9293de43c9
