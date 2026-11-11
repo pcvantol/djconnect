@@ -3,7 +3,7 @@
 ## Get started
 
 - [Setup and five languages](user/README.md)
-- [Candidate4.0.0-rc.1](user/installation.md) · [Stable3.3.1](user/stable-3.3.1.md)
+- [Install DJConnect 4.0.0](user/installation.md)
 - [Spotify Direct](user/spotify-direct.md) · [User help](user/troubleshooting.md)
 
 ## Technical API and administration

@@ -1,16 +1,14 @@
-# Install and start — 4.0.0 candidate
+# Install and start — 4.0.0
 
 **Your music. Your DJ.** DJConnect is your personal music DJ in Home Assistant.
 Ask for music, enjoy DJ contributions and choose your session mood.
-This guide describes the candidate source, not a public installation claim.
-For installed 3.3.1 use the [stable guide](stable-3.3.1.md).
 [Other languages](README.md).
 
 ## Before you start
 
-- Install Home Assistant and HACS. Configure an Assist pipeline with an available
+- Use Home Assistant **2026.11.1 or later**. Configure an Assist pipeline with an available
   conversation agent. An empty choice uses the preferred pipeline; repair an
-  unavailable selected agent. STT and TTS are optional for this candidate's setup.
+  unavailable selected agent. STT and TTS are optional for setup.
 - For speech, configure an available HA speech route or use a client's actually
   offered device route. Text-only remains useful when no speech route is configured.
 - Spotify Direct needs Premium, your own Developer Client ID and external HTTPS.
@@ -18,15 +16,13 @@ For installed 3.3.1 use the [stable guide](stable-3.3.1.md).
 - Music Assistant needs a configured installation and usable player, without
   DJConnect Spotify credentials. **Later / manual** defers the music connection.
 - Assist needs no separately paired DJConnect device. For local pairing, keep HA
-  and the client on the same LAN; ESP32 requires 2.4 GHz WiFi. Use an already
-  available DJConnect app or supported device; this is not an app-store release notice.
+  and the client on the same LAN; ESP32 requires 2.4 GHz WiFi. Use a DJConnect app or a supported device for local pairing.
 
 ## Install
 
-1. [Open DJConnect in HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration). Alternatively add
-   `https://github.com/pcvantol/djconnect` under **Custom repositories**, category
-   **Integration**.
-2. Install DJConnect and restart Home Assistant.
+1. [Open DJConnect](https://my.home-assistant.io/redirect/marketplace_repository/?owner=pcvantol&repository=djconnect&category=integration). On Home Assistant 2026.11, you can also use **Settings → Marketplace → Add from link**.
+   Enter `pcvantol/djconnect` and select **Integration** if asked.
+2. Install DJConnect. Restart Home Assistant if prompted.
 3. Open **Settings → Devices & services → Add integration → DJConnect**.
 
 ## Follow the wizard
@@ -46,4 +42,4 @@ For installed 3.3.1 use the [stable guide](stable-3.3.1.md).
    Backend switching is available later in integration options; Profile reuse
    and switching are different actions.
 
-[Help](troubleshooting.md) · [Stable 3.3.1](stable-3.3.1.md) · [All documentation](../README.md).
+[Help](troubleshooting.md) · [All documentation](../README.md).
