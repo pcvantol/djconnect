@@ -67,6 +67,10 @@ jobs:
               echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
               echo "repository_name=djconnect-firmware" >> "$GITHUB_OUTPUT"
               ;;
+            djconnect-music-dj/djconnect-pi-releases)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-pi-releases" >> "$GITHUB_OUTPUT"
+              ;;
             pcvantol/djconnect|pcvantol/djconnect-api|pcvantol/djconnect-app|pcvantol/djconnect-app-releases|pcvantol/djconnect-esp32|pcvantol/djconnect-firmware|pcvantol/djconnect-pi|pcvantol/djconnect-pi-releases|pcvantol/djconnect-website|pcvantol/djconnect-windows)
               echo "repository_owner=pcvantol" >> "$GITHUB_OUTPUT"
               echo "repository_name=${TARGET_REPOSITORY#pcvantol/}" >> "$GITHUB_OUTPUT"
@@ -117,6 +121,7 @@ jobs:
             if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-windows" && pr.data.base.repo.id !== 1278888172) throw new Error("target Windows repository ID does not match");
             if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-pi" && pr.data.base.repo.id !== 1267248532) throw new Error("target Pi repository ID does not match");
             if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-firmware" && pr.data.base.repo.id !== 1258610489) throw new Error("target Firmware repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-pi-releases" && pr.data.base.repo.id !== 1267500969) throw new Error("target Pi Releases repository ID does not match");
             if (pr.data.base.ref !== process.env.TARGET_BRANCH || pr.data.head.sha !== process.env.TARGET_SHA) throw new Error("branch or candidate SHA does not match the current pull request");
             const statuses = await github.rest.repos.listCommitStatusesForRef({owner: targetOwner, repo: targetRepo, ref: process.env.TARGET_SHA});
             const ownerStatus = statuses.data
