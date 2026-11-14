@@ -1,3 +1,10 @@
+## 2026-11-14 — Pi 4.0.3-rc.1 successor deployment handoff
+
+Use the [publication evidence and consumer handoff](docs/release/PI_4_0_3_RC1_DEPLOYMENT_HANDOFF.md)
+to bind both Pi profiles to the new organization distribution release. The
+matching consumer, reviewed private execution path and per-instance
+readiness are pending. Publication provides no device or restore authority.
+
 ## 2026-11-09 — One HA VibeCast screen per Profile and Session
 
 Core atomically reserves one slot on approval. Apple consumes the version 1
