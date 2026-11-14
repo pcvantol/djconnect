@@ -44,6 +44,10 @@ process or replace the separate instance receipts.
 
 ## Execution route
 
+The [timer restoration proposal](PI_TWO_HOST_TIMER_RESTORE_PROPOSAL.md)
+records the fixture-only shared release boundary and the remaining Pi
+consumer qualification.
+
 The [private runner rehearsal](https://github.com/djconnect-music-dj/djconnect-pi-operations/actions/runs/43646621320)
 proved macOS ARM64 and Python 3.14 on the Mac mini. The demo job has no
 deployment credentials. Before connecting a runner to a device, verify the
