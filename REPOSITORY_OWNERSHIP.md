@@ -80,7 +80,7 @@ duplicate low-level drivers without an approved board-specific exception.
 
 Update canonical docs when: firmware changes require new platform protocol, Device model or release governance decisions.
 
-## `pcvantol/djconnect-api`
+## `djconnect-music-dj/djconnect-api`
 
 Owns: central API trust/relay boundary, APNs relay, per-install token bootstrap and future entitlement/profile-cloud surfaces.
 
@@ -106,7 +106,7 @@ Must follow: product language, tier language, Spotify non-affiliation wording, p
 
 Update canonical docs when: website work reveals product-language drift, onboarding contract gaps or public positioning changes.
 
-## `pcvantol/djconnect-firmware`
+## `djconnect-music-dj/djconnect-firmware`
 
 Owns: public firmware release distribution artifacts only: compiled native or
 ESPHome variants, RP2 firmware, Raspberry Pi bootstrap/distribution metadata,
@@ -147,7 +147,7 @@ Must follow: release governance, product language, privacy and distribution rule
 Update canonical docs when: Apple internal-artifact handoff or public App Store
 Connect distribution strategy changes platform release governance.
 
-## `pcvantol/djconnect-pi-releases`
+## `djconnect-music-dj/djconnect-pi-releases`
 
 Owns: public Raspberry Pi release artifacts only.
 

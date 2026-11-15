@@ -14,6 +14,7 @@ import sys
 from tempfile import TemporaryDirectory
 
 ROOT = Path(os.environ.get('DJC_SOURCE_ROOT', '/candidate'))
+LAB = Path(os.environ.get('DJC_LAB_ROOT', '/lab'))
 sys.path.insert(0, str(ROOT))
 
 
@@ -95,7 +96,7 @@ async def main():
                 'source_hashes': {p: hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in (
                     'custom_components/djconnect/config_flow.py',
                     'scripts/verification/verify_assist_agent_pairing.py')}}
-            Path('/lab/assist-agent-pairing.json').write_text(json.dumps(result, indent=2)+'\n')
+            (LAB / 'assist-agent-pairing.json').write_text(json.dumps(result, indent=2)+'\n')
             print(json.dumps({'qualification': result['qualification'], 'cases': len(rows)}))
         finally:
             await hass.async_stop(force=True)
