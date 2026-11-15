@@ -59,6 +59,10 @@ jobs:
               echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
               echo "repository_name=djconnect-api" >> "$GITHUB_OUTPUT"
               ;;
+            djconnect-music-dj/djconnect-pico)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-pico" >> "$GITHUB_OUTPUT"
+              ;;
             djconnect-music-dj/djconnect-pi)
               echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
               echo "repository_name=djconnect-pi" >> "$GITHUB_OUTPUT"
@@ -132,6 +136,7 @@ jobs:
             if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-pi-releases" && pr.data.base.repo.id !== 1267500969) throw new Error("target Pi Releases repository ID does not match");
             if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-app-releases" && pr.data.base.repo.id !== 1265963920) throw new Error("target App Releases repository ID does not match");
             if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-esp32" && pr.data.base.repo.id !== 1258611332) throw new Error("target ESP32 repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-pico" && pr.data.base.repo.id !== 1315212123) throw new Error("target Pico repository ID does not match");
             if (pr.data.base.ref !== process.env.TARGET_BRANCH || pr.data.head.sha !== process.env.TARGET_SHA) throw new Error("branch or candidate SHA does not match the current pull request");
             const statuses = await github.rest.repos.listCommitStatusesForRef({owner: targetOwner, repo: targetRepo, ref: process.env.TARGET_SHA});
             const ownerStatus = statuses.data
