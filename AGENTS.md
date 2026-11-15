@@ -28,8 +28,8 @@ Belangrijke repos:
 - Windows client source: github.com/pcvantol/djconnect-windows
 - Raspberry Pi client source: github.com/pcvantol/djconnect-pi
 - Product website/docs source: github.com/pcvantol/djconnect-website
-- Central API / APNs relay source: github.com/pcvantol/djconnect-api
-- Public firmware releases: github.com/pcvantol/djconnect-firmware
+- Central API / APNs relay source: github.com/djconnect-music-dj/djconnect-api
+- Public firmware releases: github.com/djconnect-music-dj/djconnect-firmware
 
 ## DJConnect Platform Bootstrap
 
@@ -274,7 +274,7 @@ Firmware releases:
   `firmware_manifest.json`
 - Firmware manifest gebruikt `firmwares[]` met per device `device`, `asset`, `url`, `sha256` en `size`; HA gebruikt geen top-level `device`/`asset`/`sha256` fallback meer.
 - LilyGO gebruikt manifest device `lilygo-t-embed-s3`.
-- Firmwarekanaal `stable` gebruikt GitHub latest non-prerelease; firmwarekanaal `beta` gebruikt de nieuwste GitHub prerelease uit `pcvantol/djconnect-firmware`.
+- Firmwarekanaal `stable` gebruikt GitHub latest non-prerelease; firmwarekanaal `beta` gebruikt de nieuwste GitHub prerelease uit `djconnect-music-dj/djconnect-firmware`.
 - Firmwareversie wordt via PlatformIO build flags uit Git tag geïnjecteerd.
 - Public firmware repo mag alleen release binary, `firmware_manifest.json`, release metadata en niet-geheime documentatie bevatten.
 - Public firmware repo mag geen firmware source, NVS secrets, device tokens, Spotify refresh tokens of Home Assistant tokens bevatten.
