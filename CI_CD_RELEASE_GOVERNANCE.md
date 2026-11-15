@@ -27,7 +27,7 @@ Source repositories own implementation and tests:
 - `pcvantol/djconnect-app`;
 - `pcvantol/djconnect-windows`;
 - `pcvantol/djconnect-pi`;
-- `pcvantol/djconnect-esp32`;
+- `djconnect-music-dj/djconnect-esp32`;
 - `pcvantol/djconnect-website`.
 
 ### Release repositories

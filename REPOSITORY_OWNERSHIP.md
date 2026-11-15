@@ -63,7 +63,7 @@ Must follow: Device/runtime boundaries, renderer/client responsibilities, local-
 
 Update canonical docs when: Pi capabilities change shared Ambient Client expectations or runtime contracts.
 
-## `pcvantol/djconnect-esp32`
+## `djconnect-music-dj/djconnect-esp32`
 
 Owns: ESP32 Voice/Control Client firmware, including ESPHome source, board
 compositions, reusable packages, narrowly scoped custom components and
