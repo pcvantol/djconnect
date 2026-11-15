@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "manifest_id": "release-4.0.0-windows-arm64-44ed93b4-20261110",
+  "status": "PROPOSED",
+  "release_version": "4.0.0",
+  "platform_version": "4.0",
+  "release_profile": "INTERNAL_RELEASE",
+  "approval": {
+    "state": "PENDING",
+    "additional_target_authorizations": []
+  },
+  "repositories": [
+    {
+      "repository": "djconnect-music-dj/djconnect-windows",
+      "source_sha": "44ed93b487c96c0912cea7294b3fabbd03929474",
+      "version": "4.0.0",
+      "artifact_run": "42890435953",
+      "provenance_repository": "pcvantol/djconnect-windows"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "windows_internal_arm64",
+      "required": true
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "djconnect-music-dj/djconnect-windows",
+      "target": "windows_internal_arm64",
+      "artifact_id": "release-asset:pcvantol/djconnect-app-releases:windows/v4.0.0:DJConnect-Windows-arm64-4.0.0-unsigned.zip",
+      "artifact_sha256": "1a38b599fe0d25c4781ee70e9134520ee6e829ae15da65dcbbb3508418703587",
+      "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/windows/v4.0.0/DJConnect-Windows-arm64-4.0.0-unsigned.zip",
+      "publication_state": "VERIFIED",
+      "github_release_id": 440874275,
+      "github_asset_id": 732844218
+    }
+  ]
+}
