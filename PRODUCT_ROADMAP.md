@@ -1650,7 +1650,7 @@ product roadmap for:
 
 - `pcvantol/djconnect`
 - `pcvantol/djconnect-app`
-- `djconnect-music-dj/djconnect-esp32`
+- `pcvantol/djconnect-esp32`
 - `pcvantol/djconnect-windows`
 - `pcvantol/djconnect-website`
 - `pcvantol/djconnect-pi`
