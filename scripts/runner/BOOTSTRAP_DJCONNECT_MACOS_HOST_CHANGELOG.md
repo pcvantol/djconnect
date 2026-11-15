@@ -6,6 +6,12 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.25] - 2026-11-15
+
+- Require the independently versioned onboarding 4.5.7 package for Pico Ruff 0.17.4.
+- Advance desired-state profile 3.3.4 and operations component 1.3.17.
+- Keep both exact-version guards and read-only verification.
+
 ## [2.0.24] - 2026-11-01
 
 - Require immutable onboarding 4.5.6 for the isolated Pico Ruff 0.17.2 pin.
