@@ -262,7 +262,7 @@ its capabilities allow.
 
 Community household display / ambient client.
 
-### `pcvantol/djconnect-esp32` and `pcvantol/djconnect-firmware`
+### `djconnect-music-dj/djconnect-esp32` and `pcvantol/djconnect-firmware`
 
 `djconnect-esp32` owns firmware source and board enablement. For a qualified
 supported board, ESPHome is the preferred firmware platform: DJConnect composes
