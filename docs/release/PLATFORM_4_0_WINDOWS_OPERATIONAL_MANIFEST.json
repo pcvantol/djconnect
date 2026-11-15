@@ -34,7 +34,31 @@
       "artifact_url": "https://github.com/pcvantol/djconnect-app-releases/releases/download/windows/v4.0.0/DJConnect-Windows-arm64-4.0.0-unsigned.zip",
       "publication_state": "VERIFIED",
       "github_release_id": 440874275,
-      "github_asset_id": 732844218
+      "github_asset_id": 732844218,
+      "build_evidence": {
+        "verification": "ARCHIVED_CI_DOWNLOAD_MATCHES_RELEASE_ASSET",
+        "producer_repository": "pcvantol/djconnect-windows",
+        "source_sha": "44ed93b487c96c0912cea7294b3fabbd03929474",
+        "workflow_path": ".github/workflows/ci.yml",
+        "workflow_event": "push",
+        "source_branch": "main",
+        "run_id": "42890435953",
+        "run_conclusion_at_capture": "success",
+        "job_id": 130089826405,
+        "job_name": "Windows release artifact sanity",
+        "job_conclusion_at_capture": "success",
+        "github_artifact_id": 13797918293,
+        "github_artifact_name": "windows-unsigned-artifacts-and-runner-evidence",
+        "github_artifact_archive_sha256_at_capture": "1975dec88ead6fe541d174df5144c5fb86726abd2503ba36e699bc68cea6f81c",
+        "runner_os": "Windows",
+        "runner_arch": "ARM64",
+        "dotnet_sdk": "10.0.403",
+        "package_size_bytes": 61307093,
+        "captured_at": "2026-11-10T20:28:15Z",
+        "reverified_at": "2026-11-15",
+        "producer_run_api_at_reverification": "HTTP_404",
+        "release_asset_match": "BYTE_IDENTICAL"
+      }
     }
   ]
 }
