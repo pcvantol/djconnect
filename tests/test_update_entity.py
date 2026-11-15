@@ -317,7 +317,7 @@ class DJConnectUpdateEntityTest(unittest.TestCase):
 
         config = self.update._firmware_release_config(runtime)
 
-        self.assertEqual(config["firmware_repo"], "djconnect-music-dj/djconnect-firmware")
+        self.assertEqual(config["firmware_repo"], "pcvantol/djconnect-firmware")
         self.assertEqual(config["firmware_channel"], "stable")
         self.assertEqual(config["firmware_device"], "esp32-s3-box-3")
 

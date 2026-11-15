@@ -184,7 +184,7 @@ MUSIC_BACKEND_NAMES = {
 }
 DEFAULT_SPOTIFY_MARKET = "NL"
 DEFAULT_MAX_AUDIO_BYTES = 2_000_000
-DEFAULT_FIRMWARE_REPO = "djconnect-music-dj/djconnect-firmware"
+DEFAULT_FIRMWARE_REPO = "pcvantol/djconnect-firmware"
 DEFAULT_FIRMWARE_DEVICE = "lilygo-t-embed-s3"
 DEFAULT_FIRMWARE_CHANNEL = "stable"
 FIRMWARE_CHANNEL_STABLE = "stable"
