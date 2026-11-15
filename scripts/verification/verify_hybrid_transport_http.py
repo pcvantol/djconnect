@@ -39,6 +39,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.x509.oid import NameOID
 
 ROOT = Path(os.environ.get("DJC_SOURCE_ROOT", "/candidate"))
+LAB = Path(os.environ.get("DJC_LAB_ROOT", "/lab"))
 sys.path.insert(0, str(ROOT))
 # ruff: noqa: E402
 from scripts.verification.verify_ask_dj_contextual_dialogue_http import configured_entry
@@ -390,17 +391,17 @@ async def main():
                     assert ctx["ha_install_id"] == "ha_owned_hybrid_fixture"
                     if os.environ.get('DJC_DEVICE_SPEECH_PROBE'):
                         from scripts.verification.device_speech_lab import run
-                        await run(h, runtime, client, post, identity, Path('/lab'), headers,
+                        await run(h, runtime, client, post, identity, LAB, headers,
                                   storage, secure, touch_processor, pair)
                         return
                     if os.environ.get('DJC_PERSONA_TOUCH_PROBE'):
                         from scripts.verification.persona_touch_reaction_lab import run
-                        await run(h, runtime, client, post, identity, Path('/lab'), headers,
+                        await run(h, runtime, client, post, identity, LAB, headers,
                                   manager, storage, secure, touch_processor)
                         return
                     if os.environ.get('DJC_PERSONA_TOUCH_WITHDRAWAL_PROBE'):
                         from scripts.verification.persona_touch_withdrawal_lab import run
-                        await run(h, runtime, client, post, identity, Path('/lab'), headers,
+                        await run(h, runtime, client, post, identity, LAB, headers,
                                   manager, storage, secure, touch_processor)
                         return
 
@@ -857,7 +858,7 @@ async def main():
                             ]
 
                         if stable(http_devices) != stable(ws_devices):
-                            Path("/lab/device-parity-mismatch.json").write_text(
+                            (LAB / "device-parity-mismatch.json").write_text(
                                 json.dumps(
                                     {
                                         "http": http_outputs["devices"],
@@ -1171,12 +1172,26 @@ async def main():
                                     owner, data={**owner.data, "device_token": token}
                                 )
                                 runtime.device_token = token
-                    # Reopen durable journal under a fresh boot epoch: known result stays confirmed.
+                    # Restoring the same Profile after a rebind cannot revive its old receipt.
+                    denied = await post("transport/operation/status", {"identity": identity, **status}, 409)
+                    assert denied["error"] == "operation_context_changed"
+                    assert "operation_receipt" not in denied
+
+                    # Reopen the journal with a receipt captured under the current binding.
+                    current_request = {
+                        **request, "operation_id": new_id(), "payload": {"command": "status"},
+                    }
+                    accepted = await post("transport/operation", {"identity": identity, **current_request})
+                    assert accepted["operation_receipt"]["phase"] == "confirmed"
+                    current_status = {**status, "operation_id": current_request["operation_id"]}
                     old = operations(h)
                     await old.close()
                     h.data["djconnect"].pop("hybrid_operation_manager")
-                    await post("transport/operation/status", {"identity": identity, **status})
-                    await post("transport/operation", {"identity": identity, **request}, 409)
+                    restored = await post("transport/operation/status", {"identity": identity, **current_status})
+                    assert restored["operation_receipt"]["phase"] == "confirmed"
+                    assert not restored["result_available"]
+                    replay = await post("transport/operation", {"identity": identity, **current_request}, 409)
+                    assert replay["error"] == "operation_epoch_changed"
                     journal_pre_idle_bytes = (
                         (directory / ".storage/djconnect_transport_operations").stat().st_size
                     )
@@ -1301,7 +1316,7 @@ async def main():
             }
             for script in (Path(__file__), ROOT / "scripts/verification/hybrid_direct_local_probe.py"):
                 source_hashes[str(script.relative_to(ROOT))] = hashlib.sha256(script.read_bytes()).hexdigest()
-            Path("/lab/hybrid.json").write_text(
+            (LAB / "hybrid.json").write_text(
                 json.dumps(
                     {
                         "qualification": "PASS_CORE_TLS_AND_QUALIFIED_DIRECT_LOOPBACK",

@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 from tests.test_http_voice_helpers import install_http_stubs
 install_http_stubs()
@@ -83,6 +83,27 @@ class DirectRichPairTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(await self.rows(), before)
         self.assertNotIn('SYNTHETIC', repr(captured))
         self.assertFalse(any(hasattr(captured, name) for name in ('credential', 'permission', 'expires_ms')))
+
+    async def test_first_central_token_write_cannot_reuse_earlier_durable_pair_ack(self):
+        from custom_components.djconnect import central_api
+
+        captured = self.capture()
+        previous_options = self.entry.options
+        rows_before = await self.rows()
+        central_token = 'djci_SYNTHETIC_ONLY'
+        transport = AsyncMock(return_value={'success': True, 'install_token': central_token})
+        config = property(lambda runtime: {**runtime.entry.data, **runtime.entry.options})
+        with patch.object(Runtime, 'config', config), patch.object(central_api, '_post_json', transport):
+            result = await central_api.async_ensure_install_token(
+                self.hass, self.runtime, bootstrap_proof='synthetic-bootstrap-proof')
+            self.assertTrue(central_api.central_api_configured(self.runtime))
+        self.assertEqual(result, {'success': True, 'created': True})
+        self.assertIsNot(self.entry.options, previous_options)
+        self.assertEqual(self.entry.options['djconnect_install_token'], central_token)
+        self.assertFalse(captured.current())
+        with self.assertRaisesRegex(RichError, 'rich_unavailable'):
+            self.capture()
+        self.assertEqual(await self.rows(), rows_before)
 
     async def test_duplicate_header_wrong_identity_and_ordinary_token_substitution_denied(self):
         for key in self.headers:
