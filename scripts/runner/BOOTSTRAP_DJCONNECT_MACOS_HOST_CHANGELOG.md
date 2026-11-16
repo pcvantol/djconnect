@@ -6,6 +6,10 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.27] - 2026-11-16
+
+- Require onboarding 4.5.9 and desired-state 3.3.6; preserve exact version and integrity checks.
+
 ## [2.0.26] - 2026-11-16
 
 - Require onboarding 4.5.8 and desired-state 3.3.5; retain exact version and integrity checks.
