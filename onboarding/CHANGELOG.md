@@ -1,5 +1,15 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.9 — 2026-11-16
+
+- Use the transferred Pi source repository and preserve earlier distributions.
+- Align the development-host version and integrity guards.
+
+## 4.5.8 — 2026-11-16
+
+- Use organization URLs for migrated Apple, ESP32 and website source.
+- Preserve earlier packages and align the development-host version guards.
+
 ## 4.5.7 — 2026-11-15
 
 - Pin the isolated Pico developer Ruff tool to 0.17.4.

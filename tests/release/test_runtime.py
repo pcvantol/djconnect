@@ -72,13 +72,13 @@ class ReleaseRuntimeTest(unittest.TestCase):
         ownership = self.root / "component_ownership.md"
         ownership.write_text("""# Ownership
 
-## `pcvantol/djconnect-app`
+## `djconnect-music-dj/djconnect-app`
 Owns: Apple client source.
 
-## `pcvantol/djconnect-app-releases`
+## `djconnect-music-dj/djconnect-app-releases`
 Owns: internal release distribution artifacts only.
 """, encoding="utf-8")
-        source, distribution = "pcvantol/djconnect-app", "pcvantol/djconnect-app-releases"
+        source, distribution = "djconnect-music-dj/djconnect-app", "djconnect-music-dj/djconnect-app-releases"
         shas = {source: "a" * 40, distribution: "b" * 40}
         def reconciliation(repository: str, main_sha: str) -> dict[str, object]:
             return reconcile({"repository": repository, "main_sha": main_sha, "main_parents": ["c" * 40], "timestamp": "2026-01-01T00:00:00Z", "originating_pr": {"number": 1, "state": "MERGED", "base_ref": "main", "head_sha": "d" * 40, "merge_commit_sha": main_sha, "merge_strategy": "SQUASH", "merge_actor": "maintainer", "merged_at": "2026-01-01T00:00:00Z", "changed_files": ["x"], "main_changed_files": ["x"]}, "pre_merge": {"candidate_sha": "d" * 40, "risk_classification": "NORMAL_RISK", "owner_authorization": "PASS", "verification": "PASS", "software_assurance": "PASS", "trusted_delivery": "PASS", "workflow_integrity": "PASS", "required_checks": "PASS"}, "post_merge": {"sha": main_sha, "ci": "PASS", "tests": "PASS", "lint": "PASS", "static_analysis": "PASS", "build_validation": "PASS", "governance": "PASS", "coverage": "PASS", "coverage_report_sha": main_sha, "coverage_artifact_sha": "d" * 64, "workflow_run_ids": ["1"]}})
@@ -164,10 +164,10 @@ Owns: internal release distribution artifacts only.
         manifest = self._component_manifest()
         self.assertEqual(manifest["readiness"]["state"], "READY")
         self.assertEqual(manifest["component_selection"]["component_id"], "apple-macos")
-        self.assertEqual({item["name"] for item in manifest["repositories"] if item["included"]}, {"pcvantol/djconnect-app", "pcvantol/djconnect-app-releases"})
+        self.assertEqual({item["name"] for item in manifest["repositories"] if item["included"]}, {"djconnect-music-dj/djconnect-app", "djconnect-music-dj/djconnect-app-releases"})
         self.assertFalse(manifest["component_execution_authorized"])
         with self.assertRaisesRegex(ExecutionError, "component selection is qualification-only"):
-            ReleaseExecutor(RecordingClient()).execute(manifest, self._request(manifest, [self._action(manifest, "pcvantol/djconnect-app")]))
+            ReleaseExecutor(RecordingClient()).execute(manifest, self._request(manifest, [self._action(manifest, "djconnect-music-dj/djconnect-app")]))
 
     def test_component_selection_rejects_checksum_or_evidence_identity_drift(self) -> None:
         manifest = self._component_manifest(lambda selection: selection.__setitem__("artifact_sha256", "invalid"))
