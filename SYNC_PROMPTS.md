@@ -1,3 +1,10 @@
+## Pi private execution migration proposal — 16 November 2026
+
+The source repository and the private operations repository have distinct GitHub
+identities and protected commits. The proposed migration boundary is recorded in
+[Pi private operations migration proposal](docs/release/PI_PRIVATE_OPERATIONS_MIGRATION_PROPOSAL.md).
+It does not authorize deployment or reinterpret an existing release manifest.
+
 ## 2026-11-14 — Pi 4.0.3-rc.1 successor deployment handoff
 
 Use the [publication evidence and consumer handoff](docs/release/PI_4_0_3_RC1_DEPLOYMENT_HANDOFF.md)
