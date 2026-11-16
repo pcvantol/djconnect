@@ -1,5 +1,10 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.9 — 2026-11-16
+
+- Use the transferred Pi source repository and preserve earlier distributions.
+- Align the development-host version and integrity guards.
+
 ## 4.5.8 — 2026-11-16
 
 - Use organization URLs for migrated Apple, ESP32 and website source.
