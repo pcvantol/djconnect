@@ -25,6 +25,12 @@ class PortableGovernanceSourceTests(unittest.TestCase):
         self.assertEqual(json.loads(actual.stdout), [expected for _, expected in cases])
         self.assertIn('repository: ${{ steps.canonical-source.outputs.repository }}', workflow)
         self.assertIn('ref: 3d7d24a84b3aaacb8f2fb229e09c33da85e0545d', workflow)
+        release = (Path(__file__).resolve().parents[2] / '.github/workflows/post-merge-release-evidence.yml').read_text()
+        release_match = re.search(r'            if \((repo\.id !== .*?)\) throw new Error', release)
+        self.assertIsNotNone(release_match)
+        self.assertEqual(release_match.group(1), match.group(1))
+        self.assertIn('repository: ${{ steps.canonical-source.outputs.repository }}', release)
+        self.assertIn('ref: ${{ inputs.policy_source_ref }}', release)
 
 
 if __name__ == '__main__':
