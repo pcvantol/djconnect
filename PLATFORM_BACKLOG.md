@@ -68,15 +68,15 @@ Exit criteria:
 Repositories:
 
 - `pcvantol/djconnect`
-- `pcvantol/djconnect-api`
-- `pcvantol/djconnect-app`
-- `pcvantol/djconnect-windows`
-- `pcvantol/djconnect-pi`
+- `djconnect-music-dj/djconnect-api`
+- `djconnect-music-dj/djconnect-app`
+- `djconnect-music-dj/djconnect-windows`
+- `djconnect-music-dj/djconnect-pi`
 - `djconnect-music-dj/djconnect-esp32`
-- `pcvantol/djconnect-firmware`
-- `pcvantol/djconnect-website`
-- `pcvantol/djconnect-app-releases`
-- `pcvantol/djconnect-pi-releases`
+- `djconnect-music-dj/djconnect-firmware`
+- `djconnect-music-dj/djconnect-website`
+- `djconnect-music-dj/djconnect-app-releases`
+- `djconnect-music-dj/djconnect-pi-releases`
 
 Deliverables:
 
