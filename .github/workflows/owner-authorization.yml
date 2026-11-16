@@ -157,7 +157,8 @@ jobs:
             const ownerStatus = statuses.data
               .filter(status => status.context === "Owner Authorization")
               .sort((left, right) => right.id - left.id)[0];
-            if (!ownerStatus || ownerStatus.state !== "failure" || !ownerStatus.description?.startsWith("HIGH_RISK")) throw new Error("Trusted Delivery does not require Owner Authorization for this exact HIGH_RISK SHA");
+            const authorizationClass = ownerStatus?.creator?.id === 41898282 && ownerStatus.state === "failure" && ownerStatus.description === "HIGH_RISK authorization required for this exact SHA" ? "HIGH_RISK" : ownerStatus?.creator?.id === 41898282 && ownerStatus.state === "success" && ownerStatus.description === "Not required for LOW_RISK or NORMAL_RISK" ? "LOW_OR_NORMAL_RISK" : null;
+            if (!authorizationClass) throw new Error("Trusted Delivery did not publish an eligible exact-SHA authorization status");
             const rollup = await github.graphql(`
               query($owner: String!, $repo: String!, $sha: String!) {
                 repository(owner: $owner, name: $repo) {
@@ -180,7 +181,7 @@ jobs:
             const contexts = rollup.repository.object?.statusCheckRollup?.contexts?.nodes || [];
             const trustedDelivery = contexts.find(context => context.__typename === "CheckRun" && context.name === "Trusted Delivery qualification / Qualify trusted delivery");
             if (!trustedDelivery || trustedDelivery.status !== "COMPLETED" || trustedDelivery.conclusion !== "SUCCESS") throw new Error("Trusted Delivery technical qualification is not PASS");
-            fs.writeFileSync("owner-authorization-evidence.json", JSON.stringify({schema_version: 1, kind: "trusted_delivery_owner_authorization", repository: process.env.TARGET_REPOSITORY, branch: process.env.TARGET_BRANCH, pr_number: Number(process.env.TARGET_PR), candidate_sha: process.env.TARGET_SHA, classification: "HIGH_RISK", owner: process.env.OWNER_LOGIN, github_actor: context.actor, workflow_run_id: String(context.runId), timestamp: new Date().toISOString(), result: "PASS"}, null, 2));
+            fs.writeFileSync("owner-authorization-evidence.json", JSON.stringify({schema_version: 1, kind: "trusted_delivery_owner_authorization", repository: process.env.TARGET_REPOSITORY, branch: process.env.TARGET_BRANCH, pr_number: Number(process.env.TARGET_PR), candidate_sha: process.env.TARGET_SHA, classification: authorizationClass, owner: process.env.OWNER_LOGIN, github_actor: context.actor, workflow_run_id: String(context.runId), timestamp: new Date().toISOString(), result: "PASS"}, null, 2));
       - name: Publish Owner Authorization status
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
@@ -190,7 +191,9 @@ jobs:
           github-token: ${{ steps.org-app-token.outputs.token || steps.app-token.outputs.token || github.token }}
           script: |
             const [targetOwner, targetRepo] = process.env.TARGET_REPOSITORY.split("/");
-            await github.rest.repos.createCommitStatus({owner: targetOwner, repo: targetRepo, sha: process.env.TARGET_SHA, context: "Owner Authorization", state: "success", description: "HIGH_RISK authorized for this exact SHA", target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`});
+            const evidence = JSON.parse(require("fs").readFileSync("owner-authorization-evidence.json", "utf8"));
+            const description = evidence.classification === "HIGH_RISK" ? "HIGH_RISK authorized for this exact SHA" : "LOW/NORMAL risk verified for this exact SHA";
+            await github.rest.repos.createCommitStatus({owner: targetOwner, repo: targetRepo, sha: process.env.TARGET_SHA, context: "Owner Authorization", state: "success", description, target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`});
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: trusted-delivery-owner-authorization-evidence

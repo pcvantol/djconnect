@@ -33,6 +33,26 @@ class CentralAuthorizationTransferIdentityTests(unittest.TestCase):
                                 check=True, capture_output=True, text=True)
         self.assertEqual(json.loads(actual.stdout), [case[3] for case in cases])
 
+    def test_risk_status_requires_trusted_actions_identity_and_exact_state(self):
+        match = re.search(r'const authorizationClass = (.*);', self.workflow)
+        self.assertIsNotNone(match)
+        cases = [
+            ({'creator': {'id': 41898282}, 'state': 'failure', 'description': 'HIGH_RISK authorization required for this exact SHA'}, 'HIGH_RISK'),
+            ({'creator': {'id': 41898282}, 'state': 'success', 'description': 'Not required for LOW_RISK or NORMAL_RISK'}, 'LOW_OR_NORMAL_RISK'),
+            ({'creator': {'id': 1}, 'state': 'success', 'description': 'Not required for LOW_RISK or NORMAL_RISK'}, None),
+            ({'creator': {'id': 41898282}, 'state': 'failure', 'description': 'Not required for LOW_RISK or NORMAL_RISK'}, None),
+            ({'creator': {'id': 41898282}, 'state': 'success', 'description': 'HIGH_RISK authorization required for this exact SHA'}, None),
+            (None, None),
+        ]
+        script = ('const f = new Function("ownerStatus", "return (" + process.argv[1] + ")"); '
+                  'console.log(JSON.stringify(JSON.parse(process.argv[2]).map(([s]) => f(s))));')
+        actual = subprocess.run(['node', '-e', script, match.group(1), json.dumps(cases)],
+                                check=True, capture_output=True, text=True)
+        self.assertEqual(json.loads(actual.stdout), [expected for _, expected in cases])
+        self.assertIn('trustedDelivery.conclusion !== "SUCCESS"', self.workflow)
+        self.assertIn('classification: authorizationClass', self.workflow)
+        self.assertIn('LOW/NORMAL risk verified for this exact SHA', self.workflow)
+
     def test_token_steps_require_the_same_core_identity_and_fixed_target(self):
         conditions = re.findall(r'^        if: (.*)$', self.workflow, re.MULTILINE)
         for target in ('pcvantol', 'djconnect-music-dj'):
