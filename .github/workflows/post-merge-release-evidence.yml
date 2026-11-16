@@ -52,10 +52,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - id: canonical-source
+        name: Resolve canonical policy repository by immutable ID
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const result = await github.request("GET /repositories/{repository_id}", {repository_id: 1258575431});
+            const repo = result.data;
+            if (repo.id !== 1258575431 || repo.private !== false || !["pcvantol/djconnect", "djconnect-music-dj/djconnect"].includes(repo.full_name)) throw new Error("Unexpected canonical policy repository identity");
+            core.setOutput("repository", repo.full_name);
+
       - name: Check out immutable reconciliation policy source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
         with:
-          repository: pcvantol/djconnect
+          repository: ${{ steps.canonical-source.outputs.repository }}
           # github.workflow_sha resolves to the caller in a reusable workflow.
           # The caller therefore supplies the same immutable central SHA it
           # pins in `uses:`; never infer a central ref from caller context.
