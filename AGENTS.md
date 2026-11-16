@@ -26,7 +26,7 @@ Belangrijke repos:
 - Apple clients source: github.com/djconnect-music-dj/djconnect-app
 - ESP32 firmware source: github.com/djconnect-music-dj/djconnect-esp32
 - Windows client source: github.com/djconnect-music-dj/djconnect-windows
-- Raspberry Pi client source: github.com/pcvantol/djconnect-pi
+- Raspberry Pi client source: github.com/djconnect-music-dj/djconnect-pi
 - Product website/docs source: github.com/djconnect-music-dj/djconnect-website
 - Central API / APNs relay source: github.com/djconnect-music-dj/djconnect-api
 - Public firmware releases: github.com/djconnect-music-dj/djconnect-firmware
