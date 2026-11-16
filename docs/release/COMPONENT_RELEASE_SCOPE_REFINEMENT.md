@@ -79,7 +79,7 @@ repository names alone.
 | `apple-ios-watchos` | `djconnect-music-dj/djconnect-app` | `djconnect-music-dj/djconnect-app-releases`, Apple iPhone relay and paired Watch qualification where required | The existing unsigned iOS artifact, checksum and approved Apple iOS/watchOS channel | Profiled as one unit: the Watch is embedded in the iOS artifact path. |
 | `apple-macos` | `djconnect-music-dj/djconnect-app` | `djconnect-music-dj/djconnect-app-releases`, Apple macOS relay | The existing unsigned macOS artifact, checksum and approved macOS channel | Profiled independently of iOS/watchOS. |
 | `windows-client` | `djconnect-music-dj/djconnect-windows` | `djconnect-music-dj/djconnect-app-releases`, Windows deployment target | SHA-bound Windows artifact/checksum and approved Windows channel | Profiled; any incidental Mac Catalyst output is non-selected. |
-| `pi-renderer-family` | `pcvantol/djconnect-pi` | `djconnect-music-dj/djconnect-pi-releases`, approved Pi target | One source-bound Pi bundle/checksum and public Pi channel | Profiled only as a shared family release unit. |
+| `pi-renderer-family` | `djconnect-music-dj/djconnect-pi` | `djconnect-music-dj/djconnect-pi-releases`, approved Pi target | One source-bound Pi bundle/checksum and public Pi channel | Profiled only as a shared family release unit. |
 | `pi-4-inch` | None independently selectable | Would require a Pi-4-specific source artifact and target evidence | No current independent artifact or release manifest identity | `NOT_SELECTABLE`. |
 | `pi-10-inch` | None independently selectable | Would require a Pi-10-specific source artifact and target evidence | No current independent artifact or release manifest identity | `NOT_SELECTABLE`. |
 

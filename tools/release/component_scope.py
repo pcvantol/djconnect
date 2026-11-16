@@ -49,7 +49,7 @@ COMPONENT_PROFILES = {
     "apple-ios-watchos": ComponentProfile("apple-ios-watchos", "DJConnect Apple Client", "djconnect-music-dj/djconnect-app", ("djconnect-music-dj/djconnect-app", "djconnect-music-dj/djconnect-app-releases"), "apple-ios-watchos-internal", "Apple iOS/watchOS internal distribution", "ios_watchos_artifact"),
     "apple-macos": ComponentProfile("apple-macos", "DJConnect Apple Client", "djconnect-music-dj/djconnect-app", ("djconnect-music-dj/djconnect-app", "djconnect-music-dj/djconnect-app-releases"), "apple-macos-internal", "Apple macOS internal distribution", "macos_artifact"),
     "windows-client": ComponentProfile("windows-client", "DJConnect Windows Client", "djconnect-music-dj/djconnect-windows", ("djconnect-music-dj/djconnect-windows", "djconnect-music-dj/djconnect-app-releases"), "windows-internal", "Windows internal distribution", "windows_artifact"),
-    "pi-renderer-family": ComponentProfile("pi-renderer-family", "DJConnect Raspberry Pi Renderer", "pcvantol/djconnect-pi", ("pcvantol/djconnect-pi", "djconnect-music-dj/djconnect-pi-releases"), "pi-public", "djconnect-music-dj/djconnect-pi-releases", "pi_renderer_bundle"),
+    "pi-renderer-family": ComponentProfile("pi-renderer-family", "DJConnect Raspberry Pi Renderer", "djconnect-music-dj/djconnect-pi", ("djconnect-music-dj/djconnect-pi", "djconnect-music-dj/djconnect-pi-releases"), "pi-public", "djconnect-music-dj/djconnect-pi-releases", "pi_renderer_bundle"),
     "pi-4-inch": ComponentProfile("pi-4-inch", "DJConnect Raspberry Pi Renderer", None, (), None, None, None, selectable=False),
     "pi-10-inch": ComponentProfile("pi-10-inch", "DJConnect Raspberry Pi Renderer", None, (), None, None, None, selectable=False),
 }
