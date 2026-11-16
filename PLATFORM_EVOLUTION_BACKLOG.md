@@ -189,7 +189,7 @@ fourth program or an active Platform Evolution item.
 
 ## Backlog detail: ESPHome firmware platform adoption
 
-**Owner:** `pcvantol/djconnect-esp32` source; `pcvantol/djconnect-firmware`
+**Owner:** `djconnect-music-dj/djconnect-esp32` source; `djconnect-music-dj/djconnect-firmware`
 distribution.
 
 **Priority:** P2
