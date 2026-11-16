@@ -187,6 +187,13 @@ def run_macos_unit(function_call: str, *arguments: str) -> subprocess.CompletedP
 
 @unittest.skipUnless(sys.platform == "darwin", "macOS onboarding script tests require Darwin")
 class DevOnboardingScriptTests(unittest.TestCase):
+    def test_macos_clone_defaults_use_migrated_organization(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        for repo in ("pico", "api", "windows", "firmware"):
+            self.assertIn(f"https://github.com/djconnect-music-dj/djconnect-{repo}.git", source)
+            self.assertNotIn(f"https://github.com/pcvantol/djconnect-{repo}.git", source)
+
+
     def test_macos_library_mode_exposes_pure_step_selection_helpers(self) -> None:
         all_steps = run_macos_unit("resolve_step_selection all")
         core_steps = run_macos_unit("resolve_step_selection core")
@@ -334,11 +341,11 @@ class DevOnboardingScriptTests(unittest.TestCase):
         desired_state = MACOS_DEVELOPMENT_HOST_DESIRED_STATE.read_text()
         self.assertIn("schema_version: 1", desired_state)
         self.assertIn("host.minimum_free_disk_gb: 5", desired_state)
-        self.assertIn("onboarding.package_version: 4.5.9", desired_state)
+        self.assertIn("onboarding.package_version: 4.5.10", desired_state)
         self.assertNotIn("engineering.", desired_state)
         self.assertIn("python@3.14", desired_state)
         self.assertNotIn("python@3.12", desired_state)
-        self.assertIn("version: 3.3.6", desired_state)
+        self.assertIn("version: 3.3.7", desired_state)
         self.assertIn("minimum_tool_version: 2.0.2", desired_state)
         self.assertIn("# runner.profiles: apple,private-network,esp32,pi,windows", desired_state)
         self.assertIn("runner.profiles: apple,private-network,esp32,pi", desired_state)
@@ -380,7 +387,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Development Host Bootstrap 2.0.27\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.28\n",
         )
         self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
         changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
@@ -741,19 +748,19 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
         self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
         manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 2.0.27", manifest)
+        self.assertIn("package.version: 2.0.28", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
         self.assertIn("component.workflow.version: 1.3.4", manifest)
-        self.assertIn("component.operations.version: 1.3.19", manifest)
+        self.assertIn("component.operations.version: 1.3.20", manifest)
         self.assertIn("component.cli.version: 1.3.1", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
         source = read_macos_host_bootstrap_source()
         self.assertIn("verify_recovery_package_manifest", source)
         self.assertIn("Host-bootstrap package component", source)
         self.assertIn("aggregate SHA-256 mismatch", source)
-        self.assertIn("require_canonical_onboarding_4_5_9", source)
-        self.assertIn("requires onboarding 4.5.9", source)
+        self.assertIn("require_canonical_onboarding_4_5_10", source)
+        self.assertIn("requires onboarding 4.5.10", source)
         for legacy in ("engineering.platform_version", "engineering.watcher_launch_agent", "engineering.dashboard_launch_agent", "engineering.dashboard_relay_launch_agent", "engineering.dashboard_health", "engineering.local_api", "engineering.status_storage", "engineering.report_storage", "engineering.inbox_transport", "repair_engineering_platform", "tools.engineering", "8765", "8766"):
             self.assertNotIn(legacy, source)
 
@@ -764,23 +771,23 @@ class DevOnboardingScriptTests(unittest.TestCase):
             (root / "onboarding").mkdir()
             manifest = root / "onboarding" / "manifest.yml"
             for desired, actual, allowed in (
-                ("4.5.9", "4.5.9", True),
-                ("4.5.8", "4.5.9", False),
-                ("4.5.9", "4.5.8", False),
-                ("4.5.9", "", False),
+                ("4.5.10", "4.5.10", True),
+                ("4.5.9", "4.5.10", False),
+                ("4.5.10", "4.5.9", False),
+                ("4.5.10", "", False),
             ):
                 with self.subTest(desired=desired, actual=actual):
                     manifest.write_text(f"package.version: {actual}\n", encoding="utf-8")
                     result = subprocess.run(
                         ["bash", "-c", 'source "$1"; die() { echo "$*" >&2; exit 41; }; '
                          'DESIRED_ONBOARDING_PACKAGE_VERSION="$2"; '
-                         'require_canonical_onboarding_4_5_9 "$3"',
+                         'require_canonical_onboarding_4_5_10 "$3"',
                          "guard-test", str(operations), desired, str(root)],
                         text=True, capture_output=True, check=False,
                     )
                     self.assertEqual(result.returncode, 0 if allowed else 41, result.stderr)
                     if not allowed:
-                        self.assertIn("requires onboarding 4.5.9", result.stderr)
+                        self.assertIn("requires onboarding 4.5.10", result.stderr)
 
     def test_macos_host_bootstrap_preserves_its_active_source_checkout_during_repair(self) -> None:
         source = (HOST_BOOTSTRAP_PACKAGE / "operations.sh").read_text(encoding="utf-8")
