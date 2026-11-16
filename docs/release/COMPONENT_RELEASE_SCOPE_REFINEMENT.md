@@ -73,13 +73,13 @@ repository names alone.
 | Component ID | Selected source | Closure-required participant(s) | Artifact and channel | Scope status |
 | --- | --- | --- | --- | --- |
 | `hacs-integration` | `pcvantol/djconnect` | HACS repository/channel only; no second source repository | SHA-bound Home Assistant integration tarball and checksum; HACS release channel | Profiled; precedent exists in HACS 3.3.1. |
-| `api-worker` | `pcvantol/djconnect-api` | API worker deployment target | SHA-bound Worker bundle and checksum; approved API production channel | Profiled. |
-| `website` | `pcvantol/djconnect-website` | Website deployment target | SHA-bound static website bundle and checksum; approved Pages/website channel | Profiled. |
-| `esp32-firmware` | `pcvantol/djconnect-esp32` | `pcvantol/djconnect-firmware` | Source-bound firmware artifact/checksum and public firmware channel | Profiled. |
-| `apple-ios-watchos` | `pcvantol/djconnect-app` | `pcvantol/djconnect-app-releases`, Apple iPhone relay and paired Watch qualification where required | The existing unsigned iOS artifact, checksum and approved Apple iOS/watchOS channel | Profiled as one unit: the Watch is embedded in the iOS artifact path. |
-| `apple-macos` | `pcvantol/djconnect-app` | `pcvantol/djconnect-app-releases`, Apple macOS relay | The existing unsigned macOS artifact, checksum and approved macOS channel | Profiled independently of iOS/watchOS. |
-| `windows-client` | `pcvantol/djconnect-windows` | `pcvantol/djconnect-app-releases`, Windows deployment target | SHA-bound Windows artifact/checksum and approved Windows channel | Profiled; any incidental Mac Catalyst output is non-selected. |
-| `pi-renderer-family` | `pcvantol/djconnect-pi` | `pcvantol/djconnect-pi-releases`, approved Pi target | One source-bound Pi bundle/checksum and public Pi channel | Profiled only as a shared family release unit. |
+| `api-worker` | `djconnect-music-dj/djconnect-api` | API worker deployment target | SHA-bound Worker bundle and checksum; approved API production channel | Profiled. |
+| `website` | `djconnect-music-dj/djconnect-website` | Website deployment target | SHA-bound static website bundle and checksum; approved Pages/website channel | Profiled. |
+| `esp32-firmware` | `djconnect-music-dj/djconnect-esp32` | `djconnect-music-dj/djconnect-firmware` | Source-bound firmware artifact/checksum and public firmware channel | Profiled. |
+| `apple-ios-watchos` | `djconnect-music-dj/djconnect-app` | `djconnect-music-dj/djconnect-app-releases`, Apple iPhone relay and paired Watch qualification where required | The existing unsigned iOS artifact, checksum and approved Apple iOS/watchOS channel | Profiled as one unit: the Watch is embedded in the iOS artifact path. |
+| `apple-macos` | `djconnect-music-dj/djconnect-app` | `djconnect-music-dj/djconnect-app-releases`, Apple macOS relay | The existing unsigned macOS artifact, checksum and approved macOS channel | Profiled independently of iOS/watchOS. |
+| `windows-client` | `djconnect-music-dj/djconnect-windows` | `djconnect-music-dj/djconnect-app-releases`, Windows deployment target | SHA-bound Windows artifact/checksum and approved Windows channel | Profiled; any incidental Mac Catalyst output is non-selected. |
+| `pi-renderer-family` | `pcvantol/djconnect-pi` | `djconnect-music-dj/djconnect-pi-releases`, approved Pi target | One source-bound Pi bundle/checksum and public Pi channel | Profiled only as a shared family release unit. |
 | `pi-4-inch` | None independently selectable | Would require a Pi-4-specific source artifact and target evidence | No current independent artifact or release manifest identity | `NOT_SELECTABLE`. |
 | `pi-10-inch` | None independently selectable | Would require a Pi-10-specific source artifact and target evidence | No current independent artifact or release manifest identity | `NOT_SELECTABLE`. |
 

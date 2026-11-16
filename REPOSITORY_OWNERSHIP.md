@@ -24,7 +24,7 @@ Request-source ownership examples:
 - Clients must not invent durable personal identity when the backend cannot
   resolve one.
 
-## `pcvantol/djconnect-app`
+## `djconnect-music-dj/djconnect-app`
 
 Owns: Apple Intelligence Client UX for iOS, macOS and watchOS.
 
@@ -37,7 +37,7 @@ Must follow: DJConnect Profile, Device, Music Backend, Renderer/Client, privacy 
 
 Update canonical docs when: Apple UX requires new shared client capabilities, API contracts, profile rules or product language.
 
-## `pcvantol/djconnect-windows`
+## `djconnect-music-dj/djconnect-windows`
 
 Owns: Windows Intelligence Client UX.
 
@@ -93,7 +93,7 @@ Must follow: local-first value, optional cloud extension, privacy, profile bound
 
 Update canonical docs when: central API responsibilities expand into entitlement, cloud profile, sync, trust or privacy policy changes.
 
-## `pcvantol/djconnect-website`
+## `djconnect-music-dj/djconnect-website`
 
 Owns: public product story, onboarding, documentation presentation and release/download guidance.
 
@@ -131,7 +131,7 @@ consumption and standard flashing/bootstrap orchestration.
 Does not own: firmware artifacts, source builds, OTA logic, pairing, Runtime
 state, credentials or marketing-site behavior.
 
-## `pcvantol/djconnect-app-releases`
+## `djconnect-music-dj/djconnect-app-releases`
 
 Owns: internal unsigned Apple build-artifact handoff and non-secret release
 metadata only.

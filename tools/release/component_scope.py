@@ -43,13 +43,13 @@ class ComponentProfile:
 
 COMPONENT_PROFILES = {
     "hacs-integration": ComponentProfile("hacs-integration", "DJConnect Home Assistant integration", "pcvantol/djconnect", ("pcvantol/djconnect",), "hacs", "HACS", "home_assistant_integration_tarball"),
-    "api-worker": ComponentProfile("api-worker", "DJConnect API", "pcvantol/djconnect-api", ("pcvantol/djconnect-api",), "api-production", "API worker deployment", "worker_bundle"),
-    "website": ComponentProfile("website", "DJConnect Website", "pcvantol/djconnect-website", ("pcvantol/djconnect-website",), "website-production", "DJConnect website", "static_site_bundle"),
-    "esp32-firmware": ComponentProfile("esp32-firmware", "DJConnect ESP32 firmware", "pcvantol/djconnect-esp32", ("pcvantol/djconnect-esp32", "pcvantol/djconnect-firmware"), "firmware-public", "pcvantol/djconnect-firmware", "firmware_bundle"),
-    "apple-ios-watchos": ComponentProfile("apple-ios-watchos", "DJConnect Apple Client", "pcvantol/djconnect-app", ("pcvantol/djconnect-app", "pcvantol/djconnect-app-releases"), "apple-ios-watchos-internal", "Apple iOS/watchOS internal distribution", "ios_watchos_artifact"),
-    "apple-macos": ComponentProfile("apple-macos", "DJConnect Apple Client", "pcvantol/djconnect-app", ("pcvantol/djconnect-app", "pcvantol/djconnect-app-releases"), "apple-macos-internal", "Apple macOS internal distribution", "macos_artifact"),
-    "windows-client": ComponentProfile("windows-client", "DJConnect Windows Client", "pcvantol/djconnect-windows", ("pcvantol/djconnect-windows", "pcvantol/djconnect-app-releases"), "windows-internal", "Windows internal distribution", "windows_artifact"),
-    "pi-renderer-family": ComponentProfile("pi-renderer-family", "DJConnect Raspberry Pi Renderer", "pcvantol/djconnect-pi", ("pcvantol/djconnect-pi", "pcvantol/djconnect-pi-releases"), "pi-public", "pcvantol/djconnect-pi-releases", "pi_renderer_bundle"),
+    "api-worker": ComponentProfile("api-worker", "DJConnect API", "djconnect-music-dj/djconnect-api", ("djconnect-music-dj/djconnect-api",), "api-production", "API worker deployment", "worker_bundle"),
+    "website": ComponentProfile("website", "DJConnect Website", "djconnect-music-dj/djconnect-website", ("djconnect-music-dj/djconnect-website",), "website-production", "DJConnect website", "static_site_bundle"),
+    "esp32-firmware": ComponentProfile("esp32-firmware", "DJConnect ESP32 firmware", "djconnect-music-dj/djconnect-esp32", ("djconnect-music-dj/djconnect-esp32", "djconnect-music-dj/djconnect-firmware"), "firmware-public", "djconnect-music-dj/djconnect-firmware", "firmware_bundle"),
+    "apple-ios-watchos": ComponentProfile("apple-ios-watchos", "DJConnect Apple Client", "djconnect-music-dj/djconnect-app", ("djconnect-music-dj/djconnect-app", "djconnect-music-dj/djconnect-app-releases"), "apple-ios-watchos-internal", "Apple iOS/watchOS internal distribution", "ios_watchos_artifact"),
+    "apple-macos": ComponentProfile("apple-macos", "DJConnect Apple Client", "djconnect-music-dj/djconnect-app", ("djconnect-music-dj/djconnect-app", "djconnect-music-dj/djconnect-app-releases"), "apple-macos-internal", "Apple macOS internal distribution", "macos_artifact"),
+    "windows-client": ComponentProfile("windows-client", "DJConnect Windows Client", "djconnect-music-dj/djconnect-windows", ("djconnect-music-dj/djconnect-windows", "djconnect-music-dj/djconnect-app-releases"), "windows-internal", "Windows internal distribution", "windows_artifact"),
+    "pi-renderer-family": ComponentProfile("pi-renderer-family", "DJConnect Raspberry Pi Renderer", "pcvantol/djconnect-pi", ("pcvantol/djconnect-pi", "djconnect-music-dj/djconnect-pi-releases"), "pi-public", "djconnect-music-dj/djconnect-pi-releases", "pi_renderer_bundle"),
     "pi-4-inch": ComponentProfile("pi-4-inch", "DJConnect Raspberry Pi Renderer", None, (), None, None, None, selectable=False),
     "pi-10-inch": ComponentProfile("pi-10-inch", "DJConnect Raspberry Pi Renderer", None, (), None, None, None, selectable=False),
 }
