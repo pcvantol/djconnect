@@ -17,6 +17,11 @@ class ReleaseRepositoryIdentityTests(unittest.TestCase):
                     self.assertIn(profile.source_repository, names)
                     self.assertTrue(set(profile.participants) <= names)
 
+    def test_pi_profile_uses_transferred_source_and_distribution(self):
+        profile = COMPONENT_PROFILES["pi-renderer-family"]
+        self.assertEqual(profile.source_repository, "djconnect-music-dj/djconnect-pi")
+        self.assertEqual(set(profile.participants), {"djconnect-music-dj/djconnect-pi", "djconnect-music-dj/djconnect-pi-releases"})
+
     def test_firmware_selection_binds_current_namespace(self):
         profile = COMPONENT_PROFILES["esp32-firmware"]
         sha = "a" * 40

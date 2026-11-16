@@ -50,7 +50,7 @@ Must follow: shared client contracts, Music Backend capability behavior, DJConne
 
 Update canonical docs when: Windows introduces reusable client capability requirements or shared platform language.
 
-## `pcvantol/djconnect-pi`
+## `djconnect-music-dj/djconnect-pi`
 
 Owns: Raspberry Pi Ambient Client.
 
