@@ -51,6 +51,10 @@ jobs:
           TARGET_REPOSITORY: ${{ inputs.repository }}
         run: |
           case "$TARGET_REPOSITORY" in
+            djconnect-music-dj/djconnect)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect" >> "$GITHUB_OUTPUT"
+              ;;
             djconnect-music-dj/djconnect-windows)
               echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
               echo "repository_name=djconnect-windows" >> "$GITHUB_OUTPUT"
@@ -101,7 +105,7 @@ jobs:
               ;;
           esac
       - id: app-token
-        if: github.repository == 'pcvantol/djconnect' && steps.target.outputs.repository_owner == 'pcvantol'
+        if: github.repository_id == '1258575431' && (github.repository == 'pcvantol/djconnect' || github.repository == 'djconnect-music-dj/djconnect') && steps.target.outputs.repository_owner == 'pcvantol'
         name: Mint scoped central authorization token
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
@@ -110,7 +114,7 @@ jobs:
           owner: pcvantol
           repositories: ${{ steps.target.outputs.repository_name }}
       - id: org-app-token
-        if: github.repository == 'pcvantol/djconnect' && steps.target.outputs.repository_owner == 'djconnect-music-dj'
+        if: github.repository_id == '1258575431' && (github.repository == 'pcvantol/djconnect' || github.repository == 'djconnect-music-dj/djconnect') && steps.target.outputs.repository_owner == 'djconnect-music-dj'
         name: Mint scoped organization authorization token
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
@@ -132,11 +136,12 @@ jobs:
             const fs = require("fs");
             const [targetOwner, targetRepo] = process.env.TARGET_REPOSITORY.split("/");
             if (!targetOwner || !targetRepo) throw new Error("repository must use owner/name form");
-            const centralDispatch = context.repo.owner === "pcvantol" && context.repo.repo === "djconnect";
+            const centralDispatch = process.env.GITHUB_REPOSITORY_ID === "1258575431" && context.repo.repo === "djconnect" && ["pcvantol", "djconnect-music-dj"].includes(context.repo.owner);
             if (!centralDispatch && process.env.TARGET_REPOSITORY !== process.env.GITHUB_REPOSITORY) throw new Error("reusable authorization may only target its caller repository");
             if (!/^[0-9a-f]{40}$/.test(process.env.TARGET_SHA)) throw new Error("candidate_sha must be a full SHA");
             if (context.actor !== process.env.OWNER_LOGIN) throw new Error("GitHub actor is not the configured repository owner");
             const pr = await github.rest.pulls.get({owner: targetOwner, repo: targetRepo, pull_number: Number(process.env.TARGET_PR)});
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect" && pr.data.base.repo.id !== 1258575431) throw new Error("target Core repository ID does not match");
             if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-api" && pr.data.base.repo.id !== 1275206655) throw new Error("target API repository ID does not match");
             if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-windows" && pr.data.base.repo.id !== 1278888172) throw new Error("target Windows repository ID does not match");
             if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-pi" && pr.data.base.repo.id !== 1267248532) throw new Error("target Pi repository ID does not match");
