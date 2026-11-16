@@ -2046,9 +2046,9 @@ clone_or_update() {
 
 step_11_clone_all_repos() {
   log "Cloning/updating sibling DJConnect repositories."
-  clone_or_update djconnect-app https://github.com/pcvantol/djconnect-app.git
+  clone_or_update djconnect-app https://github.com/djconnect-music-dj/djconnect-app.git
   clone_or_update djconnect-esp32 https://github.com/djconnect-music-dj/djconnect-esp32.git
-  clone_or_update djconnect-website https://github.com/pcvantol/djconnect-website.git
+  clone_or_update djconnect-website https://github.com/djconnect-music-dj/djconnect-website.git
   clone_or_update djconnect-pi https://github.com/pcvantol/djconnect-pi.git
   clone_or_update djconnect-pico "$PICO_REPO_URL"
   clone_or_update djconnect-api https://github.com/pcvantol/djconnect-api.git
