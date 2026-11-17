@@ -55,7 +55,7 @@ environment secrets or artifact contents.
 ### Windows ARM64 runner
 
 The Windows runner uses the elevated installer in
-`pcvantol/djconnect-windows`:
+`djconnect-music-dj/djconnect-windows`:
 
 ```powershell
 Set-Location <djconnect-windows-clone>
