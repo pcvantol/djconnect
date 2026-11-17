@@ -127,7 +127,10 @@ class CurrentKnowledgeTests(IsolatedAsyncioTestCase):
 
     async def test_source_fact_expiry_only_shortens_original_deadline(self):
         original = self.resolver.resolve
-        deadline = time.monotonic()+0.1
+        # The source must shorten the original boundary, but leave enough time
+        # for the asynchronous lookup on a loaded CI worker.
+        deadline = self.current.original_deadline - 15
+        self.assertGreater(deadline, time.monotonic() + 5)
         async def near_expiry(*args, **kwargs):
             return tuple(replace(fact, source_expires_at=deadline) for fact in await original(*args, **kwargs))
         with patch.object(self.resolver, "resolve", near_expiry):
