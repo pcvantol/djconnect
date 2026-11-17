@@ -185,7 +185,7 @@ qualifies our adapter contract only, not the real Google SDK or Cast hardware.
 
 ## Distribution and evidence boundary
 
-Receiver repository `pcvantol/djconnect-vibecast-receiver` owns reviewed import,
+Receiver repository `djconnect-music-dj/djconnect-vibecast-receiver` owns reviewed import,
 Pages deployment, public fixed receiver URL and Cast registration. Import the
 pinned static entry and manifest with checksum verification; never independently
 edit generated bubbles. Promote/roll back static code by immutable source/build
