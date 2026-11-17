@@ -66,6 +66,42 @@ The manifest binds `candidate_sha`, `platform_version`, `manifest_id`,
 `execution_mode=execute`.
 
 
+## Proposed Website manifest binding
+
+This section proposes a Website-specific convention for review; it does not
+authorize a manifest, change a consumer, or permit a deployment or rollback.
+The proposed canonical location is
+`docs/release/website-manifests/<manifest_id>.json` in Core. This is a new
+proposed location, not a claim that existing Website manifests use it.
+
+Before a Website deployment consumer performs any production mutation, it
+must resolve one approved manifest from a verified Core repository identity
+and immutable Core revision, record that revision and the manifest digest,
+and reject untrusted URLs, ambiguous records and mutable selectors. Accept
+only manifest IDs matching an explicit, strict allowlist before constructing
+the fixed manifest path; reject path separators, traversal and any ID outside
+that allowlist. The
+existing operational manifest fields must uniquely bind the release profile,
+platform version, Website repository and source SHA, successful validation
+and artifact run, required `cloudflare_pages_production` target, artifact ID
+and artifact SHA-256. The consumer must independently verify the artifact
+provenance and downloaded bytes. Missing, stale or conflicting evidence fails
+closed.
+
+The approval must be attributable to the actual release authority and the
+exact candidate and target. A status string, artifact build or protected
+repository alone does not establish that approval or Cloudflare rights.
+Verify that the protected Core revision and its authority remain eligible and
+have not been revoked or superseded at execution time; a historical approved
+revision must not allow revoked or stale approval to be replayed. If current
+validity or revocation cannot be established independently, fail closed.
+Deployment evidence and the separate smoke must reference the same manifest
+revision and digest, candidate, target and artifact. Capture the existing
+production identity and verify the recovery target and required permissions
+before mutation; independently verify the deployed identity and smoke result.
+Changes to a bound identity invalidate the affected qualification. Preserve
+historical records unchanged.
+
 ## Bounded Pi multi-instance extension
 
 The canonical target remains `rbpi-djconnect`. The existing rc.5 two-instance
