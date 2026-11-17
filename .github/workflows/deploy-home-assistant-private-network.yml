@@ -66,7 +66,13 @@ jobs:
           test "$RELEASE_PROFILE" = INTERNAL_RELEASE
           printf '%s' "$CANDIDATE_SHA" | grep -Eq '^[0-9a-f]{40}$'
           printf '%s' "$MANIFEST_ID" | grep -Eq '^release-[A-Za-z0-9._-]+$'
-          printf '%s' "$ARTIFACT_ID" | grep -Eq '^release-asset:pcvantol/djconnect:internal-ha-[0-9a-f]{40}:djconnect-home-assistant-integration-[0-9a-f]{40}\.tar\.gz$'
+          test "$GITHUB_REPOSITORY_ID" = 1258575431
+          case "$GITHUB_REPOSITORY" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          artifact_repository="${ARTIFACT_ID#release-asset:}"
+          artifact_repository="${artifact_repository%%:*}"
+          case "$artifact_repository" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          case "$GITHUB_REPOSITORY:$artifact_repository" in pcvantol/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          test "$ARTIFACT_ID" = "release-asset:${artifact_repository}:internal-ha-${CANDIDATE_SHA}:djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
           printf '%s' "$ARTIFACT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
           printf '%s' "$PLATFORM_VERSION" | grep -Eq '^[0-9]+\.[0-9]+$'
       - id: preflight_path
@@ -124,7 +130,8 @@ jobs:
           HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
           HAOS_SSH_PRIVATE_KEY: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_PRIVATE_KEY }}
           HAOS_SSH_KNOWN_HOSTS: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_KNOWN_HOSTS }}
-      - name: Require approved central operational manifest source
+      - id: approved_manifest
+        name: Require approved central operational manifest source
         shell: bash
         env:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
@@ -135,25 +142,40 @@ jobs:
           RELEASE_PROFILE: ${{ inputs.release_profile }}
         run: |
           set -euo pipefail
+          test "$GITHUB_REPOSITORY_ID" = 1258575431
+          case "$GITHUB_REPOSITORY" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          artifact_repository="${ARTIFACT_ID#release-asset:}"
+          artifact_repository="${artifact_repository%%:*}"
+          case "$artifact_repository" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          case "$GITHUB_REPOSITORY:$artifact_repository" in pcvantol/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          test "$ARTIFACT_ID" = "release-asset:${artifact_repository}:internal-ha-${CANDIDATE_SHA}:djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
           manifest="$(mktemp)"
           trap 'rm -f "$manifest"' EXIT
+          case "$MANIFEST_ID" in
+            release-4.0.0-home-assistant-prod-20261110) manifest_path=docs/release/PLATFORM_4_0_RC1_HOME_ASSISTANT_OPERATIONAL_MANIFEST.json ;;
+            *) manifest_path="docs/release/home-assistant-manifests/${MANIFEST_ID}.json" ;;
+          esac
           curl --fail --silent --show-error --location \
-            https://raw.githubusercontent.com/pcvantol/djconnect/main/docs/release/PLATFORM_4_0_RC1_HOME_ASSISTANT_OPERATIONAL_MANIFEST.json \
+            "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/${manifest_path}" \
             --output "$manifest"
           manifest_status="$(jq -r '.status' "$manifest")"
           case "$manifest_status" in
             APPROVED_DEPLOYMENT_DISPATCH_PENDING|APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL|APPROVED_TARGET_DEPLOYMENT_OPERATIONAL) ;;
-            *) echo "Manifest is not open for an authorized target deployment: $manifest_status" >&2; exit 1 ;;
+            *) echo "Manifest is not open for an authorized target deployment or smoke: $manifest_status" >&2; exit 1 ;;
           esac
           test "$(jq -r '.approval.state' "$manifest")" = APPROVED
           test "$(jq -r '.manifest_id' "$manifest")" = "$MANIFEST_ID"
           test "$(jq -r '.release_profile' "$manifest")" = "$RELEASE_PROFILE"
-          jq -e --arg sha "$CANDIDATE_SHA" \
-            '.repositories[] | select(.repository == "pcvantol/djconnect" and .source_sha == $sha)' \
+          jq -e --arg repo "$artifact_repository" --arg sha "$CANDIDATE_SHA" \
+            '[.repositories[] | select(.repository == $repo and .source_sha == $sha)] | length == 1' \
             "$manifest" >/dev/null
-          jq -e --arg target "$TARGET" --arg artifact "$ARTIFACT_ID" --arg sha "$ARTIFACT_SHA256" \
-            '.artifact_bindings[] | select(.target == $target and (.artifact_id | tostring) == $artifact and .artifact_sha256 == $sha)' \
+          expected_url="https://github.com/${artifact_repository}/releases/download/internal-ha-${CANDIDATE_SHA}/djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
+          jq -e --arg target "$TARGET" --arg artifact "$ARTIFACT_ID" --arg sha "$ARTIFACT_SHA256" --arg repo "$artifact_repository" --arg url "$expected_url" \
+            '[.artifact_bindings[] | select(.target == $target and (.artifact_id | tostring) == $artifact and .artifact_sha256 == $sha and .owner == $repo and .artifact_url == $url)] | length == 1' \
             "$manifest" >/dev/null
+          artifact_run="$(jq -er --arg repo "$artifact_repository" --arg sha "$CANDIDATE_SHA" '.repositories[] | select(.repository == $repo and .source_sha == $sha) | .artifact_run' "$manifest")"
+          printf '%s' "$artifact_run" | grep -Eq '^[0-9]+$'
+          printf 'artifact_run=%s\n' "$artifact_run" >> "$GITHUB_OUTPUT"
       - id: haos-transport
         name: Configure restricted Home Assistant OS SSH transport
         env:
@@ -190,21 +212,14 @@ jobs:
         name: Verify immutable artifact provenance
         env:
           GH_TOKEN: ${{ github.token }}
-          ARTIFACT_ID: ${{ inputs.artifact_id }}
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          ARTIFACT_RUN: ${{ steps.approved_manifest.outputs.artifact_run }}
         run: |
           set -euo pipefail
-          manifest="$(mktemp)"
-          trap 'rm -f "$manifest"' EXIT
-          curl --fail --silent --show-error --location "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/docs/release/PLATFORM_4_0_RC1_HOME_ASSISTANT_OPERATIONAL_MANIFEST.json" --output "$manifest"
-          artifact_url="$(jq -r --arg artifact "$ARTIFACT_ID" '.artifact_bindings[] | select(.target == "home_assistant_pi5" and (.artifact_id | tostring) == $artifact) | .artifact_url' "$manifest")"
-          expected_url="https://github.com/${GITHUB_REPOSITORY}/releases/download/internal-ha-${CANDIDATE_SHA}/djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
-          test "$artifact_url" = "$expected_url"
-          artifact_run="$(jq -er --arg sha "$CANDIDATE_SHA" '.repositories[] | select(.repository == "pcvantol/djconnect" and .source_sha == $sha) | .artifact_run' "$manifest")"
-          printf '%s' "$artifact_run" | grep -Eq '^[0-9]+$'
-          gh run view "$artifact_run" --repo "$GITHUB_REPOSITORY" --json headSha,workflowName |
-            jq -e --arg sha "$CANDIDATE_SHA" '.headSha == $sha and .workflowName == "Home Assistant release artifact"' >/dev/null
-          printf 'artifact_run=%s\n' "$artifact_run" >> "$GITHUB_OUTPUT"
+          printf '%s' "$ARTIFACT_RUN" | grep -Eq '^[0-9]+$'
+          gh run view "$ARTIFACT_RUN" --repo "$GITHUB_REPOSITORY" --json headSha,workflowName,status,conclusion |
+            jq -e --arg sha "$CANDIDATE_SHA" '.headSha == $sha and .workflowName == "Home Assistant release artifact" and .status == "completed" and .conclusion == "success"' >/dev/null
+          printf 'artifact_run=%s\n' "$ARTIFACT_RUN" >> "$GITHUB_OUTPUT"
       - name: Download manifest-bound artifact
         env:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
