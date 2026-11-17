@@ -45,4 +45,4 @@ Si falta Assist, comprueba los requisitos de tu versión. Si Spotify no vuelve,
 comprueba la URI exacta. Si falla el emparejamiento, comprueba LAN y código. Si el
 icono de HA es genérico, vuelve a descargar en HACS, reinicia HA y actualiza la interfaz.
 
-[HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration) · [Repository](https://github.com/pcvantol/djconnect) · [English / en](installation.md)
+[HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration) · [Repository](https://github.com/djconnect-music-dj/djconnect) · [English / en](installation.md)

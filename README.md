@@ -101,7 +101,7 @@ Help examples in English and Dutch use your connected server’s current availab
 - **Generic HA icon:** redownload in HACS, restart HA and refresh the frontend cache.
 
 [More help](docs/user/troubleshooting.md) · [Documentation](docs/README.md) ·
-[Website](https://djconnect.dev) · [Source](https://github.com/pcvantol/djconnect)
+[Website](https://djconnect.dev) · [Source](https://github.com/djconnect-music-dj/djconnect)
 
 DJConnect repositories are MIT-licensed; this HA integration may be distributed
 separately for DJConnect devices. Copyright (c) 2026 Peter van Tol.

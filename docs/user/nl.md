@@ -45,4 +45,4 @@ Assist ontbreekt? Controleer de voorwaarden voor jouw versie. Spotify keert niet
 terug? Controleer de exacte redirect-URI. Koppeling mislukt? Controleer LAN en code.
 Generiek HA-pictogram? Download opnieuw in HACS, herstart en ververs de frontend.
 
-[HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration) · [Repository](https://github.com/pcvantol/djconnect) · [English / en](installation.md)
+[HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration) · [Repository](https://github.com/djconnect-music-dj/djconnect) · [English / en](installation.md)
