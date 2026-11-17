@@ -81,6 +81,28 @@ class HomeAssistantManifestIdentityTest(unittest.TestCase):
         doc["repositories"].append(copy.deepcopy(doc["repositories"][0]))
         self.both(doc, NEW, False)
 
+    def test_provenance_requires_successful_completed_exact_run(self) -> None:
+        data = (WORKFLOWS / "deploy-home-assistant-private-network.yml").read_text()
+        part = data.split("name: Verify immutable artifact provenance", 1)[1]
+        body = part.split("        run: |\n", 1)[1].split("\n      - ", 1)[0]
+        script = textwrap.dedent(body)
+        valid = {"headSha": self.sha, "workflowName": "Home Assistant release artifact", "status": "completed", "conclusion": "success"}
+        cases = [(valid, True)]
+        for field, value in (("headSha", "0" * 40), ("workflowName", "other"), ("status", "in_progress"), ("conclusion", "failure")):
+            cases.append((valid | {field: value}, False))
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            gh = root / "gh"
+            gh.write_text('#!/bin/bash\nprintf "%s" "$MOCK_RUN"\n')
+            gh.chmod(0o700)
+            for result, expected in cases:
+                with self.subTest(result=result):
+                    env = os.environ | {"PATH": f"{root}:{os.environ['PATH']}", "MOCK_RUN": json.dumps(result), "ARTIFACT_RUN": "123", "CANDIDATE_SHA": self.sha, "GITHUB_REPOSITORY": OLD, "GITHUB_OUTPUT": str(root / "out")}
+                    actual = subprocess.run(["bash", "-c", script], env=env, capture_output=True, check=False)
+                    self.assertEqual(actual.returncode == 0, expected)
+            env["ARTIFACT_RUN"] = "missing"
+            self.assertNotEqual(subprocess.run(["bash", "-c", script], env=env, capture_output=True, check=False).returncode, 0)
+
     def test_approval_is_still_required(self) -> None:
         doc = copy.deepcopy(self.manifest)
         doc["approval"]["state"] = "PENDING"
