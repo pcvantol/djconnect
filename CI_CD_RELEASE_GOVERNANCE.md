@@ -22,13 +22,13 @@ CI/CD should protect:
 
 Source repositories own implementation and tests:
 
-- `pcvantol/djconnect`;
-- `pcvantol/djconnect-api`;
-- `pcvantol/djconnect-app`;
-- `pcvantol/djconnect-windows`;
-- `pcvantol/djconnect-pi`;
+- `djconnect-music-dj/djconnect`;
+- `djconnect-music-dj/djconnect-api`;
+- `djconnect-music-dj/djconnect-app`;
+- `djconnect-music-dj/djconnect-windows`;
+- `djconnect-music-dj/djconnect-pi`;
 - `djconnect-music-dj/djconnect-esp32`;
-- `pcvantol/djconnect-website`.
+- `djconnect-music-dj/djconnect-website`.
 
 ### Release repositories
 
