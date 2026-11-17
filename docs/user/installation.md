@@ -23,8 +23,8 @@ For installed 3.3.1 use the [stable guide](stable-3.3.1.md).
 
 ## Install
 
-1. [Open DJConnect in HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration). Alternatively add
-   `https://github.com/pcvantol/djconnect` under **Custom repositories**, category
+1. [Open DJConnect in HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration). Alternatively add
+   `https://github.com/djconnect-music-dj/djconnect` under **Custom repositories**, category
    **Integration**.
 2. Install DJConnect and restart Home Assistant.
 3. Open **Settings → Devices & services → Add integration → DJConnect**.

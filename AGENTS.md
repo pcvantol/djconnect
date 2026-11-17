@@ -22,7 +22,7 @@ Doel:
 - HA doet pairing, Spotify OAuth/backend playback, OTA, status, voice/AI integratie.
 
 Belangrijke repos:
-- HA integration: github.com/pcvantol/djconnect
+- HA integration: github.com/djconnect-music-dj/djconnect
 - Apple clients source: github.com/djconnect-music-dj/djconnect-app
 - ESP32 firmware source: github.com/djconnect-music-dj/djconnect-esp32
 - Windows client source: github.com/djconnect-music-dj/djconnect-windows
@@ -35,7 +35,7 @@ Belangrijke repos:
 
 For a clean Codex/AI-agent session, first follow the canonical platform bootstrap:
 
-`pcvantol/djconnect/BOOTSTRAP_CODEX_SESSION.md`
+`djconnect-music-dj/djconnect/BOOTSTRAP_CODEX_SESSION.md`
 
 Then continue with the repository-specific instructions in this file.
 
@@ -283,8 +283,8 @@ README/release:
 - README moet actueel blijven voor HACS installatie, Spotify OAuth, endpoints, OTA en release workflow.
 - De product/marketing website staat buiten deze HA integration repo op `https://djconnect.dev`; houd deze repo gefocust op HACS integration, docs, brand assets en release workflow.
 - De website How To Start pagina moet dezelfde basisvereisten noemen als de HACS docs: Home Assistant, HACS, Spotify Premium, HA Assist-pipeline met een beschikbare conversatieagent (HA STT/TTS optioneel voor pairing), lokaal netwerk tijdens pairing, ESP 2.4 GHz WiFi en Nabu Casa/externe HTTPS URL voor Spotify OAuth.
-- Cross-repo sync prompts staan uitsluitend in `pcvantol/djconnect/SYNC_PROMPTS.md`; voeg oude losse promptbestanden of sibling-repo kopieën niet opnieuw toe.
-- Product roadmap staat uitsluitend in `pcvantol/djconnect/PRODUCT_ROADMAP.md`; voeg sibling-repo roadmap kopieën niet opnieuw toe.
+- Cross-repo sync prompts staan uitsluitend in `djconnect-music-dj/djconnect/SYNC_PROMPTS.md`; voeg oude losse promptbestanden of sibling-repo kopieën niet opnieuw toe.
+- Product roadmap staat uitsluitend in `djconnect-music-dj/djconnect/PRODUCT_ROADMAP.md`; voeg sibling-repo roadmap kopieën niet opnieuw toe.
 - Release checklist moet in README en AGENTS blijven staan en bij elke release worden gevolgd.
 - Pre-release checklist:
   - Controleer dat de working tree alleen bedoelde wijzigingen bevat.
@@ -298,8 +298,8 @@ README/release:
   - Update `CHANGELOG.md` met een nieuw blok per release; behoud eerdere releaseblokken en consolideer niet meer naar één actuele versie.
   - Houd `AGENTS.md` gelijk met actuele versie en release-eisen.
   - Houd `HANDOFF.md`, `TODO.md` en `ISSUES.md` actueel met release-status, bekende checks en resterende veldvalidatie.
-  - Houd `pcvantol/djconnect/SYNC_PROMPTS.md` actueel als cross-repo contracten, clienttypes, endpoints of pairing/discovery wijzigen, ook als de wijziging vanuit een andere DJConnect repo komt.
-  - Houd `pcvantol/djconnect/PRODUCT_ROADMAP.md` actueel als productideeën, productie must-haves, premium feature kandidaten of shipped roadmap items wijzigen, ook als de wijziging vanuit een andere DJConnect repo komt.
+  - Houd `djconnect-music-dj/djconnect/SYNC_PROMPTS.md` actueel als cross-repo contracten, clienttypes, endpoints of pairing/discovery wijzigen, ook als de wijziging vanuit een andere DJConnect repo komt.
+  - Houd `djconnect-music-dj/djconnect/PRODUCT_ROADMAP.md` actueel als productideeën, productie must-haves, premium feature kandidaten of shipped roadmap items wijzigen, ook als de wijziging vanuit een andere DJConnect repo komt.
   - Houd `TECHNICAL_DESIGN_DECISIONS.md` actueel als code-level design patterns, coding conventions, frameworks, libraries, third-party dependencies, versions, licenses of source URLs wijzigen.
   - Houd `info.md` en HACS-facing tekst actueel voor de gebruiker.
   - Loop bij elke release altijd alle vijf ondersteunde vertalingen (`en`, `nl`, `de`, `fr`, `es`) handmatig na, ook als er geen nieuwe UI-string lijkt te zijn. Actualiseer ze voor gewijzigde config-flow, options-flow, repair-flow, entity-, service-, endpoint- en client-facing teksten.
