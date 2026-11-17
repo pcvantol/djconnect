@@ -25,10 +25,10 @@
     "assist_pipeline",
     "tts"
   ],
-  "documentation": "https://github.com/pcvantol/djconnect",
+  "documentation": "https://github.com/djconnect-music-dj/djconnect",
   "integration_type": "device",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/pcvantol/djconnect/issues",
+  "issue_tracker": "https://github.com/djconnect-music-dj/djconnect/issues",
   "requirements": [
     "segno>=1.6.1",
     "defusedxml>=0.7.1"
