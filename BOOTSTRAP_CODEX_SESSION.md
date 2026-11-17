@@ -38,7 +38,7 @@ A new Codex session must:
 1. Read `BOOTSTRAP.md` and verify its repository-state reading order.
 2. Read this document.
 3. Run the non-mutating development-machine desired-state verification from
-   the canonical `pcvantol/djconnect` checkout:
+   the canonical `djconnect-music-dj/djconnect` checkout:
 
    ```sh
    ./scripts/runner/bootstrap_djconnect_macos_host.sh --verify
@@ -59,7 +59,7 @@ onboarding when that exact version is not present.
 9. Identify what the repository owns and does not own.
 10. Read `REPOSITORY_STATUS.md`.
 11. Read `PROMPT_INDEX.md` when the work is phase-driven.
-12. Read the canonical DJConnect Foundation in `pcvantol/djconnect` only as
+12. Read the canonical DJConnect Foundation in `djconnect-music-dj/djconnect` only as
    needed for the current task, following `CANONICAL_REFERENCES.md`.
 13. Identify the current Epic or Phase if applicable.
 14. Read relevant local docs.
@@ -156,7 +156,7 @@ where durable engineering knowledge belongs and how AI agents should operate.
 ## Canonical Foundation Files
 
 Read these files from the canonical Home Assistant repository,
-`pcvantol/djconnect`, when platform context is required:
+`djconnect-music-dj/djconnect`, when platform context is required:
 
 - `PLATFORM_STRATEGY.md`
 - `FOUNDATION_INDEX.md`

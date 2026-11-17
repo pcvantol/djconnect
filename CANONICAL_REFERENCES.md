@@ -2,7 +2,7 @@
 
 Status: repository-local canonical reference map
 
-This repository, `pcvantol/djconnect`, is the canonical platform repository for
+This repository, `djconnect-music-dj/djconnect`, is the canonical platform repository for
 DJConnect. It owns the platform foundation, platform prompt index, verification
 foundation, Meta Engineering foundation, repository ownership and Home
 Assistant integration implementation.
@@ -12,7 +12,7 @@ copying or redefining them.
 
 ## Platform Strategy
 
-- Canonical repository: `pcvantol/djconnect`
+- Canonical repository: `djconnect-music-dj/djconnect`
 - Canonical document: `PLATFORM_STRATEGY.md`
 - Local responsibility: maintain the long-term strategic intent that explains
   why the platform is evolving toward a production-ready, fully verified
@@ -24,7 +24,7 @@ reinterpret or redefine it in repository-local prompt indexes or roadmaps.
 
 ## Platform Overview Architecture
 
-- Canonical repository: `pcvantol/djconnect`
+- Canonical repository: `djconnect-music-dj/djconnect`
 - Canonical document: `PLATFORM_OVERVIEW_ARCHITECTURE.md`
 - Local responsibility: provide the descriptive architectural entry point for
   the existing Profile, Playback, Session Intelligence, Presentation and
@@ -38,7 +38,7 @@ plan or Runtime behaviour.
 
 ## Platform Foundation
 
-- Canonical repository: `pcvantol/djconnect`
+- Canonical repository: `djconnect-music-dj/djconnect`
 - Canonical document: `FOUNDATION_INDEX.md`
 - Local responsibility: maintain the platform foundation and update it when
   product direction, architecture, governance, domain language, localization,
@@ -70,7 +70,7 @@ Authoritative foundation documents include:
 
 ## Product Strategy Foundation
 
-- Canonical repository: `pcvantol/djconnect`
+- Canonical repository: `djconnect-music-dj/djconnect`
 - Canonical documents: `docs/product/README.md` and
   `docs/product/PRODUCT_STRATEGY.md`
 - Local responsibility: maintain validated product direction after concepts
@@ -87,7 +87,7 @@ strategy lifecycle.
 
 ## Verification Foundation
 
-- Canonical repository: `pcvantol/djconnect`
+- Canonical repository: `djconnect-music-dj/djconnect`
 - Canonical documents: `BOOTSTRAP_CODEX_VERIFICATION.md`,
   `docs/verification/00_VERIFICATION_VISION.md`,
   `docs/verification/01_VERIFICATION_ARCHITECTURE.md` and
@@ -101,7 +101,7 @@ must not redefine the canonical Verification Foundation.
 
 ## Software Assurance Foundation
 
-- Canonical repository: `pcvantol/djconnect`
+- Canonical repository: `djconnect-music-dj/djconnect`
 - Canonical documents: `SOFTWARE_ASSURANCE_PLATFORM.md`,
   `SOFTWARE_ASSURANCE_ARCHITECTURE.md`,
   `SOFTWARE_ASSURANCE_THEMES.md`,
@@ -134,7 +134,7 @@ release gates.
 
 ## Meta Engineering Foundation
 
-- Canonical repository: `pcvantol/djconnect`
+- Canonical repository: `djconnect-music-dj/djconnect`
 - Canonical document: `docs/meta/README.md`
 - Local responsibility: maintain the shared engineering process, AI
   collaboration model, repository-as-memory model, completion protocol and
@@ -146,7 +146,7 @@ behavior, runtime architecture or verification expectations.
 
 ## Platform Prompt Index
 
-- Canonical repository: `pcvantol/djconnect`
+- Canonical repository: `djconnect-music-dj/djconnect`
 - Canonical document: `PROMPT_INDEX.md`
 - Local responsibility: maintain the complete platform verification roadmap,
   current active phase, predecessor relationships, reports and next phase
@@ -159,7 +159,7 @@ roadmap.
 
 ## Repository Ownership
 
-- Canonical repository: `pcvantol/djconnect`
+- Canonical repository: `djconnect-music-dj/djconnect`
 - Canonical document: `REPOSITORY_OWNERSHIP.md`
 - Local responsibility: maintain cross-repository ownership boundaries and
   clarify what each repository owns and must not own.
@@ -167,7 +167,7 @@ roadmap.
 
 ## Technical Design Ownership
 
-- Canonical repository: `pcvantol/djconnect` for Home Assistant integration
+- Canonical repository: `djconnect-music-dj/djconnect` for Home Assistant integration
   technical design and shared backend contracts.
 - Canonical documents: `docs/technical/`, `API_CONTRACT.md`,
   `DOMAIN_MODEL.md`, accepted ADRs and implementation-specific module docs.
@@ -181,7 +181,7 @@ Raspberry Pi, ESP32, website, API and release artifacts.
 
 ## Local Implementation Ownership
 
-- Canonical repository: `pcvantol/djconnect`
+- Canonical repository: `djconnect-music-dj/djconnect`
 - Canonical documents: `AGENTS.md`, `custom_components/djconnect/AGENTS.md`,
   `README.md`, `CONTRIBUTING.md`, implementation files and local tests.
 - Local responsibility: implement and maintain the Home Assistant/HACS

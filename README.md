@@ -31,14 +31,14 @@ Complete earlier bodies below retain their historical scope.
 
 # DJConnect
 
-<img src="https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png" alt="DJConnect" width="64" height="64">
+<img src="https://raw.githubusercontent.com/djconnect-music-dj/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png" alt="DJConnect" width="64" height="64">
 
 **Your music. Your DJ.**
 
 Your personal music DJ in Home Assistant. Ask for music and enjoy DJ contributions
 from an available DJConnect app, supported device or Home Assistant Assist.
 
-**[Open DJConnect in HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration)**
+**[Open DJConnect in HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration)**
 
 [English](docs/user/installation.md) · [Nederlands](docs/user/nl.md) ·
 [Deutsch](docs/user/de.md) · [Français](docs/user/fr.md) · [Español](docs/user/es.md)
@@ -70,8 +70,8 @@ Help examples in English and Dutch use your connected server’s current availab
 
 ## Install
 
-1. [Open HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration). If needed, use
-   **Custom repositories**, add `https://github.com/pcvantol/djconnect` and select
+1. [Open HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration). If needed, use
+   **Custom repositories**, add `https://github.com/djconnect-music-dj/djconnect` and select
    category **Integration**.
 2. Install **DJConnect** from HACS.
 3. **Restart Home Assistant.**
