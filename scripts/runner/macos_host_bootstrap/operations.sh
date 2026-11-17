@@ -287,10 +287,10 @@ prepare_repositories() {
 require_canonical_onboarding_4_5_10() {
   local central_repository="$1" manifest actual_version
   manifest="$central_repository/onboarding/manifest.yml"
-  [[ "$DESIRED_ONBOARDING_PACKAGE_VERSION" == '4.5.10' ]] || die "The canonical macOS bootstrap requires onboarding 4.5.10; desired state declares $DESIRED_ONBOARDING_PACKAGE_VERSION."
+  [[ "$DESIRED_ONBOARDING_PACKAGE_VERSION" == '4.5.11' ]] || die "The canonical macOS bootstrap requires onboarding 4.5.11; desired state declares $DESIRED_ONBOARDING_PACKAGE_VERSION."
   [[ -f "$manifest" ]] || die "The canonical onboarding manifest is unavailable: $manifest"
   actual_version="$(awk -F': ' '$1 == "package.version" { print $2; exit }' "$manifest")"
-  [[ "$actual_version" == '4.5.10' ]] || die "The canonical macOS bootstrap requires onboarding 4.5.10; found ${actual_version:-missing} in $manifest."
+  [[ "$actual_version" == '4.5.11' ]] || die "The canonical macOS bootstrap requires onboarding 4.5.11; found ${actual_version:-missing} in $manifest."
 }
 
 bootstrap_developer_workstation() {
