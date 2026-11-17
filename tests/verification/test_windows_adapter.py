@@ -27,6 +27,13 @@ class FakeRunner:
 
 
 class WindowsAdapterTests(unittest.TestCase):
+    def test_runtime_and_environment_identify_current_client_repository(self) -> None:
+        target = WindowsRuntimeTarget(target_id="win-local", runtime="local")
+        adapter = WindowsVerificationAdapter(WindowsAdapterConfig(target=target), runner=FakeRunner())
+        expected = "djconnect-music-dj/djconnect-windows"
+        self.assertEqual(expected, adapter.collect_runtime_metadata().data["client_repository"])
+        self.assertEqual(expected, adapter.collect_environment()["client_repository"])
+
     def test_validate_target_identity_fails_closed_without_target(self) -> None:
         adapter = WindowsVerificationAdapter(WindowsAdapterConfig(), runner=FakeRunner())
 
