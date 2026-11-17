@@ -32,10 +32,14 @@ class HomeAssistantManifestIdentityTest(unittest.TestCase):
             fixture = root / "manifest.json"
             fixture.write_text(json.dumps(manifest))
             curl = root / "curl"
-            curl.write_text('#!/bin/bash\nwhile (($#)); do if [[ "$1" == "--output" ]]; then cp "$FIXTURE" "$2"; exit; fi; shift; done\nexit 1\n')
+            curl.write_text('#!/bin/bash\nseen=0\nwhile (($#)); do if [[ "$1" == "$EXPECTED_URL" ]]; then seen=1; fi; if [[ "$1" == "--output" ]]; then out="$2"; shift; fi; shift; done\ntest "$seen" = 1 || exit 1\ncp "$FIXTURE" "$out"\n')
             curl.chmod(0o700)
+            manifest_path = ("docs/release/PLATFORM_4_0_RC1_HOME_ASSISTANT_OPERATIONAL_MANIFEST.json"
+                             if manifest["manifest_id"] == "release-4.0.0-home-assistant-prod-20261110"
+                             else f"docs/release/home-assistant-manifests/{manifest['manifest_id']}.json")
             env = os.environ | {
                 "PATH": f"{root}:{os.environ['PATH']}", "FIXTURE": str(fixture),
+                "EXPECTED_URL": f"https://raw.githubusercontent.com/{current}/main/{manifest_path}",
                 "GITHUB_REPOSITORY_ID": repository_id, "GITHUB_REPOSITORY": current,
                 "CANDIDATE_SHA": self.sha, "MANIFEST_ID": manifest["manifest_id"],
                 "ARTIFACT_ID": artifact or self.binding["artifact_id"],
@@ -56,6 +60,7 @@ class HomeAssistantManifestIdentityTest(unittest.TestCase):
     def test_new_name_requires_consistent_manifest_binding(self) -> None:
         doc = copy.deepcopy(self.manifest)
         doc["repositories"][0]["repository"] = NEW
+        doc["manifest_id"] = "release-synthetic-future"
         for key in ("owner", "artifact_id", "artifact_url"):
             doc["artifact_bindings"][0][key] = doc["artifact_bindings"][0][key].replace(OLD, NEW)
         self.both(doc, NEW, True, artifact=doc["artifact_bindings"][0]["artifact_id"])
