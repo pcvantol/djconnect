@@ -1,13 +1,14 @@
 # DJConnect CI baseline
 
-This repository is the source of truth for shared DJConnect CI workflows and
-security rules. Other DJConnect repositories can call the reusable workflows in
-`.github/workflows/` from this repository instead of duplicating the same
-validation logic.
+The Home Assistant CI workflow and security rules live in this repository.
+Reusable cross-repository CI variants live in `djconnect-music-dj/djconnect-shared-workflows`.
+The examples below pin reviewed immutable commits; qualify changes to those pins
+for the consuming repository before updating them.
 
 ## Home Assistant integration repositories
 
-Use this for the HACS/Home Assistant integration repository:
+Use this in the Core HACS/Home Assistant repository, where the called workflow
+exists in the same commit:
 
 ```yaml
 name: Validate
@@ -21,7 +22,7 @@ permissions:
 
 jobs:
   validate:
-    uses: pcvantol/djconnect/.github/workflows/djconnect-ha-integration-ci.yml@main
+    uses: ./.github/workflows/djconnect-ha-integration-ci.yml
     with:
       test-command: python -m unittest discover -s tests
 ```
@@ -52,7 +53,7 @@ permissions:
 
 jobs:
   python:
-    uses: pcvantol/djconnect/.github/workflows/djconnect-python-ci.yml@main
+    uses: djconnect-music-dj/djconnect-shared-workflows/.github/workflows/djconnect-python-5f12.yml@4bd9731a6fe7bb50c932e36635eb3ff5c5372687
     with:
       source-path: src
       test-path: tests
@@ -72,9 +73,13 @@ on:
   schedule:
     - cron: "24 4 * * 1"
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   codeql:
-    uses: pcvantol/djconnect/.github/workflows/djconnect-codeql-ci.yml@main
+    uses: djconnect-music-dj/djconnect-shared-workflows/.github/workflows/djconnect-codeql-191.yml@2a1c6fd2841b08630aee01402850f56840b50f70
     with:
       languages: python
 ```
@@ -97,11 +102,16 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   semgrep:
-    uses: pcvantol/djconnect/.github/workflows/djconnect-semgrep-ci.yml@main
+    uses: djconnect-music-dj/djconnect-shared-workflows/.github/workflows/djconnect-semgrep-191.yml@2a1c6fd2841b08630aee01402850f56840b50f70
     with:
       continue-on-error: true
+      config: https://raw.githubusercontent.com/djconnect-music-dj/djconnect/cb2958e0b61b27e1eb67a4a17d0ea3454b631451/.semgrep/djconnect-security.yml
 ```
 
 The initial rules focus on DJConnect-specific mistakes:
@@ -116,7 +126,9 @@ The initial rules focus on DJConnect-specific mistakes:
 Recommended baseline per repository:
 
 - `djconnect`: Home Assistant reusable workflow, CodeQL `python`, Semgrep.
-- `djconnect-app`: PlatformIO build, release-script dry run, CodeQL `c-cpp`,
+- `djconnect-app`: Swift tests and unsigned Apple builds, release-script dry run,
+  and the repository's configured security checks.
+- `djconnect-esp32`: PlatformIO build, release-script dry run, CodeQL `c-cpp`,
   Semgrep or secret scan.
 - `djconnect-firmware`: manifest JSON validation, SHA256 and asset naming
   checks, secret scan, no source build.
