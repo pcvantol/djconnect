@@ -31,7 +31,7 @@ jobs:
     uses: djconnect-music-dj/djconnect-shared-workflows/.github/workflows/software-assurance-governance-5f12.yml@f87d38ab26a8513a2a1de6f9c98a6b56e3d76ffc
     with:
       execution_profile: release
-      owner: pcvantol/djconnect
+      owner: djconnect-music-dj/djconnect
 
   publish:
     name: Build and publish verification runtime
