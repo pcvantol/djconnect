@@ -74,7 +74,8 @@ jobs:
           if-no-files-found: error
 
   cleanup-workflow-runs:
-    if: ${{ always() && (github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')) }}
+    # Preserve workflow runs and their qualification evidence.
+    if: ${{ false }}
     needs:
       - validate
       - verification-framework-tests
