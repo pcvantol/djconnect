@@ -114,7 +114,7 @@ jobs:
       contents: write
       pull-requests: read
       statuses: write
-    uses: pcvantol/djconnect/.github/workflows/post-merge-release-evidence.yml@ebbb35f038a7a3c7d46c12660968bcd50eb67580
+    uses: djconnect-music-dj/djconnect-shared-workflows/.github/workflows/post-merge-release-evidence-ebbb.yml@37ade600e523c9a10383ea613ed0363c5fd8b423
     with:
       policy_source_ref: ebbb35f038a7a3c7d46c12660968bcd50eb67580
       required_main_workflow: Validate Home Assistant custom integration
