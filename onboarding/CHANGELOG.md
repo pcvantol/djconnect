@@ -1,5 +1,9 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.11 — 2026-11-17
+
+- Qualify repository-owner routing tests for the macOS runner recovery package.
+
 ## 4.5.10 — 2026-11-16
 
 - Use organization repository URLs for Pico, API, Windows and firmware.
