@@ -390,10 +390,10 @@ By default it prepares these repository-scoped macOS ARM64 runners:
 
 | Profile | Repository | Runner name | Additional labels |
 | --- | --- | --- | --- |
-| `apple` | `pcvantol/djconnect-app` | `djconnect-apple-macos-macmini` | `internal-release`, `qualification`, `apple` |
+| `apple` | `djconnect-music-dj/djconnect-app` | `djconnect-apple-macos-macmini` | `internal-release`, `qualification`, `apple` |
 | `private-network` | `pcvantol/djconnect` | `djconnect-private-network-relay-macmini` | `internal-release`, `private-network-deployment` |
-| `esp32` | `pcvantol/djconnect-esp32` | `djconnect-esp32-firmware-macmini` | `internal-release`, `qualification`, `firmware`, `esp32`, `private-network-deployment` |
-| `pi` | `pcvantol/djconnect-pi` | `djconnect-pi-readiness-macmini` | `internal-release`, `private-network-deployment` |
+| `esp32` | `djconnect-music-dj/djconnect-esp32` | `djconnect-esp32-firmware-macmini` | `internal-release`, `qualification`, `firmware`, `esp32`, `private-network-deployment` |
+| `pi` | `djconnect-music-dj/djconnect-pi` | `djconnect-pi-readiness-macmini` | `internal-release`, `private-network-deployment` |
 
 All profiles run as launchd services under the current runner user. The
 bootstrap also installs and executes the daily macOS tooling-maintenance
@@ -650,7 +650,7 @@ explicitly approved process.
 ## GitHub configuration values after a Mac replacement
 
 The recovery runs a name-only audit of secrets and variables in
-`pcvantol/djconnect-app` / Environment `apple-secure-distribution`. GitHub
+`djconnect-music-dj/djconnect-app` / Environment `apple-secure-distribution`. GitHub
 does not disclose secret values, so the audit never attempts to read or print
 them. Update each item as follows:
 
