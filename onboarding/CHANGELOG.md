@@ -1,5 +1,9 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.12 — 2026-11-17
+
+- Update the isolated Pico developer Ruff tool to 0.17.5.
+
 ## 4.5.11 — 2026-11-17
 
 - Qualify repository-owner routing tests for the macOS runner recovery package.

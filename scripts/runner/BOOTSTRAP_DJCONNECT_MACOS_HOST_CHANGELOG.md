@@ -6,6 +6,10 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.30] - 2026-11-17
+
+- Require onboarding 4.5.12 and desired-state 3.3.9 for the updated Pico toolchain.
+
 ## [2.0.29] - 2026-11-17
 
 - Route runner profiles and Apple environment administration to their current repository owners; reject unknown runner repositories.
