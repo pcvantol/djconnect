@@ -1,0 +1,122 @@
+name: Qualify Core HA preflight transition
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+jobs:
+  qualify:
+    if: github.repository_id == '1258575431' && github.event.pull_request.head.repo.id == 1258575431 && github.event.pull_request.head.ref == 'codex/core-ha-preflight-identity' && github.event.pull_request.user.id == 19624891
+    runs-on: [self-hosted, macOS, ARM64, internal-release, private-network-deployment]
+    timeout-minutes: 10
+    steps:
+      - id: paths
+        name: Require unused isolated checkout paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          for path in .core-ha-qualify-candidate .core-ha-qualify-preflight; do
+            test ! -e "$path"
+            test ! -L "$path"
+          done
+      - name: Checkout candidate for comparison
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: .core-ha-qualify-candidate
+          persist-credentials: false
+      - id: canonical_preflight_source
+        name: Resolve canonical Core by immutable repository ID
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        with:
+          script: |
+            const expectedId = 1258575431;
+            const valid = repo => repo.id === expectedId && repo.private === false && ['pcvantol/djconnect', 'djconnect-music-dj/djconnect'].includes(repo.full_name);
+            for (const repo of [
+              {id: expectedId, private: false, full_name: 'pcvantol/djconnect'},
+              {id: expectedId, private: false, full_name: 'djconnect-music-dj/djconnect'},
+            ]) if (!valid(repo)) throw new Error('Valid Core identity rejected');
+            for (const repo of [
+              {id: 1, private: false, full_name: 'pcvantol/djconnect'},
+              {id: expectedId, private: true, full_name: 'pcvantol/djconnect'},
+              {id: expectedId, private: false, full_name: 'other/djconnect'},
+            ]) if (valid(repo)) throw new Error('Invalid Core identity accepted');
+            const response = await github.request('GET /repositories/{repository_id}', {repository_id: expectedId});
+            if (!valid(response.data)) throw new Error('Canonical Core identity is not authorized');
+            core.setOutput('repository', response.data.full_name);
+      - name: Checkout exact canonical preflight
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: ${{ steps.canonical_preflight_source.outputs.repository }}
+          ref: 802619ac1ab3ec11eace7a8609167018193bb98e
+          path: .core-ha-qualify-preflight
+          persist-credentials: false
+      - name: Verify exact canonical preflight bytes and candidate bindings
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C .core-ha-qualify-preflight rev-parse HEAD)" = 802619ac1ab3ec11eace7a8609167018193bb98e
+          printf '%s  %s\n' 8af709b8a6ddf29843562d4f1b09de0747204feb086eeebbb485d16f5423fd37 .core-ha-qualify-preflight/.github/actions/deployment-readiness-preflight/action.yml | shasum -a 256 --check
+          ruby -e '
+            require "yaml"
+            w = YAML.load_file(ARGV.fetch(0))
+            steps = w.fetch("jobs").fetch("deploy").fetch("steps")
+            checkout = steps.find { |s| s["name"] == "Checkout exact canonical preflight" }.fetch("with")
+            raise "unexpected ref" unless checkout.fetch("ref") == "802619ac1ab3ec11eace7a8609167018193bb98e"
+            raise "credentials persisted" unless checkout.fetch("persist-credentials") == false
+            preflight = steps.find { |s| s["name"] == "Verify target deployment readiness" }
+            raise "unexpected preflight path" unless preflight.fetch("uses") == "./.canonical-core-preflight/.github/actions/deployment-readiness-preflight"
+            raise "wrong HA runner" unless preflight.fetch("with").fetch("expected_runner_os") == "macOS" && preflight.fetch("with").fetch("expected_runner_arch") == "ARM64"
+            raise "wrong HA profile" unless preflight.fetch("with").fetch("required_configuration") == "HAOS_HOST,HAOS_PORT,HAOS_USER,HAOS_SSH_PRIVATE_KEY,HAOS_SSH_KNOWN_HOSTS" && preflight.fetch("with").fetch("smoke_contract") == "home-assistant-private-relay-smoke-v1"
+          ' .core-ha-qualify-candidate/.github/workflows/deploy-home-assistant-private-network.yml
+      - id: valid
+        name: Accept synthetic complete HA profile
+        uses: ./.core-ha-qualify-preflight/.github/actions/deployment-readiness-preflight
+        with:
+          target: home_assistant_pi5
+          manifest_id: release-synthetic
+          candidate_sha: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          artifact_id: synthetic-artifact
+          artifact_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          expected_runner_os: macOS
+          expected_runner_arch: ARM64
+          required_configuration: HAOS_HOST,HAOS_PORT,HAOS_USER,HAOS_SSH_PRIVATE_KEY,HAOS_SSH_KNOWN_HOSTS
+          smoke_contract: home-assistant-private-relay-smoke-v1
+        env:
+          HAOS_HOST: synthetic
+          HAOS_PORT: synthetic
+          HAOS_USER: synthetic
+          HAOS_SSH_PRIVATE_KEY: synthetic
+          HAOS_SSH_KNOWN_HOSTS: synthetic
+      - id: missing
+        name: Reject missing synthetic HA configuration
+        continue-on-error: true
+        uses: ./.core-ha-qualify-preflight/.github/actions/deployment-readiness-preflight
+        with:
+          target: home_assistant_pi5
+          manifest_id: release-synthetic
+          candidate_sha: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          artifact_id: synthetic-artifact
+          artifact_sha256: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          expected_runner_os: macOS
+          expected_runner_arch: ARM64
+          required_configuration: HAOS_HOST,HAOS_PORT,HAOS_USER,HAOS_SSH_PRIVATE_KEY,HAOS_SSH_KNOWN_HOSTS
+          smoke_contract: home-assistant-private-relay-smoke-v1
+        env:
+          HAOS_HOST: synthetic
+          HAOS_PORT: synthetic
+          HAOS_USER: synthetic
+          HAOS_SSH_PRIVATE_KEY: synthetic
+          HAOS_SSH_KNOWN_HOSTS: ''
+      - name: Require fail-closed missing-configuration result
+        if: always()
+        shell: bash
+        env:
+          VALID_OUTCOME: ${{ steps.valid.outcome }}
+          MISSING_OUTCOME: ${{ steps.missing.outcome }}
+        run: test "$VALID_OUTCOME" = success && test "$MISSING_OUTCOME" = failure
+      - name: Remove only qualification checkouts created by this run
+        if: always() && steps.paths.outcome == 'success'
+        shell: bash
+        run: rm -rf -- .core-ha-qualify-candidate .core-ha-qualify-preflight
