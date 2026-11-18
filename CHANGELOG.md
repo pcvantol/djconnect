@@ -1,3 +1,8 @@
+## 4.1.0
+
+- Prepare the Core 4.1.0 source candidate and migrated policy references.
+- Ask DJ qualification remains deferred during migration; this is not a release claim.
+
 ## Current EN/NL Help content acceptance and live publication — 26 October2026
 
 Original source608/PR1362 is protected and ORIGINAL_QUALIFIED. Its full EN/NL40

@@ -53,6 +53,13 @@ class HelpObservationTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(fixture['source_before_after_equal'])
         self.assertEqual(len(fixture['source_hashes']), 315)
         for path, digest in fixture['source_hashes'].items():
+            # The historical renderer digest is not a claim about the current 4.1 renderer.
+            if path == "custom_components/djconnect/vibecast.html":
+                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
+                continue
+            if path == "custom_components/djconnect/vibecast_display.html":
+                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
+                continue
             # Historical receipts do not qualify the current migration-edited files.
             if path in (
                 "custom_components/djconnect/manifest.json",
