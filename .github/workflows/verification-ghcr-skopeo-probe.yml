@@ -61,10 +61,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
       - name: Publish unique probe without changing existing tags
-        run: |
-          set -euo pipefail
-          skopeo copy --preserve-digests "oci-archive:$RUNNER_TEMP/skopeo-probe/image.tar" \
-            "docker://ghcr.io/djconnect-music-dj/djconnect-verification-platform:$PROBE_TAG"
+        run: python3 -m tools.verification.ghcr_skopeo_copy
       - name: Verify probe digest and unchanged baseline
         env:
           GITHUB_TOKEN: ${{ github.token }}
