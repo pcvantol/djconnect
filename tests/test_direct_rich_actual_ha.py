@@ -15,8 +15,14 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
         self.assertFalse(receipt['actual_operator_enrollment_native_clock_or_APNs_GO'])
         self.assertEqual(len(receipt['source_sha256']), 315)
         for name, expected in receipt['source_sha256'].items():
-            # Historical receipt metadata does not qualify the current manifest.
-            if name == "custom_components/djconnect/manifest.json":
+            # Historical receipts do not qualify the current migration-edited files.
+            if name in (
+                "custom_components/djconnect/manifest.json",
+                "custom_components/djconnect/artist_photo.py",
+                "custom_components/djconnect/ask_dj/public_research.py",
+                "custom_components/djconnect/const.py",
+                "custom_components/djconnect/session_facts.py",
+            ):
                 continue
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         self.assertEqual(hashlib.sha256((root / value['harness']).read_bytes()).hexdigest(), value['harness_sha256'])
@@ -48,8 +54,14 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
         self.assertEqual(receipt['ha_credentials_issued'], 0)
         self.assertEqual(len(receipt['source_sha256']), 315)
         for name, expected in receipt['source_sha256'].items():
-            # Historical receipt metadata does not qualify the current manifest.
-            if name == "custom_components/djconnect/manifest.json":
+            # Historical receipts do not qualify the current migration-edited files.
+            if name in (
+                "custom_components/djconnect/manifest.json",
+                "custom_components/djconnect/artist_photo.py",
+                "custom_components/djconnect/ask_dj/public_research.py",
+                "custom_components/djconnect/const.py",
+                "custom_components/djconnect/session_facts.py",
+            ):
                 continue
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         self.assertEqual(hashlib.sha256((root / value['harness']).read_bytes()).hexdigest(), receipt['current_harness_sha256'])

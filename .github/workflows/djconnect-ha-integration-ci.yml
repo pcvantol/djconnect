@@ -114,7 +114,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
       - name: Record historical evidence scope
         run: |
-          message="Historical HA receipts do not bind the current manifest.json; current manifest URLs are tested separately. Passing CI does not establish runtime or installed-device acceptance."
+          message="Historical HA receipts do not bind the current manifest, three HTTP User-Agent source files, or firmware default source. Current manifest and firmware default are tested separately. Passing CI does not establish runtime or installed-device acceptance."
           echo "::notice::$message"
           echo "### Historical HA evidence scope" >> "$GITHUB_STEP_SUMMARY"
           echo "$message" >> "$GITHUB_STEP_SUMMARY"

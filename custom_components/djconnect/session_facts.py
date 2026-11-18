@@ -17,7 +17,7 @@ from typing import Any
 
 
 LANGUAGES = ("en", "nl", "de", "fr", "es")
-USER_AGENT = "DJConnect/4.0 (https://github.com/pcvantol/djconnect; session-knowledge)"
+USER_AGENT = "DJConnect/4.0 (https://github.com/djconnect-music-dj/djconnect; session-knowledge)"
 MBID = re.compile(r"[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}")
 
 CREDIT_ROLES = {

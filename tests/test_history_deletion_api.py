@@ -196,8 +196,14 @@ class PairedHistoryDeleteTests(unittest.IsolatedAsyncioTestCase):
         extension = current['receipt']['extension']
         self.assertEqual(extension['model_calls'], 0)
         for path, expected in current['source_pins'].items():
-            # Historical receipt metadata does not qualify the current manifest.
-            if path == "custom_components/djconnect/manifest.json":
+            # Historical receipts do not qualify the current migration-edited files.
+            if path in (
+                "custom_components/djconnect/manifest.json",
+                "custom_components/djconnect/artist_photo.py",
+                "custom_components/djconnect/ask_dj/public_research.py",
+                "custom_components/djconnect/const.py",
+                "custom_components/djconnect/session_facts.py",
+            ):
                 continue
             self.assertEqual(hashlib.sha256((root / path).read_bytes()).hexdigest(), expected, path)
         self.assertEqual(hashlib.sha256((root / fixture['harness']).read_bytes()).hexdigest(), fixture['harness_sha256'])

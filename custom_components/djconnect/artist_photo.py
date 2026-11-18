@@ -14,7 +14,7 @@ API = 'https://commons.wikimedia.org/w/api.php'
 WD = 'https://www.wikidata.org/w/api.php'
 MAX_JSON = 512_000
 MAX_BYTES = 2 * 1024 * 1024
-USER_AGENT = 'DJConnect/3.3.1 (https://github.com/pcvantol/djconnect)'
+USER_AGENT = 'DJConnect/3.3.1 (https://github.com/djconnect-music-dj/djconnect)'
 LICENSES = {f'CC BY{sa} {version}': (
     f'CC-BY{sa.replace(" ", "-")}-{version}',
     f'https://creativecommons.org/licenses/by{"-sa" if sa else ""}/{version}/')

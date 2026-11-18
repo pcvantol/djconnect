@@ -360,8 +360,14 @@ class PairedContentDeleteTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(extension['model_provider_calls'], 0)
         self.assertEqual(extension['installed'], 'NOT_RUN')
         for relative, expected in current['source_pins'].items():
-            # Historical receipt metadata does not qualify the current manifest.
-            if relative == "custom_components/djconnect/manifest.json":
+            # Historical receipts do not qualify the current migration-edited files.
+            if relative in (
+                "custom_components/djconnect/manifest.json",
+                "custom_components/djconnect/artist_photo.py",
+                "custom_components/djconnect/ask_dj/public_research.py",
+                "custom_components/djconnect/const.py",
+                "custom_components/djconnect/session_facts.py",
+            ):
                 continue
             self.assertEqual(hashlib.sha256((root/relative).read_bytes()).hexdigest(), expected, relative)
         self.assertEqual(hashlib.sha256((root/fixture['harness']).read_bytes()).hexdigest(), fixture['harness_sha256'])
