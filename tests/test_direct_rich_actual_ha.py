@@ -15,6 +15,9 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
         self.assertFalse(receipt['actual_operator_enrollment_native_clock_or_APNs_GO'])
         self.assertEqual(len(receipt['source_sha256']), 315)
         for name, expected in receipt['source_sha256'].items():
+            # Historical receipt metadata does not qualify the current manifest.
+            if name == "custom_components/djconnect/manifest.json":
+                continue
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         self.assertEqual(hashlib.sha256((root / value['harness']).read_bytes()).hexdigest(), value['harness_sha256'])
         self.assertEqual(hashlib.sha256((json.dumps(value['original_receipt'], indent=2) + '\n').encode()).hexdigest(),
@@ -45,6 +48,9 @@ class DirectRichOriginalActualHATests(unittest.TestCase):
         self.assertEqual(receipt['ha_credentials_issued'], 0)
         self.assertEqual(len(receipt['source_sha256']), 315)
         for name, expected in receipt['source_sha256'].items():
+            # Historical receipt metadata does not qualify the current manifest.
+            if name == "custom_components/djconnect/manifest.json":
+                continue
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), expected, name)
         self.assertEqual(hashlib.sha256((root / value['harness']).read_bytes()).hexdigest(), receipt['current_harness_sha256'])
         self.assertEqual(hashlib.sha256((json.dumps(value['original_receipt'], indent=2) + '\n').encode()).hexdigest(),

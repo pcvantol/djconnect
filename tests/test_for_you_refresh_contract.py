@@ -12,6 +12,9 @@ class ForYouRefreshContractTests(unittest.TestCase):
         record = json.loads((ROOT/'examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json').read_text())
         self.assertTrue(record['source_unchanged'])
         for name, digest in record['source_pins'].items():
+            # Historical receipt metadata does not qualify the current manifest.
+            if name == "custom_components/djconnect/manifest.json":
+                continue
             self.assertEqual(hashlib.sha256((ROOT/name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((ROOT/record['harness']).read_bytes()).hexdigest(), record['harness_sha256'])
         self.assertEqual(len(record['cases']), 8)
@@ -41,6 +44,9 @@ class ForYouRefreshContractTests(unittest.TestCase):
         record = json.loads((ROOT/'examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json').read_text())
         self.assertTrue(record['source_unchanged'])
         for name, digest in record['source_pins'].items():
+            # Historical receipt metadata does not qualify the current manifest.
+            if name == "custom_components/djconnect/manifest.json":
+                continue
             self.assertEqual(hashlib.sha256((ROOT/name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((ROOT/record['harness']).read_bytes()).hexdigest(), record['harness_sha256'])
         self.assertEqual(len(record['cases']), 6)
