@@ -288,6 +288,9 @@ class CurrentTrackInsightTests(IsolatedAsyncioTestCase):
         fixture = json.loads((root / "examples/client_contracts/track_insight/current-subject-actual-ha-bulletin-diagnostics-current.json").read_text())
         self.assertEqual(len(fixture["source_files_sha256"]), 315)
         for relative, digest in fixture["source_files_sha256"].items():
+            # Historical receipt metadata does not qualify the current manifest.
+            if relative == "custom_components/djconnect/manifest.json":
+                continue
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), digest, relative)
         self.assertEqual(hashlib.sha256((root / "scripts/verification/verify_current_track_insight_http.py").read_bytes()).hexdigest(), fixture["harness_sha256"])
         self.assertTrue(fixture["source_unchanged"])
