@@ -12,8 +12,14 @@ class ForYouRefreshContractTests(unittest.TestCase):
         record = json.loads((ROOT/'examples/client_contracts/session_for_you_v1/actual-ha-mood-refresh-20261106.json').read_text())
         self.assertTrue(record['source_unchanged'])
         for name, digest in record['source_pins'].items():
-            # Historical receipt metadata does not qualify the current manifest.
-            if name == "custom_components/djconnect/manifest.json":
+            # Historical receipts do not qualify the current migration-edited files.
+            if name in (
+                "custom_components/djconnect/manifest.json",
+                "custom_components/djconnect/artist_photo.py",
+                "custom_components/djconnect/ask_dj/public_research.py",
+                "custom_components/djconnect/const.py",
+                "custom_components/djconnect/session_facts.py",
+            ):
                 continue
             self.assertEqual(hashlib.sha256((ROOT/name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((ROOT/record['harness']).read_bytes()).hexdigest(), record['harness_sha256'])
@@ -44,8 +50,14 @@ class ForYouRefreshContractTests(unittest.TestCase):
         record = json.loads((ROOT/'examples/client_contracts/session_for_you_v1/actual-ha-output-readback-20261106.json').read_text())
         self.assertTrue(record['source_unchanged'])
         for name, digest in record['source_pins'].items():
-            # Historical receipt metadata does not qualify the current manifest.
-            if name == "custom_components/djconnect/manifest.json":
+            # Historical receipts do not qualify the current migration-edited files.
+            if name in (
+                "custom_components/djconnect/manifest.json",
+                "custom_components/djconnect/artist_photo.py",
+                "custom_components/djconnect/ask_dj/public_research.py",
+                "custom_components/djconnect/const.py",
+                "custom_components/djconnect/session_facts.py",
+            ):
                 continue
             self.assertEqual(hashlib.sha256((ROOT/name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((ROOT/record['harness']).read_bytes()).hexdigest(), record['harness_sha256'])

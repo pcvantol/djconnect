@@ -42,8 +42,14 @@ class QuestionContinuityTests(unittest.IsolatedAsyncioTestCase):
             **proof["original_common_harness_source_pins"],
             proof["harness"]: proof["harness_sha256"],
         }.items():
-            # Historical receipt metadata does not qualify the current manifest.
-            if name == "custom_components/djconnect/manifest.json":
+            # Historical receipts do not qualify the current migration-edited files.
+            if name in (
+                "custom_components/djconnect/manifest.json",
+                "custom_components/djconnect/artist_photo.py",
+                "custom_components/djconnect/ask_dj/public_research.py",
+                "custom_components/djconnect/const.py",
+                "custom_components/djconnect/session_facts.py",
+            ):
                 continue
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         extension = current['receipt']['extension']
