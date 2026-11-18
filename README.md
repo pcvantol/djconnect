@@ -70,8 +70,8 @@ Help examples in English and Dutch use your connected server’s current availab
 
 ## Install
 
-1. [Open Marketplace or HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration). If needed, use
-   **Custom repositories**, add `https://github.com/djconnect-music-dj/djconnect` and select
+1. [Open Marketplace or HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration). For manual setup on 2026.11+, use **Settings → Marketplace → Add from link**, connect GitHub if prompted, and add `djconnect-music-dj/djconnect`.
+   On older versions, add `https://github.com/djconnect-music-dj/djconnect` under HACS **Custom repositories**,
    category **Integration**.
 2. Install **DJConnect** from Marketplace or HACS.
 3. **Restart Home Assistant.**

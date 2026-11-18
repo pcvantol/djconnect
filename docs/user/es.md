@@ -24,8 +24,8 @@ para la configuración. Solo se ofrecen las rutas de voz disponibles.
 
 Desde Home Assistant 2026.11, el enlace HACS inferior abre Marketplace; en versiones anteriores abre HACS.
 
-1. Abre el enlace HACS inferior o añade el repositorio como **Integration** en
-   **Repositorios personalizados**. Instala DJConnect y reinicia HA.
+1. Abre el enlace inferior. Manualmente desde 2026.11: **Ajustes → Marketplace → Add from link**; conecta GitHub si se solicita y añade `djconnect-music-dj/djconnect`.
+   En versiones anteriores, añade el repositorio en HACS mediante **Repositorios personalizados**, categoría **Integration**. Instala DJConnect y reinicia HA.
 2. Abre **Ajustes → Dispositivos y servicios → Añadir integración → DJConnect**.
 3. Elige Assist, dispositivo local o aplicación. Bluetooth solo configura, si hace
    falta, el WiFi de un ESP32; después se realiza el emparejamiento.
