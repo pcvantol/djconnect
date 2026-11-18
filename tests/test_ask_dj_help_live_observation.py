@@ -42,7 +42,8 @@ class Runtime:
 
 
 class HelpObservationTests(unittest.IsolatedAsyncioTestCase):
-    def test_historical_ha_receipt_binds_non_manifest_sources_without_native_claim(self):
+    # Historical test ID is retained; current manifest bytes are outside its scope.
+    def test_original_actual_ha_wire_binds_all_current_products_without_native_claim(self):
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
         receipts = root / 'examples/client_contracts/ask_dj_help_context_v1'

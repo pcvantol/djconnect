@@ -21,7 +21,7 @@ class HistoricalManifestBoundaryTests(unittest.TestCase):
             return data + b"\nsynthetic mismatch" if path == target else data
 
         case = help_observation_tests.HelpObservationTests(
-            "test_historical_ha_receipt_binds_non_manifest_sources_without_native_claim"
+            "test_original_actual_ha_wire_binds_all_current_products_without_native_claim"
         )
         result = unittest.TestResult()
         with patch.object(Path, "read_bytes", altered):
