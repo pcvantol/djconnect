@@ -150,10 +150,37 @@ def build_record(
     return record
 
 
-def validate_record(record: dict[str, Any]) -> list[str]:
+def validate_record(record: dict[str, Any], *, expected_policy_source: dict[str, Any] | None = None) -> list[str]:
     """Return deterministic validation findings for a published record."""
 
     errors: list[str] = []
+    # An extension is trusted only when the caller supplies the expected
+    # identity from an independently authenticated workflow configuration.
+    identity = record.get("policy_source_identity")
+    if expected_policy_source is not None:
+        allowed_origins = {
+            "evidence-ebbb": "ebbb35f038a7a3c7d46c12660968bcd50eb67580",
+            "evidence-4877": "4877403ba6fc69881439e70d3048da13ecb5576b",
+        }
+        keys = {"repository", "repository_id", "revision", "snapshot",
+                "original_repository_id", "original_revision"}
+        valid = isinstance(expected_policy_source, dict) and set(expected_policy_source) == keys
+        if valid:
+            expected = expected_policy_source
+            revision = expected["revision"]
+            valid = (expected["repository"] == "djconnect-music-dj/.github"
+                     and type(expected["repository_id"]) is int and expected["repository_id"] == 1461539726
+                     and type(expected["original_repository_id"]) is int and expected["original_repository_id"] == 1258575431
+                     and isinstance(revision, str) and _SHA.fullmatch(revision) is not None
+                     and isinstance(expected["snapshot"], str)
+                     and expected["original_revision"] == allowed_origins.get(expected["snapshot"])
+                     and expected["snapshot"] in allowed_origins)
+        if not valid or identity != expected_policy_source:
+            errors.append("policy source identity mismatch")
+        elif record.get("source_revision") != expected_policy_source["revision"]:
+            errors.append("policy source revision mismatch")
+    elif identity is not None:
+        errors.append("policy source expectation required")
     if record.get("schema_version") != 1:
         errors.append("unsupported schema version")
     if record.get("kind") != "durable_qualification_evidence":
