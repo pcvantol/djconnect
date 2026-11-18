@@ -92,7 +92,7 @@ jobs:
                   "artifact_id": os.environ["ARTIFACT_ID"],
                   "artifact_url": os.environ["ARTIFACT_URL"],
                   "artifact_sha256": open("djconnect-home-assistant-integration.sha256", encoding="utf-8").read().strip(),
-                  "ask_dj_qualification": "DEFERRED_CORE_4_0_0",
+                  "ask_dj_qualification": "DEFERRED_CORE_4_1_0",
                   "ask_dj_deferred_report_sha256": None,
                   "timestamp": datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
               }, file, sort_keys=True)

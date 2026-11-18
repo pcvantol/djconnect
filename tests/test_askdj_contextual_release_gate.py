@@ -556,11 +556,11 @@ class ContextualReleaseGateTest(unittest.TestCase):
         scope = steps['Enforce temporary Ask DJ deferral scope']['run']
         self.assertIn('2026-12-10T00:00:00Z', scope)
         self.assertIn('git rev-parse HEAD', scope)
-        self.assertIn('.version == "4.0.0"', scope)
+        self.assertIn('.version == "4.1.0"', scope)
         self.assertLess(package['steps'].index(steps['Enforce temporary Ask DJ deferral scope']),
                         package['steps'].index(steps['Package the exact integration artifact']))
         evidence = steps['Publish artifact evidence']['run']
-        self.assertIn('"ask_dj_qualification": "DEFERRED_CORE_4_0_0"', evidence)
+        self.assertIn('"ask_dj_qualification": "DEFERRED_CORE_4_1_0"', evidence)
         self.assertIn('"ask_dj_deferred_report_sha256": None', evidence)
         self.assertEqual(jobs['reconcile']['needs'], ['package'])
         independent = (ROOT/'.github/workflows/askdj-contextual-release-gate.yml').read_text()
