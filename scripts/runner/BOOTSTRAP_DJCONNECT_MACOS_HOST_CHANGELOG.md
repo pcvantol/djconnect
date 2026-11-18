@@ -6,6 +6,33 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.30] - 2026-11-17
+
+- Require onboarding 4.5.12 and desired-state 3.3.9 for the updated Pico toolchain.
+
+## [2.0.29] - 2026-11-17
+
+- Route runner profiles and Apple environment administration to their current repository owners; reject unknown runner repositories.
+- Require onboarding 4.5.11 and desired-state 3.3.8.
+
+## [2.0.28] - 2026-11-16
+
+- Require onboarding 4.5.10 and desired-state 3.3.7 with exact integrity checks.
+
+## [2.0.27] - 2026-11-16
+
+- Require onboarding 4.5.9 and desired-state 3.3.6; preserve exact version and integrity checks.
+
+## [2.0.26] - 2026-11-16
+
+- Require onboarding 4.5.8 and desired-state 3.3.5; retain exact version and integrity checks.
+
+## [2.0.25] - 2026-11-15
+
+- Require the independently versioned onboarding 4.5.7 package for Pico Ruff 0.17.4.
+- Advance desired-state profile 3.3.4 and operations component 1.3.17.
+- Keep both exact-version guards and read-only verification.
+
 ## [2.0.24] - 2026-11-01
 
 - Require immutable onboarding 4.5.6 for the isolated Pico Ruff 0.17.2 pin.

@@ -1,4 +1,4 @@
-# Version: 1.1.0
+# Version: 1.1.1
 # Self-hosted runner profile registration and lifecycle operations.
 profile_enabled() {
   local profile="$1"
@@ -30,6 +30,7 @@ profile_values() {
   local profile="$1"
   profile_declared "$profile" || die "Runner profile $profile is not declared by desired state."
   PROFILE_REPOSITORY="$(require_desired_state_value "profile.$profile.repository")"
+  PROFILE_OWNER="$(repository_owner "$PROFILE_REPOSITORY")" || die "Invalid repository for runner profile $profile."
   PROFILE_RUNNER_NAME="$(require_desired_state_value "profile.$profile.runner_name")"
   PROFILE_LABELS="$(require_desired_state_value "profile.$profile.labels")"
   PROFILE_PROVISIONING="$(require_desired_state_value "profile.$profile.provisioning")"
@@ -45,7 +46,7 @@ external_runner_profile_registered() {
   profile_values "$profile"
   [[ "$PROFILE_PROVISIONING" == 'external_windows_arm64' ]] || return 1
   command -v gh >/dev/null 2>&1 || return 1
-  gh api "repos/$ORG/$PROFILE_REPOSITORY/actions/runners" --paginate 2>/dev/null |
+  gh api "repos/$PROFILE_OWNER/$PROFILE_REPOSITORY/actions/runners" --paginate 2>/dev/null |
     jq -e --arg runner_name "$PROFILE_RUNNER_NAME" --arg required_labels "$PROFILE_LABELS" '
       .runners[]?
       | select(.name == $runner_name and .status == "online")
@@ -68,8 +69,9 @@ runner_release_metadata() {
 }
 
 registration_token() {
-  local repository="$1"
-  gh api --method POST "repos/$ORG/$repository/actions/runners/registration-token" --jq '.token'
+  local repository="$1" owner
+  owner="$(repository_owner "$repository")" || return 1
+  gh api --method POST "repos/$owner/$repository/actions/runners/registration-token" --jq '.token'
 }
 
 install_runner_profile() {
@@ -78,7 +80,7 @@ install_runner_profile() {
   local install_dir="$RUNNER_ROOT/$PROFILE_RUNNER_NAME"
   local token archive_file actual_sha256
 
-  log "Configuring $PROFILE_RUNNER_NAME for $ORG/$PROFILE_REPOSITORY."
+  log "Configuring $PROFILE_RUNNER_NAME for $PROFILE_OWNER/$PROFILE_REPOSITORY."
   if [[ -e "$install_dir/.runner" ]]; then
     if phase_is_forced "$CURRENT_PHASE_ID"; then
       log "$PROFILE_RUNNER_NAME already has the desired registration; reconciling its installed service without re-registering it."
@@ -92,7 +94,7 @@ install_runner_profile() {
   [[ ! -e "$install_dir" ]] || die "$install_dir exists but is not a configured runner. Move it aside or choose a new --runner-root."
 
   if [[ "$DRY_RUN" == '1' ]]; then
-    printf 'DRY: fetch a short-lived registration token for %s/%s\n' "$ORG" "$PROFILE_REPOSITORY"
+    printf 'DRY: fetch a short-lived registration token for %s/%s\n' "$PROFILE_OWNER" "$PROFILE_REPOSITORY"
     printf 'DRY: download the latest actions/runner osx-arm64 release into %s\n' "$install_dir"
     printf 'DRY: configure %s with labels %s and install its launchd service\n' "$PROFILE_RUNNER_NAME" "$PROFILE_LABELS"
     return
@@ -109,7 +111,7 @@ install_runner_profile() {
   tar -xzf "$archive_file" -C "$install_dir"
   rm -f "$archive_file"
   trap - RETURN
-  run_in_dir "$install_dir" ./config.sh --unattended --replace --url "https://github.com/$ORG/$PROFILE_REPOSITORY" --token "$token" --name "$PROFILE_RUNNER_NAME" --labels "$PROFILE_LABELS" --work _work
+  run_in_dir "$install_dir" ./config.sh --unattended --replace --url "https://github.com/$PROFILE_OWNER/$PROFILE_REPOSITORY" --token "$token" --name "$PROFILE_RUNNER_NAME" --labels "$PROFILE_LABELS" --work _work
   run_in_dir "$install_dir" sudo ./svc.sh install "$(id -un)"
   run_in_dir "$install_dir" sudo ./svc.sh start
 }

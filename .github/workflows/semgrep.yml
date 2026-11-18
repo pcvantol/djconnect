@@ -13,10 +13,10 @@ jobs:
     name: Software Assurance governance
     permissions:
       contents: read
-    uses: pcvantol/djconnect/.github/workflows/software-assurance-governance.yml@5f12a591647942c50b59162264529fef6896e5e3
+    uses: djconnect-music-dj/djconnect-shared-workflows/.github/workflows/software-assurance-governance-5f12.yml@f87d38ab26a8513a2a1de6f9c98a6b56e3d76ffc
     with:
       execution_profile: balanced
-      owner: pcvantol/djconnect
+      owner: djconnect-music-dj/djconnect
 
   semgrep:
     uses: ./.github/workflows/djconnect-semgrep-ci.yml

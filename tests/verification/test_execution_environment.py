@@ -118,14 +118,57 @@ class ExecutionEnvironmentTests(unittest.TestCase):
             self.assertEqual(2, inspections[0].package_count)
             self.assertEqual(root / "package-lock.json", inspections[0].lockfile)
 
-    def test_runtime_image_puller_downloads_published_docker_hub_image(self) -> None:
+    def test_runtime_image_puller_downloads_published_organization_image(self) -> None:
         docker = FakeDocker()
 
         gate = RuntimeImagePuller(docker).pull()
 
         self.assertEqual(GateState.PASS, gate.state)
-        self.assertEqual(("pull", "pcvantol/djconnect-verification-platform:1.1.0"), docker.commands[0])
-        self.assertEqual("pcvantol/djconnect-verification-platform:1.1.0", gate.metadata["reference"])
+        self.assertEqual(("pull", "ghcr.io/djconnect-music-dj/djconnect-verification-platform@sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619"), docker.commands[0])
+        self.assertEqual("ghcr.io/djconnect-music-dj/djconnect-verification-platform@sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619", gate.metadata["reference"])
+
+    def test_default_digest_requires_matching_runtime_version(self) -> None:
+        docker = FakeDocker()
+        with patch.dict("os.environ", {}, clear=True), patch("tools.verification.environment.runtime_image.RUNTIME_VERSION", "1.2.0"):
+            gate = RuntimeImagePuller(docker).pull()
+        self.assertEqual(GateState.FAIL, gate.state)
+        self.assertEqual(docker.commands, [])
+        self.assertEqual(gate.metadata["baseline_version"], "1.1.0")
+
+    def test_runtime_image_puller_only_image_override(self) -> None:
+        docker = FakeDocker()
+        with patch.dict("os.environ", {"DJCONNECT_VERIFICATION_PLATFORM_IMAGE": "example.invalid/runtime"}, clear=True):
+            gate = RuntimeImagePuller(docker).pull()
+        self.assertEqual(GateState.PASS, gate.state)
+        self.assertEqual(docker.commands, [("pull", "example.invalid/runtime:1.1.0")])
+
+    def test_runtime_image_puller_only_tag_override(self) -> None:
+        docker = FakeDocker()
+        with patch.dict("os.environ", {"DJCONNECT_VERIFICATION_PLATFORM_TAG": "test"}, clear=True):
+            gate = RuntimeImagePuller(docker).pull()
+        self.assertEqual(GateState.PASS, gate.state)
+        self.assertEqual(docker.commands, [("pull", "ghcr.io/djconnect-music-dj/djconnect-verification-platform:test")])
+
+    def test_runtime_metadata_names_organization_source_and_target(self) -> None:
+        from tools.verification.runtime import runtime_metadata
+
+        metadata = runtime_metadata()
+        self.assertEqual(metadata["repository"], "djconnect-music-dj/djconnect")
+        self.assertEqual(metadata["docker_repository"], "ghcr.io/djconnect-music-dj/djconnect-verification-platform")
+
+    def test_runtime_image_puller_fails_closed_when_registry_denies_access(self) -> None:
+        docker = FakeDocker(ok=False)
+        with patch.dict("os.environ", {"DJCONNECT_VERIFICATION_PLATFORM_IMAGE": "ghcr.io/djconnect-music-dj/djconnect-verification-platform", "DJCONNECT_VERIFICATION_PLATFORM_TAG": "1.1.0"}):
+            gate = RuntimeImagePuller(docker).pull()
+        self.assertEqual(GateState.FAIL, gate.state)
+        self.assertEqual(docker.commands, [("pull", "ghcr.io/djconnect-music-dj/djconnect-verification-platform:1.1.0")])
+
+    def test_runtime_image_puller_respects_explicit_override(self) -> None:
+        docker = FakeDocker()
+        with patch.dict("os.environ", {"DJCONNECT_VERIFICATION_PLATFORM_IMAGE": "example.invalid/runtime", "DJCONNECT_VERIFICATION_PLATFORM_TAG": "test"}):
+            gate = RuntimeImagePuller(docker).pull()
+        self.assertEqual(GateState.PASS, gate.state)
+        self.assertEqual(docker.commands, [("pull", "example.invalid/runtime:test")])
 
     def test_github_workflow_discovery_is_local_and_read_only(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

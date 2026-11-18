@@ -1,4 +1,4 @@
-# Version: 1.3.16
+# Version: 1.3.22
 # macOS host provisioning, developer-workstation and service operations.
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -218,8 +218,8 @@ configure_apple_internal_release() {
     printf 'DRY: update GitHub environment apple-secure-distribution with this MacBook UUID and Apple Development identity\n'
     return
   fi
-  printf '%s' "$macbook_uuid" | gh secret set DJCONNECT_APPLE_MACBOOK_HARDWARE_UUID --repo "$ORG/djconnect-app" --env apple-secure-distribution
-  printf '%s' "$APPLE_DEVELOPMENT_IDENTITY" | gh secret set DJCONNECT_APPLE_DEVELOPMENT_SIGNING_IDENTITY --repo "$ORG/djconnect-app" --env apple-secure-distribution
+  printf '%s' "$macbook_uuid" | gh secret set DJCONNECT_APPLE_MACBOOK_HARDWARE_UUID --repo "djconnect-music-dj/djconnect-app" --env apple-secure-distribution
+  printf '%s' "$APPLE_DEVELOPMENT_IDENTITY" | gh secret set DJCONNECT_APPLE_DEVELOPMENT_SIGNING_IDENTITY --repo "djconnect-music-dj/djconnect-app" --env apple-secure-distribution
   log 'Apple internal-release readiness passed and the new MacBook relay environment binding was updated.'
 }
 
@@ -228,8 +228,8 @@ audit_apple_github_configuration() {
     return
   fi
   log 'Auditing Apple Secure Distribution GitHub Environment configuration by name only.'
-  run gh secret list --repo "$ORG/djconnect-app" --env apple-secure-distribution
-  run gh variable list --repo "$ORG/djconnect-app" --env apple-secure-distribution
+  run gh secret list --repo "djconnect-music-dj/djconnect-app" --env apple-secure-distribution
+  run gh variable list --repo "djconnect-music-dj/djconnect-app" --env apple-secure-distribution
   cat <<'EOF'
 
 Apple Secure Distribution recovery inventory:
@@ -250,7 +250,8 @@ EOF
 }
 
 clone_or_update() {
-  local repository="$1"
+  local repository="$1" owner
+  owner="$(repository_owner "$repository")" || die "Unknown repository $repository."
   local directory="$GITHUB_ROOT/$repository"
   run mkdir -p "$GITHUB_ROOT"
   if [[ -d "$directory/.git" ]]; then
@@ -270,7 +271,7 @@ clone_or_update() {
     run_in_dir "$directory" git pull --ff-only origin main
     return
   fi
-  run gh repo clone "$ORG/$repository" "$directory" -- --branch main
+  run gh repo clone "$owner/$repository" "$directory" -- --branch main
 }
 
 prepare_repositories() {
@@ -283,13 +284,13 @@ prepare_repositories() {
   done
 }
 
-require_canonical_onboarding_4_5_6() {
+require_canonical_onboarding_4_5_10() {
   local central_repository="$1" manifest actual_version
   manifest="$central_repository/onboarding/manifest.yml"
-  [[ "$DESIRED_ONBOARDING_PACKAGE_VERSION" == '4.5.6' ]] || die "The canonical macOS bootstrap requires onboarding 4.5.6; desired state declares $DESIRED_ONBOARDING_PACKAGE_VERSION."
+  [[ "$DESIRED_ONBOARDING_PACKAGE_VERSION" == '4.5.12' ]] || die "The canonical macOS bootstrap requires onboarding 4.5.12; desired state declares $DESIRED_ONBOARDING_PACKAGE_VERSION."
   [[ -f "$manifest" ]] || die "The canonical onboarding manifest is unavailable: $manifest"
   actual_version="$(awk -F': ' '$1 == "package.version" { print $2; exit }' "$manifest")"
-  [[ "$actual_version" == '4.5.6' ]] || die "The canonical macOS bootstrap requires onboarding 4.5.6; found ${actual_version:-missing} in $manifest."
+  [[ "$actual_version" == '4.5.12' ]] || die "The canonical macOS bootstrap requires onboarding 4.5.12; found ${actual_version:-missing} in $manifest."
 }
 
 bootstrap_developer_workstation() {
@@ -299,7 +300,7 @@ bootstrap_developer_workstation() {
   local central_repository="$GITHUB_ROOT/djconnect"
   local onboarding="$central_repository/onboarding/dev_onboarding_macos.sh"
   [[ -f "$onboarding" ]] || die "The full developer onboarding script is unavailable at $onboarding."
-  require_canonical_onboarding_4_5_6 "$central_repository"
+  require_canonical_onboarding_4_5_10 "$central_repository"
   if [[ -n "$NGROK_DOMAIN" && -z "${NGROK_AUTHTOKEN:-}" && "$PROMPT_NGROK_AUTH" == '1' ]]; then
     prompt_secret 'ngrok authtoken'
     export NGROK_AUTHTOKEN="$REPLY"
@@ -399,7 +400,7 @@ verify_runner_online() {
     deadline=$((SECONDS + 90))
     state=''
     while (( SECONDS < deadline )); do
-      state="$(gh api "repos/$ORG/$repository/actions/runners" | jq -r --arg name "$runner_name" '.runners[] | select(.name == $name) | .status' | head -n 1)"
+      state="$(gh api "repos/$PROFILE_OWNER/$repository/actions/runners" | jq -r --arg name "$runner_name" '.runners[] | select(.name == $name) | .status' | head -n 1)"
       [[ "$state" == 'online' ]] && break
       sleep 3
     done

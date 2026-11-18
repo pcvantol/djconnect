@@ -1,10 +1,17 @@
-# Version: 1.3.6
+# Version: 1.3.7
 # Shared recovery state, constants and desired-state parsing.
 # Bootstraps a DJConnect macOS development host after a laptop replacement.
 # Authentication is interactive through gh; GitHub registration tokens are
 # fetched just-in-time and are never accepted as arguments or written to disk.
 
-readonly ORG='pcvantol'
+# The source repository remains under the personal owner until its own transfer.
+repository_owner() {
+  case "$1" in
+    djconnect) printf '%s' 'pcvantol' ;;
+    djconnect-app|djconnect-esp32|djconnect-pi|djconnect-windows) printf '%s' 'djconnect-music-dj' ;;
+    *) printf 'Unknown runner repository: %s\n' "$1" >&2; return 1 ;;
+  esac
+}
 readonly HOST_BOOTSTRAP_PACKAGE_MANIFEST="$HOST_BOOTSTRAP_PACKAGE_DIRECTORY/manifest.yml"
 
 package_manifest_value() {

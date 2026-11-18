@@ -1,5 +1,6 @@
 """Once-only widget signals, original grant/deadline, synthetic provider ACK."""
 import asyncio
+from dataclasses import replace
 import json
 import unittest
 from tests import test_surface_push_registry as fixture
@@ -154,3 +155,39 @@ class SurfaceEventTests(unittest.IsolatedAsyncioTestCase):
             operation_id=identifier(self.f.clock[0],6),digest='e'*64)
         self.assertTrue(before)
         self.assertFalse(any(before))
+
+    async def test_lost_revoke_stops_only_the_selected_device(self):
+        other_purpose = replace(
+            self.f.purpose, device_binding='4' * 64, binding_id='5' * 64,
+            capability_id='capability-other', delegation_id='delegation-other',
+        )
+        other_admission = replace(
+            self.f.admission, device='4' * 64, binding='5' * 64, purpose=other_purpose,
+        )
+        other = await self.f.registry.register(
+            self.f.intent(4, apns_token='b' * 64), other_admission,
+        )
+        other_coordinate = {key: other['registration'][key] for key in self.expected}
+        original = self.f.hook
+
+        async def lose_revoke(action, body):
+            if action == 'revoke':
+                return {'success': False, 'error': 'synthetic-unknown'}
+            return await original(action, body)
+
+        self.f.hook = lose_revoke
+        revoke = await self.f.registry.revoke(
+            self.f.admission, self.expected,
+            operation_id=identifier(self.f.clock[0], 5), digest='e' * 64,
+        )
+        self.assertFalse(revoke['success'])
+        with self.assertRaises(SurfacePushError):
+            await self.signal()
+
+        result = await self.f.registry.signal_widget(
+            other_admission, other_coordinate, operation_id=identifier(self.f.clock[0], 6),
+        )
+        self.assertTrue(result['provider_accepted'])
+        events = [body for action, body in self.f.calls if action == 'event']
+        self.assertEqual([body['registration_id'] for body in events],
+                         [other_coordinate['registration_id']])

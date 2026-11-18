@@ -7,6 +7,7 @@ import types
 import unittest
 import time
 from pathlib import Path
+from unittest.mock import AsyncMock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -954,6 +955,60 @@ class SpotifyBackendTest(unittest.TestCase):
 
 
 
+
+    def test_favorite_lookup_honors_retry_after_across_concurrent_polls(self) -> None:
+        calls = []
+        now = 100.0
+        runtime = types.SimpleNamespace(config={})
+        first = self.backend.SpotifyBackend(object(), runtime)
+        second = self.backend.SpotifyBackend(object(), runtime)
+
+        class Response:
+            def __init__(self, status):
+                self.status = status
+                self.headers = {"Retry-After": "120"}
+
+            async def __aenter__(self):
+                await asyncio.sleep(0)
+                return self
+
+            async def __aexit__(self, *_):
+                pass
+
+            async def read(self):
+                return b""
+
+            async def json(self, **_):
+                return [False]
+
+        def request(method, url, **_):
+            calls.append((method, url))
+            return Response(429 if len(calls) == 1 else 200)
+
+        for backend in (first, second):
+            backend._access_token = AsyncMock(return_value="synthetic")
+            backend.session = types.SimpleNamespace(request=request)
+
+        async def poll(backend, track="track-one"):
+            playback = {"uri": f"spotify:track:{track}"}
+            await backend._enrich_current_track_favorite_status(playback)
+            return playback
+
+        async def scenario():
+            nonlocal now
+            await asyncio.gather(*(poll(backend) for backend in (first, second) * 10))
+            self.assertEqual(len(calls), 1)
+            now = 219
+            for _ in range(6000):
+                self.assertNotIn("is_liked", await poll(second, "track-two"))
+            self.assertEqual(len(calls), 1)
+            now = 220
+            self.assertIs((await poll(second, "track-two"))["is_liked"], False)
+            self.assertIs((await poll(first, "track-two"))["is_liked"], False)
+            self.assertEqual(len(calls), 2)
+
+        with patch.object(self.backend, "time", types.SimpleNamespace(monotonic=lambda: now)):
+            asyncio.run(scenario())
 
     def test_play_search_query_resolves_to_spotify_uri_before_playback(self) -> None:
         class Response:

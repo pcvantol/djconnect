@@ -178,7 +178,7 @@ class ForecastLab(AlbumLab):
                 from custom_components.djconnect.domain.storage import ProfilePlatformStorage
                 self.hass.data['djconnect']['djconnect_profile_platform'] = ProfilePlatformStorage(self.hass)
             elif case == 'manager_generation':
-                await self.manager.async_revoke_receiver_end_grants_for_entry(entry.entry_id)
+                await self.manager.async_invalidate_receiver_entry(entry.entry_id)
             else:
                 self.hass.config_entries.async_update_entry(entry, data={**original_entry_data, 'device_token':'fixture-device-rotated'})
             try:

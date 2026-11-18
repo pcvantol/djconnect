@@ -265,7 +265,7 @@ class WindowsVerificationAdapter(VerificationAdapter):
             "host": platform.node(),
             "os": platform.platform(),
             "architecture": platform.machine(),
-            "client_repository": "pcvantol/djconnect-windows",
+            "client_repository": "djconnect-music-dj/djconnect-windows",
             "target": self._target_dict(),
             "target_metadata": metadata.data,
             "capabilities": {
@@ -324,7 +324,7 @@ class WindowsVerificationAdapter(VerificationAdapter):
             return PrimitiveResult("collect_runtime_metadata", False, {"error": "WindowsTargetUnavailable"})
         if target.metadata_command:
             return self._run_target_command(target.metadata_command, "collect_runtime_metadata", timeout=10)
-        return PrimitiveResult("collect_runtime_metadata", True, {"target": target.to_dict(), "client_repository": "pcvantol/djconnect-windows"})
+        return PrimitiveResult("collect_runtime_metadata", True, {"target": target.to_dict(), "client_repository": "djconnect-music-dj/djconnect-windows"})
 
     def launch_app(self) -> PrimitiveResult:
         target = self.config.target

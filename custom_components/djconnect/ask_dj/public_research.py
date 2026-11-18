@@ -19,7 +19,7 @@ import time
 from urllib.parse import parse_qs, quote, urlencode, urljoin, urlsplit
 from urllib.robotparser import RobotFileParser
 
-USER_AGENT = "DJConnect/4 (https://github.com/pcvantol/djconnect)"
+USER_AGENT = "DJConnect/4 (https://github.com/djconnect-music-dj/djconnect)"
 MAX_REQUESTS = 8
 MAX_BYTES = 128 * 1024
 MAX_SOURCES = 3

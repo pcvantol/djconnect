@@ -20,6 +20,29 @@ class PostMergeWorkflowContractTest(unittest.TestCase):
         self.assertNotIn("github.event_name == 'push' && github.ref", workflow)
         self.assertIn("MAIN_SHA: ${{ github.event.workflow_run.head_sha }}", workflow)
 
+    def test_completed_main_selection_rejects_wrong_or_unfinished_runs(self) -> None:
+        node = shutil.which("node")
+        if not node:
+            self.skipTest("node is required for the workflow JavaScript")
+        workflow = (ROOT / ".github/workflows/post-merge-release-evidence.yml").read_text()
+        start = workflow.index("            function selectCompletedMainRun(")
+        end = workflow.index("            const runs = await github.paginate", start)
+        function = workflow[start:end]
+        query = workflow[end:workflow.index("            const artifacts =", end)]
+        self.assertNotIn('status: "completed"', query)
+        harness = r"""
+const assert = require('assert');
+const sha = 'a'.repeat(40), other = 'b'.repeat(40);
+const failed = {name:'CI',head_sha:sha,status:'completed',conclusion:'failure'};
+const pending = {name:'CI',head_sha:sha,status:'in_progress',conclusion:'success'};
+const stale = {name:'CI',head_sha:other,status:'completed',conclusion:'success'};
+const different = {name:'Other',head_sha:sha,status:'completed',conclusion:'success'};
+const good = {name:'CI',head_sha:sha,status:'completed',conclusion:'success'};
+assert.equal(selectCompletedMainRun([failed,pending,stale,different], 'CI', sha), undefined);
+assert.strictEqual(selectCompletedMainRun([failed,pending,stale,different,good], 'CI', sha), good);
+"""
+        subprocess.run([node, '-e', function + harness], check=True, timeout=15)
+
     def test_reconciliation_status_is_bound_to_the_workflow_run_main_sha(self) -> None:
         workflow = (ROOT / ".github/workflows/post-merge-release-evidence.yml").read_text()
 

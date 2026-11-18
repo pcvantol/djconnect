@@ -240,29 +240,29 @@ Capabilities may include intents, push-to-talk, playback controls, and short TTS
 
 ## Repository responsibilities
 
-### `pcvantol/djconnect`
+### `djconnect-music-dj/djconnect`
 
 Home Assistant integration, local platform core, music backend abstraction, profile resolution, intelligence orchestration, services, websocket/API endpoints, local storage, and source-of-truth documentation.
 
-### `pcvantol/djconnect-api`
+### `djconnect-music-dj/djconnect-api`
 
 Central API, APNs relay, install/device trust, future entitlement boundary, future cloud profile capabilities. It should not become the primary local intelligence source.
 
-### `pcvantol/djconnect-app`
+### `djconnect-music-dj/djconnect-app`
 
 One native application shell with Owner, Guest and Demo runtimes; its UI is
 capability-driven rather than mode-driven.
 
-### `pcvantol/djconnect-windows`
+### `djconnect-music-dj/djconnect-windows`
 
 Windows Personal Experience renderer and Universal Session Receiver host where
 its capabilities allow.
 
-### `pcvantol/djconnect-pi`
+### `djconnect-music-dj/djconnect-pi`
 
 Community household display / ambient client.
 
-### `pcvantol/djconnect-esp32` and `pcvantol/djconnect-firmware`
+### `djconnect-music-dj/djconnect-esp32` and `djconnect-music-dj/djconnect-firmware`
 
 `djconnect-esp32` owns firmware source and board enablement. For a qualified
 supported board, ESPHome is the preferred firmware platform: DJConnect composes
@@ -276,7 +276,7 @@ transport, pairing and Runtime contracts. See ADR-0017.
 
 Release repositories publish artifacts, binaries, release notes, and community deliverables. They should be treated as distribution surfaces, not product-logic owners.
 
-### `pcvantol/djconnect-website`
+### `djconnect-music-dj/djconnect-website`
 
 Product story, onboarding, community/personal positioning, documentation entry points, and public communication.
 

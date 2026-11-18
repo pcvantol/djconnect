@@ -1626,7 +1626,8 @@ async def main(*, qualification_profile='legacy_low'):
                     assert not model_receipts
                     assert result.get("success") and not result.get("playback_actions")
                     assert result.get("previous_observation", {}).get("state") in {"unknown", "unavailable"}
-                    Path("/lab/previous-safety-fixed.json").write_text(json.dumps({
+                    output = Path(os.environ.get("DJC_OUTPUT", "/lab/previous-safety-fixed.json"))
+                    output.write_text(json.dumps({
                         "qualification": "CORE_PAIRED_INFORMATIONAL_PREVIOUS_NO_EFFECT",
                         "source_hashes": hashes(), "pairing": "ordinary_device_token_minted_persisted",
                         "request": "wat was vorige nummer", "response": result, "core_transports": receipts,

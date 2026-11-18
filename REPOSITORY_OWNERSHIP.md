@@ -24,7 +24,7 @@ Request-source ownership examples:
 - Clients must not invent durable personal identity when the backend cannot
   resolve one.
 
-## `pcvantol/djconnect-app`
+## `djconnect-music-dj/djconnect-app`
 
 Owns: Apple Intelligence Client UX for iOS, macOS and watchOS.
 
@@ -37,7 +37,7 @@ Must follow: DJConnect Profile, Device, Music Backend, Renderer/Client, privacy 
 
 Update canonical docs when: Apple UX requires new shared client capabilities, API contracts, profile rules or product language.
 
-## `pcvantol/djconnect-windows`
+## `djconnect-music-dj/djconnect-windows`
 
 Owns: Windows Intelligence Client UX.
 
@@ -50,7 +50,7 @@ Must follow: shared client contracts, Music Backend capability behavior, DJConne
 
 Update canonical docs when: Windows introduces reusable client capability requirements or shared platform language.
 
-## `pcvantol/djconnect-pi`
+## `djconnect-music-dj/djconnect-pi`
 
 Owns: Raspberry Pi Ambient Client.
 
@@ -63,7 +63,7 @@ Must follow: Device/runtime boundaries, renderer/client responsibilities, local-
 
 Update canonical docs when: Pi capabilities change shared Ambient Client expectations or runtime contracts.
 
-## `pcvantol/djconnect-esp32`
+## `djconnect-music-dj/djconnect-esp32`
 
 Owns: ESP32 Voice/Control Client firmware, including ESPHome source, board
 compositions, reusable packages, narrowly scoped custom components and
@@ -80,7 +80,7 @@ duplicate low-level drivers without an approved board-specific exception.
 
 Update canonical docs when: firmware changes require new platform protocol, Device model or release governance decisions.
 
-## `pcvantol/djconnect-api`
+## `djconnect-music-dj/djconnect-api`
 
 Owns: central API trust/relay boundary, APNs relay, per-install token bootstrap and future entitlement/profile-cloud surfaces.
 
@@ -93,7 +93,7 @@ Must follow: local-first value, optional cloud extension, privacy, profile bound
 
 Update canonical docs when: central API responsibilities expand into entitlement, cloud profile, sync, trust or privacy policy changes.
 
-## `pcvantol/djconnect-website`
+## `djconnect-music-dj/djconnect-website`
 
 Owns: public product story, onboarding, documentation presentation and release/download guidance.
 
@@ -106,7 +106,7 @@ Must follow: product language, tier language, Spotify non-affiliation wording, p
 
 Update canonical docs when: website work reveals product-language drift, onboarding contract gaps or public positioning changes.
 
-## `pcvantol/djconnect-firmware`
+## `djconnect-music-dj/djconnect-firmware`
 
 Owns: public firmware release distribution artifacts only: compiled native or
 ESPHome variants, RP2 firmware, Raspberry Pi bootstrap/distribution metadata,
@@ -131,7 +131,7 @@ consumption and standard flashing/bootstrap orchestration.
 Does not own: firmware artifacts, source builds, OTA logic, pairing, Runtime
 state, credentials or marketing-site behavior.
 
-## `pcvantol/djconnect-app-releases`
+## `djconnect-music-dj/djconnect-app-releases`
 
 Owns: internal unsigned Apple build-artifact handoff and non-secret release
 metadata only.
@@ -147,7 +147,7 @@ Must follow: release governance, product language, privacy and distribution rule
 Update canonical docs when: Apple internal-artifact handoff or public App Store
 Connect distribution strategy changes platform release governance.
 
-## `pcvantol/djconnect-pi-releases`
+## `djconnect-music-dj/djconnect-pi-releases`
 
 Owns: public Raspberry Pi release artifacts only.
 

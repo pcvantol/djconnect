@@ -9,15 +9,16 @@ import unittest
 from urllib.parse import parse_qs, urlsplit, unquote
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSET = "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png"
-DEEPLINK = "https://my.home-assistant.io/redirect/hacs_repository/?owner=pcvantol&repository=djconnect&category=integration"
+ASSET = "https://raw.githubusercontent.com/djconnect-music-dj/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png"
+DEEPLINK = "https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration"
 
 
 class HacsUserDocumentationTest(unittest.TestCase):
     def test_hacs_still_uses_readme_and_source_documentation(self):
         self.assertIs(json.loads((ROOT / "hacs.json").read_text())["render_readme"], True)
         manifest = json.loads((ROOT / "custom_components/djconnect/manifest.json").read_text())
-        self.assertEqual(manifest["documentation"], "https://github.com/pcvantol/djconnect")
+        self.assertEqual(manifest["documentation"], "https://github.com/djconnect-music-dj/djconnect")
+        self.assertEqual(manifest["issue_tracker"], "https://github.com/djconnect-music-dj/djconnect/issues")
         self.assertEqual(manifest["version"], "4.0.0")
         for name in ("README.md", "info.md"):
             text = (ROOT / name).read_text()
@@ -30,7 +31,7 @@ class HacsUserDocumentationTest(unittest.TestCase):
             self.assertIn("Add integration", text)
         self.assertEqual(
             parse_qs(urlsplit(DEEPLINK).query),
-            {"owner": ["pcvantol"], "repository": ["djconnect"], "category": ["integration"]},
+            {"owner": ["djconnect-music-dj"], "repository": ["djconnect"], "category": ["integration"]},
         )
 
     def test_compact_theme_independent_approved_brand_is_identical_on_both_surfaces(self):
