@@ -1,6 +1,6 @@
 import json
 import unittest
-from tools.verification.ghcr_readonly_probe import probe, REPOSITORY
+from tools.verification.ghcr_readonly_probe import probe
 
 class GHCRReadProbeTest(unittest.TestCase):
     def call(self, replies):
@@ -20,9 +20,12 @@ class GHCRReadProbeTest(unittest.TestCase):
         for code in (401,403,404,500):
             with self.subTest(code=code):
                 result,_=self.call([(200,b'{"token":"SECRET_TOKEN"}'),(code,b'PRIVATE_CANARY')])
-                self.assertEqual(result['registry_read'],'UNKNOWN');self.assertEqual(result['absence'],'NOT_ASSERTED')
+                self.assertEqual(result['registry_read'],'UNKNOWN')
+                self.assertEqual(result['absence'],'NOT_ASSERTED')
     def test_bad_payload_and_token(self):
         for payload in (b'{',b'{"tags":null}',b'{"tags":[42]}'):
             result,_=self.call([(200,b'{"token":"SECRET_TOKEN"}'),(200,payload)])
             self.assertEqual(result['registry_read'],'UNKNOWN')
-        result,calls=self.call([(200,b'{"token":"bad\\nsecret"}')]);self.assertEqual(result['registry_read'],'UNKNOWN');self.assertEqual(len(calls),1)
+        result,calls=self.call([(200,b'{"token":"bad\\nsecret"}')])
+        self.assertEqual(result['registry_read'],'UNKNOWN')
+        self.assertEqual(len(calls),1)
