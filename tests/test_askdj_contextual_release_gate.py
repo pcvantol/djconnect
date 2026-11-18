@@ -537,54 +537,45 @@ class ContextualReleaseGateTest(unittest.TestCase):
             mutate(changed)
             self.assertFalse(RUNNER.validate_report(changed, 'a'*40))
 
-    def test_release_publication_waits_and_formal_job_cannot_race_tag(self):
-        publication = (ROOT/'.github/workflows/home-assistant-release-artifact.yml').read_text()
-        self.assertIn('needs: paid-contextual-golden', publication)
-        self.assertIn('uses: ./.github/workflows/askdj-contextual-release-gate.yml', publication)
-        self.assertFalse((ROOT/'.github/workflows/post-merge-release-evidence-dispatch.yml').exists())
-        self.assertIn('needs: [paid-contextual-golden, package]', publication)
-        gate = (ROOT/'.github/workflows/askdj-contextual-release-gate.yml').read_text()
-        self.assertNotIn('continue-on-error', gate)
-        self.assertNotIn('pull_request', gate)
-        self.assertIn('internal-ha-*', gate)
-        self.assertIn('git merge-base --is-ancestor', gate)
-
-    def test_source_reconciliation_can_record_ci_without_publishing_rejected_artifact(self):
-        import json
+    def test_temporary_migration_deferral_is_scoped_and_recorded(self):
         import yaml
         jobs = yaml.safe_load((ROOT/'.github/workflows/home-assistant-release-artifact.yml').read_text())['jobs']
-        package, source = jobs['package'], jobs['reconcile']
-        self.assertEqual(package['needs'], 'paid-contextual-golden')
-        self.assertIn('!cancelled()', package['if'])
-        self.assertIn("needs.paid-contextual-golden.result == 'success'", package['if'])
-        self.assertIn("needs.paid-contextual-golden.result == 'failure'", package['if'])
-        self.assertIn("github.event.workflow_run.event == 'push'", package['if'])
+        self.assertNotIn('paid-contextual-golden', jobs)
+        package = jobs['package']
+        for condition in (
+            "github.repository_id == '1258575431'",
+            "github.repository == 'pcvantol/djconnect'",
+            "github.repository == 'djconnect-music-dj/djconnect'",
+            "github.event.workflow_run.event == 'push'",
+            "github.event.workflow_run.head_branch == 'main'",
+            'github.event.workflow_run.head_repository.full_name == github.repository',
+            "github.event.workflow_run.conclusion == 'success'",
+        ):
+            self.assertIn(condition, package['if'])
         steps = {step.get('name'): step for step in package['steps']}
-        evidence = steps['Download exact-candidate Ask DJ evidence for the 4.0.0 deferral']
-        gate = steps['Verify the temporary Ask DJ deferral']
-        self.assertEqual(evidence['with']['name'],
-                         'askdj-contextual-golden-' + '$' + '{{ github.event.workflow_run.head_sha }}')
-        self.assertEqual(gate['if'], "needs.paid-contextual-golden.result == 'failure'")
-        self.assertLess(package['steps'].index(gate),
+        scope = steps['Enforce temporary Ask DJ deferral scope']['run']
+        self.assertIn('2026-12-10T00:00:00Z', scope)
+        self.assertIn('git rev-parse HEAD', scope)
+        self.assertIn('.version == "4.0.0"', scope)
+        self.assertLess(package['steps'].index(steps['Enforce temporary Ask DJ deferral scope']),
                         package['steps'].index(steps['Package the exact integration artifact']))
-        self.assertNotIn('continue-on-error', gate)
-        self.assertEqual(source['needs'], ['paid-contextual-golden', 'package'])
-        self.assertIn('always()', source['if'])
-        for condition in ("github.event.workflow_run.conclusion == 'success'", "github.event.workflow_run.head_branch == 'main'"):
-            self.assertIn(condition, source['if'])
-        self.assertEqual(source['with']['repository_role'], 'active_source')
-        self.assertEqual(source['with']['required_main_workflow'], 'Validate Home Assistant custom integration')
-        self.assertEqual(source['with']['coverage_artifact_name'], 'ha-cobertura-coverage')
-        self.assertEqual(json.loads(source['with']['required_check_contexts']),
-            ['Trusted Delivery qualification / Qualify trusted delivery'])
-        self.assertIn('post-merge-release-evidence.yml@ebbb35f038a7a3c7d46c12660968bcd50eb67580', source['uses'])
+        evidence = steps['Publish artifact evidence']['run']
+        self.assertIn('"ask_dj_qualification": "DEFERRED_CORE_4_0_0"', evidence)
+        self.assertIn('"ask_dj_deferred_report_sha256": None', evidence)
+        self.assertEqual(jobs['reconcile']['needs'], ['package'])
+        independent = (ROOT/'.github/workflows/askdj-contextual-release-gate.yml').read_text()
+        self.assertIn('workflow_dispatch:', independent)
+        self.assertNotIn("tags: ['v*', '[0-9]*', 'internal-ha-*']", independent)
+        self.assertIn("tags: ['v*', '[0-9]*']", independent)
+        self.assertNotIn('continue-on-error', independent)
+
 
     def test_overlapping_main_events_keep_original_candidate_for_all_jobs(self):
         # workflow_run's outer GITHUB_SHA may already be B; its event payload
         # still names CI(A). No second workflow_run hop is introduced.
         workflow = (ROOT/'.github/workflows/home-assistant-release-artifact.yml').read_text()
         self.assertIn('CANDIDATE_SHA: ${{ github.event.workflow_run.head_sha }}', workflow)
-        self.assertIn('candidate_sha: ${{ github.event.workflow_run.head_sha }}', workflow)
+        self.assertIn('ref: ${{ github.event.workflow_run.head_sha }}', workflow)
         self.assertNotIn('candidate_sha: ${{ github.sha }}', workflow)
         policy = (ROOT/'.github/workflows/post-merge-release-evidence.yml').read_text()
         self.assertIn('MAIN_SHA: ${{ github.event.workflow_run.head_sha }}', policy)
@@ -592,8 +583,8 @@ class ContextualReleaseGateTest(unittest.TestCase):
             event = {'workflow_run': {'head_sha': source}}
             selected = event['workflow_run']['head_sha']
             self.assertEqual(selected, source)
-            self.assertEqual({'gate': selected, 'package': selected, 'formal': selected},
-                             dict.fromkeys(['gate', 'package', 'formal'], source))
+            self.assertEqual({'package': selected, 'formal': selected},
+                             dict.fromkeys(['package', 'formal'], source))
 
     def test_every_help_template_is_instantiated_without_changing_help_copy(self):
         import json

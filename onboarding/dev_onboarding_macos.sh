@@ -54,7 +54,7 @@ CLR_CYAN=""
 PACKAGE_VERSION="unknown"
 VERSION_CURRENCY_DECISION="NOT_CHECKED"
 VERSION_CURRENCY_DETAIL=""
-PICO_REPO_URL="${PICO_REPO_URL:-https://github.com/pcvantol/djconnect-pico.git}"
+PICO_REPO_URL="${PICO_REPO_URL:-https://github.com/djconnect-music-dj/djconnect-pico.git}"
 PICO_TOOL_VENV="${PICO_TOOL_VENV:-$HOME/Library/Application Support/DJConnect/pico-tools}"
 PICO_REQUIREMENTS_FILE="$PACKAGE_ROOT/pico_toolchain_requirements.txt"
 PICO_READINESS_SCRIPT="$PACKAGE_ROOT/pico_readiness_macos.py"
@@ -2046,14 +2046,14 @@ clone_or_update() {
 
 step_11_clone_all_repos() {
   log "Cloning/updating sibling DJConnect repositories."
-  clone_or_update djconnect-app https://github.com/pcvantol/djconnect-app.git
-  clone_or_update djconnect-esp32 https://github.com/pcvantol/djconnect-esp32.git
-  clone_or_update djconnect-website https://github.com/pcvantol/djconnect-website.git
-  clone_or_update djconnect-pi https://github.com/pcvantol/djconnect-pi.git
+  clone_or_update djconnect-app https://github.com/djconnect-music-dj/djconnect-app.git
+  clone_or_update djconnect-esp32 https://github.com/djconnect-music-dj/djconnect-esp32.git
+  clone_or_update djconnect-website https://github.com/djconnect-music-dj/djconnect-website.git
+  clone_or_update djconnect-pi https://github.com/djconnect-music-dj/djconnect-pi.git
   clone_or_update djconnect-pico "$PICO_REPO_URL"
-  clone_or_update djconnect-api https://github.com/pcvantol/djconnect-api.git
-  clone_or_update djconnect-windows https://github.com/pcvantol/djconnect-windows.git
-  clone_or_update djconnect-firmware https://github.com/pcvantol/djconnect-firmware.git
+  clone_or_update djconnect-api https://github.com/djconnect-music-dj/djconnect-api.git
+  clone_or_update djconnect-windows https://github.com/djconnect-music-dj/djconnect-windows.git
+  clone_or_update djconnect-firmware https://github.com/djconnect-music-dj/djconnect-firmware.git
 }
 
 step_12_apple_app_tooling() {

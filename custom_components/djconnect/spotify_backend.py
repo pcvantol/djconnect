@@ -34,6 +34,7 @@ CACHE_TTL_SECONDS = 30
 SPOTIFY_DEVICE_CACHE_TTL_SECONDS = 30 * 24 * 60 * 60
 LISTENING_PROFILE_CACHE_TTL_SECONDS = 6 * 60 * 60
 ARTIST_GENRE_ERROR_BACKOFF_SECONDS = 10 * 60
+FAVORITE_RETRY_DELAY_SECONDS = 30
 ACCESS_TOKEN_EXPIRY_SAFETY_SECONDS = 60
 REAUTH_REPAIR_THROTTLE_SECONDS = 30 * 60
 MAX_QUEUE_ITEMS = 100
@@ -51,9 +52,18 @@ _LOGGER = logging.getLogger(__name__)
 class SpotifyBackendError(RuntimeError):
     """Raised when the configured Spotify backend cannot serve a command."""
 
-    def __init__(self, message: str, *, http_status: int | None = None):
+    def __init__(self, message: str, *, http_status: int | None = None, retry_after: int | None = None):
         super().__init__(message)
         self.http_status = http_status
+        self.retry_after = retry_after
+
+
+@dataclass
+class _FavoriteLookup:
+    credential_scope: str
+    retry_at: float = 0
+    reading: bool = False
+    sample: tuple[str, float, bool] | None = None
 
 
 class SpotifyOutputError(SpotifyBackendError):
@@ -620,6 +630,14 @@ class SpotifyBackend:
             timeout=ClientTimeout(total=12),
             **request_options,
         ) as resp:
+            if resp.status == 429:
+                header = getattr(resp, "headers", {}).get("Retry-After", "")
+                delay = int(header) if re.fullmatch(r"[0-9]{1,10}", header) else FAVORITE_RETRY_DELAY_SECONDS
+                await _consume_spotify_response(resp)
+                raise SpotifyBackendError(
+                    "Spotify API failed HTTP 429: rate limited",
+                    http_status=429, retry_after=max(1, delay),
+                )
             if resp.status == 401 and retry_on_unauthorized and not (scope is not None and scope.attempted):
                 await _consume_spotify_response(resp)
                 self.runtime.spotify_access_token = None
@@ -682,7 +700,7 @@ class SpotifyBackend:
                     cache.pop(old_key, None)
         return value
 
-    async def playback_state(self) -> dict[str, Any]:
+    async def playback_state(self, *, include_favorite: bool = True) -> dict[str, Any]:
         from .surface_status_samples import capture_command_source, seal, ObservedPlayback
         original_source = capture_command_source(self.hass, self.runtime)
         data = await self._request("GET", "/me/player")
@@ -692,7 +710,8 @@ class SpotifyBackend:
             target_id=(playback.get("device") or {}).get("id") or "")
         if original_status is not None:
             playback = ObservedPlayback(playback, original_status)
-        await self._enrich_current_track_favorite_status(playback)
+        if include_favorite:
+            await self._enrich_current_track_favorite_status(playback)
         await self._enrich_playback_artist_genres(playback)
         _merge_playback_status(
             self.runtime.device_status,
@@ -970,19 +989,43 @@ class SpotifyBackend:
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect could not update Music DNA from playback: %s", exc)
 
+    def _favorite_lookup(self) -> _FavoriteLookup:
+        scope = credential_cache_scope(self.runtime)
+        state = getattr(self.runtime, "spotify_favorite_lookup", None)
+        if state is None or state.credential_scope != scope:
+            state = self.runtime.spotify_favorite_lookup = _FavoriteLookup(scope)
+        return state
+
     async def _enrich_current_track_favorite_status(self, playback: dict[str, Any]) -> None:
         uri = str(playback.get("uri") or playback.get("current_uri") or "").strip()
         track_id = _spotify_id_from_uri(uri)
         if not _looks_like_spotify_id(track_id):
             return
+        state = self._favorite_lookup()
+        now = time.monotonic()
+        sample = state.sample
+        if sample and sample[0] == track_id and now < sample[1]:
+            playback["is_liked"] = playback["favorite_status"] = sample[2]
+            return
+        if state.reading or now < state.retry_at:
+            return
+        state.reading = True
         try:
             data = await self._request("GET", f"/me/tracks/contains?ids={track_id}")
         except SpotifyBackendError as exc:
+            if exc.http_status == 429:
+                state.retry_at = time.monotonic() + (exc.retry_after or FAVORITE_RETRY_DELAY_SECONDS)
             _LOGGER.debug("DJConnect could not read current track favorite status: %s", exc)
             return
-        if isinstance(data, list) and data:
-            playback["is_liked"] = bool(data[0])
-            playback["favorite_status"] = bool(data[0])
+        finally:
+            state.reading = False
+        if self._favorite_lookup() is not state:
+            return
+        if state.sample is sample and isinstance(data, list) and data and isinstance(data[0], bool):
+            state.sample = (track_id, time.monotonic() + CACHE_TTL_SECONDS, data[0])
+        sample = state.sample
+        if sample and sample[0] == track_id and time.monotonic() < sample[1]:
+            playback["is_liked"] = playback["favorite_status"] = sample[2]
 
     async def devices(self, *, fresh: bool = False) -> list[dict[str, Any]]:
         async def load():
@@ -2165,16 +2208,19 @@ class SpotifyBackend:
 
     async def set_current_track_favorite(self, value: Any = True) -> dict[str, Any]:
         target = _favorite_target(value)
-        playback = await self.playback_state()
+        playback = await self.playback_state(include_favorite=False)
         uri = str(playback.get("uri") or playback.get("current_uri") or "").strip()
         track_id = _spotify_id_from_uri(uri)
         if not _looks_like_spotify_id(track_id):
             raise SpotifyBackendError("No current Spotify track is available to update favorites")
+        state = self._favorite_lookup()
         await self._request(
             "PUT" if target else "DELETE",
             f"/me/tracks?ids={track_id}",
             expected_empty=True,
         )
+        if self._favorite_lookup() is state:
+            state.sample = (track_id, time.monotonic() + CACHE_TTL_SECONDS, target)
         playback["is_liked"] = target
         playback["favorite_status"] = target
         return playback

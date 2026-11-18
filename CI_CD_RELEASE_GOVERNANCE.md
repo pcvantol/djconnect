@@ -22,13 +22,13 @@ CI/CD should protect:
 
 Source repositories own implementation and tests:
 
-- `pcvantol/djconnect`;
-- `pcvantol/djconnect-api`;
-- `pcvantol/djconnect-app`;
-- `pcvantol/djconnect-windows`;
-- `pcvantol/djconnect-pi`;
-- `pcvantol/djconnect-esp32`;
-- `pcvantol/djconnect-website`.
+- `djconnect-music-dj/djconnect`;
+- `djconnect-music-dj/djconnect-api`;
+- `djconnect-music-dj/djconnect-app`;
+- `djconnect-music-dj/djconnect-windows`;
+- `djconnect-music-dj/djconnect-pi`;
+- `djconnect-music-dj/djconnect-esp32`;
+- `djconnect-music-dj/djconnect-website`.
 
 ### Release repositories
 
@@ -36,7 +36,7 @@ Release repositories publish community artifacts, unsigned/non-signed binaries, 
 
 They must not become product-logic owners. They mirror release outputs and public distribution state.
 
-`pcvantol/djconnect-firmware` is the firmware distribution repository. It
+`djconnect-music-dj/djconnect-firmware` is the firmware distribution repository. It
 publishes qualified native, ESPHome, RP2 and Raspberry Pi bootstrap artifacts
 but never owns source or platform enablement. Every physical-device channel,
 manifest, checksum and release note is authoritative there.

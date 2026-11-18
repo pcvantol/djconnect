@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       policy_source_ref:
-        description: Immutable pcvantol/djconnect commit SHA containing this reconciliation policy.
+        description: Immutable DJConnect Core commit SHA containing this reconciliation policy.
         required: true
         type: string
       coverage_artifact_name:
@@ -52,10 +52,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - id: canonical-source
+        name: Resolve canonical policy repository by immutable ID
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const result = await github.request("GET /repositories/{repository_id}", {repository_id: 1258575431});
+            const repo = result.data;
+            if (repo.id !== 1258575431 || repo.private !== false || !["pcvantol/djconnect", "djconnect-music-dj/djconnect"].includes(repo.full_name)) throw new Error("Unexpected canonical policy repository identity");
+            core.setOutput("repository", repo.full_name);
+
       - name: Check out immutable reconciliation policy source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
         with:
-          repository: pcvantol/djconnect
+          repository: ${{ steps.canonical-source.outputs.repository }}
           # github.workflow_sha resolves to the caller in a reusable workflow.
           # The caller therefore supplies the same immutable central SHA it
           # pins in `uses:`; never infer a central ref from caller context.
@@ -139,8 +149,15 @@ jobs:
             );
             const ownerStatus = contextNodes.find(item => item.__typename === "StatusContext" && item.context === "Owner Authorization");
             const risk = ownerStatus?.description?.startsWith("HIGH_RISK") ? "HIGH_RISK" : "NORMAL_RISK";
-            const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {owner, repo, head_sha: mainSha, status: "completed", per_page: 100});
-            const mainRun = runs.find(run => run.name === process.env.REQUIRED_MAIN_WORKFLOW && run.conclusion === "success");
+            // GitHub's status-filtered run index can omit a completed run that
+            // the unfiltered head-SHA index and direct run endpoint both return.
+            // Filter locally; never accept an unfinished, wrong-SHA or failed run.
+            function selectCompletedMainRun(runs, requiredName, expectedSha) {
+              return runs.find(run => run.name === requiredName && run.head_sha === expectedSha &&
+                run.status === "completed" && run.conclusion === "success");
+            }
+            const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {owner, repo, head_sha: mainSha, per_page: 100});
+            const mainRun = selectCompletedMainRun(runs, process.env.REQUIRED_MAIN_WORKFLOW, mainSha);
             const artifacts = mainRun ? await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {owner, repo, run_id: mainRun.id, per_page: 100}) : [];
             const coverage = artifacts.find(item => item.name === process.env.COVERAGE_ARTIFACT);
             const distributionEvidence = artifacts.find(item => item.name === process.env.DISTRIBUTION_EVIDENCE_ARTIFACT);

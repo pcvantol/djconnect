@@ -1,4 +1,4 @@
-# Version: 1.1.0
+# Version: 1.1.1
 # Least-privilege and local credential-expiry audits.
 least_privilege_warning() {
   local message="$1"
@@ -54,11 +54,11 @@ audit_least_privilege() {
   for profile in "${DESIRED_PROFILES[@]}"; do
     profile_enabled "$profile" || continue
     profile_values "$profile"
-    permission="$(gh api "repos/$ORG/$PROFILE_REPOSITORY" --jq '.permissions.admin // false' 2>/dev/null || printf false)"
+    permission="$(gh api "repos/$PROFILE_OWNER/$PROFILE_REPOSITORY" --jq '.permissions.admin // false' 2>/dev/null || printf false)"
     if [[ "$permission" == 'true' ]]; then
-      report_append 'Least-privilege audit' 'REQUIRED ACCESS VERIFIED' "GitHub administrator access is available for $ORG/$PROFILE_REPOSITORY, required for selected runner administration."
+      report_append 'Least-privilege audit' 'REQUIRED ACCESS VERIFIED' "GitHub administrator access is available for $PROFILE_OWNER/$PROFILE_REPOSITORY, required for selected runner administration."
     else
-      least_privilege_warning "GitHub administrator access for $ORG/$PROFILE_REPOSITORY could not be verified. Selected runner administration requires repository Actions administration; grant only that repository access."
+      least_privilege_warning "GitHub administrator access for $PROFILE_OWNER/$PROFILE_REPOSITORY could not be verified. Selected runner administration requires repository Actions administration; grant only that repository access."
     fi
     install_dir="$RUNNER_ROOT/$PROFILE_RUNNER_NAME"
     if [[ -e "$install_dir" ]]; then

@@ -1,5 +1,35 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.12 — 2026-11-17
+
+- Update the isolated Pico developer Ruff tool to 0.17.5.
+
+## 4.5.11 — 2026-11-17
+
+- Qualify repository-owner routing tests for the macOS runner recovery package.
+
+## 4.5.10 — 2026-11-16
+
+- Use organization repository URLs for Pico, API, Windows and firmware.
+- Align development-host version and integrity checks.
+
+## 4.5.9 — 2026-11-16
+
+- Use the transferred Pi source repository and preserve earlier distributions.
+- Align the development-host version and integrity guards.
+
+## 4.5.8 — 2026-11-16
+
+- Use organization URLs for migrated Apple, ESP32 and website source.
+- Preserve earlier packages and align the development-host version guards.
+
+## 4.5.7 — 2026-11-15
+
+- Pin the isolated Pico developer Ruff tool to 0.17.4.
+- Publish a new deterministic archive and align the exact onboarding version
+  guards in bootstrap 2.0.25 and desired-state profile 3.3.4.
+- Preserve onboarding 4.5.6 and all earlier distributions.
+
 ## 4.5.6 — 2026-11-01
 
 - Pin isolated Pico developer Ruff to 0.17.2; publish a new deterministic

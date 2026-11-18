@@ -38,6 +38,7 @@ _PROVIDER_STATE_KEYS = frozenset(
         "spotify_access_token",
         "spotify_access_token_expires_at",
         "spotify_token_refresh_lock",
+        "spotify_favorite_lookup",
         "latest_spotify_refresh_token",
     }
 )

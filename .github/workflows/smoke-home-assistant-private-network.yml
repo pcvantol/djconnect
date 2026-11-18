@@ -38,7 +38,13 @@ jobs:
           set -euo pipefail
           printf '%s' "$CANDIDATE_SHA" | grep -Eq '^[0-9a-f]{40}$'
           printf '%s' "$MANIFEST_ID" | grep -Eq '^release-[A-Za-z0-9._-]+$'
-          printf '%s' "$ARTIFACT_ID" | grep -Eq '^release-asset:pcvantol/djconnect:internal-ha-[0-9a-f]{40}:djconnect-home-assistant-integration-[0-9a-f]{40}\.tar\.gz$'
+          test "$GITHUB_REPOSITORY_ID" = 1258575431
+          case "$GITHUB_REPOSITORY" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          artifact_repository="${ARTIFACT_ID#release-asset:}"
+          artifact_repository="${artifact_repository%%:*}"
+          case "$artifact_repository" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          case "$GITHUB_REPOSITORY:$artifact_repository" in pcvantol/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          test "$ARTIFACT_ID" = "release-asset:${artifact_repository}:internal-ha-${CANDIDATE_SHA}:djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
           printf '%s' "$ARTIFACT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
           test "$TARGET" = home_assistant_pi5
           printf '%s' "$PLATFORM_VERSION" | grep -Eq '^[0-9]+\.[0-9]+$'
@@ -91,24 +97,39 @@ jobs:
           RELEASE_PROFILE: ${{ inputs.release_profile }}
         run: |
           set -euo pipefail
+          test "$GITHUB_REPOSITORY_ID" = 1258575431
+          case "$GITHUB_REPOSITORY" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          artifact_repository="${ARTIFACT_ID#release-asset:}"
+          artifact_repository="${artifact_repository%%:*}"
+          case "$artifact_repository" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          case "$GITHUB_REPOSITORY:$artifact_repository" in pcvantol/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          test "$ARTIFACT_ID" = "release-asset:${artifact_repository}:internal-ha-${CANDIDATE_SHA}:djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
           manifest="$(mktemp)"
           trap 'rm -f "$manifest"' EXIT
+          case "$MANIFEST_ID" in
+            release-4.0.0-home-assistant-prod-20261110) manifest_path=docs/release/PLATFORM_4_0_RC1_HOME_ASSISTANT_OPERATIONAL_MANIFEST.json ;;
+            *) manifest_path="docs/release/home-assistant-manifests/${MANIFEST_ID}.json" ;;
+          esac
           curl --fail --silent --show-error --location \
-            https://raw.githubusercontent.com/pcvantol/djconnect/main/docs/release/PLATFORM_4_0_RC1_HOME_ASSISTANT_OPERATIONAL_MANIFEST.json \
+            "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/${manifest_path}" \
             --output "$manifest"
           manifest_status="$(jq -r '.status' "$manifest")"
           case "$manifest_status" in
             APPROVED_DEPLOYMENT_DISPATCH_PENDING|APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL|APPROVED_TARGET_DEPLOYMENT_OPERATIONAL) ;;
-            *) echo "Manifest is not open for authorized post-deployment smoke: $manifest_status" >&2; exit 1 ;;
+            *) echo "Manifest is not open for an authorized target deployment or smoke: $manifest_status" >&2; exit 1 ;;
           esac
           test "$(jq -r '.approval.state' "$manifest")" = APPROVED
           test "$(jq -r '.manifest_id' "$manifest")" = "$MANIFEST_ID"
           test "$(jq -r '.release_profile' "$manifest")" = "$RELEASE_PROFILE"
-          release_version="$(jq -r --arg sha "$CANDIDATE_SHA" '.repositories[] | select(.repository == "pcvantol/djconnect" and .source_sha == $sha) | .version' "$manifest")"
-          printf '%s' "$release_version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'
-          jq -e --arg target "$TARGET" --arg artifact "$ARTIFACT_ID" --arg sha "$ARTIFACT_SHA256" \
-            '.artifact_bindings[] | select(.target == $target and (.artifact_id | tostring) == $artifact and .artifact_sha256 == $sha)' \
+          jq -e --arg repo "$artifact_repository" --arg sha "$CANDIDATE_SHA" \
+            '[.repositories[] | select(.repository == $repo and .source_sha == $sha)] | length == 1' \
             "$manifest" >/dev/null
+          expected_url="https://github.com/${artifact_repository}/releases/download/internal-ha-${CANDIDATE_SHA}/djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
+          jq -e --arg target "$TARGET" --arg artifact "$ARTIFACT_ID" --arg sha "$ARTIFACT_SHA256" --arg repo "$artifact_repository" --arg url "$expected_url" \
+            '[.artifact_bindings[] | select(.target == $target and (.artifact_id | tostring) == $artifact and .artifact_sha256 == $sha and .owner == $repo and .artifact_url == $url)] | length == 1' \
+            "$manifest" >/dev/null
+          release_version="$(jq -er --arg repo "$artifact_repository" --arg sha "$CANDIDATE_SHA" '.repositories[] | select(.repository == $repo and .source_sha == $sha) | .version' "$manifest")"
+          printf '%s' "$release_version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'
           printf 'release_version=%s\n' "$release_version" >> "$GITHUB_OUTPUT"
       - name: Download deployment evidence
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2

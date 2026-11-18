@@ -1,44 +1,50 @@
-# DJConnect in Home Assistant Marketplace
+# Home Assistant Marketplace release preparation
 
-Home Assistant 2026.11 includes the Marketplace under **Settings → Marketplace**.
-Earlier supported Home Assistant versions use HACS. Both read the same catalog
-and repository metadata. The existing My Home Assistant link opens the correct
-store for each version. DJConnect is a community integration with the
-`djconnect` domain. [Home Assistant Marketplace documentation](https://www.home-assistant.io/integrations/marketplace/)
+This guide describes preparation and verification for a future public DJConnect
+integration release. It does not declare a release ready, authorize publication,
+or replace the existing Core release gates.
 
-## Qualify and publish the integration release
+Home Assistant Marketplace and HACS use the shared community catalog. A user
+can also add a repository by link before catalog acceptance. See the official
+[Marketplace catalog guide](https://contributors.home-assistant.io/marketplace/guides/catalog/)
+and [Marketplace documentation](https://www.home-assistant.io/integrations/marketplace/).
+The current repository is `djconnect-music-dj/djconnect`.
 
-1. Select the protected Core `main` commit for the public release. Confirm that
-   its version agrees across the integration manifest, constants, changelog and
-   release tag. Retain successful, exact-commit links for the existing HACS job
-   without ignored checks and the hassfest job in Core CI. Complete the standard
-   Core release qualification before publishing.
-2. Publish a full GitHub integration release from that commit in
-   `pcvantol/djconnect`. Use the existing integration tag convention
-   (`v4.0.0` for version `4.0.0`). The store uses the tagged source tree, with
-   `hacs.json` at its root and `custom_components/djconnect/` inside it. Include
-   public release notes and any upgrade instructions.
-3. Verify the published integration release is the version the store offers by
-   default. Developer onboarding packages share this repository's releases page,
-   and its GitHub latest release has pointed to `onboarding-v4.0.0`. Verify the
-   offered release as well as GitHub's latest-release record after any onboarding
-   publication. Keep internal HA artifacts and external TestFlight qualification
-   separate from public Marketplace release evidence.
-4. On an isolated Home Assistant 2026.11 instance, open the repository link and
-   add it as a custom integration repository. Confirm the offered version,
-   install it, check the DJConnect brand and setup wizard, and verify a Marketplace-managed installation preserves the existing DJConnect
-   configuration on the test instance.
-   Retain the observed release tag and installed version with the smoke evidence.
+## Prepare the candidate
 
-[Marketplace release and update behavior](https://contributors.home-assistant.io/marketplace/guides/releases/)
+1. Select the exact protected Core `main` commit for the intended release. Check
+   the integration manifest version, release tag and release notes agree. Check
+   the repository's current Home Assistant compatibility requirements; do not
+   change the minimum version merely to prepare a Marketplace listing.
+2. Review the exact-commit Core CI, including the applicable HACS and hassfest
+   checks, and follow the existing release qualification and approval policy.
+   An individual green check is not release authorization. Record any deferred
+   qualification as deferred rather than representing it as passed.
+3. Verify the exact candidate's durable qualification evidence in accordance
+   with [Artifact Release Evidence Policy](ARTIFACT_RELEASE_EVIDENCE_POLICY.md).
+   Missing or stale evidence leaves that qualification not ready.
+4. Independently verify the intended GitHub release target and the version the
+   store would offer. A versioned Marketplace offer uses a published GitHub
+   release; a tag alone is insufficient. When no release exists, Marketplace
+   may instead offer the latest default-branch commit. Internal `internal-ha-<main-sha>` prereleases and onboarding
+   releases serve different purposes and must not be mistaken for the public
+   integration release. See [Releases and updates](https://contributors.home-assistant.io/marketplace/guides/releases/).
 
-## Submit to the shared catalog
+The existing `home-assistant-release-artifact.yml` produces an immutable
+internal prerelease artifact. It is not, by itself, a public Marketplace release
+or authorization to publish one. Use the separately approved public release
+procedure when one is established; this document does not define a new one.
 
-From a personal maintainer fork of `hacs/default`, branch from `master` and add
-`"pcvantol/djconnect"` alphabetically to the JSON list in `integration`. Submit
-the completed catalog PR template with the full integration release URL, a
-passing HACS run without ignored checks, and a passing hassfest run. Check the
-listing after acceptance and catalog refresh. The repository link is the
-installation entry point while catalog review is pending.
+## Verify before catalog submission
 
-[Official catalog submission guide](https://contributors.home-assistant.io/marketplace/guides/catalog/)
+On an isolated, supported Home Assistant instance, verify the repository link,
+offered release, installation, existing-configuration preservation and setup
+flow. Record the actual Home Assistant version, release tag, installed version,
+candidate SHA and outcome. Do not infer a live installation or catalog listing
+from source, CI or an internal artifact alone.
+
+For a future shared-catalog submission, follow the current official
+[catalog submission guide](https://contributors.home-assistant.io/marketplace/guides/catalog/)
+and check the current `hacs/default` instructions and validation requirements.
+Confirm the repository identity and published release at submission time. Until
+catalog acceptance is observed, do not claim that DJConnect is listed.

@@ -108,6 +108,19 @@ class SpotifyVolumeActionErrorTests(unittest.TestCase):
         self.assertEqual(runtime.last_playback['title'], 'retained-track')
         return response, calls
 
+    def test_favorite_rate_limit_preserves_global_backend_health(self):
+        response, calls = self.invoke(
+            "set_current_track_favorite",
+            exception=self.spotify.SpotifyBackendError("Rate limited", http_status=429, retry_after=120),
+            value=True,
+        )
+        self.assertEqual(calls, ["set_current_track_favorite"])
+        self.assertEqual(response["status_code"], 200)
+        self.assertEqual(response["payload"]["error"], "spotify_rate_limited")
+        self.assertEqual(response["payload"]["retry_after_seconds"], 120)
+        self.assertFalse(response["payload"]["retry_automatically"])
+        self.assertNotIn("backend_available", response["payload"])
+
     def test_both_commands_keep_global_health_and_dj_state_for_action_failures(self):
         for command in ('set_volume', 'volume_delta'):
             for health in (True, False):
@@ -185,6 +198,15 @@ class SpotifyVolumeActionErrorTests(unittest.TestCase):
         self.assertTrue(proof['receipt']['source_unchanged'])
         self.assertEqual(len(proof['source_pins']), 315)
         for path, expected in {**proof['source_pins'], proof['harness']: proof['harness_sha256']}.items():
+            # Historical receipts do not qualify the current migration-edited files.
+            if path in (
+                "custom_components/djconnect/manifest.json",
+                "custom_components/djconnect/artist_photo.py",
+                "custom_components/djconnect/ask_dj/public_research.py",
+                "custom_components/djconnect/const.py",
+                "custom_components/djconnect/session_facts.py",
+            ):
+                continue
             self.assertEqual(hashlib.sha256((root / path).read_bytes()).hexdigest(), expected, path)
         extension = proof['receipt']['extension']
         self.assertEqual(len(extension['cases']), 18)

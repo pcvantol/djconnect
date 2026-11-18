@@ -37,7 +37,7 @@ for their source, artifacts and release surfaces.
 | `pcvantol/djconnect-app` | Capability, evidence, execution and health models. | Apple analyzer/build/signing/test evidence. | Canonical Software Assurance policy or backend behaviour. |
 | `pcvantol/djconnect-windows` | Capability, evidence, execution and health models. | Windows analyzer/build/package evidence. | Canonical policy or platform health definitions. |
 | `pcvantol/djconnect-pi` | Capability, evidence, execution and health models. | Pi runtime, packaging, service and device evidence. | Canonical assurance governance. |
-| `pcvantol/djconnect-esp32` | Capability, evidence, execution and health models. | Firmware build, PlatformIO, serial, OTA and hardware evidence. | Backend playback or canonical release policy. |
+| `djconnect-music-dj/djconnect-esp32` | Capability, evidence, execution and health models. | Firmware build, PlatformIO, serial, OTA and hardware evidence. | Backend playback or canonical release policy. |
 | `pcvantol/djconnect-api` | Capability, evidence, execution and health models. | API security, relay, token and deployment evidence. | Local-first HA runtime behaviour. |
 | `pcvantol/djconnect-website` | Capability, evidence, execution and health models. | Website build, link, SEO, docs and localization evidence. | Runtime contracts or release artifact truth. |
 | `pcvantol/djconnect-firmware` | Release assurance and supply-chain models. | Public firmware artifact metadata and distribution evidence. | ESP32 source implementation. |

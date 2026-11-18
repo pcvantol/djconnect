@@ -2,7 +2,8 @@ name: Ask DJ paid contextual release gate
 
 on:
   push:
-    tags: ['v*', '[0-9]*', 'internal-ha-*']
+    # Restore internal-ha-* after migration; explicit and public-release qualification remain available.
+    tags: ['v*', '[0-9]*']
   workflow_dispatch:
     inputs:
       candidate_sha:

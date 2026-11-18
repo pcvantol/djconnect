@@ -58,8 +58,8 @@ self-hosted runners or approved local labs with explicit capabilities.
 | Field | Value |
 | --- | --- |
 | Product name | Verification Runtime |
-| Source repository | `pcvantol/djconnect` |
-| Docker distribution | `pcvantol/djconnect-verification-platform` |
+| Source repository | `djconnect-music-dj/djconnect` |
+| Docker distribution | `ghcr.io/djconnect-music-dj/djconnect-verification-platform` |
 | Repository role | Source of implementation |
 | Docker role | Canonical runtime distribution |
 | Release cycle | Independent from DJConnect platform releases |
@@ -228,18 +228,21 @@ python -m tools.verification.cli docker release \
 docker run --rm pcvantol/djconnect-verification-platform:1.1.0 config
 ```
 
-Published Verification Platform releases are authoritative. When verification
-framework code changes, cut a new stable runtime release through the GitHub CI
-Docker release workflow, let that workflow build, verify and push the image to
-Docker Hub, and then consume the newly published Docker Hub tag. Do not treat a
-local build as a release substitute.
+Published Verification Platform releases are authoritative. The coordinated release workflow builds and publishes to GHCR. Before adopting a new runtime, publish or copy it to the
+organization registry, verify its digest and platform, and review the source
+change that pairs the new runtime version with its qualified default digest.
+Until that change is made, a runtime-version mismatch fails closed. A local build
+is not a release substitute.
 
 Every live verification run starts by pulling the configured Verification
-Platform runtime image from Docker Hub. The default reference is
-`pcvantol/djconnect-verification-platform:1.1.0`; override only with
+Platform runtime image from GHCR. The default reference is
+`ghcr.io/djconnect-music-dj/djconnect-verification-platform@sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619`; override only with
 `DJCONNECT_VERIFICATION_PLATFORM_IMAGE` and `DJCONNECT_VERIFICATION_PLATFORM_TAG`
-when intentionally qualifying another published image. If the pull fails, the
-run stops before scenario execution.
+when intentionally qualifying another published image. Setting only the image
+uses that image with the current runtime-version tag; setting only the tag uses
+that tag with the organization image. Setting either switches from the pinned
+default digest to a tag reference. If the pull fails, the run stops before
+scenario execution.
 
 When using Docker, mount the repository and artifacts from outside the image.
 The image is engine-only and must not contain product scenarios, secrets or run
@@ -258,11 +261,9 @@ or destructive cleanup. Those jobs must advertise and gate on their required
 capabilities before execution.
 
 The repository workflow `.github/workflows/verification-platform-docker-release.yml`
-publishes the generic runtime image to Docker Hub. It requires these repository
-secrets:
-
-- `DOCKERHUB_USERNAME`
-- `DOCKERHUB_TOKEN`
+publishes the generic runtime image to GHCR using the job-scoped GitHub token.
+The Core repository must retain package write access; no Docker Hub credential
+is used by this workflow.
 
 The workflow can be started manually with `workflow_dispatch` or by pushing a
 tag named `verification-platform-v<version>`. It runs `tests/verification`,
@@ -380,16 +381,16 @@ In GitHub Actions, the workflow should provide the checkout, mount or pass the
 workspace to the container, upload `artifacts/verification/`, and record GitHub
 run/job metadata beside `verification_runtime` and `execution_summary`.
 
-Consumers must pull the latest compatible published stable Verification
-Runtime image from Docker Hub before running Docker-based verification:
+Consumers must pull the qualified published stable Verification
+Runtime image from GHCR before running Docker-based verification:
 
 ```bash
-docker pull pcvantol/djconnect-verification-platform:1.1.0
-docker run --rm pcvantol/djconnect-verification-platform:1.1.0 config
+docker pull ghcr.io/djconnect-music-dj/djconnect-verification-platform@sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619
+docker run --rm ghcr.io/djconnect-music-dj/djconnect-verification-platform@sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619 config
 ```
 
 Do not silently fall back to a stale local image or ad hoc local build. If the
-Docker Hub pull fails, block the Docker-based verification run and fix
+configured registry pull fails, block the Docker-based verification run and fix
 publishing, authentication or network access first.
 
 ### Coverage Runtime
@@ -431,3 +432,15 @@ their owning changelogs.
 - Runtime Docker images must stay generic: no DJConnect scenario catalog,
   product repository checkout, Home Assistant config, Apple artifacts, secrets
   or test results are baked into the image.
+
+The preserved 1.1.0 image has the historical digest and still reports its original personal-namespace metadata internally. The source metadata now identifies the organization; the coordinated producer uses GHCR, and no new runtime release is implied.
+
+A GHCR release publishes only new immutable version and SHA tags by default. To
+promote the minor and latest aliases, a manual run must explicitly opt in and
+provide their expected current digests (or ABSENT); they are rechecked before
+push and read back afterward. Workflow concurrency serializes this release
+workflow only. Tag checks and pushes are not atomic against external writers;
+package administrators must verify other writers before promotion. Version
+1.1.0 and earlier remain protected from publication by this workflow.
+
+For interrupted GHCR publication, follow `docs/verification/GHCR_RUNTIME_PUBLICATION_RECOVERY.md`; there is no automatic resume or deletion.

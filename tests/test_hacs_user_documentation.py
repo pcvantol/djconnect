@@ -9,24 +9,21 @@ import unittest
 from urllib.parse import parse_qs, urlsplit, unquote
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSET = "https://raw.githubusercontent.com/pcvantol/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png"
-DEEPLINK = "https://my.home-assistant.io/redirect/marketplace_repository/?owner=pcvantol&repository=djconnect&category=integration"
+ASSET = "https://raw.githubusercontent.com/djconnect-music-dj/djconnect/7e14e5970b3f68d33d243ae6bab2b281fad59bb2/assets/djconnect/brand-v2/mark-128.png"
+DEEPLINK = "https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration"
 
 
 class HacsUserDocumentationTest(unittest.TestCase):
     def test_hacs_still_uses_readme_and_source_documentation(self):
-        hacs = json.loads((ROOT / "hacs.json").read_text())
-        self.assertIs(hacs["render_readme"], True)
-        self.assertEqual(hacs["homeassistant"], "2026.11.1")
+        self.assertIs(json.loads((ROOT / "hacs.json").read_text())["render_readme"], True)
         manifest = json.loads((ROOT / "custom_components/djconnect/manifest.json").read_text())
-        self.assertEqual(manifest["documentation"], "https://github.com/pcvantol/djconnect")
+        self.assertEqual(manifest["documentation"], "https://github.com/djconnect-music-dj/djconnect")
+        self.assertEqual(manifest["issue_tracker"], "https://github.com/djconnect-music-dj/djconnect/issues")
         self.assertEqual(manifest["version"], "4.0.0")
         for name in ("README.md", "info.md"):
             text = (ROOT / name).read_text()
             self.assertIn(manifest["version"], text)
-            self.assertIn(hacs["homeassistant"], text)
-            self.assertTrue(text.startswith("# DJConnect\n"))
-            self.assertNotRegex(text, r"\bv?[123]\.\d+\.\d+\b|docs/verification/|Custom repositories")
+            self.assertIn("3.3.1", text)
             self.assertIn(DEEPLINK, text)
             self.assertIn(
                 "Restart Home Assistant" if name == "README.md" else "restart Home Assistant", text
@@ -34,8 +31,17 @@ class HacsUserDocumentationTest(unittest.TestCase):
             self.assertIn("Add integration", text)
         self.assertEqual(
             parse_qs(urlsplit(DEEPLINK).query),
-            {"owner": ["pcvantol"], "repository": ["djconnect"], "category": ["integration"]},
+            {"owner": ["djconnect-music-dj"], "repository": ["djconnect"], "category": ["integration"]},
         )
+
+    def test_marketplace_and_hacs_install_path_is_explained_in_all_languages(self):
+        for name in ("installation.md", "nl.md", "de.md", "fr.md", "es.md"):
+            with self.subTest(guide=name):
+                guide = (ROOT / "docs/user" / name).read_text()
+                self.assertIn("2026.11", guide)
+                self.assertIn("Marketplace", guide)
+                self.assertIn("HACS", guide)
+                self.assertIn(DEEPLINK, guide)
 
     def test_compact_theme_independent_approved_brand_is_identical_on_both_surfaces(self):
         class Images(HTMLParser):
@@ -49,7 +55,7 @@ class HacsUserDocumentationTest(unittest.TestCase):
 
         readme = (ROOT / "README.md").read_text()
         info = (ROOT / "info.md").read_text()
-        self.assertLessEqual(len(readme.splitlines()), 110)
+        self.assertTrue(60 <= len(readme.splitlines()) <= 110)
         self.assertLess(len(info.splitlines()), len(readme.splitlines()))
         for text in (readme, info):
             self.assertIn("Your music. Your DJ.", text)
@@ -100,10 +106,9 @@ class HacsUserDocumentationTest(unittest.TestCase):
         ):
             guide = (ROOT / "docs/user" / name).read_text()
             with self.subTest(locale=locale):
-                self.assertNotRegex(guide, r"\bv?[123]\.\d+\.\d+\b|stable-3\.")
                 for term in (
+                    "3.3.1",
                     "4.0.0",
-                    "2026.11.1",
                     "Spotify Direct",
                     "Music Assistant",
                     "Client ID",
@@ -114,20 +119,16 @@ class HacsUserDocumentationTest(unittest.TestCase):
                 ):
                     self.assertIn(term, guide)
                 self.assertTrue(any(term in guide for term in ("Later", "handmatig", "manual")))
-        install = (ROOT / "docs/user/installation.md").read_text()
-        self.assertIn("Choose an existing Profile or create a new one", install)
+        stable = (ROOT / "docs/user/stable-3.3.1.md").read_text()
+        self.assertIn("both STT", stable)
+        self.assertIn("and TTS", stable)
+        self.assertIn("Later/manual exists in this version too", stable)
+        self.assertIn("backend comes before the new Profile", stable)
+        candidate = (ROOT / "docs/user/installation.md").read_text()
+        self.assertIn("Choose an existing Profile or create a new one", candidate)
         spotify = (ROOT / "docs/user/spotify-direct.md").read_text()
         self.assertIn("exact redirect URI shown by the current wizard", spotify)
         self.assertIn("reauthorize", spotify)
-
-    def test_current_user_guides_have_no_legacy_setup_or_engineering_links(self):
-        for path in sorted((ROOT / "docs/user").glob("*.md")):
-            with self.subTest(page=path.name):
-                self.assertNotRegex(
-                    path.read_text(),
-                    r"(?i)\bv?[123]\.\d+\.\d+\b|4\.0\.0-rc|hacs_repository|"
-                    r"custom repositories|docs/verification/|candidate|kandidaat|kandidat|candidat",
-                )
 
     def test_pairing_precedes_profile_in_each_actual_wizard_journey(self):
         cases = [
@@ -137,6 +138,7 @@ class HacsUserDocumentationTest(unittest.TestCase):
             ("docs/user/de.md", "## Installieren und starten"),
             ("docs/user/fr.md", "## Installer et démarrer"),
             ("docs/user/es.md", "## Instalar e iniciar"),
+            ("docs/user/stable-3.3.1.md", "# Install and start"),
         ]
         for name, heading in cases:
             journey = (ROOT / name).read_text().split(heading, 1)[1].split("\n## ", 1)[0]

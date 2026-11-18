@@ -2,7 +2,7 @@
 
 Status: Canonical  
 Runtime product: Verification Runtime  
-Docker distribution: `pcvantol/djconnect-verification-platform`
+Docker distribution: `ghcr.io/djconnect-music-dj/djconnect-verification-platform`
 
 ## Purpose
 
@@ -21,8 +21,8 @@ runtime:
   product: Verification Runtime
   version: 1.1.0
   schema_version: 1
-  repository: pcvantol/djconnect
-  docker_repository: pcvantol/djconnect-verification-platform
+  repository: djconnect-music-dj/djconnect
+  docker_repository: ghcr.io/djconnect-music-dj/djconnect-verification-platform
   release_cycle: independent
   versioning: semver
   compatibility: capability-driven
@@ -48,16 +48,16 @@ backward-readable for Runtime `1.x` consumers.
 | `product` | Must be `Verification Runtime`. |
 | `version` | Runtime semantic version. |
 | `schema_version` | Metadata schema version. |
-| `repository` | Must be `pcvantol/djconnect`. |
-| `docker_repository` | Must be `pcvantol/djconnect-verification-platform` for Docker distribution. |
+| `repository` | Current source reports `djconnect-music-dj/djconnect`; preserved 1.1.0 reports its historical value. |
+| `docker_repository` | Current source reports `ghcr.io/djconnect-music-dj/djconnect-verification-platform`; preserved 1.1.0 reports its historical value. |
 | `capabilities` | Stable list of supported capability identifiers. |
 
 ## Docker Image Metadata
 
-Docker distribution remains:
+The current consumer distribution is:
 
 ```text
-pcvantol/djconnect-verification-platform
+ghcr.io/djconnect-music-dj/djconnect-verification-platform
 ```
 
 The Docker repository is the distribution mechanism. It must not be renamed or
@@ -115,3 +115,5 @@ verification_runtime:
 
 The runtime metadata advertises capabilities automatically through
 `tools.verification.runtime.runtime_metadata()`.
+
+The existing byte-identical 1.1.0 image preserves its historical personal-namespace embedded metadata. These organization values describe current source metadata; they do not rewrite that historical image or its digest.
