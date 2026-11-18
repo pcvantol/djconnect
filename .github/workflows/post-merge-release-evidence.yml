@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       policy_source_ref:
-        description: Immutable pcvantol/djconnect commit SHA containing this reconciliation policy.
+        description: Immutable DJConnect Core commit SHA containing this reconciliation policy.
         required: true
         type: string
       coverage_artifact_name:
