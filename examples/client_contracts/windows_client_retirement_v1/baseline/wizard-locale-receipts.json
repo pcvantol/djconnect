@@ -1,0 +1,55 @@
+{
+  "before": true,
+  "receipts": [
+    {
+      "locale": "en",
+      "options": [
+        "ios",
+        "macos",
+        "watchos",
+        "windows"
+      ],
+      "native_frontend": true
+    },
+    {
+      "locale": "nl",
+      "options": [
+        "ios",
+        "macos",
+        "watchos",
+        "windows"
+      ],
+      "native_frontend": true
+    },
+    {
+      "locale": "de",
+      "options": [
+        "ios",
+        "macos",
+        "watchos",
+        "windows"
+      ],
+      "native_frontend": true
+    },
+    {
+      "locale": "fr",
+      "options": [
+        "ios",
+        "macos",
+        "watchos",
+        "windows"
+      ],
+      "native_frontend": true
+    },
+    {
+      "locale": "es",
+      "options": [
+        "ios",
+        "macos",
+        "watchos",
+        "windows"
+      ],
+      "native_frontend": true
+    }
+  ]
+}

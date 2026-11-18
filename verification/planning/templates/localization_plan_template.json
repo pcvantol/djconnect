@@ -1,0 +1,11 @@
+{
+  "template_id": "localization",
+  "strategy": "localization",
+  "policy": "localization",
+  "matrix_profiles": ["Localization Profile"],
+  "data_profiles": ["localization"],
+  "modes": ["localization"],
+  "locales": ["en", "nl", "de", "fr", "es"],
+  "expected_runtime": "medium",
+  "blocking": true
+}

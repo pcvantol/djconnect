@@ -1,0 +1,33 @@
+# DJConnect local Home Assistant development-lab baseline.
+# The ngrok step adds the machine-specific external/internal URL separately.
+
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder.
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+# Required when Home Assistant is reached through the local ngrok relay.
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+    - ::1
+    - 172.16.0.0/12
+    - 192.168.65.0/24
+
+logger:
+  default: warning
+  logs:
+    custom_components.djconnect: debug
+    custom_components.djconnect.http: debug
+    custom_components.djconnect.assist_stt: debug
+    custom_components.djconnect.pipeline: debug
+    custom_components.djconnect.spotify_backend: debug
+    custom_components.djconnect.tts: debug
+    custom_components.djconnect.dj_response: debug

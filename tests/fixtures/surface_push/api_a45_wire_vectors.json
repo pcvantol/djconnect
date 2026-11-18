@@ -1,0 +1,154 @@
+{
+  "source_repository": "pcvantol/djconnect-api",
+  "source_head": "a45fef1c692ef766af4696e013c450d1b63a0d31",
+  "source_wire_sha256": "d4f255431b4429b724455e347841e992aef8f639a2b7799dfb510752cdb834b7",
+  "runtime": "v26.12.0",
+  "scope": "Actual API decode/canonical, source only; no relay/provider/native qualification",
+  "vectors": [
+    {
+      "kind": "register",
+      "payload": {
+        "contract_version": 1,
+        "registration_id": "registration-synthetic",
+        "generation": "generation-original",
+        "revision": 1,
+        "operation_id": "018bcfe5-6800-7000-8000-000000000001",
+        "binding_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "device_binding": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "owner_binding": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "expires_at_ms": 1700000500000,
+        "token_role": "widget",
+        "platform": "ios",
+        "apns_environment": "sandbox",
+        "target": {
+          "instance_id": "widget-instance",
+          "app_bundle_id": "dev.djconnect.ios",
+          "extension_bundle_id": "dev.djconnect.ios.widget",
+          "widget_kind": "DJConnectSessionWidget"
+        },
+        "apns_token": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      "now_ms": 1700000000000,
+      "canonical": "{\"apns_environment\":\"sandbox\",\"apns_token\":\"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\",\"binding_id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"contract_version\":1,\"device_binding\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"expires_at_ms\":1700000500000,\"generation\":\"generation-original\",\"operation_id\":\"018bcfe5-6800-7000-8000-000000000001\",\"owner_binding\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"platform\":\"ios\",\"registration_id\":\"registration-synthetic\",\"revision\":1,\"target\":{\"app_bundle_id\":\"dev.djconnect.ios\",\"extension_bundle_id\":\"dev.djconnect.ios.widget\",\"instance_id\":\"widget-instance\",\"widget_kind\":\"DJConnectSessionWidget\"},\"token_role\":\"widget\"}",
+      "digest": "42741712ece4571b5030ee653b889f1e4dc2fa13ffcdd4916c760dfb96050db3"
+    },
+    {
+      "kind": "revoke",
+      "payload": {
+        "contract_version": 1,
+        "registration_id": "registration-synthetic",
+        "generation": "generation-original",
+        "revision": 1,
+        "operation_id": "018bcfe5-6800-7000-8000-000000000001",
+        "binding_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "device_binding": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "owner_binding": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "now_ms": 1700000000000,
+      "canonical": "{\"binding_id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"contract_version\":1,\"device_binding\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"generation\":\"generation-original\",\"operation_id\":\"018bcfe5-6800-7000-8000-000000000001\",\"owner_binding\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"registration_id\":\"registration-synthetic\",\"revision\":1}",
+      "digest": "d1e3a73b32be96c31ac7a90d584f0d3e15fa15bd71d08c404d108e60ccfdc789"
+    },
+    {
+      "kind": "status",
+      "payload": {
+        "contract_version": 1,
+        "registration_id": "registration-synthetic",
+        "generation": "generation-original",
+        "revision": 1,
+        "operation_id": "018bcfe5-6800-7000-8000-000000000001",
+        "binding_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "device_binding": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "owner_binding": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      },
+      "now_ms": 1700000400001,
+      "canonical": "{\"binding_id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"contract_version\":1,\"device_binding\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"generation\":\"generation-original\",\"operation_id\":\"018bcfe5-6800-7000-8000-000000000001\",\"owner_binding\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"registration_id\":\"registration-synthetic\",\"revision\":1}",
+      "digest": "ae8f5c485b80256c7af9d30d85e46790ddf40ddaaa7abbd69e7d852a1662ab72"
+    },
+    {
+      "kind": "event",
+      "payload": {
+        "contract_version": 1,
+        "registration_id": "registration-synthetic",
+        "generation": "generation-original",
+        "revision": 1,
+        "operation_id": "018bcfe5-6800-7000-8000-000000000001",
+        "binding_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "device_binding": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "owner_binding": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "event": "widget_reload"
+      },
+      "now_ms": 1700000000000,
+      "canonical": "{\"binding_id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"contract_version\":1,\"device_binding\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"event\":\"widget_reload\",\"generation\":\"generation-original\",\"operation_id\":\"018bcfe5-6800-7000-8000-000000000001\",\"owner_binding\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"registration_id\":\"registration-synthetic\",\"revision\":1}",
+      "digest": "0d247b6fa2520f98c60de77ee5eb27086f1d9e521f16dc3676a81b4ed101e9a8"
+    },
+    {
+      "kind": "register",
+      "payload": {
+        "contract_version": 1,
+        "registration_id": "registration-synthetic",
+        "generation": "generation-original",
+        "revision": 1,
+        "operation_id": "018bcfe5-6800-7000-8000-000000000001",
+        "binding_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "device_binding": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "owner_binding": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "expires_at_ms": 1700000500000,
+        "token_role": "live_activity_update",
+        "platform": "ios",
+        "apns_environment": "sandbox",
+        "target": {
+          "instance_id": "activity-instance",
+          "app_bundle_id": "dev.djconnect.ios",
+          "attributes_type": "DJConnectSessionLiveActivityAttributes",
+          "activity_id": "activity-original"
+        },
+        "apns_token": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      "now_ms": 1700000000000,
+      "canonical": "{\"apns_environment\":\"sandbox\",\"apns_token\":\"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\",\"binding_id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"contract_version\":1,\"device_binding\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"expires_at_ms\":1700000500000,\"generation\":\"generation-original\",\"operation_id\":\"018bcfe5-6800-7000-8000-000000000001\",\"owner_binding\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"platform\":\"ios\",\"registration_id\":\"registration-synthetic\",\"revision\":1,\"target\":{\"activity_id\":\"activity-original\",\"app_bundle_id\":\"dev.djconnect.ios\",\"attributes_type\":\"DJConnectSessionLiveActivityAttributes\",\"instance_id\":\"activity-instance\"},\"token_role\":\"live_activity_update\"}",
+      "digest": "be72e438bb12488ca1240536f3484a2a013806daea87c7e6ca2cf8fde6a22a16"
+    },
+    {
+      "kind": "register",
+      "payload": {
+        "contract_version": 1,
+        "registration_id": "registration-synthetic",
+        "generation": "generation-original",
+        "revision": 1,
+        "operation_id": "018bcfe5-6800-7000-8000-000000000001",
+        "binding_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "device_binding": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "owner_binding": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "expires_at_ms": 1700000500000,
+        "token_role": "live_activity_start",
+        "platform": "ios",
+        "apns_environment": "sandbox",
+        "target": {
+          "instance_id": "activity-instance",
+          "app_bundle_id": "dev.djconnect.ios",
+          "attributes_type": "DJConnectSessionLiveActivityAttributes"
+        },
+        "apns_token": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      "now_ms": 1700000000000,
+      "canonical": "{\"apns_environment\":\"sandbox\",\"apns_token\":\"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\",\"binding_id\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"contract_version\":1,\"device_binding\":\"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\",\"expires_at_ms\":1700000500000,\"generation\":\"generation-original\",\"operation_id\":\"018bcfe5-6800-7000-8000-000000000001\",\"owner_binding\":\"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc\",\"platform\":\"ios\",\"registration_id\":\"registration-synthetic\",\"revision\":1,\"target\":{\"app_bundle_id\":\"dev.djconnect.ios\",\"attributes_type\":\"DJConnectSessionLiveActivityAttributes\",\"instance_id\":\"activity-instance\"},\"token_role\":\"live_activity_start\"}",
+      "digest": "84fde22492ef83fd50f6368962bbde1f4b3e7ce2a0e9c6dec6a2eba84604e288"
+    }
+  ],
+  "unicode": {
+    "payload": {
+      "text": "Mañana 🎵",
+      "array": [
+        null,
+        true,
+        9007199254740991,
+        -9007199254740991
+      ],
+      "nested": {
+        "z": "é",
+        "a": "line\nseparator "
+      }
+    },
+    "canonical": "{\"array\":[null,true,9007199254740991,-9007199254740991],\"nested\":{\"a\":\"line\\nseparator \",\"z\":\"é\"},\"text\":\"Mañana 🎵\"}"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "profile_version": "1.0",
+  "id": "migration",
+  "purpose": "Old, current and future-shaped data for migration and import/export checks",
+  "generator_refs": ["domain.profile.v1", "strings.boundary.v1"],
+  "selection": {
+    "schema_versions": ["previous", "current", "future"],
+    "objects": ["minimal", "typical", "unknown_fields", "missing_required_fields"],
+    "profiles": ["personal", "household", "guest", "kids"]
+  },
+  "max_generated_items": 250,
+  "traceability": {
+    "verification_modes": ["migration", "compatibility"],
+    "risk_categories": ["schema_migration", "import_export", "forward_compatibility"]
+  }
+}

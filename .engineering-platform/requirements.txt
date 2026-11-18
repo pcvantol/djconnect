@@ -1,0 +1,4 @@
+# Exact standalone EP release, qualified and published from source revision
+# 7b99b578153ae5d72372a09db194306b49ec9f9c. This file is for isolated
+# consumer compatibility checks, never for an implicit live host install.
+engineering-platform==2.3.106 --hash=sha256:9d25a53d75b61d43d665d9f8290a968dc3e63d12d2037eae8ef31ee810eb6694

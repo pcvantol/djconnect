@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "example_version": "1.0",
+  "policy_id": "release_candidate",
+  "composition": {
+    "modes": [
+      "functional",
+      "privacy",
+      "localization",
+      "accessibility",
+      "compatibility",
+      "resilience",
+      "release_qualification"
+    ],
+    "matrix_profiles": [
+      "Release Qualification Profile",
+      "Privacy Profile",
+      "Localization Profile",
+      "Regression Profile"
+    ],
+    "data_profiles": [
+      "smoke",
+      "regression",
+      "localization",
+      "security",
+      "compatibility",
+      "migration"
+    ],
+    "build_types": [
+      "Release-equivalent",
+      "Production Package",
+      "Store Build"
+    ]
+  },
+  "scenario_example": {
+    "scenario_id": "PROFILE-001",
+    "unchanged": true,
+    "generated_cases": [
+      {
+        "mode": "functional",
+        "data_profile": "smoke",
+        "matrix_profile": "Release Qualification Profile"
+      },
+      {
+        "mode": "privacy",
+        "data_profile": "security",
+        "matrix_profile": "Privacy Profile"
+      },
+      {
+        "mode": "localization",
+        "data_profile": "localization",
+        "matrix_profile": "Localization Profile"
+      }
+    ]
+  }
+}

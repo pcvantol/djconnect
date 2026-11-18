@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.0.0-home-assistant-prod-20261110",
+  "platform_version": "4.0",
+  "release_version": "4.0.0",
+  "release_profile": "INTERNAL_RELEASE",
+  "generated_at": "2026-11-10",
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-11-10",
+    "approved_statement": "The maintainer requested the production manifest and deployment for the published DJConnect Core 4.0.0 artifact from 38ce1806902e4cc2a8f1298172e2cb54563147e4, followed by smoke verification on HA-prod.",
+    "effect": "The approval covers this integration artifact and the home_assistant_pi5 production target."
+  },
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect",
+      "source_sha": "38ce1806902e4cc2a8f1298172e2cb54563147e4",
+      "version": "4.0.0",
+      "artifact_run": "42824236734"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "home_assistant_pi5",
+      "required": true
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "pcvantol/djconnect",
+      "target": "home_assistant_pi5",
+      "artifact_id": "release-asset:pcvantol/djconnect:internal-ha-38ce1806902e4cc2a8f1298172e2cb54563147e4:djconnect-home-assistant-integration-38ce1806902e4cc2a8f1298172e2cb54563147e4.tar.gz",
+      "artifact_sha256": "d7f69eef467d367978af6f0651bfa474b39be2cd044be7ee5835b1425953bb5e",
+      "artifact_url": "https://github.com/pcvantol/djconnect/releases/download/internal-ha-38ce1806902e4cc2a8f1298172e2cb54563147e4/djconnect-home-assistant-integration-38ce1806902e4cc2a8f1298172e2cb54563147e4.tar.gz"
+    }
+  ],
+  "constraints": [
+    "The artifact is an internal prerelease. The 68 known Ask DJ qualifications are deferred under the documented Core 4.0.0 release exception.",
+    "Create a recoverable production backup before dispatch. Dispatch the target-scoped smoke separately through the private-network credential boundary.",
+    "The integration uses the Core 4.0 protocol."
+  ],
+  "next_authorized_action": "Dispatch the Home Assistant private-network deployment, then its matching post-deployment smoke, for the exact binding above."
+}

@@ -1,0 +1,135 @@
+{
+  "qualification": "ACTUAL_ISOLATED_HA_PIPELINE_AGENT_AND_USER_FORM",
+  "cases": [
+    {
+      "speech_configuration": 0,
+      "selection": "",
+      "agent_route_valid": true
+    },
+    {
+      "speech_configuration": 0,
+      "selection": "selected-0",
+      "agent_route_valid": true
+    },
+    {
+      "speech_configuration": 0,
+      "selection": "missing-agent",
+      "agent_route_valid": false
+    },
+    {
+      "speech_configuration": 0,
+      "selection": "empty-agent",
+      "agent_route_valid": false
+    },
+    {
+      "speech_configuration": 0,
+      "selection": "absent",
+      "agent_route_valid": false
+    },
+    {
+      "speech_configuration": 0,
+      "case": "broken_preferred_cannot_borrow_valid_other",
+      "form_error": "assist_pipeline_required"
+    },
+    {
+      "speech_configuration": 1,
+      "selection": "",
+      "agent_route_valid": true
+    },
+    {
+      "speech_configuration": 1,
+      "selection": "selected-1",
+      "agent_route_valid": true
+    },
+    {
+      "speech_configuration": 1,
+      "selection": "missing-agent",
+      "agent_route_valid": false
+    },
+    {
+      "speech_configuration": 1,
+      "selection": "empty-agent",
+      "agent_route_valid": false
+    },
+    {
+      "speech_configuration": 1,
+      "selection": "absent",
+      "agent_route_valid": false
+    },
+    {
+      "speech_configuration": 1,
+      "case": "broken_preferred_cannot_borrow_valid_other",
+      "form_error": "assist_pipeline_required"
+    },
+    {
+      "speech_configuration": 2,
+      "selection": "",
+      "agent_route_valid": true
+    },
+    {
+      "speech_configuration": 2,
+      "selection": "selected-2",
+      "agent_route_valid": true
+    },
+    {
+      "speech_configuration": 2,
+      "selection": "missing-agent",
+      "agent_route_valid": false
+    },
+    {
+      "speech_configuration": 2,
+      "selection": "empty-agent",
+      "agent_route_valid": false
+    },
+    {
+      "speech_configuration": 2,
+      "selection": "absent",
+      "agent_route_valid": false
+    },
+    {
+      "speech_configuration": 2,
+      "case": "broken_preferred_cannot_borrow_valid_other",
+      "form_error": "assist_pipeline_required"
+    },
+    {
+      "speech_configuration": 3,
+      "selection": "",
+      "agent_route_valid": true
+    },
+    {
+      "speech_configuration": 3,
+      "selection": "selected-3",
+      "agent_route_valid": true
+    },
+    {
+      "speech_configuration": 3,
+      "selection": "missing-agent",
+      "agent_route_valid": false
+    },
+    {
+      "speech_configuration": 3,
+      "selection": "empty-agent",
+      "agent_route_valid": false
+    },
+    {
+      "speech_configuration": 3,
+      "selection": "absent",
+      "agent_route_valid": false
+    },
+    {
+      "speech_configuration": 3,
+      "case": "broken_preferred_cannot_borrow_valid_other",
+      "form_error": "assist_pipeline_required"
+    }
+  ],
+  "agent": "real HA native conversation agent",
+  "model_calls": 0,
+  "speech_provider_calls": 0,
+  "wire_change": false,
+  "installed": "NOT_RUN",
+  "Apple_native": "NOT_RUN",
+  "source_hashes": {
+    "custom_components/djconnect/config_flow.py": "0714c9c6935572144f794300e1871a1551bd01743a557f4c63e588ae17ca0c73",
+    "scripts/verification/verify_assist_agent_pairing.py": "1b8deaabdecc3fbd8841f5e17e314c2c1a20b0421f56cdbabf12c2a0e62f655e"
+  }
+}

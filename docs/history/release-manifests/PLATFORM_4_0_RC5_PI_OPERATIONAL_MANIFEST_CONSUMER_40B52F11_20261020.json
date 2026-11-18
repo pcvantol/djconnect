@@ -1,0 +1,73 @@
+{
+  "schema_version": 2,
+  "kind": "platform_release_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.0.0-rc.5-pi-two-instance-20261020",
+  "candidate_sha": "eadbda64cc11f6657a1b415d97f28edcfa7d8a25",
+  "platform_version": "4.0",
+  "release_version": "4.0.0-rc.5",
+  "release_profile": "INTERNAL_RELEASE",
+  "generated_at": "2026-10-20T18:03:25.043303Z",
+  "inventory_id": "pi-wall-devices-20261020-v1",
+  "inventory_sha256": "530220ee38f6ccbcc824a78331b9dd89f236a5fa6ede12ebf7899dac83ff50c0",
+  "consumer": {
+    "repository": "pcvantol/djconnect-pi",
+    "source_sha": "40b52f11ab31501dfc4f4f8db2b87f1e3ef9a865",
+    "smoke_contract_id": "pi-rc5-instance-readback-v1"
+  },
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-10-20T15:06:11.310Z",
+    "approved_statement": "Peter authorized deployment of the final qualified rc.5 candidate to both existing Pi instances; this exact binding records its protected source, actual publication and two immutable profile artifacts within that scope.",
+    "authority_record": "docs/verification/PI_RC5_OPERATIONAL_BINDING_20261020.md; human chat01a13b9c-075d-71f2-979f-358960e16bf0/message msg_01a159d9-3bee-7bf3-a0fa-5df39f0202ad at2026-10-20T15:06:11.310Z"
+  },
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect-pi",
+      "source_sha": "eadbda64cc11f6657a1b415d97f28edcfa7d8a25",
+      "version": "4.0.0-rc.5",
+      "artifact_run": "39470113138"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "rbpi-djconnect",
+      "deployment_instance": "wall-4inch",
+      "device_profile": "pi-zero-2w-arm64"
+    },
+    {
+      "target": "rbpi-djconnect",
+      "deployment_instance": "wall-10inch",
+      "device_profile": "pi5-arm64"
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "pcvantol/djconnect-pi-releases",
+      "target": "rbpi-djconnect",
+      "deployment_instance": "wall-4inch",
+      "device_profile": "pi-zero-2w-arm64",
+      "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v4.0.0-rc.5:djconnect-pi-pi-zero-2w-arm64-4.0.0-rc.5.tar.gz",
+      "artifact_sha256": "c0a576d77d2afa6a4d4d47332cfa00fd71b5d41626528d27090f71b31271f46d",
+      "artifact_url": "https://github.com/pcvantol/djconnect-pi-releases/releases/download/v4.0.0-rc.5/djconnect-pi-pi-zero-2w-arm64-4.0.0-rc.5.tar.gz"
+    },
+    {
+      "owner": "pcvantol/djconnect-pi-releases",
+      "target": "rbpi-djconnect",
+      "deployment_instance": "wall-10inch",
+      "device_profile": "pi5-arm64",
+      "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v4.0.0-rc.5:djconnect-pi-pi5-arm64-4.0.0-rc.5.tar.gz",
+      "artifact_sha256": "bbd65d86b384f13d0dd0622dab3bc459d46850190ecf97e4ee35fccbcc278882",
+      "artifact_url": "https://github.com/pcvantol/djconnect-pi-releases/releases/download/v4.0.0-rc.5/djconnect-pi-pi5-arm64-4.0.0-rc.5.tar.gz"
+    }
+  ],
+  "constraints": [
+    "This source candidate is not dispatch authority until exact reviewed protected Core delivery, valid release evidence and separate Finalization are read back.",
+    "Consume only these immutable source/profile/artifact bindings through the qualified two-instance consumer and canonical readiness preflight.",
+    "Independently validate fresh fixed-configuration resolution, negotiated ed25519 fingerprint, hostname, complete model, architecture and device profile before mutation.",
+    "Serialize mutations per physical instance; no automatic retry, failover, rollback, credential/sudo change or inferred cancellation.",
+    "Preserve configuration, pairing, server Profile, previous release and recovery evidence; no pairing/reset/Profile selection or HA repair is authorized here.",
+    "Deployment and separate matching smoke remain per-instance operations; overall operational success requires both current successful deployment/smoke joins.",
+    "Actual installed captures follow bounded deployment/smoke; source/package success is not live Session, physical touch, audio, speech or complete Apple-parity acceptance."
+  ]
+}

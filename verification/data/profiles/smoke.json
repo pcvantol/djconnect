@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "profile_version": "1.0",
+  "id": "smoke",
+  "purpose": "Fast representative data for local and CI smoke checks",
+  "generator_refs": ["domain.profile.v1", "strings.boundary.v1"],
+  "selection": {
+    "strings": ["normal", "empty"],
+    "profiles": ["personal", "household"],
+    "security": [],
+    "localization": ["en"]
+  },
+  "max_generated_items": 25,
+  "traceability": {
+    "verification_modes": ["smoke"],
+    "risk_categories": ["contract", "basic_regression"]
+  }
+}

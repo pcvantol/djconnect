@@ -1,0 +1,207 @@
+"""Narrow versioned ordinary-pairing transport for active owner Session mood."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from .const import API_SESSION_MOOD, CLIENT_TYPES, DOMAIN
+
+VERSION = 1
+MOODS = ("chill", "groove", "energy", "party")
+
+
+def capability() -> dict[str, Any]:
+    """Describe the existing symbolic Session choices; never grant authority."""
+    return {
+        "available": True,
+        "version": VERSION,
+        "path": API_SESSION_MOOD,
+        "method": "POST",
+        "authentication": "paired_device_bearer",
+        "moods": list(MOODS),
+        "ordering": "expected_mood_revision",
+        "scope": "active_device_bound_owner_session",
+        "write_scopes": ["session_only"],
+    }
+
+
+async def async_handle_mood(hass, data, *, headers=None):
+    return await async_handle_owner_setting(hass, data, headers=headers, setting="mood")
+
+
+async def async_handle_owner_setting(hass, data, *, headers=None, setting):
+    """Validate and commit through the existing owner resolver and Runtime lock."""
+    from .api_handlers import _async_owner_broadcast_session_context
+    from .profile_context import profile_storage
+    from .request_auth import (
+        authorize_runtime_device_request,
+        request_token,
+        resolve_runtime,
+        runtime_matches_device,
+    )
+    from .session_runtime import DJPersona, MoodRevisionConflictError, PresenceRevisionConflictError, PersonaRevisionConflictError
+    from .presence_policy import POLICIES, canonical_presence
+    from .persistence.dj_settings import SettingsCommitError
+
+    assert setting in {"mood", "presence", "persona"}
+    selected_key = f"selected_{setting}"
+    revision_key = f"{setting}_revision"
+    expected_key = f"expected_{setting}_revision"
+    values = {"mood": MOODS, "presence": POLICIES, "persona": tuple(p.value for p in DJPersona)}[setting]
+    conflict_type = {"mood": MoodRevisionConflictError, "presence": PresenceRevisionConflictError, "persona": PersonaRevisionConflictError}[setting]
+    selected_attribute = "dj_persona" if setting == "persona" else selected_key
+
+    def error(code, status, **extra):
+        return {"success": False, "error": code, **extra}, status
+
+    fields = {
+        "contract_version",
+        "client_type",
+        "device_id",
+        "session_id",
+        selected_key,
+        expected_key,
+    }
+    session_only = (
+        setting == "mood"
+        and isinstance(data, dict)
+        and data.get("write_scope") == "session_only"
+    )
+    if session_only:
+        fields.add("write_scope")
+    if not isinstance(data, dict) or set(data) != fields:
+        return error("invalid_request", 400)
+    if type(data["contract_version"]) is not int or data["contract_version"] != VERSION:
+        return error("unsupported_contract_version", 400)
+    if setting == "presence":
+        try:
+            data = {**data, selected_key: canonical_presence(data[selected_key])}
+        except ValueError:
+            return error("invalid_selected_presence", 400)
+    if type(data[selected_key]) is not str or data[selected_key] not in values:
+        return error(f"invalid_selected_{setting}", 400)
+    revision = data[expected_key]
+    if type(revision) is not int or revision < 0:
+        return error(f"invalid_{setting}_revision", 400)
+    if (
+        type(data["client_type"]) is not str
+        or data["client_type"] not in CLIENT_TYPES
+        or (setting in {"presence", "persona"} and data["client_type"] == "windows")
+        or any(type(data[key]) is not str or not data[key] for key in ("device_id", "session_id"))
+    ):
+        return error("invalid_request", 400)
+    headers = headers or {}
+    if not str(headers.get("Authorization", "")).startswith("Bearer "):
+        return error("unauthorized", 401)
+    runtime = resolve_runtime(hass, data["device_id"], headers)
+    if runtime is None:
+        return error("unauthorized", 401)
+    entry = getattr(runtime, "entry", None)
+    entry_id = str(getattr(entry, "entry_id", ""))
+    generation = getattr(runtime, "_receiver_end_generation", 0)
+
+    def pairing_is_current():
+        domain = hass.data.get(DOMAIN, {})
+        if (
+            entry is None
+            or domain.get(entry_id) is not runtime
+            or hass.config_entries.async_get_entry(entry_id) is not entry
+            or entry.disabled_by is not None
+            or getattr(getattr(entry, "state", None), "value", None) != "loaded"
+        ):
+            return False
+        conf = {**entry.data, **entry.options}
+        known = (
+            getattr(runtime, "device_status", {}).get("device_id")
+            or getattr(runtime, "pairing_device_id", "")
+            or conf.get("device_id")
+        )
+        if (
+            conf.get("device_token") != request_token(headers)
+            or conf.get("device_id") != data["device_id"]
+            or known != data["device_id"]
+            or conf.get("client_type") != data["client_type"]
+            or headers.get("X-DJConnect-Device-ID", data["device_id"]) != data["device_id"]
+            or getattr(runtime, "_receiver_end_generation", 0) != generation
+        ):
+            return False
+        return runtime_matches_device(
+            runtime, data["device_id"]
+        ) and authorize_runtime_device_request(
+            runtime, headers, data["device_id"], data["client_type"]
+        )
+
+    # Reject before the generic authorizer can learn a pending setup-code identity.
+    if not pairing_is_current():
+        return error("unauthorized", 401)
+    result, status, manager, profile_id = await _async_owner_broadcast_session_context(
+        hass, data, headers=headers, source=f"active_session_{setting}"
+    )
+    if manager is None:
+        return result, status
+    active_settings = manager.current_active(profile_id)
+    if not session_only and active_settings is not None and active_settings.settings_contract_version == 2:
+        return error('settings_contract_upgrade_required', 426,
+                     settings_contract_version=2, settings_path='/api/djconnect/v1/profile/settings')
+
+    def owner_is_current():
+        """Synchronous final authority fence after lock acquisition, before commit."""
+        if (
+            not pairing_is_current()
+            or hass.data.get(DOMAIN, {}).get("session_runtime_manager") is not manager
+            or manager.receiver_entry_generation(entry_id) != generation
+        ):
+            return False
+        try:
+            profile = profile_storage(hass).resolver().resolve_bound_device(data["device_id"])
+            return profile.profile_id == profile_id and profile.state.value == "active"
+        except Exception:
+            return False
+
+    try:
+        update = {"mood": manager.async_update_mood, "presence": manager.async_update_presence,
+                  "persona": manager.async_update_persona}[setting]
+        active = await update(
+            owner_profile_id=profile_id,
+            session_id=data["session_id"],
+            **{selected_attribute: DJPersona(data[selected_key]) if setting == "persona" else data[selected_key]},
+            expected_revision=revision,
+            authorize=owner_is_current,
+            legacy_user_choice=not session_only,
+        )
+    except SettingsCommitError:
+        if session_only:
+            return error("session_settings_conflict", 409)
+        return error('settings_contract_upgrade_required', 426,
+                     settings_contract_version=2, settings_path='/api/djconnect/v1/profile/settings')
+    except PermissionError:
+        return error("unauthorized", 401)
+    except conflict_type as exc:
+        return error(
+            f"{setting}_revision_conflict",
+            409,
+            current={
+                "session_id": exc.active.session_id,
+                selected_key: getattr(exc.active, selected_attribute),
+                revision_key: getattr(exc.active, revision_key),
+            },
+        )
+    if active is None:
+        return error("active_session_not_found", 404)
+    accepted_revision = getattr(active, revision_key)
+    def delivery_guard():
+        current = manager.current_active(profile_id)
+        if (not owner_is_current() or current is None or current.session_id != active.session_id
+                or getattr(current, revision_key) != accepted_revision):
+            raise PermissionError("setting_result_withdrawn")
+    from .transport_delivery import register_delivery_admission
+    register_delivery_admission(delivery_guard)
+    return {
+        "success": True,
+        "contract_version": VERSION,
+        "session_id": active.session_id,
+        selected_key: getattr(active, selected_attribute),
+        revision_key: getattr(active, revision_key),
+        "changed": getattr(active, revision_key) != revision,
+        **({"write_scope": "session_only"} if session_only else {}),
+    }, 200

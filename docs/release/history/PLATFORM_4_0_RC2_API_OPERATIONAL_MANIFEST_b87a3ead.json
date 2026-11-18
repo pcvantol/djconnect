@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.0.0-api-worker-b87a3ea-vibecast-testflight-20261110",
+  "generated_at": "2026-11-10T10:12:55.945175+00:00",
+  "platform_version": "4.0",
+  "release_version": "4.0.0",
+  "release_profile": "INTERNAL_RELEASE",
+  "approval": {
+    "state": "APPROVED",
+    "authority_record": "Peter van Tol confirmed “ja” on 2026-11-10 in Core Codex thread 01a1a063-78f2-77b2-8d12-47f3c8fb973d in direct response to the request to deploy API artifact 13752564786 through the protected workflow for TestFlight build 40522 from 13:30 to 15:00 CET.",
+    "approved_statement": "Deploy only the immutable API artifact 13752564786 through the protected Cloudflare production workflow for the finite TestFlight build 40522 trial on 2026-11-10 from 13:30 to 15:00 CET."
+  },
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect-api",
+      "source_sha": "b87a3eadec93b5b8150f28e4224b7192473c0109",
+      "tree": "ca1811208a26fcb44a1f2de6aa0fad4b6d9aa880",
+      "version": "4.0.0",
+      "validate_run": "42794879604",
+      "artifact_run": "42795159581"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "cloudflare_workers_production",
+      "required": true
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "pcvantol/djconnect-api",
+      "target": "cloudflare_workers_production",
+      "artifact_id": "13752564786",
+      "artifact_sha256": "8a1e8e05ea06a60592c2f7528178ac6300ea20f9bec9bf40b901795a57e63ac7",
+      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/42795159581"
+    }
+  ],
+  "target_identity": {
+    "worker": "djconnect-api",
+    "database": "djconnect_api",
+    "database_id": "476a564f-08b2-4966-83b0-1221e2a4d063",
+    "compatibility_date": "2026-06-20",
+    "custom_routes": [
+      "api.djconnect.dev"
+    ],
+    "workers_dev": false,
+    "preview_urls": false
+  },
+  "worker_payload": {
+    "sha256": "9a305eeca2727b19fc829e0052bd62833c0c3dea2f7e980c30f848bee331d551",
+    "bytes": 1480266,
+    "wrangler_sha256": "e0243d727047d61b1bdfa326ac500984a827e229da351e05c50fababb869c94a"
+  },
+  "trial": {
+    "origin": "https://vibecast.tv",
+    "service_origin": "https://api.djconnect.dev",
+    "min_build": 40522,
+    "max_build": 40522,
+    "start_ms": 1794313800000,
+    "end_ms": 1794319200000,
+    "qr_cutoff_ms": 1794319080000,
+    "assertion_policy": "ios-testflight/1",
+    "capacity_policy": "private-household/1"
+  },
+  "migration_boundary": {
+    "preflight_pending": [],
+    "pending_sha256": {},
+    "last_applied_before": "0013_push_registration_erasure.sql",
+    "last_applied_after": "0013_push_registration_erasure.sql",
+    "expected_pending_after": [],
+    "durable_objects": {
+      "initial_tag": "djc-rendezvous-sqlite-v1",
+      "initial_namespace_count": 5,
+      "expected_tag": "djc-rendezvous-sqlite-v1",
+      "expected_namespace_count": 5,
+      "existing_sqlite_bindings": {
+        "REQUEST_ADMISSION": "RequestAdmission",
+        "ADMISSION_STATE": "AllocationBudget",
+        "ALLOCATION_INDEX": "AllocationIndex",
+        "ENROLLMENT_COORDINATOR": "EnrollmentCoordinator",
+        "COMPOSED_TRANSACTIONS": "BudgetedTransactionCoordinator"
+      },
+      "namespace_identity_sha256": "75d9ba4309ce91b2f44b2c1db0edea823da632a562096cd9731229f7df8322da",
+      "new_sqlite_bindings": {},
+      "namespace_deletions": [],
+      "namespace_renames": [],
+      "namespace_transfers": []
+    }
+  },
+  "cron_boundary": {
+    "before": [
+      "0 * * * *"
+    ],
+    "after": [
+      "0 * * * *"
+    ]
+  },
+  "rollback": {
+    "source_sha": "3f0fe6354217a5db0f63f2a8c095866f1064c069",
+    "deployment_id": "490277b1-4975-4492-b79b-d2a4377b2614",
+    "worker_version_id": "4264444f-4327-4bc0-9340-1e12e59215e7",
+    "schema": "Retain D1 through migration 0013 and all five Durable Object namespaces. Restore only the prior Worker version under protected authorization."
+  },
+  "prepared_secret_version": {
+    "worker_version_id": "f30ba4bb-5b56-4234-afca-31db69c4ebb5",
+    "required_names": [
+      "RECEIPT_ACTIVE_KEY",
+      "RENDEZVOUS_IP_HASH_KEY"
+    ],
+    "verify_inheritance_before_traffic": true
+  },
+  "execution": {
+    "preflight": "Refresh the active Worker, storage and routing, effective cron and migration ledger. Verify both required secret names on the release version before sending it traffic. Bind the approved Core revision and immutable API main artifact.",
+    "deployment": "Promote only the verified release version for the finite trial. Leave D1 and Durable Object identities as observed. Stop on drift or an expired trial.",
+    "smoke": "Verify exact live release SHA, closed route before and after the window, direct browser preflight and rejected same-zone and cross-zone Worker requests. Verify with TestFlight 40522 and HA-dev that only the approved browser can receive the display, then revoke it while playback continues."
+  },
+  "separate_finalization": {
+    "state": "PENDING",
+    "requires": [
+      "Exact deployment and readback receipts",
+      "Independent storage, cron and expiry readback",
+      "Physical TestFlight 40522 and HA-dev acceptance"
+    ]
+  },
+  "review_baseline": {
+    "core_sha": "52b5da2e79d406f19afdaee1b685c97a29b7f1e3",
+    "api_pr": 245,
+    "api_pr_head": "bcbe42329cb5e0fca61d27306c1f105cdd7fc1b3",
+    "api_artifact_verified": true
+  },
+  "next_authorized_action": "Complete protected Core review and merge, verify the release secrets and live baseline, then dispatch the exact artifact before the trial expires."
+}

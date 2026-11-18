@@ -1,0 +1,63 @@
+{
+  "baseline": "Windows Coverage Baseline 1",
+  "date": "2026-07-12",
+  "decision": "WINDOWS_COVERAGE_BASELINE_ESTABLISHED",
+  "relationship_to_coverage_baseline_1": "post-baseline-1-record; does not modify immutable Coverage Baseline 1",
+  "runtime": {
+    "version": "1.1.0",
+    "image": "pcvantol/djconnect-verification-platform:1.1.0",
+    "digest": "sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619",
+    "capabilities": [
+      "planner",
+      "execution",
+      "evidence",
+      "investigator",
+      "qualification",
+      "reporting",
+      "coverage"
+    ],
+    "parser_format": "cobertura"
+  },
+  "repository": {
+    "platform": "Windows",
+    "repository": "pcvantol/djconnect-windows",
+    "commit_sha": "b205f087214eb5fe90c4129c2afa9dee7f836a82",
+    "coverage_producer": "Coverlet console 10.0.1",
+    "coverage_format": "cobertura",
+    "runtime_qualification": "COVERAGE_VALID",
+    "line_coverage": 72.45,
+    "branch_coverage": 50.85,
+    "function_coverage": null,
+    "method_coverage": null,
+    "native_method_coverage": 73.05,
+    "native_test_result": "125 test(s) passed",
+    "dotnet_sdk": "10.0.301",
+    "target_framework": "net10.0",
+    "maui_target_framework": "net10.0-windows10.0.19041.0",
+    "windows_runtime_environment": "Phase 13E-R2 Parallels Windows 11 Home live qualification preserved",
+    "evidence": "artifacts/verification/evidence/windows-coverage-baseline-1/coverage/coverage-summary.json",
+    "raw_coverage_artifact": "artifacts/verification/reports/windows-coverage-baseline-1/djconnect-windows-coverage.xml"
+  },
+  "scope_validation": {
+    "scope": "windows-client-linked-production-sources",
+    "included_unique_source_files": 17,
+    "excluded_test_code": "tests/DJConnect.Tests/Program.cs via --exclude-by-file **/tests/**/*.cs",
+    "generated_code_present": false,
+    "bin_or_obj_present": false,
+    "vendor_code_present": false,
+    "warnings": [
+      "Coverage measures the production sources linked into the native test harness, not full MAUI UI/runtime coverage.",
+      "Runtime 1.1.0 Cobertura parser reports line and branch metrics; native Coverlet method coverage is recorded separately."
+    ]
+  },
+  "validation": {
+    "native_tests": "125 test(s) passed",
+    "localization": "620 keys in en, nl, de, fr, es",
+    "test_project_build": "succeeded",
+    "maui_build": "preserved from Phase 13E-R2 Parallels VM evidence djv-20260712T135722Z-d09b6ec5ba; local macOS WinUI XamlCompiler.exe cannot execute",
+    "coverage_parser_tests": "23 passed with Windows adapter and planning regressions",
+    "scenario_catalog": "validated 234 scenarios",
+    "smoke_plan": "46 cases, 3 batches",
+    "fail_closed_probe": "COVERAGE_SHA_MISMATCH"
+  }
+}

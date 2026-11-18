@@ -1,0 +1,64 @@
+"""Exact actual-HA wire join for the additive Core/Apple bulletin contract."""
+import hashlib
+import json
+from pathlib import Path
+import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class BulletinWireContractTests(unittest.TestCase):
+    def test_actual_wire_pins_current_source_and_original_admissions_without_native_claim(self):
+        wire = json.loads((ROOT / "examples/client_contracts/dj_bulletin_v1/actual-ha-wire.json").read_text())
+        self.assertEqual(wire["schema_version"], 1)
+        self.assertEqual(wire["ha_sdk_version"], "2026.10.0")
+        current = json.loads((ROOT / 'examples/client_contracts/dj_bulletin_v1/news_bulletin_http-requalification-bulletin-diagnostics-current.json').read_text())
+        self.assertTrue(current['source_before_after_equal'])
+        self.assertEqual(len(current['source_pins']), 315)
+        self.assertEqual(hashlib.sha256((ROOT / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
+        extension = current['receipt']['extension']
+        self.assertEqual(extension['state'], 'PASS')
+        self.assertEqual(extension['external_RSS_calls'], 0)
+        self.assertEqual(extension['model_provider_calls'], 0)
+        self.assertEqual(extension['installed_or_native_acceptance'], 'NOT_RUN')
+        for relative, expected in current['source_pins'].items():
+            # The historical renderer digest is not a claim about the current 4.1 renderer.
+            if relative == "custom_components/djconnect/vibecast.html":
+                self.assertEqual(expected, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
+                continue
+            if relative == "custom_components/djconnect/vibecast_display.html":
+                self.assertEqual(expected, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
+                continue
+            # Historical receipts do not qualify the current migration-edited files.
+            if relative in (
+                "custom_components/djconnect/manifest.json",
+                "custom_components/djconnect/artist_photo.py",
+                "custom_components/djconnect/ask_dj/public_research.py",
+                "custom_components/djconnect/const.py",
+                "custom_components/djconnect/session_facts.py",
+            ):
+                continue
+            self.assertEqual(hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(), expected, relative)
+        self.assertEqual(hashlib.sha256((ROOT / wire["harness"]).read_bytes()).hexdigest(), wire["harness_sha256"])
+        sample = wire["sample"]
+        moment = sample["moment"]
+        self.assertEqual(moment["type"], "dj_bulletin")
+        self.assertEqual(moment["generation_metadata"]["bulletin_schema"], "1")
+        self.assertEqual(moment["visibility"], "session_shared")
+        self.assertEqual(moment["delivery_channels"], ["broadcast", "owner", "shared"])
+        shared_moment = next(item for item in sample["shared_snapshot"]["dj_moments"]
+                             if item["moment_id"] == moment["moment_id"])
+        self.assertEqual(shared_moment["content"], moment["content"])
+        self.assertEqual(sample["shared_snapshot"]["native_delivery"]["current_moment_id"], moment["moment_id"])
+        self.assertNotIn("session_speech", sample["shared_snapshot"])
+        self.assertEqual(len(moment["sources"]), 2)
+        self.assertEqual(sample["native_delivery"]["current_moment_id"], moment["moment_id"])
+        self.assertTrue(sample["speech_off"]["manual_allowed"])
+        self.assertFalse(sample["speech_off"]["autoplay_eligible"])
+        self.assertTrue(sample["speech_on"]["autoplay_eligible"])
+        self.assertEqual(sample["speech_off"]["expires_at"], sample["speech_on"]["expires_at"])
+        self.assertIsNone(wire["revoked_native_delivery"]["current_moment_id"])
+        self.assertEqual(wire["model_provider_calls"], 0)
+        self.assertEqual(wire["external_RSS_calls"], 0)
+        for key in ("native", "audible", "installed", "story_semantic_model_quality"):
+            self.assertEqual(wire[key], "NOT_RUN")

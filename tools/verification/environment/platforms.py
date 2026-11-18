@@ -1,0 +1,245 @@
+"""Environment controllers for platform runtimes without verification logic."""
+
+from __future__ import annotations
+
+import json
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+from tools.verification.models import GateResult, GateState, ManagedPlatform, ResourceState
+
+
+class CommandRunner:
+    def run(self, command: tuple[str, ...], *, cwd: Path | None = None, timeout: int = 30) -> tuple[int, str]:
+        try:
+            output = subprocess.check_output(
+                command,
+                cwd=cwd,
+                text=True,
+                stderr=subprocess.STDOUT,
+                timeout=timeout,
+            )
+            return 0, output.strip()
+        except subprocess.CalledProcessError as exc:
+            return exc.returncode, str(exc.output).strip()
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            return 127, str(exc)
+
+
+class HomeAssistantEnvironment:
+    def __init__(self, runner: CommandRunner | None = None) -> None:
+        self.runner = runner or CommandRunner()
+
+    def discover(self) -> ManagedPlatform:
+        executable = shutil.which("ha") or shutil.which("hass")
+        return ManagedPlatform(
+            "home_assistant",
+            ResourceState.AVAILABLE if executable else ResourceState.MISSING,
+            {"executable": executable},
+        )
+
+    def health(self, base_url: str | None = None) -> ManagedPlatform:
+        return ManagedPlatform("home_assistant", ResourceState.UNKNOWN, {"base_url": base_url, "adapter_logic": False})
+
+    def start(self) -> ManagedPlatform:
+        return ManagedPlatform("home_assistant", ResourceState.SKIPPED, {"operation": "start", "requires_local_config": True})
+
+    def stop(self) -> ManagedPlatform:
+        return ManagedPlatform("home_assistant", ResourceState.SKIPPED, {"operation": "stop", "requires_local_config": True})
+
+    def restart(self) -> ManagedPlatform:
+        return ManagedPlatform("home_assistant", ResourceState.SKIPPED, {"operation": "restart", "requires_local_config": True})
+
+
+class AppleDevelopmentEnvironment:
+    def __init__(self, runner: CommandRunner | None = None) -> None:
+        self.runner = runner or CommandRunner()
+
+    def discover(self) -> ManagedPlatform:
+        xcode = shutil.which("xcodebuild")
+        simctl = shutil.which("xcrun")
+        code, version = self.runner.run(("xcodebuild", "-version"), timeout=10) if xcode else (127, "")
+        simulators = self.simulators() if simctl else ManagedPlatform("apple_simulators", ResourceState.MISSING, {"output": ""})
+        return ManagedPlatform(
+            "apple_development",
+            ResourceState.AVAILABLE if xcode and simctl else ResourceState.MISSING,
+            {
+                "xcodebuild": xcode,
+                "xcrun": simctl,
+                "xcode_version": version if code == 0 else None,
+                "simulators": simulators.metadata,
+            },
+        )
+
+    def simulators(self) -> ManagedPlatform:
+        code, output = self.runner.run(("xcrun", "simctl", "list", "devices", "available", "--json"), timeout=20)
+        return ManagedPlatform(
+            "apple_simulators",
+            ResourceState.AVAILABLE if code == 0 else ResourceState.MISSING,
+            {"devices": _summarize_simctl_devices(output), "raw_output_excerpt": output[:4000]},
+        )
+
+    def physical_devices(self, *, allow_physical_devices: bool = False) -> ManagedPlatform:
+        if not allow_physical_devices:
+            return ManagedPlatform(
+                "apple_physical_devices",
+                ResourceState.SKIPPED,
+                {"requires_explicit_configuration": True},
+            )
+        code, output = self.runner.run(("xcrun", "devicectl", "list", "devices", "--json-output", "-"), timeout=20)
+        return ManagedPlatform(
+            "apple_physical_devices",
+            ResourceState.AVAILABLE if code == 0 else ResourceState.MISSING,
+            {"raw_output_excerpt": output[:4000]},
+        )
+
+
+def _summarize_simctl_devices(payload: str) -> list[dict[str, str | bool | None]]:
+    try:
+        data = json.loads(payload)
+    except json.JSONDecodeError:
+        return []
+    devices_by_runtime = data.get("devices") if isinstance(data, dict) else None
+    if not isinstance(devices_by_runtime, dict):
+        return []
+    devices: list[dict[str, str | bool | None]] = []
+    for runtime, runtime_devices in devices_by_runtime.items():
+        if not isinstance(runtime_devices, list):
+            continue
+        for device in runtime_devices:
+            if isinstance(device, dict):
+                devices.append(
+                    {
+                        "runtime": str(runtime),
+                        "name": device.get("name"),
+                        "udid": device.get("udid"),
+                        "state": device.get("state"),
+                        "is_available": device.get("isAvailable", device.get("is_available")),
+                    }
+                )
+    return devices
+
+
+class WindowsDevelopmentEnvironment:
+    def __init__(self, runner: CommandRunner | None = None) -> None:
+        self.runner = runner or CommandRunner()
+
+    def discover(self) -> ManagedPlatform:
+        prlctl = shutil.which("prlctl")
+        return ManagedPlatform(
+            "windows_development",
+            ResourceState.AVAILABLE if prlctl else ResourceState.MISSING,
+            {"parallels": prlctl},
+        )
+
+
+class WindowsDotnetMaintenance:
+    """Keep Windows .NET/MAUI workloads current before Windows lab execution."""
+
+    def __init__(self, runner: CommandRunner | None = None) -> None:
+        self.runner = runner or CommandRunner()
+
+    def ensure_current(self, *, root: Path) -> GateResult:
+        prlctl = shutil.which("prlctl")
+        if not prlctl:
+            return GateResult(
+                "windows_dotnet_maintenance",
+                GateState.FAIL,
+                "Parallels CLI is required for Windows .NET maintenance.",
+                {"parallels": None},
+            )
+
+        vm_name = os.getenv("DJCONNECT_VERIFICATION_WINDOWS_VM_NAME", "Windows 11 Home")
+        windows_repo = os.getenv(
+            "DJCONNECT_VERIFICATION_WINDOWS_REPO_PATH",
+            r"C:\Mac\Home\Documents\GitHub\djconnect-windows",
+        )
+        start = self._ensure_vm_running(prlctl, vm_name, root=root)
+        if not start["ok"]:
+            return GateResult(
+                "windows_dotnet_maintenance",
+                GateState.FAIL,
+                "Windows VM could not be started for .NET maintenance.",
+                {
+                    "vm_name": vm_name,
+                    "windows_repo": windows_repo,
+                    "vm_start": start,
+                },
+            )
+        command = (
+            prlctl,
+            "exec",
+            vm_name,
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            (
+                f"Set-Location -LiteralPath '{windows_repo}'; "
+                "$PSNativeCommandUseErrorActionPreference = $true; "
+                "dotnet --info; "
+                "dotnet workload update; "
+                "dotnet workload restore 'DJConnect.Windows.sln'"
+            ),
+        )
+        code, output = self.runner.run(command, cwd=root, timeout=900)
+        return GateResult(
+            "windows_dotnet_maintenance",
+            GateState.PASS if code == 0 else GateState.FAIL,
+            "Windows .NET workload maintenance completed." if code == 0 else "Windows .NET workload maintenance failed.",
+            {
+                "vm_name": vm_name,
+                "windows_repo": windows_repo,
+                "vm_start": start,
+                "returncode": code,
+                "stdout_excerpt": output[-4000:],
+            },
+        )
+
+    def _ensure_vm_running(self, prlctl: str, vm_name: str, *, root: Path) -> dict[str, object]:
+        status_code, status_output = self.runner.run((prlctl, "status", vm_name), cwd=root, timeout=60)
+        if status_code == 0 and "running" in status_output.lower():
+            return {"ok": True, "action": "already_running", "status": status_output[-1000:]}
+        start_code, start_output = self.runner.run((prlctl, "start", vm_name), cwd=root, timeout=300)
+        if start_code != 0:
+            return {
+                "ok": False,
+                "action": "start",
+                "status_returncode": status_code,
+                "status_output": status_output[-1000:],
+                "start_returncode": start_code,
+                "start_output": start_output[-1000:],
+            }
+        post_code, post_output = self.runner.run((prlctl, "status", vm_name), cwd=root, timeout=60)
+        return {
+            "ok": post_code == 0 and "running" in post_output.lower(),
+            "action": "start",
+            "status_returncode": status_code,
+            "status_output": status_output[-1000:],
+            "start_returncode": start_code,
+            "start_output": start_output[-1000:],
+            "post_status_returncode": post_code,
+            "post_status_output": post_output[-1000:],
+        }
+
+
+class RaspberryPiEnvironment:
+    def discover(self, host: str | None = None) -> ManagedPlatform:
+        return ManagedPlatform(
+            "raspberry_pi",
+            ResourceState.UNKNOWN if host else ResourceState.SKIPPED,
+            {"host": host, "ssh_available": bool(shutil.which("ssh"))},
+        )
+
+
+class ESP32Environment:
+    def discover(self) -> ManagedPlatform:
+        pio = shutil.which("pio")
+        return ManagedPlatform(
+            "esp32",
+            ResourceState.AVAILABLE if pio else ResourceState.MISSING,
+            {"platformio": pio, "serial_discovery": "externalized"},
+        )

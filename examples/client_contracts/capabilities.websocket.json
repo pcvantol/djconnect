@@ -1,0 +1,513 @@
+{
+  "success": true,
+  "domain": "djconnect",
+  "websocket_supported": true,
+  "commands": [
+    "djconnect/command",
+    "djconnect/ask_dj/message",
+    "djconnect/ask_dj/history",
+    "djconnect/ask_dj/history/clear",
+    "djconnect/ask_dj/history/state",
+    "djconnect/ask_dj/idle_suggestion",
+    "djconnect/track_insight",
+    "djconnect/music_dna/profile",
+    "djconnect/music_dna/settings",
+    "djconnect/music_dna/clear",
+    "djconnect/music_dna/import",
+    "djconnect/music_dna/export",
+    "djconnect/music_discovery/feed",
+    "djconnect/music_discovery/refresh",
+    "djconnect/music_discovery/play",
+    "djconnect/music_discovery/feedback",
+    "djconnect/session/broadcast/subscribe",
+    "djconnect/session/broadcast/recover"
+  ],
+  "features": {
+    "ask_dj_chat": true,
+    "ask_dj_history": true,
+    "ask_dj_idle_suggestion": true,
+    "backend_commands": true,
+    "track_insight": true,
+    "music_dna": true,
+    "music_discovery": true,
+    "music_discovery_feedback": true,
+    "session_broadcast_transport": true
+  },
+  "fallbacks": {
+    "music_dna": {
+      "available": true,
+      "preferred_transport": "websocket",
+      "http_paths": {
+        "profile": "/api/djconnect/v1/music_dna/profile",
+        "settings": "/api/djconnect/v1/music_dna/settings",
+        "clear": "/api/djconnect/v1/music_dna/clear",
+        "import": "/api/djconnect/v1/music_dna/import",
+        "export": "/api/djconnect/v1/music_dna/export"
+      },
+      "missing_behavior": "use_http_or_hide_feature"
+    },
+    "music_discovery": {
+      "available": true,
+      "preferred_transport": "websocket",
+      "http_paths": {
+        "feed": "/api/djconnect/v1/music_discovery",
+        "refresh": "/api/djconnect/v1/music_discovery/refresh",
+        "play": "/api/djconnect/v1/music_discovery/play"
+      },
+      "missing_behavior": "use_http_or_hide_feature"
+    },
+    "music_discovery_feedback": {
+      "available": true,
+      "preferred_transport": "websocket",
+      "http_path": "/api/djconnect/v1/music_discovery/feedback",
+      "missing_behavior": "hide_negative_feedback_controls"
+    }
+  },
+  "capabilities": {
+    "profiles": true,
+    "explicit_profile_selection": true,
+    "private_sessions": true,
+    "profile_export": true,
+    "request_context": true,
+    "voice_endpoint_request_context": true,
+    "voice_endpoint_mappings": true,
+    "session_conversation_history": true,
+    "ask_dj_contextual_dialogue": true,
+    "ask_dj_examples": true,
+    "ask_dj_contextual_exploration": true,
+    "session_mood_music_feedback": false,
+    "session_first_play_surprise_mix": true,
+    "session_start_actions": true,
+    "settings_confirmation_moment": true,
+    "moment_track_insight_navigation_v1": true,
+    "current_track_insight_subject_v1": true,
+    "session_flow_text_search": true,
+    "active_session_mood": true,
+    "active_session_persona": true,
+    "active_session_presence": true,
+    "session_forecast": true,
+    "session_history_summary": true,
+    "historical_exact_track_playback": false,
+    "captured_reply_artwork": true,
+    "vibescape_visual_director": true,
+    "vibescape_visual_settings_fence": true,
+    "session_history_delete": true,
+    "session_history_bulk_delete": true,
+    "session_content_delete": true,
+    "session_history_delete_status": true,
+    "hybrid_transport": true,
+    "session_artwork": true,
+    "session_speech": true,
+    "passive_session_surface": true,
+    "profile_session_settings": true
+  },
+  "contract_versions": {
+    "profile_context": 1,
+    "client_contract_fixtures": 1,
+    "session_conversation_history": 1,
+    "session_history_entries": 2,
+    "ask_dj_contextual_dialogue": 1,
+    "ask_dj_examples": 1,
+    "ask_dj_contextual_exploration": 1,
+    "session_mood_music_feedback": 1,
+    "session_first_play_surprise_mix": 3,
+    "session_start_actions": 2,
+    "settings_confirmation_moment": 1,
+    "moment_track_insight_navigation": 1,
+    "current_track_insight_subject": 1,
+    "session_flow_text_search": 1,
+    "active_session_mood": 1,
+    "active_session_persona": 1,
+    "active_session_presence": 2,
+    "session_forecast": 1,
+    "hybrid_transport": 1,
+    "session_artwork": 1,
+    "session_speech": 1,
+    "passive_session_surface": 1,
+    "session_history_summary": 1,
+    "historical_exact_track_playback": 2,
+    "captured_reply_artwork": 1,
+    "vibescape_visual_director": 1,
+    "vibescape_visual_settings_fence": 1,
+    "session_history_delete": 1,
+    "session_history_bulk_delete": 1,
+    "session_content_delete": 1,
+    "session_history_delete_status": 1,
+    "profile_session_settings": 3
+  },
+  "hybrid_transport": {
+    "available": true,
+    "version": 1,
+    "requires_authenticated_tls": true,
+    "transport_security": {
+      "policy_version": 1,
+      "deployment_qualification_required": true,
+      "external": "authenticated_tls",
+      "local_plaintext": "qualified_direct_only",
+      "peer_policy": "enabled_interface_subnet_or_loopback",
+      "internal_origin_required": true,
+      "forwarded_plaintext": "forbidden"
+    },
+    "client_types": [
+      "ios",
+      "macos",
+      "watchos"
+    ],
+    "audience": "paired_owner_actions",
+    "path": "/api/djconnect/v1/actions/paired",
+    "auth": "paired_device_first_frame",
+    "ha_credentials_issued": false,
+    "commands": [
+      "djconnect/read",
+      "djconnect/operation/execute",
+      "djconnect/operation/status",
+      "djconnect/profile/settings/update",
+      "djconnect/profile/settings/subscribe",
+      "djconnect/persona/reaction/observe"
+    ],
+    "context_path": "/api/djconnect/v1/transport/context",
+    "operation_path": "/api/djconnect/v1/transport/operation",
+    "status_path": "/api/djconnect/v1/transport/operation/status",
+    "recovery_path": "/api/djconnect/v1/session/broadcast/recovery",
+    "lease_seconds": 300,
+    "auth_timeout_seconds": 5,
+    "revocation_check_seconds": 1,
+    "heartbeat_seconds": 15,
+    "frame_bytes": 65536,
+    "pending_limit": 8,
+    "outgoing_queue_limit": 64,
+    "connection_request_limit": 256,
+    "connection_limit": 16,
+    "paired_device_connection_limit": 2,
+    "operation_identity": "uuidv7",
+    "operation_lifetime_ms": 300000,
+    "after_send_retry": "reconcile_original_operation_only",
+    "cross_origin_redirects": "forbidden",
+    "browser_origin": "same_https_origin_only",
+    "native_adoption": "separate_consumer_qualification"
+  },
+  "ask_dj_examples": {
+    "schema_version": 1,
+    "qualified": true,
+    "catalogue_id": "ask_dj_examples_v1",
+    "revision": 2,
+    "sha256": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
+    "projection": "pinned_local_mirror",
+    "network_per_render": false,
+    "model_calls_per_render": false,
+    "execution": "existing_ask_dj_message",
+    "availability": "current_qualified_context_required"
+  },
+  "ask_dj_contextual_exploration": {
+    "version": 1,
+    "operation": "ask_dj/message",
+    "context": [
+      "selected_entry",
+      "selected_moment"
+    ],
+    "generic_questions": {
+      "en": "Tell me more",
+      "nl": "Vertel meer",
+      "de": "Erzähl mir mehr",
+      "fr": "Dis-m’en plus",
+      "es": "Cuéntame más"
+    },
+    "attribute_required": false,
+    "effect": "informational",
+    "subject_authority": "qualified_selected_public_context",
+    "unqualified_context": "existing_source_unavailable_response",
+    "client_gesture_owner": "client",
+    "maximum_agent_calls": 3
+  },
+  "session_mood_music_feedback": {
+    "version": 1,
+    "available": false,
+    "superseded_by": "settings_confirmation_moment_v1",
+    "trigger": "historical_feedback_readback_only",
+    "settings_path": "/api/djconnect/v1/profile/settings",
+    "result": "existing_session_flow",
+    "generation": "asynchronous_coalesced",
+    "automatic_playback": false,
+    "choices": "existing_result_set_action_ids",
+    "supported_effects": [
+      "start_context_now"
+    ],
+    "unsupported_effects": {
+      "insert_next": "backend_next_position_not_qualified",
+      "replace_queue_mix": "backend_full_queue_replacement_not_qualified"
+    },
+    "requires_explicit_selection": true,
+    "stale_mood_or_queue": "reject",
+    "dna": "existing_opt_in_only",
+    "languages": [
+      "en",
+      "nl",
+      "de",
+      "fr",
+      "es"
+    ]
+  },
+  "vibescape_visual_director": {
+    "contract_version": 1,
+    "input": "bounded_text_from_on_device_stt_or_text",
+    "interpretation": "closed_visual_grammar",
+    "application": "native_client_only",
+    "microphone_readiness": "client_owned",
+    "context_required": true,
+    "endpoints": {
+      "context": "/api/djconnect/v1/vibescape/context",
+      "interpret": "/api/djconnect/v1/vibescape/interpret",
+      "revoke": "/api/djconnect/v1/vibescape/revoke"
+    },
+    "limits": {
+      "body_bytes": 8192,
+      "text_utf8_bytes": 1024,
+      "lease_ms": 15000,
+      "visit_ms": 1800000,
+      "turns_per_visit": 32
+    },
+    "actions": [
+      "patch",
+      "undo",
+      "reset",
+      "variant",
+      "hold"
+    ],
+    "help": {
+      "en": {
+        "examples": [
+          {
+            "id": "calmer_fluid",
+            "text": "Make it calmer and fluid"
+          },
+          {
+            "id": "faster",
+            "text": "Make it faster"
+          },
+          {
+            "id": "more_depth",
+            "text": "More depth"
+          },
+          {
+            "id": "more_gold",
+            "text": "More gold"
+          },
+          {
+            "id": "variant",
+            "text": "Make a variant"
+          },
+          {
+            "id": "hold",
+            "text": "Keep this style"
+          },
+          {
+            "id": "undo",
+            "text": "Go back"
+          },
+          {
+            "id": "reset",
+            "text": "Follow DJ"
+          }
+        ],
+        "scopes": [
+          {
+            "id": "current_track",
+            "text": "Only this track"
+          },
+          {
+            "id": "while_in_vibescape",
+            "text": "This whole visit"
+          }
+        ]
+      },
+      "nl": {
+        "examples": [
+          {
+            "id": "calmer_fluid",
+            "text": "Maak het rustiger en vloeibaarder"
+          },
+          {
+            "id": "faster",
+            "text": "Maak het sneller"
+          },
+          {
+            "id": "more_depth",
+            "text": "Meer diepte"
+          },
+          {
+            "id": "more_gold",
+            "text": "Iets meer goud"
+          },
+          {
+            "id": "variant",
+            "text": "Maak een variant"
+          },
+          {
+            "id": "hold",
+            "text": "Hou deze stijl aan"
+          },
+          {
+            "id": "undo",
+            "text": "Ga een stap terug"
+          },
+          {
+            "id": "reset",
+            "text": "Terug naar de DJ"
+          }
+        ],
+        "scopes": [
+          {
+            "id": "current_track",
+            "text": "Alleen dit nummer"
+          },
+          {
+            "id": "while_in_vibescape",
+            "text": "Zolang ik hier ben"
+          }
+        ]
+      },
+      "de": {
+        "examples": [
+          {
+            "id": "calmer_fluid",
+            "text": "Mach es ruhiger und flüssiger"
+          },
+          {
+            "id": "faster",
+            "text": "Mach es schneller"
+          },
+          {
+            "id": "more_depth",
+            "text": "Mehr Tiefe"
+          },
+          {
+            "id": "more_gold",
+            "text": "Mehr Gold"
+          },
+          {
+            "id": "variant",
+            "text": "Eine Variante"
+          },
+          {
+            "id": "hold",
+            "text": "Diesen Stil beibehalten"
+          },
+          {
+            "id": "undo",
+            "text": "Rückgängig"
+          },
+          {
+            "id": "reset",
+            "text": "Zurück zum DJ"
+          }
+        ],
+        "scopes": [
+          {
+            "id": "current_track",
+            "text": "Nur dieses Lied"
+          },
+          {
+            "id": "while_in_vibescape",
+            "text": "Während dieses Besuchs"
+          }
+        ]
+      },
+      "fr": {
+        "examples": [
+          {
+            "id": "calmer_fluid",
+            "text": "Un peu calme et fluide"
+          },
+          {
+            "id": "faster",
+            "text": "Un peu rapide"
+          },
+          {
+            "id": "more_depth",
+            "text": "Plus de profondeur"
+          },
+          {
+            "id": "more_gold",
+            "text": "Plus doré"
+          },
+          {
+            "id": "variant",
+            "text": "Une variante"
+          },
+          {
+            "id": "hold",
+            "text": "Garde ce style"
+          },
+          {
+            "id": "undo",
+            "text": "Revenir en arrière"
+          },
+          {
+            "id": "reset",
+            "text": "Retour au DJ"
+          }
+        ],
+        "scopes": [
+          {
+            "id": "current_track",
+            "text": "Seulement ce morceau"
+          },
+          {
+            "id": "while_in_vibescape",
+            "text": "Pendant cette visite"
+          }
+        ]
+      },
+      "es": {
+        "examples": [
+          {
+            "id": "calmer_fluid",
+            "text": "Haz lo tranquilo y fluido"
+          },
+          {
+            "id": "faster",
+            "text": "Haz lo rápido"
+          },
+          {
+            "id": "more_depth",
+            "text": "Más profundidad"
+          },
+          {
+            "id": "more_gold",
+            "text": "Más dorado"
+          },
+          {
+            "id": "variant",
+            "text": "Una variante"
+          },
+          {
+            "id": "hold",
+            "text": "Mantener este estilo"
+          },
+          {
+            "id": "undo",
+            "text": "Volver atrás"
+          },
+          {
+            "id": "reset",
+            "text": "Volver al DJ"
+          }
+        ],
+        "scopes": [
+          {
+            "id": "current_track",
+            "text": "Solo esta canción"
+          },
+          {
+            "id": "while_in_vibescape",
+            "text": "Durante esta visita"
+          }
+        ]
+      }
+    }
+  },
+  "transports": {
+    "http": true,
+    "websocket": true
+  }
+}

@@ -1,0 +1,203 @@
+# Shared VibeCast renderer and versioned host builds
+
+## Renderer1.1.3 compatibility repair and official small icon — 20 October 2026
+
+Receiver import of protected1.1.2 exposed an unconditional
+`Element.replaceChildren()` dependency while displaying/clearing research sources.
+The1.1.3 increment uses `firstChild` and `removeChild` instead, preserving source
+validation, Moment identity, expiry and host-stop cleanup. A runtime regression
+fails on the previous renderer in Chromium and WebKit when that method is absent;
+the generated repaired HTML passes both engines with and without it. This is
+missing-API qualification, not execution on historical Chromium68 or native/TV
+hardware. Receiver import/adoption and installed acceptance remain independent.
+
+Brand2.0.1 also adopts the owner's exact official small icon from protected
+[ESP32 PR#69](https://github.com/pcvantol/djconnect-esp32/pull/69). Canonical16–40px
+exports and the authenticated Core40px alias preserve the supplied RGBA source;
+large glass marks, wordmarks and pre-existing HA icon aliases are unchanged.
+The previous1.1.2 archive, manifest and verifier remain immutable historical pins.
+Use a complete new1.1.3 package with its own exact revision, manifest, inputs and
+original matching verifier; do not substitute HTML or reuse a1.1.2 digest.
+
+[Qualification and delivery record](../verification/BRAND_V2_OFFICIAL_SMALL_RENDERER_113_20261020.md)
+records local source checks separately from protected delivery, consumer adoption,
+public deployment and native/installed/hardware acceptance.
+
+## Owner-requested receiver UX and Brand V2 candidate — 20 October 2026
+
+The shared producer now builds version1.1.2 with the receiver's original
+TV/connect glyph, prominent VibeCast hero, cyan/blue/violet canvas and adaptive
+glass/readable-solid treatment. The actual local, display and Cast host states,
+Session projection, expiry and authorization semantics remain unchanged. No
+bootstrap unavailable-service claim or synthetic QR/pairing is added.
+
+The canonical40px headset-only Brand V2 mark is a hashed build input alongside
+`brand/icon.png`; the larger glass mark has no extra CSS button, padding or rim.
+Both generated integration pages are regenerated from the same source. The
+separate display route retains its own manifest and admission contract.
+
+This increment is delivered separately from the preserved contextual-DJ WIP.
+The [delivery record](../verification/VIBECAST_RENDERER_112_PROTECTED_DELIVERY_20261020.md)
+distinguishes candidate review, protected source, consumer import and deployment.
+A local candidate is not a protected consumer pin or receiver deployment. A complete handoff includes both local/Cast
+outputs and their manifest, original version-matched `scripts/build_vibecast.py`,
+all renderer/host sources and authenticated brand inputs. Pin archive, inventory,
+manifest, exact source revision and original verifier independently. An assets-only
+ZIP or edited receiver HTML is not this handoff. Receiver review/import, protected
+source delivery, public Pages and real HA/CAF/native/TV acceptance remain separate.
+
+## Current web-first decisions delta
+
+[Decisions, distribution and optional Cast lifecycle](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md)
+records vibecast.tv/root, the resolved existing-app exception with both discovery/
+QR entries, adaptive Glass/Soft/Solid and the still-open final reaction/rocket choice.
+Receiver#16 selects only independent bootstrap/build/CI/CD; API rendezvous,
+Core display admission, Apple and guest functionality retain separate gates.
+Cast is optional, with different origin/admission/CAF departure/idle behavior;
+no native-TV or Cast-hardware prerequisite for independent browser delivery.
+Historical source/physical/installed evidence below is not rewritten or upgraded.
+
+## Web-first design precedence (2026-10-15)
+
+The [web-first experience v1](VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) is the canonical
+forward design under [issue #1174](https://github.com/pcvantol/djconnect/issues/1174).
+Its [onboarding/guest authority](VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) and
+[Apple guest mode](APPLE_VIBECAST_GUEST_MODE_V1.md) define separately Planned
+shared/guest behavior. Cast-first/native-TV prerequisites and the old four-emoji
+vocabulary below are superseded design choices, not delivered new behavior.
+Prior implementation/source/hardware receipts and opt-in end grants remain
+historically scoped and unchanged. New TV is readonly; guest write authority is
+separate. No private owner media/history/speech grant is inherited.
+
+Session Forecast v1 is the separately mutable, session-bound projection defined
+in [SESSION_FORECAST_V1.md](SESSION_FORECAST_V1.md). Its current artist imagery
+has explicit subject/role, provenance, display basis and independent asset
+expiry. Visible pixels must expire at the earlier narrative/image deadline.
+Existing Moments remain immutable. Core additive shared-renderer compatibility
+is separate from visible Forecast composition, native adoption and hardware
+acceptance; those consumer states remain open.
+
+## Delivered additive Cast status build
+
+Source PR#1138 merged c41b6079ed54eb40b0027a6666b0f784bb48f703 from exact reviewed
+d7396554cb6179c7cdce67c473bd9b069c4c9a92; trees equal. Build1.1.0 declares the
+opt-in [Cast status v1 contract](VIBECAST_CAST_STATUS_CONTRACT.md); legacy v1
+retains its status-free behavior and the local claim/end-grant path is preserved.
+[Immutable build](https://github.com/pcvantol/djconnect/releases/download/internal-ha-c41b6079ed54eb40b0027a6666b0f784bb48f703/vibecast-status-d7396554.tar.gz)
+manifest b401cb5e02e7a34b2674c4432c3f79675df6819bb667685124b928915839350a;
+bundle939ab00f70d1122410559b6f0eaedf5dd831240e65d04d15a24a58497d5cd74a;
+rendererf0455cbe8b294e55d9add12c9c1fff86578a0f7b8c403314fb7ce2a041c4d60c.
+Supplying revision remains d7396554; verify with that exact pin and its matching
+verifier. The prior1.0.0 receipt below remains immutable historical evidence.
+Eleven actual HA/TLS/Broadcast browser sequences/79directedstatus envelopes PASS;
+CAF delivery modeled, real CAF/native/hardware/installed acceptance independent.
+Receiver needs new import/delta review; Core publication does not promote Pages.
+
+## Source delivery receipt
+
+Protected PR#1136 source-main b211e5e99235e5862b3befb100dd9e64438f6e80 equals reviewed
+7460ef5e1d4c15888569b857d7c636620ace7e37. Static build1.0.0's supplying revision
+is that exact reviewed commit; runtime/software source bytes also equal main.
+ManifestSHA25672239b476e793fe5bb5493d2be5720fcd1f6e64ea83e012c77573732a58c7898;
+bundleSHA256dfb800634652de610e6d3861bc0aedfa1e1cdb1a65dc80b3bdd4a2a3326c56d1.
+Pinned import must validate the external manifest digest and exact revision
+with --verify-existing; unpinned verify() is structural/asset validation, not
+manifest authenticity. The protected source/internal bundle approval grants
+no Pages/receiverpush/install/hardware authority. Source completion and
+Finalization are recorded in [the delivery report](../history/prompts/2026-10-09-vibecast-shared-renderer-finalization.md).
+
+Assignment: `DJC-CORE-VIBECAST-SHARED-RENDERER-V1-20261009`.
+Owner decisions: Core #1101/6078489341 and VibeCast #10/6063499443.
+
+Core owns one source in `custom_components/djconnect/vibecast_renderer`.
+`template.html`, `style.css` and `renderer.js` are migrated from the existing
+rich `vibecast.html`. Common presentation and transport ordering/expiry remain
+one implementation; `local-host.js` supplies the existing browser claim, while
+`cast-host.js` supplies only CAF v1 handoff. No host performs Knowledge, Planner,
+Persona realization, Moment production, history search or backend playback.
+
+`python3 scripts/build_vibecast.py --output <directory> --write-local` regenerates
+the committed, self-contained integration entry. `--check-local` rejects drift.
+The same deterministic build produces `local/vibecast.html`, `cast/index.html`
+and `manifest.json`. Generated entries are distribution products; edit only the
+source modules. Every required source and output has a SHA256, plus build
+version, exact supplying commit, supported contracts and capability requirements.
+A build has no timestamp, machine paths, HA address, token or Session content.
+Repeat the build with the same supplying commit and compare every output byte.
+`verify()` rejects missing, changed and unexpected assets. The normal test suite
+checks committed local-output equivalence, keeping the existing CI entrypoints.
+
+The Pi/browser continues to load its own HA `/djconnect/vibecast`. All CSS and
+scripts are in the integration entry; no CDN, Pages or CAF dependency. HA serves
+HTML with its existing no-store/no-referrer headers. The static Cast entry loads
+CAF and uses `addCustomMessageListener` with existing namespace
+`urn:x-cast:com.djconnect.vibecast.v1`. A hidden media element meets CAF's context
+requirement; no media URL, music or DJ audio is loaded. This is a visual receiver.
+
+## Temporary receiver authority and compatibility
+
+The existing v1 message is `kind: vibecast_handoff`, `version: 1`, `ha_url`
+(exact HTTPS origin), `session_id`, `broadcast_token`, optional locale. No
+credentials/instance/Session are accepted from the static page URL. Non-HTTPS,
+userinfo, paths, queries/fragments, malformed identities and unsupported message
+versions fail closed with localized copy. The adapter forwards only the existing
+read-only Session authority. A sender-provided end_grant is ignored; the existing
+local opt-in server-issued end-grant remains independently scoped.
+
+The common renderer connects directly to that HA Broadcast WebSocket, resolves
+relative artwork against HA, and accepts snapshot/event v1. Static snapshots
+require matching Session identity, view_broadcast true and owner_controls false;
+unknown explicit schema versions are rejected. Optional artwork, next item and
+attribution remain optional. This qualifies the actual current producer, not an
+arbitrary historic HA-version range or every future schema.
+
+Browser WebSockets do not enforce ordinary HTTP CORS. The existing server route
+therefore allows its own exact origin or an exact HTTPS origin from HA's existing
+`http.cors_allowed_origins` configuration. Wildcard/null origins grant nothing.
+Missing Origin retains existing non-browser clients. There is no new endpoint,
+proxy, receiver directory, credentialed wildcard CORS or custom settings store.
+A deployowner must arrange valid HA HTTPS, DNS/routing and its exact receiver
+origin in HA's allowlist. An HTTPS Pages app cannot silently downgrade to local
+HTTP, bypass certificates or rely on the sender as a data relay.
+
+Common ordering, dedupe, track binding and bounded card expiry apply to both
+hosts. Host stop clears local projections, timers and credentials; it does not
+end the Session. New handoffs invalidate the old socket and sequence context.
+Runtime-end and token rejection remove current content. Reconnect cannot revive
+expired cards. A delayed explicit local end response cannot end a newly handed
+off Session in the renderer. No personal questions/answers, archives, search or
+Profile surface is introduced; Apple owner endpoints remain separately owned.
+
+## webOS compatibility boundary
+
+LG's [official engine table](https://webostv.developer.lge.com/develop/specifications/web-api-and-web-engine)
+identifies 2020/webOS5.x as Chromium68. Shared source avoids optional chaining,
+Array.at and replaceAll; layout supplies vh/pixel/color fallbacks before modern
+clamp/min/dvh/color-mix and glass effects. Host adapters are independent: ordinary
+browsers never require CAF. A later LG host can supply the same temporary handoff
+and host-stop boundary without another bubble implementation. Current browser
+proof is not a Chromium68 emulator or physical CX result. Actual sdkVersion,
+firmware, viewport, input/suspend and .ipk qualification remain LG-owner work.
+
+CAF's [official context API](https://developers.google.com/cast/docs/reference/web_receiver/cast.framework.CastReceiverContext)
+is the reference for custom-message registration. A modeled CAF listener test
+qualifies our adapter contract only, not the real Google SDK or Cast hardware.
+
+## Distribution and evidence boundary
+
+Receiver repository `djconnect-music-dj/djconnect-vibecast-receiver` owns reviewed import,
+Pages deployment, public fixed receiver URL and Cast registration. Import the
+pinned static entry and manifest with checksum verification; never independently
+edit generated bubbles. Promote/roll back static code by immutable source/build
+identity, independently of runtime Session data. Core merge does not promote
+Pages. Source/internal prerelease and Finalization publications each require
+specific approval. No receiver push, Pages deployment, tv installation or
+hardware PASS follows from this build. Pi capture/frame-rate remains PARTIAL.
+
+Software proof uses an isolated real HA2026.10 router and Runtime/Broadcast with
+synthetic qualified MusicBrainz evidence. Local browser claim and actual TLS
+WebSockets are exercised; only CAF message transport is modeled. The test CA is
+trusted inside the disposable container's NSS profile, never on the maintainer
+Mac. No ignoreHTTPSErrors, insecure-cert flags, auth bypass, live provider or
+HA-dev configuration is used. Before/after images, movement recordings and exact
+source/build receipts distinguish software, distribution and hardware gates.

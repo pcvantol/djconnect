@@ -1,0 +1,1113 @@
+{
+  "scope": "EXTRACTED_COSTFREE_ACTUAL_SDK_TRANSPORT_ONLY_NOT_MODEL_QUALITY",
+  "original_report_sha256": "c263f44f64e1f652437fb72537772c6cea437bdc91990362ca9fad9d781b8dc1",
+  "original_mode": "target24_delivery_v3",
+  "report": {
+    "playback_generation_transport": "PUBLIC_HA_AI_TASK_TYPED_PLAYBACK_V1",
+    "model_calls": [
+      {
+        "case_id": "catalogue-play.artist-fr"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "artist": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "artist",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 1,
+          "prompt_sha256": "5cdcebe9c3006b9efe66e1a382bb9024b24ffcd5b4db2054bc689ae21f8c3afd",
+          "role_order": [
+            "title",
+            "artist",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "5cdcebe9c3006b9efe66e1a382bb9024b24ffcd5b4db2054bc689ae21f8c3afd",
+          "role_order": [
+            "title",
+            "artist",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.artist-fr"
+      },
+      {
+        "case_id": "catalogue-play.artist-fr"
+      },
+      {
+        "case_id": "catalogue-play.artist-fr",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.cooking-nl"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 1,
+          "prompt_sha256": "fa045244f54192349eda7ec7d8890f091bcd137fda653f52bc80ced014283fcd",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "fa045244f54192349eda7ec7d8890f091bcd137fda653f52bc80ced014283fcd",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.cooking-nl"
+      },
+      {
+        "case_id": "catalogue-play.cooking-nl"
+      },
+      {
+        "case_id": "catalogue-play.cooking-nl",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.cooking-de"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 1,
+          "prompt_sha256": "ee4f20a81c87d2629538886acbd3e90c09e7689cb4000fb73ece62f5fde7435d",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "ee4f20a81c87d2629538886acbd3e90c09e7689cb4000fb73ece62f5fde7435d",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.cooking-de"
+      },
+      {
+        "case_id": "catalogue-play.cooking-de"
+      },
+      {
+        "case_id": "catalogue-play.cooking-de",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.cooking-es"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 1,
+          "prompt_sha256": "200bbbf922f53f215784d173b0940be607a6b1cda4f1c13e76542e56650698bd",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "200bbbf922f53f215784d173b0940be607a6b1cda4f1c13e76542e56650698bd",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.cooking-es"
+      },
+      {
+        "case_id": "catalogue-play.cooking-es"
+      },
+      {
+        "case_id": "catalogue-play.cooking-es",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.quiet-en"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 1,
+          "prompt_sha256": "6e362d3ec0b81e5c89f123a325f8e0ee92a348f36d35a5978c858a7d92c3efda",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "6e362d3ec0b81e5c89f123a325f8e0ee92a348f36d35a5978c858a7d92c3efda",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.quiet-en"
+      },
+      {
+        "case_id": "catalogue-play.quiet-en"
+      },
+      {
+        "case_id": "catalogue-play.quiet-en",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.quiet-de"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 1,
+          "prompt_sha256": "ee4f20a81c87d2629538886acbd3e90c09e7689cb4000fb73ece62f5fde7435d",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "ee4f20a81c87d2629538886acbd3e90c09e7689cb4000fb73ece62f5fde7435d",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.quiet-de"
+      },
+      {
+        "case_id": "catalogue-play.quiet-de"
+      },
+      {
+        "case_id": "catalogue-play.quiet-de",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.quiet-fr"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 1,
+          "prompt_sha256": "260742eaae5f7913ab05f4f0be3546db3cb38c5536f1511258ab32a705b96ee5",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "260742eaae5f7913ab05f4f0be3546db3cb38c5536f1511258ab32a705b96ee5",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.quiet-fr"
+      },
+      {
+        "case_id": "catalogue-play.quiet-fr"
+      },
+      {
+        "case_id": "catalogue-play.quiet-fr",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.quiet-es"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 1,
+          "prompt_sha256": "200bbbf922f53f215784d173b0940be607a6b1cda4f1c13e76542e56650698bd",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "200bbbf922f53f215784d173b0940be607a6b1cda4f1c13e76542e56650698bd",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.quiet-es"
+      },
+      {
+        "case_id": "catalogue-play.quiet-es"
+      },
+      {
+        "case_id": "catalogue-play.quiet-es",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-listen.artist-en"
+      },
+      {
+        "case_id": "catalogue-listen.artist-en"
+      },
+      {
+        "case_id": "catalogue-listen.artist-en"
+      },
+      {
+        "case_id": "catalogue-listen.artist-en",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-listen.artist-nl"
+      },
+      {
+        "case_id": "catalogue-listen.artist-nl"
+      },
+      {
+        "case_id": "catalogue-listen.artist-nl"
+      },
+      {
+        "case_id": "catalogue-listen.artist-nl",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-listen.artist-fr"
+      },
+      {
+        "case_id": "catalogue-listen.artist-fr"
+      },
+      {
+        "case_id": "catalogue-listen.artist-fr"
+      },
+      {
+        "case_id": "catalogue-listen.artist-fr",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-listen.artist-es"
+      },
+      {
+        "case_id": "catalogue-listen.artist-es"
+      },
+      {
+        "case_id": "catalogue-listen.artist-es"
+      },
+      {
+        "case_id": "catalogue-listen.artist-es",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-chain-speaker-en-offer"
+      },
+      {
+        "case_id": "catalogue-chain-speaker-en-offer",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "artist": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "artist",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 1,
+          "prompt_sha256": "4d76d78481f4bf81a4a7950036af1bf40b5a3ac050936ca1749033052eada576",
+          "role_order": [
+            "title",
+            "artist",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "4d76d78481f4bf81a4a7950036af1bf40b5a3ac050936ca1749033052eada576",
+          "role_order": [
+            "title",
+            "artist",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-chain-speaker-en-accept"
+      },
+      {
+        "case_id": "catalogue-chain-speaker-en-accept"
+      },
+      {
+        "case_id": "catalogue-chain-speaker-en-accept",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-chain-album-en-offer",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 1,
+          "prompt_sha256": "ee1e788e74f4b74541c2bdda373eb90c5e66e83baf17f6e937129ba781c76f9c",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "ee1e788e74f4b74541c2bdda373eb90c5e66e83baf17f6e937129ba781c76f9c",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-chain-album-en-accept"
+      },
+      {
+        "case_id": "catalogue-chain-album-en-accept"
+      },
+      {
+        "case_id": "catalogue-chain-album-en-accept",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-chain-album-nl-offer",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 1,
+          "prompt_sha256": "028f5569d3868b04cae219c0f849c0e3bd08bf10d4cbe2fc016a22699c6abeaf",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "028f5569d3868b04cae219c0f849c0e3bd08bf10d4cbe2fc016a22699c6abeaf",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-chain-album-nl-accept"
+      },
+      {
+        "case_id": "catalogue-chain-album-nl-accept"
+      },
+      {
+        "case_id": "catalogue-chain-album-nl-accept",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-chain-album-es-offer",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 1,
+          "prompt_sha256": "1c641ccbed0ed86cdb6e073d9818d41fdb7903c2e6f8dbaa237b181bd5ddb612",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "1c641ccbed0ed86cdb6e073d9818d41fdb7903c2e6f8dbaa237b181bd5ddb612",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-chain-album-es-accept"
+      },
+      {
+        "case_id": "catalogue-chain-album-es-accept"
+      },
+      {
+        "case_id": "catalogue-chain-album-es-accept",
+        "purpose": "answer_language_judge"
+      }
+    ]
+  }
+}

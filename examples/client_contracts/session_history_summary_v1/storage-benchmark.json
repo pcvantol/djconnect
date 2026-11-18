@@ -1,0 +1,14 @@
+{
+  "mode": "real_sqlite_storage_benchmark_not_elapsed_runtime",
+  "accepted_keys": 8192,
+  "max_keys_per_session": 8192,
+  "compact_identity_bytes": 572330,
+  "database_bytes": 1622016,
+  "acceptance_seconds": 4.653434375000074,
+  "sessions": 100,
+  "page_size": 20,
+  "page_selects": 4,
+  "timeline_selects": 0,
+  "page_seconds": 0.0014684999999872161,
+  "reads_mutate_events": false
+}

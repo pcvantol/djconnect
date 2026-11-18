@@ -1,0 +1,1697 @@
+{
+  "proof_boundary": "Actual paired Core operation/Settings/private-byte owners; external TTS and HA speaker I/O fixtures. No installed, paid-provider, native or audible proof.",
+  "cases": {
+    "test_active_session_identity_and_history_are_preserved_then_end_revokes_preview/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-89d2-7000-8000-000000000065",
+        "operation_epoch": "6c712d54afea7cefba9f09a56503ed1b",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-89d2-7000-8000-000000000065",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            [
+              "session-a45cf74ca9f14a7aaa4ce5a6d60547a4",
+              "2b865d7aecfc4422ba6e6486397b0e89",
+              1
+            ]
+          ],
+          "expires_at": "2026-10-18T02:47:39.429433+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "cedar",
+            "voice_name": "Cedar",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "c1siiws7f5eqvQ2UxY0-Cyp5U0pDNRZe",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-89d2-7000-8000-000000000065",
+          "operation_epoch": "6c712d54afea7cefba9f09a56503ed1b",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839410,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_all_outputs_share_one_audio_owner_and_keep_separate_delivery_outcomes/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-89f3-7000-8000-000000000065",
+        "operation_epoch": "f396136fc2e5ba2f42af9e96a4ff95a7",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-89f3-7000-8000-000000000065",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.448515+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "cedar",
+            "voice_name": "Cedar",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "F2VGZmTJYyWXjWXRQhLJlLvkhQdehrjN",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-89f3-7000-8000-000000000065",
+          "operation_epoch": "f396136fc2e5ba2f42af9e96a4ff95a7",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839443,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_all_outputs_share_one_audio_owner_and_keep_separate_delivery_outcomes/2": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-89f3-7000-8000-000000000066",
+        "operation_epoch": "f396136fc2e5ba2f42af9e96a4ff95a7",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-89f3-7000-8000-000000000066",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            2,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.453557+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "cedar",
+            "voice_name": "Cedar",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          }
+        },
+        "delivery": {
+          "ha_speaker": "queued",
+          "local": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-89f3-7000-8000-000000000066",
+          "operation_epoch": "f396136fc2e5ba2f42af9e96a4ff95a7",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839443,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_all_outputs_share_one_audio_owner_and_keep_separate_delivery_outcomes/3": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-89f3-7000-8000-000000000067",
+        "operation_epoch": "f396136fc2e5ba2f42af9e96a4ff95a7",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-89f3-7000-8000-000000000067",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            3,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.459290+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "cedar",
+            "voice_name": "Cedar",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "9leXFCD4ec1mVlN9xP5PusL4cYuLZ2vA",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "ha_speaker": "queued",
+          "local": "ready",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-89f3-7000-8000-000000000067",
+          "operation_epoch": "f396136fc2e5ba2f42af9e96a4ff95a7",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839443,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_both_partial_failure_keeps_client_audio_and_unknown_dispatch_is_not_repeated/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a10-7000-8000-000000000065",
+        "operation_epoch": "ff5a5ca9a2f239723c8bcd7ca3bde5b3",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8a10-7000-8000-000000000065",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.476594+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "cedar",
+            "voice_name": "Cedar",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "GeJdB5qm1voYQ4M3Yv-iYkPIBQGxvZpz",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "ha_speaker": "unavailable",
+          "speaker_reason": "announcement_speaker_not_found",
+          "local": "ready",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a10-7000-8000-000000000065",
+          "operation_epoch": "ff5a5ca9a2f239723c8bcd7ca3bde5b3",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839472,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_both_partial_failure_keeps_client_audio_and_unknown_dispatch_is_not_repeated/2": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a10-7000-8000-000000000066",
+        "operation_epoch": "ff5a5ca9a2f239723c8bcd7ca3bde5b3",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": false,
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a10-7000-8000-000000000066",
+          "operation_epoch": "ff5a5ca9a2f239723c8bcd7ca3bde5b3",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839472,
+          "result_available": false,
+          "response_status": 503,
+          "error": "speaker_delivery_unknown"
+        },
+        "result_available": false,
+        "error": "speaker_delivery_unknown"
+      },
+      "status": 503
+    },
+    "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a2f-7000-8000-000000000065",
+        "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en",
+          "text": "caller text"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "invalid_request",
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a2f-7000-8000-000000000065",
+          "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839503,
+          "result_available": false,
+          "response_status": 400,
+          "error": "invalid_request"
+        }
+      },
+      "status": 400
+    },
+    "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides/2": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a2f-7000-8000-000000000066",
+        "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en",
+          "voice_id": "cedar"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "invalid_request",
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a2f-7000-8000-000000000066",
+          "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839503,
+          "result_available": false,
+          "response_status": 400,
+          "error": "invalid_request"
+        }
+      },
+      "status": 400
+    },
+    "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides/3": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a2f-7000-8000-000000000067",
+        "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en",
+          "target": "both"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "invalid_request",
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a2f-7000-8000-000000000067",
+          "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839503,
+          "result_available": false,
+          "response_status": 400,
+          "error": "invalid_request"
+        }
+      },
+      "status": 400
+    },
+    "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides/4": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a2f-7000-8000-000000000068",
+        "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en",
+          "reference": {
+            "turn_id": "previous"
+          }
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "invalid_request",
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a2f-7000-8000-000000000068",
+          "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839503,
+          "result_available": false,
+          "response_status": 400,
+          "error": "invalid_request"
+        }
+      },
+      "status": 400
+    },
+    "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides/5": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a2f-7000-8000-000000000069",
+        "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "it"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "invalid_request",
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a2f-7000-8000-000000000069",
+          "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839503,
+          "result_available": false,
+          "response_status": 400,
+          "error": "invalid_request"
+        }
+      },
+      "status": 400
+    },
+    "test_closed_preview_payload_rejects_text_voice_target_locale_and_reference_overrides/6": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a2f-7000-8000-00000000006a",
+        "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": true,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "invalid_request",
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a2f-7000-8000-00000000006a",
+          "operation_epoch": "cc6e78b0d48babc4d8ee075e839786a3",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839503,
+          "result_available": false,
+          "response_status": 400,
+          "error": "invalid_request"
+        }
+      },
+      "status": 400
+    },
+    "test_duplicate_and_socket_cancel_never_resynthesize_or_dispatch_speaker_twice/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a41-7000-8000-000000000065",
+        "operation_epoch": "a52c4bad57c69094ec03b30763ad42e6",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a41-7000-8000-000000000065",
+          "operation_epoch": "a52c4bad57c69094ec03b30763ad42e6",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839521,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        },
+        "result_available": false
+      },
+      "status": 200
+    },
+    "test_new_press_reuses_original_sample_deadline_and_provider_failure_backoff/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a53-7000-8000-000000000065",
+        "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8a53-7000-8000-000000000065",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.543493+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "marin",
+            "voice_name": "Marin",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "HCjuLI0XLejMY2Q6HHkcbYZMRPhPeBBh",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a53-7000-8000-000000000065",
+          "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839539,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_new_press_reuses_original_sample_deadline_and_provider_failure_backoff/2": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a53-7000-8000-000000000066",
+        "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8a53-7000-8000-000000000066",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.543493+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "marin",
+            "voice_name": "Marin",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "HCjuLI0XLejMY2Q6HHkcbYZMRPhPeBBh",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a53-7000-8000-000000000066",
+          "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839539,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_new_press_reuses_original_sample_deadline_and_provider_failure_backoff/3": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a53-7000-8000-000000000067",
+        "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "speech_preparation_failed",
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8a53-7000-8000-000000000067",
+          "state": "unavailable",
+          "reason": "speech_preparation_failed",
+          "locale": "en"
+        },
+        "notification": {
+          "schema_version": 1,
+          "code": "tts_preparation_failed",
+          "message_key": "speech.tts_preparation_failed",
+          "severity": "warning",
+          "presentation": "inline",
+          "locale": "en",
+          "title": "Speech could not be prepared",
+          "message": "In Home Assistant, check the Assist pipeline selected in DJConnect: its TTS provider, language and voice. The text remains available.",
+          "actions": [
+            "review_ha_tts_configuration",
+            "retry_speech_preparation"
+          ],
+          "retryable": true,
+          "retry_after_seconds": 0,
+          "preserve_text": true,
+          "repeat_original_request": false
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a53-7000-8000-000000000067",
+          "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839539,
+          "result_available": false,
+          "response_status": 409,
+          "error": "speech_preparation_failed"
+        }
+      },
+      "status": 409
+    },
+    "test_new_press_reuses_original_sample_deadline_and_provider_failure_backoff/4": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a53-7000-8000-000000000068",
+        "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "speech_retry_backoff",
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8a53-7000-8000-000000000068",
+          "state": "unavailable",
+          "reason": "speech_retry_backoff",
+          "locale": "en"
+        },
+        "notification": {
+          "schema_version": 1,
+          "code": "tts_preparation_failed",
+          "message_key": "speech.tts_preparation_failed",
+          "severity": "warning",
+          "presentation": "inline",
+          "locale": "en",
+          "title": "Speech could not be prepared",
+          "message": "In Home Assistant, check the Assist pipeline selected in DJConnect: its TTS provider, language and voice. The text remains available.",
+          "actions": [
+            "review_ha_tts_configuration",
+            "retry_speech_preparation"
+          ],
+          "retryable": true,
+          "retry_after_seconds": 0,
+          "preserve_text": true,
+          "repeat_original_request": false
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a53-7000-8000-000000000068",
+          "operation_epoch": "ae6dce6123bbde7f5dbd1a11f40ae531",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839539,
+          "result_available": false,
+          "response_status": 409,
+          "error": "speech_retry_backoff"
+        }
+      },
+      "status": 409
+    },
+    "test_new_session_during_synthesis_rejects_original_no_session_sample/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a6c-7000-8000-000000000065",
+        "operation_epoch": "a539b655c6ab99c2ff991dabbdd28adb",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "voice_preview_withdrawn",
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a6c-7000-8000-000000000065",
+          "operation_epoch": "a539b655c6ab99c2ff991dabbdd28adb",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839564,
+          "result_available": false,
+          "response_status": 409,
+          "error": "voice_preview_withdrawn"
+        }
+      },
+      "status": 409
+    },
+    "test_old_bytes_denied_after_provider_change_and_text_only/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a85-7000-8000-000000000065",
+        "operation_epoch": "915f58a0453d3e22de52e087b5332843",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8a85-7000-8000-000000000065",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.592883+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "marin",
+            "voice_name": "Marin",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "z7nC5QP5qWaV-exhsbDvqqWdHMnvvScL",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a85-7000-8000-000000000065",
+          "operation_epoch": "915f58a0453d3e22de52e087b5332843",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839589,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_old_bytes_denied_after_provider_change_and_text_only/2": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a85-7000-8000-000000000066",
+        "operation_epoch": "915f58a0453d3e22de52e087b5332843",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8a85-7000-8000-000000000066",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.596159+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "marin",
+            "voice_name": "Marin",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "fa21b8eff1f5bfd8259f0271"
+          },
+          "audio_reference": {
+            "asset_id": "2zSg4nVm4VsN0Jm_ny7ronZ3mVt4noYN",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a85-7000-8000-000000000066",
+          "operation_epoch": "915f58a0453d3e22de52e087b5332843",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839589,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_original_monotonic_expiry_survives_clock_rollback/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8a9a-7000-8000-000000000065",
+        "operation_epoch": "5ac6e61e13e54c124f960ccfa1886cb1",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8a9a-7000-8000-000000000065",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.614257+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "marin",
+            "voice_name": "Marin",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "Qocw9kCvcsuyk4HItQE0Iw94a2FPV4hX",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8a9a-7000-8000-000000000065",
+          "operation_epoch": "5ac6e61e13e54c124f960ccfa1886cb1",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839610,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_preview_without_session_is_literal_five_language_and_has_no_domain_writes/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8aba-7000-8000-000000000065",
+        "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8aba-7000-8000-000000000065",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.646446+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "cedar",
+            "voice_name": "Cedar",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "rLmqAvjHjLC3ZS59ZW4QznseXP1-Mlv0",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8aba-7000-8000-000000000065",
+          "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839642,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_preview_without_session_is_literal_five_language_and_has_no_domain_writes/2": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8aba-7000-8000-000000000066",
+        "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "nl"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8aba-7000-8000-000000000066",
+          "text": "Dit is een kort voorbeeld van je gekozen DJ-stem.",
+          "locale": "nl",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.649735+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "cedar",
+            "voice_name": "Cedar",
+            "voice_selection": "session_device_preference",
+            "locale": "nl-NL",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "XHpwfpeWoM4ePuIzb6TzYrnILYLEbZ21",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8aba-7000-8000-000000000066",
+          "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839642,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_preview_without_session_is_literal_five_language_and_has_no_domain_writes/3": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8aba-7000-8000-000000000067",
+        "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "de"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8aba-7000-8000-000000000067",
+          "text": "Dies ist ein kurzes Beispiel deiner gewählten DJ-Stimme.",
+          "locale": "de",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.653087+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "cedar",
+            "voice_name": "Cedar",
+            "voice_selection": "session_device_preference",
+            "locale": "de-DE",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "8Bmjo83qKhw4T0-NUKq9OOnMXsdF-HCK",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8aba-7000-8000-000000000067",
+          "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839642,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_preview_without_session_is_literal_five_language_and_has_no_domain_writes/4": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8aba-7000-8000-000000000068",
+        "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "fr"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8aba-7000-8000-000000000068",
+          "text": "Voici un court exemple de la voix DJ que tu as choisie.",
+          "locale": "fr",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.656691+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "cedar",
+            "voice_name": "Cedar",
+            "voice_selection": "session_device_preference",
+            "locale": "fr-FR",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "I9QGtnsN6P2mFWAXlf-MlR8tfVOX7XMA",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8aba-7000-8000-000000000068",
+          "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839642,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_preview_without_session_is_literal_five_language_and_has_no_domain_writes/5": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8aba-7000-8000-000000000069",
+        "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "es"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8aba-7000-8000-000000000069",
+          "text": "Este es un breve ejemplo de la voz de DJ que has elegido.",
+          "locale": "es",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.660011+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "cedar",
+            "voice_name": "Cedar",
+            "voice_selection": "session_device_preference",
+            "locale": "es-ES",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "akud6CmW5RGTmwHGlUUo1Kg91k63i7X7",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8aba-7000-8000-000000000069",
+          "operation_epoch": "b0e381d750c51466bdcfe4c2306cdd13",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839642,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_provider_and_gender_selection_are_qualified_without_locale_fallback/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8ad9-7000-8000-000000000065",
+        "operation_epoch": "d2477941a3d1ccc3d2d050a24eb7315d",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8ad9-7000-8000-000000000065",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.677168+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "cedar",
+            "voice_name": "Cedar",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": "female",
+            "processing_scope": "configured_provider",
+            "configuration_revision": "bde76ffd06bf34ff6f59fe69"
+          },
+          "audio_reference": {
+            "asset_id": "1wO0_6Ib4KTAFs0vrtfVB_KuRwwzNRfo",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8ad9-7000-8000-000000000065",
+          "operation_epoch": "d2477941a3d1ccc3d2d050a24eb7315d",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839673,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_provider_and_gender_selection_are_qualified_without_locale_fallback/2": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8ad9-7000-8000-000000000066",
+        "operation_epoch": "d2477941a3d1ccc3d2d050a24eb7315d",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "fr"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "no_matching_locale",
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8ad9-7000-8000-000000000066",
+          "state": "unavailable",
+          "reason": "no_matching_locale",
+          "locale": "fr"
+        },
+        "notification": {
+          "schema_version": 1,
+          "code": "tts_voice_language_unavailable",
+          "message_key": "speech.tts_voice_language_unavailable",
+          "severity": "warning",
+          "presentation": "inline",
+          "locale": "fr",
+          "title": "Paramètre vocal indisponible",
+          "message": "Dans Home Assistant, vérifiez le pipeline Assist choisi dans DJConnect : fournisseur TTS, langue et voix. Le texte reste disponible.",
+          "actions": [
+            "review_ha_tts_configuration",
+            "retry_speech_preparation"
+          ],
+          "retryable": true,
+          "retry_after_seconds": 0,
+          "preserve_text": true,
+          "repeat_original_request": false
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8ad9-7000-8000-000000000066",
+          "operation_epoch": "d2477941a3d1ccc3d2d050a24eb7315d",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839673,
+          "result_available": false,
+          "response_status": 409,
+          "error": "no_matching_locale"
+        }
+      },
+      "status": 409
+    },
+    "test_provider_and_gender_selection_are_qualified_without_locale_fallback/3": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8ad9-7000-8000-000000000067",
+        "operation_epoch": "d2477941a3d1ccc3d2d050a24eb7315d",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "tts_provider_unavailable",
+        "notification": {
+          "schema_version": 1,
+          "code": "tts_provider_unavailable",
+          "message_key": "speech.tts_provider_unavailable",
+          "severity": "warning",
+          "presentation": "inline",
+          "locale": "en",
+          "title": "Speech provider unavailable",
+          "message": "In Home Assistant, check the Assist pipeline selected in DJConnect: its TTS provider, language and voice. The text remains available.",
+          "actions": [
+            "review_ha_tts_configuration",
+            "retry_speech_preparation"
+          ],
+          "retryable": true,
+          "retry_after_seconds": 0,
+          "preserve_text": true,
+          "repeat_original_request": false
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8ad9-7000-8000-000000000067",
+          "operation_epoch": "d2477941a3d1ccc3d2d050a24eb7315d",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839673,
+          "result_available": false,
+          "response_status": 409,
+          "error": "tts_provider_unavailable"
+        }
+      },
+      "status": 409
+    },
+    "test_provider_change_during_durable_send_admission_prevents_synthesis/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8aee-7000-8000-000000000065",
+        "operation_epoch": "15f26ea7ab6b48222cd66bcf90fffb06",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "speech_configuration_changed",
+        "notification": {
+          "schema_version": 1,
+          "code": "tts_configuration_changed",
+          "message_key": "speech.tts_configuration_changed",
+          "severity": "warning",
+          "presentation": "inline",
+          "locale": "en",
+          "title": "Speech settings changed",
+          "message": "In Home Assistant, check the Assist pipeline selected in DJConnect: its TTS provider, language and voice. The text remains available.",
+          "actions": [
+            "review_ha_tts_configuration",
+            "retry_speech_preparation"
+          ],
+          "retryable": true,
+          "retry_after_seconds": 0,
+          "preserve_text": true,
+          "repeat_original_request": false
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8aee-7000-8000-000000000065",
+          "operation_epoch": "15f26ea7ab6b48222cd66bcf90fffb06",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839694,
+          "result_available": false,
+          "response_status": 409,
+          "error": "speech_configuration_changed"
+        }
+      },
+      "status": 409
+    },
+    "test_queued_result_revalidates_provider_before_semantic_delivery/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8b00-7000-8000-000000000065",
+        "operation_epoch": "8d8540bfbb4184fc7e0e20fa56480026",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": true,
+        "voice_preview": {
+          "schema_version": 1,
+          "preview_id": "01a14ce6-8b00-7000-8000-000000000065",
+          "text": "This is a short example of your selected DJ voice.",
+          "locale": "en",
+          "state": "available",
+          "settings_contract_version": 3,
+          "settings_revision": [
+            1,
+            null
+          ],
+          "expires_at": "2026-10-18T02:47:39.719076+00:00",
+          "cache_policy": "private,no-store",
+          "audio_state": "ready",
+          "effective_voice": {
+            "processor": "ha_configured",
+            "engine": "tts.fixture_cloud",
+            "pipeline_id": "selected",
+            "provider": "fixture_cloud_provider",
+            "voice_id": "marin",
+            "voice_name": "Marin",
+            "voice_selection": "session_device_preference",
+            "locale": "en-US",
+            "gender": null,
+            "processing_scope": "configured_provider",
+            "configuration_revision": "1051129b10dd10f2d1e1a263"
+          },
+          "audio_reference": {
+            "asset_id": "SNlwCbRxYOG8Qwi5nkm3xXS70Le1Pk5w",
+            "path": "/api/djconnect/v1/speech/audio",
+            "method": "POST"
+          }
+        },
+        "delivery": {
+          "local": "ready",
+          "ha_speaker": "not_requested",
+          "audible": "not_proven"
+        },
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8b00-7000-8000-000000000065",
+          "operation_epoch": "8d8540bfbb4184fc7e0e20fa56480026",
+          "phase": "confirmed",
+          "expires_at_ms": 1792291839712,
+          "result_available": false,
+          "response_status": 200,
+          "error": null
+        }
+      },
+      "status": 200
+    },
+    "test_settings_change_during_synthesis_never_returns_or_sends_old_audio/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8b16-7000-8000-000000000065",
+        "operation_epoch": "f6ecca2007d65c89999ba6d4d9914d11",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "voice_preview_withdrawn",
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8b16-7000-8000-000000000065",
+          "operation_epoch": "f6ecca2007d65c89999ba6d4d9914d11",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839734,
+          "result_available": false,
+          "response_status": 409,
+          "error": "voice_preview_withdrawn"
+        }
+      },
+      "status": 409
+    },
+    "test_target_change_while_resolving_media_url_has_zero_speaker_dispatch/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8b29-7000-8000-000000000065",
+        "operation_epoch": "4771efec539293df5179a80932e48a4e",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "voice_preview_withdrawn",
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8b29-7000-8000-000000000065",
+          "operation_epoch": "4771efec539293df5179a80932e48a4e",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839753,
+          "result_available": false,
+          "response_status": 409,
+          "error": "voice_preview_withdrawn"
+        }
+      },
+      "status": 409
+    },
+    "test_text_only_and_unconfirmed_settings_have_zero_provider_or_speaker_effects/1": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8b3a-7000-8000-000000000065",
+        "operation_epoch": "e268104f4aa16934fdd0637f410b648d",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "settings_migration_choice_required",
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8b3a-7000-8000-000000000065",
+          "operation_epoch": "e268104f4aa16934fdd0637f410b648d",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839770,
+          "result_available": false,
+          "response_status": 409,
+          "error": "settings_migration_choice_required"
+        }
+      },
+      "status": 409
+    },
+    "test_text_only_and_unconfirmed_settings_have_zero_provider_or_speaker_effects/2": {
+      "request": {
+        "contract_version": 1,
+        "operation_id": "01a14ce6-8b3a-7000-8000-000000000066",
+        "operation_epoch": "e268104f4aa16934fdd0637f410b648d",
+        "operation": "speech/preview",
+        "payload": {
+          "contract_version": 1,
+          "language": "en"
+        }
+      },
+      "response": {
+        "success": false,
+        "error": "announcement_text_only",
+        "operation_receipt": {
+          "contract_version": 1,
+          "operation_id": "01a14ce6-8b3a-7000-8000-000000000066",
+          "operation_epoch": "e268104f4aa16934fdd0637f410b648d",
+          "phase": "unknown",
+          "expires_at_ms": 1792291839770,
+          "result_available": false,
+          "response_status": 409,
+          "error": "announcement_text_only"
+        }
+      },
+      "status": 409
+    }
+  }
+}

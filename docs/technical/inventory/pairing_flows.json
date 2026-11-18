@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "flows": [
+    {
+      "id": "app_to_ha_pair",
+      "classification": "CONFIRMED_CODE",
+      "participants": ["Apple/Windows client", "Home Assistant"],
+      "endpoint": "POST /api/djconnect/v1/pair",
+      "pre_auth": "six-digit pair_code and client_type validation",
+      "post_auth": "device_token bearer",
+      "persistence": "HA config/runtime plus client secure storage",
+      "notes": "Windows tests confirm outbound-only pairing and compatibility pair_code aliases."
+    },
+    {
+      "id": "ha_to_local_device_pair",
+      "classification": "CONFIRMED_CODE",
+      "participants": ["Home Assistant", "ESP32/Pi local API"],
+      "endpoint": "POST /api/device/pair",
+      "pre_auth": "local pair_code and client_type validation",
+      "post_auth": "device_token bearer on local device API",
+      "persistence": "ESP32 NVS or Pi local config plus HA config/runtime",
+      "notes": "Used for local hardware/runtime devices that expose /api/device."
+    },
+    {
+      "id": "device_to_ha_pair",
+      "classification": "CONFIRMED_CODE",
+      "participants": ["ESP32/Pi", "Home Assistant"],
+      "endpoint": "POST /api/djconnect/v1/pair",
+      "pre_auth": "six-digit pair_code and client_type validation",
+      "post_auth": "device_token bearer",
+      "persistence": "device local storage plus HA config/runtime",
+      "notes": "ESP32 and Pi source both contain outbound HA pair methods."
+    }
+  ]
+}

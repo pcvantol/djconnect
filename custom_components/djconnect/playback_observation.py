@@ -1,0 +1,650 @@
+"""Active-session Live Playback Observation Stage 1 orchestration."""
+from __future__ import annotations
+
+import asyncio
+from contextlib import suppress
+import hashlib
+import logging
+from dataclasses import dataclass, field
+from datetime import timedelta
+from typing import Any, Awaitable, Callable
+
+try:
+    from homeassistant.helpers.event import async_track_time_interval
+except ImportError:  # pragma: no cover - Home Assistant supplies this at runtime
+    async_track_time_interval = None
+
+from .const import DOMAIN, MUSIC_BACKEND_SPOTIFY_DIRECT
+from .image_proxy import register_image_proxy_url
+from .session_runtime import DJSessionRuntime, session_runtime_manager
+from .spotify_backend import SpotifyBackend, SpotifyBackendError
+
+_LOGGER = logging.getLogger(__name__)
+SPOTIFY_OBSERVATION_INTERVAL = timedelta(seconds=3)
+PLAYBACK_PROGRESS_INTERVAL = timedelta(seconds=1)
+
+InsightProvider = Callable[[], Awaitable[dict[str, Any]]]
+InsightProviderFactory = Callable[[Any, DJSessionRuntime], InsightProvider]
+
+
+@dataclass(frozen=True)
+class SpotifyObservationResumeKey:
+    """Identity needed to resume one observer after its Runtime reloads."""
+
+    owner_profile_id: str
+    session_id: str
+
+
+@dataclass
+class _SpotifyObservationSession:
+    """Ephemeral scheduler state for one active Spotify Session."""
+
+    integration_runtime: Any
+    owner_profile_id: str
+    session_id: str
+    insight_provider: InsightProvider
+    remove_listener: Callable[[], None] | None = None
+    remove_progress_listener: Callable[[], None] | None = None
+    poll_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+    enrichment_task: asyncio.Task[Any] | None = None
+    forecast_art_task: asyncio.Task[Any] | None = None
+    display_artwork_task: asyncio.Task[Any] | None = None
+    display_artwork_attempt: tuple[str, str, int] | None = None
+    display_artwork_retry: float = 0
+    enrichment_media_identity: str = ""
+    unavailable: bool = False
+    command_revision: int = 0
+    visual_source: object = field(default_factory=object, repr=False)
+    visual_sample_serial: int = field(default=0, repr=False)
+    forecast_output_id: str = field(default='', repr=False)
+    forecast_output_serial: int = field(default=0, repr=False)
+    forecast_recording: tuple[str, str] = field(default=(), repr=False)
+    forecast_recording_serial: int = field(default=0, repr=False)
+
+
+class PlaybackObservationManager:
+    """Coordinates active-session Stage 1 observation without provider leakage."""
+
+    def __init__(self, hass: Any) -> None:
+        self._hass = hass
+        self._spotify_sessions: dict[str, _SpotifyObservationSession] = {}
+        self._reloading_entry_ids: set[str] = set()
+        self._pending_reload_sessions: dict[
+            str, dict[str, SpotifyObservationResumeKey]
+        ] = {}
+
+    async def async_start_spotify(
+        self,
+        *,
+        integration_runtime: Any,
+        session: DJSessionRuntime,
+        insight_provider: InsightProvider | None = None,
+        insight_provider_factory: InsightProviderFactory | None = None,
+    ) -> None:
+        """Attach one bounded Spotify observer after an eligible Session starts."""
+        if session.music_backend != MUSIC_BACKEND_SPOTIFY_DIRECT:
+            return
+        entry_id = self._runtime_entry_id(integration_runtime)
+        if entry_id and entry_id in self._reloading_entry_ids:
+            self._pending_reload_sessions.setdefault(entry_id, {})[
+                session.owner_profile_id
+            ] = SpotifyObservationResumeKey(
+                owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id,
+            )
+            return
+        if entry_id:
+            current_runtime = self._hass.data.get(DOMAIN, {}).get(entry_id)
+            if current_runtime is not None and current_runtime is not integration_runtime:
+                integration_runtime = current_runtime
+        if insight_provider_factory is not None:
+            insight_provider = insight_provider_factory(integration_runtime, session)
+        if insight_provider is None:
+            raise ValueError("Spotify playback observation requires an insight provider")
+        await self.async_stop(session.owner_profile_id)
+        observed = _SpotifyObservationSession(
+            integration_runtime=integration_runtime,
+            owner_profile_id=session.owner_profile_id,
+            session_id=session.session_id,
+            insight_provider=insight_provider,
+        )
+        self._spotify_sessions[session.owner_profile_id] = observed
+        from .surface_source_origin import attach_observer
+        attach_observer(session_runtime_manager(self._hass), observed)
+
+        async def poll(_now: Any = None) -> None:
+            await self._async_poll_spotify(observed)
+
+        async def advance_progress(_now: Any = None) -> None:
+            if self._spotify_sessions.get(observed.owner_profile_id) is not observed:
+                return
+            await session_runtime_manager(self._hass).async_advance_playback_progress(
+                owner_profile_id=observed.owner_profile_id,
+                session_id=observed.session_id,
+            )
+
+        if async_track_time_interval is not None:
+            observed.remove_listener = async_track_time_interval(
+                self._hass, poll, SPOTIFY_OBSERVATION_INTERVAL
+            )
+            observed.remove_progress_listener = async_track_time_interval(
+                self._hass, advance_progress, PLAYBACK_PROGRESS_INTERVAL
+            )
+        # Register recurring observation before the initial poll. Track Insight
+        # can take longer than one observation interval and must never prevent
+        # a newer Spotify projection from reaching the active Runtime.
+        await poll()
+
+    async def async_stop(self, owner_profile_id: str, session_id: str = "") -> None:
+        """Stop future polling and make any late result inert."""
+        observed = self._spotify_sessions.get(owner_profile_id)
+        if observed is None or (session_id and observed.session_id != session_id):
+            return
+        self._spotify_sessions.pop(owner_profile_id, None)
+        from .surface_source_origin import retire_sources
+        retire_sources(session_runtime_manager(self._hass), owner_profile_id, observed.session_id)
+        from .surface_status_samples import retire_observer_status
+        retire_observer_status(self._hass, observed)
+        from .visual_director_runtime import withdraw_source
+        withdraw_source(self._hass, observed)
+        await session_runtime_manager(self._hass).async_invalidate_intra_track_opportunity(
+            owner_profile_id=owner_profile_id, session_id=observed.session_id
+        )
+        if observed.remove_listener is not None:
+            observed.remove_listener()
+            observed.remove_listener = None
+        if observed.remove_progress_listener is not None:
+            observed.remove_progress_listener()
+            observed.remove_progress_listener = None
+        current_task = asyncio.current_task()
+        if observed.enrichment_task is not None and observed.enrichment_task is not current_task:
+            if not observed.enrichment_task.done():
+                observed.enrichment_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await observed.enrichment_task
+        observed.enrichment_task = None
+        if observed.forecast_art_task is not None and observed.forecast_art_task is not current_task:
+            if not observed.forecast_art_task.done():
+                observed.forecast_art_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await observed.forecast_art_task
+        observed.forecast_art_task = None
+        if observed.display_artwork_task is not None:
+            observed.display_artwork_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await observed.display_artwork_task
+            observed.display_artwork_task = None
+        observed.enrichment_media_identity = ""
+
+    async def async_stop_runtime(self, integration_runtime: Any) -> None:
+        """Release observers owned by an unloading integration Runtime."""
+        for observed in tuple(self._spotify_sessions.values()):
+            if observed.integration_runtime is integration_runtime:
+                await self.async_stop(observed.owner_profile_id, observed.session_id)
+
+    def resume_keys_for_runtime(
+        self, integration_runtime: Any
+    ) -> tuple[SpotifyObservationResumeKey, ...]:
+        """Capture only active observer identities before a Runtime reload."""
+        return tuple(
+            SpotifyObservationResumeKey(
+                owner_profile_id=observed.owner_profile_id,
+                session_id=observed.session_id,
+            )
+            for observed in self._spotify_sessions.values()
+            if observed.integration_runtime is integration_runtime
+        )
+
+    def begin_runtime_reload(
+        self, integration_runtime: Any
+    ) -> tuple[SpotifyObservationResumeKey, ...]:
+        """Quiesce new observer starts and capture the current Runtime set."""
+        entry_id = self._runtime_entry_id(integration_runtime)
+        if entry_id:
+            self._reloading_entry_ids.add(entry_id)
+        return self.resume_keys_for_runtime(integration_runtime)
+
+    def finish_runtime_reload(
+        self,
+        integration_runtime: Any,
+        resume_keys: tuple[SpotifyObservationResumeKey, ...],
+    ) -> tuple[SpotifyObservationResumeKey, ...]:
+        """Include Sessions started during reload and reopen observer starts."""
+        entry_id = self._runtime_entry_id(integration_runtime)
+        pending = self._pending_reload_sessions.pop(entry_id, {}) if entry_id else {}
+        if entry_id:
+            self._reloading_entry_ids.discard(entry_id)
+        combined = {
+            (resume_key.owner_profile_id, resume_key.session_id): resume_key
+            for resume_key in (*resume_keys, *pending.values())
+        }
+        return tuple(combined.values())
+
+    def abort_runtime_reload(
+        self,
+        integration_runtime: Any,
+        resume_keys: tuple[SpotifyObservationResumeKey, ...] = (),
+    ) -> tuple[SpotifyObservationResumeKey, ...]:
+        """Release reload bookkeeping and return Sessions needing rollback."""
+        entry_id = self._runtime_entry_id(integration_runtime)
+        if not entry_id:
+            return resume_keys
+        self._reloading_entry_ids.discard(entry_id)
+        pending = self._pending_reload_sessions.pop(entry_id, {})
+        combined = {
+            (resume_key.owner_profile_id, resume_key.session_id): resume_key
+            for resume_key in (*resume_keys, *pending.values())
+        }
+        return tuple(combined.values())
+
+    async def async_resume_spotify(
+        self,
+        *,
+        integration_runtime: Any,
+        resume_keys: tuple[SpotifyObservationResumeKey, ...],
+        insight_provider_factory: InsightProviderFactory,
+    ) -> None:
+        """Resume eligible Spotify observers against a replacement Runtime."""
+        runtime_manager = session_runtime_manager(self._hass)
+        for resume_key in resume_keys:
+            active = await runtime_manager.async_get_active(
+                resume_key.owner_profile_id
+            )
+            if (
+                active is None
+                or active.session_id != resume_key.session_id
+                or active.music_backend != MUSIC_BACKEND_SPOTIFY_DIRECT
+            ):
+                continue
+            observed = self._spotify_sessions.get(active.owner_profile_id)
+            if (
+                observed is not None
+                and observed.integration_runtime is integration_runtime
+                and observed.session_id == active.session_id
+            ):
+                continue
+            await self.async_start_spotify(
+                integration_runtime=integration_runtime,
+                session=active,
+                insight_provider_factory=insight_provider_factory,
+            )
+
+    @staticmethod
+    def _runtime_entry_id(integration_runtime: Any) -> str:
+        """Return the stable config-entry identity for one Runtime."""
+        return str(
+            getattr(getattr(integration_runtime, "entry", None), "entry_id", "") or ""
+        ).strip()
+
+    async def async_accept_command_readback(self, integration_runtime, playback: dict) -> dict | None:
+        """Accept confirmed private-command state through the existing observer owner.
+
+        No provider lookup, enrichment, timer or new Moment is required here.
+        The regular observer retains knowledge/publication and its normal pacing.
+        """
+        from .ask_dj.dialogue import current_turn
+        turn = current_turn.get()
+        if turn is None or not turn.effect_started or not isinstance(playback, dict):
+            return None
+        from .surface_status_samples import ObservedPlayback, OriginalSample, advance_own_command
+        original_observer = self._spotify_sessions.get(turn.scope.removeprefix("profile:"))
+        original_status = playback.original_status if type(playback) is ObservedPlayback else None
+        if (type(original_status) is not OriginalSample
+            or original_status.witness.observed is not original_observer
+            or original_observer.integration_runtime is not integration_runtime):
+            original_status = None
+        await turn.guard()
+        owner = turn.scope.removeprefix("profile:")
+        observed = self._spotify_sessions.get(owner)
+        if observed is None:
+            return None
+        manager = session_runtime_manager(self._hass)
+        active = manager.current_active(owner)
+        if active is None or active.session_id != observed.session_id:
+            return None
+        from .forecast_imagery import artist_authority
+        authority = artist_authority(self._hass, integration_runtime, owner_profile_id=owner,
+            expected_source=manager._history_source_contexts.get(observed.session_id, {}))
+        if not authority():
+            return None
+        item = str(playback.get("uri") or "")
+        if item and not item.startswith("spotify:track:"):
+            return None
+        if original_status is not None and original_status.current() and observed is original_observer:
+            original_status = advance_own_command(original_status)
+        else:
+            observed.command_revision += 1
+            original_status = None
+        device = playback.get("device") or {}
+        changed = await manager.async_update_playback_projection(owner_profile_id=owner, session_id=observed.session_id,
+            state="playing" if playback.get("is_playing") else "paused" if item else "idle",
+            media_identity=item, title=str(playback.get("track_name") or playback.get("title") or ""),
+            artist=str(playback.get("artist_name") or playback.get("artist") or ""), album=str(playback.get("album_name") or ""),
+            artwork_url=register_image_proxy_url(self._hass, playback.get("album_image_url", "")),
+            target_name=str(device.get("name") or ""), volume_percent=playback.get("volume_percent"),
+            duration_ms=playback.get("duration_ms"),
+            position_ms=playback.get("progress_ms"), forecast_authority=authority,
+            original_status=original_status)
+        await turn.guard()
+        current = manager.current_active(owner)
+        if (self._spotify_sessions.get(owner) is not observed or current is None
+            or current.session_id != observed.session_id):
+            return None
+        return {"session_id": observed.session_id, "command_revision": observed.command_revision,
+                "projection_changed": changed, "broadcast_delivery_sequence": current.broadcast.delivery_sequence}
+
+    async def _async_poll_spotify(self, observed: _SpotifyObservationSession) -> None:
+        """Poll one observer without overlap or provider details in Runtime."""
+        if self._spotify_sessions.get(observed.owner_profile_id) is not observed:
+            return
+        if observed.poll_lock.locked():
+            return
+        async with observed.poll_lock:
+            if self._spotify_sessions.get(observed.owner_profile_id) is not observed:
+                return
+            active = await session_runtime_manager(self._hass).async_get_active(
+                observed.owner_profile_id
+            )
+            if active is None or active.session_id != observed.session_id:
+                await self.async_stop(observed.owner_profile_id, observed.session_id)
+                return
+            previous_media_identity = active.last_accepted_media_identity
+            captured_command_revision = observed.command_revision
+            from .visual_director_runtime import capture_observer, accept_observation, invalidate_observer_metadata
+            # Capture the original source before provider and storage awaits;
+            # never turn a late result into a newly authorized admission.
+            visual_admission = capture_observer(self._hass, observed)
+            from .queue_forecast import capture_source
+            queue_authority, queue_epoch = capture_source(self._hass, observed)
+            from .surface_status_samples import capture_source as status_source, seal
+            original_status_source = status_source(self._hass, observed)
+            try:
+                result = await SpotifyBackend(
+                    self._hass, observed.integration_runtime
+                ).async_observe_current_playback()
+            except SpotifyBackendError as exc:
+                if not observed.unavailable:
+                    _LOGGER.debug(
+                        "DJConnect Spotify playback observation unavailable: %s",
+                        exc.__class__.__name__,
+                    )
+                observed.unavailable = True
+                invalidate_observer_metadata(self._hass, observed)
+                return
+            except Exception as exc:  # noqa: BLE001
+                if not observed.unavailable:
+                    _LOGGER.debug(
+                        "DJConnect Spotify playback observation failed: %s",
+                        exc.__class__.__name__,
+                    )
+                observed.unavailable = True
+                invalidate_observer_metadata(self._hass, observed)
+                return
+            original_status = seal(original_status_source, getattr(result, "state", ""),
+                                   target_id=getattr(result, "target_id", ""))
+            observed.unavailable = False
+            if (self._spotify_sessions.get(observed.owner_profile_id) is not observed
+                or observed.command_revision != captured_command_revision):
+                return
+            output_id = getattr(result, 'target_id', '')
+            output_id = output_id if type(output_id) is str and 0 < len(output_id) <= 256 else ''
+            if output_id != observed.forecast_output_id:
+                observed.forecast_output_id = output_id
+                observed.forecast_output_serial += 1
+            output_serial = observed.forecast_output_serial
+            recording = (result.media_identity, getattr(result, 'state', ''))
+            if recording != observed.forecast_recording:
+                observed.forecast_recording = recording
+                observed.forecast_recording_serial += 1
+            recording_serial = observed.forecast_recording_serial
+            source_authority = queue_authority
+            def queue_authority():
+                return (source_authority() and bool(output_id)
+                        and observed.forecast_output_id == output_id
+                        and observed.forecast_output_serial == output_serial
+                        and observed.forecast_recording == recording
+                        and observed.forecast_recording_serial == recording_serial)
+            queue_epoch += f':{output_id}:{output_serial}:{recording_serial}'
+            from .current_track_insight import observe
+            if getattr(observed.integration_runtime, "_current_insight_requested", False):
+                observe(observed.integration_runtime, result.media_identity, result.state,
+                        result.position_ms, result.target_name)
+            from .forecast_imagery import artist_authority
+            forecast_authority = artist_authority(self._hass, observed.integration_runtime, owner_profile_id=observed.owner_profile_id,
+                expected_source=session_runtime_manager(self._hass)._history_source_contexts.get(observed.session_id, {}))
+            manager = session_runtime_manager(self._hass)
+            from .track_start_announcement import capture as capture_announcement
+            announcement = None
+
+            def capture_accepted_occurrence():
+                nonlocal announcement
+                announcement = capture_announcement(manager,
+                    owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                    observed=result, authorize=queue_authority)
+                return announcement
+
+            await manager.async_update_playback_projection(
+                owner_profile_id=observed.owner_profile_id,
+                session_id=observed.session_id,
+                state=getattr(result, "state", "playing" if result.is_playing else "idle"),
+                media_identity=getattr(result, "media_identity", ""),
+                title=getattr(result, "title", ""),
+                artist=getattr(result, "artist", ""),
+                album=getattr(result, "album", ""),
+                album_uri=str((getattr(result, "catalog", {}) or {}).get("album_uri") or ""),
+                artwork_url=register_image_proxy_url(
+                    self._hass, getattr(result, "artwork_url", "")
+                ),
+                target_name=getattr(result, "target_name", ""),
+                volume_percent=getattr(result, "volume_percent", None),
+                duration_ms=getattr(result, "duration_ms", None),
+                position_ms=getattr(result, "position_ms", None),
+                forecast_authority=forecast_authority,
+                original_status=original_status,
+                capture_occurrence=capture_accepted_occurrence,
+            )
+            accept_observation(self._hass, observed, result, visual_admission)
+            from .display_delivery import schedule_artwork
+            schedule_artwork(self._hass, manager, observed, result, original_status)
+            catalog = getattr(result, "catalog", {})
+            if (result.is_playing and result.media_identity and forecast_authority()
+                    and isinstance(catalog, dict) and catalog.get("artist_ids")
+                    and (observed.forecast_art_task is None or observed.forecast_art_task.done())):
+                observed.forecast_art_task = self._hass.async_create_task(
+                    session_runtime_manager(self._hass).async_prepare_forecast_art(
+                        hass=self._hass, integration_runtime=observed.integration_runtime,
+                        owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                        media_identity=result.media_identity, catalog=getattr(result, "catalog", {})))
+            # One bounded optional queue observation serves both existing up-next
+            # and the Forecast. Capture source/command admission before awaits.
+            next_item, preview = {}, {}
+            queue_requested = False
+            if result.is_playing and result.media_identity and queue_authority():
+                queue_requested = True
+                try:
+                    backend = SpotifyBackend(self._hass, observed.integration_runtime)
+                    if hasattr(backend, 'async_observe_forecast_queue'):
+                        preview = await asyncio.wait_for(backend.async_observe_forecast_queue(result.media_identity,
+                            observation_key=queue_epoch + ':' + getattr(result, 'target_name', '')), timeout=3)
+                        next_item = dict(preview.get('up_next') or {})
+                    else:  # Older backend adapter: keep up-next without a Forecast claim.
+                        next_item = await asyncio.wait_for(backend.async_observe_next_item(result.media_identity), timeout=3)
+                except Exception:  # Queue absence is not playback failure.
+                    next_item, preview = {}, {}
+                if next_item:
+                    next_item["artwork_url"] = register_image_proxy_url(self._hass, next_item.get("artwork_url", ""))
+            if (self._spotify_sessions.get(observed.owner_profile_id) is not observed
+                    or observed.command_revision != captured_command_revision
+                    or (queue_requested and not queue_authority())):
+                return
+            await session_runtime_manager(self._hass).async_update_next_item_projection(
+                owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                media_identity=result.media_identity, target_name=getattr(result, "target_name", ""), up_next=next_item,
+                authority=queue_authority,
+            )
+            await session_runtime_manager(self._hass).async_update_forecast_queue(
+                owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                media_identity=result.media_identity, target_name=getattr(result, 'target_name', ''),
+                preview=preview, authority=queue_authority,
+            )
+        if not result.is_playing or not result.media_identity:
+            previous = observed.enrichment_task
+            if previous is not None and previous is not asyncio.current_task() and not previous.done():
+                previous.cancel()
+                with suppress(asyncio.CancelledError):
+                    await previous
+            observed.enrichment_task = None
+            observed.enrichment_media_identity = ""
+            return
+
+        if (
+            previous_media_identity == result.media_identity
+            and announcement is None
+            and (observed.enrichment_task is None or observed.enrichment_task.done())
+        ):
+            await session_runtime_manager(self._hass).async_maybe_publish_intra_track_moment(
+                owner_profile_id=observed.owner_profile_id,
+                session_id=observed.session_id,
+                media_identity=result.media_identity,
+            )
+            from .track_start_announcement import prepare_next
+            preparation_task = asyncio.current_task()
+            observed.enrichment_task = preparation_task
+            observed.enrichment_media_identity = result.media_identity
+            try:
+                await prepare_next(session_runtime_manager(self._hass),
+                    owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                    observed=result, preview=preview, authorize=source_authority)
+            finally:
+                if observed.enrichment_task is preparation_task:
+                    observed.enrichment_task = None
+                    observed.enrichment_media_identity = ''
+            return
+
+        current_task = asyncio.current_task()
+        previous = observed.enrichment_task
+        if previous is not None and not previous.done():
+            if observed.enrichment_media_identity == result.media_identity:
+                return
+            if previous is not current_task:
+                previous.cancel()
+                with suppress(asyncio.CancelledError):
+                    await previous
+                if self._spotify_sessions.get(observed.owner_profile_id) is not observed:
+                    return
+        observed.enrichment_task = current_task
+        observed.enrichment_media_identity = result.media_identity
+        try:
+            from .track_start_announcement import publish as publish_announcement
+            await publish_announcement(session_runtime_manager(self._hass),
+                owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                occurrence=announcement, authorize=queue_authority)
+            def source_authorize():
+                return False
+            async def qualified_insight(*, facts_only: bool = False) -> dict[str, Any]:
+                nonlocal source_authorize
+                from .session_facts import session_facts_resolver, catalog_facts, observed_genre_facts
+                catalog = getattr(result, "catalog", {})
+                catalog_backed = hasattr(result, "catalog")
+                # Capture before source awaits. Neither a catalogue descriptor
+                # nor a later account/command may authorize this extra evidence.
+                from .profile_context import profile_storage
+                try:
+                    storage = profile_storage(self._hass)
+                    authority_revision = storage.authority_revision
+                except Exception:
+                    storage, authority_revision = None, None
+                source_lost = False
+
+                def genre_current():
+                    nonlocal source_lost
+                    current = session_runtime_manager(self._hass).current_active(observed.owner_profile_id)
+                    valid = (storage is not None
+                        and self._spotify_sessions.get(observed.owner_profile_id) is observed
+                        and observed.command_revision == captured_command_revision
+                        and profile_storage(self._hass) is storage
+                        and storage.authority_revision == authority_revision
+                        and forecast_authority() and current is not None
+                        and current.session_id == observed.session_id
+                        and current.broadcast.state.playback.state == "playing"
+                        and current.broadcast.state.playback.item_id == hashlib.sha256(result.media_identity.encode()).hexdigest()[:24]
+                        and current.broadcast.state.playback.target_name == getattr(result, "target_name", ""))
+                    source_lost = source_lost or not valid
+                    return not source_lost
+
+                admitted_genre_lookup = genre_current()
+                source_authorize = genre_current
+                # Modern normalized observations own the catalogue/source path,
+                # including an empty catalogue. Denial must not buy a general
+                # model fallback. Older no-catalogue adapters retain their
+                # existing independently guarded insight-only mechanism.
+                if catalog_backed and not admitted_genre_lookup:
+                    return {"_qualified_facts": ()}
+                def facts_current():
+                    if not genre_current():
+                        raise PermissionError("fact_source_authority_changed")
+                async def facts() -> tuple[Any, ...]:
+                    try:
+                        return await session_facts_resolver(self._hass).resolve(catalog, authorize=facts_current)
+                    except PermissionError:
+                        return ()
+                    except Exception:  # Provider absence never creates invented facts.
+                        return tuple(catalog_facts(catalog)) if genre_current() else ()
+                evidence = await facts() if admitted_genre_lookup else ()
+                if admitted_genre_lookup and not genre_current():
+                    return {"_qualified_facts": ()}
+                if evidence:
+                    # A rejected album story must not hide independently valid
+                    # genre context. The existing Planner still ranks/consumes
+                    # each fact once; no retry, extra scheduler or new budget.
+                    if admitted_genre_lookup and len(evidence) < 6:
+                        genre_evidence = await SpotifyBackend(
+                            self._hass, observed.integration_runtime
+                        ).async_observe_current_genres(result, authorize=genre_current)
+                        if not genre_current():
+                            return {"_qualified_facts": ()}
+                        genres = observed_genre_facts(genre_evidence, media_identity=result.media_identity,
+                            title=getattr(result, "title", ""), artist=getattr(result, "artist", ""))
+                        evidence = (*evidence, *genres[:1])
+                    return {"_qualified_facts": evidence}
+                if facts_only:
+                    return {"_qualified_facts": ()}
+                if catalog_backed or admitted_genre_lookup:
+                    facts_current()
+                insight = await observed.insight_provider()
+                if (catalog_backed or admitted_genre_lookup) and not genre_current():
+                    return {"_qualified_facts": ()}
+                return {**insight, "_qualified_facts": ()}
+
+            await session_runtime_manager(self._hass).async_process_track_started(
+                owner_profile_id=observed.owner_profile_id,
+                session_id=observed.session_id,
+                insight_provider=qualified_insight,
+                media_identity=result.media_identity,
+                require_current_playback=True,
+                allow_initial_facts=bool(getattr(result, "catalog", {})),
+                recovery_insight_provider=lambda: qualified_insight(facts_only=True),
+                recovery_authorize=lambda: source_authorize(),
+            )
+        except asyncio.CancelledError:
+            await session_runtime_manager(self._hass).async_restore_track_started_media(
+                owner_profile_id=observed.owner_profile_id,
+                session_id=observed.session_id,
+                media_identity=result.media_identity,
+                previous_media_identity=previous_media_identity,
+            )
+            return
+        finally:
+            if observed.enrichment_task is current_task:
+                observed.enrichment_task = None
+                observed.enrichment_media_identity = ""
+
+
+def playback_observation_manager(hass: Any) -> PlaybackObservationManager:
+    """Return the integration-wide ephemeral observation coordinator."""
+    domain_data = hass.data.setdefault(DOMAIN, {})
+    manager = domain_data.get("playback_observation_manager")
+    if manager is None:
+        manager = PlaybackObservationManager(hass)
+        domain_data["playback_observation_manager"] = manager
+    return manager

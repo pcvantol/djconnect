@@ -1,0 +1,89 @@
+{
+  "format": "djconnect.client_contract_fixtures",
+  "schema_version": 1,
+  "integration_version": "3.2.45",
+  "generated_at": "2026-07-09T10:00:00+00:00",
+  "fixtures": [
+    {
+      "id": "capabilities.websocket",
+      "file": "capabilities.websocket.json",
+      "transport": "websocket",
+      "contract": "capabilities"
+    },
+    {
+      "id": "music_dna.profile.disabled",
+      "file": "music_dna.profile.disabled.json",
+      "transport": "http_or_websocket",
+      "contract": "music_dna.profile",
+      "state": "disabled"
+    },
+    {
+      "id": "music_dna.profile.empty",
+      "file": "music_dna.profile.empty.json",
+      "transport": "http_or_websocket",
+      "contract": "music_dna.profile",
+      "state": "empty"
+    },
+    {
+      "id": "music_dna.profile.rich",
+      "file": "music_dna.profile.rich.json",
+      "transport": "http_or_websocket",
+      "contract": "music_dna.profile",
+      "state": "rich"
+    },
+    {
+      "id": "music_discovery.feed",
+      "file": "music_discovery.feed.json",
+      "transport": "http_or_websocket",
+      "contract": "music_discovery.feed"
+    },
+    {
+      "id": "profile_context.requests",
+      "file": "profile_context.requests.json",
+      "transport": "http_or_websocket_or_service",
+      "contract": "profile_context.requests"
+    },
+    {
+      "id": "profile_context.responses",
+      "file": "profile_context.responses.json",
+      "transport": "http_or_websocket_or_service",
+      "contract": "profile_context.responses"
+    },
+    {
+      "id": "profile_context.errors",
+      "file": "profile_context.errors.json",
+      "transport": "http_or_websocket_or_service",
+      "contract": "profile_context.errors"
+    },
+    {
+      "id": "ask_dj.recently_played_history",
+      "file": "ask_dj.recently_played_history.json",
+      "transport": "http_or_websocket",
+      "contract": "ask_dj.response",
+      "intent": "recently_played_history"
+    },
+    {
+      "id": "askdj.album_track_choices.v1",
+      "file": "askdj_album_track_choices_v1.json",
+      "transport": "http",
+      "contract": "ask_dj.album_tracks_information",
+      "state": "draft_actual_isolated_ha_synthetic_provider",
+      "qualified": false
+    },
+    {
+      "id": "session.artist_photo.v2",
+      "file": "session_artist_photo_v2.json",
+      "transport": "source_handler_fixture",
+      "contract": "session.media.prepare.v2",
+      "state": "draft_source_runtime_sqlite_media_external_fixtures",
+      "qualified": false
+    },
+    {
+      "id": "contextual_dj_interactions_v1",
+      "file": "contextual_dj_interactions_v1.json",
+      "transport": "http_or_websocket",
+      "contract": "ask_dj.contextual_exploration_and_mood_feedback",
+      "state": "source_fixture_pending_qualified_pin"
+    }
+  ]
+}

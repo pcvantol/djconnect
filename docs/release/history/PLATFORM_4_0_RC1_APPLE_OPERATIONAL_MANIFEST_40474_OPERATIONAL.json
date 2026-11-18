@@ -1,0 +1,90 @@
+{
+  "manifest_id": "release-apple-internal-4.0.0-40474",
+  "status": "APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL",
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-11-05",
+    "approved_statement": "Peter explicitly authorized merging all Apple changes, creating fresh Release build 40474, and installing it on the Mac mini, MacBook, iPhone with its paired Watch, and iPad after the release gates pass. This approval is bound to the exact source and three artifacts below.",
+    "effect": "This approval covers the exact source and three SHA-256-bound artifacts below on the specified devices using the Apple Secure Distribution Relay and local Apple Development provisioning. Physical installation/readback and Core #1439 preference-chain/APNs acceptance remain separate."
+  },
+  "release_profile": "INTERNAL_RELEASE",
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect-app",
+      "source_sha": "f13c862605c26a70ec684bf07224e6e5a56c0758",
+      "version": "4.0.0",
+      "build_number": "40474"
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "target": "apple_private_device",
+      "target_device": "iphone",
+      "github_repository_id": 1444773078,
+      "github_release_asset_id": 713366878,
+      "artifact_sha256": "1c074574b243a2686a41a8de63b890f3aa141e04415e9f3e77596f87ad4b0031",
+      "signing": "local_developer_provisioning_required",
+      "paired_watch_validation": "required",
+      "artifact_id": "713366878"
+    },
+    {
+      "target": "apple_private_device",
+      "target_device": "ipad",
+      "github_repository_id": 1444773078,
+      "github_release_asset_id": 713366869,
+      "artifact_sha256": "58d5e3f2f5f27c832707c9d2450501e09bf688e2020df5a7d15c6639f5305ede",
+      "signing": "local_developer_provisioning_required",
+      "artifact_id": "713366869"
+    },
+    {
+      "target": "apple_private_device",
+      "target_device": "macbook",
+      "github_repository_id": 1444773078,
+      "github_release_asset_id": 713366875,
+      "artifact_sha256": "4597abe940e66c6b5353e92e5af06c05bbf6d5abf3bd015c2b2febeb6a602bad",
+      "signing": "local_developer_provisioning_required",
+      "paired_watch_validation": "disabled",
+      "artifact_id": "713366875"
+    }
+  ],
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "platform_version": "4.0",
+  "release_version": "4.0.0",
+  "operational_readback": {
+    "checked_at": "2026-11-05",
+    "scope": "Five-device installation and separate post-deployment smoke only; not end-to-end Watch preference or APNs acceptance.",
+    "deployment_runs": {
+      "iphone_and_paired_watch": "42030151989",
+      "ipad": "42030157235",
+      "macmini_and_macbook": "42030163154"
+    },
+    "post_deployment_smoke_runs": {
+      "iphone_and_paired_watch": "42030435557",
+      "ipad": "42030534611",
+      "macmini_and_macbook": "42030540329"
+    },
+    "source_sha": "f13c862605c26a70ec684bf07224e6e5a56c0758",
+    "version": "4.0.0",
+    "build_number": "40474",
+    "installed_devices": [
+      "iphone",
+      "watch",
+      "ipad",
+      "macmini",
+      "macbook"
+    ],
+    "installation_evidence": {
+      "iphone_watch_ipad": "Apple lane physical devicectl app readbacks checked by Core; version 4.0.0 and bundleVersion 40474.",
+      "macmini_macbook": "Original dual-Mac relay receipt names both installed hosts; separate smoke includes Mac startup. Apple lane reports both installed plist readbacks as 40474."
+    },
+    "release_gates": "Original three deployment runs and three separate smoke runs SUCCESS on the exact source SHA. GitHub asset IDs and checksums remain those in artifact_bindings.",
+    "remaining_acceptance": [
+      "Core PR #1439 signed preference-chain authority and actual authenticated physical Watch-to-HA correlation",
+      "Actual APNs provider/device delivery and product acceptance"
+    ],
+    "apns_acceptance": "NOT_ESTABLISHED",
+    "core_1439": "OPEN",
+    "timer": "Stopped by Peter; this record does not restart it."
+  }
+}

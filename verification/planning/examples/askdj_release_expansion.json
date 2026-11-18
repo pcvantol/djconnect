@@ -1,0 +1,13 @@
+{
+  "plan_id": "example-release-askdj",
+  "strategy": "release",
+  "policy": "release_candidate",
+  "scenario_id": "ASKDJ-001",
+  "expands_across": {
+    "modes": ["functional", "privacy", "localization", "compatibility", "resilience"],
+    "matrix_profiles": ["Release Qualification Profile", "Privacy Profile", "Localization Profile", "Regression Profile"],
+    "data_profiles": ["smoke", "regression", "localization", "security", "compatibility", "migration"]
+  },
+  "result": "many_concrete_cases",
+  "executes": false
+}

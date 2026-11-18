@@ -1,0 +1,59 @@
+# DJConnect local Home Assistant development-lab baseline.
+# DJConnect template placeholders are rendered by dev_onboarding_macos.sh only
+# when it creates a missing Compose file. Do not add credentials here.
+services:
+  homeassistant:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    container_name: __DJCONNECT_HA_CONTAINER_NAME__
+    image: __DJCONNECT_HA_IMAGE__
+    volumes:
+      - ./config:/config
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Europe/Amsterdam
+      - AIODNS_DISABLED=1
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    ports:
+      - "8123:8123"
+    networks:
+      - ha_net
+    restart: unless-stopped
+
+  whisper:
+    container_name: __DJCONNECT_WHISPER_CONTAINER_NAME__
+    image: __DJCONNECT_WHISPER_IMAGE__
+    command: __DJCONNECT_WHISPER_COMMAND__
+    ports:
+      - "10300:10300"
+    networks:
+      - ha_net
+    restart: unless-stopped
+
+  piper:
+    container_name: __DJCONNECT_PIPER_CONTAINER_NAME__
+    image: __DJCONNECT_PIPER_IMAGE__
+    command: __DJCONNECT_PIPER_COMMAND__
+    ports:
+      - "10200:10200"
+    networks:
+      - ha_net
+    restart: unless-stopped
+
+  music-assistant:
+    container_name: __DJCONNECT_MA_CONTAINER_NAME__
+    image: __DJCONNECT_MA_IMAGE__
+    volumes:
+      - __DJCONNECT_MA_DATA_DIR__:/data
+    ports:
+      - "8095:8095"
+    networks:
+      - ha_net
+    restart: unless-stopped
+
+networks:
+  ha_net:
+    driver: bridge
+    enable_ipv6: false
