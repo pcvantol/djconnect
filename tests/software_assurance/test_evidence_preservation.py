@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
 import unittest
 
 from tools.trusted_delivery.evidence_preservation import (
@@ -66,6 +68,40 @@ class EvidencePreservationTest(unittest.TestCase):
         self.assertEqual(validate_record(first), [])
         self.assertEqual(first["redaction"]["status"], "REDACTED")  # type: ignore[index]
         self.assertEqual(first["integrity"]["algorithm"], "sha256-canonical-json")  # type: ignore[index]
+
+    def test_extended_policy_identity_requires_trusted_expected_source(self) -> None:
+        record = self.build()
+        expected = {
+            "repository": "djconnect-music-dj/.github", "repository_id": 1461539726,
+            "revision": POLICY, "snapshot": "evidence-ebbb",
+            "original_repository_id": 1258575431,
+            "original_revision": "ebbb35f038a7a3c7d46c12660968bcd50eb67580",
+        }
+        record["policy_source_identity"] = copy.deepcopy(expected)
+        def rehash(value):
+            unsigned = {key: item for key, item in value.items() if key != "integrity"}
+            value["integrity"]["digest"] = hashlib.sha256(
+                json.dumps(unsigned, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest()
+        rehash(record)
+        self.assertEqual(validate_record(record, expected_policy_source=expected), [])
+        self.assertIn("policy source expectation required", validate_record(record))
+        for key in expected:
+            with self.subTest(field=key):
+                bad = copy.deepcopy(record)
+                bad["policy_source_identity"][key] = "wrong"
+                rehash(bad)
+                self.assertIn("policy source identity mismatch", validate_record(bad, expected_policy_source=expected))
+        bad = copy.deepcopy(record)
+        bad["source_revision"] = "f" * 40
+        rehash(bad)
+        self.assertIn("policy source revision mismatch", validate_record(bad, expected_policy_source=expected))
+        malformed = copy.deepcopy(expected)
+        malformed["snapshot"] = "unknown"
+        bad = copy.deepcopy(record)
+        bad["policy_source_identity"] = malformed
+        rehash(bad)
+        self.assertIn("policy source identity mismatch", validate_record(bad, expected_policy_source=malformed))
 
     def test_repository_scoped_release_tag_prefix_is_preserved(self) -> None:
         record = build_record(
