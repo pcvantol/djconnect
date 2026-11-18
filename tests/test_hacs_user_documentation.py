@@ -34,6 +34,26 @@ class HacsUserDocumentationTest(unittest.TestCase):
             {"owner": ["djconnect-music-dj"], "repository": ["djconnect"], "category": ["integration"]},
         )
 
+    def test_marketplace_and_hacs_install_path_is_explained_in_all_languages(self):
+        fallbacks = {
+            "installation.md": "Custom repositories",
+            "nl.md": "Aangepaste repositories",
+            "de.md": "Benutzerdefinierte Repositories",
+            "fr.md": "Dépôts personnalisés",
+            "es.md": "Repositorios personalizados",
+        }
+        for name, hacs_fallback in fallbacks.items():
+            with self.subTest(guide=name):
+                guide = (ROOT / "docs/user" / name).read_text()
+                self.assertIn("2026.11", guide)
+                self.assertIn("Marketplace", guide)
+                self.assertIn("Add from link", guide)
+                self.assertIn("GitHub", guide)
+                self.assertIn("HACS", guide)
+                self.assertIn(hacs_fallback, guide)
+                self.assertIn("djconnect-music-dj/djconnect", guide)
+                self.assertIn(DEEPLINK, guide)
+
     def test_compact_theme_independent_approved_brand_is_identical_on_both_surfaces(self):
         class Images(HTMLParser):
             def __init__(self):

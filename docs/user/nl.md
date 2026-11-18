@@ -22,8 +22,10 @@ optioneel bij het instellen. Alleen beschikbare spraakroutes worden aangeboden.
 
 ## Installeren en starten
 
-1. Open de HACS-link hieronder, of voeg de repository als **Integration** toe bij
-   **Aangepaste repositories**. Installeer DJConnect en herstart Home Assistant.
+Vanaf Home Assistant 2026.11 opent de onderstaande HACS-link Marketplace; op oudere versies opent hij HACS.
+
+1. Open de link hieronder. Handmatig op 2026.11+: **Instellingen → Marketplace → Add from link**; verbind GitHub als daarom wordt gevraagd en voeg `djconnect-music-dj/djconnect` toe.
+   Voeg op oudere versies de repository in HACS toe via **Aangepaste repositories**, categorie **Integration**. Installeer DJConnect en herstart Home Assistant.
 2. Open **Instellingen → Apparaten & diensten → Integratie toevoegen → DJConnect**.
 3. Kies Assist, lokaal apparaat of app. Bluetooth kan optioneel alleen de WiFi
    van een ESP32 instellen; daarna volgt de koppeling.

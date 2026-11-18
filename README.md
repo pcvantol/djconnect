@@ -38,14 +38,14 @@ Complete earlier bodies below retain their historical scope.
 Your personal music DJ in Home Assistant. Ask for music and enjoy DJ contributions
 from an available DJConnect app, supported device or Home Assistant Assist.
 
-**[Open DJConnect in HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration)**
+**[Open DJConnect in Marketplace or HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration)**
 
 [English](docs/user/installation.md) · [Nederlands](docs/user/nl.md) ·
 [Deutsch](docs/user/de.md) · [Français](docs/user/fr.md) · [Español](docs/user/es.md)
 
 > This branch describes **4.0.0**, a candidate, not an installed-release claim.
 > Installed **3.3.1**? Follow the [stable setup guide](docs/user/stable-3.3.1.md).
-> Check your installed version in HACS before following the wizard steps.
+> Check your installed version in Marketplace or HACS before following the wizard steps.
 
 Help examples in English and Dutch use your connected server’s current availability. You can always ask in your own words. See [Help scope and release evidence](docs/verification/HELP_EN_NL_LIVE_PUBLICATION_20261026.md).
 
@@ -57,7 +57,7 @@ Help examples in English and Dutch use your connected server’s current availab
 
 ## What you need
 
-- **Home Assistant and HACS**, plus a configured Assist pipeline. The 4.0 candidate
+- **Home Assistant with Marketplace (2026.11+) or HACS**, plus a configured Assist pipeline. The 4.0 candidate
   needs an available conversation agent; STT/TTS are optional for setup. Stable
   3.3.1 needs a pipeline with both STT and TTS: see its versioned guide.
 - **Choose a music route:** Spotify Direct needs Spotify Premium, your own Spotify
@@ -70,10 +70,10 @@ Help examples in English and Dutch use your connected server’s current availab
 
 ## Install
 
-1. [Open HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration). If needed, use
-   **Custom repositories**, add `https://github.com/djconnect-music-dj/djconnect` and select
+1. [Open Marketplace or HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=djconnect-music-dj&repository=djconnect&category=integration). For manual setup on 2026.11+, use **Settings → Marketplace → Add from link**, connect GitHub if prompted, and add `djconnect-music-dj/djconnect`.
+   On older versions, add `https://github.com/djconnect-music-dj/djconnect` under HACS **Custom repositories**,
    category **Integration**.
-2. Install **DJConnect** from HACS.
+2. Install **DJConnect** from Marketplace or HACS.
 3. **Restart Home Assistant.**
 4. Go to **Settings → Devices & services → Add integration → DJConnect**.
 
