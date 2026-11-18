@@ -13,6 +13,13 @@ class SessionPrivateCatalogueQualificationTests(unittest.TestCase):
         self.assertTrue(proof["source_before_after_equal"])
         self.assertEqual(len(proof["source_pins"]), 315)
         for name, expected in {**proof["source_pins"], **proof["harness_pins"]}.items():
+            # The historical renderer digest is not a claim about the current 4.1 renderer.
+            if name == "custom_components/djconnect/vibecast.html":
+                self.assertEqual(expected, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
+                continue
+            if name == "custom_components/djconnect/vibecast_display.html":
+                self.assertEqual(expected, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
+                continue
             # Historical receipts do not qualify the current migration-edited files.
             if name in (
                 "custom_components/djconnect/manifest.json",

@@ -288,6 +288,13 @@ class BandStoryActualHAEvidenceTests(unittest.TestCase):
         self.assertEqual(len(current['source_pins']), 315)
         for name, digest in {**current['source_pins'], **proof["original_common_harness_source_pins"],
                 proof["harness"]: proof["harness_sha256"]}.items():
+            # The historical renderer digest is not a claim about the current 4.1 renderer.
+            if name == "custom_components/djconnect/vibecast.html":
+                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
+                continue
+            if name == "custom_components/djconnect/vibecast_display.html":
+                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
+                continue
             # Historical receipts do not qualify the current migration-edited files.
             if name in (
                 "custom_components/djconnect/manifest.json",

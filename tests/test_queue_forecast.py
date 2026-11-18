@@ -146,6 +146,13 @@ class QueueProjectionTests(unittest.TestCase):
         self.assertEqual(fixture['native_acceptance'], 'NOT_RUN')
         self.assertEqual(len(fixture['source_sha256']), 315)
         for path, sha in fixture['source_sha256'].items():
+            # The historical renderer digest is not a claim about the current 4.1 renderer.
+            if path == "custom_components/djconnect/vibecast.html":
+                self.assertEqual(sha, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
+                continue
+            if path == "custom_components/djconnect/vibecast_display.html":
+                self.assertEqual(sha, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
+                continue
             # Historical receipts do not qualify the current migration-edited files.
             if path in (
                 "custom_components/djconnect/manifest.json",
