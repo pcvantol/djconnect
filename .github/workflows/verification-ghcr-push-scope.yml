@@ -1,0 +1,23 @@
+name: Verification runtime GHCR push scope (no write)
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/verification-ghcr-push-scope.yml'
+      - 'tools/verification/ghcr_write_scope_probe.py'
+permissions: {}
+jobs:
+  inspect:
+    if: github.actor_id == '19624891' && github.repository_id == '1258575431' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          persist-credentials: false
+      - name: Inspect granted scope without registry mutation
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 -m tools.verification.ghcr_write_scope_probe
