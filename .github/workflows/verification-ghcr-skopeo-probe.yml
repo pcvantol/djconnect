@@ -1,0 +1,78 @@
+name: Verification runtime unique Skopeo write probe
+on:
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: verification-runtime-ghcr-publish
+  cancel-in-progress: false
+jobs:
+  probe:
+    if: github.actor_id == '19624891' && github.repository_id == '1258575431' && github.repository == 'djconnect-music-dj/djconnect' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          persist-credentials: false
+      - name: Set up pinned Buildx builder
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          version: v0.38.1
+          driver: docker-container
+          driver-opts: image=moby/buildkit@sha256:c5f8862f52499773af85bc07695b2379ef08e8002352b0df2c4864c91d78dabe
+      - name: Verify pinned Buildx and install pinned Skopeo
+        run: |
+          echo "e25d5cd675092bb5d1d03632fdc46cdf3fede7b514dc5f023a105e00d3ce5ad4  $HOME/.docker/cli-plugins/docker-buildx" | sha256sum --check
+          sudo apt-get update
+          sudo apt-get install -y skopeo=1.13.3+ds1-2ubuntu0.24.04.3
+      - name: Create unique synthetic OCI archive
+        run: |
+          set -euo pipefail
+          marker="skopeo-check-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-$(python3 -c 'import uuid; print(uuid.uuid4().hex)')"
+          echo "PROBE_TAG=$marker" >> "$GITHUB_ENV"
+          echo "GHCR_PROBE_TAG=$marker"
+          mkdir -p "$RUNNER_TEMP/skopeo-probe/context"
+          printf '%s\n' "$marker" > "$RUNNER_TEMP/skopeo-probe/context/probe.txt"
+          printf 'FROM scratch\nCOPY probe.txt /probe.txt\n' > "$RUNNER_TEMP/skopeo-probe/context/Dockerfile"
+          docker buildx build --platform linux/amd64 --provenance=false \
+            --output "type=oci,dest=$RUNNER_TEMP/skopeo-probe/image.tar" "$RUNNER_TEMP/skopeo-probe/context"
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from tools.verification.oci_manifest_digest import manifest_details
+          digest, _ = manifest_details(Path(os.environ["RUNNER_TEMP"]) / "skopeo-probe/image.tar")
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as handle:
+              print("PROBE_DIGEST=" + digest, file=handle)
+          print("GHCR_PROBE_DIGEST=" + digest)
+          PY
+      - name: Check baseline and unique tag before publication
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          unset PROBE_DIGEST
+          python3 -m tools.verification.ghcr_skopeo_probe
+      - name: Log in to GHCR
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Publish unique probe without changing existing tags
+        run: |
+          set -euo pipefail
+          skopeo copy --preserve-digests "oci-archive:$RUNNER_TEMP/skopeo-probe/image.tar" \
+            "docker://ghcr.io/djconnect-music-dj/djconnect-verification-platform:$PROBE_TAG"
+      - name: Verify probe digest and unchanged baseline
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 -m tools.verification.ghcr_skopeo_probe
+      - name: Record retained probe for cleanup
+        if: ${{ always() && env.PROBE_TAG != '' }}
+        run: |
+          echo "### Retained Skopeo probe (no automatic cleanup)" >> "$GITHUB_STEP_SUMMARY"
+          echo "Tag: $PROBE_TAG" >> "$GITHUB_STEP_SUMMARY"
+          echo "Digest: ${PROBE_DIGEST:-not-computed}" >> "$GITHUB_STEP_SUMMARY"
+          echo "If any write step failed, inspect the exact tag and digest before cleanup." >> "$GITHUB_STEP_SUMMARY"
