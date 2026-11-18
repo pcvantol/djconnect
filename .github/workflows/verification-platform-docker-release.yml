@@ -73,10 +73,14 @@ jobs:
       - name: Set isolated OCI archive path
         run: echo "OCI_ARCHIVE=$RUNNER_TEMP/verification-runtime.oci.tar" >> "$GITHUB_ENV"
       - name: Set up pinned Buildx builder
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
         with:
+          version: v0.38.1
           driver: docker-container
           driver-opts: image=moby/buildkit@sha256:c5f8862f52499773af85bc07695b2379ef08e8002352b0df2c4864c91d78dabe
+      - name: Verify pinned Buildx binary
+        run: |
+          echo "e25d5cd675092bb5d1d03632fdc46cdf3fede7b514dc5f023a105e00d3ce5ad4  $HOME/.docker/cli-plugins/docker-buildx" | sha256sum --check
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
         with:
           python-version: "3.11"
