@@ -6,8 +6,8 @@ RUNTIME_NAME = "djconnect-verification-platform"
 RUNTIME_PRODUCT = "Verification Runtime"
 RUNTIME_VERSION = "1.1.0"
 RUNTIME_SCHEMA_VERSION = 1
-RUNTIME_REPOSITORY = "pcvantol/djconnect"
-RUNTIME_DOCKER_REPOSITORY = "pcvantol/djconnect-verification-platform"
+RUNTIME_REPOSITORY = "djconnect-music-dj/djconnect"
+RUNTIME_DOCKER_REPOSITORY = "ghcr.io/djconnect-music-dj/djconnect-verification-platform"
 RUNTIME_CAPABILITIES = (
     "planner",
     "execution",

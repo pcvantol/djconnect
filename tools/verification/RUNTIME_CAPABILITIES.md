@@ -2,8 +2,8 @@
 
 Status: Canonical  
 Runtime product: Verification Runtime  
-Repository: `pcvantol/djconnect`  
-Docker distribution: `pcvantol/djconnect-verification-platform`
+Repository: `djconnect-music-dj/djconnect`
+Docker distribution: `ghcr.io/djconnect-music-dj/djconnect-verification-platform`
 
 ## Purpose
 
@@ -23,8 +23,8 @@ release lifecycle and Docker distribution channel.
 | Field | Value |
 | --- | --- |
 | Product name | Verification Runtime |
-| Source repository | `pcvantol/djconnect` |
-| Docker distribution | `pcvantol/djconnect-verification-platform` |
+| Source repository | `djconnect-music-dj/djconnect` |
+| Docker distribution | `ghcr.io/djconnect-music-dj/djconnect-verification-platform` |
 | Repository role | Source of implementation |
 | Docker role | Canonical runtime distribution |
 | Release cycle | Independent from DJConnect platform releases |
