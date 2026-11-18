@@ -8,9 +8,9 @@ import os
 import subprocess
 from pathlib import Path
 
-from tools.verification.runtime import RUNTIME_VERSION
+from tools.verification.runtime import RUNTIME_DOCKER_REPOSITORY, RUNTIME_VERSION
 
-DEFAULT_IMAGE = "pcvantol/djconnect-verification-platform"
+DEFAULT_IMAGE = RUNTIME_DOCKER_REPOSITORY
 DEFAULT_BASE_IMAGE = "python:3.12-slim"
 
 
@@ -29,6 +29,10 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     root = args.root.resolve()
     release_sha = args.release_sha or _git_sha(root)
+    if args.push and not args.dry_run:
+        from tools.verification.ghcr_release_guard import publish_from_environment
+        publish_from_environment(args.image, RUNTIME_VERSION, release_sha, _git_sha(root))
+        return 0
     tags = _tags(args.image, release_sha)
     command = [
         "docker",
@@ -48,8 +52,8 @@ def main(argv: list[str] | None = None) -> int:
         command.extend(["-t", tag])
     command.append(str(root))
     commands = [command]
-    if args.push:
-        commands.extend(["docker", "push", tag] for tag in tags)
+    if args.push and args.dry_run:
+        print("GHCR push requires the coordinated release workflow and runtime tag checks.")
     for item in commands:
         print(" ".join(item))
         if not args.dry_run:
