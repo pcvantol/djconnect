@@ -13,7 +13,7 @@ jobs:
     name: Software Assurance governance
     permissions:
       contents: read
-    uses: djconnect-music-dj/djconnect-shared-workflows/.github/workflows/software-assurance-governance-5f12.yml@f87d38ab26a8513a2a1de6f9c98a6b56e3d76ffc
+    uses: djconnect-music-dj/djconnect-shared-workflows/.github/workflows/software-assurance-governance-5f12.yml@4025a68add8ba98f1f2e0307d7f3998e45c0d9ef
     with:
       execution_profile: balanced
       owner: djconnect-music-dj/djconnect
