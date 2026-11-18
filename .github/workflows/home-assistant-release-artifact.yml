@@ -35,7 +35,7 @@ jobs:
           set -euo pipefail
           test "$(date -u +%s)" -lt "$(date -u -d '2026-12-10T00:00:00Z' +%s)"
           test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
-          jq -e '.version == "4.0.0"' custom_components/djconnect/manifest.json >/dev/null
+          jq -e '.version == "4.1.0"' custom_components/djconnect/manifest.json >/dev/null
           printf '%s\n' 'Ask DJ qualification is deferred during migration; it has not passed for this candidate.' >> "$GITHUB_STEP_SUMMARY"
       - name: Package the exact integration artifact
         run: |

@@ -1,4 +1,4 @@
-# Install and start — 4.0.0 candidate
+# Install and start — 4.1.0 candidate
 
 **Your music. Your DJ.** DJConnect is your personal music DJ in Home Assistant.
 Ask for music, enjoy DJ contributions and choose your session mood.

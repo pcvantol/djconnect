@@ -65,10 +65,10 @@ jobs:
             and (.findings | length) == 68
             and all(.findings[]; startswith("open_core_qualification:"))
           ' "$report" >/dev/null
-          jq -e '.version == "4.0.0"' custom_components/djconnect/manifest.json >/dev/null
+          jq -e '.version == "4.1.0"' custom_components/djconnect/manifest.json >/dev/null
 
           mkdir -p beta-artifact
-          asset="djconnect-ha-4.0.0-external-testflight-${CANDIDATE_SHA}.tar.gz"
+          asset="djconnect-ha-4.1.0-external-testflight-${CANDIDATE_SHA}.tar.gz"
           tar -C custom_components --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf - djconnect |
             gzip -n > "beta-artifact/$asset"
           tar -xOzf "beta-artifact/$asset" djconnect/manifest.json |
@@ -93,6 +93,6 @@ jobs:
             }' > beta-artifact/qualification.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: external-testflight-ha-4.0.0-${{ env.CANDIDATE_SHA }}
+          name: external-testflight-ha-4.1.0-${{ env.CANDIDATE_SHA }}
           path: beta-artifact/
           if-no-files-found: error

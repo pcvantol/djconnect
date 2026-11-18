@@ -19,7 +19,7 @@ class HacsUserDocumentationTest(unittest.TestCase):
         manifest = json.loads((ROOT / "custom_components/djconnect/manifest.json").read_text())
         self.assertEqual(manifest["documentation"], "https://github.com/djconnect-music-dj/djconnect")
         self.assertEqual(manifest["issue_tracker"], "https://github.com/djconnect-music-dj/djconnect/issues")
-        self.assertEqual(manifest["version"], "4.0.0")
+        self.assertEqual(manifest["version"], "4.1.0")
         for name in ("README.md", "info.md"):
             text = (ROOT / name).read_text()
             self.assertIn(manifest["version"], text)
@@ -119,7 +119,7 @@ class HacsUserDocumentationTest(unittest.TestCase):
             with self.subTest(locale=locale):
                 for term in (
                     "3.3.1",
-                    "4.0.0",
+                    "4.1.0",
                     "Spotify Direct",
                     "Music Assistant",
                     "Client ID",
