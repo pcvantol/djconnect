@@ -1,7 +1,7 @@
 # DJConnect Product Strategy
 
 Status: foundation established  
-Repository: `pcvantol/djconnect`
+Repository: `djconnect-music-dj/djconnect`
 
 ## Purpose
 

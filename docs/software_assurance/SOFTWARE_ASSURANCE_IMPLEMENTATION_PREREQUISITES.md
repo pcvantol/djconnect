@@ -1,7 +1,7 @@
 # Software Assurance Implementation Prerequisites
 
 Status: canonical prerequisites  
-Scope owner: `pcvantol/djconnect`
+Scope owner: `djconnect-music-dj/djconnect`
 
 Software Assurance implementation may begin only after:
 

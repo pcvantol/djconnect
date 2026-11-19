@@ -1,7 +1,7 @@
 # DJConnect Verification Runtime
 
 Status: core plus execution environment, planning engine and runtime release
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Builds on: `docs/verification/00_VERIFICATION_VISION.md`,
 `docs/verification/01_VERIFICATION_ARCHITECTURE.md` and
 `docs/verification/02_SCENARIO_SCHEMA.md`
