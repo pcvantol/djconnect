@@ -1,0 +1,391 @@
+{
+  "schema_version": "djconnect-federated-planning-delta/2",
+  "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
+  "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
+  "design_date": "2026-10-11",
+  "scope": "SELECTED_CORE_IMPLEMENTATION_DELTA",
+  "execution_authority": false,
+  "automatic_dispatch": false,
+  "frozen_snapshot": "history/20261003/djconnect-platform-v1.json",
+  "frozen_sha256": "5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348fb6",
+  "frozen_content_sha256": "8179d34d9e91106bb1d15c77b734a3cb3b5ebcedae240860f76ece15f50dbef3",
+  "source_base": "01da7c8eb6bc1293656767d9cc37718f971ea247",
+  "nodes": [
+    {
+      "id": "PROJ::INTELLIGENCE::DJ-PRESENCE",
+      "title": "Adjustable DJ presence",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Independent presence, Mood and Persona; no new dispatch",
+      "acceptance_boundary": "Independent presence, Mood and Persona; no new dispatch",
+      "contract_binding": "docs/product/DJ_PRESENCE_V1.md; exact implementation values/route still to qualify",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ],
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "PRESENCE-7"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "SLICE::CORE::DJ-PRESENCE-CONTRACT",
+      "title": "Presence policy and owner contract",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Completed",
+      "assignment_status": "CORE_DELIVERED",
+      "scope": "Pin numeric policy/default, capability/schema and producer fixtures",
+      "acceptance_boundary": "Pin numeric policy/default, capability/schema and producer fixtures; qualified Core software only, native/installed/hardware/joint open",
+      "contract_binding": "docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md; source1150/mainb5c25f7c8098ce805bf4cab94a887c8590f9717f; exact archive/formal receipts in implementation_receipt",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ],
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "PRESENCE-9"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "SLICE::CORE::DJ-PRESENCE-POLICY",
+      "title": "Actual proactive presence regulation",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Completed",
+      "assignment_status": "CORE_DELIVERED",
+      "scope": "All proactive paths; off/in-flight/no-catch-up/published-only accounting",
+      "acceptance_boundary": "All proactive paths; off/in-flight/no-catch-up/published-only accounting; qualified Core software only, native/installed/hardware/joint open",
+      "contract_binding": "docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md; source1150/mainb5c25f7c8098ce805bf4cab94a887c8590f9717f; exact archive/formal receipts in implementation_receipt",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ],
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "PRESENCE-1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "SLICE::APPLE::DJ-PRESENCE-CONTROL",
+      "title": "Native iPhone/iPad/Mac presence slider",
+      "lane": "DJC-APPLE",
+      "repository": "pcvantol/djconnect-app",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Accessible five-language native confirmation; reuse existing Apple writer",
+      "acceptance_boundary": "Accessible five-language native confirmation; reuse existing Apple writer",
+      "contract_binding": "docs/product/DJ_PRESENCE_V1.md; exact implementation values/route still to qualify",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ],
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "PRESENCE-2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "QUAL::VIBECAST::DJ-PRESENCE-COMPAT",
+      "title": "Local/static presence compatibility",
+      "lane": "DJC-VIBECAST",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Core shared-renderer + receiver owner, both existing software builds",
+      "acceptance_boundary": "Core shared-renderer + receiver owner, both existing software builds",
+      "contract_binding": "docs/product/DJ_PRESENCE_V1.md; exact implementation values/route still to qualify",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ],
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "PRESENCE-3"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "QUAL::PRODUCT::DJ-PRESENCE-V1",
+      "title": "Joint presence v1 acceptance",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "AND qualified Core policy, native control and both renderer receipts",
+      "acceptance_boundary": "AND qualified Core policy, native control and both renderer receipts",
+      "contract_binding": "docs/product/DJ_PRESENCE_V1.md; exact implementation values/route still to qualify",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ],
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "PRESENCE-4",
+            "PRESENCE-5",
+            "PRESENCE-6"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "SLICE::CORE::ACTIVE-SESSION-MOOD",
+      "title": "Qualified active Session Mood owner/order subset",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "status": "Completed",
+      "assignment_status": "NOT_ISSUED",
+      "scope": "Only verified ordinary pairing/owner/final authority/revision semantics from source1146/Finalization1147",
+      "acceptance_boundary": "Only verified ordinary pairing/owner/final authority/revision semantics from source1146/Finalization1147",
+      "contract_binding": "docs/product/ACTIVE_SESSION_MOOD_V1.md; source491e2258920e730901875e3c8b258565a06e8463",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ],
+      "prerequisite_groups": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "PRESENCE-1",
+      "producer": "SLICE::CORE::DJ-PRESENCE-CONTRACT",
+      "consumer": "SLICE::CORE::DJ-PRESENCE-POLICY",
+      "kind": "implementation_contract",
+      "phase": "implementation",
+      "prerequisite_stage": "start",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Exact policy table/default/ownercontract",
+      "contract_or_evidence": "Pinned contract and producer fixtures",
+      "reason": "Exact policy table/default/ownercontract",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ]
+    },
+    {
+      "id": "PRESENCE-2",
+      "producer": "SLICE::CORE::DJ-PRESENCE-CONTRACT",
+      "consumer": "SLICE::APPLE::DJ-PRESENCE-CONTROL",
+      "kind": "implementation_contract",
+      "phase": "implementation",
+      "prerequisite_stage": "start",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Contract-dependent native integration; independent UX preparation may proceed",
+      "contract_or_evidence": "Early pinned candidate/fixtures suffice, not all Finalization documents",
+      "reason": "Contract-dependent native integration; independent UX preparation may proceed",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ]
+    },
+    {
+      "id": "PRESENCE-3",
+      "producer": "SLICE::CORE::DJ-PRESENCE-POLICY",
+      "consumer": "QUAL::VIBECAST::DJ-PRESENCE-COMPAT",
+      "kind": "integration_acceptance",
+      "phase": "integration_acceptance",
+      "prerequisite_stage": "completion",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Actual varied authorized Broadcast traces",
+      "contract_or_evidence": "Exact producer local/static browser receipts; CAF/native/hardware separated",
+      "reason": "Actual varied authorized Broadcast traces",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ]
+    },
+    {
+      "id": "PRESENCE-4",
+      "producer": "SLICE::CORE::DJ-PRESENCE-POLICY",
+      "consumer": "QUAL::PRODUCT::DJ-PRESENCE-V1",
+      "kind": "integration_acceptance",
+      "phase": "integration_acceptance",
+      "prerequisite_stage": "completion",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Policy AND native control AND both renderer consumers",
+      "contract_or_evidence": "Exact candidate/contract/consumer receipts, acceptance A-E",
+      "reason": "Policy AND native control AND both renderer consumers",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ]
+    },
+    {
+      "id": "PRESENCE-5",
+      "producer": "SLICE::APPLE::DJ-PRESENCE-CONTROL",
+      "consumer": "QUAL::PRODUCT::DJ-PRESENCE-V1",
+      "kind": "integration_acceptance",
+      "phase": "integration_acceptance",
+      "prerequisite_stage": "completion",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Policy AND native control AND both renderer consumers",
+      "contract_or_evidence": "Exact candidate/contract/consumer receipts, acceptance A-E",
+      "reason": "Policy AND native control AND both renderer consumers",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ]
+    },
+    {
+      "id": "PRESENCE-6",
+      "producer": "QUAL::VIBECAST::DJ-PRESENCE-COMPAT",
+      "consumer": "QUAL::PRODUCT::DJ-PRESENCE-V1",
+      "kind": "integration_acceptance",
+      "phase": "integration_acceptance",
+      "prerequisite_stage": "completion",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Policy AND native control AND both renderer consumers",
+      "contract_or_evidence": "Exact candidate/contract/consumer receipts, acceptance A-E",
+      "reason": "Policy AND native control AND both renderer consumers",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ]
+    },
+    {
+      "id": "PRESENCE-7",
+      "producer": "QUAL::PRODUCT::DJ-PRESENCE-V1",
+      "consumer": "PROJ::INTELLIGENCE::DJ-PRESENCE",
+      "kind": "integration_acceptance",
+      "phase": "integration_acceptance",
+      "prerequisite_stage": "completion",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Joint product completion, not slider-only completion",
+      "contract_or_evidence": "Core + Apple owning receipts; no extra writerlane",
+      "reason": "Joint product completion, not slider-only completion",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ]
+    },
+    {
+      "id": "PRESENCE-8",
+      "producer": "SLICE::CORE::ACTIVE-SESSION-MOOD",
+      "consumer": "PROJ::INTELLIGENCE::DJ-PRESENCE",
+      "kind": "strategy_order",
+      "phase": "selection",
+      "prerequisite_stage": "start",
+      "hard_precedence": false,
+      "logical_mode": "AND",
+      "required_subset": "Mood completion orders selection, never determines presence frequency",
+      "contract_or_evidence": "Source1146/Finalization1147; resource/writerslot admission remains outside functional DAG",
+      "reason": "Mood completion orders selection, never determines presence frequency",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ]
+    },
+    {
+      "id": "PRESENCE-9",
+      "producer": "SLICE::CORE::ACTIVE-SESSION-MOOD",
+      "consumer": "SLICE::CORE::DJ-PRESENCE-CONTRACT",
+      "kind": "implementation_contract",
+      "phase": "implementation",
+      "prerequisite_stage": "start",
+      "hard_precedence": true,
+      "logical_mode": "AND",
+      "required_subset": "Only ordinary pairing, server-owner, active Session, final authority and CAS/readback subset",
+      "contract_or_evidence": "Qualified ACTIVE_SESSION_MOOD_V1.md, no Mood endpoint extension",
+      "reason": "Only ordinary pairing, server-owner, active Session, final authority and CAS/readback subset",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ]
+    },
+    {
+      "id": "PRESENCE-10",
+      "producer": "PROJ::INTELLIGENCE::DJ-PRESENCE",
+      "consumer": "PROJ::ROADMAP::NARRATIVE-LYRICS",
+      "kind": "strategy_order",
+      "phase": "selection",
+      "prerequisite_stage": "start",
+      "hard_precedence": false,
+      "logical_mode": "AND",
+      "required_subset": "Later richer presenter maturity reuses v1; broader Deferred family remains Deferred",
+      "contract_or_evidence": "No retrospective v1 completion gate or new semantic relationship dispatch",
+      "reason": "Later richer presenter maturity reuses v1; broader Deferred family remains Deferred",
+      "source_ids": [
+        "OWNER-DJ-PRESENCE-20261011"
+      ]
+    }
+  ],
+  "document_references": [
+    {
+      "path": "PRODUCT_ROADMAP.md",
+      "sha256": "6cf4a119cac678fa0c2358812e35282c4983d1a539315455257fe0ef7d0fdbac"
+    },
+    {
+      "path": "PRODUCT_BACKLOG.md",
+      "sha256": "78817a9a4bdec4a4eecfe7c5a69b6c829cbf422671111049d941a0b68e33d521"
+    },
+    {
+      "path": "docs/product/DJ_PRESENCE_V1.md",
+      "sha256": "c97be3bcebbd4ca70d640cdf4fc0a9a4808451e986bc977e3173e19842a928c4"
+    },
+    {
+      "path": "DJ_SESSION_RUNTIME_CONTRACTS.md",
+      "sha256": "887177ea4109579b3cefd143aaf67641946a7060128c146a8f9c4bd2d01d9743"
+    },
+    {
+      "path": "docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
+      "sha256": "7117ac67637ca1399120f50518840051435b7ea3bf78ac504c186f38e671cff9"
+    },
+    {
+      "path": "docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
+      "sha256": "ac31f53f4dce423337e0aab778e859fc3e51d4a7d20bb87fb4b1b97257ec44b5"
+    },
+    {
+      "path": "docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md",
+      "sha256": "5dc485caa24c1e7a690f0a0aefef1c0b844bcaf1aea7ea52e3895aabcf7fbd8e"
+    },
+    {
+      "path": "docs/product/DJ_PRESENCE_CORE_POLICY_V1.md",
+      "sha256": "32ed8a6a47cc6f64fb07b9ef4df1cf8fb7e92c2368cd0c35c66ad31b76b64909"
+    },
+    {
+      "path": "docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md",
+      "sha256": "2580acda7c9e19020c030cb1b8cecd47ef87af0f43a643b90f37d7bd89ee65a3"
+    }
+  ],
+  "implementation_receipt": {
+    "assignment_id": "DJC-CORE-DJ-PRESENCE-V1-20261011",
+    "selection_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6111222122",
+    "source_base": "9cdee0602b2ff0db99c433f2a3f2eb6d5ba8fe4e",
+    "branch": "codex/dj-presence-v1",
+    "phase": "SOURCE_PROTECTED_MERGED",
+    "early_contract_pin": "1d5e8c2518db5902031898991b7f4857d5263a5c",
+    "early_apple_receipt": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6111453713",
+    "source_delivery": "PROTECTED_MERGED",
+    "joint_product_acceptance": "OPEN",
+    "native": "NOT_RUN",
+    "installed": "NOT_RUN",
+    "hardware": "NOT_RUN",
+    "previous_delta": "history/20261011/presence-design-maintenance-v1.json",
+    "previous_delta_sha256": "b6d03e64da8389d345454602c32cefa4ca5f2da0069be26e441555a77f09eb01",
+    "source_main_sha": "b5c25f7c8098ce805bf4cab94a887c8590f9717f",
+    "source_pr": "https://github.com/pcvantol/djconnect/pull/1150",
+    "source_review": "PASS",
+    "required_checks": "PASS",
+    "protected_merge": true,
+    "archive_sha256": "2896a8172946c52760d3d00df29949dd0fcbb55cc0721451255a4fed1b0477db",
+    "formal_evidence_sha256": "6840048df8d1f77ce2cc66d465ab0f5aefec0063b452e5785dbc06b8aa30dd63",
+    "source_candidate": "0a9ea74b83c94035086b50db6a4a1a6338866eca",
+    "apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6112248501",
+    "vibecast_handoff": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6112249253",
+    "finalization": "PENDING_EXACT_PUBLICATION_GATE"
+  }
+}

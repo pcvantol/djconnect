@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.1.0-home-assistant-prod-20261119",
+  "platform_version": "4.1",
+  "release_version": "4.1.0",
+  "release_profile": "INTERNAL_RELEASE",
+  "generated_at": "2026-11-19",
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-11-19",
+    "approved_statement": "The maintainer requested Core 4.1 deployment to development and then production before updating Pi clients. The development installation demonstrated that existing 4.0 Pi clients receive version mismatch; the maintainer requested continuing with this temporary incompatibility.",
+    "effect": "Deploy this exact qualified integration artifact to home_assistant_pi5 and run the matching separate post-deployment smoke."
+  },
+  "repositories": [
+    {
+      "repository": "djconnect-music-dj/djconnect",
+      "source_sha": "ada918eaeccfa12056162ed168527cc4a7acd868",
+      "version": "4.1.0",
+      "artifact_run": "44470711931"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "home_assistant_pi5",
+      "required": true
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "djconnect-music-dj/djconnect",
+      "target": "home_assistant_pi5",
+      "artifact_id": "release-asset:djconnect-music-dj/djconnect:internal-ha-ada918eaeccfa12056162ed168527cc4a7acd868:djconnect-home-assistant-integration-ada918eaeccfa12056162ed168527cc4a7acd868.tar.gz",
+      "artifact_sha256": "6fc25bea1b6910d8b3fbc14c6ad2ce78eb4f5501ca743a2a32f447a9883002c0",
+      "artifact_url": "https://github.com/djconnect-music-dj/djconnect/releases/download/internal-ha-ada918eaeccfa12056162ed168527cc4a7acd868/djconnect-home-assistant-integration-ada918eaeccfa12056162ed168527cc4a7acd868.tar.gz"
+    }
+  ],
+  "constraints": [
+    "This is an internal prerelease; the previously deferred Ask DJ qualification remains deferred, with no claim of full qualification.",
+    "Existing 4.0 Pi clients are incompatible with Core 4.1 until updated; the maintainer requested Core before Pi.",
+    "Preserve and verify the current production integration backup and perform the separate target-scoped post-deployment smoke.",
+    "The integration uses the Core 4.1 protocol."
+  ],
+  "next_authorized_action": "Dispatch the Home Assistant private-network deployment, then its matching post-deployment smoke, for the exact binding above."
+}

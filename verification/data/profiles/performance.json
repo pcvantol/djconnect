@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "profile_version": "1.0",
+  "id": "performance",
+  "purpose": "Large but bounded data for latency, memory and transport tests",
+  "generator_refs": ["performance.large_payloads.v1"],
+  "selection": {
+    "payload_sizes": ["typical", "large", "maximum"],
+    "exclude_by_default": ["huge", "unbounded"]
+  },
+  "max_generated_items": 100,
+  "traceability": {
+    "verification_modes": ["performance"],
+    "risk_categories": ["latency", "memory", "transport"]
+  }
+}

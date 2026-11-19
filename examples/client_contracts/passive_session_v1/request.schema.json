@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djconnect.dev/contracts/passive-session-v1",
+  "title": "DJConnect passive Session v1",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/authorize"
+    },
+    {
+      "$ref": "#/$defs/read"
+    }
+  ],
+  "$defs": {
+    "authorize": {
+      "type": "object",
+      "properties": {
+        "contract_version": {
+          "const": 1
+        },
+        "device_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "client_type": {
+          "enum": [
+            "ios",
+            "macos"
+          ]
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "surface": {
+          "enum": [
+            "widget",
+            "live_activity"
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "os_snapshot_cache": {
+          "type": "boolean"
+        },
+        "locked_display": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "contract_version",
+        "device_id",
+        "client_type",
+        "session_id",
+        "surface",
+        "enabled",
+        "os_snapshot_cache",
+        "locked_display"
+      ],
+      "additionalProperties": false
+    },
+    "read": {
+      "type": "object",
+      "properties": {
+        "contract_version": {
+          "const": 1
+        },
+        "device_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "client_type": {
+          "enum": [
+            "ios",
+            "macos"
+          ]
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "surface": {
+          "enum": [
+            "widget",
+            "live_activity"
+          ]
+        },
+        "grant_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "contract_version",
+        "device_id",
+        "client_type",
+        "session_id",
+        "surface",
+        "grant_id"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

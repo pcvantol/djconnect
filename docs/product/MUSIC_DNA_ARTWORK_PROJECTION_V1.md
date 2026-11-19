@@ -1,0 +1,15 @@
+# Music DNA artwork projection v1
+
+This bounded producer extends the existing [Discovery artwork contract](DISCOVERY_ARTWORK_CONTINUITY_V1.md) to the ordinary paired Music DNA profile HTTP response. Apple owns client rendering; no client source changes or new image loader/provider are introduced here.
+
+The existing current original response guard is retained across profile resolution and projection and checked again before returning. A new guard is never captured to rebind an old response. Current opt-in, owner, backend/account, privacy, generation and identity checks apply. Clear, replacement, opt-out, account/consent changes and expiry revoke the existing capability. Reads are pure and add no provider refresh, name lookup or playback operation.
+
+Only current structured profile rows in recent/top tracks, top artists, favorite tracks and accepted recommendation signals are eligible. Name-only artist aggregates, historical snapshots and blocked items receive no grants. URI and ID must agree; a track uses its exact server-proven album edition. Each row is validated before URI deduplication, so a conflicting album cannot borrow a prior row's grant. One response scans at most1000 rows and issues at most128 distinct grants within the existing512 global grant capacity.
+
+Eligible HTTP rows add `image_url`, `image_subject_uri`, `image_captured_at`, `image_reference_expires_at`, `image_expires_at` and `image_attribution`. Delivery expiry is `min(original_reference_expiry, issue_time+900seconds)`; capture/reference expiry never renew on reads. Missing or invalid proof omits every image field. Use the original exact Spotify media link/attribution, with existing MIT/non-affiliation policy retained. Headerless GET remains200 image/no-store,404 revoked/missing/expired,401 explicit wrong credentials,502 unsafe/upstream failure.
+
+Plain Music DNA profile/service/tool output strips private artwork references recursively. Export/import never acquires a portable grant. Internal Store references remain private, unchanged and bounded by the original six-hour reference expiry. Store reload revokes old delivery grants; a new ordinary authorized read may issue a new delivery capability against the same unexpired reference.
+
+Legacy `recommendation_plays` without their own reference can now populate Discovery's accepted recommendations from the current exact listening-profile reference. Exact track URI or exact album URI/edition and current owner must match. The current reference must pass existing compaction/expiry checks. Copies are transient; the accepted record is never rewritten and its capture clock is never fabricated. Unshown arbitrary playback commands remain409 `choice_expired`.
+
+[Actual synthetic HA fixture](../../examples/client_contracts/music_dna_artwork_v1/profile-and-legacy-accepted.json) and [verification](../verification/MUSIC_DNA_ARTWORK_PROJECTION_20261021.md) distinguish source/HTTP proof from protected delivery, installed runtime and native acceptance. Browser/native/live Spotify acceptance is not inferred from PNG bytes or isolated HA tests.

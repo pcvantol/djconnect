@@ -1,0 +1,1091 @@
+{
+  "base": "9cdee0602b2ff0db99c433f2a3f2eb6d5ba8fe4e",
+  "qualification": "SOFTWARE_MODELED_EXISTING_RUNTIME",
+  "trace": {
+    "simulator": true,
+    "source": "Existing producer schemas \u2192 real Core Runtime \u2192 Flow \u2192 Broadcast",
+    "receipts": [
+      {
+        "position_ms": 0,
+        "type": "track",
+        "content": "Even meekijken in de credits: Test producer is hier als producer gecrediteerd.",
+        "reason": "contextual_fact:current_scope+readable_fit",
+        "source_url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001"
+      },
+      {
+        "position_ms": 45000,
+        "type": "album",
+        "content": "Een datum bij deze uitgave van Test edition: Spotify vermeldt 2001-03-04.",
+        "reason": "contextual_fact:current_scope+readable_fit",
+        "source_url": "https://open.spotify.com/album/BBBBBBBBBBBBBBBBBBBBBB"
+      },
+      {
+        "position_ms": 90000,
+        "type": "artist",
+        "content": "Een klein detail bij Test artist: de vastgelegde geboortedatum is 1960-01-02.",
+        "reason": "contextual_fact:current_scope+readable_fit",
+        "source_url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000002"
+      }
+    ],
+    "snapshots": [
+      {
+        "session": {
+          "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+          "runtime_state": "active",
+          "selected_mood": "groove",
+          "mood_revision": 0,
+          "locale": "nl"
+        },
+        "playback": {
+          "state": "playing",
+          "item_id": "02e3d582594577327c335fc0",
+          "title": "Test recording",
+          "artist": "Test artist",
+          "album": "Test edition",
+          "updated_at": "2026-10-11T16:51:41.400862+00:00",
+          "duration_ms": 300000,
+          "position_ms": 0,
+          "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+        },
+        "planner": {
+          "planning_state": "ready",
+          "planning_horizon_minutes": 15,
+          "current_direction": "maintaining_energy",
+          "session_direction": {
+            "direction": "maintaining_energy",
+            "initialized_at": "2026-10-11T16:51:41.400862+00:00",
+            "updated_at": "2026-10-11T16:51:41.400862+00:00",
+            "start_strategy": "manual"
+          }
+        },
+        "session_flow": {
+          "flow_id": "flow-session-d14eda0bf3e843fd92f36605f5936629",
+          "flow_revision": 1,
+          "planning_horizon_minutes": 15,
+          "created_at": "2026-10-11T16:51:41.400862+00:00",
+          "items": [
+            {
+              "item_id": "now-current-track",
+              "item_type": "current_track",
+              "position": "now",
+              "label": "Current Track"
+            },
+            {
+              "item_id": "next-planning-horizon",
+              "item_type": "planning_horizon",
+              "position": "next",
+              "label": "Planning Horizon"
+            },
+            {
+              "item_id": "next-maintain-direction",
+              "item_type": "maintain_direction",
+              "position": "next",
+              "label": "Maintain Direction"
+            },
+            {
+              "item_id": "later-future-direction",
+              "item_type": "future_direction",
+              "position": "later",
+              "label": "Future Direction"
+            },
+            {
+              "item_id": "later-future-placeholder",
+              "item_type": "future_placeholder",
+              "position": "later",
+              "label": "Future Placeholder"
+            },
+            {
+              "item_id": "moment-moment-574be109fe9d4ddea275eacaee07024c",
+              "item_type": "dj_moment",
+              "position": "next",
+              "label": "Even de credits erbij",
+              "moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+              "moment_type": "track"
+            }
+          ]
+        },
+        "audience": {
+          "signal_totals": {},
+          "recent_activity": []
+        },
+        "dj_moments": [
+          {
+            "moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+            "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+            "created_at": "2026-10-11T16:51:41.400862+00:00",
+            "type": "track",
+            "knowledge_intent": {
+              "type": "track_context",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Even de credits erbij",
+            "summary": "Even de credits erbij",
+            "content": "Even meekijken in de credits: Test producer is hier als producer gecrediteerd.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "MusicBrainz"
+            ],
+            "generation_metadata": {
+              "provider": "MusicBrainz",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            },
+            "playback_item_id": "02e3d582594577327c335fc0"
+          }
+        ],
+        "presentations": [
+          {
+            "presentation_id": "presentation-moment-574be109fe9d4ddea275eacaee07024c",
+            "source_moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+            "source_moment_type": "track",
+            "visibility": "session_shared"
+          }
+        ],
+        "broadcast": {
+          "started_at": "2026-10-11T16:51:41.400862+00:00",
+          "snapshot_watermark": 7
+        },
+        "native_delivery": {
+          "schema_version": 1,
+          "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+          "current_moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+          "active_flow_moment_ids": [
+            "moment-574be109fe9d4ddea275eacaee07024c"
+          ],
+          "admissions": [
+            {
+              "moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+              "qualification": "qualified",
+              "current_display_allowed": true,
+              "active_flow_display_allowed": true,
+              "source_expires_at": "2026-10-11T17:21:41.400104+00:00",
+              "display_expires_at": "2026-10-11T16:52:21.400862+00:00",
+              "executable_actions": [],
+              "requires_spotify_attribution": false
+            }
+          ],
+          "revocation_scope": "session",
+          "revision": "bdf65d7603341489c3fcb6ca"
+        }
+      },
+      {
+        "session": {
+          "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+          "runtime_state": "active",
+          "selected_mood": "groove",
+          "mood_revision": 0,
+          "locale": "nl"
+        },
+        "playback": {
+          "state": "playing",
+          "item_id": "02e3d582594577327c335fc0",
+          "title": "Test recording",
+          "artist": "Test artist",
+          "album": "Test edition",
+          "updated_at": "2026-10-11T16:52:26.400862+00:00",
+          "duration_ms": 300000,
+          "position_ms": 45000,
+          "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+        },
+        "planner": {
+          "planning_state": "ready",
+          "planning_horizon_minutes": 15,
+          "current_direction": "maintaining_energy",
+          "session_direction": {
+            "direction": "maintaining_energy",
+            "initialized_at": "2026-10-11T16:51:41.400862+00:00",
+            "updated_at": "2026-10-11T16:51:41.400862+00:00",
+            "start_strategy": "manual"
+          }
+        },
+        "session_flow": {
+          "flow_id": "flow-session-d14eda0bf3e843fd92f36605f5936629",
+          "flow_revision": 2,
+          "planning_horizon_minutes": 15,
+          "created_at": "2026-10-11T16:52:26.400862+00:00",
+          "items": [
+            {
+              "item_id": "now-current-track",
+              "item_type": "current_track",
+              "position": "now",
+              "label": "Current Track"
+            },
+            {
+              "item_id": "next-planning-horizon",
+              "item_type": "planning_horizon",
+              "position": "next",
+              "label": "Planning Horizon"
+            },
+            {
+              "item_id": "next-maintain-direction",
+              "item_type": "maintain_direction",
+              "position": "next",
+              "label": "Maintain Direction"
+            },
+            {
+              "item_id": "later-future-direction",
+              "item_type": "future_direction",
+              "position": "later",
+              "label": "Future Direction"
+            },
+            {
+              "item_id": "later-future-placeholder",
+              "item_type": "future_placeholder",
+              "position": "later",
+              "label": "Future Placeholder"
+            },
+            {
+              "item_id": "moment-moment-574be109fe9d4ddea275eacaee07024c",
+              "item_type": "dj_moment",
+              "position": "next",
+              "label": "Even de credits erbij",
+              "moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+              "moment_type": "track"
+            },
+            {
+              "item_id": "moment-moment-33e0c12177cf4979b7b1c61c91cf3966",
+              "item_type": "dj_moment",
+              "position": "next",
+              "label": "Test edition",
+              "moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+              "moment_type": "album"
+            }
+          ]
+        },
+        "audience": {
+          "signal_totals": {},
+          "recent_activity": []
+        },
+        "dj_moments": [
+          {
+            "moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+            "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+            "created_at": "2026-10-11T16:51:41.400862+00:00",
+            "type": "track",
+            "knowledge_intent": {
+              "type": "track_context",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Even de credits erbij",
+            "summary": "Even de credits erbij",
+            "content": "Even meekijken in de credits: Test producer is hier als producer gecrediteerd.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "MusicBrainz"
+            ],
+            "generation_metadata": {
+              "provider": "MusicBrainz",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            },
+            "playback_item_id": "02e3d582594577327c335fc0"
+          },
+          {
+            "moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+            "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+            "created_at": "2026-10-11T16:52:26.400862+00:00",
+            "type": "album",
+            "knowledge_intent": {
+              "type": "album_story",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Test edition",
+            "summary": "Test edition",
+            "content": "Een datum bij deze uitgave van Test edition: Spotify vermeldt 2001-03-04.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "Spotify"
+            ],
+            "generation_metadata": {
+              "provider": "Spotify",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/BBBBBBBBBBBBBBBBBBBBBB",
+              "license": "Spotify metadata display"
+            },
+            "playback_item_id": "02e3d582594577327c335fc0"
+          }
+        ],
+        "presentations": [
+          {
+            "presentation_id": "presentation-moment-574be109fe9d4ddea275eacaee07024c",
+            "source_moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+            "source_moment_type": "track",
+            "visibility": "session_shared"
+          },
+          {
+            "presentation_id": "presentation-moment-33e0c12177cf4979b7b1c61c91cf3966",
+            "source_moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+            "source_moment_type": "album",
+            "visibility": "session_shared"
+          }
+        ],
+        "broadcast": {
+          "started_at": "2026-10-11T16:51:41.400862+00:00",
+          "snapshot_watermark": 14
+        },
+        "native_delivery": {
+          "schema_version": 1,
+          "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+          "current_moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+          "active_flow_moment_ids": [
+            "moment-574be109fe9d4ddea275eacaee07024c"
+          ],
+          "admissions": [
+            {
+              "moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+              "qualification": "qualified",
+              "current_display_allowed": false,
+              "active_flow_display_allowed": true,
+              "source_expires_at": "2026-10-11T17:21:41.400104+00:00",
+              "display_expires_at": "2026-10-11T16:52:21.400862+00:00",
+              "executable_actions": [],
+              "requires_spotify_attribution": false
+            },
+            {
+              "moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+              "qualification": "qualified",
+              "current_display_allowed": true,
+              "active_flow_display_allowed": false,
+              "source_expires_at": "2026-10-11T17:22:26.399385+00:00",
+              "display_expires_at": "2026-10-11T16:53:06.400862+00:00",
+              "executable_actions": [],
+              "requires_spotify_attribution": true
+            }
+          ],
+          "revocation_scope": "session",
+          "revision": "562696721bdb9e3b17ae613d"
+        }
+      },
+      {
+        "session": {
+          "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+          "runtime_state": "active",
+          "selected_mood": "groove",
+          "mood_revision": 0,
+          "locale": "nl"
+        },
+        "playback": {
+          "state": "playing",
+          "item_id": "02e3d582594577327c335fc0",
+          "title": "Test recording",
+          "artist": "Test artist",
+          "album": "Test edition",
+          "updated_at": "2026-10-11T16:53:11.400862+00:00",
+          "duration_ms": 300000,
+          "position_ms": 90000,
+          "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+        },
+        "planner": {
+          "planning_state": "ready",
+          "planning_horizon_minutes": 15,
+          "current_direction": "maintaining_energy",
+          "session_direction": {
+            "direction": "maintaining_energy",
+            "initialized_at": "2026-10-11T16:51:41.400862+00:00",
+            "updated_at": "2026-10-11T16:51:41.400862+00:00",
+            "start_strategy": "manual"
+          }
+        },
+        "session_flow": {
+          "flow_id": "flow-session-d14eda0bf3e843fd92f36605f5936629",
+          "flow_revision": 3,
+          "planning_horizon_minutes": 15,
+          "created_at": "2026-10-11T16:53:11.400862+00:00",
+          "items": [
+            {
+              "item_id": "now-current-track",
+              "item_type": "current_track",
+              "position": "now",
+              "label": "Current Track"
+            },
+            {
+              "item_id": "next-planning-horizon",
+              "item_type": "planning_horizon",
+              "position": "next",
+              "label": "Planning Horizon"
+            },
+            {
+              "item_id": "next-maintain-direction",
+              "item_type": "maintain_direction",
+              "position": "next",
+              "label": "Maintain Direction"
+            },
+            {
+              "item_id": "later-future-direction",
+              "item_type": "future_direction",
+              "position": "later",
+              "label": "Future Direction"
+            },
+            {
+              "item_id": "later-future-placeholder",
+              "item_type": "future_placeholder",
+              "position": "later",
+              "label": "Future Placeholder"
+            },
+            {
+              "item_id": "moment-moment-574be109fe9d4ddea275eacaee07024c",
+              "item_type": "dj_moment",
+              "position": "next",
+              "label": "Even de credits erbij",
+              "moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+              "moment_type": "track"
+            },
+            {
+              "item_id": "moment-moment-33e0c12177cf4979b7b1c61c91cf3966",
+              "item_type": "dj_moment",
+              "position": "next",
+              "label": "Test edition",
+              "moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+              "moment_type": "album"
+            },
+            {
+              "item_id": "moment-moment-85469389957842fabe0e75d0834dba9b",
+              "item_type": "dj_moment",
+              "position": "next",
+              "label": "Test artist",
+              "moment_id": "moment-85469389957842fabe0e75d0834dba9b",
+              "moment_type": "artist"
+            }
+          ]
+        },
+        "audience": {
+          "signal_totals": {},
+          "recent_activity": []
+        },
+        "dj_moments": [
+          {
+            "moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+            "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+            "created_at": "2026-10-11T16:51:41.400862+00:00",
+            "type": "track",
+            "knowledge_intent": {
+              "type": "track_context",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Even de credits erbij",
+            "summary": "Even de credits erbij",
+            "content": "Even meekijken in de credits: Test producer is hier als producer gecrediteerd.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "MusicBrainz"
+            ],
+            "generation_metadata": {
+              "provider": "MusicBrainz",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+              "license": "CC0-1.0"
+            },
+            "playback_item_id": "02e3d582594577327c335fc0"
+          },
+          {
+            "moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+            "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+            "created_at": "2026-10-11T16:52:26.400862+00:00",
+            "type": "album",
+            "knowledge_intent": {
+              "type": "album_story",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Test edition",
+            "summary": "Test edition",
+            "content": "Een datum bij deze uitgave van Test edition: Spotify vermeldt 2001-03-04.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "Spotify"
+            ],
+            "generation_metadata": {
+              "provider": "Spotify",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "Spotify",
+              "url": "https://open.spotify.com/album/BBBBBBBBBBBBBBBBBBBBBB",
+              "license": "Spotify metadata display"
+            },
+            "playback_item_id": "02e3d582594577327c335fc0"
+          },
+          {
+            "moment_id": "moment-85469389957842fabe0e75d0834dba9b",
+            "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+            "created_at": "2026-10-11T16:53:11.400862+00:00",
+            "type": "artist",
+            "knowledge_intent": {
+              "type": "artist_story",
+              "goal": "Share one qualified current-track fact."
+            },
+            "presentation_intent": {
+              "source_session_mood": "groove",
+              "dj_persona": "home_dj",
+              "tone_of_voice": "warm and conversational",
+              "energy_level": "groove",
+              "delivery_style": "short contextual music story",
+              "voice_style": "persona-guided",
+              "visual_theme": "music-context",
+              "importance": "normal",
+              "maximum_duration_seconds": 40,
+              "delivery_channels": [
+                "broadcast",
+                "owner",
+                "shared"
+              ],
+              "visibility": "session_shared"
+            },
+            "title": "Test artist",
+            "summary": "Test artist",
+            "content": "Een klein detail bij Test artist: de vastgelegde geboortedatum is 1960-01-02.",
+            "artwork": null,
+            "actions": [],
+            "visibility": "session_shared",
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "importance": "normal",
+            "source_references": [
+              "MusicBrainz"
+            ],
+            "generation_metadata": {
+              "provider": "MusicBrainz",
+              "validated": "true"
+            },
+            "source_attribution": {
+              "provider": "MusicBrainz",
+              "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000002",
+              "license": "CC0-1.0"
+            },
+            "playback_item_id": "02e3d582594577327c335fc0"
+          }
+        ],
+        "presentations": [
+          {
+            "presentation_id": "presentation-moment-574be109fe9d4ddea275eacaee07024c",
+            "source_moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+            "source_moment_type": "track",
+            "visibility": "session_shared"
+          },
+          {
+            "presentation_id": "presentation-moment-33e0c12177cf4979b7b1c61c91cf3966",
+            "source_moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+            "source_moment_type": "album",
+            "visibility": "session_shared"
+          },
+          {
+            "presentation_id": "presentation-moment-85469389957842fabe0e75d0834dba9b",
+            "source_moment_id": "moment-85469389957842fabe0e75d0834dba9b",
+            "source_moment_type": "artist",
+            "visibility": "session_shared"
+          }
+        ],
+        "broadcast": {
+          "started_at": "2026-10-11T16:51:41.400862+00:00",
+          "snapshot_watermark": 21
+        },
+        "native_delivery": {
+          "schema_version": 1,
+          "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+          "current_moment_id": "moment-85469389957842fabe0e75d0834dba9b",
+          "active_flow_moment_ids": [
+            "moment-574be109fe9d4ddea275eacaee07024c",
+            "moment-85469389957842fabe0e75d0834dba9b"
+          ],
+          "admissions": [
+            {
+              "moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+              "qualification": "qualified",
+              "current_display_allowed": false,
+              "active_flow_display_allowed": true,
+              "source_expires_at": "2026-10-11T17:21:41.400104+00:00",
+              "display_expires_at": "2026-10-11T16:52:21.400862+00:00",
+              "executable_actions": [],
+              "requires_spotify_attribution": false
+            },
+            {
+              "moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+              "qualification": "qualified",
+              "current_display_allowed": false,
+              "active_flow_display_allowed": false,
+              "source_expires_at": "2026-10-11T17:22:26.399385+00:00",
+              "display_expires_at": "2026-10-11T16:53:06.400862+00:00",
+              "executable_actions": [],
+              "requires_spotify_attribution": true
+            },
+            {
+              "moment_id": "moment-85469389957842fabe0e75d0834dba9b",
+              "qualification": "qualified",
+              "current_display_allowed": true,
+              "active_flow_display_allowed": true,
+              "source_expires_at": "2026-10-11T17:23:11.398489+00:00",
+              "display_expires_at": "2026-10-11T16:53:51.400862+00:00",
+              "executable_actions": [],
+              "requires_spotify_attribution": false
+            }
+          ],
+          "revocation_scope": "session",
+          "revision": "57199bce1e1822a82d859702"
+        }
+      }
+    ],
+    "after": {
+      "session": {
+        "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+        "runtime_state": "active",
+        "selected_mood": "groove",
+        "mood_revision": 0,
+        "locale": "nl"
+      },
+      "playback": {
+        "state": "playing",
+        "item_id": "02e3d582594577327c335fc0",
+        "title": "Test recording",
+        "artist": "Test artist",
+        "album": "Test edition",
+        "updated_at": "2026-10-11T16:55:41.400862+00:00",
+        "duration_ms": 300000,
+        "position_ms": 240000,
+        "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "planner": {
+        "planning_state": "ready",
+        "planning_horizon_minutes": 15,
+        "current_direction": "maintaining_energy",
+        "session_direction": {
+          "direction": "maintaining_energy",
+          "initialized_at": "2026-10-11T16:51:41.400862+00:00",
+          "updated_at": "2026-10-11T16:51:41.400862+00:00",
+          "start_strategy": "manual"
+        }
+      },
+      "session_flow": {
+        "flow_id": "flow-session-d14eda0bf3e843fd92f36605f5936629",
+        "flow_revision": 3,
+        "planning_horizon_minutes": 15,
+        "created_at": "2026-10-11T16:53:11.400862+00:00",
+        "items": [
+          {
+            "item_id": "now-current-track",
+            "item_type": "current_track",
+            "position": "now",
+            "label": "Current Track"
+          },
+          {
+            "item_id": "next-planning-horizon",
+            "item_type": "planning_horizon",
+            "position": "next",
+            "label": "Planning Horizon"
+          },
+          {
+            "item_id": "next-maintain-direction",
+            "item_type": "maintain_direction",
+            "position": "next",
+            "label": "Maintain Direction"
+          },
+          {
+            "item_id": "later-future-direction",
+            "item_type": "future_direction",
+            "position": "later",
+            "label": "Future Direction"
+          },
+          {
+            "item_id": "later-future-placeholder",
+            "item_type": "future_placeholder",
+            "position": "later",
+            "label": "Future Placeholder"
+          },
+          {
+            "item_id": "moment-moment-574be109fe9d4ddea275eacaee07024c",
+            "item_type": "dj_moment",
+            "position": "next",
+            "label": "Even de credits erbij",
+            "moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+            "moment_type": "track"
+          },
+          {
+            "item_id": "moment-moment-33e0c12177cf4979b7b1c61c91cf3966",
+            "item_type": "dj_moment",
+            "position": "next",
+            "label": "Test edition",
+            "moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+            "moment_type": "album"
+          },
+          {
+            "item_id": "moment-moment-85469389957842fabe0e75d0834dba9b",
+            "item_type": "dj_moment",
+            "position": "next",
+            "label": "Test artist",
+            "moment_id": "moment-85469389957842fabe0e75d0834dba9b",
+            "moment_type": "artist"
+          }
+        ]
+      },
+      "audience": {
+        "signal_totals": {},
+        "recent_activity": []
+      },
+      "dj_moments": [
+        {
+          "moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+          "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+          "created_at": "2026-10-11T16:51:41.400862+00:00",
+          "type": "track",
+          "knowledge_intent": {
+            "type": "track_context",
+            "goal": "Share one qualified current-track fact."
+          },
+          "presentation_intent": {
+            "source_session_mood": "groove",
+            "dj_persona": "home_dj",
+            "tone_of_voice": "warm and conversational",
+            "energy_level": "groove",
+            "delivery_style": "short contextual music story",
+            "voice_style": "persona-guided",
+            "visual_theme": "music-context",
+            "importance": "normal",
+            "maximum_duration_seconds": 40,
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "visibility": "session_shared"
+          },
+          "title": "Even de credits erbij",
+          "summary": "Even de credits erbij",
+          "content": "Even meekijken in de credits: Test producer is hier als producer gecrediteerd.",
+          "artwork": null,
+          "actions": [],
+          "visibility": "session_shared",
+          "delivery_channels": [
+            "broadcast",
+            "owner",
+            "shared"
+          ],
+          "importance": "normal",
+          "source_references": [
+            "MusicBrainz"
+          ],
+          "generation_metadata": {
+            "provider": "MusicBrainz",
+            "validated": "true"
+          },
+          "source_attribution": {
+            "provider": "MusicBrainz",
+            "url": "https://musicbrainz.org/recording/00000000-0000-0000-0000-000000000001",
+            "license": "CC0-1.0"
+          },
+          "playback_item_id": "02e3d582594577327c335fc0"
+        },
+        {
+          "moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+          "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+          "created_at": "2026-10-11T16:52:26.400862+00:00",
+          "type": "album",
+          "knowledge_intent": {
+            "type": "album_story",
+            "goal": "Share one qualified current-track fact."
+          },
+          "presentation_intent": {
+            "source_session_mood": "groove",
+            "dj_persona": "home_dj",
+            "tone_of_voice": "warm and conversational",
+            "energy_level": "groove",
+            "delivery_style": "short contextual music story",
+            "voice_style": "persona-guided",
+            "visual_theme": "music-context",
+            "importance": "normal",
+            "maximum_duration_seconds": 40,
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "visibility": "session_shared"
+          },
+          "title": "Test edition",
+          "summary": "Test edition",
+          "content": "Een datum bij deze uitgave van Test edition: Spotify vermeldt 2001-03-04.",
+          "artwork": null,
+          "actions": [],
+          "visibility": "session_shared",
+          "delivery_channels": [
+            "broadcast",
+            "owner",
+            "shared"
+          ],
+          "importance": "normal",
+          "source_references": [
+            "Spotify"
+          ],
+          "generation_metadata": {
+            "provider": "Spotify",
+            "validated": "true"
+          },
+          "source_attribution": {
+            "provider": "Spotify",
+            "url": "https://open.spotify.com/album/BBBBBBBBBBBBBBBBBBBBBB",
+            "license": "Spotify metadata display"
+          },
+          "playback_item_id": "02e3d582594577327c335fc0"
+        },
+        {
+          "moment_id": "moment-85469389957842fabe0e75d0834dba9b",
+          "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+          "created_at": "2026-10-11T16:53:11.400862+00:00",
+          "type": "artist",
+          "knowledge_intent": {
+            "type": "artist_story",
+            "goal": "Share one qualified current-track fact."
+          },
+          "presentation_intent": {
+            "source_session_mood": "groove",
+            "dj_persona": "home_dj",
+            "tone_of_voice": "warm and conversational",
+            "energy_level": "groove",
+            "delivery_style": "short contextual music story",
+            "voice_style": "persona-guided",
+            "visual_theme": "music-context",
+            "importance": "normal",
+            "maximum_duration_seconds": 40,
+            "delivery_channels": [
+              "broadcast",
+              "owner",
+              "shared"
+            ],
+            "visibility": "session_shared"
+          },
+          "title": "Test artist",
+          "summary": "Test artist",
+          "content": "Een klein detail bij Test artist: de vastgelegde geboortedatum is 1960-01-02.",
+          "artwork": null,
+          "actions": [],
+          "visibility": "session_shared",
+          "delivery_channels": [
+            "broadcast",
+            "owner",
+            "shared"
+          ],
+          "importance": "normal",
+          "source_references": [
+            "MusicBrainz"
+          ],
+          "generation_metadata": {
+            "provider": "MusicBrainz",
+            "validated": "true"
+          },
+          "source_attribution": {
+            "provider": "MusicBrainz",
+            "url": "https://musicbrainz.org/artist/00000000-0000-0000-0000-000000000002",
+            "license": "CC0-1.0"
+          },
+          "playback_item_id": "02e3d582594577327c335fc0"
+        }
+      ],
+      "presentations": [
+        {
+          "presentation_id": "presentation-moment-574be109fe9d4ddea275eacaee07024c",
+          "source_moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+          "source_moment_type": "track",
+          "visibility": "session_shared"
+        },
+        {
+          "presentation_id": "presentation-moment-33e0c12177cf4979b7b1c61c91cf3966",
+          "source_moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+          "source_moment_type": "album",
+          "visibility": "session_shared"
+        },
+        {
+          "presentation_id": "presentation-moment-85469389957842fabe0e75d0834dba9b",
+          "source_moment_id": "moment-85469389957842fabe0e75d0834dba9b",
+          "source_moment_type": "artist",
+          "visibility": "session_shared"
+        }
+      ],
+      "broadcast": {
+        "started_at": "2026-10-11T16:51:41.400862+00:00",
+        "snapshot_watermark": 31
+      },
+      "native_delivery": {
+        "schema_version": 1,
+        "session_id": "session-d14eda0bf3e843fd92f36605f5936629",
+        "current_moment_id": "moment-85469389957842fabe0e75d0834dba9b",
+        "active_flow_moment_ids": [
+          "moment-574be109fe9d4ddea275eacaee07024c",
+          "moment-85469389957842fabe0e75d0834dba9b"
+        ],
+        "admissions": [
+          {
+            "moment_id": "moment-574be109fe9d4ddea275eacaee07024c",
+            "qualification": "qualified",
+            "current_display_allowed": false,
+            "active_flow_display_allowed": true,
+            "source_expires_at": "2026-10-11T17:21:41.400104+00:00",
+            "display_expires_at": "2026-10-11T16:52:21.400862+00:00",
+            "executable_actions": [],
+            "requires_spotify_attribution": false
+          },
+          {
+            "moment_id": "moment-33e0c12177cf4979b7b1c61c91cf3966",
+            "qualification": "qualified",
+            "current_display_allowed": false,
+            "active_flow_display_allowed": false,
+            "source_expires_at": "2026-10-11T17:22:26.399385+00:00",
+            "display_expires_at": "2026-10-11T16:53:06.400862+00:00",
+            "executable_actions": [],
+            "requires_spotify_attribution": true
+          },
+          {
+            "moment_id": "moment-85469389957842fabe0e75d0834dba9b",
+            "qualification": "qualified",
+            "current_display_allowed": true,
+            "active_flow_display_allowed": true,
+            "source_expires_at": "2026-10-11T17:23:11.398489+00:00",
+            "display_expires_at": "2026-10-11T16:53:51.400862+00:00",
+            "executable_actions": [],
+            "requires_spotify_attribution": false
+          }
+        ],
+        "revocation_scope": "session",
+        "revision": "57199bce1e1822a82d859702"
+      }
+    }
+  }
+}

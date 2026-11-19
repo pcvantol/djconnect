@@ -1,0 +1,8 @@
+flowchart LR
+  Core -->|early pinned contract| Apple
+  Core -->|both build traces| VibeCast
+  Core --> Product
+  Apple --> Product
+  VibeCast --> Product
+  API -->|temporary bootstrap only| VibeCast
+  Apple -->|explicit owner or guest scanner| VibeCast

@@ -1,0 +1,1 @@
+"""DJConnect tests."""

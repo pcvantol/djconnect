@@ -1,0 +1,281 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "success": {
+      "const": true
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "status": {
+      "const": "interpreted"
+    },
+    "visit_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "client_turn_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "base_scene_revision": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2147483647
+    },
+    "context_lease_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "observed_occurrence_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "directive": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "patch"
+            },
+            "scope": {
+              "enum": [
+                "current_track",
+                "while_in_vibescape"
+              ]
+            },
+            "patch": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "palette": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "motion": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "depth": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "roughness": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "deformation": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                }
+              },
+              "minProperties": 1
+            }
+          },
+          "required": [
+            "kind",
+            "scope",
+            "patch"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "undo"
+            }
+          },
+          "required": [
+            "kind"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "reset"
+            }
+          },
+          "required": [
+            "kind"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "variant"
+            }
+          },
+          "required": [
+            "kind"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "hold"
+            },
+            "scope": {
+              "const": "while_in_vibescape"
+            }
+          },
+          "required": [
+            "kind",
+            "scope"
+          ]
+        }
+      ]
+    },
+    "effect_code": {
+      "enum": [
+        "visual_patch",
+        "visual_undo",
+        "visual_reset",
+        "visual_variant",
+        "visual_hold"
+      ]
+    }
+  },
+  "required": [
+    "success",
+    "schema_version",
+    "status",
+    "visit_id",
+    "client_turn_id",
+    "base_scene_revision",
+    "context_lease_id",
+    "observed_occurrence_id",
+    "expires_at",
+    "directive",
+    "effect_code"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "directive": {
+            "properties": {
+              "kind": {
+                "const": "patch"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "effect_code": {
+            "const": "visual_patch"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "directive": {
+            "properties": {
+              "kind": {
+                "const": "undo"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "effect_code": {
+            "const": "visual_undo"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "directive": {
+            "properties": {
+              "kind": {
+                "const": "reset"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "effect_code": {
+            "const": "visual_reset"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "directive": {
+            "properties": {
+              "kind": {
+                "const": "variant"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "effect_code": {
+            "const": "visual_variant"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "directive": {
+            "properties": {
+              "kind": {
+                "const": "hold"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "effect_code": {
+            "const": "visual_hold"
+          }
+        }
+      }
+    }
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DJConnect VibeScape Visual Director v1 interpret-response"
+}

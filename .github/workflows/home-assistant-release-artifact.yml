@@ -1,0 +1,123 @@
+name: Home Assistant release artifact
+
+on:
+  workflow_run:
+    workflows: [Validate Home Assistant custom integration]
+    types: [completed]
+
+concurrency:
+  group: ha-release-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  # Temporary migration deferral: the separate manual/tag qualification remains available.
+  package:
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      github.repository_id == '1258575431' &&
+      (github.repository == 'pcvantol/djconnect' || github.repository == 'djconnect-music-dj/djconnect') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 1
+      - name: Enforce temporary Ask DJ deferral scope
+        env:
+          CANDIDATE_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          test "$(date -u +%s)" -lt "$(date -u -d '2026-12-10T00:00:00Z' +%s)"
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          jq -e '.version == "4.1.0"' custom_components/djconnect/manifest.json >/dev/null
+          printf '%s\n' 'Ask DJ qualification is deferred during migration; it has not passed for this candidate.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Package the exact integration artifact
+        run: |
+          set -euo pipefail
+          tar -C custom_components --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf - djconnect | gzip -n > djconnect-home-assistant-integration.tar.gz
+          sha256sum djconnect-home-assistant-integration.tar.gz | awk '{print $1}' > djconnect-home-assistant-integration.sha256
+      - id: release
+        name: Publish immutable release asset
+        env:
+          CANDIDATE_SHA: ${{ github.event.workflow_run.head_sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="internal-ha-${CANDIDATE_SHA}"
+          asset="djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
+          mv djconnect-home-assistant-integration.tar.gz "$asset"
+          notes='Immutable internal deployment artifact.'
+          notes="$notes Ask DJ qualification deferred during migration; this candidate has not passed the qualification."
+          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --target "$CANDIDATE_SHA" --title "DJConnect Home Assistant artifact ${CANDIDATE_SHA}" --prerelease --notes "$notes"
+          test "$(gh release view "$tag" --json targetCommitish --jq .targetCommitish)" = "$CANDIDATE_SHA"
+          mkdir -p immutable-readback
+          if gh release view "$tag" --json assets --jq '.assets[].name' | grep -Fx "$asset"; then
+            gh release download "$tag" --pattern "$asset" --dir immutable-readback
+            test "$(sha256sum "immutable-readback/$asset" | awk '{print $1}')" = "$(cat djconnect-home-assistant-integration.sha256)"
+          else
+            gh release upload "$tag" "$asset"
+            gh release download "$tag" --pattern "$asset" --dir immutable-readback
+            test "$(sha256sum "immutable-readback/$asset" | awk '{print $1}')" = "$(cat djconnect-home-assistant-integration.sha256)"
+          fi
+          printf 'asset=%s\n' "$asset" >> "$GITHUB_OUTPUT"
+          printf 'artifact_id=release-asset:%s:%s:%s\n' "$GITHUB_REPOSITORY" "$tag" "$asset" >> "$GITHUB_OUTPUT"
+          printf 'artifact_url=https://github.com/%s/releases/download/%s/%s\n' "$GITHUB_REPOSITORY" "$tag" "$asset" >> "$GITHUB_OUTPUT"
+      - id: upload
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: djconnect-home-assistant-integration-${{ github.event.workflow_run.head_sha }}
+          path: ${{ steps.release.outputs.asset }}
+          if-no-files-found: error
+      - name: Publish artifact evidence
+        env:
+          CANDIDATE_SHA: ${{ github.event.workflow_run.head_sha }}
+          ARTIFACT_ID: ${{ steps.release.outputs.artifact_id }}
+          ARTIFACT_URL: ${{ steps.release.outputs.artifact_url }}
+        run: |
+          python - <<'PY'
+          from datetime import UTC, datetime
+          import json, os
+          with open("home-assistant-release-artifact-evidence.json", "w", encoding="utf-8") as file:
+              json.dump({
+                  "schema_version": 1,
+                  "kind": "home_assistant_integration_release_artifact",
+                  "repository": os.environ["GITHUB_REPOSITORY"],
+                  "candidate_sha": os.environ["CANDIDATE_SHA"],
+                  "artifact_id": os.environ["ARTIFACT_ID"],
+                  "artifact_url": os.environ["ARTIFACT_URL"],
+                  "artifact_sha256": open("djconnect-home-assistant-integration.sha256", encoding="utf-8").read().strip(),
+                  "ask_dj_qualification": "DEFERRED_CORE_4_1_0",
+                  "ask_dj_deferred_report_sha256": None,
+                  "timestamp": datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+              }, file, sort_keys=True)
+          PY
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: home-assistant-release-artifact-evidence
+          path: home-assistant-release-artifact-evidence.json
+          if-no-files-found: error
+
+  # Canonical active_source evidence qualifies exact main CI/coverage/provenance.
+  # Source evidence is separate from artifact publication and installed acceptance.
+  reconcile:
+    needs: [package]
+    if: ${{ always() && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    permissions:
+      actions: read
+      checks: read
+      contents: write
+      pull-requests: read
+      statuses: write
+    uses: djconnect-music-dj/djconnect-shared-workflows/.github/workflows/post-merge-release-evidence-org-ebbb.yml@9fdf1d8ac2399f04ef389f33c31d81e47774e56a
+    with:
+      policy_source_ref: 89a2a8b4c7571965249bed745bf7c5c37a1221f1
+      required_main_workflow: Validate Home Assistant custom integration
+      required_check_contexts: '["Trusted Delivery qualification / Qualify trusted delivery"]'
+      repository_role: active_source
+      coverage_artifact_name: ha-cobertura-coverage

@@ -1,0 +1,380 @@
+name: Smoke Home Assistant integration through private relay
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha: {required: true, type: string}
+      manifest_id: {required: true, type: string}
+      artifact_id: {required: true, type: string}
+      artifact_sha256: {required: true, type: string}
+      target: {required: true, type: choice, options: [home_assistant_pi5]}
+      platform_version: {required: true, type: string}
+      release_profile: {required: true, type: choice, options: [INTERNAL_RELEASE]}
+      deployment_workflow_run: {required: true, type: string}
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: [self-hosted, macOS, ARM64, internal-release, private-network-deployment]
+    environment: private-network-deployment
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Prepare private relay tool path
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="/opt/homebrew/bin:$PATH"
+          for tool in gh jq python3; do
+            command -v "$tool" >/dev/null
+          done
+          printf '%s\n' /opt/homebrew/bin >> "$GITHUB_PATH"
+      - name: Validate smoke configuration before network access
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          MANIFEST_ID: ${{ inputs.manifest_id }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          TARGET: ${{ inputs.target }}
+          PLATFORM_VERSION: ${{ inputs.platform_version }}
+          RELEASE_PROFILE: ${{ inputs.release_profile }}
+          DEPLOYMENT_WORKFLOW_RUN: ${{ inputs.deployment_workflow_run }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$CANDIDATE_SHA" | grep -Eq '^[0-9a-f]{40}$'
+          printf '%s' "$MANIFEST_ID" | grep -Eq '^release-[A-Za-z0-9._-]+$'
+          test "$GITHUB_REPOSITORY_ID" = 1258575431
+          case "$GITHUB_REPOSITORY" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          artifact_repository="${ARTIFACT_ID#release-asset:}"
+          artifact_repository="${artifact_repository%%:*}"
+          case "$artifact_repository" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          case "$GITHUB_REPOSITORY:$artifact_repository" in pcvantol/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          test "$ARTIFACT_ID" = "release-asset:${artifact_repository}:internal-ha-${CANDIDATE_SHA}:djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
+          printf '%s' "$ARTIFACT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
+          test "$TARGET" = home_assistant_pi5
+          printf '%s' "$PLATFORM_VERSION" | grep -Eq '^[0-9]+\.[0-9]+$'
+          test "$RELEASE_PROFILE" = INTERNAL_RELEASE
+          printf '%s' "$DEPLOYMENT_WORKFLOW_RUN" | grep -Eq '^[0-9]+$'
+      - name: Validate authorized smoke scope before network access
+        env:
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          HAOS_SSH_PRIVATE_KEY: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_PRIVATE_KEY }}
+          HAOS_SSH_KNOWN_HOSTS: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_KNOWN_HOSTS }}
+          HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
+          HA_API_TOKEN: ${{ secrets.DJCONNECT_HA_SMOKE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$HAOS_HOST" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9.-]*$'
+          printf '%s' "$HAOS_PORT" | grep -Eq '^[0-9]{1,5}$'
+          printf '%s' "$HAOS_USER" | grep -Eq '^[A-Za-z_][A-Za-z0-9_-]*$'
+          test -n "$HAOS_SSH_PRIVATE_KEY"
+          test -n "$HAOS_SSH_KNOWN_HOSTS"
+          test -n "$HA_API_URL"
+          test -n "$HA_API_TOKEN"
+      - id: haos-transport
+        name: Configure restricted Home Assistant OS SSH transport
+        env:
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          HAOS_SSH_PRIVATE_KEY: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_PRIVATE_KEY }}
+          HAOS_SSH_KNOWN_HOSTS: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          transport_dir="$RUNNER_TEMP/djconnect-haos-ssh-${GITHUB_RUN_ID}"
+          umask 077
+          mkdir -p "$transport_dir"
+          printf '%s\n' "$HAOS_SSH_PRIVATE_KEY" >"$transport_dir/id_ed25519"
+          printf '%s\n' "$HAOS_SSH_KNOWN_HOSTS" >"$transport_dir/known_hosts"
+          chmod 600 "$transport_dir/id_ed25519" "$transport_dir/known_hosts"
+          printf 'path=%s\n' "$transport_dir" >> "$GITHUB_OUTPUT"
+      - id: manifest
+        name: Require approved central operational manifest source
+        shell: bash
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          MANIFEST_ID: ${{ inputs.manifest_id }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          TARGET: ${{ inputs.target }}
+          RELEASE_PROFILE: ${{ inputs.release_profile }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY_ID" = 1258575431
+          case "$GITHUB_REPOSITORY" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          artifact_repository="${ARTIFACT_ID#release-asset:}"
+          artifact_repository="${artifact_repository%%:*}"
+          case "$artifact_repository" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          case "$GITHUB_REPOSITORY:$artifact_repository" in pcvantol/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          test "$ARTIFACT_ID" = "release-asset:${artifact_repository}:internal-ha-${CANDIDATE_SHA}:djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
+          manifest="$(mktemp)"
+          trap 'rm -f "$manifest"' EXIT
+          case "$MANIFEST_ID" in
+            release-4.0.0-home-assistant-prod-20261110) manifest_path=docs/release/PLATFORM_4_0_RC1_HOME_ASSISTANT_OPERATIONAL_MANIFEST.json ;;
+            *) manifest_path="docs/release/home-assistant-manifests/${MANIFEST_ID}.json" ;;
+          esac
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/${manifest_path}" \
+            --output "$manifest"
+          manifest_status="$(jq -r '.status' "$manifest")"
+          case "$manifest_status" in
+            APPROVED_DEPLOYMENT_DISPATCH_PENDING|APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL|APPROVED_TARGET_DEPLOYMENT_OPERATIONAL) ;;
+            *) echo "Manifest is not open for an authorized target deployment or smoke: $manifest_status" >&2; exit 1 ;;
+          esac
+          test "$(jq -r '.approval.state' "$manifest")" = APPROVED
+          test "$(jq -r '.manifest_id' "$manifest")" = "$MANIFEST_ID"
+          test "$(jq -r '.release_profile' "$manifest")" = "$RELEASE_PROFILE"
+          jq -e --arg repo "$artifact_repository" --arg sha "$CANDIDATE_SHA" \
+            '[.repositories[] | select(.repository == $repo and .source_sha == $sha)] | length == 1' \
+            "$manifest" >/dev/null
+          expected_url="https://github.com/${artifact_repository}/releases/download/internal-ha-${CANDIDATE_SHA}/djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
+          jq -e --arg target "$TARGET" --arg artifact "$ARTIFACT_ID" --arg sha "$ARTIFACT_SHA256" --arg repo "$artifact_repository" --arg url "$expected_url" \
+            '[.artifact_bindings[] | select(.target == $target and (.artifact_id | tostring) == $artifact and .artifact_sha256 == $sha and .owner == $repo and .artifact_url == $url)] | length == 1' \
+            "$manifest" >/dev/null
+          release_version="$(jq -er --arg repo "$artifact_repository" --arg sha "$CANDIDATE_SHA" '.repositories[] | select(.repository == $repo and .source_sha == $sha) | .version' "$manifest")"
+          printf '%s' "$release_version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'
+          printf 'release_version=%s\n' "$release_version" >> "$GITHUB_OUTPUT"
+      - name: Download deployment evidence
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: ha-private-deployment-evidence
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.deployment_workflow_run }}
+          path: deployment-evidence
+      - name: Verify deployment evidence identity
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          MANIFEST_ID: ${{ inputs.manifest_id }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          TARGET: ${{ inputs.target }}
+        run: |
+          set -euo pipefail
+          evidence=deployment-evidence/ha-private-deployment-evidence.json
+          test "$(jq -r '.candidate_sha' "$evidence")" = "$CANDIDATE_SHA"
+          test "$(jq -r '.manifest_id' "$evidence")" = "$MANIFEST_ID"
+          test "$(jq -r '.artifact_id' "$evidence")" = "$ARTIFACT_ID"
+          test "$(jq -r '.artifact_sha256' "$evidence")" = "$ARTIFACT_SHA256"
+          test "$(jq -r '.target' "$evidence")" = "$TARGET"
+          test "$(jq -r '.deployment_result' "$evidence")" = DEPLOYED_PENDING_SMOKE
+      - name: Read bounded Home Assistant health and installed integration version
+        env:
+          HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
+          HA_API_TOKEN: ${{ secrets.DJCONNECT_HA_SMOKE_API_TOKEN }}
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
+          RELEASE_VERSION: ${{ steps.manifest.outputs.release_version }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 10 --header "Authorization: Bearer $HA_API_TOKEN" "$HA_API_URL/api/" > /tmp/ha-health.json
+          jq -e '.message == "API running."' /tmp/ha-health.json >/dev/null
+          ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
+          "${ssh[@]}" 'cat /config/custom_components/djconnect/manifest.json' > /tmp/djconnect-haos-manifest.json
+          test "$(jq -r '.version' /tmp/djconnect-haos-manifest.json)" = "$RELEASE_VERSION"
+      - name: Verify Home Assistant is not in Safe Mode
+        env:
+          HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
+          HA_API_TOKEN: ${{ secrets.DJCONNECT_HA_SMOKE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 10 \
+            --header "Authorization: Bearer $HA_API_TOKEN" \
+            "$HA_API_URL/api/config" > /tmp/ha-config.json
+          safe_mode="$(jq -r '.safe_mode' /tmp/ha-config.json)"
+          printf 'home_assistant_safe_mode=%s\n' "$safe_mode"
+          test "$safe_mode" = false
+      - name: Verify a loaded DJConnect configuration entry
+        env:
+          HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
+          HA_API_TOKEN: ${{ secrets.DJCONNECT_HA_SMOKE_API_TOKEN }}
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 10 \
+            --header "Authorization: Bearer $HA_API_TOKEN" \
+            "$HA_API_URL/api/config/config_entries/entry" > /tmp/djconnect-config-entries.json
+          entry_states="$(jq -c '[.[] | select(.domain == "djconnect") | {source, state, disabled_by}]' /tmp/djconnect-config-entries.json)"
+          loaded_entry_count="$(jq '[.[] | select(.domain == "djconnect" and .disabled_by == null and .state == "loaded")] | length' /tmp/djconnect-config-entries.json)"
+          printf 'djconnect_entry_states=%s\n' "$entry_states"
+          printf 'loaded_djconnect_config_entries=%s\n' "$loaded_entry_count"
+          if test "$loaded_entry_count" -eq 0; then
+            ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
+            "${ssh[@]}" "ha core logs -n 5000 | grep -Ei 'Error occurred loading flow for integration djconnect|Error importing platform config_flow from integration djconnect|Cannot find integration djconnect|Unable to import component.*djconnect|djconnect.*(error|fail)|((error|unable) .*djconnect)' | tail -n 20 | sed -E 's/([Bb]earer )[A-Za-z0-9._-]+/\\1[REDACTED]/g; s/([Tt]oken|[Pp]assword|[Ss]ecret|[Aa]uthorization)[=:][^[:space:],;]+/\\1=[REDACTED]/g' || true"
+            exit 1
+          fi
+      - name: Verify DJConnect route-registration lifecycle marker
+        env:
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
+        run: |
+          set -euo pipefail
+          ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
+          "${ssh[@]}" "ha core logs -n 500 | grep -F 'DJConnect HTTP endpoints registered' | tail -n 1"
+      - name: Verify DJConnect HTTP routes are registered
+        env:
+          HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
+        run: |
+          set -euo pipefail
+          response_body="$(mktemp)"
+          trap 'rm -f "$response_body"' EXIT
+          for route in /api/djconnect/v1/status /api/djconnect/v1/command /api/djconnect/v1/voice; do
+            status="$(curl --silent --show-error --retry 3 --retry-delay 5 --max-time 10 \
+              --output "$response_body" --write-out '%{http_code}' --request POST \
+              --header 'Content-Type: application/json' --data '{}' "$HA_API_URL$route")"
+            test "$status" = 401
+            jq -e '.success == false and .error == "unauthorized"' "$response_body" >/dev/null
+          done
+      - name: Verify authenticated Home Assistant WebSocket handshake
+        env:
+          HA_API_URL: ${{ secrets.DJCONNECT_HA_SMOKE_API_URL }}
+          HA_API_TOKEN: ${{ secrets.DJCONNECT_HA_SMOKE_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64
+          import json
+          import os
+          import secrets
+          import socket
+          import ssl
+          from urllib.parse import urlparse
+
+          api_url = urlparse(os.environ["HA_API_URL"])
+          if api_url.scheme not in {"http", "https"} or not api_url.hostname:
+              raise SystemExit("invalid Home Assistant API URL")
+          scheme = "wss" if api_url.scheme == "https" else "ws"
+          port = api_url.port or (443 if scheme == "wss" else 80)
+          connection = socket.create_connection((api_url.hostname, port), timeout=10)
+          if scheme == "wss":
+              connection = ssl.create_default_context().wrap_socket(connection, server_hostname=api_url.hostname)
+          connection.settimeout(10)
+          key = base64.b64encode(secrets.token_bytes(16)).decode("ascii")
+          host = api_url.hostname if api_url.port is None else f"{api_url.hostname}:{api_url.port}"
+          request = "\r\n".join((
+              "GET /api/websocket HTTP/1.1",
+              f"Host: {host}",
+              "Upgrade: websocket",
+              "Connection: Upgrade",
+              f"Sec-WebSocket-Key: {key}",
+              "Sec-WebSocket-Version: 13",
+              "\r\n",
+          )).encode("ascii")
+          connection.sendall(request)
+          response = b""
+          while b"\r\n\r\n" not in response:
+              chunk = connection.recv(4096)
+              if not chunk:
+                  raise SystemExit("Home Assistant WebSocket closed before the HTTP upgrade response")
+              response += chunk
+              if len(response) > 65536:
+                  raise SystemExit("Home Assistant WebSocket HTTP upgrade response exceeded 64 KiB")
+          http_response, buffered = response.split(b"\r\n\r\n", 1)
+          if not http_response.startswith(b"HTTP/1.1 101"):
+              raise SystemExit("Home Assistant WebSocket upgrade failed")
+          received = bytearray(buffered)
+
+          def receive_exact(size: int) -> bytes:
+              payload = bytearray()
+              if received:
+                  take = min(size, len(received))
+                  payload.extend(received[:take])
+                  del received[:take]
+              while len(payload) < size:
+                  chunk = connection.recv(size - len(payload))
+                  if not chunk:
+                      raise SystemExit("Home Assistant WebSocket closed unexpectedly")
+                  payload += chunk
+              return bytes(payload)
+
+          def receive_text() -> str:
+              first, second = receive_exact(2)
+              length = second & 0x7f
+              if length == 126:
+                  length = int.from_bytes(receive_exact(2), "big")
+              elif length == 127:
+                  length = int.from_bytes(receive_exact(8), "big")
+              if second & 0x80:
+                  mask = receive_exact(4)
+              else:
+                  mask = None
+              payload = receive_exact(length)
+              if mask:
+                  payload = bytes(value ^ mask[index % 4] for index, value in enumerate(payload))
+              if first & 0x0f != 1:
+                  raise SystemExit("Home Assistant WebSocket did not return a text frame")
+              return payload.decode("utf-8")
+
+          def send_text(payload: dict[str, str]) -> None:
+              encoded = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+              mask = secrets.token_bytes(4)
+              header = bytearray((0x81, 0x80 | len(encoded)))
+              if len(encoded) >= 126:
+                  header = bytearray((0x81, 0x80 | 126)) + len(encoded).to_bytes(2, "big")
+              masked = bytes(value ^ mask[index % 4] for index, value in enumerate(encoded))
+              connection.sendall(bytes(header) + mask + masked)
+
+          if json.loads(receive_text()).get("type") != "auth_required":
+              raise SystemExit("Home Assistant WebSocket auth challenge missing")
+          send_text({"type": "auth", "access_token": os.environ["HA_API_TOKEN"]})
+          if json.loads(receive_text()).get("type") != "auth_ok":
+              raise SystemExit("Home Assistant WebSocket authentication failed")
+          connection.close()
+          PY
+      - name: Verify bounded Home Assistant OS Core startup and crash health
+        env:
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
+        run: |
+          set -euo pipefail
+          ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
+          core_info="$("${ssh[@]}" 'ha core info --raw-json')"
+          printf '%s' "$core_info" | jq -e '.result == "ok" and (.data.version | type == "string" and length > 0)' >/dev/null
+          recent_logs="$("${ssh[@]}" 'ha core logs -n 500')"
+          ! grep -Eiq 'Error setting up entry .* for djconnect|Failed setup, will retry.*djconnect|Exception.*custom_components\.djconnect' <<<"$recent_logs"
+      - name: Publish redacted smoke evidence
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          MANIFEST_ID: ${{ inputs.manifest_id }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          TARGET: ${{ inputs.target }}
+          PLATFORM_VERSION: ${{ inputs.platform_version }}
+          RELEASE_PROFILE: ${{ inputs.release_profile }}
+          DEPLOYMENT_WORKFLOW_RUN: ${{ inputs.deployment_workflow_run }}
+          SMOKE_WORKFLOW_RUN: ${{ github.run_id }}
+          RELEASE_VERSION: ${{ steps.manifest.outputs.release_version }}
+        run: |
+          python3 - <<'PY'
+          from datetime import UTC, datetime
+          import json, os
+          with open("ha-private-smoke-evidence.json", "w", encoding="utf-8") as file:
+              timestamp = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+              json.dump({"schema_version": 1, "kind": "post_deployment_smoke", "repository": os.environ["GITHUB_REPOSITORY"], "candidate_sha": os.environ["CANDIDATE_SHA"], "manifest_id": os.environ["MANIFEST_ID"], "artifact_id": os.environ["ARTIFACT_ID"], "artifact_sha256": os.environ["ARTIFACT_SHA256"], "target": os.environ["TARGET"], "platform_version": os.environ["PLATFORM_VERSION"], "release_version": os.environ["RELEASE_VERSION"], "release_profile": os.environ["RELEASE_PROFILE"], "deployment_workflow_run": os.environ["DEPLOYMENT_WORKFLOW_RUN"], "smoke_workflow_run": os.environ["SMOKE_WORKFLOW_RUN"], "runner_identity": "self-hosted-macos-private-network-deployment", "route_type": "authenticated_http_api_websocket_and_haos_ssh", "protocol": "https_wss_ssh", "endpoint_class": "home_assistant_api_and_haos_cli", "authentication_mode": "bearer_token_and_pinned_ssh", "expected_version": os.environ["RELEASE_VERSION"], "observed_version": os.environ["RELEASE_VERSION"], "health_result": "PASS", "djconnect_http_routes_result": "PASS", "websocket_result": "PASS", "startup_marker_result": "PASS", "crash_log_result": "PASS", "retry_count": 3, "stabilization_window": "up_to_20_seconds", "timestamps": {"completed_at": timestamp}, "final_result": "SMOKE_PASSED", "timestamp": timestamp}, file, sort_keys=True)
+          PY
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ha-private-smoke-evidence
+          path: ha-private-smoke-evidence.json
+          if-no-files-found: error
+      - name: Remove Home Assistant OS SSH transport material
+        if: always()
+        env:
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
+        run: |
+          set -euo pipefail
+          test -z "$SSH_TRANSPORT_PATH" || rm -rf "$SSH_TRANSPORT_PATH"

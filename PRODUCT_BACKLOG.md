@@ -1,0 +1,722 @@
+# DJConnect Product Backlog
+
+## Current: passive projection v2 source correction —18October2026
+
+[Source1205](https://github.com/pcvantol/djconnect/pull/1205) protected merged as
+`28153891d3fb49a9447047a94e14313dbab94b0b`, from reviewed/owner-authorized
+`de05710e103de8d09e381c38b5aa819c44aec10a`; complete trees equal. Same existing
+Core correction/SURFACE::CORE::PROJECTION owner. V1 provenance compatibility,
+explicit grant-bound v2 researched copy, Silence barrier and independent missing
+music/artwork reasons are source progress. [Readback](docs/verification/PASSIVE_PROJECTION_V2_SOURCE_READBACK_20261018.md).
+
+Apple v2 decoder/layout/attribution, physical cache receipt, distinct API quiet
+registration and relay-purpose qualification remain OPEN in the existing owning
+nodes. The quiet proposal activates no route or background capability. No new
+consumer dispatch, family, provider, source takeover or hardware work. Existing
+57reports/154steps retain12Core and19actual-quality findings. Historical source
+receipts and the unchanged SETTINGS horizon are preserved. Separate Finalization
+reconciles only this source delivery; HA-dev remains the verified e71development
+build, HA-prod unchanged, and v2 is not claimed installed or audible.
+
+## Current source readback —18October2026
+
+Combined Core source is protected merged through
+PR [#1197](https://github.com/pcvantol/djconnect/pull/1197) as
+`c98cbf3e3114afb8b8212e18224a337b12af3e27`.
+[Exact source receipt](docs/verification/CORE_CONSOLIDATION_SOURCE_READBACK_20261018.md)
+supersedes earlier unmerged/draft checkpoints only for included source.
+Personal DJ corrective acceptance remains **In progress**:57reported issues,
+36conversation families/151steps,12Core and19actual-quality gates OPEN.
+The newer Album/Welcome/Preview code is not installed by this merge. Single/bulk
+archive deletion are selected contracts with producer/fixtures/capabilities
+pending. VibeCast public/native/screen, client/audio, retained Flow/artwork,
+Track Insight and other owner-dependent gates are not closed. Existing
+SETTINGS consumer/joint nodes stay Planned/NOT_ISSUED; no next selection or
+consumer dispatch. Historical source/installed receipts below retain their
+original scope. Separate Finalization reconciles this source delivery only.
+
+Personal DJ corrective acceptance (17 October 2026): **in progress**, not released. [Narration/complete Flow restoration](docs/product/PERSONAL_DJ_NARRATION_RESTORATION_V1.md) joins qualified expressive narration, durable published Flow including Silence, Session-scoped rolling retention, and configured-provider TTS/replay. Earlier delivery records remain historical; natural text quality, actual all-type transport, installed/native/audible acceptance remain open. No new product family or Stage4 completion.
+
+Requirement-by-requirement [lane reconciliation](docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md) now drives the bounded correction under the existing Speech family. Public music research and Mood prosody are local implementation/qualification; all-family narrative, actual published-narration Golden and Track Insight remain open. Historical delivered leaves are preserved; no metadata-only completion or native/installed/audio claim.
+
+## Current: selected Core display-admission contract review
+
+DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016, owner6222775045/ACK6224062979, same Core writer on base1329ad1c. Existing `WEB::TRUST` and `WEB::DISPLAY` remain In progress under maintenance15; no new family or consumer admission. [Canonical contract](docs/product/VIBECAST_DISPLAY_ADMISSION_V1.md): B source3cb9cf12/actual fixtures325aabc7 are independently software-qualified and published in draft1197, not merged or installed. Real isolated HA/browser evidence does not imply public-route/native/TV acceptance. The [owner disposition6226306251](https://github.com/pcvantol/djconnect-api/pull/94#issuecomment-6226306251) selects limited App-Attested address transfer with the stated copied-QR/wrong-scanner destination risk; no independent HA-owner/TV-owner attestation. Technical security review, finite key/counter policy and actual verifier/native/wire interoperability remain open. No A runtime GO, whole-assignment completion or deployment. Settings1193/1194 and repair1195/1196 remain closed; historical delivery records below are preserved.
+
+
+## Shared settings — Core producer source delivered
+
+Source PR [#1193](https://github.com/pcvantol/djconnect/pull/1193) protected merged as `e8cc70ddffb4112b09babdda4d45140b98926ae5`, exact independently reviewed head `6882a43e3e0e73cd1b918161b27f88d3697bcb4f` on base `148bd5aee3110c1a1ab13e7c463a164c99d79b70`. All32 checks PASS and5 conditional skips; exact Owner Authorization [38955322761](https://github.com/pcvantol/djconnect/actions/runs/38955322761) SUCCESS. No bypass; complete candidate/main trees equal. Main CI38955402196 and formal 38955894451 SUCCESS. Official archive177regular files, zero missing/extra/mismatch/symlink; actual raw/durable/coverage/main/PR bindings qualified. [Readback](docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md).
+
+Core delivers all six shared choices: Persona, provider-bound voice, qualified gender, Mood, Presence and announcement output. Last explicit accepted choices update active Session and Profile defaults in one existing SQLite/Runtime acceptance. HA Assist pipeline, physical speaker and ESP administration stay HA-only; local autoplay defaults OFF and OS permissions stay local. Text-only blocks synthesis/replay, speaker-only permits explicit local replay, and automatic HA speaker delivery is new-publication-only. Legacy unknown Mood remains unknown until complete explicit selection; first confirmed Mood starts at commit without invented earlier coverage. Schema1 exports remain unchanged and integrated chat/DNA portability stays parked.
+
+Apple editor/adoption, Pi/ESP/website adoption, consumer-dependent legacy removal and joint acceptance remain Planned/open in their existing owning lanes. VibeCast browser compatibility does not prove receiver deployment or physical acceptance. No Swift/receiver writes, new consumer writer, model/provider/cost route, Pages/signing or hardware changes. Native, installed, audible and hardware outcomes are separate evidence boundaries.
+
+Maintenance14: only Core docs/producer Completed; migration In progress; consumer/joint Planned; family PARTIAL. Separate Finalization and qualified installation remain gated by actual readback.
+
+## Historical scope records
+
+## Current consolidation scope addenda
+
+The same SETTINGS family now includes announcement output as a sixth roaming choice (owner6220590330/6220695648); [contract3 design](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) precedes its runtime changes. Keep physical speaker/Assist pipeline/ESP administration HA-only and client autoplay/OS permissions local. Local Core contract3/persistence8 and output/speech fences are implemented, with real paired HA speaker/manual/automatic media-fetch proof; inventory/final candidate qualification remains In progress, consumer nodes Planned and joint OPEN. The original five-field checkpoints below are historical partial proof. Chat/DNA integrated portability is parked, not a new pickup. No new writer or slice.
+
+
+## Original five-parameter selection and admission
+
+DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016, owner6214905647, ACK6218545503. [Canonical design](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) and [source/effect inventory](docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json). Core producer/consolidation in progress on actual base148bd5ae; contract67c6361f preceded first materialfa8ca487. Defaults and active Session share allfive Persona, provider-bound voice, qualified gender, Mood, Presence; accepted explicit field changes automatically become defaults. No defaultPersona-only reduction.
+
+Maintenance14 preserves delivered13 and adds unique linked Core docs/producer/migration, Apple editor, active host/website dispositions and joint acceptance. Consumer nodes stay Planned/NOT_ISSUED; no new writer/automatic dispatch. API/relay/distribution/experimental and retired Windows dispositions stay visible in the whole-platform inventory; an absent runtime surface needs source proof, not an assumed PASS. Legacy removal/native/hardware and whole family remain open. Earlier1191/1192/source/installed receipts are retained, not reopened.
+
+## Historical scope records
+
+## Passive Session projection — Core source delivered
+
+Source PR [#1191](https://github.com/pcvantol/djconnect/pull/1191) protected merged as `2cb87cb7dad30546ee1641b839d14a4f5d621f54`, exact independently reviewed and owner-authorized head `928bf16b8812447fbd53739f22484051909ae513` on base `9faffe533d4a117eb8ad362e73809d126bdcc9d7`. All32 checks PASS/5conditional skips; exact Owner Authorization38896651007 SUCCESS. No bypass. Complete candidate/main trees equal. Main CI38897018985 and formal38897377600 SUCCESS. Official archive171regular files, zero missing/extra/mismatch/symlink; actual raw/durable/coverage/main/PR bindings qualified. [Exact readback](docs/verification/PASSIVE_SESSION_PROJECTION_SOURCE_READBACK_20261016.md). Earlier source1189/Finalization1190 remains closed.
+
+Existing `SURFACE::CORE::PROJECTION` Completed/CORE_DELIVERED for producer only. Existing Apple adoption/background/Watch and joint remain separately Planned/open. Canonical JSON maintenance13 preserves historical12 and all unrelated delivered work; no duplicate family or consumer dispatch. Separate Finalization and qualified dev/prod update remain gated.
+
+## Historical scope records
+
+## Selected passive Session projection — owning Core subset
+
+[Canonical contract](docs/product/PASSIVE_SESSION_PROJECTION_V1.md), existing
+`SURFACE::CORE::PROJECTION`, owner6199213014/ACK6214264273, design9bc26e0c and
+materiald64b8a7a on base9faffe533d4a117eb8ad362e73809d126bdcc9d7.
+Core implementation/qualification in progress; no published source/consumer
+acceptance claimed. Predecessor1189/1190 is closed and safely reconciled.
+
+Existing `SURFACE::APPLE::ADOPTION` owns native rich Session widgets/Activity/
+Island and migration aliases. Existing dependent
+`SURFACE::APPLE::QUIET-TRANSPORT` owns separately admitted background delivery:
+ActivityKit token family/rotation/environment/unregister, consent, exact
+Session/generation, update/end dedup/withdrawal/dismissal and permitted relay
+payload, separate WidgetKit refresh budget/OS latency. Watch remains unqualified;
+`SURFACE::PRODUCT::JOINT` waits for real selected native/transport proof. No new
+writer or automatic dispatch. Artist-photo passive caching is explicitly
+not_qualified, independently allowed metadata/covers are required positive proof.
+Native installed/locked/background passes cannot follow from Core fixtures.
+
+## Historical scope records
+
+## Provider voice/gender correction — Core source delivered
+
+Source PR [#1189](https://github.com/pcvantol/djconnect/pull/1189) protected merged as `ff507c8999069791f3697d5cef2590dda43db243`, exact independently reviewed and separately owner-authorized repair head `5b1a5010a6c8258ff54e4fe7b2290cfc3ee8d9d6` on base `f04fc578d11252f48324a22cb6f71039bdcc59d5`. All32 checks PASS/5conditional skips, including successful TDE observe; exact Owner Authorization38888413369 SUCCESS. No bypass. Complete candidate/main trees equal. Main CI38888674687 and formal38889100161 SUCCESS. Official archive170regular files,0missing/extra/mismatch/symlink; raw/durable/coverage/main/PR bindings qualified. [Exact readback](docs/verification/PROVIDER_VOICE_GENDER_SOURCE_READBACK_20261016.md). Earlier1187/1188 stays closed.
+
+Existing SPEECH::CORE::DELIVERY reused; gender only from explicit provider metadata, no inference. Generic voice selection/source/privacy/Persona preserved. Apple menu/adoption/audible and joint remain open. Separate Finalization and qualified dev/prod update remain gated; no passive admission.
+
+## Historical scope records
+
+## Provider voice/gender — current bounded corrective increment
+
+`DJC-CORE-PROVIDER-VOICE-GENDER-V1-20261016`, direct owner request; same Core
+writer on basef04fc578. ACK6213291374; contract155e5030, first material1290b042.
+[Contract](docs/product/PROVIDER_VOICE_GENDER_V1.md) reuses delivered
+`SPEECH::CORE::DELIVERY`; no new capability family. Qualified Cloud/current
+provider metadata enables optional gender, resolves to current voice IDs and
+invalidates stale audio. Unknown metadata keeps concrete voice choice without
+inventing gender. Local qualification/review in progress; no new merge, install
+or native/audible PASS. Passive projection remains queued and unstarted.
+
+
+## Generic HA TTS correction — Core source delivered
+
+Source PR [#1187](https://github.com/pcvantol/djconnect/pull/1187) protected merged as `6ececb1b5327c5f3456dbb7d466b8763951cb61c`, exact independently reviewed and owner-authorized `082f7d7a13ecca397ecce53c2a5dac2c5e7a6dc7` on base8757ecd38a5fe31254a36aba5e0cbe5852edfa7e. 32sourcechecksPASS/5conditional skips, including actual TDE observe success. Exact Owner Authorization38879576073 SUCCESS; no bypass. Candidate/main complete trees are identical. Official mainCI38879834913 and formal38880247961 SUCCESS; 170 integration files byte-equal Git with0mismatches. [Exact source readback](docs/verification/GENERIC_HA_TTS_SOURCE_READBACK_20261016.md). Prior Speech1177/1186 and transport1184/1185 remain closed.
+
+Existing SPEECH::CORE::DELIVERY reused; source rights, private speech and live Persona preserved. Active Voice menu, Session/device preference isolation and native adoption remain Apple-owned/open. Gender is conditional on qualified metadata and unavailable on the actual current HA Voice interface. Separate Finalization and installed dev/prod qualification remain gated; no passive successor admission or new productfamily.
+
+## Historical scope records
+
+## Generic HA TTS correction — local qualification
+
+`DJC-CORE-GENERIC-HA-TTS-V1-20261016` follows the owner's selected Assist
+pipeline for Session speech through HA's generic TTS interface, including OpenAI
+and Cloud where the accepted source permits that processing. Reuse
+`SPEECH::CORE::DELIVERY`; preserve completed1177/1186 receipts and passive queue.
+[Bounded contract](docs/product/GENERIC_HA_TTS_V1.md). No Piper-only provider
+gate, provider/default mutation, inferred gender, fallback or client-side source
+permission. Exact source/Finalization publication and real installed/native
+acceptance remain separate gates; this local correction does not claim them.
+
+## Session speech/Persona — Core source delivered; separate Finalization
+
+Source PR [#1177](https://github.com/pcvantol/djconnect/pull/1177) protected merged as `3535c97c3b50e9a126d0f22fcc5ce50d81851499`, exact reviewed/owner-authorized `50cbae2665a7f7e25d4744136f64ba0e8f16def7` on base58205056.32checksPASS/5conditional skips; actual exact Owner Authorization38816161823 SUCCESS.169official archive files match Git with zero differences; durable/raw/coverage/main/PR bindings PASS. [Exact source readback](docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md). Earlier1184/1185,1181/1183 and1178/1179 stay closed.
+
+Four existing SPEECH::CORE contract/Persona/realization/delivery leaves Completed/CORE_DELIVERED; full Voice/Speech family remains PARTIAL. Apple/native audible/installed Speech/joint acceptance remain open. Optional gender requires actual configured HA provider metadata; device autoplay/manual replay and confirmed Session Persona remain distinct from Mood/Presence. No shared private speech grant or new provider/model/cost route.
+
+[Selected passive successor6199213014](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6199213014) reuses SURFACE::CORE::PROJECTION, NOT_ADMITTED: valid Speech Finalization, safe own workspace disposition and fresh same-writer admission are prerequisites. Reuse any existing pickup/stash; no new writer, implementation or consumer dispatch in this reconciliation. Receiver16 remains separately owned. Historical planning snapshots/WEBschema2/21nodes47edges/receipts stay exact. Finalization has its own exact publication gate; standing qualified-finalmain HA-dev/prod install instruction remains separate.
+
+## Historical scope records
+
+## Session speech/Persona/voice — selected active Core implementation
+
+DJC-SESSION-SPEECH-PERSONA-VOICE-20261015, owner6189231491/autonomous-next6189912293, fresh admission after valid artwork1172/1173 closure at70c0a300. Same Core writer/ACK6191876871; contract-first e2072d80, material03634bf7. [Narration/Persona](docs/product/SESSION_SPEECH_PERSONA_V1.md), [speech delivery/replay](docs/product/SESSION_SPEECH_DELIVERY_V1.md). Live Persona ordered setting connected; common manual speech, every-family realization and qualified voice/processor/lifecycle implementation in progress. No product completion inferred from initial Persona tests.
+
+JSON maintenance12 reuses existing Voice/Speech/Audio Renderer architecture and preserves delivered artwork11. Four bounded Core leaves In progress; Apple adoption and joint visible/audible acceptance remain Planned/open with their existing writer/admission. Every intended proactive narration includes SessionPersona in bubble and speech; observed playback remains factual, announcement shares existing Planner/Presence/publication/count boundaries. No new provider/model/cost route or nativewrites. Source/Finalization retain exact publication gates; existing latest-qualified-main HA-dev/prod installation authority retained, no WIP install. No further selected productfamily.
+
+Local follow-up connects live/retained exact Moment references, current-playback
+announcements and qualified ArtistGenre→Track narration to the same speech owner.
+Direction and eligible Track Insight use the confirmed Persona. Source expiry
+survives cache hits and pending synthesis; common Presence/count/history budgets
+remain authoritative. Connected four-Persona/five-language output and independent
+review are under final qualification. Core remains In progress and unpublished;
+Apple/native audible and joint acceptance remain open. No successor is admitted.
+
+
+## Bounded hybrid local HTTP/WS correction — Core source delivered
+
+[Source PR #1184](https://github.com/pcvantol/djconnect/pull/1184) protected merged as `0f92b74e76ae055efdbf2b375d95c58e86328e27` from exact reviewed/owner-authorizeda0714b44. Existing hybrid transport now implements the [qualified direct local policy](docs/product/HYBRID_LOCAL_TRANSPORT_POLICY_V1.md), with68genuine HA cases/300slease,38owning+5raceunits and1964regressions/7existing skips. External TLS and ordinary pairing/Profile/source/installation/operation authority remain. No new product family or reopened prior delivery. HA-dev Docker direct LAN, installed/native and joint acceptance remain OPEN. Speech1177 remains preserved; passive projection waits for its Speech predecessor. Separate Finalization and safe own cleanup reconcile this maintenance increment, without starting a successor.
+
+## Selected VibeCast decisions delta and receiver slice1
+
+Design source [PR #1181](https://github.com/pcvantol/djconnect/pull/1181) protected merged as
+`8a48a6ffdfb92d90719626c78a3e70093385cc70`; this separate documentary Finalization reconciles
+its actual delivery. No runtime or consumer acceptance is inferred.
+
+[DJC-VIBECAST-WEB-FIRST-DECISIONS-DELTA-V1-20261015](https://github.com/pcvantol/djconnect/issues/1174#issuecomment-6201605985)
+updates [canonical designs](docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md) and
+[entry/distribution/Cast lifecycle](docs/product/VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md).
+Resolved: vibecast.tv/root (owner-reported purchase, no DNS/TLS PASS) and existing-app
+guest exception; both pairing-screen and paired-main discovery/QR entries,
+isolated temporary mode and safe home return. Glass/Soft/Solid preserve content,
+rights and functions. 🤩 preference replaces 🤯; 🚀 extra/alternative and final
+set/count/labels remain OPEN. Historical1175/1176 evidence stays exact.
+
+[Receiver#16](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/16),
+DJC-VIBECAST-TV-BOOTSTRAP-CLOUDFLARE-V1-20261015, is SELECTED/QUEUED for existing
+WEB::DISTRIBUTION's PUBLIC_WEB_DELIVERY subset and conditionally selected
+receiver-owned RENDEZVOUS_INTEGRATION adapter once exact TRUST/API contracts exist. It is real frontend/build/CI/CD/
+controlled Pages delivery, with an honest service-unavailable state until exact
+rendezvous exists; not fake QR or full onboarding PASS. Its admission requires this
+new delta's actual protected delivery/Finalization pin and own earlier WIP closure;
+then the existing receiver writer autonomously picks it up after fresh admission,
+without another general start question. No executor ACK/start is claimed here.
+
+API WEB::BOOTSTRAP/TRUST, Core DISPLAY/SHARED/GUEST and Apple OWNER-SCANNER/APP/
+DISCOVERY integration retain separate gates. Original API bootstrap incoming edge binds RENDEZVOUS_INTEGRATION; browser
+incoming edge binds FULL_SHARED_GUEST_ACCEPTANCE. Core display/Apple scanner
+bind full APPLE_HA_ONBOARDING_E2E, not public build or service-adapter work.
+No optional Cast hardware prerequisite. Existing Core runtime/Speech/passive/
+maintenance and Apple/Watch/receiver WIP remain intact; no release reorder or
+extra runtimewriter. This Core delta changes docs/DAG and necessary docsgates only,
+never runtime/Swift/CI-config/DNS/deployment. Separate exact publication gates apply.
+
+## Maintenance: Profile-bound playback DEBUG500 repaired
+
+[Source1178](https://github.com/pcvantol/djconnect/pull/1178) delivered at `fe8c66a120a44faaeb49432729359e6a2055194e`; [source/artifact/installed HA-dev proof](docs/verification/PLAYBACK_DEBUG_PROFILE_CONTEXT_SOURCE_READBACK_20261015.md). Diagnostic logging alone uses existing request metadata; normal Profile/provider authority/errors remain unchanged. Existing iPad identity now returns status/queue/playlists200/success after verified backup/restart; pairing/Profile unchanged,164files0mismatch. Physical Apple/native and HA-prod remain separate. No new product node/family or product implementation promoted; original WEB/historical receipts preserved. Separate exact Finalization remains pending before this maintenance scope closes. Speech source1177/533 remains separate and must integrate this newer main before renewed delivery qualification.
+
+## Separate web-first VibeCast documentary assignment
+
+[DJC-VIBECAST-WEB-FIRST-GUEST-EXPERIENCE-DESIGN-V1-20261015](https://github.com/pcvantol/djconnect/issues/1174)
+records [product direction](docs/product/VIBECAST_WEB_FIRST_EXPERIENCE_V1.md),
+[onboarding/authority](docs/product/VIBECAST_ONBOARDING_GUEST_AUTHORITY_V1.md) and
+[temporary Apple mode](docs/product/APPLE_VIBECAST_GUEST_MODE_V1.md). Design source protected merged in [PR #1175](https://github.com/pcvantol/djconnect/pull/1175)
+as `7266bc2540e4b7699cf47c028214e4b22c4c5afe`; separate Finalization reconciles delivery. Product implementation
+Planned, consumer/shared-media and joint/physical acceptance OPEN. Existing
+VibeCast/Audience/Guest families are reused by bounded WEB:: subsets in the
+[live DAG](docs/roadmap/v1/djconnect-platform-v1.json); no duplicate initiative or
+automatic dispatch. Cast-first/native-TV prerequisites are superseded forward
+positioning; historical delivered receipts stay exact. Core Speech/Persona and
+existing Apple/receiver work continue independently; no release order changes.
+
+Future gated sequence: disposition + trust → bootstrap/display/shared grants;
+guest authority → browser/app join; shared projection + authority → reactions/chat;
+aggregate + host policy → bounded DJ influence; exact request dialogue +
+Planner/effect policy → real enqueue/observed-playback announcement. Shared art,
+Forecast and speech need separate audience grants/consumer acceptance. The later decisions delta above resolves the domain/root and app exception.
+Final reaction set/count/labels/rocket and genuine implementation details remain OPEN. No runtime/deployment/domain registration is delivered by this assignment.
+
+## Session artwork — Core producer delivered; separate Finalization pending
+
+[Source #1172](https://github.com/pcvantol/djconnect/pull/1172) protected merged as `5c7ecb7941c555f12bd94a2969167cfaaff0cb44`. [Exact readback](docs/verification/SESSION_ARTWORK_V1_SOURCE_READBACK_20261015.md) qualifies all164 integration files and formal/coverage evidence. Three MEDIA::CORE contract/live/history subsets Completed/CORE_DELIVERED. Apple adoption and joint acceptance remain Planned/open; family PARTIAL, installed artwork NOT_RUN. One existing image owner; exact subject/edition/source/account, independent surface rights and bounded explicit archive refresh. No provider work in pure reads or semantic Moment mutation.
+
+Both exact independent source reviews GO;1949regressions/35owning/148DAG,18real HA cases and four browserpaths pass. Finalization, exact readback and safe own cleanup remain before closure. Existing qualified HA-dev/prod installation authority applies after last merge; no WIP install.
+
+Speech/Persona/voice6189231491/autonomous-next6189912293 remains the selected queued successor, NOT_ADMITTED until valid artwork closure and fresh admission; same writer, separate publication gates. No speech code or second productslice here. Historical snapshots and completed product deliveries retained.
+
+## Hybrid transport convergence — delivered Core producer; Finalization pending
+
+`DJC-CORE-HYBRID-TRANSPORT-CONVERGENCE-V1-20261013`: [source #1170](https://github.com/pcvantol/djconnect/pull/1170)
+protected merged as `d552a5524245c82aae83b350eddf14126d3c117b` from exact reviewed/owner-authorized
+`a23a599e85dfc2b9cd82e13ae45a23e897765389`. [Source/artifact/formal readback](docs/verification/HYBRID_TRANSPORT_V1_SOURCE_READBACK_20261015.md)
+qualifies all163 integration files with zero archive mismatches and
+POST_MERGE_RELEASE_EVIDENCE_QUALIFIED. 31 sourcechecks PASS/5 conditional skips;
+exact HIGH_RISK authorization PASS. The genuine hassfest repair was independently
+reviewed and separately authorized. Earlier1168/1169 remain closed.
+
+[Hybrid contract](docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) and
+[operation recovery](docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md)
+reuse existing Core owners, original UUID/epoch receipts and private admission.
+54 actual isolated HA/TLS cases,4 deliberate external-fixture effects,0 repeat
+provider effects/modelcalls;1914 regressions/7 existing skips,24 owning tests,
+142 DAG tests and89% combined new-module branch-aware coverage. Owner-requested
+[localization](docs/verification/INTEGRATION_UX_LOCALIZATION_20261015.md) covers
+all five languages/50 HA actions/186 fields with157 focused tests/2991 subtests.
+
+[Final Apple producer pin](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6188493265)
+and the [explicit adoption/test checklist](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6186713492)
+are posted/read back. Three bounded Core transport leaves record producer
+delivery; Apple/joint remain Planned/open and overall family PARTIAL. No Swift,
+native, installed, hardware or joint PASS is inferred. Live JSON maintenance v10
+and generated views retain all prior historical snapshots and delivered scopes.
+
+Separate documentary Finalization and safe own cleanup remain pending their
+exact gates. Next ownerselected Moment artwork6175336907/refinement6176704119
+is not started; new Speech/Persona/voice audit6188230166 is not an admission or
+queue override. No installation/restart/deployment/workflow/runner change.
+
+## Current-artist/Profile-label correction — Core source delivered
+
+Finding6175876899/ACK6176184085 within the existing shared Ask DJ family is delivered
+by [#1168](https://github.com/pcvantol/djconnect/pull/1168), exactmain
+`eeb1c7e763f72ee346ec8eabb52e1c7d87d39433`. [Source/artifact readback](docs/verification/ASK_DJ_CURRENT_ARTIST_SOURCE_READBACK_20261014.md)
+qualifies fresh text/STT artist identification, selected/current/credit fences,
+nonarchiveable catalog display, safe retry and retained explicit selection, plus
+five-language Profile labels without Profile-operation changes.1882 regressions,
+94owningtests and actual isolated HA26cases pass; source32checks and formal
+exact-SHA artifact qualification PASS. Native/installed/microphone remain open.
+
+Separate documentaryFinalization is prepared, with its own exact publication gate;
+installation pause remains. Prior1166/1167 and earlier deliveries remain closed.
+General same-Profile Session sharing is owner-confirmed; automatic discovery is
+Apple-owned. Hybrid6149934177 is next after valid closure/cleanup/freshadmission,
+then artwork6175336907 with6176704119. No new generator, source, archive grant,
+consumer writer or promotion of joint acceptance. Older source records below are
+retained as historical checkpoints, not reopened gates.
+
+## Shared contextual Ask DJ — bounded Core source delivered
+
+`DJC-CORE-ASKDJ-CONTEXTUAL-DIALOGUE-V1-20261013`, including owner-approved
+`DJC-MOMENT-TRACK-INSIGHT-DRILLDOWN-V1-20261013`, reuses one Core Ask DJ service,
+functional context/history/tool acceptance and optional Session/Moment enrichment.
+The [experience](docs/product/ASK_DJ_CONVERSATIONAL_EXPERIENCE_V1.md),
+[contract](docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) and
+[exact Moment/detail design](docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md)
+are canonical. No separate legacy/Session pipeline, planner, analyzer or cache.
+
+Core shared dialogue and bounded Track Insight navigation are Completed producer;
+Apple common-controller/explicit-target adoption and joint acceptance remain Planned.
+One useful qualified existing Track-Moment can carry one inert offer, with unchanged
+presence budgets and published-only accounting. Browser/software acceptance does
+not qualify native use. Source #1166 is protected merged and exact archive/formal evidence qualified.
+The [source readback](docs/verification/ASK_DJ_CONTEXTUAL_DIALOGUE_V1_SOURCE_READBACK.md)
+pins main7698961e and the consumer handoff. Separate Finalization publication remains
+gated; owner requests latest-main HA-dev/prod installation after all merges.
+HA text-model/STT configuration is separately applied; Core installation is pending.
+History #1162/#1163 and all earlier delivered slices remain closed.
+
+Consumer reconciliation (2026-10-14): the existing Apple Presence writer is
+In progress ([readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6168870771));
+its native Mac/installed acceptance and protected delivery remain open. Current
+installed capabilities and active Session responses omit Presence fields; this
+is an installation/producer reconciliation boundary, not a revision-zero decoder
+failure or permission to invent balanced/0. The completed Core Presence policy
+remains closed. Speaker/queue/Ask DJ adoption and intra-track live visibility
+remain distinct joint findings, without another writer or archival bypass.
+
+## Ambient fact convergence — bounded Core source delivered
+
+[DJC-CORE-AMBIENT-FACT-MOMENT-CONVERGENCE-V1-20261012](docs/product/AMBIENT_FACT_MOMENT_CONVERGENCE_V1.md) retires spontaneous playback-status Ask DJ generation/history/last-Ask-DJ effects and reuses the qualified Session content chain. Actual ordinary paired HA baseline and retirement are qualified; source #1158 is protected merged as `6114c5a05600f6b066d4e1f057f236841fe4f574` with exact archive/formal readback PASS. Explicit Ask DJ and historical cards remain supported. Artist/Album/Track/Genre content retains its existing evidence/rights/presence budgets; unsupported historical, cultural and success anecdotes remain a documented gap. Apple consumer join and joint acceptance remain Planned; no installation, new source/model/cost or full Stage4 promotion. Forecast #1156/#1157 stays closed.
+
+
+## Current: Session Forecast v1 — bounded Core source delivered
+
+DJC-CORE-SESSION-FORECAST-V1-20261012: [source #1156](https://github.com/pcvantol/djconnect/pull/1156)
+protected merged as `3cfa55121e6c29cf6308fa570cbb5af0d2261057` from exact independently reviewed and owner-authorized
+`00dc4b742984bbf87dab121fa6a61123a7ff602c`; identical tree `a126401055d87da7b8cd14e6b3c755bc46b45c46`.
+All32 checks PASS/five skips; normal HIGH_RISK Owner Authorization38279488710 PASS.
+[Contract](docs/product/SESSION_FORECAST_V1.md), [local qualification](docs/verification/SESSION_FORECAST_V1_LOCAL_QUALIFICATION.md),
+[source readback](docs/verification/SESSION_FORECAST_V1_SOURCE_READBACK.md) and
+[completion record](docs/history/prompts/2026-10-12-session-forecast-core-finalization.md).
+
+152 regular integration files match main, reviewed candidate and exact archive;
+archive SHA256 `428b4384383091d88bc449bbe666ba6c946cb57ed2852a4fc19ff8d38897f796`, formal asset SHA256
+`5271704d54b373d383e265affc6dca87387fdfbdb78cfb03dc914c5d345b7d32`. Pinned policy/raw PR→main derivation,
+asset digests and formal integrity PASS / POST_MERGE_RELEASE_EVIDENCE_QUALIFIED.
+Only this bounded Core Forecast foundation and shared renderer compatibility are
+Completed/CORE_DELIVERED. Existing Direction parent and wider narrative Stage4
+remain partial; no promotion of upcoming media or all consumers to Completed.
+
+Existing Planner intention becomes a bounded mutable active-session projection,
+with authored four-Persona/five-language text and independent Mood/Presence.
+Runtime15-minute foundation, future internal20-minute target and public nominal900s
+are distinct. Reads/toggles cause no lookup, plan, Moment, queue/playback or budget
+change. Off remains proactively quiet. Current artist imagery retains exact identity,
+managed URLs, provenance/attribution/display basis and original validity. Contextual
+and qualified-upcoming roles are reserved and absent; no unsupported future artist.
+
+1766 product tests PASS/7 existing skips;129 DAG checks;171 framework tests/234
+scenarios. Actual ordinary-paired HA:20 Persona/language chains,12 invalid requests,
+14 authority/in-flight cases,real122.439s/122read duration. Four real HA→local/static
+portrait/landscape compatibility sequences PASS with source links/readability,
+reconnect,real expiry and Session-end;152 source hashes match with zero differences.
+Artist decoder is a one-pixel fixture and CAF modeled. Visible VibeCast Forecast is
+NOT_ADOPTED/Planned; native,installed,live Spotify and hardware NOT_RUN; joint OPEN.
+
+[Apple87 definitive6128709378](https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6128709378),
+[VibeCast10 definitive6128709669](https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10#issuecomment-6128709669).
+Handoffs supersede early unpublished receipts and admit no extension of consumer WIP.
+Machine-readable maintenance version5 and23 generated views retain frozen3October
+and previous presence/artwork/album history; only the three qualified Core subsets
+are reconciled by the separate documentary Finalization from this source-main on
+codex/session-forecast-finalization-v1. Its independent exact review/publication,
+protected readback and safe own cleanup establish MERGED_RECONCILED and
+WORKSPACE_READY; the terminal execution receipt belongs to owning register1101.
+Source authorization excludes Finalization publication. No next slice,
+installation/restart/deployment/Pages/Console/signing/hardware/workflow/runner/service
+or new provider/model/cost action. Historical records below retain their original state.
+
+## Current: album continuity Core source delivered — separate Finalization
+
+`DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012`: [source #1154](https://github.com/pcvantol/djconnect/pull/1154)
+protected merged as `c317707024847dd32968483cd23141de40a3c706` from exact owner-authorized and independently
+reviewed `1482eafe3713bd1bd7b21927c4fb481ed1a15c9c`; identical tree
+`95258741a03ffe4d897e4e7a4f7f3adcf5cec0f5`. All32 applicable checks PASS,
+five conditional skips; normal HIGH_RISK Owner Authorization38248553185 PASS.
+[Contract](docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md), [acceptance](docs/verification/NARRATIVE_ALBUM_CONTINUITY_V1_ACCEPTANCE.md)
+and [completion record](docs/history/prompts/2026-10-12-narrative-album-core-finalization.md) preserve admission, source proof and limits.
+148 safe regular package files match exact main and candidate; archive SHA256
+`ab9476de000a723e4b749f84f0d5ecc628183d4c49ecf8300b5cf066934b1638`; formal asset SHA256 `545c5b0d6162a895ae33b524ef57f61016bd9007b1825f11834d8296d13c18fd`. Pinned policy and raw PR→main derivation PASS,
+all12 formal fields PASS / POST_MERGE_RELEASE_EVIDENCE_QUALIFIED.
+
+One published qualified Album A can connect once to observed distinct Track B
+on the exact same edition within Discover AND Exploring. Publication alone
+consumes the bounded relation; Off/in-flight, scope exit, retry, reconnect and
+Session-end preserve shared presence policy and immutable prior Moments.
+1749 tests/7 existing skips,128 DAG checks,171 frameworktests/234 scenarios,
+20 real paired HA Persona-language chains,4 races,4 real local/static browser
+paths, same-data baseline and real60.388s/40-observation bounded duration PASS.
+Modelled200s input spacing is not real two-hour listening. Direct Festival
+startup remains Building Energy; Festival/Exploring uses existing Core Persona
+update after Home HTTP startup. CAF modeled only; renderer1.1 bytes unchanged.
+
+Only this bounded Core relation is Completed/CORE_DELIVERED. Full Stage4 PARTIAL;
+native, installed, live Spotify and hardware NOT_RUN; joint acceptance OPEN.
+No consumer writer/admission, installation/restart, deployment/Pages/signing,
+hardware, workflow/runner/service or new provider/model/cost/queue route.
+Separate documentary Finalization is prepared on `codex/narrative-album-finalization-v1`
+from this source-main; its independent exact review/publication gate and protected
+readback still precede MERGED_RECONCILED and WORKSPACE_READY. Existing source
+approval excludes Finalization. Selected Forecast6123328620 is queued only;
+no admission or runtime start until valid album closure and fresh bootstrap.
+Historical prepared records below keep their original temporal state.
+
+Selected Core implementation: DJC-CORE-NARRATIVE-ALBUM-CONTINUITY-V1-20261012.
+[Contract](docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md), ACK6121336412 and
+material6121367116; base0f37b53cc56f89109a1adcbcf39dd454ba52c72d,
+same writer/branch codex/narrative-album-continuity-v1. One published Album →
+current distinct Track exact-edition relationship within Discover/Exploring.
+Local implementation/qualification in progress; source PR/main delivery and
+separate Finalization still pending, with fresh exact publication gates.
+No full Stage4 promotion, new knowledge/provider/model/cost/transport/queue or
+consumer admission. Native/installed/hardware NOT_RUN; joint acceptance OPEN.
+Artwork1152/1153 is terminal and WORKSPACE_READY at admitted main0f37;
+[terminal receipt6121095689](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6121095689).
+Its older prepared-document snapshot below is retained as delivery history.
+
+
+
+Delivered bounded Core correction: `DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012`
+([owner6117357579](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6117357579),
+[source #1152](https://github.com/pcvantol/djconnect/pull/1152),
+exact main `c3c1214268ba6fb4eec57888ab6d656042052d1e`). Qualified Core producer/software
+continuity is delivered: exact identities, bounded opt-in Store references,
+normal old-Store refresh and authorized scoped image delivery. Existing
+has_artwork+2 is restored; no new family, provider, ranking or cost route.
+[Contract](docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md), actual source
+readback and maintained DAG record Core Completed/CORE_DELIVERED only.
+Native/installed/live/hardware acceptance remains separate and joint OPEN.
+Presence1150/1151 stays closed. Mandatory documentary Finalization is prepared,
+not yet published; its own exact gate, final readback and cleanup still block
+WORKSPACE_READY. The selected narrative-album follow-up waits for that closure
+and its own admission: no narrative runtime or full Stage4 promotion here.
+
+## Delivered Core source: DJ presence v1 — joint product Planned
+
+[Owner decision6110375785](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785)
+authorizes documentary integration `DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011`.
+Product `DJC-DJ-PRESENCE-V1` stays **Planned** until joint native acceptance.
+The separately selected `DJC-CORE-DJ-PRESENCE-V1-20261011` is admitted on the
+existing Core writer: source #1150 protected merged and publication qualified;
+separate Finalization pending, no automatic dispatch.
+[Policy](docs/product/DJ_PRESENCE_CORE_POLICY_V1.md) and
+[ownercontract](docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) pin the delivered producer contract.
+[Canonical design](docs/product/DJ_PRESENCE_V1.md) separates Mood (atmosphere),
+Persona (delivery) and DJ presence (proactive space/dosing). Five anchor levels:
+Alleen muziek, Af en toe, Gebalanceerd, Praatgraag, Presentator. Core owns actual
+policy across all eligible paths, Apple owns native control, and Core/VibeCast
+qualify the existing local/static renderer consumers with joint acceptance.
+
+DoR: separately selected implementation, calibrated exact policy/default,
+complete proactive-path inventory, pinned versioned ownercontract/fixtures and
+actual writer/resource/effect admission. DoD: qualified Core policy AND native
+Apple control AND both renderer receipts, same-session independence, off/in-flight/
+no-catch-up semantics, preserved Ask DJ/privacy/history and exact candidate joins.
+The A–E matrix remains the joint specification. Core software qualifications
+are source-qualified evidence; native Apple and installed/hardware receipts remain open.
+Pinned early contract integration need not wait for every Core Finalization doc.
+
+Mood delivery1146/1147 is a soft selection predecessor and supplies only its
+needed qualified auth/order subset; Mood does not control presence frequency.
+Richer narrative presenter mode remains a later Planned maturity extension within
+the broader Deferred narrative family, not a v1 prerequisite or duplicate MVP.
+Core runtime implementation is now selected independently. Native UI, new
+provider/model/TTS and installation are not admitted by this Core assignment.
+The versioned [roadmap maintenance delta](docs/roadmap/v1/README.md) preserves
+original3October freeze/audit/pins plus the original documentary delta. Only
+Core contract/policy nodes are Completed; joint/native nodes remain Planned.
+
+[Presence Core acceptance](docs/verification/DJ_PRESENCE_V1_ACCEPTANCE.md),
+[source #1150](https://github.com/pcvantol/djconnect/pull/1150), exact main
+`b5c25f7c8098ce805bf4cab94a887c8590f9717f` and
+[separate Finalization](docs/history/prompts/2026-10-11-dj-presence-core-finalization.md)
+record Core delivery and exact publication readback; native/joint acceptance
+remains open. No new Apple admission or consumer implementation is implied.
+
+Completed Core Cast status producer: `DJC-CORE-VIBECAST-CAST-STATUS-V1-20261009`,
+PR [#1138](https://github.com/pcvantol/djconnect/pull/1138) protected merged as
+`c41b6079ed54eb40b0027a6666b0f784bb48f703` from exact reviewed d7396554.
+One shared source adds opt-in directed status/lease/correlation/Silence/view-stop
+without owner/playback/history changes; legacy Pi/v1 remains. Eleven actual
+isolated HA/TLS/Broadcast browser sequences,79schema status envelopes,13lifecycle
+regressions,1681unit scenarios(7skips),172verification and independent exact GO
+PASS. Build1.1.0 published as immutable pin; receiver/native/installed HA/real CAF
+and physical acceptance remain separate. [Completion and Finalization](docs/history/prompts/2026-10-10-vibecast-cast-status-finalization.md)
+records source/package evidence and preserved canonical Git-ref blocker.
+No renderer predecessor reopening or next capability is selected.
+
+
+Completed corrective Core source: `DJC-CORE-PROFILE-HISTORY-HTTP-SCOPE-FIX-V1-20261009`,
+PR [#1134](https://github.com/pcvantol/djconnect/pull/1134) protected merged as
+`2337e06f514dfa2d847d9de26189a10bc618b555` from reviewed4ada2b61.
+Actual Apple HTTP finding exposed scope/identity loss omitted by the original
+11-request proof. The existing GET now reaches its Profile handler with bounded
+allowlisted input; actor/owner stay server-owned, legacy behavior intact.
+Actual HA24-request proof,1672 software scenarios(7skips),172 verification,
+independent exact GO and schema/privacy/revision/clear checks PASS. The
+[corrective completion](docs/history/prompts/2026-10-09-profile-history-http-scope-fix-finalization.md)
+records source/main artifact readback. No native/provider/installed claim,
+predecessor PR reopening or next feature selection. Apple remains separately owned.
+
+Completed Core producer source: `DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008`,
+PR [#1132](https://github.com/pcvantol/djconnect/pull/1132) protected merged as
+`30eba3749a5d16322b5bd45695e6adc25750805d` from reviewed `19b815612319291cc7e4ab1fca4718667f173970`.
+The [conversation/history contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md)
+connects owner Session list/timeline, scoped Ask DJ text/voice, observed-playback
+history queries, literal Unicode search and readonly entry navigation. Existing
+Runtime/Ask DJ/Store/SQLite remain authorities; original source/retention/privacy
+and current-display boundaries fail closed.1,669 software tests(7skips),172
+verification tests, independent exact review and real HA isolated HTTP proof PASS.
+Source publication readback is recorded in the
+[Completion and Finalization](docs/history/prompts/2026-10-09-session-conversation-history-finalization.md).
+Apple native acceptance remains its separate selected assignment; no installation,
+provider/microphone/Pi or next-intelligence claim. Windows public distribution is
+Retired by owner6066406727; controlled teardown is separately Planned, not executed.
+
+
+Completed bounded onboarding source: `DJC-CORE-PROFILE-REUSE-ONBOARDING-V1-20261008`,
+PR [#1130](https://github.com/pcvantol/djconnect/pull/1130) protected merged as
+`3bb6bb8a9cb3e87ebb1bb51c0cf99dfbe572c283` from exact reviewed head
+`162104d625f26a281cb20897ea5365c10bbdabff`. [Profile reuse contract](docs/product/PROFILE_REUSE_ONBOARDING_CONTRACT.md)
+qualifies explicit existing/new Profile selection before backend setup,
+credential-free entry references, preserved Household/account/fallback state,
+localized duplicate recovery and final-confirmation cancellation/concurrency.
+Source/main1628 tests (7existing skips), independent technical/UX review, actual
+HA browser creation/reuse/error recovery, five UI languages and exact internal
+publication/readback PASS. No live provider, installed HA-dev/native/Pi claim.
+[Completion and Finalization](docs/history/prompts/2026-10-08-profile-reuse-onboarding-finalization.md)
+reconciles only this selected slice. Broader `HA-ONBOARDING-001` remains Planned
+with its existing gates; no phase or execution priority changes.
+
+Completed Core producer source: `DJC-CORE-NATIVE-MOMENT-DELIVERY-V1-20261008`,
+PR [#1128](https://github.com/pcvantol/djconnect/pull/1128) protected merged as
+`3ea178fa3098b2c432008827ce009f867f66f63e`. The
+[native delivery contract](docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md)
+adds authoritative current/active-Flow admission, original source deadlines,
+expiry/recovery/entry-channel withdrawal, full attribution and no-store to the
+existing owner route. Immutable Persona/text, Planner/dose and Transitions stay
+intact; unsupported sources/actions fail closed. Source/main software1602 tests
+(seven skips), independent exact review and existing browser regression PASS.
+Exact source prerelease archive:129 safe files byte-equal to merge;
+SHA256 `46e1c9de04093b51ce645adf2e591e82a63398f44cafd0f447a178df2aa87f85`.
+Canonical qualification JSON SHA256
+`fbb7cee8e28a8614f3a84a44e46c605852626480a1a112a70c6f20c95e8665e9`:
+integrity and every required check PASS. Coverage digest
+`533bf0b0046ac5c63fd0f5a275e695a766b91f974cbb5b20eeae8c2e4ddbfe58`.
+[Unchanged evidence attempt2](https://github.com/pcvantol/djconnect/actions/runs/37781489376)
+PASS after specifically approved deletion of the preserved extra manual run;
+original failed evidence remains recorded in the completion history.
+Actual Apple decode/state and iPhone/iPad card/link/lifecycle readback PASS,
+while its overall readback stays PARTIAL and #95 retains its remaining native
+UI/Mac/review gates. No installation, signing, live provider, Store or Pi claim.
+[Completion and Finalization](docs/history/prompts/2026-10-08-native-moment-delivery-finalization.md)
+reconciles only this Core delivery; no new intelligence family is activated.
+
+Completed source: `DJC-CORE-EXPRESSIVE-DJ-PERSONA-V1-20261007`,
+PR [#1126](https://github.com/pcvantol/djconnect/pull/1126) protected merged as
+`cadbf7560baf43bd393c7f0aa525ecc5a137fa93`. The [expressive persona contract](docs/product/EXPRESSIVE_DJ_PERSONA_CONTRACT.md)
+qualifies local five-language realization of immutable facts within the existing
+Moment Engine: distinct Home/Radio/Club/Festival voices, published-only credit
+variation, proven producer callbacks, final-text read-fit and faithful fallback.
+Both independent reviews, software Runtime/browser, required checks and exact
+internal source artifact/readback PASS. No new facts/ranking/provider/TTS,
+installation or live/hardware qualification. [Completion and Finalization](docs/history/prompts/2026-10-08-expressive-dj-persona-finalization.md)
+reconciles this one selected slice; no following assignment is activated.
+
+Completed source: `DJC-CORE-SHARED-PRODUCER-CONTINUITY-V1-20261007`,
+PR [#1124](https://github.com/pcvantol/djconnect/pull/1124) protected merged as
+`c542d8ea9889db3509cab2dd5f19b26dd1a21342` from independently reviewed head
+`da309585121d7069c5a56fdd3a0520fc567d2419`; source/merge trees equal
+`d8a6d668247ea87d0c6f25d2b58e893b7c9054d9`.
+[Shared-producer contract](docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md)
+qualifies one Discover/Exploring track relation and the requested glass bubbles.
+[Completion and Finalization](docs/history/prompts/2026-10-07-shared-producer-continuity-finalization.md) reconciles protected source, software/browser proof and
+internal publication. No install, broader credits Phase B or next slice.
+
+Completed source: `DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007`,
+[contextual fact planning](docs/product/CONTEXTUAL_FACT_PLANNING_CONTRACT.md).
+Improves selection and dosing within #1120's existing qualified fact pool;
+Runtime/browser software acceptance, exact review and protected checks passed;
+PR #1122 merged as `d7a646e0e83a92211875e2f3b45606678e992e76`.
+The [dedicated Finalization](docs/history/prompts/2026-10-07-contextual-fact-planning-finalization.md)
+reconciles the source; completion follows its merge/cleanup. No new provider, speech, future queue,
+persistent learning or change to parked physical PARTIAL findings.
+
+**Status:** Canonical selected-product-work register
+
+## Purpose
+
+This register contains only product work selected from
+`PRODUCT_ROADMAP.md`. It does not create a capability, authorize an
+assessment or implementation, or replace the roadmap's phase sequencing.
+Platform Evolution, Verification, Software Assurance and TDE work remain in
+their owning records.
+
+## Current selected work
+
+| Group | Item | Status | Canonical evidence | Boundary |
+| --- | --- | --- | --- | --- |
+| Verification support | Automated Session Intelligence E2E Verification | Completed for the original selected scope; optional additions deferred | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | All six original Golden Scenarios and their architecture, bootstrap, driver, capture, validator, Smoke, Regression, advisory CI, browser E2E and process-local overlay are reported complete. Deferred Presentation scenarios, TTS replay and comparison need separate selection; this row starts no new work. |
+| DJ Intelligence Evolution | Runtime-bounded Session continuity, Transition spacing and Session Update pacing | Completed — Core source protected merged and exact-main qualified under `DJC-CORE-SESSION-INTELLIGENCE-CONTINUITY-V1-20261004` | [Owner directive](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5977878118); [Core PR #1106](https://github.com/pcvantol/djconnect/pull/1106) merged as `b2c2264f59777a4a2fd620fd2d2a63c0472e1e73`; `docs/product/DJ_INTELLIGENCE_MATURITY.md` | One existing HA Runtime/Planner/Knowledge/Moment/Flow path; safe current Track Insight, Direction, Mood, Persona and bounded Flow memory. Multi-track observable Session decisions, deliberate Silence and valid transitions passed source/Session-level acceptance. No future-queue truth, Audience Planner input, Lyrics, external knowledge, cross-Session learning or client source. VibeCast Pi acceptance remains separate. |
+| DJ Intelligence Evolution | Bounded narrative Discover Genre→Track continuation | Completed — Core source protected merged as `3b93284e00844ced9d6ec1b2e2fd945c9a1ccff3` under `DJC-CORE-DISCOVER-NARRATIVE-TRANSITION-V1-20261004`; exact-main qualification recorded in its Finalization | [Owner directive](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5983584086); [Core PR #1112](https://github.com/pcvantol/djconnect/pull/1112); `docs/product/DISCOVER_NARRATIVE_TRANSITION_CONTRACT.md`; `docs/product/DJ_INTELLIGENCE_MATURITY.md` | One verified artist-genre relation between existing Genre and Track Moments from consecutive observed Spotify tracks. Opens once per Discover Runtime, deepens once or abandons on the next accepted event, then closes. Existing Transition and Manual/Continue remain; no future track, new provider, client, playback mutation or physical Pi acceptance. |
+| DJ Intelligence Evolution | Source-qualified production and credits context | Phase A contract protected merged and exact-main qualified under `DJC-CORE-CREDITS-PROVENANCE-V1-20261004`; Phase B full Artist/Album product behaviour remains blocked by consumer, rights and all-surface attribution gates | [Owner directive](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5982642617); [Core PR #1108](https://github.com/pcvantol/djconnect/pull/1108) merged as `800516230584f20b4e42c12fe4e240a651260936`; `docs/product/CREDIT_PROVENANCE_SOURCE_CONTRACT.md` | At the #1108 Phase A snapshot, Spotify Core normalizers exposed only track/album artist and isolated album release date; they had no live Session-bound typed production credit or verified link/mark projection. Missing, conflicting, unreliable or unattributable facts remain ineligible. `PRODUCT_ACCEPTANCE=PHASE_A_PASS_PHASE_B_BLOCKED` remains the #1108 decision. Later #1120 separately qualified a narrow attributed MusicBrainz production-credit VibeCast card, without qualifying full Artist and Album credit consumption or a public release. |
+| Reference Experience | VibeCast Reference Renderer first increment | Complete — `SIMULATOR_QUAL=PASS`, `PHYSICAL_PI_QUAL=NOT_RERUN_BY_USER_OVERRIDE` | [Owner closure](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6010273964); `docs/product/VIBECAST_REFERENCE_RENDERER_INCREMENT.md`; Core [PR #1116](https://github.com/pcvantol/djconnect/pull/1116) and Finalization [PR #1117](https://github.com/pcvantol/djconnect/pull/1117); Apple [PR #93](https://github.com/pcvantol/djconnect-app/pull/93) and Finalization [PR #94](https://github.com/pcvantol/djconnect-app/pull/94) | Exact Core/Apple source was qualified through a paired iPhone simulator, HA-dev and a portrait receiver with real Spotify Direct playback, Dutch same-Session non-terminal update, reconnect, Runtime end and ephemeral handoff. The owner replaced the remaining physical Pi run with simulator acceptance; earlier Pi subset evidence is not a new hardware PASS. |
+| Reference Experience | VibeCast same-track Moment timeline and portrait cards | Core source merged; separate owner refinement physically qualified with findings | [Owner selection](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6011916468); [acceptance](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6012947392); [source PR #1118](https://github.com/pcvantol/djconnect/pull/1118) merged as `f15fb861e223a209341592666dc2092bad4b4a2e`; `docs/product/VIBECAST_MULTIMOMENT_TIMELINE_CONTRACT.md` | One active observed item produced distinct factual Genre and Track Moments through the canonical Planner/Knowledge/Moment/Flow/Broadcast path. The 1200×1920 browser proved bounded readable cards, entry/exit motion, scrolling, reconnect and expiry with deterministic Runtime events. The fixture is synthetic, not live Spotify or a fresh 10-inch Pi run. No new audio, source calls, persistent history or client ownership. [Owner refinement PR #1120](https://github.com/pcvantol/djconnect/pull/1120) added qualified source facts, visuals and opt-in end; a new physical run passed real same-track two-type playback and idle, with capture automation and full-rate motion partial. The baseline first-slice flags stay historical. |
+
+The verification row reconciles the old current-execution heading with the
+owning roadmap's completed original scope and leaves optional additions
+deferred. The earlier DJ Intelligence row records the completed bounded Core
+continuity assignment; the bounded Discover row records one completed
+same-artist Genre→Track narrative relation without opening another family.
+The owner-selected credits assignment delivered only
+its protected, exact-main-qualified source-qualification gate. Later #1120
+qualified a narrow MusicBrainz producer card; full Phase B Artist/Album
+consumption, rights and attribution remain separately blocked. The
+first VibeCast row records the owner's completed simulator acceptance and
+keeps the physical Pi outcome explicit. The second row is the newly selected
+same-track slice and does not inherit hardware qualification.
+
+## Roadmap-held work not yet selected
+
+The following existing roadmap groups have no active Product Backlog item.
+They remain planned or deferred exactly as classified in `PRODUCT_ROADMAP.md`;
+they must not be inferred as authorized engineering work.
+
+| Group | Existing roadmap area | Current disposition |
+| --- | --- | --- |
+| Architecture | Provider-independent Knowledge Source Architecture | Completed architecture refinement; no provider integration selected. |
+| Knowledge | Future Knowledge capabilities, including Lyrics Knowledge and production-credit Moment consumption | Deferred or separately qualified only; the selected credits assignment cannot enter Phase B until its producer and attribution prerequisites are proven. |
+| Runtime | Playback Observation Stage 2 and Continue Stage 2 | Blocked by Backend-owned Playback Instance Identity. |
+| Planner | Broader long-horizon, autonomous narrative and cross-Session Performance Learning directions | Deferred beyond the separately selected Runtime-bounded continuity tranche above. |
+| Renderer Experience | Reference Experience, Universal Receiver and platform-native surfaces | Planned, assessment-first where recorded. |
+| Productization | Public Release Readiness, Productization and Product & Community Readiness | Planned in their recorded phases. |
+| Documentation | Canonical planning and product documentation | Maintenance through bounded documentation increments only. |
+| Community | Community Public Release | Planned after its recorded readiness dependencies. |
+| Maintenance | Operational quality and release evidence | Owned by Platform Evolution and operational foundations, not this backlog. |
+| Future Research | Audience, Personal AI DJ and Cloud evolution | Deferred. |
+
+## TDE boundary
+
+TDE 1.1.1 is an operational engineering-quality foundation, not a Product
+Backlog item. Its observe-only `code_size`, `complexity`, `coverage` and
+`dependency_health` evidence informs engineering quality without selecting,
+blocking or reordering product work.
+
+## Session entry, lifecycle, history and native surfaces — documentary refinement
+
+Assignment `DJC-SESSION-ENTRY-LIFECYCLE-HISTORY-DESIGN-V1-20261012`, including `DJC-APPLE-SESSION-NATIVE-SURFACES-DESIGN-V1-20261012`. [Owning A/B/C pickup](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6131363097). Documentary source [PR #1160](https://github.com/pcvantol/djconnect/pull/1160) is protected merged as `fdc79c9d7174b9d67dcf743400fbb76a0c163387` with exact artifact qualification; separate Finalization reconciliation remains pending. Product implementation is **Planned**, not dispatched.
+
+| Existing family / bounded subset | Canonical design and acceptance | Status |
+| --- | --- | --- |
+| Existing Session entry/lifecycle: readiness and typed start/end/replace, Ask DJ text/voice, pause recovery | [Entry/lifecycle](docs/product/SESSION_ENTRY_LIFECYCLE_EXPERIENCE_V1.md); exact-target confirmation, no hidden playback, common Core authority; separate Apple lifecycle qualification | Planned |
+| Existing historical Session Timeline: owner list/header summary | [History summary](docs/product/SESSION_HISTORY_SUMMARY_V1.md); accepted observation/publication totals, time-weighted symbolic Mood including pauses, coverage/null/revision and deletion rights | Core producer Completed; Apple Planned |
+| Existing Native Surface Integration: projection rights/state, typed navigation, widget/Activity/Island adoption, quiet transport, joint acceptance | [Apple surfaces](docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md); neutral fallback, purpose-specific cache/OS rights and exact subject lifecycle | Planned |
+| Independent Session Continuation: consent/policy, category-only invitation transport and joint acceptance | [Apple surfaces](docs/product/APPLE_SESSION_NATIVE_SURFACES_V1.md#separate-session-continuation); temporary opportunities, no fact/track spam, opt-in/dedup/revalidation | Planned |
+
+The live [JSON-DAG](docs/roadmap/v1/djconnect-platform-v1.json) records unique bounded subsets under existing parents, with generated dependencies/lanes/open-work/diagrams. Native lifecycle invocation reuses `PROJ::QUAL::CMB12-LIFECYCLE`; richer controls reference `SLICE::APPLE::DJ-PRESENCE-CONTROL`, `FORECAST::APPLE::VIEW` and `AMBIENT::APPLE::JOIN` without duplicate assignments. Useful neutral navigation does not wait for the full private history summary, future intelligence, Interactive DJMoments, Watch redesign or physical Cast/LG delivery. Continuation is separate from native surface synchronization.
+
+Keep historical snapshots and CMB-12 evidence unchanged. Delivered Presence, artwork, Album, Forecast and Ambient Core slices remain closed; narrative Stage 4 remains partial. Documentary completion does not complete those broader families or establish native, installed, APNs or hardware acceptance. No runtime/Swift/APNs/install/signing/workflow/runner/deployment work is selected.
+
+## Delivered Core Session history summary — 2026-10-13
+
+`DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013` admits only the existing
+`HISTORY::CORE::SUMMARY` (Completed Core producer). The connected design is
+[Session history summary v1](docs/product/SESSION_HISTORY_SUMMARY_V1.md).
+Canonical observation counts, semantic non-Silence publication counts and
+confirmed time-weighted Mood use existing storage and owner list/header routes.
+Old/incomplete/withdrawn sessions retain honest unknown coverage.
+`HISTORY::APPLE::SUMMARY` remains Planned, dependent on the qualified producer
+contract; native rendering/installed and joint acceptance are open.
+No lifecycle/start/replace/control, continuation, notification or second slice
+is admitted. Source [#1162](https://github.com/pcvantol/djconnect/pull/1162) is protected merged as
+`ccbb839f4e544b3739c31202685d147207e4c289`; [exact source readback](docs/verification/SESSION_HISTORY_SUMMARY_V1_SOURCE_READBACK.md)
+qualifies the connected producer. Separate Finalization retains its own gate.
+
+
+## Owner-selected Living Persona Avatar — 18 October2026
+
+Direct human pickup reconciles [Core #1208](https://github.com/pcvantol/djconnect/issues/1208)
+and [#1209](https://github.com/pcvantol/djconnect/issues/1209), including explicit
+touch addition6251008548, as one demand with the existing Core sole writer.
+[Canonical design](docs/product/DJ_PERSONA_LIVING_AVATAR_V1.md): preserve the one
+existing Apple current bubble, reuse real Silence/Mood/Presence/Ask DJ/speech
+authority, and retain native rendering ownership. Basic producer signal tests
+are source evidence only. Explicit touch-reaction admission is source-delivered by protected PR #1217 under the
+[same bounded contract](docs/product/PERSONA_TOUCH_REACTIONS_V1.md): paired operation,
+current Settings3, curated five-language text, private client speech and explicit
+cancel/rate/expiry. It is not yet installed/native accepted;
+HA-speaker touch remains unqualified. Basic existing-signal source is delivered by protected PR #1215;
+installed/native/audio/gesture acceptance and the whole function remain OPEN. No second writer, automatic following selection,
+consumer source change or deployment is authorized by this backlog record.
+
+
+## Apple consumer dependency reconciliation — 19 October2026
+
+The current human points to Apple #128/#127/#129 as waiting consumers.
+Core #1211 source is protected merged via PR #1219 at
+`d4ab36fac055bddf7bbc778a480d62ef88115bbc`, with separate Finalization PR #1220 merged at
+`8cb1a467dfc0249fc7b3e79e474841e40249c091` and own cleanup verified:
+actual selected/preferred
+Assist agent required, HA STT/TTS optional for pairing. [Contract](docs/product/ASSIST_AGENT_PAIRING_V1.md).
+Core #1212 actual versioned speech-route source is separately delivered by
+PR #1221; its installed/native acceptance remains open, and #1211 does not
+close Apple #129. Core #1210 shared localized example catalogue,
+three contextual suggestions and reduced backend Help remain one outstanding
+atomic assignment for Apple #128. No suggestions-only/help-only closure.
+Avatar basic and touch producer source is delivered; actual HA-dev mainf8b28d2b
+advertises touch1. Apple #127 renderer/gesture/native/audio acceptance remains
+separately owned; waiting for a new generic Core activity API is unnecessary.
+No new consumer writer, automatic dispatch or function closure follows.
+
+## Selected Core #1212 protected producer source — 19 October2026
+
+Same sole writer after source1219/Finalization1220. Actual metadata projection
+on existing paired/status uses exact selected/preferred pipeline and separately
+qualifies STT, TTS and speaker target; no runtime/provider configuration or
+consumer writes. [Contract](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md).
+Protected source PR #1221 merged `604b80f806425cb53165a17faf783bfd6248af17`,
+exact reviewed candidate `bd2b644dadec91742138348ba960e61b12da662c`, trees equal.
+2642host/148pinnedHAowner tests and actual isolated HA15metadata cases pass
+without speech/model calls. Separate Finalization has its own delivery gates.
+Apple #129 availability UI/native/audio acceptance stays OPEN. Last HA-dev
+installed pin f8b28d2b; no install or full speech-route closure inferred.
+#1210 shared catalogue plus compact Help remains one next atomic dependency.

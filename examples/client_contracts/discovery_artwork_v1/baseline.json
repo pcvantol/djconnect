@@ -1,0 +1,126 @@
+{
+  "assignment": "DJC-CORE-DISCOVERY-ARTWORK-CONTINUITY-V1-20261012",
+  "base": "90fa0463bb40c705c41d4025dc53aee4de514c79",
+  "ordinary_pair_auth": true,
+  "core_mocked": false,
+  "external_provider_network": "BOUNDED_LOOPBACK_FIXTURE_ONLY",
+  "normalized_track_has_artwork": true,
+  "normalized_artist_has_artwork": true,
+  "stored_top_track_has_artwork": false,
+  "stored_top_artist_has_artwork": false,
+  "actual_store_reloaded": true,
+  "feed": {
+    "success": true,
+    "enabled": true,
+    "revision": 1,
+    "generated_at": "2026-10-12T04:15:39.565403+00:00",
+    "ttl_seconds": 86400,
+    "source": "music_dna",
+    "music_dna_key": "profile:artwork-profile",
+    "sections": [
+      {
+        "id": "rediscover",
+        "title": "Opnieuw ontdekken",
+        "items": [
+          {
+            "id": "disc-fe0081beaedf8102",
+            "kind": "track",
+            "title": "Fixture track",
+            "subtitle": "Fixture artist",
+            "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
+            "reason": "Een bekende favoriet uit je Music DNA om opnieuw op te pakken.",
+            "reason_sources": [
+              "djconnect_music_dna",
+              "spotify_top_tracks"
+            ],
+            "confidence": "medium",
+            "quality_score": 70,
+            "quality_band": "medium",
+            "quality_factors": [
+              "known_favorite",
+              "rediscover"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "artist_spotlight",
+        "title": "Artiesten om verder te verkennen",
+        "items": [
+          {
+            "id": "disc-845cae5079e5643f",
+            "kind": "artist",
+            "title": "Fixture artist",
+            "subtitle": "Artist",
+            "uri": "spotify:artist:CCCCCCCCCCCCCCCCCCCCCC",
+            "reason": "Artiest die sterk terugkomt in je Music DNA.",
+            "reason_sources": [
+              "djconnect_music_dna",
+              "spotify_top_artists"
+            ],
+            "confidence": "medium",
+            "quality_score": 74,
+            "quality_band": "medium",
+            "quality_factors": [
+              "artist_anchor",
+              "spotify_top_artists"
+            ]
+          }
+        ]
+      }
+    ],
+    "cache": {
+      "hit": false
+    }
+  },
+  "provider_calls": [
+    {
+      "method": "GET",
+      "path": "/v1/me/player/recently-played",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/artists",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/artists",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/artists",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/tracks",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/tracks",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/top/tracks",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/search",
+      "provider_fixture": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/recommendations",
+      "provider_fixture": true
+    }
+  ],
+  "native": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "live_spotify": "NOT_RUN"
+}

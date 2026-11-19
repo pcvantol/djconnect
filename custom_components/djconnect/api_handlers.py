@@ -1,0 +1,3675 @@
+"""Transport-neutral DJConnect API request handlers."""
+from __future__ import annotations
+
+import logging
+from typing import Any, Awaitable, Callable
+
+from .discovery_artwork import capture_refresh_guard, project_music_dna_images
+
+from . import http as http_helpers
+from .const import CLIENT_TYPE_ESP32, CLIENT_TYPE_WATCHOS, CONF_CLIENT_TYPE, CONF_LOCAL_URL, VERSION
+from .http import (
+    ERROR_MESSAGES,
+    _backend_unavailable_payload,
+    _bootstrap_metadata,
+    _ha_version_payload,
+    _handle_ask_dj_followup_response,
+    _handle_ask_dj_play_recommendation,
+    _handle_ask_dj_play_recommendation_on_output,
+    _handle_ask_dj_play_request_on_output,
+    _handle_volume_delta_command,
+    _history_manager,
+    _is_command_payload,
+    _looks_like_backend_capability_error,
+    _major_minor,
+    _persist_paired_device,
+    _playlist_command_value,
+    _repeat_command_value,
+    _runtime_firmware_version,
+    _runtime_versions_compatible,
+    _safe_backend_error_message,
+    _shuffle_command_value,
+    _unsupported_backend_capability_payload,
+    _update_memory_metadata,
+    _volume_delta_command_value,
+    _with_playlist_aliases,
+)
+from .mood import enrich_payload_with_mood_zone
+from .profile_privacy import resolve_profile_privacy_policy
+from .profile_context import (
+    ProfilePlatformNotConfigured,
+    async_apply_profile_context,
+    async_resolve_device_bound_request_context,
+    profile_error_payload,
+    profile_storage,
+)
+from .profile_export import (
+    async_clear_profile_personal_state,
+    async_export_household,
+    async_export_integration,
+    async_export_profile,
+    async_import_household,
+    async_import_profile,
+    profile_export_error_payload,
+)
+from .playback_observation import playback_observation_manager
+from .pipeline import normalize_supported_language, resolve_assist_language
+from .request_auth import (
+    authorize_runtime_device_request,
+    identity_payload,
+    payload_client_type,
+    resolve_runtime,
+    runtime_client_type,
+    validate_required_client_type,
+)
+from .session_runtime import (
+    ActiveSessionExistsError,
+    DiscoverContext,
+    DJPersona,
+    SessionStartStrategy,
+    session_runtime_manager,
+)
+from .track_insight import TrackInsightError, TrackInsightService
+from .use_cases import (
+    MusicBackendCapabilityError,
+    music_backend_metadata,
+    run_music_command,
+)
+
+_LOGGER = http_helpers._LOGGER
+MUSIC_DNA_PROFILE_REFRESH_SECONDS = 60 * 60
+
+
+def _ha_native_service_identity(hass, runtime):
+    """Trust only the actual registered loaded agent-only entry, never payload flags."""
+    from .session_conversation import SessionConversationError
+    entry = getattr(runtime, "entry", None)
+    entries = getattr(hass, "config_entries", None)
+    if (entry is None or entries is None or entries.async_get_entry(entry.entry_id) is not entry
+        or entry.disabled_by is not None or getattr(entry.state, "value", entry.state) != "loaded"
+        or hass.data.get("djconnect", {}).get(entry.entry_id) is not runtime
+        or entry.data.get("client_type") != "conversation_agent"
+        or runtime_client_type(runtime) != "conversation_agent"
+        or entry.data.get("device_id") != "djconnect-conversation-agent"):
+        raise SessionConversationError("unauthorized", 401)
+    return {"device_id": "djconnect-conversation-agent", "client_type": "conversation_agent"}
+
+
+async def _session_profile_context(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None,
+    user_id: str | None,
+    source: str,
+    _ha_service_runtime: Any | None = None,
+) -> tuple[Any | None, Any | None, dict[str, Any] | None, int | None]:
+    """Authenticate against paired-device or internal HA-native server binding."""
+    headers = headers or {}
+    if _ha_service_runtime is not None:
+        runtime = _ha_service_runtime
+        from .session_conversation import SessionConversationError
+        try:
+            server_identity = _ha_native_service_identity(hass, runtime)
+        except SessionConversationError as exc:
+            return None, None, _error_payload(exc.code), exc.status
+        if any(data.get(key) and data[key] != value for key, value in server_identity.items()):
+            return None, None, _error_payload("profile_device_mismatch"), 403
+        data.update(server_identity)
+    else:
+        runtime = resolve_runtime(hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers)
+        if runtime is None:
+            return None, None, _error_payload("not_configured"), 503
+        if not authorize_runtime_device_request(runtime, headers, data.get("device_id"), payload_client_type(data)):
+            return None, None, _error_payload("unauthorized"), 401
+        if validate_required_client_type(data) is None:
+            return None, None, _error_payload("invalid_client_type"), 400
+    try:
+        bound = await async_resolve_device_bound_request_context(
+            hass, runtime, data, request_source=source
+        )
+    except Exception as exc:  # noqa: BLE001
+        result, resolved_status = profile_error_payload(exc)
+        return None, None, result, resolved_status
+    profile_hints = (
+        str(data.get(key) or "").strip() for key in ("profile_id", "explicit_profile_id")
+    )
+    if any(hint and hint != bound.profile_id for hint in profile_hints):
+        return None, None, _error_payload("profile_device_mismatch"), 403
+    data["profile_id"] = bound.profile_id
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass, runtime, data, user_id=user_id, source=source
+    )
+    if profile_error is not None:
+        return None, None, profile_error, profile_status
+    from .profile_context import async_resolve_request_context
+
+    try:
+        context = await async_resolve_request_context(
+            hass, runtime, data, user_id=user_id, request_source=source
+        )
+    except Exception as exc:  # noqa: BLE001
+        result, status = profile_error_payload(exc)
+        return None, None, result, status
+    return runtime, context, None, None
+
+
+async def async_handle_session_history_payload(
+    hass, data, *, operation="list", headers=None, user_id=None
+):
+    """Existing Profile-bound application/transport boundary for private projections."""
+    if not isinstance(data, dict):
+        return _error_payload("invalid_json"), 400
+    runtime, context, error, status = await _session_profile_context(
+        hass, data, headers=headers, user_id=user_id, source="session_history:" + operation
+    )
+    if error is not None:
+        return error, status
+    if (
+        not context.privacy_policy.allow_personal_read
+        or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read
+    ):
+        return _error_payload("history_not_allowed"), 403
+    from .session_conversation import query_service, history_grant_revision, SessionConversationError
+    from .session_history_projection import HistoryQueryError
+    from .historical_projection_query import HistoricalProjectionAccessDenied
+    from .persistence.service import PersistenceError
+    from .history_entry_contract import (request_version, represent, version_context,
+                                          HistoryEntryUpgradeRequired, upgrade_error)
+
+    from .historical_playback import offers_enabled, offer_locale
+    playback_token = None
+    playback_locale_token = None
+    version_token = None
+    try:
+        playback_version = data.get('historical_playback_contract_version')
+        if playback_version is not None and not (type(playback_version) is int and playback_version in (1, 2) or type(playback_version) is str and playback_version in ('1', '2')):
+            raise HistoryQueryError('unsupported_historical_playback_contract')
+        playback_token = offers_enabled.set(False)
+        playback_locale_token = offer_locale.set(str(data.get('locale') or data.get('language') or 'en').split('-',1)[0].lower())
+        entry_version = request_version(data.get('history_contract_version'))
+        version_token = version_context.set(entry_version)
+        query = query_service(hass, _history_manager(hass, runtime))
+        retention_fence = query._repository.retention_fence
+        retention_days, _retention_revision = await query._repository.async_retention_policy()
+        source_grant = history_grant_revision(hass, context.profile_id)
+        limit = data.get("limit", 20)
+        if isinstance(limit, str) and limit.isascii() and limit.isdigit():
+            limit = int(limit)
+        cursor = data.get("cursor", "")
+        if operation == "list":
+            result = await query.async_session_page(
+                context.profile_id,
+                limit=limit,
+                cursor=cursor,
+                include_active=data.get("include_active") in {True, "true", "1"},
+            )
+        elif operation == "timeline":
+            if data.get("window"):
+                if cursor:
+                    raise HistoryQueryError("invalid_history_cursor")
+                result = await query.async_timeline_window(
+                    context.profile_id, str(data.get("session_id") or ""),
+                    window=data["window"], limit=limit,
+                    anchor_entry_id=str(data.get("anchor_entry_id") or ""),
+                )
+            else:
+                result = await query.async_timeline_page(
+                    context.profile_id, str(data.get("session_id") or ""), limit=limit, cursor=cursor
+                )
+        elif operation == "search":
+            result = await query.async_search_entries(
+                context.profile_id,
+                str(data.get("session_id") or ""),
+                data.get("q"),
+                limit=limit,
+                cursor=cursor,
+            )
+        elif operation == "open":
+            action = data.get("action")
+            if (
+                not isinstance(action, dict)
+                or action.get("kind") != "open_session"
+                or set(action) - {"kind", "session_id", "entry_id", "moment_id", "navigation_only"}
+                or ("moment_id" in action and (
+                    "entry_id" in action
+                    or not isinstance(action["moment_id"], str)
+                    or not action["moment_id"].strip()
+                ))
+            ):
+                raise HistoryQueryError("invalid_history_action")
+            result = await query.async_open_entry(
+                context.profile_id,
+                str(action.get("session_id") or ""),
+                str(action.get("entry_id") or ""),
+                **({"moment_id": action["moment_id"]} if "moment_id" in action else {}),
+            )
+        else:
+            return _error_payload("unsupported_history_operation"), 400
+        _current_runtime, current, current_error, current_status = await _session_profile_context(
+            hass, dict(data), headers=headers, user_id=user_id, source="session_history_complete"
+        )
+        if current_error is not None:
+            return current_error, int(current_status or 409)
+        if current.profile_id != context.profile_id:
+            return _error_payload("history_unavailable"), 403
+        if not current.privacy_policy.allow_personal_read or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read:
+            return _error_payload("history_not_allowed"), 403
+        def delivery_guard():
+            _conversation_profile_fence(hass, runtime, identity_payload(data), headers or {}, context)
+            # Nothing yields between the original-source/deadline fence and JSON
+            # representation. A valid paired owner alone cannot renew source rights.
+            if (history_grant_revision(hass, context.profile_id) != source_grant
+                    or retention_fence[1] or query._repository.retention_fence != retention_fence):
+                raise HistoryQueryError("invalid_history_cursor")
+            from .session_history_projection import session_retained
+            sessions = result.get("sessions", []) + ([result["session"]] if "session" in result else [])
+            if any(not session_retained({**s, "history_enabled": True}, retention_days=retention_days) for s in sessions):
+                raise HistoryQueryError("invalid_history_cursor")
+            query._validate_entry_deadlines(result.get("entries", []) + result.get("matches", [])
+                                           + ([result["entry"]] if "entry" in result else []))
+        delivery_guard()
+        from .transport_delivery import register_delivery_admission
+        register_delivery_admission(delivery_guard)
+        return represent(result, entry_version), 200
+    except SessionConversationError as exc:
+        return _error_payload(exc.code), exc.status
+    except HistoryEntryUpgradeRequired:
+        return upgrade_error(), 409
+    except HistoricalProjectionAccessDenied:
+        return _error_payload("history_unavailable"), 404
+    except HistoryQueryError as exc:
+        return _error_payload(str(exc)), 409 if "cursor" in str(exc) else 400
+    except (PersistenceError, RuntimeError):
+        return _error_payload("history_unavailable"), 503
+    finally:
+        if version_token is not None:
+            version_context.reset(version_token)
+        if playback_token is not None:
+            offers_enabled.reset(playback_token)
+        if playback_locale_token is not None:
+            offer_locale.reset(playback_locale_token)
+async def async_handle_session_start_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """Create the one active server-owned Runtime for a resolved Profile."""
+    runtime, context, error, status = await _session_profile_context(
+        hass, data, headers=headers, user_id=user_id, source="session_start"
+    )
+    if error is not None:
+        return error, int(status or 400)
+    # Use the authorized binding, including legacy Watch IDs.
+    if (runtime_client_type(runtime) == CLIENT_TYPE_WATCHOS
+            or context.device_id.lower().startswith("djconnect-watchos-")):
+        return _error_payload("session_start_not_allowed"), 403
+    if not context.backend_id:
+        return _error_payload("profile_backend_missing"), 409
+    strategy = _session_start_strategy(data.get("session_start_strategy"))
+    from .surface_source_origin import capture_session_source
+    source_adoption = capture_session_source(hass, runtime, context)
+    try:
+        discover_context = await _discover_context_for_session(runtime, context, strategy)
+        session = await session_runtime_manager(hass).async_start(
+            owner_profile_id=context.profile_id,
+            room=str(data.get("room") or context.room_id or "").strip(),
+            selected_mood=str(data.get("mood") or "").strip(),
+            explicit_mood_choice=str(data.get("mood") or "").strip() in {"chill", "groove", "energy", "party"},
+            music_backend=context.backend_id,
+            dj_persona=_dj_persona(data.get("dj_persona")),
+            locale=_session_locale(hass, runtime, data),
+            session_start_strategy=strategy,
+            discover_context=discover_context,
+            history_enabled=context.privacy_policy.allow_history_persistence and resolve_profile_privacy_policy(context.profile,{}).allow_history_persistence,
+            history_source_context=dict(source_adoption.source) if source_adoption is not None else {
+                "backend_id": context.backend_id,
+                "music_account_id": context.music_account_id,
+                "provider_account_id": str(getattr(profile_storage(hass).household.music_accounts.get(context.music_account_id), "provider_account_id", "")),
+                "provider_entry_id": str(getattr(runtime, "config", {}).get("profile_backend_entry_id") or getattr(getattr(runtime, "entry", None), "entry_id", "")),
+            },
+            **({"source_adoption": source_adoption} if source_adoption is not None else {}),
+        )
+    except ActiveSessionExistsError:
+        active = await session_runtime_manager(hass).async_get_active(context.profile_id)
+        return {"success": False, "error": "active_session_exists", "active_session": active.as_dict() if active else None}, 409
+    finally:
+        if source_adoption is not None:
+            source_adoption.finish_start()
+    from .speaker_delivery import connect_automatic
+    connect_automatic(hass, runtime, session, identity_payload(data), headers or {})
+    _connect_session_narration(hass, runtime, context, session, identity_payload(data), headers or {})
+    await _async_generate_initial_session_moment(
+        hass=hass,
+        integration_runtime=runtime,
+        owner_profile_id=context.profile_id,
+        session=session,
+    )
+    active = await session_runtime_manager(hass).async_get_active(context.profile_id)
+    if (active is not None and active.session_id == session.session_id
+            and active.broadcast is session.broadcast):
+        await playback_observation_manager(hass).async_start_spotify(
+            integration_runtime=runtime,
+            session=active,
+            insight_provider_factory=lambda active_runtime, active_session: (
+                _session_track_insight_provider(
+                    hass, active_runtime, active_session
+                )
+            ),
+        )
+    def delivery_guard():
+        _conversation_profile_fence(hass, runtime, identity_payload(data), headers or {}, context)
+        current = session_runtime_manager(hass).current_active(context.profile_id)
+        if current is None or current.session_id != session.session_id:
+            raise PermissionError("session_result_withdrawn")
+    from .transport_delivery import register_delivery_admission
+    register_delivery_admission(delivery_guard)
+    if context.client_type in {"ios", "macos"}:
+        from .mood_music_steering import prepare_for_you_once
+        await prepare_for_you_once(hass, runtime, context, active or session,
+                                  _history_manager(hass, runtime), delivery_guard)
+    return {"success": True, "session": (active or session).as_dict(),
+            **_session_offer_fields(hass, runtime, context, active or session)}, 201
+
+
+async def _async_generate_initial_session_moment(
+    *, hass: Any, integration_runtime: Any, owner_profile_id: str, session: Any
+) -> None:
+    """Publish one welcome before using the established Track Insight trigger."""
+    manager = session_runtime_manager(hass)
+    await manager.async_open_session(owner_profile_id=owner_profile_id, session_id=session.session_id)
+    await manager.async_process_track_started(
+        owner_profile_id=owner_profile_id,
+        session_id=session.session_id,
+        insight_provider=_session_track_insight_provider(
+            hass, integration_runtime, session
+        ),
+    )
+
+
+def _session_track_insight_provider(
+    hass: Any, integration_runtime: Any, session: Any
+) -> Callable[[], Awaitable[dict[str, Any]]]:
+    """Return the one existing Track Insight provider for a Session."""
+
+    async def insight_provider() -> dict[str, Any]:
+        return await TrackInsightService().async_analyze(
+            hass,
+            integration_runtime,
+            {
+                "source": "session_moment",
+                "music_backend": session.music_backend,
+                "locale": session.locale,
+                "include_visual_profile": False,
+                "presentation_style": (
+                    f"DJ Persona: {session.dj_persona.value}; "
+                    f"Session Mood: {session.selected_mood or 'neutral'}"
+                ),
+            },
+            source="session_moment",
+            session_evidence=True,
+        )
+
+    return insight_provider
+
+
+def _session_locale(hass: Any, runtime: Any, data: dict[str, Any]) -> str:
+    """Resolve Session language from the client or preferred Assist pipeline."""
+    explicit = str(data.get("language") or data.get("locale") or "").strip()
+    if explicit:
+        return normalize_supported_language(explicit)
+    return resolve_assist_language(hass, getattr(runtime, "config", {}) or {})
+
+
+def _dj_persona(value: Any) -> DJPersona:
+    """Accept only the first canonical behavioural Persona set."""
+    try:
+        return DJPersona(str(value or DJPersona.HOME_DJ.value))
+    except ValueError:
+        return DJPersona.HOME_DJ
+
+
+def _session_start_strategy(value: Any) -> SessionStartStrategy:
+    """Accept only bounded, server-owned Session Start Strategy values."""
+    try:
+        return SessionStartStrategy(str(value or SessionStartStrategy.MANUAL.value))
+    except ValueError:
+        return SessionStartStrategy.MANUAL
+
+
+async def _discover_context_for_session(
+    runtime: Any, context: Any, strategy: SessionStartStrategy
+) -> DiscoverContext:
+    """Project opt-in Music DNA into safe Discover-only Runtime context."""
+    if strategy is not SessionStartStrategy.DISCOVER:
+        return DiscoverContext()
+    if not getattr(context.privacy_policy, "allow_personal_read", False):
+        return DiscoverContext()
+    memory = getattr(runtime, "memory", None)
+    if memory is None:
+        return DiscoverContext()
+    try:
+        result = await memory.async_profile(
+            runtime,
+            {"music_dna_key": context.music_dna_key},
+            user_id=context.ha_user_id or None,
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Discover Music DNA unavailable: %s", exc.__class__.__name__)
+        return DiscoverContext()
+    if not result.get("enabled") or not isinstance(result.get("profile"), dict):
+        return DiscoverContext()
+    profile = result["profile"]
+    artists = tuple(
+        str(item.get("name") or "").strip()[:160]
+        for item in profile.get("favorite_artists", [])
+        if isinstance(item, dict) and str(item.get("name") or "").strip()
+    )[:20]
+    genres = tuple(
+        str(item.get("name") or "").strip()[:160]
+        for item in profile.get("favorite_genres", [])
+        if isinstance(item, dict) and str(item.get("name") or "").strip()
+    )[:20]
+    return DiscoverContext(True, artists, genres)
+
+
+async def async_handle_session_end_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """End and dispose of the active Runtime for a resolved Profile."""
+    runtime, context, error, status = await _session_profile_context(
+        hass, data, headers=headers, user_id=user_id, source="session_end"
+    )
+    if error is not None:
+        return error, int(status or 400)
+    session = await session_runtime_manager(hass).async_end(
+        owner_profile_id=context.profile_id, session_id=str(data.get("session_id") or "").strip()
+    )
+    if session is None:
+        return _error_payload("active_session_not_found"), 404
+    await playback_observation_manager(hass).async_stop(
+        context.profile_id, session.session_id
+    )
+    from .transport_delivery import register_delivery_admission
+    register_delivery_admission(lambda: _conversation_profile_fence(
+        hass, runtime, identity_payload(data), headers or {}, context))
+    return {"success": True, "session": session.as_dict()}, 200
+
+
+async def async_handle_active_session_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """Return the active Runtime so a paired client can reconnect."""
+    _runtime, context, error, status = await _session_profile_context(
+        hass, data, headers=headers, user_id=user_id, source="active_session"
+    )
+    if error is not None:
+        return error, int(status or 400)
+    session = await session_runtime_manager(hass).async_get_active(context.profile_id)
+    if (session is not None and context.client_type in {"ios", "macos"}
+            and session.broadcast.first_play_state == 'confirmed'
+            and session.broadcast.first_play_pending is not None):
+        from .mood_music_steering import _record_for_you_confirmation
+        await _record_for_you_confirmation(_runtime, session.broadcast.first_play_pending)
+        _conversation_profile_fence(hass, _runtime, identity_payload(data), headers or {}, context)
+    return {"success": True, "session": session.as_dict() if session else None,
+            **_session_offer_fields(hass, _runtime, context, session, locale=_for_you_request_locale(data, headers, session))}, 200
+
+
+async def _async_owner_broadcast_session_context(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+    source: str = "session_broadcast_snapshot",
+) -> tuple[dict[str, Any], int, Any | None, str | None]:
+    """Resolve one exact owner-authorized active Broadcast without projecting it."""
+    headers = headers or {}
+    runtime = resolve_runtime(
+        hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers
+    )
+    if runtime is None:
+        return _error_payload("not_configured"), 503, None, None
+    if not authorize_runtime_device_request(
+        runtime, headers, data.get("device_id"), payload_client_type(data)
+    ):
+        return _error_payload("unauthorized"), 401, None, None
+    if validate_required_client_type(data) is None:
+        return _error_payload("invalid_client_type"), 400, None, None
+    try:
+        context = await async_resolve_device_bound_request_context(
+            hass, runtime, data, request_source=source
+        )
+    except Exception as exc:  # noqa: BLE001
+        result, resolved_status = profile_error_payload(exc)
+        return result, resolved_status, None, None
+    session_id = str(data.get("session_id") or "").strip()
+    if not session_id:
+        return _error_payload("session_id_required"), 400, None, None
+    manager = session_runtime_manager(hass)
+    active = await manager.async_get_active(context.profile_id)
+    if active is None or active.session_id != session_id:
+        return _error_payload("active_session_not_found"), 404, None, None
+    entry_id = str(getattr(getattr(runtime, "entry", None), "entry_id", "") or "")
+    generation = getattr(runtime, "_receiver_end_generation", 0)
+    if entry_id and generation != manager.receiver_entry_generation(entry_id):
+        return _error_payload("unauthorized"), 401, None, None
+    if getattr(active.broadcast, 'content_pending', False):
+        return _error_payload('content_delete_outcome_unknown'), 503, None, None
+    epoch = getattr(active.broadcast, 'content_epoch', 0)
+    broadcast = active.broadcast
+    def content_delivery_guard():
+        from .session_conversation import SessionConversationError
+        current = manager.current_active(context.profile_id)
+        if (current is None or current.broadcast is not broadcast
+                or getattr(broadcast, 'content_pending', False)
+                or getattr(broadcast, 'content_epoch', 0) != epoch):
+            raise SessionConversationError('content_delete_outcome_unknown', 503)
+    from .transport_delivery import register_delivery_admission
+    register_delivery_admission(content_delivery_guard)
+    return {"success": True, "session_id": session_id,
+            "_owner_entry_id": entry_id, "_owner_entry_generation": generation}, 200, manager, context.profile_id
+
+
+async def _async_owner_broadcast_snapshot_query(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+    source: str = "session_broadcast_snapshot",
+) -> tuple[dict[str, Any], int, Any | None, str | None]:
+    """Resolve one owner-authorized, side-effect-free Broadcast snapshot."""
+    result, status, manager, profile_id = await _async_owner_broadcast_session_context(
+        hass, data, headers=headers, user_id=user_id, source=source
+    )
+    if manager is None or profile_id is None:
+        return result, status, None, None
+    active = await manager.async_get_active(profile_id)
+    if active is None or active.session_id != result["session_id"]:
+        return _error_payload("active_session_not_found"), 404, None, None
+    try:
+        snapshot = active.broadcast.as_dict()
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Broadcast snapshot unavailable: %s", exc.__class__.__name__)
+        return _error_payload("broadcast_snapshot_unavailable"), 500, None, None
+    return {"success": True, "session_id": result["session_id"], "snapshot": snapshot}, 200, manager, profile_id
+
+
+async def async_handle_session_broadcast_snapshot_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """Return the canonical owner Broadcast projection without subscribing."""
+    result, status, _manager, _profile_id = await _async_owner_broadcast_snapshot_query(
+        hass, data, headers=headers, user_id=user_id
+    )
+    return result, status
+
+
+async def async_handle_session_broadcast_recovery_read_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Pure bounded owner HTTP/WS recovery through the existing Broadcast owner."""
+    context, status, manager, profile_id = await _async_owner_broadcast_session_context(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_http_recovery")
+    if manager is None or profile_id is None:
+        return context, status
+    cursor = data.get("recovery_cursor")
+    if not isinstance(cursor, str) or not cursor:
+        return _error_payload("invalid_recovery_cursor"), 400
+    recovered = await manager.async_recover_owner_projection(
+        owner_profile_id=profile_id, session_id=context["session_id"], recovery_cursor=cursor,
+        authorization_entry_id=context.get("_owner_entry_id", ""),
+        authorization_entry_generation=context.get("_owner_entry_generation", 0))
+    if recovered is None:
+        return _error_payload("active_session_not_found"), 404
+    return {"success": True, "session_id": context["session_id"], **recovered}, 200
+
+
+async def async_handle_session_broadcast_subscribe_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    callback: Callable[[dict[str, Any]], None],
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[
+    dict[str, Any],
+    int,
+    Callable[[], Awaitable[None]] | None,
+    Callable[[], Awaitable[None]] | None,
+]:
+    """Subscribe an authenticated owner renderer to one active Broadcast Engine.
+
+    The pure query remains the only initial snapshot source. The cleanup
+    callback is deliberately transport-owned so a closed websocket cannot
+    retain a Runtime subscription.
+    """
+    context, status, manager, profile_id = await _async_owner_broadcast_session_context(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_subscribe"
+    )
+    if manager is None or profile_id is None:
+        return context, status, None, None
+    session_id = context["session_id"]
+    subscription_id = await manager.async_register_pending_subscription(
+        owner_profile_id=profile_id,
+        session_id=session_id,
+        callback=callback,
+        authorization_entry_id=context.get("_owner_entry_id", ""),
+        authorization_entry_generation=context.get("_owner_entry_generation", 0),
+    )
+    if subscription_id is None:
+        return _error_payload("active_session_not_found"), 404, None, None
+
+    try:
+        result, status, snapshot_manager, snapshot_profile_id = await _async_owner_broadcast_snapshot_query(
+            hass, data, headers=headers, user_id=user_id, source="session_broadcast_subscribe"
+        )
+        if snapshot_manager is None or snapshot_profile_id is None:
+            await manager.async_unsubscribe(
+                owner_profile_id=profile_id,
+                session_id=session_id,
+                subscription_id=subscription_id,
+            )
+            return result, status, None, None
+
+        async def cleanup() -> None:
+            await manager.async_unsubscribe(
+                owner_profile_id=profile_id,
+                session_id=session_id,
+                subscription_id=subscription_id,
+            )
+
+        async def activate() -> None:
+            activated = await manager.async_activate_subscription(
+                owner_profile_id=profile_id,
+                session_id=session_id,
+                subscription_id=subscription_id,
+            )
+            if activated is False:
+                # End/unload during transport setup cannot leave its earlier
+                # snapshot authoritative. Terminal denial never grants content.
+                from .native_moment_delivery import withdrawn_native_delivery
+
+                callback({"event_type": "broadcast_stopped", "session_id": session_id,
+                          "payload": {"broadcast": {"subscription_state": "revoked"},
+                                      "native_delivery": withdrawn_native_delivery(session_id)}})
+
+        active = await manager.async_get_active(profile_id)
+        cursor_provider = (
+            getattr(active.broadcast, "owner_recovery_cursor", None)
+            if active is not None and active.session_id == session_id
+            else None
+        )
+        recovery_cursor = cursor_provider() if callable(cursor_provider) else None
+
+        return {
+            "subscription_id": subscription_id,
+            "recovery_cursor": recovery_cursor,
+            **result,
+        }, 200, activate, cleanup
+    except BaseException:
+        # Retain cleanup ownership until all pending setup returns to transport.
+        await manager.async_unsubscribe(
+            owner_profile_id=profile_id, session_id=session_id, subscription_id=subscription_id
+        )
+        raise
+
+
+async def async_handle_session_broadcast_recovery_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    callback: Callable[[dict[str, Any]], None],
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[
+    dict[str, Any],
+    int,
+    Callable[[], Awaitable[None]] | None,
+    Callable[[], Awaitable[None]] | None,
+]:
+    """Recover one owner Broadcast stream from its existing opaque cursor."""
+    context, status, manager, profile_id = await _async_owner_broadcast_session_context(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_recovery"
+    )
+    if manager is None or profile_id is None:
+        return context, status, None, None
+    recovery_cursor = data.get("recovery_cursor")
+    if not isinstance(recovery_cursor, str) or not recovery_cursor:
+        return _error_payload("invalid_recovery_cursor"), 400, None, None
+    session_id = context["session_id"]
+    recovered = await manager.async_recover_owner_subscription(
+        owner_profile_id=profile_id,
+        session_id=session_id,
+        recovery_cursor=recovery_cursor,
+        callback=callback,
+        authorization_entry_id=context.get("_owner_entry_id", ""),
+        authorization_entry_generation=context.get("_owner_entry_generation", 0),
+    )
+    if recovered is None:
+        return _error_payload("invalid_recovery_cursor"), 400, None, None
+    subscription_id, recovery = recovered
+
+    async def cleanup() -> None:
+        await manager.async_unsubscribe(
+            owner_profile_id=profile_id,
+            session_id=session_id,
+            subscription_id=subscription_id,
+        )
+
+    async def activate() -> None:
+        activated = await manager.async_activate_subscription(
+            owner_profile_id=profile_id,
+            session_id=session_id,
+            subscription_id=subscription_id,
+        )
+        if activated is False:
+            # End/unload during transport setup cannot leave its earlier
+            # snapshot authoritative. Terminal denial never grants content.
+            from .native_moment_delivery import withdrawn_native_delivery
+
+            callback({"event_type": "broadcast_stopped", "session_id": session_id,
+                      "payload": {"broadcast": {"subscription_state": "revoked"},
+                                  "native_delivery": withdrawn_native_delivery(session_id)}})
+
+    return {
+        "success": True,
+        "session_id": session_id,
+        "subscription_id": subscription_id,
+        **recovery,
+    }, 200, activate, cleanup
+
+
+async def async_handle_session_broadcast_token_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """Mint no new secret: return the current Runtime's owner-authorized token."""
+    result, status, manager, profile_id = await _async_owner_broadcast_session_context(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_token"
+    )
+    if manager is None or profile_id is None:
+        return result, status
+    contract = await manager.async_broadcast_token_for_owner(
+        owner_profile_id=profile_id, session_id=result["session_id"]
+    )
+    if contract is None:
+        return _error_payload("active_session_not_found"), 404
+    return {"success": True, **contract}, 200
+
+
+async def async_handle_session_broadcast_handoff_approve_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """Let only the active Session owner approve a browser's short-lived code."""
+    result, status, manager, profile_id = await _async_owner_broadcast_session_context(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_handoff"
+    )
+    if manager is None or profile_id is None:
+        return result, status
+    session_id = result["session_id"]
+    code = str(data.get("code") or "").strip()
+    if len(code) != 6 or not code.isascii() or not code.isdigit():
+        return _error_payload("handoff_code_invalid"), 400
+    contract = await manager.async_broadcast_token_for_owner(
+        owner_profile_id=profile_id, session_id=session_id
+    )
+    if contract is None:
+        return _error_payload("active_session_not_found"), 404
+    from .broadcast_handoff import broadcast_handoff_manager
+
+    approved = await broadcast_handoff_manager(hass).approve(
+        code,
+        owner_profile_id=profile_id,
+        session_id=session_id,
+        broadcast_token=str(contract["broadcast_token"]),
+    )
+    if not approved:
+        return _error_payload("handoff_code_unavailable"), 404
+    return {"success": True, "session_id": session_id, "handoff": "approved"}, 200
+
+
+async def _apply_profile_or_error(
+    hass: Any,
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    user_id: str | None,
+    source: str,
+) -> tuple[dict[str, Any] | None, int | None]:
+    """Apply canonical Profile context or return structured error."""
+    _clear_profile_runtime_context(runtime)
+    try:
+        context = await async_apply_profile_context(
+            hass,
+            runtime,
+            payload,
+            user_id=user_id,
+            request_source=source,
+        )
+        if source.startswith(("music_dna_", "music_discovery_")):
+            payload.pop("user_id", None)
+            payload["music_dna_key"] = context.music_dna_key
+        return None, None
+    except Exception as exc:  # noqa: BLE001
+        if isinstance(exc, ProfilePlatformNotConfigured):
+            return None, None
+        result, status = profile_error_payload(exc)
+        return result, status
+
+
+def _clear_profile_runtime_context(runtime: Any) -> None:
+    """Clear transient profile routing hints before resolving a request."""
+    setattr(runtime, "profile_context_profile_id", "")
+    setattr(runtime, "profile_context_backend_id", "")
+    setattr(runtime, "profile_context_music_account_id", "")
+    setattr(runtime, "profile_context_playback_zone_id", "")
+    setattr(runtime, "profile_context_resolution_reason", "")
+
+
+async def async_handle_command_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Handle a DJConnect command payload for HTTP and HA websocket transports."""
+    # Ask DJ commands are compatibility inputs to the same application exchange.
+    if isinstance(data, dict):
+        command = str(data.get("command") or "").strip().lower()
+        value = data.get("value")
+        action_commands = {"play_history_item", "ask_dj_play_recommendation", "ask_dj_play_recommendation_on_output",
+                           "ask_dj_play_request_on_output", "ask_dj_followup_response"}
+        text = _current_track_question_text(data, command, value)
+        if command == "ask_dj_message":
+            part = value if isinstance(value, dict) else {"text": value}
+            text = _ask_dj_message_text(data, part)
+            normalized = {**data, **part, "text": text}
+        else:
+            normalized = {**data, "text": text or command}
+        if command == "play_history_item":
+            from .historical_playback import checked_reference
+            try:
+                reference = checked_reference(value)
+            except ValueError:
+                return _error_payload("invalid_historical_playback_reference"), 400
+            context = data.get("conversation_context") or {}
+            if not isinstance(context, dict) or set(context) - {"thread_id"}:
+                return _error_payload("invalid_conversation_context"), 400
+            normalized["text"] = "Play the selected historical recording."
+            normalized["conversation_context"] = {**context, "selected_entry": {
+                k: reference[k] for k in ("session_id", "entry_id")}}
+        if command in action_commands or command in {"ask_dj_message", "help", "hulp", "commands", "show_help", "show_commands"} or text:
+            if not normalized.get("text"):
+                return _error_payload("missing_ask_dj_text"), 400
+            return await async_handle_ask_dj_message_payload(
+                hass, normalized, headers=headers, user_id=user_id,
+                action_request=(command, value) if command in action_commands else None,
+            )
+    headers = headers or {}
+    context = await _prepare_command_context(hass, data, headers, user_id=user_id)
+    if "response" in context:
+        return context["response"]
+    runtime = context["runtime"]
+    client_type = context["client_type"]
+    music_dna_key = context["music_dna_key"]
+    command = context["command"]
+    _LOGGER.debug(
+        "DJConnect backend command from %s client_type=%s command=%s",
+        _safe_debug_identifier(data.get("device_id")),
+        client_type,
+        command,
+    )
+    normalized_command = command.lower()
+    if normalized_command == "discovery_playlist_identity" and not authorize_runtime_device_request(
+            runtime, headers, data.get("device_id"), client_type):
+        return _error_payload("unauthorized"), 401
+    _debug_playback_request(runtime, data, command=normalized_command)
+    if normalized_command == "queue":
+        _debug_queue_request(runtime, data)
+    special_result, command_value = await _dispatch_special_command(
+        hass, runtime, data, command, normalized_command,
+        client_type=client_type, music_dna_key=music_dna_key, user_id=user_id,
+    )
+    if special_result is not None:
+        return special_result
+    return await _run_backend_command(
+        hass, runtime, data, command, command_value, normalized_command,
+        client_type=client_type, music_dna_key=music_dna_key, user_id=user_id,
+    )
+
+
+async def _dispatch_special_command(
+    hass: Any,
+    runtime: Any,
+    data: dict[str, Any],
+    command: str,
+    normalized_command: str,
+    *,
+    client_type: str,
+    music_dna_key: str | None,
+    user_id: str | None,
+) -> tuple[tuple[dict[str, Any], int] | None, Any]:
+    """Handle command routes that do not use the generic backend dispatcher."""
+    command_value = _normalized_command_value(data, normalized_command, client_type)
+    if normalized_command == "playlists":
+        _debug_playlists_request(runtime, data, command_value)
+    ask_result = await _special_ask_dj_result(
+        hass, runtime, data, command, command_value, normalized_command,
+        client_type=client_type, user_id=user_id,
+    )
+    if ask_result is not None:
+        result, debug_command = ask_result
+        return _finalize_special_command(hass, runtime, result, music_dna_key, debug_command), command_value
+    if normalized_command == "volume_delta":
+        try:
+            result = await _handle_volume_delta_command(hass, runtime, command_value)
+        except Exception as exc:  # noqa: BLE001
+            return _volume_command_error_result(runtime, data, command, normalized_command, exc=exc), command_value
+        if result.get("success") is False and result.get("error") != "invalid_volume_delta":
+            return _volume_command_error_result(runtime, data, command, normalized_command, result=result), command_value
+        return _finalize_special_command(hass, runtime, result, music_dna_key, normalized_command), command_value
+    return None, command_value
+
+
+def _normalized_command_value(data: dict[str, Any], command: str, client_type: str) -> Any:
+    """Apply the established payload normalization for backend command values."""
+    normalizers = {
+        "set_repeat": _repeat_command_value,
+        "set_shuffle": _shuffle_command_value,
+        "volume_delta": _volume_delta_command_value,
+    }
+    if command == "playlists":
+        return _playlist_command_value(data, client_type)
+    normalizer = normalizers.get(command)
+    return normalizer(data) if normalizer is not None else data.get("value")
+
+
+async def _special_ask_dj_result(
+    hass: Any,
+    runtime: Any,
+    data: dict[str, Any],
+    command: str,
+    command_value: Any,
+    normalized_command: str,
+    *,
+    client_type: str,
+    user_id: str | None,
+) -> tuple[dict[str, Any], str] | None:
+    """Resolve command routes implemented by Ask DJ without changing payload shapes."""
+    if normalized_command in {"help", "hulp", "commands", "show_help", "show_commands"}:
+        result = await http_helpers.async_handle_ask_dj(
+            hass, runtime, {**data, "text": command, "client_type": client_type}, user_id=user_id
+        )
+        return result, normalized_command
+    if normalized_command == "ask_dj_message":
+        return await _ask_dj_message_command_result(
+            hass, runtime, data, command_value, normalized_command, client_type, user_id
+        )
+    current_track_text = _current_track_question_text(data, command, command_value)
+    if current_track_text:
+        result = await http_helpers.async_handle_ask_dj(
+            hass,
+            runtime,
+            {**data, "text": current_track_text, "client_type": client_type, "audio_response": data.get("audio_response") or "auto"},
+            user_id=user_id,
+        )
+        return result, "current_track_question"
+    handler = {
+        "ask_dj_play_recommendation": _handle_ask_dj_play_recommendation,
+        "ask_dj_play_recommendation_on_output": _handle_ask_dj_play_recommendation_on_output,
+        "ask_dj_play_request_on_output": _handle_ask_dj_play_request_on_output,
+        "ask_dj_followup_response": _handle_ask_dj_followup_response,
+    }.get(normalized_command)
+    if handler is None:
+        return None
+    result = await handler(hass, runtime, command_value, data, user_id=user_id)
+    if normalized_command == "ask_dj_play_recommendation" and isinstance(command_value, dict):
+        key = command_value.get("music_dna_key")
+        if key:
+            result["music_dna_key"] = str(key).strip()
+    return result, normalized_command
+
+
+async def _ask_dj_message_command_result(
+    hass: Any,
+    runtime: Any,
+    data: dict[str, Any],
+    command_value: Any,
+    normalized_command: str,
+    client_type: str,
+    user_id: str | None,
+) -> tuple[dict[str, Any], str]:
+    """Resolve an Ask DJ message command and retain its legacy validation error."""
+    message_value = command_value if isinstance(command_value, dict) else {"text": command_value}
+    text_value = _ask_dj_message_text(data, message_value)
+    if not text_value:
+        result = _error_payload("missing_ask_dj_text", "missing_ask_dj_text")
+        _debug_playback_error("command", data, (result, 400), runtime=runtime)
+        return result, normalized_command
+    result = await http_helpers.async_handle_ask_dj(
+        hass,
+        runtime,
+        {**data, **message_value, "text": text_value, "client_type": client_type},
+        user_id=user_id,
+    )
+    return result, normalized_command
+
+
+def _ask_dj_message_text(data: dict[str, Any], message_value: dict[str, Any]) -> str:
+    """Resolve the first supported textual Ask DJ message field."""
+    return str(
+        message_value.get("text") or message_value.get("prompt") or data.get("text")
+        or data.get("prompt") or data.get("label") or data.get("button_label")
+        or data.get("title") or ""
+    ).strip()
+
+
+def _finalize_special_command(
+    hass: Any,
+    runtime: Any,
+    result: dict[str, Any],
+    music_dna_key: str | None,
+    command: str,
+) -> tuple[dict[str, Any], int]:
+    """Decorate and publish one special command result."""
+    _decorate_command_result(hass, runtime, result, music_dna_key)
+    status = 200 if result.get("success") else 400
+    _debug_playback_result("command", result, status, runtime=runtime, command=command)
+    return result, status
+
+
+async def _prepare_command_context(
+    hass: Any,
+    data: dict[str, Any],
+    headers: Any,
+    *,
+    user_id: str | None,
+) -> dict[str, Any]:
+    """Validate a transport request and return its canonical command context."""
+    if not isinstance(data, dict):
+        return _command_context_error("invalid_json", {}, 400)
+    runtime = resolve_runtime(
+        hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers
+    )
+    if runtime is None:
+        return _command_context_error("not_configured", data, 503)
+    if not authorize_runtime_device_request(
+        runtime, headers, data.get("device_id"), payload_client_type(data)
+    ):
+        return _command_context_error("unauthorized", data, 401)
+    client_type = validate_required_client_type(data)
+    if client_type is None:
+        return _command_context_error("invalid_client_type", data, 400, runtime=runtime)
+    if _is_command_payload(data):
+        _LOGGER.debug("Ignoring command payload for device sensor update")
+    runtime.device_status[CONF_CLIENT_TYPE] = client_type
+    _refresh_authenticated_client_version(runtime, data)
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass, runtime, data, user_id=user_id, source="command"
+    )
+    if profile_error is not None:
+        return {"response": (profile_error, int(profile_status or 400))}
+    music_dna_key = await _command_music_dna_key(runtime, data, user_id=user_id)
+    if not _runtime_versions_compatible(runtime):
+        result = _version_mismatch_payload(runtime)
+        _debug_playback_result("command", result, 426, runtime=runtime, command="version_mismatch")
+        return {"response": (result, 426)}
+    _persist_authenticated_command_device(hass, runtime, data, headers)
+    command = str(data.get("command") or "").strip()
+    if not command:
+        return _command_context_error("invalid_command", data, 400, runtime=runtime)
+    return {
+        "runtime": runtime,
+        "client_type": client_type,
+        "music_dna_key": music_dna_key,
+        "command": command,
+    }
+
+
+def _command_context_error(
+    error: str, data: dict[str, Any], status: int, *, runtime: Any | None = None
+) -> dict[str, Any]:
+    """Build a command-context early response and preserve diagnostics."""
+    result = _error_payload(error)
+    _debug_playback_error("command", data, (result, status), runtime=runtime)
+    return {"response": (result, status)}
+
+
+async def _command_music_dna_key(
+    runtime: Any, data: dict[str, Any], *, user_id: str | None
+) -> str | None:
+    """Update Music DNA only when the resolved profile permits persistence."""
+    privacy_policy = getattr(runtime, "profile_context_privacy_policy", None)
+    if getattr(privacy_policy, "allow_music_dna_persistence", True):
+        return await _update_memory_metadata(runtime, data, user_id=user_id)
+    return str(data.get("music_dna_key") or "").strip() or None
+
+
+def _persist_authenticated_command_device(
+    hass: Any, runtime: Any, data: dict[str, Any], headers: Any
+) -> None:
+    """Persist a paired authenticated device when the request identifies it."""
+    device_id = data.get("device_id") or headers.get("X-DJConnect-Device-ID")
+    if not device_id or not getattr(runtime, "device_token", None):
+        return
+    _persist_paired_device(
+        hass,
+        runtime,
+        device_id,
+        getattr(runtime, "device_status", {}).get(CONF_LOCAL_URL),
+        runtime.device_token,
+        getattr(runtime, "device_status", {}).get(CONF_CLIENT_TYPE),
+    )
+
+
+async def _run_backend_command(
+    hass: Any,
+    runtime: Any,
+    data: dict[str, Any],
+    command: str,
+    command_value: Any,
+    normalized_command: str,
+    *,
+    client_type: str,
+    music_dna_key: str | None,
+    user_id: str | None,
+) -> tuple[dict[str, Any], int]:
+    """Run a regular backend command and preserve its transport contract."""
+    try:
+        result = await http_helpers.run_music_command(
+            hass, runtime, command, command_value, play=bool(data.get("play", False))
+        )
+        if normalized_command == "set_volume" and result.get("success") is False:
+            return _volume_command_error_result(runtime, data, command, normalized_command, result=result)
+        if normalized_command == "discovery_playlist_identity":
+            return result, 200  # Pure provider diagnosis does not rewrite global health/DJ state.
+        runtime.update(last_error=None)
+        if result.get("success"):
+            result.setdefault("backend_available", True)
+            runtime.device_status["backend_available"] = True
+        if normalized_command in {"set_current_track_favorite", "toggle_current_track_favorite"}:
+            await _record_removed_favorite_in_music_dna(runtime, result, data, user_id=user_id)
+        _decorate_command_result(hass, runtime, result, music_dna_key)
+        _finalize_backend_success(runtime, result, normalized_command, client_type)
+        return result, 200
+    except ValueError as exc:
+        return _backend_error_result(runtime, data, command, normalized_command, _error_payload("invalid_command", str(exc)), 400)
+    except MusicBackendCapabilityError as exc:
+        if normalized_command == "set_volume":
+            return _volume_command_error_result(runtime, data, command, normalized_command, exc=exc)
+        runtime.update(last_error=_safe_backend_error_message(exc))
+        return _backend_error_result(runtime, data, command, normalized_command, _unsupported_backend_capability_payload(hass, runtime, exc), 400)
+    except Exception as exc:  # noqa: BLE001
+        return _unexpected_backend_error_result(hass, runtime, data, command, normalized_command, exc)
+
+
+def _volume_command_error_result(
+    runtime: Any, data: dict[str, Any], command: str, normalized_command: str,
+    *, exc: Exception | None = None, result: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any], int]:
+    """A failed volume action supplies no new independent global health state."""
+    original = result or {}
+    unsupported = (
+        exc is not None and _looks_like_backend_capability_error(exc)
+        and getattr(exc, "capability", None) == "supports_volume"
+    ) or (original.get("error") == "unsupported_backend_capability"
+          and original.get("capability") == "supports_volume")
+    code = "unsupported_backend_capability" if unsupported else "volume_command_failed"
+    payload = {"success": False, "error": code, "message": code,
+               "command": normalized_command, "error_scope": "command", "retry_automatically": False}
+    if unsupported:
+        payload.update(capability="supports_volume", backend_available=True,
+                       backend=getattr(exc, "backend", None) or original.get("backend") or "unknown")
+    # No last_error, DJ/voice state, cached playback or capability/health write.
+    # Do not decorate from provider metadata: a scoped error must not rebind it.
+    return _backend_error_result(runtime, data, command, normalized_command, payload, 200)
+
+
+def _finalize_backend_success(
+    runtime: Any, result: dict[str, Any], normalized_command: str, client_type: str
+) -> None:
+    """Apply command-specific response aliases and diagnostics after success."""
+    if normalized_command == "playlists":
+        (_with_esp32_playlist_aliases if client_type == CLIENT_TYPE_ESP32 else _with_playlist_aliases)(result)
+        _debug_playlists_result(result, 200, runtime=runtime)
+    if normalized_command == "queue":
+        _debug_queue_result(result, 200, runtime=runtime)
+    _debug_playback_result("command", result, 200, runtime=runtime, command=normalized_command)
+
+
+def _backend_error_result(
+    runtime: Any,
+    data: dict[str, Any],
+    command: str,
+    normalized_command: str,
+    result: dict[str, Any],
+    status: int,
+    *,
+    backend_exception: Exception | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Publish a normalized backend failure with the established diagnostics."""
+    if normalized_command == "playlists" and backend_exception is not None:
+        _debug_playlists_backend_error(data, backend_exception, runtime=runtime)
+    if normalized_command == "playlists":
+        _debug_playlists_result(result, status, runtime=runtime)
+    if normalized_command == "queue":
+        _debug_queue_result(result, status, runtime=runtime)
+    _debug_playback_result("command", result, status, runtime=runtime, command=normalized_command)
+    return result, status
+
+
+def _unexpected_backend_error_result(
+    hass: Any,
+    runtime: Any,
+    data: dict[str, Any],
+    command: str,
+    normalized_command: str,
+    exc: Exception,
+) -> tuple[dict[str, Any], int]:
+    """Map expected and unexpected backend exceptions to legacy responses."""
+    from .spotify_backend import SpotifyBackendError, SpotifyOutputError
+    from .domain.storage import ProfileStorageValidationError
+    if normalized_command in {"set_volume", "volume_delta"}:
+        return _volume_command_error_result(runtime, data, command, normalized_command, exc=exc)
+    if (
+        normalized_command in {"save_current_track", "set_current_track_favorite", "toggle_current_track_favorite"}
+        and isinstance(exc, SpotifyBackendError)
+        and exc.http_status == 429
+    ):
+        result = {
+            **_error_payload("spotify_rate_limited"),
+            "error_scope": "command",
+            "retry_automatically": False,
+            "retry_after_seconds": exc.retry_after,
+        }
+        return _backend_error_result(runtime, data, command, normalized_command, result, 200)
+    if isinstance(exc, SpotifyOutputError):
+        from .playback_request import failure
+        from .ask_dj import _response_language
+        # This target failure provides no new global backend-health evidence.
+        result = failure(exc.code, _response_language(runtime, data), uncertain=exc.uncertain)
+        return _backend_error_result(runtime, data, command, normalized_command, result, 200)
+    if _looks_like_backend_capability_error(exc):
+        runtime.update(last_error=_safe_backend_error_message(exc))
+        result = _unsupported_backend_capability_payload(hass, runtime, exc)
+        return _backend_error_result(runtime, data, command, normalized_command, result, 400)
+    _LOGGER.warning("DJConnect backend command failed: %s", _safe_backend_error_message(exc))
+    runtime.update(last_error=_safe_backend_error_message(exc))
+    runtime.device_status["backend_available"] = False
+    try:
+        result = _backend_unavailable_payload(command, runtime, exc)
+    except ProfileStorageValidationError:
+        # The legacy metadata helper has no HA owner context. A scoped provider
+        # must not rebind or disclose its cached playback while composing an
+        # error; return the established closed JSON shape instead of another500.
+        result = {**_error_payload("backend_unavailable"), "backend_available": False, "playback": {}}
+        if normalized_command == "playlists":
+            result.update(playlists=[], items=[], data={"playlists": [], "items": []},
+                          result={"playlists": [], "items": []}, count=0)
+    return _backend_error_result(
+        runtime, data, command, normalized_command, result, 200, backend_exception=exc
+    )
+
+
+def _with_esp32_playlist_aliases(result: dict[str, Any]) -> dict[str, Any]:
+    """Expose playlist aliases for firmware without duplicating large payloads."""
+    playlists = [
+        _esp32_playlist_item(item)
+        for item in http_helpers._playlist_items_from_result(result)
+        if isinstance(item, dict)
+    ]
+    result["playlists"] = playlists
+    result["items"] = playlists
+    result["count"] = len(playlists)
+    for key in ("data", "result"):
+        container = result.get(key)
+        if isinstance(container, dict) and not any(
+            nested in container for nested in ("items", "playlists")
+        ):
+            continue
+        result.pop(key, None)
+    return result
+
+
+def _esp32_playlist_item(item: dict[str, Any]) -> dict[str, Any]:
+    """Return the compact playlist fields the ESP firmware reads."""
+    name = str(
+        item.get("name")
+        or item.get("title")
+        or item.get("display_title")
+        or item.get("displayTitle")
+        or ""
+    ).strip()
+    owner = str(
+        item.get("owner")
+        or item.get("owner_name")
+        or item.get("subtitle")
+        or item.get("creator")
+        or ""
+    ).strip()
+    uri = str(
+        item.get("uri")
+        or item.get("playlist_uri")
+        or item.get("playlistUri")
+        or item.get("media_content_id")
+        or item.get("mediaContentId")
+        or item.get("value")
+        or item.get("id")
+        or ""
+    ).strip()
+    image_url = str(
+        item.get("image_url")
+        or item.get("imageUrl")
+        or item.get("album_image_url")
+        or item.get("albumImageUrl")
+        or item.get("entity_picture")
+        or item.get("thumbnail_url")
+        or ""
+    ).strip()
+    compact = {
+        "name": name,
+        "owner": owner,
+        "uri": uri,
+    }
+    if image_url:
+        compact["image_url"] = image_url
+    return compact
+
+
+def _current_track_question_text(data: dict[str, Any], command: str, value: Any) -> str:
+    for candidate in (
+        command,
+        data.get("text"),
+        data.get("prompt"),
+        data.get("query"),
+        data.get("title"),
+        value,
+    ):
+        text = _text_candidate(candidate)
+        if text and _is_current_track_question_text(text):
+            return text
+    if isinstance(value, dict):
+        for key in ("text", "prompt", "query", "title"):
+            text = _text_candidate(value.get(key))
+            if text and _is_current_track_question_text(text):
+                return text
+    return ""
+
+
+def _text_candidate(value: Any) -> str:
+    if isinstance(value, dict):
+        return str(value.get("text") or value.get("prompt") or value.get("query") or value.get("title") or "").strip()
+    return str(value or "").strip()
+
+
+def _is_current_track_question_text(value: str) -> bool:
+    normalized = " ".join(str(value or "").lower().strip(" ?.!'\"").split())
+    return normalized in {
+        "wat speelt er",
+        "wat speelt er nu",
+        "wat speelt nu",
+        "wat draait er",
+        "wat draait er nu",
+        "hoe heet dit nummer",
+        "welk liedje is dit",
+        "welk nummer speelt er",
+        "welk nummer speelt nu",
+        "welke track speelt er",
+        "welke track hoor ik",
+        "what is playing",
+        "what's playing",
+        "whats playing",
+        "what song is playing",
+        "what track is playing",
+        "current song",
+        "current track",
+    }
+
+
+def _connect_session_narration(hass, runtime, context, session, identity, headers):
+    """Reuse the HA announcement owner; retain only ordinary device authority."""
+    identity = {key: identity.get(key) for key in ("device_id", "client_type")}
+    headers = {name: value for name in ("Authorization", "X-DJConnect-Device-ID")
+               if (value := headers.get(name)) is not None}
+    # Broad HA/service credentials are not a substitute for an owner device grant.
+    if not identity.get("device_id") or not headers.get("Authorization"):
+        return
+    from .ask_dj.dialogue import source_scope
+    scope = source_scope(context.profile)
+    storage = profile_storage(hass)
+    device = storage.household.devices.get(identity["device_id"])
+    binding = getattr(device, "binding_generation", None)
+
+    def authorize():
+        try:
+            if profile_storage(hass) is not storage:
+                raise PermissionError("narration_authority_changed")
+            _conversation_profile_fence(hass, runtime, identity, headers, context)
+            current = storage.resolver().resolve_bound_device(identity["device_id"])
+            current_device = storage.household.devices.get(identity["device_id"])
+            if (source_scope(current) != scope
+                    or getattr(current_device, "binding_generation", None) != binding):
+                raise PermissionError("narration_owner_changed")
+        except Exception:
+            raise PermissionError("narration_owner_changed") from None
+
+    def capture_authority():
+        # Revisions/latch fence one pending operation, not all future legitimate
+        # operations after the owner deliberately changes their Assist provider.
+        authorize()
+        from .pipeline import _assist_context
+        revision = storage.authority_revision
+        selected_pipeline = _assist_context(hass, runtime.config)
+        entry = getattr(runtime, "entry", None)
+        entry_revision = getattr(entry, "modified_at", None)
+        revoked = False
+        def current():
+            nonlocal revoked
+            try:
+                if (revoked or storage.authority_revision != revision
+                        or getattr(entry, "modified_at", None) != entry_revision
+                        or _assist_context(hass, runtime.config) != selected_pipeline):
+                    raise PermissionError("narration_authority_changed")
+                authorize()
+            except Exception:
+                revoked = True
+                raise PermissionError("narration_owner_changed") from None
+        return current
+
+    async def realize(brief, guard):
+        from .pipeline import realize_session_narration
+        authorize()
+        text = await realize_session_narration(
+            hass,  fallback_text=brief.seed, conf=runtime.config,
+            narration=brief, admission=guard)
+        authorize()
+        return text
+
+    async def archive_admission(captured):
+        from .session_conversation import async_metadata_archive_admission
+        return await async_metadata_archive_admission(hass, context.profile_id, captured, authorize)
+
+    session_runtime_manager(hass).connect_narration(
+        context.profile_id, session.session_id, realize, authorize,
+        capture_authority=capture_authority, archive_admission=archive_admission)
+
+    async def generate_bulletin(prompt, original_session, guard):
+        from .pipeline import (_assist_context, _speech_from_response,
+            call_conversation_process_with_agent_retry)
+        authorize()
+        guard()
+        selected = _assist_context(hass, runtime.config)
+        if not selected.get("agent_id"):
+            raise PermissionError("bulletin_agent_unavailable")
+        def current():
+            guard()
+            authorize()
+            if _assist_context(hass, runtime.config) != selected:
+                raise PermissionError("bulletin_agent_changed")
+        from .ask_dj.dialogue import current_turn
+        token = current_turn.set(None)  # Background news is never an Ask DJ turn.
+        try:
+            result = await call_conversation_process_with_agent_retry(hass,
+                {"text": prompt, "language": original_session.locale,
+                    "agent_id": selected["agent_id"]}, model_guard=current)
+        finally:
+            current_turn.reset(token)
+        current()
+        return _speech_from_response((result or {}).get("response") or {})
+
+    def capture_bulletin_authority():
+        from .bulletin_intake import PRIVATE_SOURCES
+
+        service = session_runtime_manager(hass)._bulletin_service
+        if service is not None and service.collector.sources == PRIVATE_SOURCES:
+            return capture_authority()
+        from .pipeline import _assist_context
+        from .ask_dj.dialogue import qualify_agent
+        try:
+            original = capture_authority()
+            selected = _assist_context(hass, runtime.config)
+            if not selected.get("agent_id"):
+                raise PermissionError("bulletin_agent_unavailable")
+            agent = qualify_agent(hass, selected["agent_id"])
+        except Exception:
+            raise PermissionError("bulletin_agent_unavailable") from None
+        def guard():
+            try:
+                original()
+                if qualify_agent(hass, selected["agent_id"]) is not agent:
+                    raise PermissionError("bulletin_agent_changed")
+            except Exception:
+                raise PermissionError("bulletin_agent_changed") from None
+        return guard
+
+    session_runtime_manager(hass).connect_bulletin(context.profile_id, session.session_id,
+        generate_bulletin, authorize, capture_bulletin_authority)
+
+
+def _conversation_profile_fence(hass, runtime, identity, headers, context, *, _ha_service_runtime=None):
+    """A synchronous owner fence after the final Store/source/Profile await."""
+    from .session_conversation import SessionConversationError
+    if _ha_service_runtime is not None:
+        if _ha_service_runtime is not runtime:
+            raise SessionConversationError("unauthorized", 401)
+        device_id = _ha_native_service_identity(hass, runtime)["device_id"]
+    else:
+        device_id = identity.get("device_id") or headers.get("X-DJConnect-Device-ID")
+        if resolve_runtime(hass, device_id, headers) is not runtime or not authorize_runtime_device_request(
+            runtime, headers, device_id, identity.get("client_type")
+        ):
+            raise SessionConversationError("unauthorized", 401)
+    entry = getattr(runtime, "entry", None)
+    if entry is not None:
+        entries = getattr(hass, "config_entries", None)
+        if (entries is None or entries.async_get_entry(entry.entry_id) is not entry
+            or entry.disabled_by is not None
+            or getattr(entry.state, "value", entry.state) != "loaded"
+            or hass.data.get("djconnect", {}).get(entry.entry_id) is not runtime
+            or entry.data.get("device_token") != getattr(runtime, "device_token", None)):
+            raise SessionConversationError("session_context_changed")
+    try:
+        current_profile = profile_storage(hass).resolver().resolve_bound_device(device_id)
+    except Exception as exc:
+        raise SessionConversationError("profile_device_mismatch", 403) from exc
+    if current_profile.profile_id != context.profile_id or not resolve_profile_privacy_policy(current_profile, {}).allow_personal_read:
+        raise SessionConversationError("history_not_allowed", 403)
+    from .ask_dj.dialogue import source_scope
+    if source_scope(current_profile) != source_scope(context.profile):
+        raise SessionConversationError("conversation_context_changed")
+
+
+def _conversation_scope_error(payload, user_id):
+    scope = payload.get("conversation_scope", "profile")
+    if not isinstance(scope, str) or scope not in {"profile", "legacy"}:
+        return _error_payload("invalid_conversation_scope"), 400
+    if scope == "legacy" and not user_id:
+        return _error_payload("ha_user_required"), 401
+    return None
+
+
+async def async_handle_ask_dj_message_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+    voice_input: bool = False,
+    persist_history: bool = True,
+    action_request: tuple[str, Any] | None = None,
+    _ha_service_runtime: Any | None = None,
+    _mood_transition: Any | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Handle Ask DJ chat messages for HTTP and HA websocket transports."""
+    headers = headers or {}
+    if not isinstance(data, dict):
+        _debug_ask_dj_error("message", {}, (_error_payload("invalid_json"), 400))
+        return _error_payload("invalid_json"), 400
+    identity = identity_payload(data)
+    if _ha_service_runtime is not None:
+        runtime = _ha_service_runtime
+        from .session_conversation import SessionConversationError
+        try:
+            server_identity = _ha_native_service_identity(hass, runtime)
+        except SessionConversationError as exc:
+            return _error_payload(exc.code), exc.status
+        if any(identity.get(key) and identity[key] != value for key, value in server_identity.items()):
+            return _error_payload("profile_device_mismatch"), 403
+        identity.update(server_identity)
+        client_type = server_identity["client_type"]
+    else:
+        runtime = resolve_runtime(
+            hass, identity.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers,
+        )
+        if runtime is None:
+            return _error_payload("not_configured"), 503
+        client_type = validate_required_client_type(identity)
+        if client_type is None:
+            return _error_payload("invalid_client_type"), 400
+        identity[CONF_CLIENT_TYPE] = client_type
+        if not authorize_runtime_device_request(runtime, headers, identity.get("device_id"), client_type):
+            return _error_payload("unauthorized"), 401
+    payload = {key: value for key, value in data.items() if key not in {"_frozen_playback_selection", "_setting_feedback"}}
+    payload.update({key: value for key, value in identity.items() if value is not None})
+    # identity_payload merges nested and top-level input; internal fields must
+    # be removed after that merge, too. Only the Python caller can set these.
+    payload.pop("_setting_feedback", None)
+    payload.pop("_frozen_playback_selection", None)
+    payload = enrich_payload_with_mood_zone(payload)
+    _debug_ask_dj_request("message", runtime, payload, user_id=user_id)
+    from .ask_dj.service import async_exchange
+    from .session_conversation import SessionConversationError
+    from uuid import uuid4
+
+    # Older id-less transports get an explicit new identity; retaining it enables retries.
+    if "conversation_context" not in payload and not payload.get("client_message_id"):
+        payload["client_message_id"] = "server-turn-" + uuid4().hex
+    payload.pop("_command_action", None)
+    if action_request is not None:
+        payload["_command_action"] = action_request
+    payload["input_type"] = "voice" if voice_input else "text"
+    if _mood_transition is not None:
+        payload["_setting_feedback"] = True
+    payload.setdefault("audio_response","auto")
+    bound_runtime, context, error, status = await _session_profile_context(
+        hass, payload, headers=headers, user_id=user_id, source="session_conversation",
+        _ha_service_runtime=_ha_service_runtime,
+    )
+    if error is not None:
+        return error, status
+    if (
+        not context.privacy_policy.allow_personal_read
+        or not resolve_profile_privacy_policy(context.profile, {}).allow_personal_read
+    ):
+        return _error_payload("history_not_allowed"), 403
+
+    # Profile authorization also owns the Music DNA namespace; client hints do not.
+    payload["music_dna_key"] = context.music_dna_key
+    from .mood_music_steering import first_play_requested
+    if first_play_requested(payload.get('text')):
+        active_offer_session = session_runtime_manager(hass).current_active(context.profile_id)
+        supplied_context = payload.get('conversation_context')
+        supplied_session = supplied_context.get('session_id') if isinstance(supplied_context, dict) else None
+        if (active_offer_session is not None and isinstance(supplied_context, (dict, type(None)))
+                and (not supplied_session or supplied_session == active_offer_session.session_id)):
+            payload['conversation_context'] = {'session_id': active_offer_session.session_id,
+                'thread_id': 'for-you-' + active_offer_session.session_id}
+
+    async def delegate(confirmed_payload, scope_key, selected_entry, playback_result):
+        if _mood_transition is not None:
+            from .mood_music_steering import response
+            if _mood_transition.profile_id != context.profile_id:
+                raise SessionConversationError("unauthorized", 403)
+            return await response(hass, bound_runtime, confirmed_payload, _mood_transition,
+                source_context={
+                    "backend_id":context.backend_id, "music_account_id":context.music_account_id,
+                    "provider_account_id":str(getattr(profile_storage(hass).household.music_accounts.get(
+                        context.music_account_id), "provider_account_id", "")),
+                    "provider_entry_id":str(bound_runtime.config.get("profile_backend_entry_id")
+                        or getattr(getattr(bound_runtime,"entry",None),"entry_id","")),
+                })
+        return await http_helpers.async_handle_ask_dj(
+            hass,
+            bound_runtime,
+            confirmed_payload,
+            user_id=user_id,
+            conversation_history_scope=scope_key,
+            ephemeral_conversation=bool(confirmed_payload.get("private_session")),
+            confirmed_entry=selected_entry,
+            saved_playback_result=playback_result,
+            action_request=action_request,
+        )
+
+    async def validate_owner():
+        _runtime, current, current_error, current_status = await _session_profile_context(
+            hass,
+            dict(payload),
+            headers=headers,
+            user_id=user_id,
+            source="session_conversation_complete",
+            _ha_service_runtime=_ha_service_runtime,
+        )
+        if current_error is not None or _runtime is not bound_runtime or current.profile_id != context.profile_id:
+            raise SessionConversationError("session_context_changed", int(current_status or 409))
+        from .ask_dj.dialogue import source_scope
+        if source_scope(current.profile) != source_scope(context.profile):
+            raise SessionConversationError("conversation_context_changed")
+        minimum = resolve_profile_privacy_policy(current.profile, {})
+        if not current.privacy_policy.allow_personal_read or not minimum.allow_personal_read:
+            raise SessionConversationError("history_not_allowed", 403)
+        if (
+            context.privacy_policy.allow_history_persistence
+            and resolve_profile_privacy_policy(context.profile, {}).allow_history_persistence
+            and (
+                not current.privacy_policy.allow_history_persistence
+                or not minimum.allow_history_persistence
+            )
+        ):
+            raise SessionConversationError("history_not_allowed", 403)
+
+    def validate_immediate():
+        _conversation_profile_fence(hass, bound_runtime, identity, headers, context,
+                                    _ha_service_runtime=_ha_service_runtime)
+
+    try:
+        choice = payload.get('choice_action')
+        if isinstance(choice, dict) and choice.get('operation') == 'dismiss':
+            from .ask_dj.service import _context
+            from .mood_music_steering import dismiss_for_you
+            history = _history_manager(hass, bound_runtime)
+            await history.async_load()
+            validate_immediate()
+            return dismiss_for_you(hass, context.profile_id, context.device_id,
+                                   _context(payload), choice, history), 200
+        result = await async_exchange(
+            hass,
+            bound_runtime,
+            payload,
+            profile_id=context.profile_id,
+            history_manager=_history_manager(hass, bound_runtime),
+            delegate=delegate,
+            validate_owner=validate_owner,
+            validate_immediate=validate_immediate,
+            client_device_id=context.device_id,
+            profile=context.profile,
+            persist_history=persist_history and context.privacy_policy.allow_history_persistence
+            and resolve_profile_privacy_policy(context.profile, {}).allow_history_persistence,
+        )
+        result_status=int(result.pop("_response_status",200))
+        _debug_ask_dj_result("message", result, result_status, runtime=bound_runtime)
+        return result, result_status
+    except SessionConversationError as exc:
+        from .historical_playback import UNAVAILABLE, unavailable_message
+        message = unavailable_message(payload.get("locale") or payload.get("language")) if exc.code == UNAVAILABLE else None
+        return _error_payload(exc.code, message), exc.status
+    except PermissionError:
+        return _error_payload("history_unavailable"), 404
+    except (OSError, RuntimeError):
+        return _error_payload("history_storage_unavailable"), 503
+    except ValueError:
+        return _error_payload("session_context_changed"), 409
+
+
+async def async_handle_track_insight_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    source: str = "http",
+) -> tuple[dict[str, Any], int]:
+    """Handle Track Insight requests for HTTP and HA websocket transports."""
+    headers = headers or {}
+    if not isinstance(data, dict):
+        _debug_track_insight_error("request", {}, (_error_payload("invalid_json"), 400), source=source)
+        return _error_payload("invalid_json"), 400
+    identity = identity_payload(data)
+    runtime = resolve_runtime(
+        hass,
+        identity.get("device_id") or headers.get("X-DJConnect-Device-ID"),
+        headers,
+    )
+    if runtime is None:
+        _debug_track_insight_error("request", data, (_error_payload("not_configured"), 503), source=source)
+        return _error_payload("not_configured"), 503
+    client_type = validate_required_client_type(identity)
+    if client_type is None:
+        _debug_track_insight_error("request", data, (_error_payload("invalid_client_type"), 400), runtime=runtime, source=source)
+        return _error_payload("invalid_client_type"), 400
+    identity[CONF_CLIENT_TYPE] = client_type
+    if not authorize_runtime_device_request(
+        runtime,
+        headers,
+        identity.get("device_id"),
+        client_type,
+    ):
+        _debug_track_insight_error("request", data, (_error_payload("unauthorized"), 401), runtime=runtime, source=source)
+        return _error_payload("unauthorized"), 401
+    payload = dict(data)
+    payload.update({key: value for key, value in identity.items() if value is not None})
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=None,
+        source=f"track_insight:{source}",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    for header_name, payload_key in (
+        ("X-DJConnect-Language", "language"),
+        ("X-DJConnect-Locale", "locale"),
+        ("Accept-Language", "locale"),
+        ("X-DJConnect-Mood", "mood"),
+    ):
+        value = headers.get(header_name) if hasattr(headers, "get") else None
+        if value and not payload.get(payload_key):
+            payload[payload_key] = str(value).split(",", 1)[0].strip()
+    _debug_track_insight_request(runtime, payload, source=source)
+    _bound, owner, error, status = await _session_profile_context(
+        hass,payload,headers=headers,user_id=None,source="track_insight_owner")
+    if error is not None:
+        return error,status
+    from .session_conversation import history_grant_revision
+    source_revision = history_grant_revision(hass,owner.profile_id)
+    def owner_guard():
+        if resolve_runtime(hass,identity.get("device_id"),headers) is not runtime or not authorize_runtime_device_request(runtime,headers,identity.get("device_id"),client_type):
+            raise TrackInsightError("unauthorized","Access was withdrawn.",status=401)
+        entry = getattr(runtime, "entry", None)
+        if entry is not None:
+            entries = getattr(hass, "config_entries", None)
+            if (entries is None or entries.async_get_entry(entry.entry_id) is not entry
+                or entry.disabled_by is not None or getattr(entry.state, "value", entry.state) != "loaded"
+                or hass.data.get("djconnect", {}).get(entry.entry_id) is not runtime
+                or entry.data.get("device_token") != getattr(runtime, "device_token", None)):
+                raise TrackInsightError("unauthorized", "Access was withdrawn.", status=401)
+        try:
+            current = profile_storage(hass).resolver().resolve_bound_device(identity["device_id"])
+        except Exception as exc:
+            raise TrackInsightError("profile_device_mismatch", "The device owner changed.", status=403) from exc
+        if current.profile_id != owner.profile_id or not resolve_profile_privacy_policy(current,{}).allow_personal_read or history_grant_revision(hass,owner.profile_id) != source_revision:
+            raise TrackInsightError("track_insight_target_withdrawn","The owner or source changed.",status=403)
+    try:
+        owner_guard()
+        result = await TrackInsightService().async_analyze(
+            hass,
+            runtime,
+            payload,
+            source=source,
+            owner_profile_id=owner.profile_id,
+            commit_guard=owner_guard,
+        )
+        owner_guard()
+    except TrackInsightError as exc:
+        _debug_track_insight_error("result", payload, (exc.as_dict(), exc.status), runtime=runtime, source=source)
+        return exc.as_dict(), exc.status
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug(
+            "DJConnect Track Insight %s failed client_type=%s device_id=%s error=%s",
+            source,
+            payload_client_type(payload) or runtime_client_type(runtime),
+            _safe_debug_identifier(payload.get("device_id")),
+            exc.__class__.__name__,
+        )
+        return _error_payload("track_insight_failed"), 500
+    _debug_track_insight_result(result, 200, runtime=runtime, source=source)
+    return result, 200
+
+
+async def async_handle_ask_dj_idle_suggestion_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Return and append an Ask DJ idle suggestion for HTTP and websocket transports."""
+    headers = headers or {}
+    if not isinstance(data, dict):
+        return _error_payload("invalid_json"), 400
+    runtime = resolve_runtime(
+        hass,
+        data.get("device_id") or headers.get("X-DJConnect-Device-ID"),
+        headers,
+    )
+    if runtime is None:
+        _debug_ask_dj_error("idle_suggestion", data, (_error_payload("not_configured"), 503))
+        return _error_payload("not_configured"), 503
+    client_type = validate_required_client_type(identity_payload(data))
+    if client_type is None:
+        _debug_ask_dj_error("idle_suggestion", data, (_error_payload("invalid_client_type"), 400), runtime=runtime)
+        return _error_payload("invalid_client_type"), 400
+    if not authorize_runtime_device_request(
+        runtime,
+        headers,
+        data.get("device_id"),
+        client_type,
+    ):
+        _debug_ask_dj_error("idle_suggestion", data, (_error_payload("unauthorized"), 401), runtime=runtime)
+        return _error_payload("unauthorized"), 401
+    payload = dict(data)
+    payload[CONF_CLIENT_TYPE] = client_type
+    payload = enrich_payload_with_mood_zone(payload)
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="ask_dj_idle_suggestion",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_ask_dj_request("idle_suggestion", runtime, payload, user_id=user_id)
+    result = await http_helpers.async_idle_suggestion(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+    )
+    if not result.get("success"):
+        _debug_ask_dj_result("idle_suggestion", result, 500, runtime=runtime)
+        return result, 500
+    sync = await _history_manager(hass, runtime).async_append_assistant_message(
+        user_id,
+        payload,
+        result,
+    )
+    response = {**result, **sync}
+    _debug_ask_dj_result("idle_suggestion", response, 200, runtime=runtime)
+    return response, 200
+
+
+async def async_handle_music_dna_profile_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Return the structured Music DNA profile for a client/user."""
+    runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
+    if error is not None:
+        _debug_music_dna_error("profile", data, error)
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_dna_profile",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_music_dna_request("profile", runtime, payload, user_id=user_id)
+    privacy_policy = getattr(runtime, "profile_context_privacy_policy", None)
+    if not getattr(privacy_policy, "allow_personal_read", True):
+        return {
+            "success": True,
+            "music_dna_key": payload.get("music_dna_key"),
+            "enabled": False,
+            "generation": 0,
+            "profile": {},
+            "redacted": True,
+            "privacy_mode": payload.get("profile_privacy_mode"),
+        }, 200
+    memory = getattr(runtime, "memory", None)
+    profile_getter = getattr(memory, "async_profile", None)
+    if not callable(profile_getter):
+        _debug_music_dna_error("profile", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
+        return _error_payload("music_dna_unavailable"), 503
+    response_guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
+    if response_guard is not None and not response_guard.valid():
+        return {"success": False, "error": "music_dna_context_changed"}, 409
+    result = await profile_getter(runtime, payload, user_id=user_id)
+    if response_guard is not None and not response_guard.valid():
+        return {"success": False, "error": "music_dna_context_changed"}, 409
+    if result.get("enabled"):
+        await _refresh_music_dna_profile_if_stale(hass, runtime, payload, user_id=user_id)
+        if response_guard is not None and not response_guard.valid():
+            return {"success": False, "error": "music_dna_context_changed"}, 409
+        result = await profile_getter(runtime, payload, user_id=user_id)
+        if response_guard is not None and not response_guard.valid():
+            return {"success": False, "error": "music_dna_context_changed"}, 409
+    result = project_music_dna_images(hass, runtime, result, response_guard)
+    if response_guard is not None and not response_guard.valid():
+        return {"success": False, "error": "music_dna_context_changed"}, 409
+    _debug_music_dna_result("profile", result, 200, runtime=runtime)
+    return result, 200
+
+
+async def async_handle_music_dna_settings_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Update the Music DNA opt-in setting for a client/user."""
+    runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
+    if error is not None:
+        _debug_music_dna_error("settings", data, error)
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_dna_settings",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_music_dna_request("settings", runtime, payload, user_id=user_id)
+    privacy_policy = getattr(runtime, "profile_context_privacy_policy", None)
+    if not getattr(privacy_policy, "allow_music_dna_persistence", True):
+        return {
+            "success": False,
+            "error": "profile_privacy_blocks_persistence",
+            "message": "Profile privacy mode blocks Music DNA persistence.",
+        }, 403
+    if "enabled" not in payload:
+        _debug_music_dna_error("settings", payload, (_error_payload("missing_enabled"), 400), runtime=runtime)
+        return _error_payload("missing_enabled"), 400
+    memory = getattr(runtime, "memory", None)
+    setter = getattr(memory, "async_set_enabled", None)
+    if not callable(setter):
+        _debug_music_dna_error("settings", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
+        return _error_payload("music_dna_unavailable"), 503
+    result = await setter(runtime, bool(payload.get("enabled")), payload, user_id=user_id)
+    _debug_music_dna_result("settings", result, 200, runtime=runtime)
+    return result, 200
+
+
+async def async_handle_music_dna_clear_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Clear Music DNA knowledge while preserving the current opt-in setting."""
+    runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
+    if error is not None:
+        _debug_music_dna_error("clear", data, error)
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_dna_clear",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_music_dna_request("clear", runtime, payload, user_id=user_id)
+    memory = getattr(runtime, "memory", None)
+    if memory is None or not callable(getattr(memory, "async_context_for_runtime", None)):
+        _debug_music_dna_error("clear", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
+        return _error_payload("music_dna_unavailable"), 503
+    context = await memory.async_context_for_runtime(runtime, payload, user_id=user_id)
+    key = context.get("music_dna_key") or payload.get("music_dna_key")
+    await memory.async_clear(str(key) if key else None)
+    result = await memory.async_profile(runtime, payload, user_id=user_id)
+    _debug_music_dna_result("clear", result, 200, runtime=runtime)
+    return result, 200
+
+
+async def async_handle_music_dna_import_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Import and overwrite Music DNA profile data for a client/user."""
+    runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
+    if error is not None:
+        _debug_music_dna_error("import", data, error)
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_dna_import",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_music_dna_request("import", runtime, payload, user_id=user_id)
+    memory = getattr(runtime, "memory", None)
+    importer = getattr(memory, "async_import_profile", None)
+    if not callable(importer):
+        _debug_music_dna_error("import", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
+        return _error_payload("music_dna_unavailable"), 503
+    result, status = await importer(runtime, payload, user_id=user_id)
+    _debug_music_dna_result("import", result, status, runtime=runtime)
+    return result, status
+
+
+async def async_handle_music_dna_export_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Export Music DNA profile data for a client/user."""
+    runtime, payload, error = _music_dna_runtime_payload(hass, data, headers)
+    if error is not None:
+        _debug_music_dna_error("export", data, error)
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_dna_export",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_music_dna_request("export", runtime, payload, user_id=user_id)
+    memory = getattr(runtime, "memory", None)
+    exporter = getattr(memory, "async_export_profile", None)
+    if not callable(exporter):
+        _debug_music_dna_error("export", payload, (_error_payload("music_dna_unavailable"), 503), runtime=runtime)
+        return _error_payload("music_dna_unavailable"), 503
+    result = await exporter(runtime, payload, user_id=user_id)
+    _debug_music_dna_result("export", result, 200, runtime=runtime)
+    return result, 200
+
+
+def _music_dna_runtime_payload(
+    hass: Any,
+    data: dict[str, Any],
+    headers: Any | None,
+) -> tuple[Any | None, dict[str, Any], tuple[dict[str, Any], int] | None]:
+    headers = headers or {}
+    if not isinstance(data, dict):
+        return None, {}, (_error_payload("invalid_json"), 400)
+    payload = dict(data)
+    identity = identity_payload(payload)
+    device_id = identity.get("device_id") or headers.get("X-DJConnect-Device-ID")
+    runtime = resolve_runtime(hass, device_id, headers)
+    if runtime is None:
+        return None, payload, (_error_payload("not_configured"), 503)
+    if not authorize_runtime_device_request(
+        runtime,
+        headers,
+        identity.get("device_id"),
+        payload_client_type(identity),
+    ):
+        return None, payload, (_error_payload("unauthorized"), 401)
+    payload.update({key: value for key, value in identity.items() if value})
+    return runtime, payload, None
+
+
+def _discovery_runtime_payload(
+    hass: Any,
+    data: dict[str, Any],
+    headers: Any | None,
+) -> tuple[Any | None, dict[str, Any], tuple[dict[str, Any], int] | None]:
+    """Resolve and authorize a music discovery runtime payload."""
+    return _music_dna_runtime_payload(hass, data, headers)
+
+
+async def _refresh_music_dna_profile_if_stale(
+    hass: Any,
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    user_id: str | None,
+) -> bool:
+    memory = getattr(runtime, "memory", None)
+    freshness = getattr(memory, "async_listening_profile_is_fresh", None)
+    updater = getattr(memory, "async_update_listening_profile", None)
+    if not callable(freshness) or not callable(updater):
+        return False
+    try:
+        if await freshness(
+            runtime,
+            payload,
+            user_id=user_id,
+            ttl_seconds=MUSIC_DNA_PROFILE_REFRESH_SECONDS,
+        ):
+            return False
+        guard = await capture_refresh_guard(runtime, payload, user_id=user_id)
+        if guard is not None and (not guard.valid() or not guard.persistence_allowed):
+            return False
+        result = await run_music_command(
+            hass,
+            runtime,
+            "listening_profile",
+        )
+        if guard is not None and not guard.valid():
+            return False
+        profile = result.get("profile") if isinstance(result, dict) else {}
+        if not isinstance(profile, dict) or not profile:
+            return False
+        await updater(runtime, profile, payload, user_id=user_id, **({"refresh_guard": guard} if guard is not None else {}))
+        if guard is not None and not guard.valid():
+            return False
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug(
+            "DJConnect Music DNA profile refresh skipped: %s",
+            exc.__class__.__name__,
+        )
+        return False
+    _LOGGER.debug(
+        "DJConnect Music DNA profile refreshed from backend listening profile client_type=%s device_id=%s",
+        payload.get(CONF_CLIENT_TYPE),
+        payload.get("device_id"),
+    )
+    return True
+
+
+def _debug_music_dna_request(
+    endpoint: str,
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    user_id: str | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    _LOGGER.debug(
+        "DJConnect Music DNA %s request client_type=%s device_id=%s music_dna_key=%s user_id=%s enabled_requested=%s import_format=%s profile_keys=%s",
+        endpoint,
+        payload_client_type(payload) or runtime_client_type(runtime),
+        _safe_debug_identifier(payload.get("device_id") or getattr(runtime, "device_status", {}).get("device_id")),
+        _safe_debug_identifier(payload.get("music_dna_key")),
+        _safe_debug_identifier(user_id),
+        payload.get("enabled") if endpoint == "settings" else None,
+        _safe_import_format(payload),
+        _safe_profile_keys(payload) if endpoint == "import" else [],
+    )
+
+
+def _debug_music_dna_result(
+    endpoint: str,
+    result: dict[str, Any],
+    status: int,
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    profile = _music_dna_profile_from_result(endpoint, result)
+    _LOGGER.debug(
+        "DJConnect Music DNA %s result status=%s success=%s enabled=%s generation=%s music_dna_key=%s client_type=%s profile_summary=%s error=%s",
+        endpoint,
+        status,
+        result.get("success") if isinstance(result, dict) else None,
+        _music_dna_enabled_from_result(endpoint, result),
+        _music_dna_generation_from_result(endpoint, result),
+        _safe_debug_identifier(_music_dna_key_from_result(endpoint, result)),
+        runtime_client_type(runtime) if runtime is not None else None,
+        _profile_debug_summary(profile),
+        result.get("error") if isinstance(result, dict) else None,
+    )
+
+
+def _debug_music_dna_error(
+    endpoint: str,
+    payload: dict[str, Any] | Any,
+    error: tuple[dict[str, Any], int],
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    body, status = error
+    data = payload if isinstance(payload, dict) else {}
+    _LOGGER.debug(
+        "DJConnect Music DNA %s rejected status=%s error=%s client_type=%s device_id=%s music_dna_key=%s",
+        endpoint,
+        status,
+        body.get("error") if isinstance(body, dict) else None,
+        payload_client_type(data) or (runtime_client_type(runtime) if runtime is not None else None),
+        _safe_debug_identifier(data.get("device_id")),
+        _safe_debug_identifier(data.get("music_dna_key")),
+    )
+
+
+def _music_dna_profile_from_result(endpoint: str, result: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(result, dict):
+        return {}
+    if endpoint == "export":
+        exported = result.get("profile")
+        return exported.get("profile") if isinstance(exported, dict) and isinstance(exported.get("profile"), dict) else {}
+    profile = result.get("profile")
+    return profile if isinstance(profile, dict) else {}
+
+
+def _music_dna_enabled_from_result(endpoint: str, result: dict[str, Any]) -> bool | None:
+    if not isinstance(result, dict):
+        return None
+    if endpoint == "export":
+        profile = result.get("profile")
+        return profile.get("enabled") if isinstance(profile, dict) else None
+    return result.get("enabled")
+
+
+def _music_dna_generation_from_result(endpoint: str, result: dict[str, Any]) -> Any:
+    if not isinstance(result, dict):
+        return None
+    if endpoint == "export":
+        profile = result.get("profile")
+        return profile.get("generation") if isinstance(profile, dict) else None
+    return result.get("generation")
+
+
+def _music_dna_key_from_result(endpoint: str, result: dict[str, Any]) -> Any:
+    if not isinstance(result, dict):
+        return None
+    if endpoint == "export":
+        profile = result.get("profile")
+        return profile.get("music_dna_key") if isinstance(profile, dict) else None
+    return result.get("music_dna_key")
+
+
+def _profile_debug_summary(profile: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(profile, dict) or not profile:
+        return {}
+    summary: dict[str, Any] = {"keys": sorted(str(key) for key in profile.keys())[:12]}
+    for key in (
+        "recent_tracks",
+        "favorite_artists",
+        "favorite_tracks",
+        "top_artists",
+        "top_tracks",
+        "moods",
+        "genres",
+        "listening_contexts",
+    ):
+        value = profile.get(key)
+        if isinstance(value, (list, tuple, set, dict)):
+            summary[f"{key}_count"] = len(value)
+    return summary
+
+
+def _safe_profile_keys(payload: dict[str, Any]) -> list[str]:
+    profile = payload.get("profile")
+    if isinstance(profile, dict) and profile.get("format") == "djconnect.music_dna.export":
+        profile = profile.get("profile")
+    if isinstance(profile, dict) and isinstance(profile.get("profile"), dict):
+        profile = profile.get("profile")
+    if not isinstance(profile, dict):
+        return []
+    return sorted(str(key) for key in profile.keys())[:12]
+
+
+def _safe_import_format(payload: dict[str, Any]) -> str:
+    profile = payload.get("profile")
+    if isinstance(profile, dict):
+        return str(profile.get("format") or "").strip()[:64]
+    return ""
+
+
+def _safe_debug_identifier(value: Any) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    if len(text) <= 8:
+        return "***"
+    return f"{text[:8]}...{text[-4:]}"
+
+
+def _debug_ask_dj_request(
+    endpoint: str,
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    user_id: str | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    text = str(payload.get("text") or payload.get("prompt") or payload.get("query") or "").strip()
+    _LOGGER.debug(
+        "DJConnect Ask DJ %s request client_type=%s device_id=%s user_id=%s client_message_id=%s text_length=%s input_type=%s audio_response=%s mood_zone=%s since_revision=%s clear_revision=%s",
+        endpoint,
+        payload_client_type(payload) or runtime_client_type(runtime),
+        _safe_debug_identifier(payload.get("device_id") or getattr(runtime, "device_status", {}).get("device_id")),
+        _safe_debug_identifier(user_id),
+        _safe_debug_identifier(payload.get("client_message_id")),
+        len(text),
+        str(payload.get("input_type") or "").strip()[:24],
+        str(payload.get("audio_response") or "").strip()[:24],
+        str(payload.get("mood_zone") or "").strip()[:24],
+        _int_or_none(payload.get("since_revision")),
+        _int_or_none(payload.get("clear_revision")),
+    )
+
+
+def _debug_ask_dj_result(
+    endpoint: str,
+    result: dict[str, Any],
+    status: int,
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    _LOGGER.debug(
+        "DJConnect Ask DJ %s result status=%s success=%s intent=%s action=%s audio=%s images=%s links=%s sources=%s playback_actions=%s confirmation_actions=%s messages=%s items=%s history_revision=%s clear_revision=%s trimmed_count=%s error=%s client_type=%s",
+        endpoint,
+        status,
+        result.get("success") if isinstance(result, dict) else None,
+        _intent_name(result.get("intent") if isinstance(result, dict) else None),
+        str(result.get("action") or "").strip()[:48] if isinstance(result, dict) else "",
+        bool((result or {}).get("audio_url") or _assistant_message_value(result, "audio_url")),
+        _count(result.get("images")) if isinstance(result, dict) else 0,
+        _count(result.get("links")) if isinstance(result, dict) else 0,
+        _count(result.get("sources")) if isinstance(result, dict) else 0,
+        _count(result.get("playback_actions")) if isinstance(result, dict) else 0,
+        _count(result.get("confirmation_actions")) if isinstance(result, dict) else 0,
+        _count(result.get("messages")) if isinstance(result, dict) else 0,
+        _count(result.get("items")) if isinstance(result, dict) else 0,
+        result.get("history_revision") if isinstance(result, dict) else None,
+        result.get("clear_revision") if isinstance(result, dict) else None,
+        result.get("history_trimmed_count") if isinstance(result, dict) else None,
+        result.get("error") if isinstance(result, dict) else None,
+        runtime_client_type(runtime) if runtime is not None else None,
+    )
+
+
+def _debug_ask_dj_error(
+    endpoint: str,
+    payload: dict[str, Any] | Any,
+    error: tuple[dict[str, Any], int],
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    body, status = error
+    data = payload if isinstance(payload, dict) else {}
+    _LOGGER.debug(
+        "DJConnect Ask DJ %s rejected status=%s error=%s client_type=%s device_id=%s client_message_id=%s",
+        endpoint,
+        status,
+        body.get("error") if isinstance(body, dict) else None,
+        payload_client_type(data) or (runtime_client_type(runtime) if runtime is not None else None),
+        _safe_debug_identifier(data.get("device_id")),
+        _safe_debug_identifier(data.get("client_message_id")),
+    )
+
+
+def _intent_name(value: Any) -> str:
+    if isinstance(value, dict):
+        return str(value.get("intent") or value.get("name") or "").strip()[:64]
+    return str(value or "").strip()[:64]
+
+
+def _assistant_message_value(result: dict[str, Any] | Any, key: str) -> Any:
+    if not isinstance(result, dict):
+        return None
+    message = result.get("assistant_message")
+    return message.get(key) if isinstance(message, dict) else None
+
+
+def _count(value: Any) -> int:
+    if isinstance(value, (list, tuple, set, dict)):
+        return len(value)
+    return 0
+
+
+def _debug_track_insight_request(
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    source: str,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    _LOGGER.debug(
+        "DJConnect Track Insight %s request client_type=%s device_id=%s source=%s title_present=%s artist_present=%s entity_present=%s force_refresh=%s locale=%s mood_zone=%s include_visual_profile=%s include_raw_response=%s",
+        source,
+        payload_client_type(payload) or runtime_client_type(runtime),
+        _safe_debug_identifier(payload.get("device_id") or getattr(runtime, "device_status", {}).get("device_id")),
+        str(payload.get("source") or source or "").strip()[:32],
+        bool(str(payload.get("title") or "").strip()),
+        bool(str(payload.get("artist") or "").strip()),
+        bool(str(payload.get("entity_id") or payload.get("player_id") or "").strip()),
+        bool(payload.get("force_refresh")),
+        str(payload.get("locale") or payload.get("language") or "").strip()[:24],
+        str(payload.get("mood_zone") or "").strip()[:24],
+        payload.get("include_visual_profile"),
+        payload.get("include_raw_response"),
+    )
+
+
+def _debug_track_insight_result(
+    result: dict[str, Any],
+    status: int,
+    *,
+    runtime: Any | None = None,
+    source: str,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    track = result.get("track") if isinstance(result, dict) else {}
+    analysis = result.get("analysis") if isinstance(result, dict) else {}
+    cache = result.get("cache") if isinstance(result, dict) else {}
+    visual = result.get("visual_profile") if isinstance(result, dict) else None
+    _LOGGER.debug(
+        "DJConnect Track Insight %s result status=%s success=%s backend=%s language=%s cache_hit=%s cache_key=%s analysis_keys=%s visual_profile=%s genre_present=%s production_notes=%s listening_cues=%s similar_tracks=%s error=%s client_type=%s",
+        source,
+        status,
+        result.get("success", True) if isinstance(result, dict) else None,
+        track.get("backend") if isinstance(track, dict) else None,
+        result.get("language") if isinstance(result, dict) else None,
+        cache.get("hit") if isinstance(cache, dict) else None,
+        _safe_debug_identifier(cache.get("key") if isinstance(cache, dict) else None),
+        sorted(str(key) for key in analysis.keys())[:16] if isinstance(analysis, dict) else [],
+        isinstance(visual, dict),
+        bool(analysis.get("genre") or analysis.get("subgenre")) if isinstance(analysis, dict) else False,
+        _count(analysis.get("production_notes")) if isinstance(analysis, dict) else 0,
+        _count(analysis.get("listening_cues")) if isinstance(analysis, dict) else 0,
+        _count(analysis.get("similar_tracks")) if isinstance(analysis, dict) else 0,
+        result.get("error") if isinstance(result, dict) else None,
+        runtime_client_type(runtime) if runtime is not None else None,
+    )
+
+
+def _debug_track_insight_error(
+    phase: str,
+    payload: dict[str, Any] | Any,
+    error: tuple[dict[str, Any], int],
+    *,
+    runtime: Any | None = None,
+    source: str,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    body, status = error
+    data = payload if isinstance(payload, dict) else {}
+    _LOGGER.debug(
+        "DJConnect Track Insight %s rejected phase=%s status=%s error=%s client_type=%s device_id=%s title_present=%s artist_present=%s",
+        source,
+        phase,
+        status,
+        body.get("error") if isinstance(body, dict) else None,
+        payload_client_type(data) or (runtime_client_type(runtime) if runtime is not None else None),
+        _safe_debug_identifier(data.get("device_id")),
+        bool(str(data.get("title") or "").strip()),
+        bool(str(data.get("artist") or "").strip()),
+    )
+
+
+def _debug_backend_snapshot(runtime: Any) -> dict[str, Any]:
+    """Log existing request state without resolving live Profile/provider authority.
+
+    The normal dispatcher still owns connection validation and errors. Logging
+    must neither add a resolver call nor turn an otherwise valid request into500.
+    Unknown availability stays unknown; it is not inferred from credentials.
+    """
+    backend = getattr(runtime, "profile_context_backend_id", None)
+    if not backend:
+        backend = (getattr(runtime, "config", {}) or {}).get("music_backend")
+    status = getattr(runtime, "device_status", {}) or {}
+    return {"music_backend": backend,
+            "music_backend_available": status.get("backend_available")}
+
+
+def _debug_playback_request(
+    runtime: Any,
+    payload: dict[str, Any],
+    *,
+    command: str,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    backend = _debug_backend_snapshot(runtime)
+    _LOGGER.debug(
+        "DJConnect playback command request command=%s client_type=%s device_id=%s backend=%s backend_available=%s play=%s value_shape=%s output_requested=%s mood_zone=%s",
+        command,
+        payload_client_type(payload) or runtime_client_type(runtime),
+        _safe_debug_identifier(payload.get("device_id") or getattr(runtime, "device_status", {}).get("device_id")),
+        backend.get("music_backend"),
+        backend.get("music_backend_available"),
+        bool(payload.get("play", False)),
+        _playback_value_shape(payload.get("value")),
+        _has_output_selection(payload.get("value")),
+        str(payload.get("mood_zone") or "").strip()[:24],
+    )
+
+
+def _debug_playback_result(
+    endpoint: str,
+    result: dict[str, Any],
+    status: int,
+    *,
+    runtime: Any | None = None,
+    command: str,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    playback = result.get("playback") if isinstance(result, dict) else {}
+    backend = _debug_backend_snapshot(runtime) if runtime is not None else {}
+    _LOGGER.debug(
+        "DJConnect playback %s result command=%s status=%s success=%s backend=%s backend_available=%s playback_state=%s has_playback=%s is_playing=%s devices=%s queue_items=%s playlists=%s playback_actions=%s error=%s client_type=%s",
+        endpoint,
+        command,
+        status,
+        result.get("success") if isinstance(result, dict) else None,
+        (result.get("music_backend") or backend.get("music_backend")) if isinstance(result, dict) else backend.get("music_backend"),
+        result.get("backend_available") if isinstance(result, dict) else backend.get("music_backend_available"),
+        _safe_playback_state(playback.get("state") if isinstance(playback, dict) else None),
+        playback.get("has_playback") if isinstance(playback, dict) else None,
+        playback.get("is_playing") if isinstance(playback, dict) else None,
+        _count(result.get("devices")) if isinstance(result, dict) else 0,
+        _queue_count(result),
+        _playlist_count(result),
+        _count(result.get("playback_actions")) if isinstance(result, dict) else 0,
+        result.get("error") if isinstance(result, dict) else None,
+        runtime_client_type(runtime) if runtime is not None else None,
+    )
+
+
+def _debug_playback_error(
+    endpoint: str,
+    payload: dict[str, Any] | Any,
+    error: tuple[dict[str, Any], int],
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    body, status = error
+    data = payload if isinstance(payload, dict) else {}
+    _LOGGER.debug(
+        "DJConnect playback %s rejected status=%s error=%s command=%s client_type=%s device_id=%s",
+        endpoint,
+        status,
+        body.get("error") if isinstance(body, dict) else None,
+        str(data.get("command") or "").strip()[:48],
+        payload_client_type(data) or (runtime_client_type(runtime) if runtime is not None else None),
+        _safe_debug_identifier(data.get("device_id")),
+    )
+
+
+def _debug_queue_request(runtime: Any, payload: dict[str, Any]) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    backend = _debug_backend_snapshot(runtime)
+    _LOGGER.debug(
+        "DJConnect queue endpoint request client_type=%s device_id=%s backend=%s backend_available=%s value_shape=%s",
+        payload_client_type(payload) or runtime_client_type(runtime),
+        _safe_debug_identifier(payload.get("device_id") or getattr(runtime, "device_status", {}).get("device_id")),
+        backend.get("music_backend"),
+        backend.get("music_backend_available"),
+        _playback_value_shape(payload.get("value")),
+    )
+
+
+def _debug_queue_result(
+    result: dict[str, Any],
+    status: int,
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    queue = _queue_payload(result)
+    playback = result.get("playback") if isinstance(result, dict) else {}
+    backend = _debug_backend_snapshot(runtime) if runtime is not None else {}
+    _LOGGER.debug(
+        "DJConnect queue endpoint result status=%s success=%s backend=%s backend_available=%s queue_items=%s context_present=%s current_present=%s playback_state=%s error=%s client_type=%s",
+        status,
+        result.get("success") if isinstance(result, dict) else None,
+        (result.get("music_backend") or backend.get("music_backend")) if isinstance(result, dict) else backend.get("music_backend"),
+        result.get("backend_available") if isinstance(result, dict) else backend.get("music_backend_available"),
+        _queue_count(result),
+        _queue_context_present(result, queue),
+        _queue_current_present(queue),
+        _safe_playback_state(playback.get("state") if isinstance(playback, dict) else None),
+        result.get("error") if isinstance(result, dict) else None,
+        runtime_client_type(runtime) if runtime is not None else None,
+    )
+
+
+def _debug_playlists_request(
+    runtime: Any,
+    payload: dict[str, Any],
+    command_value: dict[str, Any],
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    backend = _debug_backend_snapshot(runtime)
+    _LOGGER.debug(
+        "DJConnect playlists endpoint request client_type=%s device_id=%s backend=%s backend_available=%s limit=%s has_client_context=%s value_shape=%s",
+        payload_client_type(payload) or runtime_client_type(runtime),
+        _safe_debug_identifier(payload.get("device_id") or getattr(runtime, "device_status", {}).get("device_id")),
+        backend.get("music_backend"),
+        backend.get("music_backend_available"),
+        _safe_int(command_value.get("limit")),
+        _playlist_client_context_present(command_value),
+        _playback_value_shape(payload.get("value")),
+    )
+
+
+def _debug_playlists_result(
+    result: dict[str, Any],
+    status: int,
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    backend = _debug_backend_snapshot(runtime) if runtime is not None else {}
+    _LOGGER.debug(
+        "DJConnect playlists endpoint result status=%s success=%s backend=%s backend_available=%s playlists=%s count=%s aliases_present=%s error=%s client_type=%s",
+        status,
+        result.get("success") if isinstance(result, dict) else None,
+        (result.get("music_backend") or backend.get("music_backend")) if isinstance(result, dict) else backend.get("music_backend"),
+        result.get("backend_available") if isinstance(result, dict) else backend.get("music_backend_available"),
+        _playlist_count(result),
+        _safe_int(result.get("count")) if isinstance(result, dict) else None,
+        _playlist_aliases_present(result),
+        result.get("error") if isinstance(result, dict) else None,
+        runtime_client_type(runtime) if runtime is not None else None,
+    )
+
+
+def _debug_playlists_backend_error(
+    payload: dict[str, Any],
+    exc: Exception,
+    *,
+    runtime: Any | None = None,
+) -> None:
+    if not _LOGGER.isEnabledFor(logging.DEBUG):
+        return
+    _LOGGER.debug(
+        "DJConnect playlists endpoint backend unavailable client_type=%s device_id=%s reason=%s",
+        payload_client_type(payload) or (runtime_client_type(runtime) if runtime is not None else None),
+        _safe_debug_identifier(payload.get("device_id")),
+        _safe_backend_error_message(exc),
+    )
+
+
+def _playback_value_shape(value: Any) -> str:
+    if isinstance(value, dict):
+        unsafe_fragments = (
+            "token",
+            "secret",
+            "password",
+            "authorization",
+            "uri",
+            "url",
+            "text",
+            "prompt",
+            "query",
+            "title",
+            "artist",
+            "album",
+            "name",
+            "label",
+            "subtitle",
+        )
+        safe_keys = [
+            key
+            for key in sorted(str(key) for key in value.keys())
+            if not any(fragment in key.lower() for fragment in unsafe_fragments)
+        ]
+        return "dict:" + ",".join(safe_keys[:10])
+    if isinstance(value, list):
+        return f"list:{len(value)}"
+    if value in (None, ""):
+        return "empty"
+    return type(value).__name__
+
+
+def _has_output_selection(value: Any) -> bool:
+    if not isinstance(value, dict):
+        return False
+    return any(str(value.get(key) or "").strip() for key in ("device_id", "device_name", "output_id", "output_name", "target_player_id"))
+
+
+def _safe_playback_state(value: Any) -> str:
+    text = str(value or "").strip().lower()
+    return text if text in {"playing", "paused", "stopped", "idle", "off"} else ""
+
+
+def _queue_count(result: dict[str, Any] | Any) -> int:
+    if not isinstance(result, dict):
+        return 0
+    for key in ("queue", "items", "tracks"):
+        value = result.get(key)
+        if isinstance(value, list):
+            return len(value)
+        if isinstance(value, dict):
+            for nested_key in ("items", "queue", "tracks"):
+                nested = value.get(nested_key)
+                if isinstance(nested, list):
+                    return len(nested)
+    return 0
+
+
+def _queue_payload(result: dict[str, Any] | Any) -> Any:
+    if not isinstance(result, dict):
+        return None
+    value = result.get("queue")
+    if isinstance(value, dict):
+        return value
+    status = result.get("status")
+    if isinstance(status, dict) and isinstance(status.get("queue"), dict):
+        return status["queue"]
+    return value
+
+
+def _queue_context_present(result: dict[str, Any] | Any, queue: Any) -> bool:
+    if isinstance(queue, dict):
+        for key in ("context", "queue_context", "context_uri", "contextUri"):
+            if str(queue.get(key) or "").strip():
+                return True
+    if isinstance(result, dict):
+        for key in ("context", "queue_context", "context_uri", "contextUri"):
+            if str(result.get(key) or "").strip():
+                return True
+    return False
+
+
+def _queue_current_present(queue: Any) -> bool:
+    if isinstance(queue, dict):
+        return bool(queue.get("currently_playing") or queue.get("current"))
+    return False
+
+
+def _playlist_count(result: dict[str, Any] | Any) -> int:
+    if not isinstance(result, dict):
+        return 0
+    if isinstance(result.get("playlists"), list):
+        return len(result["playlists"])
+    if isinstance(result.get("playlists"), dict):
+        playlists = result["playlists"]
+        for key in ("items", "playlists"):
+            value = playlists.get(key)
+            if isinstance(value, list):
+                return len(value)
+    for key in ("items",):
+        value = result.get(key)
+        if isinstance(value, list):
+            return len(value)
+    for container_key in ("data", "result"):
+        container = result.get(container_key)
+        if isinstance(container, dict):
+            count = _playlist_count(container)
+            if count:
+                return count
+    count = result.get("count")
+    try:
+        return int(count) if count is not None else 0
+    except (TypeError, ValueError):
+        return 0
+
+
+def _playlist_aliases_present(result: dict[str, Any] | Any) -> bool:
+    if not isinstance(result, dict):
+        return False
+    return any(key in result for key in ("playlists", "items", "data", "result"))
+
+
+def _playlist_client_context_present(value: dict[str, Any] | Any) -> bool:
+    if not isinstance(value, dict):
+        return False
+    return any(
+        str(value.get(key) or "").strip()
+        for key in ("client_type", "device_id", "market", "locale")
+    )
+
+
+def _safe_int(value: Any) -> int | None:
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+async def async_handle_ask_dj_history_payload(hass, data, *, headers=None, user_id=None, history_limit=50):
+    """Both existing transports use the same typed pending-erasure outcome."""
+    try:
+        return await _async_handle_ask_dj_history_payload(
+            hass, data, headers=headers, user_id=user_id, history_limit=history_limit)
+    except RuntimeError as error:
+        if str(error) != 'history_delete_outcome_unknown':
+            raise
+        return _error_payload('history_delete_outcome_unknown'), 503
+
+
+async def _async_handle_ask_dj_history_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+    history_limit: int = 50,
+) -> tuple[dict[str, Any], int]:
+    """Return Ask DJ history for HTTP and HA websocket transports."""
+    headers = headers or {}
+    if not isinstance(data, dict):
+        _debug_ask_dj_error("history", {}, (_error_payload("invalid_json"), 400))
+        return _error_payload("invalid_json"), 400
+    runtime, identity, error, status = _authorized_history_runtime(hass, data, headers)
+    if error:
+        _debug_ask_dj_error("history", data, (_error_payload(error), status), runtime=runtime)
+        return _error_payload(error), status
+    payload = {**data, **identity}
+    scope_error = _conversation_scope_error(payload, user_id)
+    if scope_error:
+        return scope_error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="ask_dj_history",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_ask_dj_request("history", runtime, payload, user_id=user_id)
+    if payload.get("conversation_scope", "profile")=="profile":
+        _bound,context,error,status=await _session_profile_context(hass,payload,headers=headers,user_id=user_id,source="profile_conversation_history")
+        if error is not None:
+            return error,status
+        if (not context.privacy_policy.allow_personal_read
+            or not resolve_profile_privacy_policy(context.profile,{}).allow_personal_read):
+            return _error_payload("history_not_allowed"),403
+        manager = _history_manager(hass, runtime)
+        scope_revision = await manager.async_scope_revision("profile:" + context.profile_id)
+        from .session_conversation import async_history_grant_revision, query_service, SessionConversationError
+        from .session_history_projection import HistoryQueryError
+
+        query = query_service(hass, manager)
+        grant_revision = await async_history_grant_revision(hass, context.profile_id)
+        archive_revision = await query._repository.async_owner_revision(
+            context.profile_id, include_active=True
+        )
+        result=await manager.async_history("profile:"+context.profile_id,since_revision=_int_or_none(payload.get("since_revision")),limit=history_limit)
+        safe=[]
+        for message in result["messages"]:
+            if not await query.async_conversation_source_visible(context.profile_id,message):
+                safe.append({**message,"text":"", "status":"source_withdrawn", "images":[],
+                    "sources":[], "links":[], "items":[], "recent_history_presentation":None,
+                    "playback_actions":[], "audio_url":None})
+                continue
+            visible=True
+            for target in message.get("historical_entry_references",[]):
+                try:
+                    await query.async_open_entry(context.profile_id,target["session_id"],target["entry_id"])
+                except PermissionError:
+                    visible=False
+                except HistoryQueryError as exc:
+                    return _error_payload(str(exc)), 409
+            if visible:
+                safe.append(message)
+        _bound, current, error, status = await _session_profile_context(
+            hass, dict(payload), headers=headers, user_id=user_id,
+            source="profile_conversation_history_complete",
+        )
+        if error is not None:
+            return error, status
+        if current.profile_id != context.profile_id:
+            return _error_payload("history_unavailable"), 403
+        if (not current.privacy_policy.allow_personal_read
+            or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read):
+            return _error_payload("history_not_allowed"), 403
+        if await manager.async_scope_revision("profile:" + context.profile_id) != scope_revision:
+            return _error_payload("conversation_history_changed"), 409
+        if (await query._repository.async_owner_revision(context.profile_id, include_active=True)
+            != archive_revision
+            or await async_history_grant_revision(hass, context.profile_id) != grant_revision):
+            return _error_payload("conversation_history_changed"), 409
+        from .reply_artwork import public as public_reply_media
+        result["messages"] = public_reply_media(safe)
+        result["user_id"]=None
+        result["owner_profile_id"]=context.profile_id
+        result["history_scope"]="profile"
+        try:
+            _conversation_profile_fence(hass, runtime, identity, headers, context)
+        except SessionConversationError as exc:
+            return _error_payload(exc.code), exc.status
+        return result,200
+    result = await _history_manager(hass, runtime).async_history(
+        user_id,
+        since_revision=_int_or_none(payload.get("since_revision")),
+    )
+    _decorate_profile_response(result, payload)
+    _debug_ask_dj_result("history", result, 200, runtime=runtime)
+    return result, 200
+
+
+async def async_handle_ask_dj_history_export_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Export Ask DJ history for HTTP client downloads."""
+    headers = headers or {}
+    if not isinstance(data, dict):
+        _debug_ask_dj_error("history_export", {}, (_error_payload("invalid_json"), 400))
+        return _error_payload("invalid_json"), 400
+    runtime, identity, error, status = _authorized_history_runtime(hass, data, headers)
+    if error:
+        _debug_ask_dj_error("history_export", data, (_error_payload(error), status), runtime=runtime)
+        return _error_payload(error), status
+    payload = {**data, **identity}
+    scope_error = _conversation_scope_error(payload, user_id)
+    if scope_error:
+        return scope_error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="ask_dj_history_export",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_ask_dj_request("history_export", runtime, payload, user_id=user_id)
+    if payload.get("conversation_scope", "profile") == "profile":
+        history, status = await async_handle_ask_dj_history_payload(
+            hass, payload, headers=headers, user_id=user_id, history_limit=1000
+        )
+        if status != 200:
+            return history, status
+    else:
+        history = await _history_manager(hass, runtime).async_history(user_id)
+    response = {
+        "success": True,
+        "format": "djconnect.ask_dj.history.export",
+        "schema_version": 1,
+        "exported_at": history.get("server_time"),
+        "exported_by_client_type": (
+            identity.get("client_type")
+            or headers.get("X-DJConnect-Client-Type")
+            or runtime_client_type(runtime)
+        ),
+        "app_version": payload.get("app_version")
+        or payload.get("version")
+        or headers.get("X-DJConnect-App-Version"),
+        **history,
+    }
+    _decorate_profile_response(response, payload)
+    _debug_ask_dj_result("history_export", response, 200, runtime=runtime)
+    return response, 200
+
+
+async def async_handle_music_discovery_feed_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Return Music Discovery feed for HTTP and websocket transports."""
+    from .music_discovery import async_handle_music_discovery_feed_payload as handler
+    runtime, payload, error = _discovery_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_discovery_feed",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    return await handler(hass, payload, headers=headers, user_id=user_id)
+
+
+async def async_handle_music_discovery_refresh_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Refresh Music Discovery feed for HTTP and websocket transports."""
+    from .music_discovery import async_handle_music_discovery_refresh_payload as handler
+    runtime, payload, error = _discovery_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_discovery_refresh",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    return await handler(hass, payload, headers=headers, user_id=user_id)
+
+
+async def async_handle_music_discovery_play_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Play Music Discovery item for HTTP and websocket transports."""
+    from .music_discovery import async_handle_music_discovery_play_payload as handler
+    runtime, payload, error = _discovery_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_discovery_play",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    return await handler(hass, payload, headers=headers, user_id=user_id)
+
+
+async def async_handle_music_discovery_feedback_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Record Music Discovery feedback for HTTP and websocket transports."""
+    from .music_discovery import async_handle_music_discovery_feedback_payload as handler
+    runtime, payload, error = _discovery_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="music_discovery_feedback",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    return await handler(hass, payload, headers=headers, user_id=user_id)
+
+
+async def async_handle_ask_dj_history_clear_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Clear Ask DJ history for HTTP and HA websocket transports."""
+    headers = headers or {}
+    if not isinstance(data, dict):
+        _debug_ask_dj_error("history_clear", {}, (_error_payload("invalid_json"), 400))
+        return _error_payload("invalid_json"), 400
+    runtime, identity, error, status = _authorized_history_runtime(
+        hass,
+        data,
+        headers,
+        require_client_type=True,
+    )
+    if error:
+        _debug_ask_dj_error("history_clear", data, (_error_payload(error), status), runtime=runtime)
+        return _error_payload(error), status
+    payload = {**data, **identity}
+    scope_error = _conversation_scope_error(payload, user_id)
+    if scope_error:
+        return scope_error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="ask_dj_history_clear",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_ask_dj_request("history_clear", runtime, payload, user_id=user_id)
+    if payload.get("conversation_scope", "profile")=="profile":
+        _bound,context,error,status=await _session_profile_context(hass,payload,headers=headers,user_id=user_id,source="profile_conversation_clear")
+        if error is not None:
+            return error,status
+        if (not context.privacy_policy.allow_personal_read
+            or not resolve_profile_privacy_policy(context.profile,{}).allow_personal_read):
+            return _error_payload("history_not_allowed"),403
+        from .session_conversation import SessionConversationError
+        async def commit_guard():
+            current_runtime, current, failure, status = await _session_profile_context(
+                hass, dict(payload), headers=headers, user_id=user_id, source="profile_conversation_clear_commit"
+            )
+            if failure is not None:
+                raise SessionConversationError(failure.get("error", "history_not_allowed"), int(status or 403))
+            if current_runtime is not runtime or current.profile_id != context.profile_id:
+                raise SessionConversationError("history_not_allowed", 403)
+            if not current.privacy_policy.allow_personal_read:
+                raise SessionConversationError("history_not_allowed", 403)
+            _conversation_profile_fence(hass, runtime, identity, headers, context)
+        try:
+            result=await _history_manager(hass,runtime).async_clear("profile:"+context.profile_id, commit_guard=commit_guard)
+        except SessionConversationError as exc:
+            return _error_payload(exc.code), exc.status
+        except Exception:
+            return _error_payload("history_storage_unavailable"), 503
+        result.update(user_id=None,owner_profile_id=context.profile_id,history_scope="profile")
+        return result,200
+    try:
+        result = await _history_manager(hass, runtime).async_clear(user_id)
+    except Exception:
+        return _error_payload("history_storage_unavailable"), 503
+    _decorate_profile_response(result, payload)
+    _debug_ask_dj_result("history_clear", result, 200, runtime=runtime)
+    return result, 200
+
+
+async def async_handle_ask_dj_history_state_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Return compact Ask DJ history sync state for HTTP and HA websocket."""
+    headers = headers or {}
+    if not isinstance(data, dict):
+        _debug_ask_dj_error("history_state", {}, (_error_payload("invalid_json"), 400))
+        return _error_payload("invalid_json"), 400
+    runtime, identity, error, status = _authorized_history_runtime(
+        hass,
+        data,
+        headers,
+        require_client_type=True,
+    )
+    if error:
+        _debug_ask_dj_error("history_state", data, (_error_payload(error), status), runtime=runtime)
+        return _error_payload(error), status
+    payload = {**data, **identity}
+    scope_error = _conversation_scope_error(payload, user_id)
+    if scope_error:
+        return scope_error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="ask_dj_history_state",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    _debug_ask_dj_request("history_state", runtime, payload, user_id=user_id)
+    result, status = await async_handle_ask_dj_history_payload(
+        hass, payload, headers=headers, user_id=user_id
+    )
+    if status != 200:
+        return result, status
+    clear_revision = int(result.get("clear_revision") or 0)
+    client_clear_revision = _int_or_none(payload.get("clear_revision")) or 0
+    response = {
+        "success": True,
+        "user_id": result.get("user_id"),
+        "history_revision": result.get("history_revision"),
+        "clear_revision": clear_revision,
+        "history_limit": result.get("history_limit"),
+        "history_trimmed_before": result.get("history_trimmed_before"),
+        "history_trimmed_count": result.get("history_trimmed_count"),
+        "ask_dj_clear_required": client_clear_revision < clear_revision,
+        "owner_profile_id": result.get("owner_profile_id"),
+        "history_scope": result.get("history_scope", "legacy"),
+        "server_time": result.get("server_time"),
+    }
+    _decorate_profile_response(response, payload)
+    _debug_ask_dj_result("history_state", response, 200, runtime=runtime)
+    return response, 200
+
+
+def _decorate_profile_response(result: dict[str, Any], payload: dict[str, Any]) -> None:
+    """Attach resolved Profile metadata to an existing response payload."""
+    profile_id = str(payload.get("profile_id") or "").strip()
+    if profile_id:
+        result.setdefault("profile_id", profile_id)
+    music_dna_key = str(payload.get("music_dna_key") or "").strip()
+    if music_dna_key:
+        result.setdefault("music_dna_key", music_dna_key)
+
+
+async def async_handle_profile_export_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Export a single resolved Profile without secrets."""
+    runtime, payload, error = _profile_operation_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="profile_export",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    try:
+        result = await async_export_profile(
+            profile_storage(hass),
+            str(payload.get("profile_id") or ""),
+            include_personal_data=bool(payload.get("include_personal_data", True)),
+        )
+        _decorate_profile_response(result, payload)
+        return result, 200
+    except Exception as exc:  # noqa: BLE001
+        return profile_export_error_payload(exc)
+
+
+async def async_handle_household_export_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Export household Profile Platform metadata without secrets."""
+    runtime, payload, error = _profile_operation_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="household_export",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    try:
+        result = await async_export_household(profile_storage(hass))
+        _decorate_profile_response(result, payload)
+        return result, 200
+    except Exception as exc:  # noqa: BLE001
+        return profile_export_error_payload(exc)
+
+
+async def async_handle_integration_export_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Export a full non-secret DJConnect integration envelope."""
+    runtime, payload, error = _profile_operation_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="integration_export",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    try:
+        result = await async_export_integration(
+            profile_storage(hass),
+            non_secret_config=getattr(runtime, "config", {}),
+        )
+        _decorate_profile_response(result, payload)
+        return result, 200
+    except Exception as exc:  # noqa: BLE001
+        return profile_export_error_payload(exc)
+
+
+async def async_handle_profile_import_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Import a Profile export envelope."""
+    _runtime, payload, error = _profile_operation_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    try:
+        result = await async_import_profile(
+            profile_storage(hass),
+            payload.get("export") if isinstance(payload.get("export"), dict) else payload,
+            overwrite=bool(payload.get("overwrite", False)),
+            reassign_id=bool(payload.get("reassign_id", False)),
+        )
+        return result, 200
+    except Exception as exc:  # noqa: BLE001
+        return profile_export_error_payload(exc)
+
+
+async def async_handle_household_import_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Import a household or full integration export envelope."""
+    _runtime, payload, error = _profile_operation_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    try:
+        result = await async_import_household(
+            profile_storage(hass),
+            payload.get("export") if isinstance(payload.get("export"), dict) else payload,
+            overwrite=bool(payload.get("overwrite", False)),
+        )
+        return result, 200
+    except Exception as exc:  # noqa: BLE001
+        return profile_export_error_payload(exc)
+
+
+async def async_handle_profile_clear_payload(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+) -> tuple[dict[str, Any], int]:
+    """Clear resolved Profile personal state without deleting the Profile."""
+    runtime, payload, error = _profile_operation_runtime_payload(hass, data, headers)
+    if error is not None:
+        return error
+    profile_error, profile_status = await _apply_profile_or_error(
+        hass,
+        runtime,
+        payload,
+        user_id=user_id,
+        source="profile_clear",
+    )
+    if profile_error is not None:
+        return profile_error, int(profile_status or 400)
+    try:
+        profile_id = str(payload.get("profile_id") or "")
+        cleared_profile = await async_clear_profile_personal_state(
+            profile_storage(hass),
+            profile_id,
+            ask_dj=bool(payload.get("ask_dj", False)),
+            music_dna=bool(payload.get("music_dna", False)),
+            recommendations=bool(payload.get("recommendations", False)),
+            mood=bool(payload.get("mood", False)),
+            all_state=bool(payload.get("all", False)),
+        )
+        if payload.get("ask_dj") or payload.get("all"):
+            await _history_manager(hass, runtime).async_clear(user_id)
+            await _history_manager(hass, runtime).async_clear("profile:" + profile_id)
+        if payload.get("music_dna") or payload.get("all"):
+            memory = getattr(runtime, "memory", None)
+            if memory is not None and callable(getattr(memory, "async_clear", None)):
+                await memory.async_clear(str(payload.get("music_dna_key") or ""))
+        return {
+            "success": True,
+            "cleared": True,
+            "profile_id": cleared_profile.profile_id,
+            "deleted": False,
+        }, 200
+    except Exception as exc:  # noqa: BLE001
+        return profile_export_error_payload(exc)
+
+
+def _profile_operation_runtime_payload(
+    hass: Any,
+    data: dict[str, Any],
+    headers: Any | None,
+) -> tuple[Any | None, dict[str, Any], tuple[dict[str, Any], int] | None]:
+    headers = headers or {}
+    if not isinstance(data, dict):
+        return None, {}, (_error_payload("invalid_json"), 400)
+    identity = identity_payload(data)
+    runtime = resolve_runtime(
+        hass,
+        identity.get("device_id") or headers.get("X-DJConnect-Device-ID"),
+        headers,
+    )
+    if runtime is None:
+        return None, {}, (_error_payload("not_configured"), 503)
+    payload = dict(data)
+    payload.update({key: value for key, value in identity.items() if value is not None})
+    return runtime, payload, None
+
+
+def _decorate_command_result(
+    hass: Any,
+    runtime: Any,
+    result: dict[str, Any],
+    music_dna_key: str | None,
+) -> None:
+    if music_dna_key:
+        result.setdefault("music_dna_key", music_dna_key)
+    result.update(_bootstrap_metadata(hass, runtime))
+    result.update(_ha_version_payload())
+    result.update(music_backend_metadata(hass, runtime))
+
+
+async def _record_removed_favorite_in_music_dna(
+    runtime: Any,
+    result: dict[str, Any],
+    payload: dict[str, Any],
+    *,
+    user_id: str | None,
+) -> None:
+    playback = result.get("playback") if isinstance(result, dict) else {}
+    if not isinstance(playback, dict) or _playback_favorite_status(playback) is not False:
+        return
+    memory = getattr(runtime, "memory", None)
+    recorder = getattr(memory, "async_record_blocked_music_preference", None)
+    if not callable(recorder):
+        return
+    try:
+        await recorder(
+            runtime,
+            _favorite_removed_preference(playback),
+            payload,
+            user_id=user_id,
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect could not record removed favorite in Music DNA: %s", exc)
+
+
+def _playback_favorite_status(playback: dict[str, Any]) -> bool | None:
+    for key in ("is_liked", "favorite_status", "liked", "is_favorite"):
+        if key in playback:
+            value = playback.get(key)
+            if isinstance(value, bool):
+                return value
+            if isinstance(value, str):
+                normalized = value.strip().lower()
+                if normalized in {"true", "1", "yes", "ja", "on"}:
+                    return True
+                if normalized in {"false", "0", "no", "nee", "off"}:
+                    return False
+    return None
+
+
+def _favorite_removed_preference(playback: dict[str, Any]) -> dict[str, str]:
+    title = _text_value(playback, "track_name", "title", "name")
+    artist = _text_value(playback, "artist", "artist_name")
+    uri = _text_value(playback, "uri", "current_uri")
+    name = " - ".join(value for value in (artist, title) if value) or title or uri
+    return {
+        "kind": "track",
+        "name": name,
+        "title": title or name,
+        "artist": artist,
+        "uri": uri,
+        "reason": "removed_from_favorites",
+    }
+
+
+def _text_value(data: dict[str, Any], *keys: str) -> str:
+    for key in keys:
+        value = str(data.get(key) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _refresh_authenticated_client_version(runtime: Any, data: dict[str, Any]) -> None:
+    """Refresh version metadata before validating an authenticated command.
+
+    Clients issue a command-status request as their first request after an
+    upgrade.  Commands intentionally do not merge sensor data, but rejecting
+    that request against the cached pre-upgrade version prevents the client
+    from ever reaching its following full status update.
+    """
+    version = _text_value(data, "app_version", "version", "firmware", "firmware_version")
+    if version:
+        runtime.device_status["app_version"] = version
+
+
+def _error_payload(error: str, message: str | None = None) -> dict[str, Any]:
+    return {
+        "success": False,
+        "error": error,
+        "message": message or ERROR_MESSAGES.get(error, error),
+    }
+
+
+def _version_mismatch_payload(runtime: Any) -> dict[str, Any]:
+    firmware_version = _runtime_firmware_version(runtime)
+    return {
+        "success": False,
+        "error": "version_mismatch",
+        "message": (
+            "DJConnect Home Assistant integration and device firmware "
+            "major.minor versions must match."
+        ),
+        "ha_version": VERSION,
+        "ha_major_minor": _major_minor(VERSION),
+        "firmware": firmware_version,
+        "firmware_major_minor": _major_minor(firmware_version),
+    }
+
+
+def _authorized_history_runtime(
+    hass: Any,
+    data: dict[str, Any],
+    headers: Any,
+    *,
+    require_client_type: bool = False,
+) -> tuple[Any | None, dict[str, Any], str | None, int]:
+    identity = identity_payload(data)
+    runtime = resolve_runtime(
+        hass,
+        identity.get("device_id") or headers.get("X-DJConnect-Device-ID"),
+        headers,
+    )
+    if runtime is None:
+        return None, identity, "not_configured", 503
+    if require_client_type:
+        client_type = validate_required_client_type(identity)
+        if client_type is None:
+            return runtime, identity, "invalid_client_type", 400
+    else:
+        client_type = (
+            identity.get("client_type")
+            or headers.get("X-DJConnect-Client-Type")
+            or runtime_client_type(runtime)
+        )
+    if not authorize_runtime_device_request(
+        runtime,
+        headers,
+        identity.get("device_id") or headers.get("X-DJConnect-Device-ID"),
+        client_type,
+    ):
+        return runtime, identity, "unauthorized", 401
+    # Normalize the already-validated header identity for the shared Profile boundary.
+    identity["device_id"] = identity.get("device_id") or headers.get("X-DJConnect-Device-ID")
+    identity[CONF_CLIENT_TYPE] = client_type
+    return runtime, identity, None, 200
+
+
+def _int_or_none(value: Any) -> int | None:
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _for_you_request_locale(data, headers, active):
+    headers = headers or {}
+    explicit = (data.get('language') or data.get('locale') or headers.get('X-DJConnect-Language')
+                or headers.get('X-DJConnect-Locale') or headers.get('Accept-Language'))
+    return normalize_supported_language(str(explicit).split(',', 1)[0]) if explicit else getattr(active, 'locale', 'en')
+
+
+def _session_offer_fields(hass, runtime, context, active, *, locale=None):
+    from .mood_music_steering import first_play_catalogue, session_start_catalogue, for_you_projection
+    allowed = context.client_type in {"ios", "macos"}
+    projected = for_you_projection(hass, runtime, context.profile_id, active,
+        client_device_id=context.device_id, locale=locale) if allowed else None
+    start = session_start_catalogue(hass, runtime, context.profile_id, active if allowed else None,
+        client_device_id=context.device_id)
+    if projected is not None and start.get('items'):
+        start['items'][0].update(label=projected['title'], offer=projected)
+    return {"first_play_action": first_play_catalogue(hass, runtime, context.profile_id, active if allowed else None, client_device_id=context.device_id),
+            "session_start_actions": start, "for_you": projected}

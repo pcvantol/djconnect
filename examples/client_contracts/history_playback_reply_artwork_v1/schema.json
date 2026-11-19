@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "djconnect.history-playback-reply-artwork.v1",
+  "$defs": {
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "session_id",
+        "entry_id"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[^\\u0000-\\u0020]+$"
+        },
+        "entry_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[^\\u0000-\\u0020]+$"
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "command",
+        "label",
+        "required_capability",
+        "value"
+      ],
+      "properties": {
+        "kind": {
+          "const": "historical_track"
+        },
+        "command": {
+          "const": "play_history_item"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required_capability": {
+          "const": "historical_exact_track_playback"
+        },
+        "value": {
+          "$ref": "#/$defs/reference"
+        }
+      }
+    },
+    "reply_media": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "session_id",
+        "entry_id",
+        "revision",
+        "artwork"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "artwork": {
+          "type": "object",
+          "required": [
+            "state",
+            "role",
+            "reply_display_allowed",
+            "current_display_allowed",
+            "active_flow_display_allowed",
+            "cache_policy",
+            "expires_at",
+            "url"
+          ],
+          "properties": {
+            "state": {
+              "const": "ready"
+            },
+            "role": {
+              "const": "captured_reply_subject"
+            },
+            "reply_display_allowed": {
+              "const": true
+            },
+            "current_display_allowed": {
+              "const": false
+            },
+            "active_flow_display_allowed": {
+              "const": false
+            },
+            "cache_policy": {
+              "const": "no-store"
+            },
+            "url": {
+              "type": "string",
+              "pattern": "^/api/djconnect/v1/session/media/image/"
+            }
+          }
+        }
+      }
+    }
+  }
+}

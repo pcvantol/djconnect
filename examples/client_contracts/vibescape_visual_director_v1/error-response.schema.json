@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "success": {
+      "const": false
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "error": {
+      "enum": [
+        "invalid_request",
+        "unauthorized",
+        "session_context_changed",
+        "current_playback_unavailable",
+        "visual_context_expired",
+        "visual_context_changed",
+        "visual_only_unsupported",
+        "visual_direction_ambiguous",
+        "visual_rate_limited",
+        "visual_turn_limit_reached",
+        "visual_unavailable",
+        "method_not_allowed",
+        "request_too_large",
+        "unsupported_media_type"
+      ]
+    }
+  },
+  "required": [
+    "success",
+    "schema_version",
+    "error"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DJConnect VibeScape Visual Director v1 error-response"
+}

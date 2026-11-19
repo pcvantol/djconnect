@@ -1,0 +1,58 @@
+"""Storage-provider contract owned by the persistence platform."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+from typing import Protocol, TypeVar
+
+
+ResultT = TypeVar("ResultT")
+
+
+class ProviderTransaction(Protocol):
+    """Private transaction primitive for platform migrations and repositories."""
+
+    def execute(self, statement: str, parameters: tuple[object, ...] = ()) -> None:
+        """Execute one provider statement inside the active transaction."""
+
+    def fetchone(
+        self, statement: str, parameters: tuple[object, ...] = ()
+    ) -> tuple[object, ...] | None:
+        """Read one row inside the active transaction."""
+
+    def fetchall(
+        self, statement: str, parameters: tuple[object, ...] = ()
+    ) -> list[tuple[object, ...]]:
+        """Read bounded rows inside the active transaction."""
+
+
+class PersistenceProvider(Protocol):
+    """Provider-neutral durable storage lifecycle contract."""
+
+    async def async_open(self, database_path: str) -> None:
+        """Open the provider at the configured durable storage location."""
+
+    async def async_close(self) -> None:
+        """Release provider resources."""
+
+    async def async_integrity_check(self) -> None:
+        """Raise when durable storage is not internally consistent."""
+
+    async def async_read_schema_version(self) -> int:
+        """Return the installed schema version, or zero for a new database."""
+
+    async def async_read_migration_history(self) -> list[tuple[int, str, str, bool]]:
+        """Return ordered, system-owned migration history."""
+
+    async def async_validate_schema(self, required_tables: dict[str, set[str]]) -> None:
+        """Validate required tables, columns and provider invariants."""
+
+    async def async_run_transaction(
+        self,
+        operation: Callable[[ProviderTransaction], ResultT],
+        *,
+        authorize: Callable[[], bool] | None = None,
+        finalize_authorize: Callable[[], bool] | None = None,
+        require_full_sync: bool = False,
+    ) -> ResultT:
+        """Run one short platform-owned transaction."""

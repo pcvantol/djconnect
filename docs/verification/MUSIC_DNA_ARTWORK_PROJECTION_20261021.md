@@ -1,0 +1,21 @@
+# Music DNA artwork — 21 October 2026
+
+Base `9bf4420497d5b5f47b33ddc094500b0337cc304b`, one isolated Core worktree/sole writer. Current public Music DNA responses lacked loadable track/album/artist artwork and leaked private asset references. Two targeted baseline tests produced five failures. Apple independently reproduced missing accepted-recommendation artwork with an exact current server reference and an older accepted record without its own art. The added legacy positive test failed before the correction. An interim independent review also found a duplicate-URI conflicting-album reuse bug; its new regression failed before the per-row validation fix.
+
+Current implementation uses the original response guard and existing proxy, exact current URI/album/owner proof and original expiry. No extra provider fetch, playback, authority change, dependency/version or client writer. The contract and current redacted synthetic fixture document the optional fields and bounds. Old archive/content fixtures remain immutable; new current fixtures derive from genuinely rerun owning routes.
+
+## Actual isolated Home Assistant proof
+
+HA2026.10.0, existing image `sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4`, network none, read-only root and root-owned read-only source snapshot, unprivileged65534 execution, disposable RAM configuration/Store/SQLite. No host configuration/credentials, live provider, model or installed HA-dev mutation. Candidate232 product files hash-equal before/after; own container removed after all three probes. Source snapshot transported in memory only, no recovery bundle.
+
+The actual artwork HTTP probe covers profile track/artist/exact-album image200 with expected PNG bytes and no-store, original capture/expiry on repeated reads, Store save/load followed by old grant404 and new authorized grant, real wall-clock original expiry200→404 then fields omitted, foreign credentials/account/Profile/persisted pairing/consent/provider replacement, opt-out/clear ABA/in-flight clear, malicious import/export stripping, bounded response/redirect/MIME/size/timeout failures, missing/conflicting provider art without lookup loops. A raw arbitrary unshown recommendation remains409 choice_expired; explicit labelled disposable legacy Store input tests accepted album projection without claiming playback authorization. Browser decode is explicitly NOT_RUN_ISOLATED_CONTAINER; live Spotify/native/device acceptance NOT_RUN.
+
+The same final232-file snapshot runs the actual content deletion route (46 HTTP requests,9 cases) and archive deletion route (37 HTTP requests,7 cases), real HA Store/SQLite/TLS WebSocket and separate-process recovery, with zero model calls and no personal data erasure. New maintained fixture pointers bind these receipts and current source; old fixtures are untouched.
+
+An initial full run found two current-fixture API source-pin failures (3012 tests run,7 existing skips), which triggered the genuine history requalification above. Earlier host-bind Docker admission failed without running HA; the successful no-bind RAM probe is the qualified evidence. Earlier artwork probe correctly rejected an obsolete harness's unshown command; the harness was corrected rather than weakening production authority.
+
+Exact tests/full-suite results, independent exact review, normal protected source merge/canonical qualification, separate documentary Finalization and actual changed-code HA-dev installation/readback remain distinct delivery gates. No package/public HACS release or paid-model qualification is claimed.
+
+## Final local verification
+
+All3015 repository tests PASS157.250s with7 existing skips. The intermediate roadmap current-document binding failure was resolved by updating only the current API_CONTRACT reference and regenerating its SOURCES view; historical snapshots and node statuses remain unchanged. Ruff, full diff and offline projection validation PASS; CI-pinned Bandit1.9.4 medium/high findings0/errors0 on all four changed product modules. Actual HA evidence remains the successful final232-file RAM snapshot, not earlier failed admissions. Protected delivery, separate Finalization and actual installed/native gates remain as stated above.

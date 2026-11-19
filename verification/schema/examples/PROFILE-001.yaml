@@ -1,0 +1,70 @@
+id: PROFILE-001
+title: Explicit profile selection wins
+description: Verify that a valid explicit DJConnect Profile selection wins over conflicting device or area signals.
+purpose: Protect the platform rule that explicit profile selection is the strongest identity signal.
+owner: DJConnect Verification
+category: Profiles
+subcategory: profile_resolution
+priority: P0
+risk: critical
+verification_level: V2
+automation_level: FULL
+required_components: [HA]
+supported_platforms: [Home Assistant]
+required_locales: [not_applicable]
+required_build_types: [Debug, Instrumented]
+required_capabilities: [profiles, request_context]
+required_profiles: [personal_profile, household_profile]
+required_backends: []
+required_devices: [mapped_djconnect_device]
+required_environment: [profile_resolver_available]
+preconditions:
+  - A personal profile and a household profile exist.
+  - The request device is mapped to the household profile.
+setup:
+  - Prepare request context with explicit personal profile and conflicting mapped device signal.
+steps:
+  - number: 1
+    action: Resolve profile context for the request.
+  - number: 2
+    action: Record the resolved profile result and resolver trace.
+assertions:
+  backend:
+    - The resolved profile is the explicit personal profile.
+    - The conflicting device mapping does not override explicit profile selection.
+  privacy:
+    - Resolver evidence excludes tokens, raw prompts, raw audio, Ask DJ history and Music DNA contents.
+expected_results:
+  machine:
+    - code: resolved_profile_source
+      expected: explicit_profile
+    - code: profile_resolution_success
+      expected: true
+  human:
+    - Explicit profile selection deterministically wins over conflicting inferred signals.
+cleanup:
+  - Remove seeded profile mappings or mark fixture data as reusable test state.
+timeouts:
+  setup_seconds: 30
+  execution_seconds: 10
+  cleanup_seconds: 30
+retry_policy:
+  mode: NONE
+  max_attempts: 1
+artifacts:
+  - type: logs
+    required: true
+    description: Sanitized resolver trace.
+    redaction: Remove any request metadata not required for identity proof.
+  - type: environment_snapshot
+    required: true
+    description: HA version, integration version and schema version.
+privacy_classification: [Internal, Contains profile data, Requires redaction]
+destructive: false
+tags: [profile, resolver, identity, contract]
+estimated_duration: 1m
+manual_actions: []
+future_notes:
+  - May later run against all client request sources using the same scenario ID.
+version: 1
+schema_version: "1.0"

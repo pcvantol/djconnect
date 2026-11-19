@@ -1,0 +1,20 @@
+{
+  "template_id": "djconnect.software_assurance.workflow_governance",
+  "policy_source": "software_assurance/policy/governance-policy.json",
+  "policy_version_placeholder": "${policy_version}",
+  "repository_placeholder": "${repository}",
+  "workflow_metadata": {
+    "name": "${workflow_name}",
+    "execution_profile": "${execution_profile}",
+    "policy_version": "${policy_version}",
+    "permissions": "${explicit_permissions}",
+    "timeout_minutes": "${timeout_minutes}",
+    "concurrency_group": "software-assurance-${repository}-${workflow}-${ref}",
+    "summary": "required",
+    "logging": "structured_redacted"
+  },
+  "rollout": {
+    "enabled": false,
+    "owner_prompt": "PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION"
+  }
+}

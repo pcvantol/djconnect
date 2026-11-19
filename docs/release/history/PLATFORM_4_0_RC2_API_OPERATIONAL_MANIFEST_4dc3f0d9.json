@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.0.0-rc.2-api-worker-4dc3f0d9-20261103",
+  "platform_version": "4.0",
+  "release_version": "4.0.0-rc.2",
+  "release_profile": "INTERNAL_RELEASE",
+  "generated_at": "2026-11-03",
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-11-03",
+    "approved_statement": "Peter instructed production installation of merged API #195 in the API lane.",
+    "authority_record": "API lane 01a15afc-c690-7783-8a49-93b7d0de4baa user message 01a1a14b-8d7f-70f3-a4c6-cf30b5cff860."
+  },
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect-api",
+      "source_sha": "4dc3f0d92ed4a995103a08f5a36c517ff0103e89",
+      "tree": "9a2ebaec64e463e8a97f411d36af92a8b5b1506c",
+      "version": "4.0.0-rc.2",
+      "validate_run": "41632579165",
+      "artifact_run": "41633344796"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "cloudflare_workers_production",
+      "required": true
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "pcvantol/djconnect-api",
+      "target": "cloudflare_workers_production",
+      "artifact_id": "13228139420",
+      "artifact_sha256": "c629b50e67b0258ea6f5e760fe46c2cc99860e69df797be3163a9830aa312c9f",
+      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/41633344796"
+    }
+  ],
+  "migration_boundary": {
+    "preflight_pending": [],
+    "permitted_pending_additive": [],
+    "manual_ddl": [],
+    "application_dml": false
+  },
+  "rollback": {
+    "source_sha": "176d71afe111a70028fef0d7ed2c28f41f66aaab",
+    "deployment_id": "fb8c7302-6380-4069-b9b6-6242108acf73",
+    "worker_version_id": "a7191e2b-1c25-4c4f-8266-c8f5e6c501bb"
+  },
+  "separate_finalization": {
+    "state": "PENDING",
+    "requires": [
+      "original deployment receipt",
+      "exact live SHA",
+      "negative Watch Moment route smoke"
+    ]
+  },
+  "execution": {
+    "preflight": "Refresh exact Worker and D1 identities, pending migrations and rollback version immediately before deployment. Require zero pending migrations and confirm no Wrangler binding changes.",
+    "deployment": "Only the selected immutable Worker artifact through the protected manifest-bound workflow. The Watch Moment route stays closed.",
+    "smoke": "Run the separate health smoke with exact release SHA and verify negative Watch Moment routing."
+  },
+  "next_authorized_action": "After protected manifest delivery and fresh preflight, dispatch the exact API artifact and run separate production smoke.",
+  "target_identity": {
+    "worker": "djconnect-api",
+    "database": "djconnect_api",
+    "database_id": "476a564f-08b2-4966-83b0-1221e2a4d063",
+    "compatibility_date": "2026-06-20"
+  },
+  "worker_payload": {
+    "sha256": "0041c3a5ea2b572c052ab517d1cbf92f0f2ad4e3771a1efd7d3866bd22dd0817",
+    "bytes": 1468718
+  }
+}

@@ -1,0 +1,219 @@
+"""Core signed Watch preference request and reconciliation boundaries."""
+from contextlib import asynccontextmanager
+from dataclasses import replace
+import hashlib
+import json
+from pathlib import Path
+import sys
+from tempfile import TemporaryDirectory
+from types import SimpleNamespace
+import unittest
+from unittest.mock import AsyncMock, Mock, patch
+
+from tests.test_persistence_platform import PersistenceService  # noqa: F401
+from custom_components.djconnect.watch_preference_client import (
+    EnrolledWatchReceiver, WatchPreferenceIntent, retire_watch_receiver, update_watch_preference,
+    watch_preference_https, watch_retirement_https,
+)
+
+
+class WatchPreferenceClientTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        self.receiver = EnrolledWatchReceiver("lab-api", "install-a", "watch-a", "pair-a", 2, "a" * 64)
+        self.intent = WatchPreferenceIntent("opt-out", 3, False, 125)
+        self.receipt = dict(incarnation="pair-a", revision=4, operation="opt-out", enabled=0, sealed=0)
+        self.guard = Mock(return_value=None)
+        self.sign = AsyncMock(return_value=bytes(64))
+        self.post = AsyncMock(return_value=self.receipt)
+
+    async def update(self):
+        return await update_watch_preference(
+            self.receiver, self.intent, require_current=self.guard,
+            sign_frame=self.sign, post_signed=self.post, wall=lambda: 100,
+        )
+
+    async def test_exact_bound_write(self):
+        self.assertEqual(await self.update(), "confirmed")
+        body, signature = self.post.await_args.args
+        self.assertEqual(json.loads(body), {
+            "audience": "lab-api", "action": "preference-write", "installation": "install-a",
+            "receiver": "watch-a", "epoch": 2, "key_fingerprint": "a" * 64, "expiry": 125,
+            "operation": "opt-out", "incarnation": "pair-a", "expected_version": 3, "enabled": False,
+        })
+        self.assertEqual(signature, "A" * 86)
+        self.assertTrue(self.sign.await_args.args[0].startswith(b"DJC-WATCH-LIFECYCLE-V1\x00"))
+
+    async def test_unknown_write_replays_original_bytes_once(self):
+        for uncertain in (TimeoutError(), {"error": "watch_preference_outcome_unknown"}):
+            with self.subTest(uncertain=uncertain):
+                self.post.reset_mock(side_effect=True)
+                self.sign.reset_mock()
+                self.post.side_effect = [uncertain, self.receipt]
+                self.assertEqual(await self.update(), "confirmed")
+                first, replay = self.post.await_args_list
+                self.assertEqual(first, replay)
+                self.sign.assert_awaited_once()
+
+    async def test_unknown_write_cannot_replay_after_new_intent(self):
+        self.post.return_value = None
+        self.guard.side_effect = [None, None, None, None, PermissionError()]
+        self.assertEqual(await self.update(), "discarded")
+        self.post.assert_awaited_once()
+
+    async def test_stale_authority_during_signing_does_not_send(self):
+        self.guard.side_effect = [None, None, PermissionError(), None]
+        self.assertEqual(await self.update(), "discarded")
+        self.post.assert_not_awaited()
+
+    async def test_late_response_after_pairing_or_intent_changed_is_discarded(self):
+        self.guard.side_effect = [None, None, None, PermissionError()]
+        self.assertEqual(await self.update(), "discarded")
+        self.post.assert_awaited_once()
+
+    async def test_superseded_receipt_never_rebases(self):
+        self.post.return_value = self.receipt | {"revision": 5, "operation": "other"}
+        self.assertEqual(await self.update(), "superseded")
+        self.post.assert_awaited_once()
+
+    async def test_wrong_incarnation_or_invalid_ack_never_confirms(self):
+        for changes in ({"incarnation": "other"}, {"enabled": False}, {"operation": "other"}):
+            self.post.return_value = self.receipt | changes
+            self.assertEqual(await self.update(), "unknown")
+
+    async def test_expired_intent_does_not_sign(self):
+        self.intent = replace(self.intent, expiry=100)
+        self.assertEqual(await self.update(), "unknown")
+        self.sign.assert_not_awaited()
+        self.post.assert_not_awaited()
+
+
+    def test_https_transport_only_accepts_canonical_provisioned_endpoint(self):
+        self.assertTrue(callable(watch_preference_https("https://watch.example.test/internal/preference")))
+        for endpoint in (
+            "http://watch.example.test/internal/preference",
+            "https://user@watch.example.test/internal/preference",
+            "https://watch.example.test:443/internal/preference",
+            "https://watch.example.test/internal/preference?next=other",
+            "https://watch.example.test/internal/%70reference",
+            "https://watch.example.test/../internal/preference",
+            "https://127.0.0.1/internal/preference",
+        ):
+            with self.subTest(endpoint=endpoint), self.assertRaisesRegex(
+                    ValueError, "invalid_watch_preference_endpoint"):
+                watch_preference_https(endpoint)
+
+    async def test_private_preference_transport_does_not_forward_credentials_on_redirect(self):
+        endpoint = "https://watch.example.test/internal/preference"
+        with self.assertRaisesRegex(ValueError, "invalid_watch_access_credentials"):
+            watch_preference_https(endpoint, access_credentials=("test-client", "bad\nsecret"))
+
+        response = Mock(status=302)
+        response.headers.getall.return_value = []
+        session = Mock()
+
+        @asynccontextmanager
+        async def redirect_response(*args, **kwargs):
+            yield response
+
+        session.post.side_effect = redirect_response
+
+        cookie_jar = object()
+
+        @asynccontextmanager
+        async def open_session(**kwargs):
+            self.assertFalse(kwargs["trust_env"])
+            self.assertIs(kwargs["cookie_jar"], cookie_jar)
+            yield session
+
+        aiohttp = SimpleNamespace(
+            ClientSession=open_session,
+            ClientTimeout=Mock(),
+            DummyCookieJar=lambda: cookie_jar,
+        )
+        with TemporaryDirectory() as directory:
+            credential = Path(directory) / "access.json"
+            credential.write_text(json.dumps({
+                "endpoint": endpoint, "client_id": "test-client", "client_secret": "test-secret",
+            }))
+            credential.chmod(0o600)
+            with patch.dict(sys.modules, {"aiohttp": aiohttp}):
+                post = watch_preference_https(endpoint, access_file=credential)
+                self.assertIsNone(await post(b"original signed body", "A" * 86))
+            alias = credential.with_name("alias.json")
+            alias.symlink_to(credential)
+            with self.assertRaisesRegex(ValueError, "invalid_watch_access_file"):
+                watch_preference_https(endpoint, access_file=alias)
+            with self.assertRaisesRegex(ValueError, "invalid_watch_access_file"):
+                watch_preference_https(endpoint + "-other", access_file=credential)
+            credential.chmod(0o644)
+            with self.assertRaisesRegex(ValueError, "invalid_watch_access_file"):
+                watch_preference_https(endpoint, access_file=credential)
+
+        session.post.assert_called_once()
+        args, kwargs = session.post.call_args
+        self.assertEqual(args, (endpoint,))
+        self.assertEqual(kwargs["data"], b"original signed body")
+        self.assertFalse(kwargs["allow_redirects"])
+        self.assertEqual(kwargs["headers"]["CF-Access-Client-Id"], "test-client")
+        self.assertEqual(kwargs["headers"]["CF-Access-Client-Secret"], "test-secret")
+        self.assertEqual(kwargs["headers"]["DJC-Watch-Lifecycle-Signature"], "A" * 86)
+
+
+class WatchRetirementClientTests(unittest.IsolatedAsyncioTestCase):
+    async def test_lost_retirement_receipt_reconciles_original_body(self):
+        receiver = EnrolledWatchReceiver("lab-api", "install-a", "watch-a", "pair-a", 2, "a" * 64)
+        post = AsyncMock(side_effect=[ConnectionError("lost reply"), "committed"])
+        sign = AsyncMock(return_value=bytes(64))
+        result = await retire_watch_receiver(
+            receiver, operation="withdraw", expiry=125, require_current=lambda _: None,
+            sign_frame=sign, post_signed=post, wall=lambda: 100,
+        )
+
+        self.assertEqual(result, "committed")
+        self.assertEqual(post.await_count, 2)
+        original, status = (call.args[0] for call in post.await_args_list)
+        self.assertEqual(json.loads(original)["action"], "retire")
+        readback = json.loads(status)
+        self.assertEqual(readback["action"], "lifecycle-status")
+        self.assertEqual(readback["target_operation"], "withdraw")
+        self.assertEqual(readback["target_body_sha256"], hashlib.sha256(original).hexdigest())
+
+    async def test_pairing_change_during_signing_stops_retirement_post(self):
+        receiver = EnrolledWatchReceiver("lab-api", "install-a", "watch-a", "pair-a", 2, "a" * 64)
+        guard = Mock(side_effect=[None, None, PermissionError("pairing changed")])
+        post = AsyncMock()
+        result = await retire_watch_receiver(
+            receiver, operation="withdraw", expiry=125, require_current=guard,
+            sign_frame=AsyncMock(return_value=bytes(64)), post_signed=post, wall=lambda: 100,
+        )
+
+        self.assertEqual(result, "discarded")
+        post.assert_not_awaited()
+
+
+    async def test_https_retirement_accepts_only_exact_responses(self):
+        transport = AsyncMock(side_effect=[
+            (200, {"outcome": "committed"}),
+            (200, {"outcome": "committed", "extra": True}),
+            (403, {"error": "watch_retirement_unavailable"}),
+            (403, {"outcome": "committed"}),
+            (403, {"error": "unexpected"}),
+            None,
+        ])
+        module = "custom_components.djconnect.watch_preference_client"
+        with patch(f"{module}._watch_lifecycle_https", return_value=transport) as bind:
+            post = watch_retirement_https("https://example.com/retirement")
+        bind.assert_called_once_with("https://example.com/retirement", accepted_statuses=(200, 403))
+
+        outcomes = [await post(b"body", "A" * 86) for _ in range(6)]
+        self.assertEqual(outcomes, ["committed", "unknown", "denied", "unknown", "unknown", "unknown"])
+
+    async def test_definitive_denial_does_not_send_status_request(self):
+        receiver = EnrolledWatchReceiver("lab-api", "install-a", "watch-a", "pair-a", 2, "a" * 64)
+        post = AsyncMock(return_value="denied")
+        result = await retire_watch_receiver(
+            receiver, operation="withdraw", expiry=125, require_current=lambda _: None,
+            sign_frame=AsyncMock(return_value=bytes(64)), post_signed=post, wall=lambda: 100,
+        )
+        self.assertEqual(result, "denied")
+        self.assertEqual(post.await_count, 1)

@@ -1,0 +1,337 @@
+{
+  "qualification": "local Chromium source asset imports and theme presentation only",
+  "imports": [
+    {
+      "file": "assets/djconnect/brand-v2/glass-master.png",
+      "width": 1016,
+      "height": 1016,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/headset-master.png",
+      "width": 754,
+      "height": 754,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/headset.svg",
+      "width": 1024,
+      "height": 1024,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/mark-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/mark-128.png",
+      "width": 128,
+      "height": 128,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/mark-16.png",
+      "width": 16,
+      "height": 16,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/mark-20.png",
+      "width": 20,
+      "height": 20,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/mark-24.png",
+      "width": 24,
+      "height": 24,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/mark-256.png",
+      "width": 256,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/mark-32.png",
+      "width": 32,
+      "height": 32,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/mark-40.png",
+      "width": 40,
+      "height": 40,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/mark-512.png",
+      "width": 512,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/mark-64.png",
+      "width": 64,
+      "height": 64,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/mark.svg",
+      "width": 1024,
+      "height": 1024,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/preview.png",
+      "width": 1360,
+      "height": 1560,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/wordmark-compact-dark.png",
+      "width": 1728,
+      "height": 448,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/wordmark-compact-dark.svg",
+      "width": 1728,
+      "height": 448,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/wordmark-compact-light.png",
+      "width": 1728,
+      "height": 448,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/wordmark-compact-light.svg",
+      "width": 1728,
+      "height": 448,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/wordmark-primary-dark.png",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/wordmark-primary-dark.svg",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/wordmark-primary-light.png",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/brand-v2/wordmark-primary-light.svg",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/djconnect-icon-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/djconnect-icon-256.png",
+      "width": 256,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/djconnect-icon-512.png",
+      "width": 512,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/djconnect-icon.svg",
+      "width": 1024,
+      "height": 1024,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/djconnect-logo-512x256.png",
+      "width": 512,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/djconnect-logo-dark.svg",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect/djconnect-logo.svg",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "assets/djconnect_icon.png",
+      "width": 512,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "brands/custom_integrations/djconnect/dark_logo.png",
+      "width": 1024,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "brands/custom_integrations/djconnect/dark_logo@2x.png",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "brands/custom_integrations/djconnect/icon.png",
+      "width": 256,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "brands/custom_integrations/djconnect/icon@2x.png",
+      "width": 512,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "brands/custom_integrations/djconnect/logo.png",
+      "width": 1024,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "brands/custom_integrations/djconnect/logo@2x.png",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "brands/djconnect/dark_logo.png",
+      "width": 1024,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "brands/djconnect/dark_logo@2x.png",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "brands/djconnect/icon.png",
+      "width": 256,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "brands/djconnect/icon@2x.png",
+      "width": 512,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "brands/djconnect/logo.png",
+      "width": 1024,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "brands/djconnect/logo@2x.png",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "custom_components/djconnect/brand/dark_logo.png",
+      "width": 1024,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "custom_components/djconnect/brand/dark_logo@2x.png",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "custom_components/djconnect/brand/icon.png",
+      "width": 256,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "custom_components/djconnect/brand/icon@2x.png",
+      "width": 512,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "custom_components/djconnect/brand/logo.png",
+      "width": 1024,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "custom_components/djconnect/brand/logo@2x.png",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "custom_components/djconnect/dark_logo.png",
+      "width": 1024,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "custom_components/djconnect/dark_logo@2x.png",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "custom_components/djconnect/icon.png",
+      "width": 256,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "custom_components/djconnect/icon@2x.png",
+      "width": 512,
+      "height": 512,
+      "loaded": true
+    },
+    {
+      "file": "custom_components/djconnect/logo.png",
+      "width": 1024,
+      "height": 256,
+      "loaded": true
+    },
+    {
+      "file": "custom_components/djconnect/logo@2x.png",
+      "width": 2048,
+      "height": 512,
+      "loaded": true
+    }
+  ],
+  "errors": [],
+  "screenshot_sha256": "da4ce923921435566d552d59d111d653244dd856d82bd857ac2a41b93758660c"
+}

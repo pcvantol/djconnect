@@ -1,0 +1,85 @@
+id: ESP-001
+title: ESP32 PTT voice request resolves through device identity
+description: Verify that an ESP32 push-to-talk request uses the registered DJConnect device identity and does not store personal state on the device.
+purpose: Protect the Voice & Control Client boundary for ESP32 hardware.
+owner: DJConnect Verification
+category: Hardware
+subcategory: esp32_voice_identity
+priority: P0
+risk: high
+verification_level: V5
+automation_level: SEMI_AUTOMATED
+required_components: [HA, ESP32, Voice Endpoint]
+supported_platforms: [Home Assistant, ESP32]
+required_locales: [representative]
+required_build_types: [Hardware, Release-equivalent]
+required_capabilities: [voice_supported, profiles, request_context]
+required_profiles: [mapped_personal_profile]
+required_backends: []
+required_devices: [djconnect_esp32]
+required_environment: [physical_device, local_network, configured_stt]
+preconditions:
+  - ESP32 is paired with Home Assistant and mapped to a profile.
+  - STT is configured through Home Assistant Assist.
+setup:
+  - Place ESP32 on the same local network as Home Assistant.
+  - Confirm the device reports client_type esp32 and current firmware metadata.
+steps:
+  - number: 1
+    action: Press the ESP32 push-to-talk control.
+  - number: 2
+    action: Speak a short supported voice request.
+  - number: 3
+    action: Wait for the Home Assistant response and device feedback.
+assertions:
+  backend:
+    - The request resolves through the registered ESP32 device identity.
+    - Durable personal state, if written, attaches to the resolved profile.
+  hardware:
+    - The device captures audio and receives a response without pairing loss.
+  privacy:
+    - Raw audio is not retained as verification evidence unless explicitly configured and redacted.
+expected_results:
+  machine:
+    - code: request_source
+      expected: esp32_device
+    - code: device_owns_personal_state
+      expected: false
+  human:
+    - ESP32 acts as a physical request source and does not become the owner of Music DNA or Ask DJ history.
+cleanup:
+  - Remove temporary voice evidence and reset logs for the next hardware run.
+timeouts:
+  setup_seconds: 300
+  execution_seconds: 90
+  cleanup_seconds: 120
+retry_policy:
+  mode: MANUAL_RETRY
+  max_attempts: 2
+  reason: Physical audio capture may fail due to environment noise.
+artifacts:
+  - type: serial_logs
+    required: true
+    description: Sanitized ESP32 serial output for the request.
+  - type: logs
+    required: true
+    description: Sanitized Home Assistant voice/request logs.
+  - type: audio
+    required: false
+    description: Optional short audio sample only when explicitly approved for diagnosis.
+    redaction: Do not retain raw personal speech by default.
+privacy_classification: [Internal, Contains profile data, Requires redaction]
+destructive: false
+tags: [esp32, hardware, voice, profile]
+estimated_duration: 10m
+manual_actions:
+  - description: Press PTT.
+    required: true
+  - description: Speak the verification phrase.
+    required: true
+  - description: Confirm audible or visible device feedback.
+    required: true
+future_notes:
+  - Hardware farm support may later automate button press and audio stimulus.
+version: 1
+schema_version: "1.0"

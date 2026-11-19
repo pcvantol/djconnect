@@ -1,0 +1,51 @@
+{
+  "fixture_kind": "sanitized_real_owner_response_after_SQLite_reopen",
+  "ordinary_pairing": true,
+  "no_runtime_restored": true,
+  "external_fixtures_only": true,
+  "session_media": [
+    {
+      "schema_version": 1,
+      "session_id": "session-fixture-12",
+      "entry_id": "entry-fixture-13",
+      "revision": "f28f251bb92c630813a7c883",
+      "artwork": {
+        "state": "ready",
+        "subject": {
+          "provider": "spotify",
+          "uri": "spotify:artist:CCCCCCCCCCCCCCCCCCCCCC",
+          "type": "artist"
+        },
+        "role": "contextual_artist",
+        "resolution_basis": "resolved_now",
+        "edition_basis": "not_applicable",
+        "source_url": "https://open.spotify.com/artist/CCCCCCCCCCCCCCCCCCCCCC",
+        "attribution": {
+          "provider": "Spotify",
+          "mark": "spotify",
+          "url": "https://open.spotify.com/artist/CCCCCCCCCCCCCCCCCCCCCC"
+        },
+        "usage_basis": "spotify_temporary_owner_display",
+        "captured_at": "2026-10-15T11:31:12.543335+00:00",
+        "expires_at": "2026-10-15T11:36:12.543335+00:00",
+        "current_display_allowed": false,
+        "active_flow_display_allowed": false,
+        "historical_display_allowed": true,
+        "cache_policy": "no-store",
+        "crop_allowed": false,
+        "requires_device_auth": true,
+        "width": 64,
+        "height": 64,
+        "alt_text": {
+          "en": "Artist image for Fixture artist",
+          "nl": "Artiestbeeld van Fixture artist",
+          "de": "K\u00fcnstlerbild von Fixture artist",
+          "fr": "Image de l\u2019artiste Fixture artist",
+          "es": "Imagen del artista Fixture artist"
+        },
+        "url": "/api/djconnect/v1/session/media/image/session-fixture-12/resource-fixture-14",
+        "media_revision": "f28f251bb92c630813a7c883"
+      }
+    }
+  ]
+}

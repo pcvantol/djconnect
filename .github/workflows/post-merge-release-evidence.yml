@@ -1,0 +1,268 @@
+name: Post-Merge Release Evidence
+
+on:
+  workflow_call:
+    inputs:
+      policy_source_ref:
+        description: Immutable DJConnect Core commit SHA containing this reconciliation policy.
+        required: true
+        type: string
+      coverage_artifact_name:
+        description: Exact coverage artifact name emitted by the caller's main CI.
+        required: false
+        type: string
+        default: ""
+      distribution_evidence_artifact_name:
+        description: Exact distribution-integrity artifact emitted by a distribution repository main workflow.
+        required: false
+        type: string
+        default: platform-release-distribution-integrity
+      required_main_workflow:
+        description: Main workflow whose successful run supplies post-merge evidence.
+        required: true
+        type: string
+      required_check_contexts:
+        description: JSON array of the protected main-branch checks required for merge.
+        required: true
+        type: string
+      repository_role:
+        description: Repository Ownership release role.
+        required: true
+        type: string
+      durable_evidence_release_tag_prefix:
+        description: Repository-scoped prerelease tag prefix for append-only durable evidence.
+        required: false
+        type: string
+        default: internal-ha
+
+permissions:
+  actions: read
+  checks: read
+  contents: write
+  pull-requests: read
+  statuses: write
+
+jobs:
+  reconcile:
+    name: Reconcile release evidence
+    if: >-
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - id: canonical-source
+        name: Resolve canonical policy repository by immutable ID
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const result = await github.request("GET /repositories/{repository_id}", {repository_id: 1258575431});
+            const repo = result.data;
+            if (repo.id !== 1258575431 || repo.private !== false || !["pcvantol/djconnect", "djconnect-music-dj/djconnect"].includes(repo.full_name)) throw new Error("Unexpected canonical policy repository identity");
+            core.setOutput("repository", repo.full_name);
+
+      - name: Check out immutable reconciliation policy source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          repository: ${{ steps.canonical-source.outputs.repository }}
+          # github.workflow_sha resolves to the caller in a reusable workflow.
+          # The caller therefore supplies the same immutable central SHA it
+          # pins in `uses:`; never infer a central ref from caller context.
+          ref: ${{ inputs.policy_source_ref }}
+          path: reconciliation-policy
+
+      - id: collect
+        name: Read back merge provenance and exact-SHA evidence
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          COVERAGE_ARTIFACT: ${{ inputs.coverage_artifact_name }}
+          DISTRIBUTION_EVIDENCE_ARTIFACT: ${{ inputs.distribution_evidence_artifact_name }}
+          REQUIRED_MAIN_WORKFLOW: ${{ inputs.required_main_workflow }}
+          REQUIRED_CHECK_CONTEXTS: ${{ inputs.required_check_contexts }}
+          REPOSITORY_ROLE: ${{ inputs.repository_role }}
+          MAIN_SHA: ${{ github.event.workflow_run.head_sha }}
+        with:
+          script: |
+            const fs = require("fs");
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const mainSha = process.env.MAIN_SHA;
+            const repositoryRole = process.env.REPOSITORY_ROLE;
+            if (!["active_source", "release_source", "distribution"].includes(repositoryRole)) {
+              throw new Error("repository_role is invalid");
+            }
+            // BEGIN exact commit-file pagination: static metadata repeats per page.
+            async function collectCommitFiles(getCommit, owner, repo, sha) {
+              const files = [];
+              const names = new Set();
+              let commit = null;
+              for (let page = 1; page <= 30; page++) {
+                const response = await getCommit({owner, repo, ref: sha, per_page: 100, page});
+                const data = response.data;
+                if (data?.sha !== sha || !Array.isArray(data.parents) || !Array.isArray(data.files)) {
+                  throw new Error("Commit file provenance is incomplete or bound to another SHA");
+                }
+                if (commit && JSON.stringify(data.parents) !== JSON.stringify(commit.data.parents)) {
+                  throw new Error("Commit parent provenance changed across pages");
+                }
+                if (!commit) commit = response;
+                for (const file of data.files) {
+                  if (typeof file.filename !== "string" || !file.filename || names.has(file.filename)) {
+                    throw new Error("Commit file provenance has an invalid or repeated path");
+                  }
+                  names.add(file.filename);
+                  files.push(file);
+                }
+                // GitHub caps this endpoint at 3000 files. At that boundary
+                // complete coverage cannot be established, even without a next link.
+                if (files.length >= 3000) throw new Error("Commit diff reaches the API file cap");
+                const next = /(?:^|,)\s*<[^>]+>;\s*rel="next"/.test(response.headers?.link || "");
+                if (!next) return {commit, files};
+                if (data.files.length === 0) throw new Error("Empty commit page has a next link");
+              }
+              throw new Error("Commit pagination exceeded its qualified bound");
+            }
+            const {commit, files: commitFiles} = await collectCommitFiles(
+              options => github.rest.repos.getCommit(options), owner, repo, mainSha);
+            // END exact commit-file pagination.
+            const associated = await github.rest.repos.listPullRequestsAssociatedWithCommit({owner, repo, commit_sha: mainSha});
+            const candidates = associated.data.filter(pr => pr.merged_at && pr.base.ref === "main" && pr.merge_commit_sha === mainSha);
+            const pr = candidates.length === 1 ? await github.rest.pulls.get({owner, repo, pull_number: candidates[0].number}) : null;
+            const prFiles = pr ? await github.paginate(github.rest.pulls.listFiles, {owner, repo, pull_number: pr.data.number, per_page: 100}) : [];
+            const prContexts = pr ? await github.graphql(`query($owner:String!,$repo:String!,$sha:GitObjectID!){repository(owner:$owner,name:$repo){object(oid:$sha){... on Commit {statusCheckRollup {contexts(first:100){nodes{__typename ... on CheckRun{name status conclusion} ... on StatusContext{context state description}}}}}}}}`, {owner, repo, sha: pr.data.head.sha}) : null;
+            const contextNodes = prContexts?.repository?.object?.statusCheckRollup?.contexts?.nodes || [];
+            const checkPass = name => contextNodes.some(item => item.__typename === "CheckRun" && item.name === name && item.status === "COMPLETED" && item.conclusion === "SUCCESS");
+            let requiredContexts;
+            try {
+              const configuredContexts = JSON.parse(process.env.REQUIRED_CHECK_CONTEXTS);
+              if (!Array.isArray(configuredContexts) || configuredContexts.length === 0 || !configuredContexts.every(item => typeof item === "string" && item)) {
+                throw new Error("required_check_contexts must be a non-empty JSON array of strings");
+              }
+              requiredContexts = new Set(configuredContexts);
+            } catch (error) {
+              throw new Error(`required_check_contexts is invalid: ${error.message}`);
+            }
+            const requiredCheckPass = name => contextNodes.some(item =>
+              (item.__typename === "CheckRun" && item.name === name && item.status === "COMPLETED" && item.conclusion === "SUCCESS") ||
+              (item.__typename === "StatusContext" && item.context === name && item.state === "SUCCESS")
+            );
+            const ownerStatus = contextNodes.find(item => item.__typename === "StatusContext" && item.context === "Owner Authorization");
+            const risk = ownerStatus?.description?.startsWith("HIGH_RISK") ? "HIGH_RISK" : "NORMAL_RISK";
+            // GitHub's status-filtered run index can omit a completed run that
+            // the unfiltered head-SHA index and direct run endpoint both return.
+            // Filter locally; never accept an unfinished, wrong-SHA or failed run.
+            function selectCompletedMainRun(runs, requiredName, expectedSha) {
+              return runs.find(run => run.name === requiredName && run.head_sha === expectedSha &&
+                run.status === "completed" && run.conclusion === "success");
+            }
+            const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {owner, repo, head_sha: mainSha, per_page: 100});
+            const mainRun = selectCompletedMainRun(runs, process.env.REQUIRED_MAIN_WORKFLOW, mainSha);
+            const artifacts = mainRun ? await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {owner, repo, run_id: mainRun.id, per_page: 100}) : [];
+            const coverage = artifacts.find(item => item.name === process.env.COVERAGE_ARTIFACT);
+            const distributionEvidence = artifacts.find(item => item.name === process.env.DISTRIBUTION_EVIDENCE_ARTIFACT);
+            const okMain = Boolean(mainRun);
+            const postMerge = repositoryRole === "distribution"
+              ? {sha: mainSha, ci: okMain ? "PASS" : "FAIL", distribution_integrity: distributionEvidence ? "PASS" : "FAIL", metadata_validation: distributionEvidence ? "PASS" : "FAIL", governance: okMain ? "PASS" : "FAIL", distribution_artifact_sha: distributionEvidence?.digest || null, workflow_run_ids: mainRun ? [String(mainRun.id)] : []}
+              : {sha: mainSha, ci: okMain ? "PASS" : "FAIL", tests: okMain ? "PASS" : "FAIL", lint: okMain ? "PASS" : "FAIL", static_analysis: okMain ? "PASS" : "FAIL", build_validation: okMain ? "PASS" : "FAIL", governance: okMain ? "PASS" : "FAIL", coverage: coverage ? "PASS" : "FAIL", coverage_report_sha: coverage ? mainSha : null, coverage_artifact_sha: coverage?.digest || null, workflow_run_ids: mainRun ? [String(mainRun.id)] : []};
+            const request = {
+              repository: `${owner}/${repo}`, repository_role: process.env.REPOSITORY_ROLE, main_sha: mainSha, main_parents: commit.data.parents.map(parent => parent.sha), timestamp: new Date().toISOString(),
+              originating_pr: pr ? {number: pr.data.number, state: pr.data.merged ? "MERGED" : "OPEN", base_ref: pr.data.base.ref, head_sha: pr.data.head.sha, merge_commit_sha: pr.data.merge_commit_sha, merge_strategy: pr.data.merge_commit_sha === mainSha && commit.data.parents.length === 1 ? "SQUASH" : "MERGE", merge_actor: pr.data.merged_by?.login, merged_at: pr.data.merged_at, changed_files: prFiles.map(file => file.filename), main_changed_files: commitFiles.map(file => file.filename)} : null,
+              pre_merge: pr ? {candidate_sha: pr.data.head.sha, risk_classification: risk, owner_authorization: risk === "HIGH_RISK" ? (ownerStatus?.state === "SUCCESS" ? "PASS" : "FAIL") : "PASS", verification: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", software_assurance: checkPass("Software Assurance governance / Validate canonical governance policy") ? "PASS" : "FAIL", trusted_delivery: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", workflow_integrity: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", required_checks: requiredContexts.size > 0 && [...requiredContexts].every(requiredCheckPass) ? "PASS" : "FAIL"} : null,
+              post_merge: postMerge
+            };
+            fs.writeFileSync("reconciliation-request.json", JSON.stringify(request));
+
+      - name: Produce canonical immutable evidence
+        working-directory: reconciliation-policy
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from tools.trusted_delivery.post_merge_reconciliation import reconcile
+          evidence = reconcile(json.loads(Path("../reconciliation-request.json").read_text()))
+          Path("../post-merge-release-evidence.json").write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n")
+          print(evidence["decision"])
+          PY
+
+      - name: Produce redacted durable qualification evidence
+        working-directory: reconciliation-policy
+        env:
+          POLICY_SOURCE_REVISION: ${{ inputs.policy_source_ref }}
+          PRODUCER_RUN_ID: ${{ github.run_id }}
+          DURABLE_EVIDENCE_RELEASE_TAG_PREFIX: ${{ inputs.durable_evidence_release_tag_prefix }}
+        run: |
+          python - <<'PY'
+          from datetime import UTC, datetime
+          import json
+          import os
+          from pathlib import Path
+          from tools.trusted_delivery.evidence_preservation import build_record, validate_record
+
+          source = json.loads(Path("../post-merge-release-evidence.json").read_text())
+          timestamp = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+          record = build_record(
+              source,
+              policy_source_revision=os.environ["POLICY_SOURCE_REVISION"],
+              timestamp=timestamp,
+              workflow_run_id=os.environ["PRODUCER_RUN_ID"],
+              release_tag_prefix=os.environ["DURABLE_EVIDENCE_RELEASE_TAG_PREFIX"],
+          )
+          findings = validate_record(record)
+          if findings:
+              raise SystemExit("durable evidence validation failed: " + "; ".join(findings))
+          Path("../durable-qualification-evidence.json").write_text(
+              json.dumps(record, indent=2, sort_keys=True) + "\n"
+          )
+          PY
+
+      - name: Publish append-only durable qualification evidence
+        env:
+          CANDIDATE_SHA: ${{ github.event.workflow_run.head_sha }}
+          DURABLE_EVIDENCE_RELEASE_TAG_PREFIX: ${{ inputs.durable_evidence_release_tag_prefix }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PYTHONPATH: reconciliation-policy
+        run: |
+          set -euo pipefail
+          printf '%s' "$DURABLE_EVIDENCE_RELEASE_TAG_PREFIX" | grep -Eq '^[a-z0-9]+(-[a-z0-9]+)*$'
+          tag="${DURABLE_EVIDENCE_RELEASE_TAG_PREFIX}-${CANDIDATE_SHA}"
+          asset="qualification-evidence-${CANDIDATE_SHA}.json"
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            gh release create "$tag" --target "$CANDIDATE_SHA" --title "DJConnect internal qualification evidence ${CANDIDATE_SHA}" --prerelease --notes "Append-only durable qualification evidence." || gh release view "$tag" >/dev/null
+          fi
+          test "$(gh release view "$tag" --json targetCommitish --jq .targetCommitish)" = "$CANDIDATE_SHA"
+          if gh release view "$tag" --json assets --jq '.assets[].name' | grep -Fx "$asset"; then
+            echo "durable evidence collision: existing record will not be overwritten" >&2
+            exit 1
+          fi
+          cp durable-qualification-evidence.json "$asset"
+          gh release upload "$tag" "$asset"
+          mkdir durable-evidence-readback
+          gh release download "$tag" --pattern "$asset" --dir durable-evidence-readback
+          cmp durable-qualification-evidence.json "durable-evidence-readback/$asset"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from tools.trusted_delivery.evidence_preservation import validate_record
+          path = Path("durable-evidence-readback") / f"qualification-evidence-{os.environ['CANDIDATE_SHA']}.json"
+          record = json.loads(path.read_text())
+          findings = validate_record(record)
+          if findings:
+              raise SystemExit("published durable evidence validation failed: " + "; ".join(findings))
+          PY
+
+      - name: Publish exact-main-SHA reconciliation status
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const evidence = require(`${process.env.GITHUB_WORKSPACE}/post-merge-release-evidence.json`);
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner, repo: context.repo.repo, sha: evidence.main_sha, context: "Post-Merge Release Evidence / Reconcile release evidence", state: evidence.decision === "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED" ? "success" : "failure", description: evidence.decision, target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`});
+
+      - name: Upload immutable reconciliation evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: post-merge-release-evidence
+          path: post-merge-release-evidence.json
+          if-no-files-found: error

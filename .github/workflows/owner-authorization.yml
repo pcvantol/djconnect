@@ -1,0 +1,201 @@
+name: Owner Authorization
+
+on:
+  workflow_call:
+    inputs:
+      repository:
+        required: true
+        type: string
+      pr_number:
+        required: true
+        type: string
+      candidate_sha:
+        required: true
+        type: string
+      branch:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: Exact repository in owner/name form.
+        required: true
+        type: string
+      pr_number:
+        description: Exact pull request number.
+        required: true
+        type: string
+      candidate_sha:
+        description: Exact current pull-request SHA.
+        required: true
+        type: string
+      branch:
+        description: Target branch.
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+  statuses: write
+
+jobs:
+  authorize:
+    name: Authorize exact HIGH_RISK candidate
+    runs-on: ubuntu-latest
+    steps:
+      - id: target
+        name: Validate selected platform repository
+        env:
+          TARGET_REPOSITORY: ${{ inputs.repository }}
+        run: |
+          case "$TARGET_REPOSITORY" in
+            djconnect-music-dj/djconnect)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect" >> "$GITHUB_OUTPUT"
+              ;;
+            djconnect-music-dj/djconnect-windows)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-windows" >> "$GITHUB_OUTPUT"
+              ;;
+            djconnect-music-dj/djconnect-api)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-api" >> "$GITHUB_OUTPUT"
+              ;;
+            djconnect-music-dj/djconnect-pico)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-pico" >> "$GITHUB_OUTPUT"
+              ;;
+            djconnect-music-dj/djconnect-pi)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-pi" >> "$GITHUB_OUTPUT"
+              ;;
+            djconnect-music-dj/djconnect-esp32)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-esp32" >> "$GITHUB_OUTPUT"
+              ;;
+            djconnect-music-dj/djconnect-firmware)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-firmware" >> "$GITHUB_OUTPUT"
+              ;;
+            djconnect-music-dj/djconnect-website)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-website" >> "$GITHUB_OUTPUT"
+              ;;
+            djconnect-music-dj/djconnect-app)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-app" >> "$GITHUB_OUTPUT"
+              ;;
+            djconnect-music-dj/djconnect-app-releases)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-app-releases" >> "$GITHUB_OUTPUT"
+              ;;
+            djconnect-music-dj/djconnect-pi-releases)
+              echo "repository_owner=djconnect-music-dj" >> "$GITHUB_OUTPUT"
+              echo "repository_name=djconnect-pi-releases" >> "$GITHUB_OUTPUT"
+              ;;
+            pcvantol/djconnect|pcvantol/djconnect-api|pcvantol/djconnect-app|pcvantol/djconnect-app-releases|pcvantol/djconnect-esp32|pcvantol/djconnect-firmware|pcvantol/djconnect-pi|pcvantol/djconnect-pi-releases|pcvantol/djconnect-website|pcvantol/djconnect-windows)
+              echo "repository_owner=pcvantol" >> "$GITHUB_OUTPUT"
+              echo "repository_name=${TARGET_REPOSITORY#pcvantol/}" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Repository is not in the selected DJConnect Trusted Delivery installation: $TARGET_REPOSITORY" >&2
+              exit 1
+              ;;
+          esac
+      - id: app-token
+        if: github.repository_id == '1258575431' && (github.repository == 'pcvantol/djconnect' || github.repository == 'djconnect-music-dj/djconnect') && steps.target.outputs.repository_owner == 'pcvantol'
+        name: Mint scoped central authorization token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ vars.DJCONNECT_TRUSTED_DELIVERY_APP_ID }}
+          private-key: ${{ secrets.DJCONNECT_TRUSTED_DELIVERY_PRIVATE_KEY }}
+          owner: pcvantol
+          repositories: ${{ steps.target.outputs.repository_name }}
+      - id: org-app-token
+        if: github.repository_id == '1258575431' && (github.repository == 'pcvantol/djconnect' || github.repository == 'djconnect-music-dj/djconnect') && steps.target.outputs.repository_owner == 'djconnect-music-dj'
+        name: Mint scoped organization authorization token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: '5695866'
+          private-key: ${{ secrets.DJCONNECT_ORG_OWNER_AUTHORIZATION_PRIVATE_KEY }}
+          owner: djconnect-music-dj
+          repositories: ${{ steps.target.outputs.repository_name }}
+      - name: Collect Trusted Delivery authorization request
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          OWNER_LOGIN: pcvantol
+          TARGET_BRANCH: ${{ inputs.branch }}
+          TARGET_REPOSITORY: ${{ inputs.repository }}
+          TARGET_SHA: ${{ inputs.candidate_sha }}
+          TARGET_PR: ${{ inputs.pr_number }}
+        with:
+          github-token: ${{ steps.org-app-token.outputs.token || steps.app-token.outputs.token || github.token }}
+          script: |
+            const fs = require("fs");
+            const [targetOwner, targetRepo] = process.env.TARGET_REPOSITORY.split("/");
+            if (!targetOwner || !targetRepo) throw new Error("repository must use owner/name form");
+            const centralDispatch = process.env.GITHUB_REPOSITORY_ID === "1258575431" && context.repo.repo === "djconnect" && ["pcvantol", "djconnect-music-dj"].includes(context.repo.owner);
+            if (!centralDispatch && process.env.TARGET_REPOSITORY !== process.env.GITHUB_REPOSITORY) throw new Error("reusable authorization may only target its caller repository");
+            if (!/^[0-9a-f]{40}$/.test(process.env.TARGET_SHA)) throw new Error("candidate_sha must be a full SHA");
+            if (context.actor !== process.env.OWNER_LOGIN) throw new Error("GitHub actor is not the configured repository owner");
+            const pr = await github.rest.pulls.get({owner: targetOwner, repo: targetRepo, pull_number: Number(process.env.TARGET_PR)});
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect" && pr.data.base.repo.id !== 1258575431) throw new Error("target Core repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-api" && pr.data.base.repo.id !== 1275206655) throw new Error("target API repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-windows" && pr.data.base.repo.id !== 1278888172) throw new Error("target Windows repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-pi" && pr.data.base.repo.id !== 1267248532) throw new Error("target Pi repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-firmware" && pr.data.base.repo.id !== 1258610489) throw new Error("target Firmware repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-pi-releases" && pr.data.base.repo.id !== 1267500969) throw new Error("target Pi Releases repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-app" && pr.data.base.repo.id !== 1264041589) throw new Error("target Apple source repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-app-releases" && pr.data.base.repo.id !== 1265963920) throw new Error("target App Releases repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-esp32" && pr.data.base.repo.id !== 1258611332) throw new Error("target ESP32 repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-pico" && pr.data.base.repo.id !== 1315212123) throw new Error("target Pico repository ID does not match");
+            if (process.env.TARGET_REPOSITORY === "djconnect-music-dj/djconnect-website" && pr.data.base.repo.id !== 1265889311) throw new Error("target website repository ID does not match");
+            if (pr.data.base.ref !== process.env.TARGET_BRANCH || pr.data.head.sha !== process.env.TARGET_SHA) throw new Error("branch or candidate SHA does not match the current pull request");
+            const statuses = await github.rest.repos.listCommitStatusesForRef({owner: targetOwner, repo: targetRepo, ref: process.env.TARGET_SHA});
+            const ownerStatus = statuses.data
+              .filter(status => status.context === "Owner Authorization")
+              .sort((left, right) => right.id - left.id)[0];
+            const authorizationClass = ownerStatus?.creator?.id === 41898282 && ownerStatus.state === "failure" && ownerStatus.description === "HIGH_RISK authorization required for this exact SHA" ? "HIGH_RISK" : ownerStatus?.creator?.id === 41898282 && ownerStatus.state === "success" && ownerStatus.description === "Not required for LOW_RISK or NORMAL_RISK" ? "LOW_OR_NORMAL_RISK" : null;
+            if (!authorizationClass) throw new Error("Trusted Delivery did not publish an eligible exact-SHA authorization status");
+            const rollup = await github.graphql(`
+              query($owner: String!, $repo: String!, $sha: String!) {
+                repository(owner: $owner, name: $repo) {
+                  object(expression: $sha) {
+                    ... on Commit {
+                      statusCheckRollup {
+                        contexts(first: 100) {
+                          nodes {
+                            __typename
+                            ... on CheckRun { name status conclusion }
+                            ... on StatusContext { context state }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `, {owner: targetOwner, repo: targetRepo, sha: process.env.TARGET_SHA});
+            const contexts = rollup.repository.object?.statusCheckRollup?.contexts?.nodes || [];
+            const trustedDelivery = contexts.find(context => context.__typename === "CheckRun" && context.name === "Trusted Delivery qualification / Qualify trusted delivery");
+            if (!trustedDelivery || trustedDelivery.status !== "COMPLETED" || trustedDelivery.conclusion !== "SUCCESS") throw new Error("Trusted Delivery technical qualification is not PASS");
+            fs.writeFileSync("owner-authorization-evidence.json", JSON.stringify({schema_version: 1, kind: "trusted_delivery_owner_authorization", repository: process.env.TARGET_REPOSITORY, branch: process.env.TARGET_BRANCH, pr_number: Number(process.env.TARGET_PR), candidate_sha: process.env.TARGET_SHA, classification: authorizationClass, owner: process.env.OWNER_LOGIN, github_actor: context.actor, workflow_run_id: String(context.runId), timestamp: new Date().toISOString(), result: "PASS"}, null, 2));
+      - name: Publish Owner Authorization status
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          TARGET_REPOSITORY: ${{ inputs.repository }}
+          TARGET_SHA: ${{ inputs.candidate_sha }}
+        with:
+          github-token: ${{ steps.org-app-token.outputs.token || steps.app-token.outputs.token || github.token }}
+          script: |
+            const [targetOwner, targetRepo] = process.env.TARGET_REPOSITORY.split("/");
+            const evidence = JSON.parse(require("fs").readFileSync("owner-authorization-evidence.json", "utf8"));
+            const description = evidence.classification === "HIGH_RISK" ? "HIGH_RISK authorized for this exact SHA" : "LOW/NORMAL risk verified for this exact SHA";
+            await github.rest.repos.createCommitStatus({owner: targetOwner, repo: targetRepo, sha: process.env.TARGET_SHA, context: "Owner Authorization", state: "success", description, target_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`});
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: trusted-delivery-owner-authorization-evidence
+          path: owner-authorization-evidence.json
+          if-no-files-found: error

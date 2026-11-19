@@ -1,0 +1,1841 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Core original host wake operation wire v3 candidate DATA only",
+  "$defs": {
+    "requests": {
+      "prepare": {
+        "type": "object",
+        "properties": {
+          "contract_version": {
+            "const": 1
+          },
+          "device_id": {
+            "type": "string",
+            "pattern": "^djconnect-ios-[A-Za-z0-9]{12}$"
+          },
+          "client_type": {
+            "const": "ios"
+          },
+          "session_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "target": {
+            "type": "object",
+            "properties": {
+              "host_bundle_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)+$",
+                "maxLength": 200
+              },
+              "installation_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,128}$"
+              }
+            },
+            "required": [
+              "host_bundle_id",
+              "installation_id"
+            ],
+            "additionalProperties": false
+          },
+          "platform": {
+            "enum": [
+              "ios",
+              "ipados"
+            ]
+          },
+          "apns_environment": {
+            "enum": [
+              "sandbox",
+              "production"
+            ]
+          },
+          "native_key_id_b64": {
+            "type": "string",
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "maxLength": 1368
+          },
+          "native_token_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "contract_version",
+          "device_id",
+          "client_type",
+          "session_id",
+          "surface",
+          "purpose_id",
+          "operation_id",
+          "target",
+          "platform",
+          "apns_environment",
+          "native_key_id_b64",
+          "native_token_sha256"
+        ],
+        "additionalProperties": false
+      },
+      "native/challenge": {
+        "type": "object",
+        "properties": {
+          "contract_version": {
+            "const": 1
+          },
+          "device_id": {
+            "type": "string",
+            "pattern": "^djconnect-ios-[A-Za-z0-9]{12}$"
+          },
+          "client_type": {
+            "const": "ios"
+          },
+          "session_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          }
+        },
+        "required": [
+          "contract_version",
+          "device_id",
+          "client_type",
+          "session_id",
+          "surface",
+          "purpose_id",
+          "operation_id"
+        ],
+        "additionalProperties": false
+      },
+      "native/complete": {
+        "type": "object",
+        "properties": {
+          "contract_version": {
+            "const": 1
+          },
+          "device_id": {
+            "type": "string",
+            "pattern": "^djconnect-ios-[A-Za-z0-9]{12}$"
+          },
+          "client_type": {
+            "const": "ios"
+          },
+          "session_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "challenge_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "native_proof": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "app_attest_attestation",
+                  "app_attest_assertion"
+                ]
+              },
+              "bytes_b64": {
+                "type": "string",
+                "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+                "maxLength": 12288
+              }
+            },
+            "required": [
+              "kind",
+              "bytes_b64"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "contract_version",
+          "device_id",
+          "client_type",
+          "session_id",
+          "surface",
+          "purpose_id",
+          "operation_id",
+          "challenge_id",
+          "native_proof"
+        ],
+        "additionalProperties": false
+      },
+      "native/status": {
+        "type": "object",
+        "properties": {
+          "contract_version": {
+            "const": 1
+          },
+          "device_id": {
+            "type": "string",
+            "pattern": "^djconnect-ios-[A-Za-z0-9]{12}$"
+          },
+          "client_type": {
+            "const": "ios"
+          },
+          "session_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "challenge_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          }
+        },
+        "required": [
+          "contract_version",
+          "device_id",
+          "client_type",
+          "session_id",
+          "surface",
+          "purpose_id",
+          "operation_id",
+          "challenge_id"
+        ],
+        "additionalProperties": false
+      },
+      "register": {
+        "type": "object",
+        "properties": {
+          "contract_version": {
+            "const": 1
+          },
+          "device_id": {
+            "type": "string",
+            "pattern": "^djconnect-ios-[A-Za-z0-9]{12}$"
+          },
+          "client_type": {
+            "const": "ios"
+          },
+          "session_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "challenge_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "native_token_b64": {
+            "type": "string",
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "maxLength": 2732
+          }
+        },
+        "required": [
+          "contract_version",
+          "device_id",
+          "client_type",
+          "session_id",
+          "surface",
+          "purpose_id",
+          "operation_id",
+          "challenge_id",
+          "native_token_b64"
+        ],
+        "additionalProperties": false
+      },
+      "status": {
+        "type": "object",
+        "properties": {
+          "contract_version": {
+            "const": 1
+          },
+          "device_id": {
+            "type": "string",
+            "pattern": "^djconnect-ios-[A-Za-z0-9]{12}$"
+          },
+          "client_type": {
+            "const": "ios"
+          },
+          "session_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          }
+        },
+        "required": [
+          "contract_version",
+          "device_id",
+          "client_type",
+          "session_id",
+          "surface",
+          "purpose_id",
+          "operation_id"
+        ],
+        "additionalProperties": false
+      },
+      "withdraw": {
+        "type": "object",
+        "properties": {
+          "contract_version": {
+            "const": 1
+          },
+          "device_id": {
+            "type": "string",
+            "pattern": "^djconnect-ios-[A-Za-z0-9]{12}$"
+          },
+          "client_type": {
+            "const": "ios"
+          },
+          "session_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          }
+        },
+        "required": [
+          "contract_version",
+          "device_id",
+          "client_type",
+          "session_id",
+          "surface",
+          "purpose_id",
+          "operation_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "success_replies": {
+      "prepare": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "contract_version": {
+            "const": 1
+          },
+          "profile_id": {
+            "const": "djconnect-direct-rich-host-wake-v1"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "request_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "generation": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 256
+          },
+          "original_wake_issued_at_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "original_wake_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "original_display_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "state": {
+            "const": "prepared"
+          },
+          "original": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "const": "djc-host-app-wake-native/1"
+              },
+              "core_purpose_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,128}$"
+              },
+              "operation_id": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+              },
+              "generation": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,128}$"
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 256
+              },
+              "token_role": {
+                "const": "host_app_wake"
+              },
+              "target": {
+                "type": "object",
+                "properties": {
+                  "host_bundle_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)+$",
+                    "maxLength": 200
+                  },
+                  "installation_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                  }
+                },
+                "required": [
+                  "host_bundle_id",
+                  "installation_id"
+                ],
+                "additionalProperties": false
+              },
+              "platform": {
+                "enum": [
+                  "ios",
+                  "ipados"
+                ]
+              },
+              "apns_environment": {
+                "enum": [
+                  "sandbox",
+                  "production"
+                ]
+              },
+              "native_key_id_b64": {
+                "type": "string",
+                "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+                "maxLength": 1368
+              },
+              "original_wake_issued_at_ms": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "original_wake_expires_at_ms": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "original_display_expires_at_ms": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "paired_subject_binding_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "owner_binding": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "device_binding": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "source_binding": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "selected_ha_origin_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "identity_policy_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "deployment_policy_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "native_token_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "version",
+              "core_purpose_id",
+              "operation_id",
+              "generation",
+              "revision",
+              "token_role",
+              "target",
+              "platform",
+              "apns_environment",
+              "native_key_id_b64",
+              "original_wake_issued_at_ms",
+              "original_wake_expires_at_ms",
+              "original_display_expires_at_ms",
+              "paired_subject_binding_sha256",
+              "owner_binding",
+              "device_binding",
+              "source_binding",
+              "selected_ha_origin_sha256",
+              "identity_policy_sha256",
+              "deployment_policy_sha256",
+              "native_token_sha256"
+            ],
+            "additionalProperties": false
+          },
+          "native_proof_kind": {
+            "enum": [
+              "app_attest_attestation",
+              "app_attest_assertion"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "contract_version",
+          "profile_id",
+          "operation_id",
+          "request_sha256",
+          "purpose_id",
+          "surface",
+          "generation",
+          "revision",
+          "original_wake_issued_at_ms",
+          "original_wake_expires_at_ms",
+          "original_display_expires_at_ms",
+          "state",
+          "original",
+          "native_proof_kind"
+        ],
+        "additionalProperties": false
+      },
+      "native/challenge": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "contract_version": {
+            "const": 1
+          },
+          "profile_id": {
+            "const": "djconnect-direct-rich-host-wake-v1"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "request_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "generation": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 256
+          },
+          "original_wake_issued_at_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "original_wake_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "original_display_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "state": {
+            "const": "pending"
+          },
+          "original": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "const": "djc-host-app-wake-native/1"
+              },
+              "core_purpose_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,128}$"
+              },
+              "operation_id": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+              },
+              "generation": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,128}$"
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 256
+              },
+              "token_role": {
+                "const": "host_app_wake"
+              },
+              "target": {
+                "type": "object",
+                "properties": {
+                  "host_bundle_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)+$",
+                    "maxLength": 200
+                  },
+                  "installation_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                  }
+                },
+                "required": [
+                  "host_bundle_id",
+                  "installation_id"
+                ],
+                "additionalProperties": false
+              },
+              "platform": {
+                "enum": [
+                  "ios",
+                  "ipados"
+                ]
+              },
+              "apns_environment": {
+                "enum": [
+                  "sandbox",
+                  "production"
+                ]
+              },
+              "native_key_id_b64": {
+                "type": "string",
+                "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+                "maxLength": 1368
+              },
+              "original_wake_issued_at_ms": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "original_wake_expires_at_ms": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "original_display_expires_at_ms": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              },
+              "paired_subject_binding_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "owner_binding": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "device_binding": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "source_binding": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "selected_ha_origin_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "identity_policy_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "deployment_policy_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "native_token_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "version",
+              "core_purpose_id",
+              "operation_id",
+              "generation",
+              "revision",
+              "token_role",
+              "target",
+              "platform",
+              "apns_environment",
+              "native_key_id_b64",
+              "original_wake_issued_at_ms",
+              "original_wake_expires_at_ms",
+              "original_display_expires_at_ms",
+              "paired_subject_binding_sha256",
+              "owner_binding",
+              "device_binding",
+              "source_binding",
+              "selected_ha_origin_sha256",
+              "identity_policy_sha256",
+              "deployment_policy_sha256",
+              "native_token_sha256"
+            ],
+            "additionalProperties": false
+          },
+          "native_proof_kind": {
+            "enum": [
+              "app_attest_attestation",
+              "app_attest_assertion"
+            ]
+          },
+          "challenge": {
+            "type": "object",
+            "properties": {
+              "challenge_id": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+              },
+              "nonce_b64url": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{43}$"
+              },
+              "captured_at_ms": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "expires_at_ms": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "challenge_id",
+              "nonce_b64url",
+              "captured_at_ms",
+              "expires_at_ms"
+            ],
+            "additionalProperties": false
+          },
+          "canonical_transcript_utf8": {
+            "type": "string",
+            "maxLength": 8192
+          },
+          "client_data_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "success",
+          "contract_version",
+          "profile_id",
+          "operation_id",
+          "request_sha256",
+          "purpose_id",
+          "surface",
+          "generation",
+          "revision",
+          "original_wake_issued_at_ms",
+          "original_wake_expires_at_ms",
+          "original_display_expires_at_ms",
+          "state",
+          "original",
+          "native_proof_kind",
+          "challenge",
+          "canonical_transcript_utf8",
+          "client_data_sha256"
+        ],
+        "additionalProperties": false
+      },
+      "native/complete": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "contract_version": {
+            "const": 1
+          },
+          "profile_id": {
+            "const": "djconnect-direct-rich-host-wake-v1"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "request_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "generation": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 256
+          },
+          "original_wake_issued_at_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "original_wake_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "original_display_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "native_verified",
+              "withdrawn",
+              "expired",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "contract_version",
+          "profile_id",
+          "operation_id",
+          "request_sha256",
+          "purpose_id",
+          "surface",
+          "generation",
+          "revision",
+          "original_wake_issued_at_ms",
+          "original_wake_expires_at_ms",
+          "original_display_expires_at_ms",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "native/status": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "contract_version": {
+            "const": 1
+          },
+          "profile_id": {
+            "const": "djconnect-direct-rich-host-wake-v1"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "request_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "generation": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 256
+          },
+          "original_wake_issued_at_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "original_wake_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "original_display_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "native_verified",
+              "withdrawn",
+              "expired",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "contract_version",
+          "profile_id",
+          "operation_id",
+          "request_sha256",
+          "purpose_id",
+          "surface",
+          "generation",
+          "revision",
+          "original_wake_issued_at_ms",
+          "original_wake_expires_at_ms",
+          "original_display_expires_at_ms",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "register": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "contract_version": {
+            "const": 1
+          },
+          "profile_id": {
+            "const": "djconnect-direct-rich-host-wake-v1"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "request_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "generation": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 256
+          },
+          "original_wake_issued_at_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "original_wake_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "original_display_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "registered",
+              "withdrawn",
+              "expired",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "contract_version",
+          "profile_id",
+          "operation_id",
+          "request_sha256",
+          "purpose_id",
+          "surface",
+          "generation",
+          "revision",
+          "original_wake_issued_at_ms",
+          "original_wake_expires_at_ms",
+          "original_display_expires_at_ms",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "status": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "contract_version": {
+            "const": 1
+          },
+          "profile_id": {
+            "const": "djconnect-direct-rich-host-wake-v1"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "request_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "generation": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 256
+          },
+          "original_wake_issued_at_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "original_wake_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "original_display_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "registered",
+              "withdrawn",
+              "expired",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "contract_version",
+          "profile_id",
+          "operation_id",
+          "request_sha256",
+          "purpose_id",
+          "surface",
+          "generation",
+          "revision",
+          "original_wake_issued_at_ms",
+          "original_wake_expires_at_ms",
+          "original_display_expires_at_ms",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "withdraw": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "const": true
+          },
+          "contract_version": {
+            "const": 1
+          },
+          "profile_id": {
+            "const": "djconnect-direct-rich-host-wake-v1"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "request_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "purpose_id": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+          },
+          "surface": {
+            "enum": [
+              "widget",
+              "live_activity"
+            ]
+          },
+          "generation": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 256
+          },
+          "original_wake_issued_at_ms": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "original_wake_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "original_display_expires_at_ms": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "state": {
+            "enum": [
+              "pending",
+              "withdrawn",
+              "expired",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "success",
+          "contract_version",
+          "profile_id",
+          "operation_id",
+          "request_sha256",
+          "purpose_id",
+          "surface",
+          "generation",
+          "revision",
+          "original_wake_issued_at_ms",
+          "original_wake_expires_at_ms",
+          "original_display_expires_at_ms",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "const": false
+        },
+        "contract_version": {
+          "const": 1
+        },
+        "error": {
+          "enum": [
+            "invalid_request",
+            "unauthorized",
+            "rich_push_not_allowed",
+            "rich_push_history_unknown",
+            "rich_push_consumed",
+            "rich_push_capacity",
+            "rich_push_stage_mismatch",
+            "rich_push_body_too_large",
+            "rich_push_unavailable",
+            "rich_push_pending"
+          ]
+        }
+      },
+      "required": [
+        "success",
+        "contract_version",
+        "error"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$comment": "Closed validation-only operation envelope {method,path,direction,body} selects exact route/direction schema; actual HTTP wire body remains body only. DATA shapes never grant authority. Semantic canonical bytes/strict integers/base64/tuple/currentness/original clocks and proof-kind require independent owner checks.",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/prepare"
+        },
+        "direction": {
+          "const": "request"
+        },
+        "body": {
+          "$ref": "#/$defs/requests/prepare"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/prepare"
+        },
+        "direction": {
+          "const": "success"
+        },
+        "body": {
+          "$ref": "#/$defs/success_replies/prepare"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/prepare"
+        },
+        "direction": {
+          "const": "error"
+        },
+        "body": {
+          "$ref": "#/$defs/error"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/native/challenge"
+        },
+        "direction": {
+          "const": "request"
+        },
+        "body": {
+          "$ref": "#/$defs/requests/native~1challenge"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/native/challenge"
+        },
+        "direction": {
+          "const": "success"
+        },
+        "body": {
+          "$ref": "#/$defs/success_replies/native~1challenge"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/native/challenge"
+        },
+        "direction": {
+          "const": "error"
+        },
+        "body": {
+          "$ref": "#/$defs/error"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/native/complete"
+        },
+        "direction": {
+          "const": "request"
+        },
+        "body": {
+          "$ref": "#/$defs/requests/native~1complete"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/native/complete"
+        },
+        "direction": {
+          "const": "success"
+        },
+        "body": {
+          "$ref": "#/$defs/success_replies/native~1complete"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/native/complete"
+        },
+        "direction": {
+          "const": "error"
+        },
+        "body": {
+          "$ref": "#/$defs/error"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/native/status"
+        },
+        "direction": {
+          "const": "request"
+        },
+        "body": {
+          "$ref": "#/$defs/requests/native~1status"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/native/status"
+        },
+        "direction": {
+          "const": "success"
+        },
+        "body": {
+          "$ref": "#/$defs/success_replies/native~1status"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/native/status"
+        },
+        "direction": {
+          "const": "error"
+        },
+        "body": {
+          "$ref": "#/$defs/error"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/register"
+        },
+        "direction": {
+          "const": "request"
+        },
+        "body": {
+          "$ref": "#/$defs/requests/register"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/register"
+        },
+        "direction": {
+          "const": "success"
+        },
+        "body": {
+          "$ref": "#/$defs/success_replies/register"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/register"
+        },
+        "direction": {
+          "const": "error"
+        },
+        "body": {
+          "$ref": "#/$defs/error"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/status"
+        },
+        "direction": {
+          "const": "request"
+        },
+        "body": {
+          "$ref": "#/$defs/requests/status"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/status"
+        },
+        "direction": {
+          "const": "success"
+        },
+        "body": {
+          "$ref": "#/$defs/success_replies/status"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/status"
+        },
+        "direction": {
+          "const": "error"
+        },
+        "body": {
+          "$ref": "#/$defs/error"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/withdraw"
+        },
+        "direction": {
+          "const": "request"
+        },
+        "body": {
+          "$ref": "#/$defs/requests/withdraw"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/withdraw"
+        },
+        "direction": {
+          "const": "success"
+        },
+        "body": {
+          "$ref": "#/$defs/success_replies/withdraw"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "method": {
+          "const": "POST"
+        },
+        "path": {
+          "const": "/api/djconnect/v1/session/rich/push/withdraw"
+        },
+        "direction": {
+          "const": "error"
+        },
+        "body": {
+          "$ref": "#/$defs/error"
+        }
+      },
+      "required": [
+        "method",
+        "path",
+        "direction",
+        "body"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "x-operation-entrypoints": {
+    "/api/djconnect/v1/session/rich/push/prepare:request": "#/$defs/requests/prepare",
+    "/api/djconnect/v1/session/rich/push/prepare:success": "#/$defs/success_replies/prepare",
+    "/api/djconnect/v1/session/rich/push/prepare:error": "#/$defs/error",
+    "/api/djconnect/v1/session/rich/push/native/challenge:request": "#/$defs/requests/native~1challenge",
+    "/api/djconnect/v1/session/rich/push/native/challenge:success": "#/$defs/success_replies/native~1challenge",
+    "/api/djconnect/v1/session/rich/push/native/challenge:error": "#/$defs/error",
+    "/api/djconnect/v1/session/rich/push/native/complete:request": "#/$defs/requests/native~1complete",
+    "/api/djconnect/v1/session/rich/push/native/complete:success": "#/$defs/success_replies/native~1complete",
+    "/api/djconnect/v1/session/rich/push/native/complete:error": "#/$defs/error",
+    "/api/djconnect/v1/session/rich/push/native/status:request": "#/$defs/requests/native~1status",
+    "/api/djconnect/v1/session/rich/push/native/status:success": "#/$defs/success_replies/native~1status",
+    "/api/djconnect/v1/session/rich/push/native/status:error": "#/$defs/error",
+    "/api/djconnect/v1/session/rich/push/register:request": "#/$defs/requests/register",
+    "/api/djconnect/v1/session/rich/push/register:success": "#/$defs/success_replies/register",
+    "/api/djconnect/v1/session/rich/push/register:error": "#/$defs/error",
+    "/api/djconnect/v1/session/rich/push/status:request": "#/$defs/requests/status",
+    "/api/djconnect/v1/session/rich/push/status:success": "#/$defs/success_replies/status",
+    "/api/djconnect/v1/session/rich/push/status:error": "#/$defs/error",
+    "/api/djconnect/v1/session/rich/push/withdraw:request": "#/$defs/requests/withdraw",
+    "/api/djconnect/v1/session/rich/push/withdraw:success": "#/$defs/success_replies/withdraw",
+    "/api/djconnect/v1/session/rich/push/withdraw:error": "#/$defs/error"
+  }
+}

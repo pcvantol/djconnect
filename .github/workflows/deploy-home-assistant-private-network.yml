@@ -1,0 +1,346 @@
+name: Deploy Home Assistant integration through private relay
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        required: true
+        type: choice
+        options: [deployment]
+      candidate_sha:
+        required: true
+        type: string
+      execution_mode:
+        required: true
+        type: choice
+        options: [execute]
+      manifest_id:
+        required: true
+        type: string
+      artifact_id:
+        required: true
+        type: string
+      artifact_sha256:
+        required: true
+        type: string
+      target:
+        required: true
+        type: choice
+        options: [home_assistant_pi5]
+      platform_version:
+        required: true
+        type: string
+      release_profile:
+        required: true
+        type: choice
+        options: [INTERNAL_RELEASE]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, macOS, ARM64, internal-release, private-network-deployment]
+    environment: private-network-deployment
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Prepare private relay tool path
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="/opt/homebrew/bin:$PATH"
+          for tool in gh jq python3; do
+            command -v "$tool" >/dev/null
+          done
+          printf '%s\n' /opt/homebrew/bin >> "$GITHUB_PATH"
+      - name: Validate manifest-bound deployment request
+        env:
+          ACTION: ${{ inputs.action }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          EXECUTION_MODE: ${{ inputs.execution_mode }}
+          MANIFEST_ID: ${{ inputs.manifest_id }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          TARGET: ${{ inputs.target }}
+          PLATFORM_VERSION: ${{ inputs.platform_version }}
+          RELEASE_PROFILE: ${{ inputs.release_profile }}
+        run: |
+          set -euo pipefail
+          test "$ACTION" = deployment
+          test "$EXECUTION_MODE" = execute
+          test "$TARGET" = home_assistant_pi5
+          test "$RELEASE_PROFILE" = INTERNAL_RELEASE
+          printf '%s' "$CANDIDATE_SHA" | grep -Eq '^[0-9a-f]{40}$'
+          printf '%s' "$MANIFEST_ID" | grep -Eq '^release-[A-Za-z0-9._-]+$'
+          test "$GITHUB_REPOSITORY_ID" = 1258575431
+          case "$GITHUB_REPOSITORY" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          artifact_repository="${ARTIFACT_ID#release-asset:}"
+          artifact_repository="${artifact_repository%%:*}"
+          case "$artifact_repository" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          case "$GITHUB_REPOSITORY:$artifact_repository" in pcvantol/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          test "$ARTIFACT_ID" = "release-asset:${artifact_repository}:internal-ha-${CANDIDATE_SHA}:djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
+          printf '%s' "$ARTIFACT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
+          printf '%s' "$PLATFORM_VERSION" | grep -Eq '^[0-9]+\.[0-9]+$'
+      - id: preflight_path
+        name: Create run-owned preflight checkout directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$GITHUB_WORKSPACE/.canonical-core-preflight"
+          test ! -e "$root" && test ! -L "$root"
+          mkdir "$root"
+          token="$(uuidgen)"
+          printf '%s' "$token" > "$root/.owner"
+          printf 'token=%s\n' "$token" >> "$GITHUB_OUTPUT"
+          printf 'identity=%s\n' "$(stat -f '%d:%i' "$root")" >> "$GITHUB_OUTPUT"
+      - id: canonical_preflight_source
+        name: Resolve canonical Core by immutable repository ID
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        with:
+          script: |
+            const expectedId = 1258575431;
+            const response = await github.request('GET /repositories/{repository_id}', {repository_id: expectedId});
+            const repo = response.data;
+            if (repo.id !== expectedId || repo.private !== false || !['pcvantol/djconnect', 'djconnect-music-dj/djconnect'].includes(repo.full_name)) {
+              throw new Error('Canonical Core identity is not authorized');
+            }
+            core.setOutput('repository', repo.full_name);
+      - name: Checkout exact canonical preflight
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: ${{ steps.canonical_preflight_source.outputs.repository }}
+          ref: 802619ac1ab3ec11eace7a8609167018193bb98e
+          path: .canonical-core-preflight/repo
+          persist-credentials: false
+      - name: Verify exact canonical preflight bytes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C .canonical-core-preflight/repo rev-parse HEAD)" = 802619ac1ab3ec11eace7a8609167018193bb98e
+          printf '%s  %s\n' 8af709b8a6ddf29843562d4f1b09de0747204feb086eeebbb485d16f5423fd37 .canonical-core-preflight/repo/.github/actions/deployment-readiness-preflight/action.yml | shasum -a 256 --check
+      - name: Verify target deployment readiness
+        uses: ./.canonical-core-preflight/repo/.github/actions/deployment-readiness-preflight
+        with:
+          target: ${{ inputs.target }}
+          manifest_id: ${{ inputs.manifest_id }}
+          candidate_sha: ${{ inputs.candidate_sha }}
+          artifact_id: ${{ inputs.artifact_id }}
+          artifact_sha256: ${{ inputs.artifact_sha256 }}
+          expected_runner_os: macOS
+          expected_runner_arch: ARM64
+          required_configuration: HAOS_HOST,HAOS_PORT,HAOS_USER,HAOS_SSH_PRIVATE_KEY,HAOS_SSH_KNOWN_HOSTS
+          smoke_contract: home-assistant-private-relay-smoke-v1
+        env:
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          HAOS_SSH_PRIVATE_KEY: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_PRIVATE_KEY }}
+          HAOS_SSH_KNOWN_HOSTS: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_KNOWN_HOSTS }}
+      - id: approved_manifest
+        name: Require approved central operational manifest source
+        shell: bash
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          MANIFEST_ID: ${{ inputs.manifest_id }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          TARGET: ${{ inputs.target }}
+          RELEASE_PROFILE: ${{ inputs.release_profile }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY_ID" = 1258575431
+          case "$GITHUB_REPOSITORY" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          artifact_repository="${ARTIFACT_ID#release-asset:}"
+          artifact_repository="${artifact_repository%%:*}"
+          case "$artifact_repository" in pcvantol/djconnect|djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          case "$GITHUB_REPOSITORY:$artifact_repository" in pcvantol/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:pcvantol/djconnect|djconnect-music-dj/djconnect:djconnect-music-dj/djconnect) ;; *) exit 1 ;; esac
+          test "$ARTIFACT_ID" = "release-asset:${artifact_repository}:internal-ha-${CANDIDATE_SHA}:djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
+          manifest="$(mktemp)"
+          trap 'rm -f "$manifest"' EXIT
+          case "$MANIFEST_ID" in
+            release-4.0.0-home-assistant-prod-20261110) manifest_path=docs/release/PLATFORM_4_0_RC1_HOME_ASSISTANT_OPERATIONAL_MANIFEST.json ;;
+            *) manifest_path="docs/release/home-assistant-manifests/${MANIFEST_ID}.json" ;;
+          esac
+          curl --fail --silent --show-error --location \
+            "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/${manifest_path}" \
+            --output "$manifest"
+          manifest_status="$(jq -r '.status' "$manifest")"
+          case "$manifest_status" in
+            APPROVED_DEPLOYMENT_DISPATCH_PENDING|APPROVED_PARTIAL_DEPLOYMENT_OPERATIONAL|APPROVED_TARGET_DEPLOYMENT_OPERATIONAL) ;;
+            *) echo "Manifest is not open for an authorized target deployment or smoke: $manifest_status" >&2; exit 1 ;;
+          esac
+          test "$(jq -r '.approval.state' "$manifest")" = APPROVED
+          test "$(jq -r '.manifest_id' "$manifest")" = "$MANIFEST_ID"
+          test "$(jq -r '.release_profile' "$manifest")" = "$RELEASE_PROFILE"
+          jq -e --arg repo "$artifact_repository" --arg sha "$CANDIDATE_SHA" \
+            '[.repositories[] | select(.repository == $repo and .source_sha == $sha)] | length == 1' \
+            "$manifest" >/dev/null
+          expected_url="https://github.com/${artifact_repository}/releases/download/internal-ha-${CANDIDATE_SHA}/djconnect-home-assistant-integration-${CANDIDATE_SHA}.tar.gz"
+          jq -e --arg target "$TARGET" --arg artifact "$ARTIFACT_ID" --arg sha "$ARTIFACT_SHA256" --arg repo "$artifact_repository" --arg url "$expected_url" \
+            '[.artifact_bindings[] | select(.target == $target and (.artifact_id | tostring) == $artifact and .artifact_sha256 == $sha and .owner == $repo and .artifact_url == $url)] | length == 1' \
+            "$manifest" >/dev/null
+          artifact_run="$(jq -er --arg repo "$artifact_repository" --arg sha "$CANDIDATE_SHA" '.repositories[] | select(.repository == $repo and .source_sha == $sha) | .artifact_run' "$manifest")"
+          printf '%s' "$artifact_run" | grep -Eq '^[0-9]+$'
+          printf 'artifact_run=%s\n' "$artifact_run" >> "$GITHUB_OUTPUT"
+      - id: haos-transport
+        name: Configure restricted Home Assistant OS SSH transport
+        env:
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          HAOS_SSH_PRIVATE_KEY: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_PRIVATE_KEY }}
+          HAOS_SSH_KNOWN_HOSTS: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$HAOS_HOST" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9.-]*$'
+          printf '%s' "$HAOS_PORT" | grep -Eq '^[0-9]{1,5}$'
+          printf '%s' "$HAOS_USER" | grep -Eq '^[A-Za-z_][A-Za-z0-9_-]*$'
+          test -n "$HAOS_SSH_PRIVATE_KEY"
+          test -n "$HAOS_SSH_KNOWN_HOSTS"
+          transport_dir="$RUNNER_TEMP/djconnect-haos-ssh-${GITHUB_RUN_ID}"
+          umask 077
+          mkdir -p "$transport_dir"
+          printf '%s\n' "$HAOS_SSH_PRIVATE_KEY" >"$transport_dir/id_ed25519"
+          printf '%s\n' "$HAOS_SSH_KNOWN_HOSTS" >"$transport_dir/known_hosts"
+          chmod 600 "$transport_dir/id_ed25519" "$transport_dir/known_hosts"
+          printf 'path=%s\n' "$transport_dir" >> "$GITHUB_OUTPUT"
+      - name: Validate Home Assistant OS target scope after authorization
+        env:
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
+        run: |
+          set -euo pipefail
+          ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
+          "${ssh[@]}" 'set -eu; test -d /config; test -d /config/custom_components; command -v ha >/dev/null; ha core info --raw-json >/dev/null'
+      - id: artifact
+        name: Verify immutable artifact provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          ARTIFACT_RUN: ${{ steps.approved_manifest.outputs.artifact_run }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$ARTIFACT_RUN" | grep -Eq '^[0-9]+$'
+          gh run view "$ARTIFACT_RUN" --repo "$GITHUB_REPOSITORY" --json headSha,workflowName,status,conclusion |
+            jq -e --arg sha "$CANDIDATE_SHA" '.headSha == $sha and .workflowName == "Home Assistant release artifact" and .status == "completed" and .conclusion == "success"' >/dev/null
+          printf 'artifact_run=%s\n' "$ARTIFACT_RUN" >> "$GITHUB_OUTPUT"
+      - name: Download manifest-bound artifact
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          ARTIFACT_RUN: ${{ steps.artifact.outputs.artifact_run }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifact
+          gh run download "$ARTIFACT_RUN" --repo "$GITHUB_REPOSITORY" \
+            --name "djconnect-home-assistant-integration-$CANDIDATE_SHA" --dir artifact
+          mv "artifact/djconnect-home-assistant-integration-$CANDIDATE_SHA.tar.gz" \
+            artifact/djconnect-home-assistant-integration.tar.gz
+      - name: Install exact integration artifact and restart Home Assistant OS Core
+        env:
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          HAOS_HOST: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_HOST }}
+          HAOS_PORT: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_PORT }}
+          HAOS_USER: ${{ secrets.DJCONNECT_HA_OS_DEPLOY_USER }}
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
+        run: |
+          set -euo pipefail
+          release_artifact=artifact/djconnect-home-assistant-integration.tar.gz
+          test -f "$release_artifact"
+          test "$(shasum -a 256 "$release_artifact" | awk '{print $1}')" = "$ARTIFACT_SHA256"
+          local_staging="$(mktemp -d)"
+          trap 'rm -rf "$local_staging"' EXIT
+          tar -xzf "$release_artifact" -C "$local_staging"
+          python3 -m json.tool "$local_staging/djconnect/manifest.json" >/dev/null
+          remote_artifact="/config/.djconnect-release-${GITHUB_RUN_ID}.tar.gz"
+          ssh=(ssh -i "$SSH_TRANSPORT_PATH/id_ed25519" -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$SSH_TRANSPORT_PATH/known_hosts" -p "$HAOS_PORT" "$HAOS_USER@$HAOS_HOST")
+          "${ssh[@]}" "cat > '$remote_artifact'" <"$release_artifact"
+          "${ssh[@]}" "set -euf
+          archive='$remote_artifact'
+          expected_sha='$ARTIFACT_SHA256'
+          workdir=\"/config/.djconnect-release-${GITHUB_RUN_ID}\"
+          staging=\"/config/custom_components/.djconnect-staging-${GITHUB_RUN_ID}\"
+          target=/config/custom_components/djconnect
+          backup=\"/config/.djconnect-rollback-${GITHUB_RUN_ID}\"
+          test ! -e \"\$workdir\"
+          test ! -L \"\$workdir\"
+          test ! -e \"\$staging\"
+          test ! -L \"\$staging\"
+          trap 'rm -rf \"\$workdir\" \"\$staging\"; rm -f \"\$archive\"' EXIT
+          test \"\$(sha256sum \"\$archive\" | awk '{print \$1}')\" = \"\$expected_sha\"
+          mkdir \"\$workdir\"
+          tar -xzf \"\$archive\" -C \"\$workdir\"
+          test -f \"\$workdir/djconnect/manifest.json\"
+          mv \"\$workdir/djconnect\" \"\$staging\"
+          # Keep the previous integration outside custom_components so HA
+          # cannot discover it; never delete an existing rollback directory.
+          test ! -e \"\$backup\"
+          test ! -L \"\$backup\"
+          test -d \"\$target\"
+          test ! -L \"\$target\"
+          mv \"\$target\" \"\$backup\"
+          if ! mv \"\$staging\" \"\$target\"; then
+            if test -e \"\$backup\" && test ! -e \"\$target\"; then mv \"\$backup\" \"\$target\"; fi
+            exit 1
+          fi
+          if ! ha core check >/dev/null 2>&1; then
+            echo 'Home Assistant configuration check reported pre-existing diagnostics; continuing to the supported Core restart.' >&2
+          fi
+          if ! ha core restart; then
+            mv \"\$target\" \"\$staging\"
+            if test -e \"\$backup\"; then
+              mv \"\$backup\" \"\$target\"
+              ha core restart || true
+            fi
+            exit 1
+          fi"
+      - name: Publish redacted deployment evidence
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          MANIFEST_ID: ${{ inputs.manifest_id }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+          TARGET: ${{ inputs.target }}
+          PLATFORM_VERSION: ${{ inputs.platform_version }}
+          RELEASE_PROFILE: ${{ inputs.release_profile }}
+          DEPLOYMENT_WORKFLOW_RUN: ${{ github.run_id }}
+        run: |
+          python3 - <<'PY'
+          from datetime import UTC, datetime
+          import json, os
+          with open("ha-private-deployment-evidence.json", "w", encoding="utf-8") as file:
+              json.dump({"schema_version": 1, "kind": "home_assistant_private_deployment", "repository": os.environ["GITHUB_REPOSITORY"], "candidate_sha": os.environ["CANDIDATE_SHA"], "manifest_id": os.environ["MANIFEST_ID"], "artifact_id": os.environ["ARTIFACT_ID"], "artifact_sha256": os.environ["ARTIFACT_SHA256"], "target": os.environ["TARGET"], "platform_version": os.environ["PLATFORM_VERSION"], "release_profile": os.environ["RELEASE_PROFILE"], "deployment_workflow_run": os.environ["DEPLOYMENT_WORKFLOW_RUN"], "deployment_result": "DEPLOYED_PENDING_SMOKE", "timestamp": datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")}, file, sort_keys=True)
+          PY
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ha-private-deployment-evidence
+          path: ha-private-deployment-evidence.json
+          if-no-files-found: error
+      - name: Remove Home Assistant OS SSH transport material
+        if: always()
+        env:
+          SSH_TRANSPORT_PATH: ${{ steps.haos-transport.outputs.path }}
+        run: |
+          set -euo pipefail
+          test -z "$SSH_TRANSPORT_PATH" || rm -rf "$SSH_TRANSPORT_PATH"
+      - name: Remove only this run's preflight checkout
+        if: always() && steps.preflight_path.outcome == 'success'
+        shell: bash
+        env:
+          OWNER_TOKEN: ${{ steps.preflight_path.outputs.token }}
+          ROOT_IDENTITY: ${{ steps.preflight_path.outputs.identity }}
+        run: |
+          set -euo pipefail
+          root="$GITHUB_WORKSPACE/.canonical-core-preflight"
+          test -d "$root" && test ! -L "$root"
+          test "$(cd -P "$root" && pwd -P)" = "$(cd -P "$GITHUB_WORKSPACE" && pwd -P)/.canonical-core-preflight"
+          test "$(stat -f '%d:%i' "$root")" = "$ROOT_IDENTITY"
+          test -f "$root/.owner" && test ! -L "$root/.owner"
+          test "$(cat "$root/.owner")" = "$OWNER_TOKEN"
+          test ! -L "$root/repo"
+          rm -rf -- "$root"

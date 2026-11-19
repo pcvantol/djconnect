@@ -1,0 +1,100 @@
+name: Deployment readiness preflight
+description: Fail closed before a manifest-bound deployment when runner, configuration or smoke readiness is incomplete.
+
+inputs:
+  target:
+    required: true
+  manifest_id:
+    required: true
+  candidate_sha:
+    required: true
+  artifact_id:
+    required: true
+  artifact_sha256:
+    required: true
+  expected_runner_os:
+    required: true
+  expected_runner_arch:
+    required: true
+  required_configuration:
+    description: Comma-separated environment variable names whose values must be non-empty.
+    required: false
+    default: ""
+  smoke_contract:
+    description: Concrete target smoke contract identifier; placeholders are rejected.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Validate deployment readiness on Windows
+      if: runner.os == 'Windows'
+      shell: pwsh
+      env:
+        TARGET: ${{ inputs.target }}
+        MANIFEST_ID: ${{ inputs.manifest_id }}
+        CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        ARTIFACT_ID: ${{ inputs.artifact_id }}
+        ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+        EXPECTED_RUNNER_OS: ${{ inputs.expected_runner_os }}
+        EXPECTED_RUNNER_ARCH: ${{ inputs.expected_runner_arch }}
+        REQUIRED_CONFIGURATION: ${{ inputs.required_configuration }}
+        SMOKE_CONTRACT: ${{ inputs.smoke_contract }}
+      run: |
+        $ErrorActionPreference = 'Stop'
+
+        function Require-Value([string] $name, [string] $value) {
+          if ([string]::IsNullOrWhiteSpace($value)) {
+            throw "Deployment readiness requires non-empty $name."
+          }
+        }
+
+        Require-Value 'TARGET' $env:TARGET
+        if ($env:MANIFEST_ID -notmatch '^release-[A-Za-z0-9._-]+$') { throw 'Invalid manifest identifier.' }
+        if ($env:CANDIDATE_SHA -notmatch '^[0-9a-f]{40}$') { throw 'Invalid candidate SHA.' }
+        Require-Value 'ARTIFACT_ID' $env:ARTIFACT_ID
+        if ($env:ARTIFACT_SHA256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid artifact SHA-256.' }
+        if ($env:RUNNER_OS -ne $env:EXPECTED_RUNNER_OS) { throw 'Runner OS does not match the deployment target.' }
+        if ($env:RUNNER_ARCH -ne $env:EXPECTED_RUNNER_ARCH) { throw 'Runner architecture does not match the deployment target.' }
+        Require-Value 'SMOKE_CONTRACT' $env:SMOKE_CONTRACT
+        if ($env:SMOKE_CONTRACT -eq 'NOT_IMPLEMENTED') { throw 'Smoke contract is not implemented.' }
+
+        foreach ($name in ($env:REQUIRED_CONFIGURATION -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })) {
+          if ($name -notmatch '^[A-Za-z0-9_]+$') { throw 'Required configuration name is invalid.' }
+          Require-Value $name ([Environment]::GetEnvironmentVariable($name))
+        }
+    - name: Validate deployment readiness on non-Windows
+      if: runner.os != 'Windows'
+      shell: bash
+      env:
+        TARGET: ${{ inputs.target }}
+        MANIFEST_ID: ${{ inputs.manifest_id }}
+        CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        ARTIFACT_ID: ${{ inputs.artifact_id }}
+        ARTIFACT_SHA256: ${{ inputs.artifact_sha256 }}
+        EXPECTED_RUNNER_OS: ${{ inputs.expected_runner_os }}
+        EXPECTED_RUNNER_ARCH: ${{ inputs.expected_runner_arch }}
+        REQUIRED_CONFIGURATION: ${{ inputs.required_configuration }}
+        SMOKE_CONTRACT: ${{ inputs.smoke_contract }}
+      run: |
+        set -euo pipefail
+        test -n "$TARGET"
+        printf '%s' "$MANIFEST_ID" | grep -Eq '^release-[A-Za-z0-9._-]+$'
+        printf '%s' "$CANDIDATE_SHA" | grep -Eq '^[0-9a-f]{40}$'
+        test -n "$ARTIFACT_ID"
+        printf '%s' "$ARTIFACT_SHA256" | grep -Eq '^[0-9a-f]{64}$'
+        test "$RUNNER_OS" = "$EXPECTED_RUNNER_OS"
+        test "$RUNNER_ARCH" = "$EXPECTED_RUNNER_ARCH"
+        test -n "$SMOKE_CONTRACT"
+        test "$SMOKE_CONTRACT" != NOT_IMPLEMENTED
+
+        IFS=',' read -r -a required <<< "$REQUIRED_CONFIGURATION"
+        for name in "${required[@]}"; do
+          name="${name//[[:space:]]/}"
+          test -z "$name" && continue
+          case "$name" in
+            *[!A-Za-z0-9_]*) exit 1 ;;
+          esac
+          value="${!name-}"
+          test -n "$value"
+        done

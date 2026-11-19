@@ -1,0 +1,20 @@
+{
+  "ordinary_pairing": true,
+  "broad_ha_credentials": false,
+  "case": "actual_profile_reassignment_while_sqlite_lock_waits",
+  "status": 401,
+  "body": {
+    "success": false,
+    "error": "unauthorized"
+  },
+  "unchanged_revision": 2,
+  "persisted_mood": {
+    "value": "chill",
+    "basis": "confirmed_symbolic_mood_elapsed_intervals",
+    "coverage": "complete",
+    "state": "provisional",
+    "revision": 2,
+    "as_of": "2026-10-13T08:47:30.250028+00:00"
+  },
+  "runtime_mood": "chill"
+}

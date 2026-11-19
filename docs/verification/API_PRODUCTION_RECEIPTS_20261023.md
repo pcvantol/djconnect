@@ -1,0 +1,26 @@
+# API production original receipts and bounded acceptance
+
+## API production delivered; retained open work — 23 October 2026, 10:13 UTC
+
+This current status supersedes historical pending-deployment, earlier work-window and installation projections below. API source `c04864ce7c885e0de5fb365aa0139a64c7921b22` is actually deployed from artifact `12489837064` (producer `39926787789`, TAR SHA256 `4ecd3a6cbb597ece37a3b6d4099e25e0c750605db8eb30ef0f9bd7c15bdb7b5b`). [Production deployment 39936190936](https://github.com/pcvantol/djconnect-api/actions/runs/39936190936) succeeded at 10:02:35 UTC; the [separate health smoke 39936315814](https://github.com/pcvantol/djconnect-api/actions/runs/39936315814) passed at 10:03:17 UTC. Root personally verified both original receipts and a fresh public health response asserting this exact release SHA. Additive migrations `0009_surface_push.sql` and `0010_surface_delegations.sql` are applied; the owning remote readback reports no pending migrations. This closes the selected compiled-closed API release and public-health delivery boundary.
+
+Core central source PR #1297 is protected as `5af9f28da2e6fc8fc9235a58170b0687fd26dee7`; its separate Final PR #1298 is protected as `53bc4f9df3e949beff9ae0b71f7d59fd12af7185`. Both have original canonical qualification, including actual tests/coverage/Owner Authorization PASS and no findings. Final original run `39935695667` has 2450-byte RAW SHA256 `d74966cb7480696d366a32b9ddce6ad7f7004928d6931be6add1fc36b355c9fd`. Automatic model/package cancellation is not model-quality or packaged-distribution PASS. The central manifest remains SHA256 `c35378dea5a97afc6d9eb6d317af9ed7c528bd7d95484f9dd6946b79a6d8c9f7`; this documentary reconciliation changes no manifest, product or release input and requires no provider redeploy.
+
+**Widget push and Live Activities are not yet qualified on Peter's iPhone.** All 22 operational service gates remain OPEN, including actual issuer-key custody, operator enrollment, Core purpose/service adoption, Activity contracts/rights and real native delivery. Issuer/public/fixed-QA activation remains closed. API deployment and health PASS do not prove APNs acceptance, background widget refresh, a Live Activity start/update or delivery to any physical device.
+
+HA-dev retains independent 262-file/schema15 INSTALLED_GO; documentary changes require no redundant restart. HA-production remains unchanged while the one native configuration-check answer is pending. Apple ordinary developer build40450 installations are distinct from native push acceptance. Pi recovery reported RECOVERED_PENDING_SMOKE and physical visibility was separately reported; its independent smoke remains INCONCLUSIVE and later Profile/pairing interoperability remains OPEN. Root performs no Pi reset, re-pair, recovery replay or device effect.
+
+The complete retained inventory of 24 requests and nine later gates remains in [the Core open-work register](https://github.com/pcvantol/djconnect/blob/main/docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md). Current open actions include operational push/Activity adoption and physical receipt; historical exact-item play preserving every remaining queue occurrence/order; numeric provider/content qualification; actual DJ/news narrative, audio and user acceptance; live server-authoritative Help and the unapproved 100 paid tests; fresh human HACS OAuth; Pi/Profile/native smoke; and HA-production native configuration and eventual qualified installation. The original rows and historical evidence remain byte-preserved; no open feature is closed by this deployment receipt.
+
+All exact authorized retention groups (248, two additional files, the 88-byte file and the later 93 paths including complete hardlink pairs) are fully preserved. Peter's same-thread sole-writer window ends today at **15:15 Europe/Amsterdam = 13:15 UTC**; cutoff 13:05 UTC, exact checkpoint and PAUSE by 13:15, no automatic extension. This window grants no further retention scope, paid budget, keys, operational enrollment, rights or device action. This post-deployment documentary candidate still requires its own independent review, protected delivery and original qualification before being described as delivered.
+
+## Preserved original receipts
+
+| Evidence | Bytes | SHA256 |
+| --- | ---: | --- |
+| Deployment JSON, run39936190936 | 580 | `8575c4a247d6060a3e1b724ad1965255513116b63ba64ddec4d76547cc731d30` |
+| Separate smoke JSON, run39936315814 | 1125 | `d7a627d179bb07c7ac487be30d09eaec19e2d24f7d44a26f4a266b740bbd23de` |
+| Root original-and-live acceptance JSON | — | `c522853741a7fa69e0796ad9a2a758db2299cb06ee40dc14d061e21e69ffb95e` |
+| Owning production-delivery receipt JSON | — | `b4e35ff4771c0b4a2956d1a0f182b212f4dab5e8434f7fdbb9cafb3a013ffbc1` |
+
+Original JSONs remain in the existing private Core/API evidence dossiers; no private Profile, Session, credential or database data is published. Actual provider version `6d6531ba-ea62-48c2-b132-8649cdcee627` is at 100%, deployment `84fdd4eb-7706-450f-849b-c9ba174a3204`. Retained rollback version: `0ab3ffc5-416f-4e81-9428-e213192c7635`. The smoke workflow explicitly compared the actual health release SHA against the selected source. WebSocket, startup and crash checks recorded NOT_APPLICABLE; this is public-health smoke, not full native or provider operation.

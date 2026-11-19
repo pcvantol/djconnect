@@ -1,0 +1,111 @@
+{
+  "rendered_protected_source": "e78eb38409b6ee409eeb6b4739e617c041dc9776",
+  "captured_at_utc": "2026-10-21T17:35:00Z",
+  "scope": "Actual isolated public GitHub Markdown rendering; NOT configured HACS or HA frontend acceptance",
+  "entrypoint_sha256": {
+    "README.md": "1d633aa2f593b0a3740cb612493acf92c5196c40c5111c208e597dcf2b28bece",
+    "info.md": "7d3c0bacafe61b34af40001241d448b6283083897544a5f2e7447ff74045712a"
+  },
+  "cases": [
+    {
+      "name": "README.md",
+      "width": 254,
+      "theme": "light",
+      "status": 200,
+      "scrollWidth": 254
+    },
+    {
+      "name": "README.md",
+      "width": 254,
+      "theme": "dark",
+      "status": 200,
+      "scrollWidth": 254
+    },
+    {
+      "name": "README.md",
+      "width": 309,
+      "theme": "light",
+      "status": 200,
+      "scrollWidth": 309
+    },
+    {
+      "name": "README.md",
+      "width": 309,
+      "theme": "dark",
+      "status": 200,
+      "scrollWidth": 309
+    },
+    {
+      "name": "README.md",
+      "width": 324,
+      "theme": "light",
+      "status": 200,
+      "scrollWidth": 324
+    },
+    {
+      "name": "README.md",
+      "width": 324,
+      "theme": "dark",
+      "status": 200,
+      "scrollWidth": 324
+    },
+    {
+      "name": "info.md",
+      "width": 254,
+      "theme": "light",
+      "status": 200,
+      "scrollWidth": 254
+    },
+    {
+      "name": "info.md",
+      "width": 254,
+      "theme": "dark",
+      "status": 200,
+      "scrollWidth": 254
+    },
+    {
+      "name": "info.md",
+      "width": 309,
+      "theme": "light",
+      "status": 200,
+      "scrollWidth": 309
+    },
+    {
+      "name": "info.md",
+      "width": 309,
+      "theme": "dark",
+      "status": 200,
+      "scrollWidth": 309
+    },
+    {
+      "name": "info.md",
+      "width": 324,
+      "theme": "light",
+      "status": 200,
+      "scrollWidth": 324
+    },
+    {
+      "name": "info.md",
+      "width": 324,
+      "theme": "dark",
+      "status": 200,
+      "scrollWidth": 324
+    }
+  ],
+  "public_hacs_redirect_status": 200,
+  "screenshots_sha256": {
+    "README.md-320-dark.png": "3b1a44da0ad8e21685e12a8497ea80542c55c268bc7ebfa6fd1846cd170fd18d",
+    "README.md-320-light.png": "8abe041a65f966e092aaf918d7aaa952ff6f67251b79fa4a963cd513f01daaa5",
+    "README.md-375-dark.png": "9e2d3af32c19607f697316b4065a3b2780087cfebbebef800004f22de4e6b10e",
+    "README.md-375-light.png": "93910c73059886b6dde05a1e804b96a79c2f8506c515023786e9365bc910a998",
+    "README.md-390-dark.png": "f1b8dec5492e84b38de38cb22c299b39c3564ac180cc683a3d85d77d2bc3c625",
+    "README.md-390-light.png": "0ed5fd6d44d97ace88ffdc82f6afa8896a3736a8005ac0220071e806daa0cc76",
+    "info.md-320-dark.png": "93f9d238224701c2891ebd48a0935f45a159089507fe27e9ec9fbdfa44be6ef4",
+    "info.md-320-light.png": "cac854a74cddbe973b13875bee9d083ce9fbd42f56d2fe1077cdc1f27ccdaa69",
+    "info.md-375-dark.png": "a99a12dd417fa187c9bdc34d4c302bc89934b3debf49e4c9b4358d61b17eab9a",
+    "info.md-375-light.png": "17b95d52bc963c4c268214e15e9db72478ceb531b90f34b6b3ebc8aeb952e6e7",
+    "info.md-390-dark.png": "23b765e0dda43c595ae8fdf4b358d6b29e231f7625a65a4f636a0e40a121b901",
+    "info.md-390-light.png": "c377f9bf83acb0d79c91c21ca10e2cff4d32faa6411dc3720a80b275ef1c3d59"
+  },
+  "visual_readback": "README320light/390dark and info320dark/390light inspected: readable, no article clipping; 12 DOM overflow and decoded64pxmark checks PASS"
+}
