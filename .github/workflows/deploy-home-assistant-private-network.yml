@@ -47,6 +47,15 @@ jobs:
       actions: read
       contents: read
     steps:
+      - name: Prepare private relay tool path
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="/opt/homebrew/bin:$PATH"
+          for tool in gh jq python3; do
+            command -v "$tool" >/dev/null
+          done
+          printf '%s\n' /opt/homebrew/bin >> "$GITHUB_PATH"
       - name: Validate manifest-bound deployment request
         env:
           ACTION: ${{ inputs.action }}
@@ -301,7 +310,7 @@ jobs:
           RELEASE_PROFILE: ${{ inputs.release_profile }}
           DEPLOYMENT_WORKFLOW_RUN: ${{ github.run_id }}
         run: |
-          python - <<'PY'
+          python3 - <<'PY'
           from datetime import UTC, datetime
           import json, os
           with open("ha-private-deployment-evidence.json", "w", encoding="utf-8") as file:

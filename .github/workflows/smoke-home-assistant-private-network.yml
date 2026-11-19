@@ -24,6 +24,15 @@ jobs:
       actions: read
       contents: read
     steps:
+      - name: Prepare private relay tool path
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="/opt/homebrew/bin:$PATH"
+          for tool in gh jq python3; do
+            command -v "$tool" >/dev/null
+          done
+          printf '%s\n' /opt/homebrew/bin >> "$GITHUB_PATH"
       - name: Validate smoke configuration before network access
         env:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
@@ -350,7 +359,7 @@ jobs:
           SMOKE_WORKFLOW_RUN: ${{ github.run_id }}
           RELEASE_VERSION: ${{ steps.manifest.outputs.release_version }}
         run: |
-          python - <<'PY'
+          python3 - <<'PY'
           from datetime import UTC, datetime
           import json, os
           with open("ha-private-smoke-evidence.json", "w", encoding="utf-8") as file:

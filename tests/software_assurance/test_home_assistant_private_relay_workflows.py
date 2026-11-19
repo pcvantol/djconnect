@@ -16,6 +16,18 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
     def _workflow(name: str) -> str:
         return " ".join((WORKFLOWS / name).read_text(encoding="utf-8").split())
 
+    def test_private_relay_workflows_prepare_required_tools_before_use(self) -> None:
+        for name in ("deploy-home-assistant-private-network.yml", "smoke-home-assistant-private-network.yml"):
+            with self.subTest(workflow=name):
+                workflow = (WORKFLOWS / name).read_text(encoding="utf-8")
+                preparation = workflow.index("- name: Prepare private relay tool path")
+                self.assertLess(preparation, workflow.index("- name: Validate manifest-bound deployment request") if name.startswith("deploy-") else workflow.index("- name: Validate smoke configuration before network access"))
+                self.assertIn('export PATH="/opt/homebrew/bin:$PATH"', workflow)
+                self.assertIn('for tool in gh jq python3; do', workflow)
+                self.assertIn('command -v "$tool" >/dev/null', workflow)
+                self.assertIn('/opt/homebrew/bin >> "$GITHUB_PATH"', workflow)
+                self.assertNotIn("          python - <<'PY'", workflow)
+
     def test_deployment_is_typed_artifact_bound_and_requires_manifest(self) -> None:
         workflow = self._workflow("deploy-home-assistant-private-network.yml")
 
