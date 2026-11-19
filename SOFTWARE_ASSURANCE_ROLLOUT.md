@@ -1,7 +1,7 @@
 # DJConnect Software Assurance Rollout
 
 Status: canonical rollout strategy  
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Phase: architecture frozen; Prompt 1 complete; Prompt 2 active pending explicit execution
 
 ## Purpose
@@ -198,7 +198,7 @@ Exit posture:
 
 | Repository | Implementation owner | Required capabilities | Dependencies | Rollout sequence | Expected verification | Required evidence |
 | --- | --- | --- | --- | --- | --- | --- |
-| `pcvantol/djconnect` | Canonical platform maintainer | All canonical contracts, HA evidence, Verification Runtime integration | Adapter qualification and stable runtime | First canonical implementation host after prerequisites | Schema/report validation and HA verification references | Canonical docs, runtime metadata, HA quality evidence |
+| `djconnect-music-dj/djconnect` | Canonical platform maintainer | All canonical contracts, HA evidence, Verification Runtime integration | Adapter qualification and stable runtime | First canonical implementation host after prerequisites | Schema/report validation and HA verification references | Canonical docs, runtime metadata, HA quality evidence |
 | `djconnect-music-dj/djconnect-app` | Apple client owner | Static quality, supply chain, signing, compatibility, runtime evidence | Apple adapter qualification | After canonical contracts and Apple qualification | Apple verification reports | Build/signing evidence, analyzer evidence, client compatibility |
 | `djconnect-music-dj/djconnect-windows` | Windows client owner | Static quality, supply chain, package, compatibility evidence | Windows qualification | After canonical contracts and Windows qualification | Windows verification reports | Build/package evidence and client compatibility |
 | `djconnect-music-dj/djconnect-pi` | Pi client owner | Static quality, runtime, package, service evidence | Pi qualification | After canonical contracts and Pi qualification | Pi verification reports | Package/service/runtime evidence |

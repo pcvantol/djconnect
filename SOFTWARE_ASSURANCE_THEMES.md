@@ -1,7 +1,7 @@
 # DJConnect Software Assurance Themes
 
 Status: canonical theme catalog  
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Builds on: `SOFTWARE_ASSURANCE_PLATFORM.md`
 
 ## Purpose

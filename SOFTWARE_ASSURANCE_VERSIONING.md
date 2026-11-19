@@ -1,7 +1,7 @@
 # DJConnect Software Assurance Versioning
 
 Status: canonical versioning model  
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Phase: architecture frozen; Prompt 1 complete; Prompt 2 active pending explicit execution
 
 ## Purpose

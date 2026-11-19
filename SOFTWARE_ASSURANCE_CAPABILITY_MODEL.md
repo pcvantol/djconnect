@@ -1,7 +1,7 @@
 # DJConnect Software Assurance Capability Model
 
 Status: canonical capability model  
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Phase: architecture and backlog only; no implementation
 
 ## Purpose

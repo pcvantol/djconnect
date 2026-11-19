@@ -1,7 +1,7 @@
 # DJConnect Software Assurance Integration
 
 Status: canonical integration architecture  
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Phase: architecture only; no implementation
 
 ## Purpose

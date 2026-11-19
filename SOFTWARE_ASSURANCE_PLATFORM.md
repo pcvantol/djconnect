@@ -1,7 +1,7 @@
 # DJConnect Software Assurance Platform
 
 Status: canonical architecture foundation  
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Phase: architecture frozen; CI Governance Foundation implemented; no workflow rollout enabled
 
 ## Purpose

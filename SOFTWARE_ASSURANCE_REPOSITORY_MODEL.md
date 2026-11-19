@@ -1,7 +1,7 @@
 # DJConnect Software Assurance Repository Model
 
 Status: canonical repository integration model  
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Phase: architecture only; no implementation
 
 ## Purpose
@@ -9,7 +9,7 @@ Phase: architecture only; no implementation
 This document defines how DJConnect repositories consume Software Assurance
 without redefining it.
 
-The canonical Software Assurance Platform lives in `pcvantol/djconnect`.
+The canonical Software Assurance Platform lives in `djconnect-music-dj/djconnect`.
 Sibling repositories may add repository-specific extensions, but they must not
 copy, fork or redefine canonical Software Assurance capability, policy,
 execution or health models.
@@ -33,16 +33,16 @@ for their source, artifacts and release surfaces.
 
 | Repository | Consumes | May extend | Must not own |
 | --- | --- | --- | --- |
-| `pcvantol/djconnect` | All canonical Software Assurance docs. | Canonical contracts, Verification Runtime integration and HA-specific evidence. | Native client code, firmware source or release artifact publication for sibling repos. |
-| `pcvantol/djconnect-app` | Capability, evidence, execution and health models. | Apple analyzer/build/signing/test evidence. | Canonical Software Assurance policy or backend behaviour. |
-| `pcvantol/djconnect-windows` | Capability, evidence, execution and health models. | Windows analyzer/build/package evidence. | Canonical policy or platform health definitions. |
-| `pcvantol/djconnect-pi` | Capability, evidence, execution and health models. | Pi runtime, packaging, service and device evidence. | Canonical assurance governance. |
+| `djconnect-music-dj/djconnect` | All canonical Software Assurance docs. | Canonical contracts, Verification Runtime integration and HA-specific evidence. | Native client code, firmware source or release artifact publication for sibling repos. |
+| `djconnect-music-dj/djconnect-app` | Capability, evidence, execution and health models. | Apple analyzer/build/signing/test evidence. | Canonical Software Assurance policy or backend behaviour. |
+| `djconnect-music-dj/djconnect-windows` | Capability, evidence, execution and health models. | Windows analyzer/build/package evidence. | Canonical policy or platform health definitions. |
+| `djconnect-music-dj/djconnect-pi` | Capability, evidence, execution and health models. | Pi runtime, packaging, service and device evidence. | Canonical assurance governance. |
 | `djconnect-music-dj/djconnect-esp32` | Capability, evidence, execution and health models. | Firmware build, PlatformIO, serial, OTA and hardware evidence. | Backend playback or canonical release policy. |
-| `pcvantol/djconnect-api` | Capability, evidence, execution and health models. | API security, relay, token and deployment evidence. | Local-first HA runtime behaviour. |
-| `pcvantol/djconnect-website` | Capability, evidence, execution and health models. | Website build, link, SEO, docs and localization evidence. | Runtime contracts or release artifact truth. |
-| `pcvantol/djconnect-firmware` | Release assurance and supply-chain models. | Public firmware artifact metadata and distribution evidence. | ESP32 source implementation. |
-| `pcvantol/djconnect-app-releases` | Release assurance and supply-chain models. | Internal unsigned Apple artifact metadata and handoff provenance. | Apple client source, local signing material or App Store Connect entitlement policy. |
-| `pcvantol/djconnect-pi-releases` | Release assurance and supply-chain models. | Pi release artifact metadata and distribution evidence. | Pi source implementation. |
+| `djconnect-music-dj/djconnect-api` | Capability, evidence, execution and health models. | API security, relay, token and deployment evidence. | Local-first HA runtime behaviour. |
+| `djconnect-music-dj/djconnect-website` | Capability, evidence, execution and health models. | Website build, link, SEO, docs and localization evidence. | Runtime contracts or release artifact truth. |
+| `djconnect-music-dj/djconnect-firmware` | Release assurance and supply-chain models. | Public firmware artifact metadata and distribution evidence. | ESP32 source implementation. |
+| `djconnect-music-dj/djconnect-app-releases` | Release assurance and supply-chain models. | Internal unsigned Apple artifact metadata and handoff provenance. | Apple client source, local signing material or App Store Connect entitlement policy. |
+| `djconnect-music-dj/djconnect-pi-releases` | Release assurance and supply-chain models. | Pi release artifact metadata and distribution evidence. | Pi source implementation. |
 
 ## Repository Consumption Rules
 
@@ -146,7 +146,7 @@ Cross-platform Software Assurance evidence should preserve boundaries:
 - website owns documentation and public presentation evidence;
 - API owns central relay evidence;
 - release repositories own artifact distribution evidence;
-- `pcvantol/djconnect` owns canonical aggregation and platform health.
+- `djconnect-music-dj/djconnect` owns canonical aggregation and platform health.
 
 Cross-platform findings should identify the producing repository, consuming
 repository, affected contract and canonical owner.

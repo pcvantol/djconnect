@@ -1,7 +1,7 @@
 # DJConnect Software Assurance Execution Model
 
 Status: canonical execution architecture  
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Phase: architecture only; no implementation
 
 ## Purpose

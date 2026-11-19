@@ -1,7 +1,7 @@
 # DJConnect Software Assurance Quality Gates
 
 Status: canonical gate architecture  
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Phase: architecture frozen; no gates enabled
 
 ## Purpose

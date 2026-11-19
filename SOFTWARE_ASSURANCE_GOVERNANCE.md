@@ -1,7 +1,7 @@
 # DJConnect Software Assurance Governance
 
 Status: canonical governance  
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Phase: Generation 1 complete and operationally frozen; future improvements use Platform Evolution
 
 ## Purpose

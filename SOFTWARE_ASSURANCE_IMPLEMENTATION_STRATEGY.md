@@ -1,7 +1,7 @@
 # DJConnect Software Assurance Implementation Strategy
 
 Status: canonical implementation strategy  
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Phase: architecture frozen; Prompt 1 complete; Prompt 2 active pending explicit execution
 
 ## Purpose

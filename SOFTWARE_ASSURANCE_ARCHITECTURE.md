@@ -1,7 +1,7 @@
 # DJConnect Software Assurance Architecture
 
 Status: canonical architecture  
-Scope owner: `pcvantol/djconnect`  
+Scope owner: `djconnect-music-dj/djconnect`<br>
 Builds on: `SOFTWARE_ASSURANCE_PLATFORM.md`
 
 ## Purpose
