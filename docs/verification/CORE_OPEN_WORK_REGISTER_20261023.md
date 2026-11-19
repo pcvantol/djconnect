@@ -862,7 +862,7 @@ The evaluation-only change durably records bounded private progress before SDK i
 
 ### Roadmap Position
 
-Generation2 Product Development, Phase1 Platform Qualification remains unchanged. All24 retained requests and nine later gates remain in [the complete register](https://github.com/pcvantol/djconnect/blob/main/docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md). Earlier complete bodies below retain their historical scopes.
+Generation2 Product Development, Phase1 Platform Qualification remains unchanged. All24 retained requests and nine later gates remain in [the complete register](https://github.com/djconnect-music-dj/djconnect/blob/main/docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md). Earlier complete bodies below retain their historical scopes.
 
 ### Rolling Horizon (Next 5 Planned)
 
@@ -912,7 +912,7 @@ All3464 regression cases completed in106.995s with seven existing skips;57 focus
 
 ### Roadmap Position
 
-Generation2 Product Development, Phase1 Platform Qualification remains unchanged. All24 retained requests and nine later gates remain in [the complete open-work register](https://github.com/pcvantol/djconnect/blob/main/docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md). Previous rolling bodies below retain their own historical scopes.
+Generation2 Product Development, Phase1 Platform Qualification remains unchanged. All24 retained requests and nine later gates remain in [the complete open-work register](https://github.com/djconnect-music-dj/djconnect/blob/main/docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md). Previous rolling bodies below retain their own historical scopes.
 
 ### Rolling Horizon (Next 5 Planned)
 
@@ -966,7 +966,7 @@ Three preliminary P2 defects were corrected with causal counterproofs: late admi
 
 ### Roadmap Position
 
-Generation2 Product Development, Phase1 Platform Qualification; current increment is source-context reconciliation, with no phase advancement. The complete24 requests and nine later gates remain in [the open-work register](https://github.com/pcvantol/djconnect/blob/main/docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md). Every earlier body below retains its historical scope.
+Generation2 Product Development, Phase1 Platform Qualification; current increment is source-context reconciliation, with no phase advancement. The complete24 requests and nine later gates remain in [the open-work register](https://github.com/djconnect-music-dj/djconnect/blob/main/docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md). Every earlier body below retains its historical scope.
 
 ### Rolling Horizon (Next 5 Planned)
 
@@ -1016,7 +1016,7 @@ Independent preliminary review found two real P2 retention defects in this new s
 
 ### Roadmap Position
 
-Generation2 Product Development, Phase1/Platform Qualification. No phase advancement or new lane writer. The existing24requests and nine later gates remain tracked in [the open-work register](https://github.com/pcvantol/djconnect/blob/main/docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md). All22 operational push gates remain OPEN within their original scopes.
+Generation2 Product Development, Phase1/Platform Qualification. No phase advancement or new lane writer. The existing24requests and nine later gates remain tracked in [the open-work register](https://github.com/djconnect-music-dj/djconnect/blob/main/docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md). All22 operational push gates remain OPEN within their original scopes.
 
 ### Rolling Horizon (Next 5 Planned)
 
@@ -1060,7 +1060,7 @@ Core central source PR #1297 is protected as `5af9f28da2e6fc8fc9235a58170b0687fd
 
 HA-dev retains independent 262-file/schema15 INSTALLED_GO; documentary changes require no redundant restart. HA-production remains unchanged while the one native configuration-check answer is pending. Apple ordinary developer build40450 installations are distinct from native push acceptance. Pi recovery reported RECOVERED_PENDING_SMOKE and physical visibility was separately reported; its independent smoke remains INCONCLUSIVE and later Profile/pairing interoperability remains OPEN. Root performs no Pi reset, re-pair, recovery replay or device effect.
 
-The complete retained inventory of 24 requests and nine later gates remains in [the Core open-work register](https://github.com/pcvantol/djconnect/blob/main/docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md). Current open actions include operational push/Activity adoption and physical receipt; historical exact-item play preserving every remaining queue occurrence/order; numeric provider/content qualification; actual DJ/news narrative, audio and user acceptance; live server-authoritative Help and the unapproved 100 paid tests; fresh human HACS OAuth; Pi/Profile/native smoke; and HA-production native configuration and eventual qualified installation. The original rows and historical evidence remain byte-preserved; no open feature is closed by this deployment receipt.
+The complete retained inventory of 24 requests and nine later gates remains in [the Core open-work register](https://github.com/djconnect-music-dj/djconnect/blob/main/docs/verification/CORE_OPEN_WORK_REGISTER_20261023.md). Current open actions include operational push/Activity adoption and physical receipt; historical exact-item play preserving every remaining queue occurrence/order; numeric provider/content qualification; actual DJ/news narrative, audio and user acceptance; live server-authoritative Help and the unapproved 100 paid tests; fresh human HACS OAuth; Pi/Profile/native smoke; and HA-production native configuration and eventual qualified installation. The original rows and historical evidence remain byte-preserved; no open feature is closed by this deployment receipt.
 
 All exact authorized retention groups (248, two additional files, the 88-byte file and the later 93 paths including complete hardlink pairs) are fully preserved. Peter's same-thread sole-writer window ends today at **15:15 Europe/Amsterdam = 13:15 UTC**; cutoff 13:05 UTC, exact checkpoint and PAUSE by 13:15, no automatic extension. This window grants no further retention scope, paid budget, keys, operational enrollment, rights or device action. This post-deployment documentary candidate still requires its own independent review, protected delivery and original qualification before being described as delivered.
 
