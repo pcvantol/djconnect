@@ -122,9 +122,9 @@ Must follow: release artifact naming, manifest, licensing, security and release 
 
 Update canonical docs when: firmware distribution format or release governance needs a platform-level change.
 
-## `pcvantol/djconnect-device-installer`
+## Device Installer — repository not confirmed
 
-Owns: the standalone product-first Device Installer at `devices.djconnect.dev`:
+The repository location has not been confirmed. The intended Device Installer responsibilities are:
 device catalog rendering, compatible-platform selection, published manifest
 consumption and standard flashing/bootstrap orchestration.
 
