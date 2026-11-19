@@ -96,7 +96,7 @@ class GithubFirmwareTest(unittest.TestCase):
 
         self.assertEqual(assets.manifest["name"], "firmware_manifest.json")
 
-    def test_firmware_release_uses_matching_manifest_firmware_entry(self) -> None:
+    def test_legacy_firmware_repository_uses_matching_manifest_entry(self) -> None:
         class Response:
             def __init__(self, payload):
                 self.payload = payload
@@ -229,7 +229,7 @@ class GithubFirmwareTest(unittest.TestCase):
                 self.github.fetch_latest_firmware_release(
                     object(),
                     {
-                        "firmware_repo": "pcvantol/djconnect-firmware",
+                        "firmware_repo": "djconnect-music-dj/djconnect-firmware",
                         "firmware_device": "esp32-s3-box-3",
                     },
                 )
@@ -312,7 +312,7 @@ class GithubFirmwareTest(unittest.TestCase):
                 self.github.fetch_latest_firmware_release(
                     object(),
                     {
-                        "firmware_repo": "pcvantol/djconnect-firmware",
+                        "firmware_repo": "djconnect-music-dj/djconnect-firmware",
                         "firmware_channel": "beta",
                     },
                 )
@@ -321,7 +321,7 @@ class GithubFirmwareTest(unittest.TestCase):
             self.github.async_get_clientsession = original_session
 
         self.assertIn(
-            "https://api.github.com/repos/pcvantol/djconnect-firmware/releases?per_page=20",
+            "https://api.github.com/repos/djconnect-music-dj/djconnect-firmware/releases?per_page=20",
             session.requested_urls,
         )
         self.assertEqual(release.version, "3.0.8-beta.1")
@@ -359,7 +359,7 @@ class GithubFirmwareTest(unittest.TestCase):
                 self.github.fetch_latest_firmware_release(
                     object(),
                     {
-                        "firmware_repo": "pcvantol/djconnect-firmware",
+                        "firmware_repo": "djconnect-music-dj/djconnect-firmware",
                         "firmware_channel": "beta",
                     },
                 )
@@ -482,7 +482,7 @@ class GithubFirmwareTest(unittest.TestCase):
                 release = asyncio.run(
                     self.github.fetch_latest_firmware_release(
                         object(),
-                        {"firmware_repo": "pcvantol/djconnect-firmware"},
+                        {"firmware_repo": "djconnect-music-dj/djconnect-firmware"},
                     )
                 )
         finally:

@@ -2,7 +2,7 @@
 
 This document clarifies repository boundaries. The HA/HACS repository remains the canonical foundation source of truth for platform direction.
 
-## `pcvantol/djconnect`
+## `djconnect-music-dj/djconnect`
 
 Owns: Home Assistant integration, local-first backend runtime, canonical foundation docs, canonical language contract, DJConnect Profile orchestration, canonical Profile Resolver, Request Context / ProfileResolutionContext model, Voice Endpoint/HA device/area/profile mappings, Assist-to-Profile orchestration, Music Backend orchestration, Track Insight orchestration, Ask DJ, Music DNA, OTA/status/diagnostics and HA-facing API contracts.
 

@@ -42,7 +42,7 @@ class ComponentProfile:
 
 
 COMPONENT_PROFILES = {
-    "hacs-integration": ComponentProfile("hacs-integration", "DJConnect Home Assistant integration", "pcvantol/djconnect", ("pcvantol/djconnect",), "hacs", "HACS", "home_assistant_integration_tarball"),
+    "hacs-integration": ComponentProfile("hacs-integration", "DJConnect Home Assistant integration", "djconnect-music-dj/djconnect", ("djconnect-music-dj/djconnect",), "hacs", "HACS", "home_assistant_integration_tarball"),
     "api-worker": ComponentProfile("api-worker", "DJConnect API", "djconnect-music-dj/djconnect-api", ("djconnect-music-dj/djconnect-api",), "api-production", "API worker deployment", "worker_bundle"),
     "website": ComponentProfile("website", "DJConnect Website", "djconnect-music-dj/djconnect-website", ("djconnect-music-dj/djconnect-website",), "website-production", "DJConnect website", "static_site_bundle"),
     "esp32-firmware": ComponentProfile("esp32-firmware", "DJConnect ESP32 firmware", "djconnect-music-dj/djconnect-esp32", ("djconnect-music-dj/djconnect-esp32", "djconnect-music-dj/djconnect-firmware"), "firmware-public", "djconnect-music-dj/djconnect-firmware", "firmware_bundle"),

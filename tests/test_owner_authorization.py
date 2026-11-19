@@ -5,7 +5,7 @@ from tools.trusted_delivery.owner_authorization import AuthorizationError, evalu
 
 def request(**overrides):
     base = {
-        "repository": "pcvantol/djconnect",
+        "repository": "djconnect-music-dj/djconnect",
         "branch": "main",
         "pr_number": 88,
         "candidate_sha": "a" * 40,
