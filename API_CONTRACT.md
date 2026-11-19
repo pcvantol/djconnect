@@ -2286,7 +2286,7 @@ browser bundles, static HTML, logs, screenshots or public fixtures.
 
 The central API stores APNs tokens encrypted at rest with
 `APNS_TOKEN_ENCRYPTION_KEY`. Planned key rotation requires the operator runbook
-in `djconnect-music-dj/djconnect-api/OPERATOR_RUNBOOK.md`; the current API runtime uses
+in `pcvantol/djconnect-api/OPERATOR_RUNBOOK.md`; the current API runtime uses
 one active encryption key, so zero-downtime rotation requires temporary
 dual-key/backfill tooling before replacing the secret.
 
