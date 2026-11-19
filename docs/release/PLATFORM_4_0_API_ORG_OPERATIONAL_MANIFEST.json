@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
-  "status": "NOT_AUTHORIZED",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
   "manifest_id": "release-4.1.0-api-worker-0c298a9",
   "generated_at": "2026-11-19",
   "platform_version": "4.1",
   "release_version": "4.1.0",
   "release_profile": "INTERNAL_RELEASE",
   "approval": {
-    "state": "PENDING",
-    "authority_record": null,
-    "approved_statement": null
+    "state": "APPROVED",
+    "authority_record": "Peter requested deployment of the API release and the 4.1 version transition in Codex thread 01a1afa0-1a54-7a50-8c7c-a51d99961119, and supplied the current Cloudflare production version ID.",
+    "approved_statement": "Deploy the qualified API 4.1.0 artifact bound in this manifest using the protected production workflow."
   },
   "repositories": [
     {
@@ -52,9 +52,11 @@
     "source_sha": "38f0d79b35e2b09e4cf35aed3b0b2ffe29cc7715",
     "cloudflare_deployment_version_id": "234309bf-354c-4368-a127-5dd0e125c502",
     "health_check": "PASS",
-    "deployment_identity_source": "Owner-provided Cloudflare active deployment screenshot and copied version ID, 2026-11-19"
+    "deployment_identity_source": "Owner-provided Cloudflare active deployment screenshot and copied version ID, 2026-11-19",
+    "read_only_preflight_run": "44524592466",
+    "read_only_preflight_result": "PASS"
   },
-  "next_authorized_action": "Verify rollback capability and live D1 ledger, then record authorization and dispatch the exact artifact with a separate post-deployment smoke.",
+  "next_authorized_action": "Dispatch the exact artifact with the protected production workflow; execute a separate post-deployment smoke and verify live health.",
   "migration_boundary": {
     "preflight_pending": [],
     "pending_sha256": {}
