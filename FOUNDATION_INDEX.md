@@ -223,8 +223,8 @@ Runtime's independent release lifecycle.
 ### Verification Runtime
 
 The Verification Runtime is a first-class engineering product physically
-located in this repository and distributed through Docker Hub at
-`pcvantol/djconnect-verification-platform`.
+located in this repository and distributed through GitHub Container Registry at
+`ghcr.io/djconnect-music-dj/djconnect-verification-platform`.
 
 Runtime product truth lives in:
 
