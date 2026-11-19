@@ -1,0 +1,511 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://djconnect.dev/contracts/passive-session-response-v1",
+  "title": "Successful active/stale passive Session read v1",
+  "type": "object",
+  "properties": {
+    "success": {
+      "const": true
+    },
+    "contract_version": {
+      "const": 1
+    },
+    "grant_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "passive_session": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "surface": {
+          "enum": [
+            "widget",
+            "live_activity"
+          ]
+        },
+        "binding_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "generation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "delivery_sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "state": {
+          "enum": [
+            "active",
+            "stale"
+          ]
+        },
+        "playback_state": {
+          "enum": [
+            "idle",
+            "stopped",
+            "playing",
+            "paused"
+          ]
+        },
+        "cache_policy": {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "const": "current_surface_only"
+            },
+            "maximum_seconds": {
+              "const": 120
+            },
+            "renew_on_read": {
+              "const": false
+            },
+            "locked_display": {
+              "type": "boolean"
+            },
+            "os_pixel_erasure": {
+              "const": "best_effort_when_learned"
+            }
+          },
+          "required": [
+            "scope",
+            "maximum_seconds",
+            "renew_on_read",
+            "locked_display",
+            "os_pixel_erasure"
+          ],
+          "additionalProperties": false
+        },
+        "mood": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "enum": [
+                "chill",
+                "groove",
+                "energy",
+                "party",
+                null
+              ]
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "value",
+            "revision"
+          ],
+          "additionalProperties": false
+        },
+        "presence": {
+          "enum": [
+            "music_only",
+            "occasional",
+            "balanced",
+            "talkative",
+            "presenter"
+          ]
+        },
+        "persona": {
+          "enum": [
+            "home_dj",
+            "radio_dj",
+            "club_dj",
+            "festival_dj"
+          ]
+        },
+        "navigation": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "open_session"
+            },
+            "session_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          "required": [
+            "kind",
+            "session_id"
+          ],
+          "additionalProperties": false
+        },
+        "contribution": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "moment_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "published_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 640
+                },
+                "persona": {
+                  "enum": [
+                    "home_dj",
+                    "radio_dj",
+                    "club_dj",
+                    "festival_dj"
+                  ]
+                },
+                "source_attribution": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "maxLength": 1024
+                  },
+                  "maxProperties": 8
+                },
+                "usage_basis": {
+                  "enum": [
+                    "cc0_facts_authored_expression",
+                    "runtime_authored_direction"
+                  ]
+                },
+                "expires_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              },
+              "required": [
+                "moment_id",
+                "published_at",
+                "text",
+                "persona",
+                "source_attribution",
+                "usage_basis",
+                "expires_at"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "now_playing": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "item_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "subject_uri": {
+                  "type": "string",
+                  "pattern": "^spotify:track:[A-Za-z0-9]{22}$"
+                },
+                "track": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 640
+                },
+                "artist": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "album": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "expires_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "source_url": {
+                  "type": "string",
+                  "format": "uri"
+                },
+                "attribution": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string",
+                    "maxLength": 1024
+                  },
+                  "maxProperties": 8
+                },
+                "usage_basis": {
+                  "const": "spotify_temporary_passive_metadata"
+                }
+              },
+              "required": [
+                "item_id",
+                "subject_uri",
+                "track",
+                "artist",
+                "album",
+                "observed_at",
+                "expires_at",
+                "source_url",
+                "attribution",
+                "usage_basis"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "artwork": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "slot": {
+                "enum": [
+                  "contribution",
+                  "now_playing"
+                ]
+              },
+              "asset_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "subject": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "const": "spotify"
+                  },
+                  "uri": {
+                    "type": "string",
+                    "pattern": "^spotify:(track|album):[A-Za-z0-9]{22}$"
+                  },
+                  "type": {
+                    "enum": [
+                      "track",
+                      "album"
+                    ]
+                  },
+                  "album_uri": {
+                    "type": "string",
+                    "pattern": "^spotify:album:[A-Za-z0-9]{22}$"
+                  }
+                },
+                "required": [
+                  "provider",
+                  "uri",
+                  "type"
+                ],
+                "additionalProperties": false
+              },
+              "role": {
+                "enum": [
+                  "contextual_cover",
+                  "current_cover"
+                ]
+              },
+              "media_revision": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "captured_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "source_url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "attribution": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "maxProperties": 8
+              },
+              "alt_text": {
+                "type": "object",
+                "properties": {
+                  "en": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 640
+                  },
+                  "nl": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 640
+                  },
+                  "de": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 640
+                  },
+                  "fr": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 640
+                  },
+                  "es": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 640
+                  }
+                },
+                "required": [
+                  "en",
+                  "nl",
+                  "de",
+                  "fr",
+                  "es"
+                ],
+                "additionalProperties": false
+              },
+              "width": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4096
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4096
+              },
+              "crop_allowed": {
+                "const": false
+              },
+              "usage_basis": {
+                "const": "spotify_temporary_passive_cover"
+              },
+              "image_path": {
+                "type": "string",
+                "pattern": "^/api/djconnect/v1/session/surface/image/[^/]+/[^/]+$"
+              },
+              "rights": {
+                "type": "object",
+                "properties": {
+                  "passive_cache": {
+                    "const": true
+                  },
+                  "os_snapshot": {
+                    "const": true
+                  },
+                  "external_relay": {
+                    "const": false
+                  },
+                  "watch_replication": {
+                    "const": false
+                  }
+                },
+                "required": [
+                  "passive_cache",
+                  "os_snapshot",
+                  "external_relay",
+                  "watch_replication"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "slot",
+              "asset_id",
+              "subject",
+              "role",
+              "media_revision",
+              "captured_at",
+              "expires_at",
+              "source_url",
+              "attribution",
+              "alt_text",
+              "width",
+              "height",
+              "crop_allowed",
+              "usage_basis",
+              "image_path",
+              "rights"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 2
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "schema_version",
+        "surface",
+        "binding_id",
+        "generation",
+        "session_id",
+        "delivery_sequence",
+        "as_of",
+        "observed_at",
+        "expires_at",
+        "state",
+        "playback_state",
+        "cache_policy",
+        "mood",
+        "presence",
+        "persona",
+        "navigation",
+        "contribution",
+        "now_playing",
+        "artwork",
+        "revision"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "success",
+    "contract_version",
+    "grant_id",
+    "passive_session"
+  ],
+  "additionalProperties": false
+}

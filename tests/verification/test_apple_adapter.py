@@ -1,0 +1,821 @@
+"""Tests for the Apple Verification Adapter."""
+
+from __future__ import annotations
+
+import json
+import os
+import plistlib
+import shlex
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from tools.verification import apple_runtime_qualification as apple_runtime_module
+from tools.verification.adapters import AdapterRegistry
+from tools.verification.apple_adapter import (
+    AppleAdapterConfig,
+    AppleRuntimeTarget,
+    AppleVerificationAdapter,
+    parse_simctl_devices,
+)
+from tools.verification.apple_operator_config import AppleQualificationConfigPreparer
+from tools.verification.environment.platforms import AppleDevelopmentEnvironment
+from tools.verification.apple_toolchain import AppleToolchainMaintenance
+from tools.verification.apple_runtime_qualification import AppleRuntimeQualification
+from tools.verification.apple_runtime_qualification import latest_ios_simulator_runtime
+from tools.verification.models import PrimitiveAction, Scenario
+from tools.verification.scenario.engine import ScenarioEngine
+
+
+class FakeRunner:
+    def __init__(self, responses: dict[tuple[str, ...], tuple[int, str]] | None = None) -> None:
+        self.responses = responses or {}
+        self.commands: list[tuple[str, ...]] = []
+
+    def run(self, command: tuple[str, ...], *, cwd: Path | None = None, timeout: int = 30) -> tuple[int, str]:
+        self.commands.append(command)
+        return self.responses.get(command, (0, "ok"))
+
+
+SIMCTL_JSON = json.dumps(
+    {
+        "devices": {
+            "com.apple.CoreSimulator.SimRuntime.iOS-26-0": [
+                {
+                    "name": "iPhone 17",
+                    "udid": "SIM-IPHONE",
+                    "state": "Booted",
+                    "isAvailable": True,
+                }
+            ],
+            "com.apple.CoreSimulator.SimRuntime.watchOS-26-0": [
+                {
+                    "name": "Apple Watch",
+                    "udid": "SIM-WATCH",
+                    "state": "Shutdown",
+                    "isAvailable": True,
+                }
+            ],
+        }
+    }
+)
+
+SIMCTL_MULTI_IOS_JSON = json.dumps(
+    {
+        "devices": {
+            "com.apple.CoreSimulator.SimRuntime.iOS-26-5": [
+                {
+                    "name": "iPhone 17",
+                    "udid": "SIM-IOS-26-5",
+                    "state": "Shutdown",
+                    "isAvailable": True,
+                }
+            ],
+            "com.apple.CoreSimulator.SimRuntime.iOS-27-0": [
+                {
+                    "name": "iPhone 17 Pro",
+                    "udid": "SIM-IOS-27-0",
+                    "state": "Booted",
+                    "isAvailable": True,
+                }
+            ],
+        }
+    }
+)
+
+SIGNING_IDENTITY_OUTPUT = '  1) ABCDEF1234567890 "Apple Distribution: DJConnect Test (TEAM123456)"\n     1 valid identities found'
+
+
+def _write_distribution_profile(profiles_dir: Path) -> None:
+    profiles_dir.mkdir(parents=True, exist_ok=True)
+    (profiles_dir / "DJConnectRelease.plist").write_bytes(
+        plistlib.dumps(
+            {
+                "Name": "DJConnect Release",
+                "UUID": "PROFILE-UUID-123",
+                "TeamIdentifier": ["TEAM123456"],
+                "Entitlements": {
+                    "application-identifier": "TEAM123456.dev.djconnect.ios",
+                    "aps-environment": "production",
+                    "get-task-allow": False,
+                },
+            }
+        )
+    )
+
+
+def _signing_env(profiles_dir: Path) -> dict[str, str]:
+    return {
+        "DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY": "Apple Distribution: DJConnect Test",
+        "DJCONNECT_VERIFICATION_APPLE_TEAM_ID": "TEAM123456",
+        "DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID": "dev.djconnect.ios",
+        "DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE": "DJConnect Release",
+        "DJCONNECT_VERIFICATION_APPLE_PROFILES_DIR": str(profiles_dir),
+    }
+
+
+def _no_cross_device_targets_env() -> dict[str, str]:
+    return {"DJCONNECT_VERIFICATION_APPLE_TARGETS_JSON": ""}
+
+
+class AppleAdapterTests(unittest.TestCase):
+    def test_simulator_discovery_parses_simctl_json(self) -> None:
+        devices = parse_simctl_devices(SIMCTL_JSON)
+
+        self.assertEqual(2, len(devices))
+        self.assertEqual("SIM-IPHONE", devices[0]["udid"])
+        self.assertEqual("ios", devices[0]["variant"])
+        self.assertTrue(devices[0]["booted"])
+        self.assertEqual("watchos", devices[1]["variant"])
+
+    def test_phase_10e_ui_healthcheck_default_timeout_is_180_seconds(self) -> None:
+        captured: dict[str, int] = {}
+
+        def fake_run_shell(command: str, cwd: Path, *, timeout: int) -> tuple[int, str]:
+            captured["timeout"] = timeout
+            return 0, "ok"
+
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(
+            "os.environ",
+            {
+                "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+            },
+            clear=False,
+        ), patch.object(apple_runtime_module, "_run_shell", fake_run_shell):
+            os_timeout = "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_TIMEOUT"
+            with patch.dict("os.environ", {os_timeout: ""}, clear=False):
+                del os.environ[os_timeout]
+                check = AppleRuntimeQualification(Path(tmp), apple_repo=Path(tmp))._ui_healthcheck()
+
+        self.assertEqual("PASS", check.state)
+        self.assertEqual(180, captured["timeout"])
+
+    def test_phase_10e_prepare_qualification_config_resolves_latest_stable_target_and_ui_driver(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            apple_repo = root / "djconnect-app"
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            runner = FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, "0 valid identities found"),
+            })
+
+            result = AppleQualificationConfigPreparer(root, apple_repo=apple_repo, runner=runner).prepare()
+
+            self.assertEqual("READY", result.state)
+            self.assertIn("VPB-036", result.followups_resolved)
+            self.assertIn("VPB-037", result.followups_resolved)
+            self.assertIn("VPB-038", result.followups_resolved)
+            target = json.loads(result.exports["DJCONNECT_VERIFICATION_APPLE_TARGET_JSON"])
+            self.assertEqual("SIM-IOS-26-5", target["udid"])
+            self.assertEqual("26.5", target["metadata"]["ios_version"])
+            self.assertIn("DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA", result.exports)
+            self.assertEqual("xctest", result.exports["DJCONNECT_VERIFICATION_APPLE_UI_DRIVER"])
+            self.assertIn("id=SIM-IOS-26-5", result.exports["DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND"])
+
+    def test_phase_10e_prepare_qualification_config_marks_signing_ready_when_assets_match(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            apple_repo = root / "djconnect-app"
+            profiles_dir = root / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            runner = FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+            })
+
+            with patch.dict(os.environ, _signing_env(profiles_dir), clear=False):
+                result = AppleQualificationConfigPreparer(root, apple_repo=apple_repo, runner=runner).prepare()
+
+            self.assertEqual("READY", result.state)
+            self.assertIn("VPB-037", result.followups_resolved)
+            self.assertEqual((), result.followups_blocked)
+
+    def test_phase_10e_prepare_qualification_config_keeps_vpb037_blocked_without_xcode_account(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            apple_repo = root / "djconnect-app"
+            profiles_dir = root / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            runner = FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+                (
+                    "xcodebuild",
+                    "-project",
+                    str(apple_repo / "DJConnectApp.xcodeproj"),
+                    "-scheme",
+                    "DJConnectIOS",
+                    "-showBuildSettings",
+                    "-json",
+                    "-allowProvisioningUpdates",
+                ): (1, "No Accounts: Add a developer account in Xcode Accounts settings."),
+            })
+
+            with patch.dict(os.environ, _signing_env(profiles_dir), clear=False):
+                result = AppleQualificationConfigPreparer(root, apple_repo=apple_repo, runner=runner).prepare()
+
+            checks = {check["name"]: check for check in result.checks}
+            self.assertEqual("BLOCKED", result.state)
+            self.assertEqual("BLOCKED", checks["xcode_account"]["state"])
+            self.assertEqual("PASS", checks["distribution_signing_assets"]["state"])
+            self.assertIn("VPB-037", result.followups_blocked)
+
+    def test_adapter_discovers_simulators_with_mocked_runner(self) -> None:
+        runner = FakeRunner({("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_JSON)})
+        adapter = AppleVerificationAdapter(AppleAdapterConfig(), runner=runner)
+
+        result = adapter.discover_simulators()
+
+        self.assertTrue(result.ok)
+        self.assertEqual("SIM-IPHONE", result.data["devices"][0]["udid"])
+        self.assertIn(("xcrun", "simctl", "list", "devices", "available", "--json"), runner.commands)
+
+    def test_validate_target_identity_fails_closed_without_target(self) -> None:
+        adapter = AppleVerificationAdapter(AppleAdapterConfig(), runner=FakeRunner())
+
+        result = adapter.validate_target_identity()
+
+        self.assertFalse(result.ok)
+        self.assertEqual("AppleTargetUnavailable", result.data["error"])
+
+    def test_physical_device_requires_explicit_opt_in(self) -> None:
+        target = AppleRuntimeTarget(target_id="iphone", runtime="physical", variant="ios", udid="DEVICE")
+        adapter = AppleVerificationAdapter(AppleAdapterConfig(target=target), runner=FakeRunner())
+
+        result = adapter.validate_target_identity()
+
+        self.assertFalse(result.ok)
+        self.assertEqual("PhysicalDeviceExecutionNotConfigured", result.data["error"])
+
+    def test_install_launch_terminate_use_simctl_primitives(self) -> None:
+        target = AppleRuntimeTarget(
+            target_id="iphone-sim",
+            runtime="simulator",
+            variant="ios",
+            udid="SIM-IPHONE",
+            bundle_id="dev.djconnect.ios",
+            app_path=Path("/tmp/DJConnect.app"),
+        )
+        runner = FakeRunner()
+        adapter = AppleVerificationAdapter(AppleAdapterConfig(target=target), runner=runner)
+
+        install = adapter.install_app()
+        launch = adapter.launch_app()
+        terminate = adapter.terminate_app()
+
+        self.assertTrue(install.ok)
+        self.assertTrue(launch.ok)
+        self.assertTrue(terminate.ok)
+        self.assertIn(("xcrun", "simctl", "boot", "SIM-IPHONE"), runner.commands)
+        self.assertIn(("xcrun", "simctl", "bootstatus", "SIM-IPHONE", "-b"), runner.commands)
+        self.assertIn(("xcrun", "simctl", "install", "SIM-IPHONE", "/tmp/DJConnect.app"), runner.commands)
+        self.assertIn(("xcrun", "simctl", "launch", "SIM-IPHONE", "dev.djconnect.ios"), runner.commands)
+        self.assertIn(("xcrun", "simctl", "terminate", "SIM-IPHONE", "dev.djconnect.ios"), runner.commands)
+
+    def test_screenshot_requires_evidence_directory(self) -> None:
+        target = AppleRuntimeTarget(target_id="iphone-sim", runtime="simulator", variant="ios", udid="SIM-IPHONE")
+        adapter = AppleVerificationAdapter(AppleAdapterConfig(target=target), runner=FakeRunner())
+
+        result = adapter.capture_screenshot("PROFILE-001")
+
+        self.assertFalse(result.ok)
+        self.assertEqual("EvidenceDirectoryUnavailable", result.data["error"])
+
+    def test_screenshot_records_evidence_item(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            target = AppleRuntimeTarget(target_id="iphone-sim", runtime="simulator", variant="ios", udid="SIM-IPHONE")
+            adapter = AppleVerificationAdapter(
+                AppleAdapterConfig(target=target, evidence_dir=Path(tmp)),
+                runner=FakeRunner(),
+            )
+
+            result = adapter.capture_screenshot("PROFILE-001")
+
+            self.assertTrue(result.ok)
+            self.assertEqual(1, len(result.evidence))
+            self.assertEqual("screenshot", result.evidence[0].kind)
+
+    def test_redacts_sensitive_operation_arguments(self) -> None:
+        adapter = AppleVerificationAdapter(AppleAdapterConfig(), runner=FakeRunner())
+
+        result = adapter.execute_action(PrimitiveAction("unknown", {"token": "secret-token"}))
+
+        self.assertFalse(result.ok)
+        self.assertNotIn("secret-token", str(result.data))
+
+    def test_scenario_engine_executes_apple_only_scenario_through_adapter(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            app_path = Path(tmp) / "DJConnect.app"
+            app_path.write_text("fixture", encoding="utf-8")
+            target = AppleRuntimeTarget(
+                target_id="iphone-sim",
+                runtime="simulator",
+                variant="ios",
+                udid="SIM-IPHONE",
+                bundle_id="dev.djconnect.ios",
+                app_path=app_path,
+            )
+            registry = AdapterRegistry()
+            registry.register(AppleVerificationAdapter(AppleAdapterConfig(target=target), runner=FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_JSON),
+            })))
+            scenario = Scenario(
+                id="APPLE-UNIT-001",
+                title="Apple adapter primitive smoke",
+                description="Adapter-only smoke test fixture.",
+                category="Capabilities",
+                priority="P1",
+                verification_level="V4",
+                automation_level="automated",
+                required_components=("Apple",),
+                raw={
+                    "supported_platforms": ["iOS"],
+                    "requires": {"capabilities": ["apple.runtime"]},
+                },
+            )
+
+            result = ScenarioEngine(registry).execute([scenario])[0]
+
+            self.assertEqual("PASS", result.state)
+            self.assertIn("Apple adapter", result.message)
+
+    def test_execution_environment_summarizes_simulator_metadata(self) -> None:
+        runner = FakeRunner(
+            {
+                ("xcodebuild", "-version"): (0, "Xcode 26.0\nBuild version 17A1"),
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_JSON),
+            }
+        )
+
+        platform = AppleDevelopmentEnvironment(runner).simulators()
+
+        self.assertEqual("available", platform.state)
+        self.assertEqual("SIM-IPHONE", platform.metadata["devices"][0]["udid"])
+
+    def test_phase_10e_runtime_qualification_fails_closed_without_target_and_build_config(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            (apple_repo / "release.sh").write_text("#!/bin/sh\n", encoding="utf-8")
+
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": "",
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": "",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "",
+                    **_no_cross_device_targets_env(),
+                },
+                clear=False,
+            ):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            self.assertEqual("BLOCKED", result.state)
+            self.assertFalse(result.broad_scenario_execution_allowed)
+            states = {check.name: check.state for check in result.checks}
+            self.assertEqual("BLOCKED", states["release_equivalent_build"])
+            self.assertEqual("BLOCKED", states["simulator_target"])
+            self.assertEqual("SKIPPED", states["physical_device_target"])
+            self.assertTrue((Path(result.evidence_dir) / "summary.json").exists())
+
+    def test_latest_ios_simulator_runtime_selects_highest_stable_ios_runtime_by_default(self) -> None:
+        runner = FakeRunner({("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON)})
+
+        with patch.dict("os.environ", {"DJCONNECT_VERIFICATION_TEST_MODE": "stable"}, clear=False):
+            runtime = latest_ios_simulator_runtime(runner)
+
+        self.assertIsNotNone(runtime)
+        self.assertEqual("26.5", runtime["version"])
+        self.assertEqual("stable", runtime["channel"])
+        self.assertEqual(["SIM-IOS-26-5"], runtime["udids"])
+
+    def test_latest_ios_simulator_runtime_selects_beta_ios_runtime_in_future_beta_mode(self) -> None:
+        runner = FakeRunner({("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON)})
+
+        with patch.dict("os.environ", {"DJCONNECT_VERIFICATION_TEST_MODE": "future_beta"}, clear=False):
+            runtime = latest_ios_simulator_runtime(runner)
+
+        self.assertIsNotNone(runtime)
+        self.assertEqual("27.0", runtime["version"])
+        self.assertEqual("beta", runtime["channel"])
+        self.assertEqual(["SIM-IOS-27-0"], runtime["udids"])
+
+    def test_phase_10e_runtime_qualification_blocks_beta_ios_target_in_stable_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            profiles_dir = Path(tmp) / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            target_json = json.dumps(
+                {
+                    "target_id": "beta-ios",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "iPhone 17",
+                    "udid": "SIM-IOS-27-0",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                }
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_TEST_MODE": "stable",
+                    **_signing_env(profiles_dir),
+                    **_no_cross_device_targets_env(),
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+            })):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            simulator = next(check for check in result.checks if check.name == "simulator_target")
+            self.assertEqual("BLOCKED", simulator.state)
+            self.assertIn("latest eligible iOS runtime", simulator.message)
+
+    def test_phase_10e_runtime_qualification_blocks_when_latest_ios_runtime_unknown(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            profiles_dir = Path(tmp) / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            target_json = json.dumps(
+                {
+                    "target_id": "ios-target",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "iPhone 17",
+                    "udid": "SIM-IOS-27-0",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                }
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    **_signing_env(profiles_dir),
+                    **_no_cross_device_targets_env(),
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (1, "simctl failed"),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+            })):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            simulator = next(check for check in result.checks if check.name == "simulator_target")
+            self.assertEqual("BLOCKED", simulator.state)
+            self.assertIn("could not be determined", simulator.message)
+
+    def test_phase_10e_runtime_qualification_cleans_derived_data_before_build(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            derived_data = root / "artifacts" / "verification" / "DerivedData"
+            stale_file = derived_data / "stale-build-output"
+            profiles_dir = Path(tmp) / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            derived_data.mkdir(parents=True)
+            stale_file.write_text("old", encoding="utf-8")
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            target_json = json.dumps(
+                {
+                    "target_id": "ios-target",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "iPhone 17 Pro",
+                    "udid": "SIM-IOS-27-0",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                }
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": f"test ! -e {shlex.quote(str(stale_file))}",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(derived_data),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    **_signing_env(profiles_dir),
+                    **_no_cross_device_targets_env(),
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+            })):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            states = {check.name: check.state for check in result.checks}
+            derived_check = next(check for check in result.checks if check.name == "derived_data_isolation")
+            self.assertEqual("PASS", states["derived_data_isolation"])
+            self.assertEqual("PASS", states["distribution_signing_assets"])
+            self.assertEqual("PASS", states["release_equivalent_build"])
+            self.assertTrue(derived_check.data["cleaned_before_build"])
+            self.assertFalse(stale_file.exists())
+
+    def test_phase_10e_runtime_qualification_blocks_without_distribution_signing_assets(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            target_json = json.dumps(
+                {
+                    "target_id": "ios-target",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "iPhone 17 Pro",
+                    "udid": "SIM-IOS-27-0",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                }
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "false",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY": "",
+                    "DJCONNECT_VERIFICATION_APPLE_TEAM_ID": "",
+                    "DJCONNECT_VERIFICATION_APPLE_BUNDLE_ID": "",
+                    "DJCONNECT_VERIFICATION_APPLE_PROVISIONING_PROFILE": "",
+                    "DJCONNECT_VERIFICATION_APPLE_PROFILES_DIR": "",
+                    "DJCONNECT_VERIFICATION_APPLE_REQUIRE_DISTRIBUTION_SIGNING": "1",
+                    **_no_cross_device_targets_env(),
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+            })), patch.object(apple_runtime_module, "_run_shell", side_effect=AssertionError("live shell command should not run when signing is blocked")):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            states = {check.name: check.state for check in result.checks}
+            signing_check = next(check for check in result.checks if check.name == "distribution_signing_assets")
+            self.assertEqual("BLOCKED", states["distribution_signing_assets"])
+            self.assertEqual("BLOCKED", states["release_equivalent_build"])
+            self.assertEqual("BLOCKED", states["install"])
+            self.assertEqual("BLOCKED", states["ui_automation_healthcheck"])
+            self.assertIn("DJCONNECT_VERIFICATION_APPLE_DISTRIBUTION_IDENTITY", signing_check.data["missing"])
+
+    def test_phase_10e_runtime_qualification_blocks_without_xcode_account(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            profiles_dir = Path(tmp) / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            target_json = json.dumps(
+                {
+                    "target_id": "ios-target",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "iPhone 17 Pro",
+                    "udid": "SIM-IOS-27-0",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                }
+            )
+            xcode_account_command = (
+                "xcodebuild",
+                "-project",
+                str(apple_repo / "DJConnectApp.xcodeproj"),
+                "-scheme",
+                "DJConnectIOS",
+                "-showBuildSettings",
+                "-json",
+                "-allowProvisioningUpdates",
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": target_json,
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "false",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_TEST_MODE": "future_beta",
+                    **_signing_env(profiles_dir),
+                    **_no_cross_device_targets_env(),
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+                xcode_account_command: (1, "Invalid credentials in keychain, missing Xcode-Username"),
+            })), patch.object(apple_runtime_module, "_run_shell", side_effect=AssertionError("build command should not run when Xcode account is blocked")):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            states = {check.name: check.state for check in result.checks}
+            xcode_account = next(check for check in result.checks if check.name == "xcode_account")
+            self.assertEqual("BLOCKED", states["xcode_account"])
+            self.assertEqual("PASS", states["distribution_signing_assets"])
+            self.assertEqual("BLOCKED", states["release_equivalent_build"])
+            self.assertIn("Xcode-Username", xcode_account.data["output_tail"])
+
+    def test_phase_10e_runtime_qualification_passes_configured_cross_device_targets(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            profiles_dir = Path(tmp) / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            primary_target = {
+                "target_id": "ios-27-primary",
+                "variant": "ios",
+                "runtime": "simulator",
+                "name": "iPhone 17 Pro",
+                "udid": "SIM-IOS-27-0",
+                "bundle_id": "dev.djconnect.ios",
+                "app_path": str(app_path),
+            }
+            cross_targets = [
+                primary_target | {"ios_version": "27.0"},
+                {
+                    "target_id": "ios-26-secondary",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "iPhone 17",
+                    "udid": "SIM-IOS-26-5",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                    "ios_version": "26.5",
+                },
+            ]
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": json.dumps(primary_target),
+                    "DJCONNECT_VERIFICATION_APPLE_TARGETS_JSON": json.dumps(cross_targets),
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_TEST_MODE": "future_beta",
+                    **_signing_env(profiles_dir),
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+            })):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            cross_check = next(check for check in result.checks if check.name == "cross_device_simulator_targets")
+            self.assertEqual("PASS", cross_check.state)
+            self.assertEqual(2, len(cross_check.data["targets"]))
+
+    def test_phase_10e_runtime_qualification_blocks_missing_cross_device_target(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "djconnect"
+            apple_repo = Path(tmp) / "djconnect-app"
+            app_path = Path(tmp) / "DJConnect.app"
+            profiles_dir = Path(tmp) / "profiles"
+            _write_distribution_profile(profiles_dir)
+            (root / "artifacts" / "verification" / "evidence").mkdir(parents=True)
+            (apple_repo / "DJConnectApp.xcodeproj").mkdir(parents=True)
+            (apple_repo / "App.entitlements").write_text("<plist/>", encoding="utf-8")
+            app_path.write_text("fixture", encoding="utf-8")
+            primary_target = {
+                "target_id": "ios-27-primary",
+                "variant": "ios",
+                "runtime": "simulator",
+                "name": "iPhone 17 Pro",
+                "udid": "SIM-IOS-27-0",
+                "bundle_id": "dev.djconnect.ios",
+                "app_path": str(app_path),
+            }
+            cross_targets = [
+                primary_target | {"ios_version": "27.0"},
+                {
+                    "target_id": "missing-ios",
+                    "variant": "ios",
+                    "runtime": "simulator",
+                    "name": "Missing iPhone",
+                    "udid": "SIM-MISSING",
+                    "bundle_id": "dev.djconnect.ios",
+                    "app_path": str(app_path),
+                    "ios_version": "26.5",
+                },
+            ]
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_APPLE_TARGET_JSON": json.dumps(primary_target),
+                    "DJCONNECT_VERIFICATION_APPLE_TARGETS_JSON": json.dumps(cross_targets),
+                    "DJCONNECT_VERIFICATION_APPLE_BUILD_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_APPLE_DERIVED_DATA": str(root / "artifacts" / "verification" / "DerivedData"),
+                    "DJCONNECT_VERIFICATION_APPLE_UI_DRIVER": "XCTest",
+                    "DJCONNECT_VERIFICATION_APPLE_UI_HEALTHCHECK_COMMAND": "true",
+                    "DJCONNECT_VERIFICATION_TEST_MODE": "future_beta",
+                    **_signing_env(profiles_dir),
+                },
+                clear=False,
+            ), patch("tools.verification.apple_runtime_qualification.CommandRunner", lambda: FakeRunner({
+                ("xcrun", "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                ("security", "find-identity", "-v", "-p", "codesigning"): (0, SIGNING_IDENTITY_OUTPUT),
+            })):
+                result = AppleRuntimeQualification(root, apple_repo=apple_repo).run()
+
+            cross_check = next(check for check in result.checks if check.name == "cross_device_simulator_targets")
+            self.assertEqual("BLOCKED", cross_check.state)
+            self.assertEqual("SIM-MISSING", cross_check.data["missing"][0]["target"]["udid"])
+
+    def test_apple_toolchain_blocks_xcode_beta_outside_future_beta_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(
+            "os.environ",
+            {
+                "DJCONNECT_VERIFICATION_TEST_MODE": "stable",
+                "DJCONNECT_VERIFICATION_XCODE_CHANNEL": "beta",
+                "DJCONNECT_VERIFICATION_XCODE_BETA_DEVELOPER_DIR": str(Path(tmp) / "Xcode-beta.app/Contents/Developer"),
+            },
+            clear=False,
+        ):
+            result = AppleToolchainMaintenance(Path(tmp), runner=FakeRunner()).ensure_ios_runtime()
+
+        self.assertEqual("BLOCKED", result.state)
+        self.assertEqual("xcode_beta_requires_future_beta_test_mode", result.xcode_selection["reason"])
+
+    def test_apple_toolchain_uses_xcode_beta_tools_in_future_beta_mode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            developer_dir = Path(tmp) / "Xcode-beta.app/Contents/Developer"
+            xcodebuild = str(developer_dir / "usr/bin/xcodebuild")
+            xcrun = str(developer_dir / "usr/bin/xcrun")
+            runner = FakeRunner(
+                {
+                    (xcodebuild, "-version"): (0, "Xcode 27.0 beta\nBuild version 18A1"),
+                    ("softwareupdate", "--list"): (0, "No new software available."),
+                    (xcodebuild, "-downloadPlatform", "iOS"): (0, "downloaded"),
+                    (xcrun, "simctl", "list", "devices", "available", "--json"): (0, SIMCTL_MULTI_IOS_JSON),
+                }
+            )
+            with patch.dict(
+                "os.environ",
+                {
+                    "DJCONNECT_VERIFICATION_TEST_MODE": "future_beta",
+                    "DJCONNECT_VERIFICATION_XCODE_CHANNEL": "beta",
+                    "DJCONNECT_VERIFICATION_XCODE_BETA_DEVELOPER_DIR": str(developer_dir),
+                },
+                clear=False,
+            ):
+                result = AppleToolchainMaintenance(Path(tmp), runner=runner).ensure_ios_runtime()
+
+        self.assertEqual("PASS", result.state)
+        self.assertEqual("beta", result.xcode_selection["channel"])
+        self.assertIn((xcodebuild, "-downloadPlatform", "iOS"), runner.commands)
+        self.assertIn((xcrun, "simctl", "list", "devices", "available", "--json"), runner.commands)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "classification": "CONFIRMED_CODE",
+  "home_assistant_routes": [
+    "/api/djconnect/v1/push/bootstrap",
+    "/api/djconnect/v1/push/register",
+    "/api/djconnect/v1/push/unregister"
+  ],
+  "central_api_routes": [
+    "/v1/install/bootstrap-proof",
+    "/v1/pairing/bootstrap-proof",
+    "/v1/install/token",
+    "/v1/install/rotate",
+    "/v1/push/register",
+    "/v1/push/unregister",
+    "/v1/push/event"
+  ],
+  "supported_client_types": ["ios", "macos", "watchos"],
+  "storage": "Cloudflare D1 registrations with APNs token hash/encrypted fields",
+  "delivery": ["https://api.sandbox.push.apple.com/3/device/{token}", "https://api.push.apple.com/3/device/{token}"]
+}

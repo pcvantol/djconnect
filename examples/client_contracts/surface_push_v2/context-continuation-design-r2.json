@@ -1,0 +1,133 @@
+{
+  "status": "PROPOSED_EXACT_CONTRACT_FOR_REVIEW_NOT_IMPLEMENTED_OR_OPERATIVE",
+  "created_at": "2026-10-23T11:47:39.051359+00:00",
+  "source_base": "f1b711bc2fd40e25dde13bb7f54c4adf52e7294b",
+  "purpose": "Original paired Core context\u2192widget registration continuity; not issuer enrollment/rights",
+  "context_request": {
+    "route": "POST /api/djconnect/v1/push/surface/context",
+    "exact_keys": [
+      "contract_version",
+      "device_id",
+      "client_type",
+      "session_id",
+      "operation_id"
+    ],
+    "contract_version": 2,
+    "operation_id": "Original client-captured UUIDv7 also used for the subsequent register; same-ID recovery only; original5minute operation deadline/30second skew, never a new timestamp on retry"
+  },
+  "context_success": {
+    "http": 200,
+    "exact_keys": [
+      "success",
+      "contract_version",
+      "available",
+      "context_handle",
+      "operation_id",
+      "purpose_ref",
+      "expires_at_ms",
+      "context_expires_at_ms",
+      "cache_policy"
+    ],
+    "contract_version": 2,
+    "context_handle": "Server random djcctx_ prefixed32-byte base64url opaque RAM handle; no purpose bearer/private identity export",
+    "expires_at_ms": "Exact ORIGINAL purpose registration expiry from already admitted purpose; immutable across contexts and registration rotations, never firstcontext+30s",
+    "cache_policy": "private,no-store",
+    "context_expires_at_ms": "Separate submit deadline: min(originalpurposeexpiry, originalUUIDv7+5min, firstcontextacquisitionwall+30s), with original monotonic pin; repeated/lostcontext same UUID never reanchors it",
+    "purpose_ref": "Opaque djcpref_ prefixed32-byte server RAM identity assigned ONCE per SAME original admitted purpose OBJECT (is identity, not expiry/hash/localUUID). Stable across distinct operation/context handles for native token rotation; never a bearer or new enrollment witness."
+  },
+  "register_request": {
+    "route": "POST /api/djconnect/v1/push/surface/register",
+    "contract_version": 2,
+    "keys": "Existing exact v1 registration keys plus context_handle; no other added fields",
+    "operation_id": "MUST equal context original operation_id",
+    "target_role": "widget only in this increment; existing original purpose policy remains independent",
+    "internal_adapter": "After exact v2 validation, existing validator/registry/SQL journal/relay retain their original v1 payload semantics; context_handle never forwarded to API/provider"
+  },
+  "register_response": {
+    "contract_version": 2,
+    "confirmed_variant": {
+      "exact_keys": [
+        "contract_version",
+        "context_handle",
+        "operation_id",
+        "purpose_ref",
+        "success",
+        "replayed",
+        "operation",
+        "registration",
+        "background_read"
+      ],
+      "success": true,
+      "registration": "Original existing Core receipt; receipt.expires_at_ms MUST equal context.expires_at_ms original purpose expiry, never context_expires_at_ms; exact original coordinates/revision preserved",
+      "background_read": "Existing separate original djcsurface read metadata only after successful current ACK; widget background consent is required"
+    },
+    "unconfirmed_or_replayed_unsuccessful_variant": {
+      "exact_keys": [
+        "contract_version",
+        "context_handle",
+        "operation_id",
+        "purpose_ref",
+        "success",
+        "replayed",
+        "operation",
+        "registration"
+      ],
+      "success": false,
+      "registration": "Original current receipt or null according to unchanged registry; no background credential or readiness restoration"
+    },
+    "http_error_variant": {
+      "exact_keys": [
+        "success",
+        "error"
+      ],
+      "success": false,
+      "error": "Original static typed code/status; no operation/purpose/credential export or generic success"
+    },
+    "echo": "All v2 outer echoes MUST match originally captured context/operation/purpose_ref; never derived from ACK after await",
+    "internal_API_wire": "UNCHANGED v1; Core outer envelope fields never forwarded"
+  },
+  "other_routes": {
+    "revoke_status_read": "Unchanged v1 semantics and separate original authority; no context is substituted for those credentials"
+  },
+  "old_client_handling": "V1 context and metadata-only register are explicitly rejected with surface_context_required409 before any paired-await/effect; no fallback bypass",
+  "context_state": {
+    "key": "Exact service/manager/storage/runtime/owner/device/binding/Session/Broadcast/source/purpose object and original operation_id; never expiry equality or UUID alone",
+    "duplicate_acquisition": "Same original tuple+operation returns same handle/original deadlines even after lost response; immutable counter entry is not removed to restore budget",
+    "first_register": "Freeze exact canonical registration digest and original operation in record before first relevant registration await; conflicting digest/coordinates reject",
+    "closed_and_history": "Terminal context never becomes live again. Retain minimal hashes/operation coordinates only; erase live captures/paired headers after withdrawal/expiry/end. Existing registry status remains separate. No issue/acquire retry on uncertain remote result.",
+    "purpose_continuity": "Original server stable purpose_ref ties multiple operation-specific contexts to SAME admitted purpose object and original expiry. A changed original purpose always gets a different ref even if owner/Session/expiry compare equal. Tombstones retain the ref and consumed counts; live purpose/source/capture references scrubbed on retirement. Use retained weak identity plus original is-checks, not hashing a credential whose bearer is scrubbed, not raw object-id equality or matching opaque hashes.",
+    "after_submit_expiry": "No new context operation or new registration attempt is automatically minted. Same handle is terminal/expired; existing separate status authority only reports original known coordinates and cannot supply a new grant. If a lost ACK leaves no client-known coordinate, report unknown/unavailable rather than infer success or recover via a new UUID.",
+    "restart": "All old handles/ref become unknown; no context tombstone import or replacement owner. Normal startup has no admitted purpose; original real enrollment/purpose service admission must be re-established independently. This cannot reset an issuer/service persisted attempt budget."
+  },
+  "bounds": {
+    "total_retained_handles": 64,
+    "per_owner": 16,
+    "per_device": 8,
+    "pending": 8,
+    "per_original_purpose_acquisitions": 8,
+    "history": "No eviction or restart import that reopens consumed context/budgets; whole service restart makes every old handle unknown, new purpose admission still required as usual"
+  },
+  "fences": [
+    "Pending latch/capture original before first await",
+    "Synchronous Session end/unload/withdrawal/close fences both pending and accepted continuation",
+    "Reauthenticate original paired request; validate original context before/after awaits and final no-await binding",
+    "Original UTC+monotonic deadline and current_task.cancelling checks, no lease/budget/issuer issue UUID reset",
+    "No request-local substitute owner/custodian, arbitrarypurposeimport or Activity/start permission"
+  ],
+  "closed_errors": {
+    "surface_context_required": 409,
+    "surface_context_unknown": 409,
+    "surface_context_expired": 409,
+    "surface_context_conflict": 409,
+    "surface_context_capacity": 503,
+    "existing_current_auth_source_errors": "Original401/403/404/503 remain strict and do not mint a replacement context"
+  },
+  "required_review_questions": [
+    "Separate original expires_at_ms versus context_expires_at_ms now exact; client must pin both BEFORE register awaits and compare receipt only to original purpose expiry.",
+    "Stable server purpose_ref ties exact same original purpose across two native-token rotation operation IDs; contexts remain per operation. Do original witness types need any additional opaque nonsecret coordinate?",
+    "Confirmed/unconfirmed/error exact variants and context expiration/lost-ACK unknown behavior accepted without automatic new UUID/credential recovery?"
+  ],
+  "delivery_guard": "Only implement after existing separateFinal qualifies and exact Core/Apple contract review; all current fixtures historical preserved, new actual HA originals required; no actual custody/admission/activation/native GO",
+  "revision": 2,
+  "supersedes_proposal_sha256": "4c07759e6123dc763b3f62ae6c063968444700a14fce96f66d21fd127c50f2b6"
+}

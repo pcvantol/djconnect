@@ -1,0 +1,40 @@
+profile_id: ha-full
+inherits:
+  - ha-assist
+  - ha-music
+provided_capabilities:
+  - network.offline_control
+services:
+  - evidence_helper
+compose_fragments:
+  - docker/verification/compose.observability.yaml
+bootstrap_actions:
+  - network.policy_control
+  - evidence.helper_probe
+readiness_gates:
+  - evidence.storage
+required_secrets: []
+supported_scenario_categories:
+  - Setup
+  - Profiles
+  - Identity
+  - Resolver
+  - Ask DJ
+  - Music DNA
+  - Discover
+  - Track Insight
+  - Playback
+  - Backend
+  - Privacy
+  - Localization
+  - Performance
+  - Hardware
+  - Networking
+  - Capabilities
+  - Regression
+  - Export
+  - Import
+cost:
+  startup_seconds: 600
+  runtime: high
+persistence: persistent

@@ -1,0 +1,62 @@
+{
+  "phase": "10E retry after 10E-R3",
+  "decision": "APPLE_SCENARIO_COVERAGE_QUALIFIED_WITH_WARNINGS",
+  "status": "qualified_with_warnings",
+  "runtime_run_id": "apple10e-20260711T222229Z-657e8945b1",
+  "runtime_evidence_dir": "artifacts/verification/evidence/apple10e-20260711T222229Z-657e8945b1/",
+  "scenario_run_id": "djv-20260711T222533Z-fe2a0bcda5",
+  "scenario_evidence_dir": "artifacts/verification/evidence/djv-20260711T222533Z-fe2a0bcda5/",
+  "toolchain_run_id": "appletoolchain-20260711T221128Z-914cdf77e6",
+  "toolchain_evidence_dir": "artifacts/verification/evidence/appletoolchain-20260711T221128Z-914cdf77e6/",
+  "broad_scenario_execution_allowed": true,
+  "summary": "Phase 10E was retried after Phase 10E-R3 remediated Apple scenario planner mapping. The smoke planner selects APPLE-001 as an Apple adapter executable case, Apple runtime qualification passed on iOS 26.5, and APPLE-001 executed through the Scenario Engine and Apple adapter with PASS evidence.",
+  "planner_result": {
+    "command": "/private/tmp/djconnect-phase9e-venv/bin/python -m tools.verification.cli plan --strategy smoke --policy smoke --format json",
+    "case_count": 45,
+    "scenario_count": 51,
+    "by_platform": {
+      "Apple": 1,
+      "HA": 44
+    },
+    "apple_adapter_cases": 1,
+    "apple_scenarios": [
+      "APPLE-001"
+    ]
+  },
+  "scenario_execution": {
+    "command": "/private/tmp/djconnect-phase9e-venv/bin/python -m tools.verification.cli --env-file artifacts/verification/apple/phase10e.env --apple-adapter execute --scenario-id APPLE-001",
+    "scenario_id": "APPLE-001",
+    "state": "PASS",
+    "executed_scenarios": 1,
+    "total_execution_seconds": 2.0113266659900546
+  },
+  "runtime_checks": {
+    "toolchain_maintenance": "PASS",
+    "derived_data_isolation": "PASS",
+    "apns_entitlements": "PASS",
+    "xcode_account": "PASS",
+    "distribution_signing_assets": "SKIPPED_POLICY_DEFERRED",
+    "release_equivalent_build": "PASS",
+    "simulator_target": "PASS",
+    "cross_device_simulator_targets": "SKIPPED_POLICY_DEFERRED",
+    "physical_device_target": "SKIPPED_POLICY_DEFERRED",
+    "install": "PASS",
+    "launch": "PASS",
+    "screenshot": "PASS",
+    "log_collection": "PASS",
+    "ui_automation_healthcheck": "PASS"
+  },
+  "warnings": [
+    "Apple coverage is limited to the first runtime-smoke scenario set.",
+    "Broader Apple product and UI journey scenarios remain future coverage work.",
+    "watchOS paired simulator orchestration remains deferred.",
+    "Physical-device execution remains explicit opt-in and was skipped.",
+    "App Store/TestFlight distribution signing remains deferred to release v1.0 readiness."
+  ],
+  "classification": {
+    "primary": "Qualified with warnings",
+    "owner": "Verification Platform",
+    "blocking": false,
+    "notes": "Warnings are non-blocking for the next adapter phase because the first Apple executable scenario set now plans and passes through the Apple adapter."
+  }
+}

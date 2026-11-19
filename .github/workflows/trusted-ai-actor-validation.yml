@@ -1,0 +1,37 @@
+name: Trusted AI actor validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          persist-credentials: false
+      - id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          app-id: ${{ vars.DJCONNECT_TRUSTED_DELIVERY_APP_ID }}
+          private-key: ${{ secrets.DJCONNECT_TRUSTED_DELIVERY_PRIVATE_KEY }}
+          owner: pcvantol
+          repositories: djconnect
+      - name: Validate installation and bounded branch/PR access
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          set -euo pipefail
+          gh api repos/${GITHUB_REPOSITORY}/commits/main/check-runs --jq '.total_count' >/dev/null
+          branch="trusted-delivery-validation-${GITHUB_RUN_ID}"
+          git config user.name "DJConnect Trusted Delivery[bot]"
+          git config user.email "4281587+djconnect-trusted-delivery[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: validate trusted delivery actor"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${branch}"
+          pr_url="$(gh pr create --base main --head "${branch}" --title "chore: trusted delivery actor validation" --body "Automated bounded capability validation; closes immediately.")"
+          gh pr close "${pr_url}" --delete-branch

@@ -1,0 +1,73 @@
+{
+  "schema_version": 3,
+  "kind": "platform_release_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.0.0-rc.6-pi-two-instance-20261021",
+  "candidate_sha": "0dde0abe22a0859f170a7c1d3eab41f1ade44d37",
+  "platform_version": "4.0",
+  "release_version": "4.0.0-rc.6",
+  "release_profile": "INTERNAL_RELEASE",
+  "generated_at": "2026-10-21T19:43:41.606051Z",
+  "inventory_id": "pi-wall-devices-20261020-v1",
+  "inventory_sha256": "530220ee38f6ccbcc824a78331b9dd89f236a5fa6ede12ebf7899dac83ff50c0",
+  "required_targets": [
+    {
+      "target": "rbpi-djconnect",
+      "deployment_instance": "wall-4inch",
+      "device_profile": "pi-zero-2w-arm64"
+    },
+    {
+      "target": "rbpi-djconnect",
+      "deployment_instance": "wall-10inch",
+      "device_profile": "pi5-arm64"
+    }
+  ],
+  "consumer": {
+    "repository": "pcvantol/djconnect-pi",
+    "source_sha": "0dde0abe22a0859f170a7c1d3eab41f1ade44d37",
+    "smoke_contract_id": "pi-rc6-instance-readback-v1"
+  },
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-10-21T15:50:58Z",
+    "approved_statement": "Peter requested installation of the latest consolidated Pi version and selected this same Core owner for the bounded rc.6 contract. This protected exact-candidate process binds that scope to the qualified source, consumer and published profile bytes; it is not a claim that the earlier human message named these later hashes.",
+    "authority_record": "docs/verification/PI_RC6_OPERATIONAL_BINDING_20261021.md; original direct human installation and rc.6 selection retained privately and independently read via the native owning chat; exact Core Owner Authorization and separate Finalization required."
+  },
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect-pi",
+      "source_sha": "0dde0abe22a0859f170a7c1d3eab41f1ade44d37",
+      "version": "4.0.0-rc.6",
+      "artifact_run": "39658681213"
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "pcvantol/djconnect-pi-releases",
+      "target": "rbpi-djconnect",
+      "deployment_instance": "wall-4inch",
+      "device_profile": "pi-zero-2w-arm64",
+      "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v4.0.0-rc.6:djconnect-pi-pi-zero-2w-arm64-4.0.0-rc.6.tar.gz",
+      "artifact_sha256": "d67869ffca53c4936059bdbbdbdf6be63b36eafac269fa2f3f9b090922cd0d64",
+      "artifact_url": "https://github.com/pcvantol/djconnect-pi-releases/releases/download/v4.0.0-rc.6/djconnect-pi-pi-zero-2w-arm64-4.0.0-rc.6.tar.gz"
+    },
+    {
+      "owner": "pcvantol/djconnect-pi-releases",
+      "target": "rbpi-djconnect",
+      "deployment_instance": "wall-10inch",
+      "device_profile": "pi5-arm64",
+      "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v4.0.0-rc.6:djconnect-pi-pi5-arm64-4.0.0-rc.6.tar.gz",
+      "artifact_sha256": "650e3a00d4fd882c3d8f28b5003d8eafe1be6f52b2ca556e91dc8df48cdae540",
+      "artifact_url": "https://github.com/pcvantol/djconnect-pi-releases/releases/download/v4.0.0-rc.6/djconnect-pi-pi5-arm64-4.0.0-rc.6.tar.gz"
+    }
+  ],
+  "constraints": [
+    "This candidate is not dispatch authority until exact independent review, applicable Owner Authorization, protected Core source and distinct Finalization with actual canonical qualification are read back.",
+    "Use only these versioned artifact identities and protected SHA256 values. GitHub native immutable is false; no repository-enforced immutability or availability guarantee is claimed. Downloaded bytes and publication provenance must match on each use.",
+    "Use the qualified rc.6 consumer and closed inventory. Verify fresh fixed configuration, negotiated ed25519 fingerprint, hostname, complete model, architecture and device profile before each mutation.",
+    "Serialize each physical instance; no automatic retry, failover, destructive rollback, credential or sudo change, or inferred cancellation.",
+    "Preserve configuration, pairing, server Profile, previous release and recovery evidence. No pairing reset, Profile selection, HA repair or broader target is authorized here.",
+    "Readiness, deployment and separate matching smoke remain per instance. Overall operational success requires both actual current successful deployment and smoke joins.",
+    "Core prepares the producer binding only. The Pi owner retains current per-instance execution and readiness gates; this is not installed, physical touch, native, live Session, audio or user acceptance."
+  ]
+}

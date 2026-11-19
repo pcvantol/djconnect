@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "profile_version": "1.0",
+  "id": "chaos",
+  "purpose": "High-risk mixed payloads for future fuzz and resilience checks",
+  "generator_refs": ["security.payloads.v1", "performance.large_payloads.v1", "strings.boundary.v1"],
+  "selection": {
+    "strings": ["control_characters", "zero_width", "mixed_encoding", "unicode_homoglyphs"],
+    "security": ["nested_json", "oversized_payload", "malformed_arrays", "malformed_objects"],
+    "arrays": ["mixed_types", "random_order", "duplicates"]
+  },
+  "max_generated_items": 2000,
+  "default_enabled": false,
+  "traceability": {
+    "verification_modes": ["chaos"],
+    "risk_categories": ["resilience", "availability", "parser_robustness"]
+  }
+}

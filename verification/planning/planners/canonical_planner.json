@@ -1,0 +1,52 @@
+{
+  "id": "canonical_verification_planning_engine",
+  "version": "1.0",
+  "owns": [
+    "scenario_selection",
+    "policy_expansion",
+    "matrix_expansion",
+    "data_profile_expansion",
+    "mode_expansion",
+    "environment_matching",
+    "adapter_selection",
+    "execution_ordering",
+    "parallelization_planning",
+    "resource_allocation",
+    "coverage_analysis",
+    "runtime_estimation"
+  ],
+  "never_owns": [
+    "execution",
+    "build",
+    "adapter_calls",
+    "assertion_evaluation",
+    "pass_fail_results",
+    "evidence_collection"
+  ],
+  "pipeline": [
+    "scenario_selection",
+    "policy_expansion",
+    "matrix_expansion",
+    "data_expansion",
+    "mode_expansion",
+    "environment_matching",
+    "adapter_selection",
+    "execution_ordering",
+    "parallelization",
+    "resource_allocation",
+    "execution_plan"
+  ],
+  "outputs": [
+    "execution_plan",
+    "execution_graph",
+    "execution_batches",
+    "resource_plan",
+    "environment_plan",
+    "coverage_report",
+    "estimated_runtime",
+    "required_hardware",
+    "required_builds",
+    "required_evidence",
+    "expected_reports"
+  ]
+}

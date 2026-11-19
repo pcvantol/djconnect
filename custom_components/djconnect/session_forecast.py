@@ -1,0 +1,209 @@
+"""Bounded mutable active-session projection; no provider/Planner work on reads."""
+from __future__ import annotations
+
+import copy
+import hashlib
+import json
+import time
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from typing import Any
+
+from .forecast_expression import realize
+
+VERSION = 1
+PATH = '/api/djconnect/v1/session/forecast/{session_id}'
+FRESHNESS_SECONDS = 120
+REFRESH_INTERVAL_SECONDS = 30
+
+
+def capability() -> dict[str, Any]:
+    return {'available': True, 'version': VERSION, 'path': PATH, 'method': 'GET',
+            'authentication': 'paired_device_bearer', 'scope': 'active_device_bound_owner_session',
+            'live_field': 'session_forecast', 'live_event': 'forecast_changed',
+            'nominal_window_seconds': 900, 'history': False,
+            'imagery_roles': ['current', 'contextual', 'qualified_upcoming'],
+            'emitted_imagery_roles': ['current'], 'qualified_upcoming_media': False}
+
+
+def timestamp(value: float) -> str:
+    return datetime.fromtimestamp(value, UTC).isoformat()
+
+
+@dataclass
+class ForecastProjection:
+    """Stored realized projection and original deadline; reads are pure."""
+
+    session_id: str
+    revision: int = 0
+    value: dict[str, Any] = field(default_factory=dict)
+    signature: str = ''
+    context_item_id: str = ''
+    deadline: float = 0
+    refreshed_at: float = 0
+    observation_deadline: float = 0
+    observation_wall_deadline: float = 0
+    expired: bool = False
+    withdrawn: bool = False
+    authority: Any = field(default=lambda: True, repr=False)
+    clock: Any = field(default=time.monotonic, repr=False)
+    wall_clock: Any = field(default=time.time, repr=False)
+    _semantic: dict[str, Any] = field(default_factory=dict, repr=False)
+    _persona: str = field(default='home_dj', repr=False)
+    _locale: str = field(default='en', repr=False)
+    _queue: dict = field(default_factory=dict, repr=False)
+    _queue_item_id: str = field(default='', repr=False)
+    _queue_authority: Any = field(default=lambda: False, repr=False)
+
+    def accept_queue(self, value, item_id, authority) -> None:
+        from .queue_forecast import valid_preview
+        self._queue = ({k: copy.deepcopy(value[k]) for k in ('items', 'deadline', 'wall_deadline')}
+                       if authority() and valid_preview(value, self.clock()) and value['wall_deadline'] > self.wall_clock() else {})
+        self._queue_item_id = item_id
+        self._queue_authority = authority
+
+    def queue_context(self, item_id):
+        from .queue_forecast import valid_preview
+        if (item_id != self._queue_item_id or not self._queue_authority()
+                or not valid_preview(self._queue, self.clock())
+                or self._queue['wall_deadline'] <= self.wall_clock()):
+            return {}
+        return copy.deepcopy(self._queue)
+
+    def accept_observation(self) -> None:
+        """Only an accepted provider observation renews current-context authority."""
+        self.observation_deadline = self.clock() + FRESHNESS_SECONDS
+        self.observation_wall_deadline = self.wall_clock() + FRESHNESS_SECONDS
+
+    def update(self, semantic: dict, *, locale: str, persona: str,
+               imagery: tuple[dict, ...] = (), current_item_id: str = "", force: bool = False) -> bool:
+        if not self.authority():
+            return False
+        now = self.clock()
+        if now >= self.observation_deadline:
+            return self.tick()
+        was_withdrawn = self.withdrawn or self.value.get('state') == 'withdrawn'
+        self.withdrawn = False
+        signature = hashlib.sha256(json.dumps([semantic, locale, persona, imagery, current_item_id],
+                                               sort_keys=True).encode()).hexdigest()
+        if not force and signature == self.signature and not self.expired and not was_withdrawn and (self.observation_deadline <= self.deadline or now - self.refreshed_at < REFRESH_INTERVAL_SECONDS):
+            return False
+        summary, sections = realize(semantic, locale, persona)
+        self._semantic = copy.deepcopy(semantic)
+        self._persona = persona
+        self._locale = locale
+        self.revision += 1
+        self.signature = signature
+        self.context_item_id = current_item_id if semantic.get("has_current") else ""
+        self.refreshed_at = now
+        self.deadline = min(now + FRESHNESS_SECONDS, self.observation_deadline)
+        if semantic.get('queue_preview'):
+            self.deadline = min(self.deadline, semantic['queue_preview']['deadline'])
+        self.expired = False
+        wall = self.wall_clock()
+        self.value = {'contract_version': VERSION, 'session_id': self.session_id,
+                      'revision': self.revision, 'state': 'ready' if sections else 'limited',
+                      'issued_at': timestamp(wall), 'valid_until': timestamp(min(wall + FRESHNESS_SECONDS, self.observation_wall_deadline)),
+                      'nominal_window_seconds': 900,
+                      'supported_window_seconds': 900 if semantic.get('supported') else 0,
+                      'current_anchor': {'item_id': self.context_item_id, 'source_url': semantic.get('source_url', '')} if self.context_item_id else None,
+                      'summary': summary, 'sections': sections[:3], 'imagery': copy.deepcopy(list(imagery[:2]))}
+        if semantic.get('queue_preview'):
+            self.value['valid_until'] = timestamp(min(wall + self.deadline - now,
+                self.observation_wall_deadline, semantic['queue_preview']['wall_deadline']))
+        return True
+
+    def as_dict(self, *, locale: str | None = None, include_queue: bool = True) -> dict[str, Any]:
+        """Expiry projection does not advance revisions/deadlines or do work."""
+        result = copy.deepcopy(self.value or {'contract_version': VERSION,
+                                             'session_id': self.session_id, 'revision': self.revision,
+                                             'state': 'empty', 'nominal_window_seconds': 900,
+                                             'supported_window_seconds': 0, 'summary': '',
+                                             'sections': [], 'imagery': [], 'current_anchor': None})
+        denied = not self.authority()
+        if self._semantic.get('queue_preview') and not self._queue_authority():
+            denied = True
+        if self.withdrawn or denied or (self.value and (self.expired or self.clock() >= self.deadline
+                or (self._semantic.get('queue_preview') and self.wall_clock() >= self._semantic['queue_preview']['wall_deadline']))):
+            result.update(state='withdrawn' if self.withdrawn or denied else 'expired', summary='',
+                          supported_window_seconds=0, sections=[], imagery=[], current_anchor=None)
+        else:
+            if self._semantic and (locale is not None or not include_queue):
+                # Re-render the original accepted meanings only. Reads never
+                # consult the Planner, mutate the stored language or renew time.
+                semantic = dict(self._semantic)
+                if not include_queue:
+                    semantic.pop('queue_preview', None)
+                result['summary'], result['sections'] = realize(semantic, locale or self._locale, self._persona)
+            # Never send a reference after its earlier asset deadline.
+            result['imagery'] = [a for a in result['imagery']
+                                 if _valid_wall_deadline(a.get('expires_at'), self.wall_clock())]
+        return result
+
+    def shared_text(self, playback, *, locale: str, persona: str, mood: str) -> dict | None:
+        """Realize the current, authored forecast from display-safe inputs only."""
+        valid_until = self.value.get("valid_until")
+        if (self.value.get("state") != "ready" or self.withdrawn or self.expired
+                or not self.authority() or self.clock() >= self.deadline
+                or (self._semantic.get("queue_preview") and not self._queue_authority())
+                or not _valid_wall_deadline(valid_until, self.wall_clock())
+                or playback.state != "playing" or self.context_item_id != playback.item_id
+                or not playback.title or not playback.artist):
+            return None
+        album = playback.album or playback.title
+        if any(self._semantic.get(key) != value for key, value in (
+            ("title", playback.title), ("artist", playback.artist), ("album", album),
+        )):
+            return None
+        _, sections = realize({
+            "has_current": True, "title": playback.title, "artist": playback.artist, "album": album,
+            "source_url": "", "guidance": self._semantic.get("guidance"),
+            "aim": mood if self._semantic.get("aim") == mood else "",
+        }, locale, persona)
+        return {"valid_until": valid_until, "sections": [
+            {"title": section["title"], "text": section["text"]} for section in sections
+        ]}
+
+    def invalidate_imagery(self, allowed_urls: set[str]) -> bool:
+        """Withdraw pixels without renewing narrative or source deadlines."""
+        if not self.value:
+            return False
+        admitted = [a for a in self.value["imagery"] if a["url"] in allowed_urls]
+        if admitted == self.value["imagery"]:
+            return False
+        self.value["imagery"] = admitted
+        self.revision += 1
+        self.value["revision"] = self.revision
+        return True
+
+    def tick(self) -> bool:
+        """Commit one expiry update on an existing observation tick."""
+        queue = self._semantic.get('queue_preview')
+        if (not self.authority() or (queue and not self._queue_authority())) and not self.withdrawn:
+            return self.withdraw()
+        if (not self.value or self.expired or self.withdrawn
+                or (self.clock() < self.deadline and (not queue or self.wall_clock() < queue['wall_deadline']))):
+            return False
+        self.expired = True
+        self._semantic = {}
+        self._queue = {}
+        self.revision += 1
+        self.value['revision'] = self.revision
+        return True
+
+    def withdraw(self) -> bool:
+        if self.withdrawn:
+            return False
+        self.withdrawn = True
+        self._semantic = {}
+        self._queue = {}
+        self.revision += 1
+        self.value = {**self.as_dict(), 'revision': self.revision}
+        return True
+
+
+def _valid_wall_deadline(value: Any, now: float) -> bool:
+    try:
+        return type(value) is str and datetime.fromisoformat(value).timestamp() > now
+    except (TypeError, ValueError, OverflowError):
+        return False

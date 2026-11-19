@@ -1,0 +1,74 @@
+{
+  "schema_version": 4,
+  "kind": "platform_release_recovery_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.0.0-rc.6-pi-wall4-recovery-20261022",
+  "candidate_sha": "0dde0abe22a0859f170a7c1d3eab41f1ade44d37",
+  "platform_version": "4.0",
+  "release_version": "4.0.0-rc.6",
+  "release_profile": "INTERNAL_RELEASE",
+  "generated_at": "2026-10-21T23:16:04.628585Z",
+  "inventory_id": "pi-wall-devices-20261020-v1",
+  "inventory_sha256": "530220ee38f6ccbcc824a78331b9dd89f236a5fa6ede12ebf7899dac83ff50c0",
+  "consumer": {
+    "repository": "pcvantol/djconnect-pi",
+    "source_sha": "77fc4047f797066876c5345e8e43b346ab96d782",
+    "smoke_contract_id": "pi-rc6-wall4-recovery-readback-v1",
+    "recovery_contract_id": "pi-rc6-wall4-recovery-v1"
+  },
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-10-21T22:39:09.307Z",
+    "approved_statement": "Peter explicitly selected this bounded wall-4inch recovery route. This protected exact-candidate process binds that scope to the qualified matching consumer and original publication; it does not claim the human message named later hashes.",
+    "authority_record": "docs/verification/PI_RC6_WALL4_RECOVERY_BINDING_20261022.md; actual direct human recovery selection retained privately; exact independent Core review, applicable Owner Authorization, source and separate Final qualification required."
+  },
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect-pi",
+      "source_sha": "0dde0abe22a0859f170a7c1d3eab41f1ade44d37",
+      "version": "4.0.0-rc.6",
+      "artifact_run": "39658681213"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "rbpi-djconnect",
+      "deployment_instance": "wall-4inch",
+      "device_profile": "pi-zero-2w-arm64"
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "pcvantol/djconnect-pi-releases",
+      "target": "rbpi-djconnect",
+      "deployment_instance": "wall-4inch",
+      "device_profile": "pi-zero-2w-arm64",
+      "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v4.0.0-rc.6:djconnect-pi-pi-zero-2w-arm64-4.0.0-rc.6.tar.gz",
+      "artifact_sha256": "d67869ffca53c4936059bdbbdbdf6be63b36eafac269fa2f3f9b090922cd0d64",
+      "artifact_url": "https://github.com/pcvantol/djconnect-pi-releases/releases/download/v4.0.0-rc.6/djconnect-pi-pi-zero-2w-arm64-4.0.0-rc.6.tar.gz"
+    }
+  ],
+  "constraints": [
+    "Not operative before exact independent review, applicable Owner Authorization, protected source and distinct Final with actual canonical qualification and readback.",
+    "Exactly one wall-4inch/Zero recovery; use only dedicated recovery and separate recovery-smoke workflows. No Pi10 reinstall, ordinary V3 deployment, aggregate or cross-consumer carry-forward.",
+    "Original failed deployment39669504016 remains failed. Preserve original publication, prior release, configuration, pairing, Profile and all unique recovery evidence.",
+    "Actual matching consumer source and separate Final are required. Original publication0dde and unchanged helper11ce are separate identities; no old approval or operative pair transfer.",
+    "GitHub native immutable is false. Recheck exact original versioned asset identity, downloaded hash, metadata, installer, lock and80 runtime bytes before use; no availability/deletion protection is claimed.",
+    "Current per-instance authority, latest physical intent, exact fixed readiness, boot/config, durable exclusive claim, bounded existing helper route and separate matching smoke remain Pi-owned gates.",
+    "No new root/sudoers/credential/pairing grant, automatic retry/rearm/failover or destructive rollback. Unknown actual state fails closed.",
+    "Core only binds producer bytes. No device effect, installed recovery, physical/native/touch/audio/live Session or user acceptance follows; no overall two-instance operational claim."
+  ],
+  "recovery": {
+    "operation": "recover",
+    "contract_id": "pi-rc6-wall4-recovery-v1",
+    "workflow_path": ".github/workflows/recover-rc6-wall4.yml",
+    "smoke_workflow_path": ".github/workflows/smoke-rc6-wall4-recovery.yml",
+    "manifest_path": "docs/release/PLATFORM_4_0_RC6_PI_WALL4_RECOVERY_MANIFEST.json",
+    "original_deployment_run": "39669504016",
+    "original_candidate_sha": "0dde0abe22a0859f170a7c1d3eab41f1ade44d37",
+    "original_core_sha": "0b9b4b9845ac7764c9380e0ca88cafd05e10b1fe",
+    "original_manifest_sha256": "8740b4c3d751354061b9aeaf45689a4dbe525240f7047a2b923008d7e6495393",
+    "root_helper_sha256": "11ce41115c7aa5ac34e568f3ea9008915f342bc3272850b56c61eed19a760ab9",
+    "aggregate_disposition": "SINGLE_INSTANCE_RECOVERY_ONLY"
+  }
+}

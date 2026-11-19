@@ -1,0 +1,2548 @@
+## 2026-11-07 — Paired private ephemeral catalogue responses
+
+For nonpersisted paired Ask DJ/Session replies, retain the accepted root projection
+and genuine original `conversation` / owner / client-message confirmation, with
+`history_scope:private_ephemeral`, `history_persisted:false` and no stored entry IDs.
+Omit partial history message objects and Store revision fields; never mint history
+IDs to make a nonstored response appear canonical. Persisted exchange schemas and
+strict history decoding stay unchanged. See the exact
+[private response contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md).
+This is a source qualification increment, not native or release acceptance.
+
+## Session For you v1 — replacement source contract
+
+Session start/active expose an iOS/macOS-only cached for_you schema1 with three
+backed genre options and symbolic native visual_recipe. session_start_actions
+is schema2, first_play_action schema3 (same compatibility IDs). Selection and
+negative-only client dismissal use the existing Ask DJ message route; no endpoint
+or second playback engine is added. Polls never generate, expired actions require
+explicit renewal, unknown ACK never retries, and only chosen-mix confirmation
+closes the card. [Complete request/lifecycle contract](docs/product/SESSION_FOR_YOU_V1.md).
+Prior v1/v2 text below is historical and does not define the replacement UI.
+
+<!-- ASK_DJ_BAND_STORY_20261102 -->
+## Current rich band-membership batch — 2 November2026
+
+A clear membership question now shares the complete source-reviewed artist path,
+selected Persona and original licensed-band-photo projection across Ask DJ and
+Session history. [Contract](docs/product/ASK_DJ_BAND_MEMBERS_STORY_V1.md) and
+[verification](docs/verification/ASK_DJ_BAND_STORY_20261102.md) distinguish304-file
+source preparation,28 isolated HA groups and real editorial/client acceptance.
+One PR includes this batch and closing documentation; no separate Final.
+No new installed/native/provider/prose GO. Preserve all24 requests/nine gates and
+the complete earlier historical bodies below.
+
+## VibeScape confirmed-settings fence v1
+
+Reuse existing active_session_persona:1 and active_session_mood:1. Additive
+vibescape_visual_settings_fence boolean/version1 advertises strict original
+confirmed Runtime/Broadcast persona+revision and Mood+revision guards on visual
+observation/leases. Closed visual request/response DTOs remain v1 with no new
+fields or endpoints; local client tickets are not extra wire echoes. See
+[bounded four-world contract](docs/product/VIBESCAPE_FOUR_WORLD_CONTEXT_V1.md).
+
+## Session startup Music DNA choices v2
+
+Existing authenticated Session start/active responses add session_start_actions
+contract1 (exactly conversation_request and navigation-only playlists destination).
+first_play_action/first_play use schema2 and genre_basis music_dna, with exactly
+three owned loaded-DNA directions and no fixed-Mood fallback. The existing owner
+Session conversation/result-set/effect journal owns deliberate selections. No new
+executable catalogue ID, playback-on-navigation, endpoint or authority import.
+See [canonical DNA2 contract](docs/product/SESSION_START_ACTIONS_DNA_V2.md).
+
+## Session first-play surprise mix v1 — additive producer
+
+Authenticated Session start/active replies add Core-owned `first_play_action`
+(request eligibility and five localized labels/prompts, not provider readiness).
+The explicit action uses existing Session Ask DJ messages and result-set/action
+identities. Output selection preserves silence; genre selection starts exactly
+the frozen mix, without a second Play Now. Unknown/paused/nonempty/expired/source-
+withdrawn contexts remain closed. No new endpoint, caller authority, catalogue-ID
+execution, automatic Session creation or change to the qualified Help catalogue.
+See [the canonical first-play contract](docs/product/SESSION_FIRST_PLAY_SURPRISE_MIX_V1.md)
+and `examples/client_contracts/session_first_play_v1/schema.json` before adoption.
+Source delivery, installation, provider and native acceptance remain separate.
+
+## HA-admin preparation source increment — 2026-10-30
+
+The real HA-admin management preparation route and its closed request/reply are specified in [INSTALLATION_MANAGEMENT_PREPARATION_V1](docs/product/INSTALLATION_MANAGEMENT_PREPARATION_V1.md). This bounded source increment prepares only the selected loaded entry; no key, custody, enrollment, authenticated successor wire, installed runtime or operational push is granted. Existing 24 requests and nine acceptance gates retain their own scopes.
+
+## Rich Session widget and Live Activity push: successor contract, 30 October 2026
+
+The selected product is **one rich Session widget and one rich Live Activity
+with push**, retaining playback, qualified artwork and static VibeScape. The
+[successor contract](docs/product/RICH_SESSION_SURFACE_PUSH_CONTRACT_V1.md)
+preserves the existing Apple rich types, original clock/field rights and three
+independent byte budgets. Content-free invalidation, an admitted background
+read/local update and separately permitted direct rich Activity transport are
+distinct operations of that same presentation. WidgetKit reload is not app wake.
+
+This is contract/source preparation, with a new closed DATA carrier and
+[declarative conformance requirements](docs/verification/fixtures/rich_session_surface_contract_v1.json),
+not a positive runtime, signed permission wire, enabled profile or installed
+push capability. Current status8/af201/v3 and all280 product bytes stay unchanged;
+external_relay:false is not broadened. Source1393 and separateFinal1394 retain
+their own qualified scope. Apple236/237 and separateFinal238 are each originally
+qualified preparation, not rich push acceptance. HA-dev retains prior277/schema18;
+HA production/native config and Pi recovery remain separate open gates. Preserve
+all24 requests/nine gates, Help EN/NL/free Ask DJ and VibeCast. This increment
+requires its own normal independent source and separate Final qualification.
+
+## Original native surface lifecycle design — 29 October 2026
+
+[The bounded native lifecycle design](docs/product/ORIGINAL_NATIVE_SURFACE_LIFECYCLE_DESIGN_V1.md) separates original automatic
+pair/source evaluation, independently authorized initial status display, native
+pre-SDK once/UNKNOWN handling, actual Activity identity/proof and later A/B
+transport/content admission. Widget transport remains installation-scoped;
+background status reads require their own narrower authority. No extra user UI.
+
+This is DESIGN source preparation, with20 declarative vectors and no new runtime
+producer, public signed wire or live factory. Actual trust/clock/storage/restore/
+terminal owners remain required. The af201 contract and all279 product bytes are
+unchanged; HA-dev remains277/schema18 and actual provider/native/iPhone
+acceptance stays separate. All24 requests/nine gates, Help EN/NL/free Ask DJ,
+VibeCast and production/Pi scopes remain. Normal exact Source/Final qualification
+is still required. Complete earlier bodies below retain their historical scope.
+
+## Current automatic pairing registration source
+
+Core now schedules a private SQLite registration record from actual loaded-entry
+pairing, retaining the original generation on duplicates and fencing retirement
+before token/device/entry changes or unload. See
+[the local pairing journal](docs/product/CORE_LOCAL_PAIR_REGISTRATION_JOURNAL_V1.md).
+Migration 16 and opt-in verified WAL/FULL settlement are local source work; public
+role GETs remain unavailable pending actual registrar/purpose/clock/trust gates.
+No new HA installation, provider deployment or iPhone push acceptance is claimed.
+Help EN/NL qualification, free Ask DJ, all five UI locales, the other selected open
+requests and their separate device/provider gates retain their existing scope.
+
+# Passive role discovery: first Core runtime increment — 28 October 2026
+
+Both exact role-state GETs are registered with pure current ordinary-device authentication. No query/body or duplicate critical headers; no-store fixed negative response. This increment returns503 `{"version":1,"state":"UNAVAILABLE"}` after valid authentication because genuine purpose-store acknowledgement and positive A/B production are still absent. Local pairing/entry/unload retirement does not imply remote withdrawal. [Exact runtime scope](docs/product/PASSIVE_SURFACE_REGISTRATION_RUNTIME_V1.md). The pinned passive JSON and complete older bodies retain their publication scope below. No installed/native/provider acceptance.
+
+# Automatic paired surface registration v1 passive contract — 27 October 2026
+
+Follow [the exact passive Core/API/Apple contract](docs/product/AUTOMATIC_PAIRED_SURFACE_REGISTRATION_V1.md)
+and its [fixed DTOs](docs/product/AUTOMATIC_PAIRED_SURFACE_REGISTRATION_V1.json).
+Two explicit role GETs preserve separate widget/Activity A parents under the same
+real pairing epoch; B is a later genuine narrower Session child. No extra owner
+approval UI. Exact child/state/index/original B lookup, 16KiB normal/receipt and
+64KiB bounded-index-only caps, pure ConfigEntry snapshots and original status
+phase/playback projection are selected for passive source adoption.
+
+This publishes a contract, not implemented routes or a committed epoch producer.
+AUTHORITY_CURRENT is data, never SDK/legacy nativePushOwner capability. Actual
+clock/durability/principal/custody/provider/new-native protocol facts remain
+unavailable; no native push, installation or deployment claim follows. Earlier
+complete bodies retain their own scope below.
+
+## Automatic paired-device push direction — 27 October 2026
+
+Normal committed HA pairing must initiate push enrollment automatically without
+an extra owner/role approval screen. The selected [A/B lifecycle direction](docs/product/AUTOMATIC_PAIRED_SURFACE_REGISTRATION.md)
+separates device-only enrollment from later actual Session/Profile/source
+binding. It defines requirements and explicit pending wire/time/commit decisions,
+not an available endpoint. Current Session-scoped codecs, R9/API v2 and actual
+purpose limits remain unchanged; no null Session or credential substitution.
+
+## Live Help context and EN/NL catalogue revision2
+
+GET `/api/djconnect/v1/ask_dj/help-context` is a paired pure observation, not execution. Exact raw query/ten-key response/five-key descriptor and original15s client rules are canonical in [ASK_DJ_HELP_CONTEXT_V1](docs/product/ASK_DJ_HELP_CONTEXT_V1.md). Only28 EN/NL leaves qualify;42 DE/FR/ES leaves remain pending. Unknown current owner/source/configuration closes examples; free Ask DJ stays independent. [Original content and source bridge](docs/verification/HELP_EN_NL_LIVE_PUBLICATION_20261026.md). Protected delivery, Apple adoption and installed acceptance remain separate.
+
+## Current EN/NL textual Help qualification source — 26 October2026
+
+Peter limited textual Help to Dutch and English:40 original cases,20 per
+language, with closed2→13→40 rounds. Existing DE/FR/ES translations and all
+historical results remain preserved outside this release. Artist generation
+and original-word review now use the explicitly selected public HA typed task,
+with one coherent whole-answer contract and unchanged source/semantic/word/date,
+turn/budget/configuration/cancellation guards. Playback review remains raw.
+Catalogue DFAA revision1 stays false/70pending; no content, publication, installed
+or native GO. Failed32/2PASS3FAIL/20complete and failed initial QA/source-join
+remain retained. Normal Source delivery/original qualification, real all40 plus
+both editorial reviews, winning Source+Final, configuration/R5/Apple and installed
+readback still precede release. All24requests/ninegates/Bulletin preserved;
+automation PAUSED. [Scope and evidence](docs/verification/HELP_EN_NL_TYPED_ARTIST_20261026.md).
+
+--- Earlier complete body preserved below ---
+
+# Current original-clock v3 producer candidate — 24 October 2026
+
+The bounded Core implementation now captures original pre-await weak Runtime/purpose roots including absence, exact original G0/L0/P0/K0 and downward final server deadlines. Context/register use closed strict outer v3; v1/v2 receive typed409. Inner issuer/registry/relay and old registered read/status/revoke remain v1 with original expiry. See docs/verification/ORIGINAL_CLOCK_V3_PRODUCER_SOURCE_20261024.md and the unchanged full normative docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md. No new purpose, owner, Activity profile or client clock witness is fabricated.
+
+Current proof: corrected full3526tests/145.167s exit0/7existing skips;13fresh isolated actual HA groups, all264product hashes equal before/inside/after and own container absent;12current fixtures joined to their actual RAW/admissions. Historical v2 evidence/harness bytes remain unchanged. This is an uncommitted SOURCE CANDIDATE requiring exact independent reviews, normal protected Source and separate Final/original qualifications. It is not installed or operational push/native/rate acceptance. Unknown cross-clock mapping/rate/suspend/domain remains CLOSED; Apple owns its separate original pin/codec proof.
+
+HA-dev Help3 was already separately INSTALLED_GO for8885/fd/264/schema15/all9entries LOADED with complete consistent STOPPED backup6880b983 and independent audit39f634e5; no v3 WIP installation follows. API94 production and separate health smoke are already delivered40083103294/40083269667; no redeploy. Help catalogue dfaa remains qualifiedfalse70pending; pending paid proposal/package4.5.5 are separate, consumed failures never retried. HAprodconfiguration answer pending; PiNOT_RECOVERED; all24requests/ninegates retained. Real custody/enrollment/servicepurpose, Activity rights/ContentState and APNs/iPhone/VibeCast physical/user acceptance remain open. Previous bodies below preserve their historical scopes.
+
+---
+
+# Original-clock v3 normative design boundary — 24 October 2026
+
+The complete specification is docs/product/SURFACE_CONTEXT_ORIGINAL_CLOCK_V3.md. It defines future independent v3 paired context/register envelopes and original remaining-duration authority under unchanged widget-only guards. Runtime implementation and actual paired producer/client proof are NOT delivered by this contract source; current active Postman/runtime v2 remains its separate scope. Derived JSON is nonnormative and cannot relax complete Markdown guards. No public API relay-wire change, Activity permission or positive unknown clock mapping is added. Protected contract Source+separate Final/original qualification precede the owning implementation.
+
+---
+
+# DJConnect API Contract
+
+## Current Core #1212 source: actual device speech availability1
+
+The additive owner-bound `device_speech` schema1 is generated synchronously at
+the end of successful completed pairing and status for Apple clients. See
+[contract](docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md) and
+[actual isolated HA fixture](examples/client_contracts/device_speech_v1/README.md).
+Source [PR #1221](https://github.com/pcvantol/djconnect/pull/1221) merged
+`604b80f806425cb53165a17faf783bfd6248af17`; exact candidate
+`bd2b644dadec91742138348ba960e61b12da662c`, complete trees equal. Separate
+Finalization/installed/native acceptance remain distinct. No new
+endpoint or change to existing pairing identity, tokens, default selection,
+STT/TTS execution or replay policy.
+
+Legacy `voice_supported`, `ask_dj_voice_supported` and
+`ask_dj_audio_response_supported` retain their endpoint-implementation meaning
+for old clients. They never prove current provider readiness. New consumers
+require this recognized snapshot version; absence, pending setup, failed
+authority or unknown version cannot be promoted to HA readiness from those
+legacy booleans.
+
+`assist` describes exact configured/preferred selection and actual agent
+validity. `ha_stt`, `ha_tts` and `ha_speaker_target` independently expose
+`state` (unconfigured/available/unavailable/unsupported/unknown), `configured`,
+`available` and bounded machine `reason`. Available qualifies current metadata
+and interface/locale only. Remote health, successful processing and hearing
+are never inferred; recent TTS observations remain separately owner-scoped
+and expire. HA target availability additionally requires synthesis and current
+output policy for actual playback. `text_only.audio=false`; `apple_local`
+capabilities/OS permissions remain client-owned. Provider eligibility grants
+no permission to synthesize over settings3/text_only or source admission.
+
+Status `locale`/`language` selects the requested five-language family; absent
+input uses HA UI language. The selected HA provider must actually support it.
+Voice/gender choices are bounded actual provider metadata, never inferred from
+names. Revisions cover configuration and provider incarnation; every read is
+recomputed after the last transport await and checked against original device,
+entry, token and loaded Profile binding. Actual responses carrying the snapshot
+are `Cache-Control: no-store`, `Referrer-Policy: no-referrer`. There is no new
+push guarantee, model/provider probe or private content/config export.
+
+Apple #129 must preserve saved HA selection on runtime loss, qualify before use,
+keep local speech/OS permissions independent, and never silently switch/upload
+local input. Source delivery does not close native or installed acceptance.
+
+Protected touch producer: [source #1217](https://github.com/pcvantol/djconnect/pull/1217),
+merge`37a574c9e4f6b366ea2335a6c087d649d09afc2d`, exact candidate`1e33c241ec7ef1a46e0a2feb20b5a5b885ae123e`;
+full trees equal. This is a qualified source pin, not installed discovery or
+Apple gesture/audio acceptance. Actual capability readback precedes use.
+
+
+## Explicit Persona touch reaction — protected source contract1
+
+[Touch reaction1](docs/product/PERSONA_TOUCH_REACTIONS_V1.md) uses the existing
+paired operation envelope, operation `session/persona/reaction` and explicit
+`session/persona/reaction/cancel`. Versioned discovery is nested under
+`active_session_persona.touch_reaction`. Confirmed Settings3/current Session,
+device-bound30second lease,10second interval/6per600seconds, no queue/history/
+Moment/model/music mutation. Local native or configured HA client speech uses
+current policy; text_only forbids audio. HA-speaker reactions are not qualified,
+never silently substituted. Exact protected/installed producer pin and Apple
+gesture/native/actual audio acceptance remain OPEN. No new HTTP endpoint.
+
+## Retained history consumer correction — local compatibility remains open
+
+Owner timeline entries include four qualified retention bases and the
+source-free `dj_publication`/`dj_silence` forms. The exact table, privacy/source
+boundaries and generated mixed-page fixture are in
+[Session conversation/history](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md#corrective-retained-entry-compatibility--18-october-2026).
+Apple40331's closed decoder rejects a mixed HTTP200 page; this is not a server
+history-not-found response. Current client adoption and backward-compatible
+producer negotiation/projection are separate outstanding gates. Do not relabel
+source text or claim old/offline clients work merely because the new client decodes.
+
+## Configured voice preview — qualified development producer and installed discovery
+
+The existing paired operation owner accepts `speech/preview` with only
+`{"contract_version":1,"language":"nl"}` as its payload. Discovery is
+`session_speech.voice_preview`. It uses confirmed Profile/active-Session Settings3,
+fixed five-language neutral comparison text and the selected HA voice/gender and
+output. No caller text/target/provider override, fake Moment or history change.
+Private audio uses the existing authenticated POST byte route and original
+maximum120-second expiry. The same bounded speaker-media owner supplies separate
+ready/queued/unavailable/unknown outcomes; no audible success is inferred.
+
+Duplicates read the original operation receipt without repeating synthesis or
+speaker delivery. A new deliberate press may reuse a valid sample without
+renewing expiry; text_only withdraws old samples and denies new ones. The actual
+contract/fixtures and unqualified provider/native/listening boundaries are in
+[Configured voice preview](docs/product/SESSION_VOICE_PREVIEW_V1.md) and
+[exact readback](docs/verification/VOICE_PREVIEW_PRODUCER_READBACK_20261018.md).
+Protected source PR #1197 and Finalization #1204 are delivered; exact HA-dev
+build `e71daff1e36c7e0284ffa1f42b1a1ada47b50aa1` includes this producer and
+actually advertises Preview1/Settings3. Existing consumers use this development
+pin and versioned discovery; real configured-provider, native and audible
+acceptance remain OPEN. This is not an official release or production rollout.
+
+## Current shared settings3 / target-aware speech3 producer
+
+Protected source main `e8cc70ddffb4112b09babdda4d45140b98926ae5`, PR [#1193](https://github.com/pcvantol/djconnect/pull/1193). [Exact source readback](docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md). Six-field producer/capabilities are delivered in Core; earlier local-candidate/design checkpoints below are historical. Consumer adoption, complete legacy removal, Finalization and actual installed/native/audible/joint outcomes remain separately qualified.
+
+## Historical contract checkpoints
+
+## Current settings owner addenda — local contract3 implementation
+
+[Canonical delta](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md) adds `announcement_output` to the five shared DJ choices under owner6220590330/6220695648. Six-field settings contract3 and target-aware speech prepare3 are implemented and locally advertised in the unpublished Core candidate; final exact reviews/protected delivery remain required. `text_only` forbids announcement synthesis and all replay; speaker-only still permits explicit local owner replay. Physical speaker/Assist pipeline/ESP administration stay HA-only; local autoplay defaults OFF and OS permissions remain local. Existing contract2 checkpoints below are historical five-field proof. Integrated chat/DNA portability is parked. Existing schema1 exports remain unchanged and do not back up the six shared defaults; the unpublished schema2 export prototype is removed. Native/installed/joint remain OPEN; no new consumer writer or WIP expansion.
+
+Before six-field activation, an existing Session with unknown Mood has `snapshot.session.settings: null`, `selection_required: true` and `selection_basis: legacy_mood_unknown`. Keep its identity/revision, show separate defaults only as proposals, and require all six explicit choices for activation. Ask DJ1/prepare1 preserve legacy behavior; prepare3 is typed unavailable until selection. Reads do not invent Mood or history coverage.
+
+
+## Selected Profile/Session settings consolidation — contract2
+
+[Canonical all-five contract](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md), [settings inventory](docs/product/PROFILE_SESSION_SETTINGS_INVENTORY_V1.json), owner6214905647. Allfive Persona/voice/gender/Mood/Presence are Core-owned Profile defaults plus effective Session state; last explicit accepted field patch is automatically remembered and changes an active Session atomically. No device-local voice truth, global pipeline mutation, read effect, source-right expansion or consumer writer dispatch. New typed API/WS contract2 has its own revision/receipt/generation semantics; contract1 is not silently changed. Core implementation/fixtures remain in progress and unpublished; native/installed/hardware/joint and platform-wide legacy removal are not yet qualified.
+
+## Existing delivered contracts and historical context
+
+This document summarizes the client-facing DJConnect Home Assistant API contract.
+It is intentionally compact; `README.md` remains the full user/developer guide.
+
+## Passive Session surface v1
+
+Additive `passive_session_surface` capability/contract1 describes explicit
+paired-owner surface consent (`POST /api/djconnect/v1/session/surface/authorize`)
+and the pure `/session/surface/read` query. Exact Session/device/surface grants
+are transient, not credentials or shared Profile preferences. Versioned short
+contribution, independent current metadata and cover permissions, original
+deadlines and generation/sequence binding follow the
+[canonical contract](docs/product/PASSIVE_SESSION_PROJECTION_V1.md).
+Image GET `/session/surface/image/{session_id}/{asset_id}` requires ordinary
+paired bearer plus matching grant/surface/version/device query fields; no
+private owner image URL or unscoped proxy token is a passive grant.
+HTTP responses are `no-store`; only explicitly authorized payload fields/bytes
+may enter the bounded current-surface cache. Existing owner Broadcast events
+carry an invalidation-only hint; reread current authorized content, never turn
+replay into a fresh publication. Shared VibeCast/notifications receive none.
+Native rich, background/ActivityKit, Watch and joint acceptance remain separate.
+
+## Additive hybrid transport v1
+
+The [hybrid contract](docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md) and
+[operation policy](docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md)
+define TLS-only `/api/djconnect/v1/actions/paired` with the separate
+`paired_owner_actions` audience, owner HTTP context/operation/status and bounded
+Broadcast recovery. Capability `hybrid_transport` and contract version1 are
+additive. Existing paired Broadcast v1 remains subscribe/recover; native HA
+`/api/websocket` requires its own HA authority. There is no credential issuer.
+Normal pairing remains required; no discovery response or Wi-Fi hint authorizes
+secret release, cross-origin redirect or an after-send mutation retry.
+First response content and compact outcome receipts have separate validity.
+
+## Client Identity
+
+Pairing, status, command, Ask DJ and voice requests use canonical
+`client_type` values to distinguish runtimes. Current values are `esp32`, `ios`,
+`macos`, `watchos` and `raspberry_pi`.
+
+Client ids must match their client type prefix and use the first 12
+alphanumeric characters of the stable client install id where applicable:
+
+- `ios`: `djconnect-ios-XXXXXXXXXXXX`
+- `macos`: `djconnect-macos-XXXXXXXXXXXX`
+- `watchos`: `djconnect-watchos-XXXXXXXXXXXX`
+- `raspberry_pi`: `djconnect-raspberry-pi-XXXXXXXXXXXX`
+
+`windows` and its old device prefix are recognized only for safe retirement of
+existing configurations. New pairing and retired-device authentication are
+rejected; changing the supplied type does not change stored device ownership.
+Shared-provider compatibility is defined in
+[`WINDOWS_CLIENT_RETIREMENT_V1.md`](docs/product/WINDOWS_CLIENT_RETIREMENT_V1.md).
+
+ESP32 and Raspberry Pi are local devices. They may advertise `_djconnect._tcp`
+with TXT records including `device_id`, `client_type`, `device_name`,
+`local_url`, `version`/`app_version` and pairing code aliases. Home Assistant
+treats `GET /api/device/pairing-info` as authoritative when reachable.
+No app-client mDNS/local-API discovery is supported.
+
+iOS, macOS and watchOS are inbound-only app clients. They do not expose a
+Home Assistant-callable `/api/device/*` API, do not need a Client address in the
+Home Assistant setup flow, and post local pairing requests to
+`POST /api/djconnect/v1/pair`. Home Assistant generates the app pairing code. The
+iPhone/iPad app pairs by scanning a QR/deep-link payload:
+
+```text
+djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=ios&pair_path=/api/djconnect/v1/pair
+```
+
+## Profile Resolution
+
+The active Session mood write is a stricter device-bound exception:
+`POST /api/djconnect/v1/session/mood` accepts the ordinary paired device bearer,
+an exact active Session ID and versioned `expected_mood_revision` compare-and-set.
+It does not accept a client-selected Profile or general HA/service authority.
+See [`Active Session Mood v1`](docs/product/ACTIVE_SESSION_MOOD_V1.md) for the
+six-field schema, capability detection, four existing symbolic choices,
+acknowledgements, conflicts, lifecycle fences and consumer recovery rules.
+
+Service and API entrypoints that touch personal state, backend routing, Ask DJ,
+Music DNA, Discovery, Track Insight or playback preferences may include optional
+`profile_id` and `device_id`.
+
+The backend resolves Profile context in this order:
+
+1. explicit `profile_id`;
+2. linked profile for `device_id`;
+3. explicit Voice Endpoint / HA device mapping;
+4. Home Assistant user hint;
+5. area or room mapping;
+6. playback player or zone mapping;
+7. configured fallback profile;
+8. structured profile error.
+
+Profile-aware responses may include `profile_id`, profile-scoped
+`music_dna_key` values in the form `profile:<profile_id>`, and structured errors
+such as `profile_required`, `invalid_profile`, `device_not_mapped`,
+`profile_backend_missing`, `profile_music_account_missing` and
+`profile_backend_account_mismatch`.
+
+Existing clients do not need to send `profile_id` when their `device_id` is
+mapped in the Profile Platform. Explicit `profile_id` is additive and intended
+for clients with profile switching.
+
+Home Assistant Voice Endpoints are request sources, not identities. The HA
+integration may derive `voice_endpoint_id`, `satellite_id`,
+`assist_pipeline_id`, `ha_device_id`, `area_id`, `room_id` and `player_id` from
+Assist context when available, and the single Profile Resolver uses those
+signals without creating a second identity model.
+
+The versioned Profile Adoption Contract lives in
+`docs/implementation/epic3b/01-profile-adoption-contract.md`. Reusable client
+fixtures live in `examples/client_contracts/`:
+
+- `profile_context.requests.json`
+- `profile_context.responses.json`
+- `profile_context.errors.json`
+
+The current profile context contract version is `1` and remains part of the
+existing `/api/djconnect/v1` surface.
+
+## Profile Privacy, Export And Import
+
+Profile-aware requests may include `private_session: true`. A private session
+uses the resolved Profile for routing but does not persist Ask DJ history, Music
+DNA updates, recommendation history, likes/dislikes or mood changes from that
+request. Profiles with privacy mode `private`, `shared` or `guest-safe` apply
+the same backend-owned policy automatically.
+
+Shared and guest-safe Profiles do not expose personal Music DNA or private Ask
+DJ history by default. Guest-safe exports redact personal references, mood,
+likes and dislikes.
+
+Developer services expose non-secret Profile Platform portability:
+
+- `djconnect.profile_export`;
+- `djconnect.household_export`;
+- `djconnect.integration_export`;
+- `djconnect.profile_import`;
+- `djconnect.household_import`;
+- `djconnect.clear_profile_state`.
+
+Export envelopes are versioned and explicitly exclude OAuth tokens, provider
+refresh tokens, provider secrets, Home Assistant tokens, APNs tokens, device
+tokens and raw credentials. Imported provider accounts must be re-linked when
+credentials are absent. Import rejects secret-like fields and does not overwrite
+existing Profiles unless `overwrite` is true or profile import uses
+`reassign_id`.
+
+Apple Watch pairs through the iPhone/iPad proxy: the iPhone/iPad scans the Watch
+QR/deep-link payload and forwards the pairing material to the paired Watch, which then uses
+`client_type=watchos` and its own `djconnect-watchos-*` device id. The Watch must
+not require manual HA URL entry:
+
+```text
+djconnect://pair?ha_url=<local-ha-url>&pair_code=<code>&client_type=watchos&pair_path=/api/djconnect/v1/pair
+```
+
+macOS clients pair by manually entering the local Home Assistant URL
+and the HA-generated pairing code. After app pairing, Home Assistant returns
+`device_token`, `ha_local_url`, optional `ha_remote_url`, capability flags and
+API paths. `ha_remote_url` is only returned to `ios` and `macos`
+when Home Assistant has an HTTPS external/Nabu Casa URL. ESP32 and Raspberry Pi
+must never receive `ha_remote_url`.
+
+## Backend-Independent Response Shapes
+
+DJConnect clients should consume DJConnect response shapes, not Spotify Web API
+objects directly. In `3.2.x`, Spotify Direct is the default backend adapter, but
+commands and Ask DJ actions are routed through an internal use-case layer before
+the selected music backend.
+
+Stable client-facing fields include:
+
+- `playback`
+- `queue`
+- `items`
+- `playlists`
+- `devices` / `outputs`
+- `images`
+- `sources`
+- `playback_actions`
+- `backend_available`
+- `music_backend`
+- `music_backend_name`
+- `music_backend_available`
+- `music_backend_revision`
+- `music_backend_capabilities`
+- `music_target_player`
+- `music_backend_error`
+- `provider` / `source`
+
+Clients may display provider/source labels when present, but must not require
+provider-specific fields for core rendering. `music_backend_error` is either
+`null` or a small safe object with `code` and user-facing `message`; it never
+contains raw exceptions, OAuth tokens, Music Assistant secrets or Home
+Assistant long-lived tokens.
+
+Pairing, status and command-status responses expose the active backend and a
+monotonic `music_backend_revision`. Clients should treat cached/pending
+backend-specific Play Now actions, recommendations and confirmation actions as
+stale when their local revision is lower than the server revision. The backend
+switch keeps pairing, device tokens, Ask DJ history, Music DNA and APNs
+registrations; only backend-specific pending playback actions are invalidated.
+
+Music Assistant is a backend-neutral target-player route, not a Spotify Direct
+fallback. When `music_backend` is `music_assistant`, clients should expect
+Music Assistant to own provider authentication, library browsing, queue
+semantics and grouping/sync. DJConnect may expose playback/control actions for
+the configured target player, but Spotify-only features such as recently played
+history, top artists/tracks, Spotify library favorites and Spotify OAuth repairs
+must be hidden or shown as unsupported based on `music_backend_capabilities`.
+
+Unsupported backend capabilities use this stable shape instead of vague 500s:
+
+```json
+{
+  "success": false,
+  "error": "unsupported_backend_capability",
+  "capability": "supports_recently_played",
+  "backend": "music_assistant",
+  "message": "The selected music backend does not provide recent listening history."
+}
+```
+
+Stale backend-specific actions return:
+
+```json
+{
+  "success": false,
+  "error": "stale_backend_action",
+  "message": "This action was created for a previous music backend. Ask DJ again for a fresh recommendation."
+}
+```
+
+## Local WebSocket Fast Path
+
+The following native HA-authenticated adapter is retained compatibility. Ordinary
+paired Apple action transport is being qualified separately under
+`docs/product/HYBRID_HTTP_WEBSOCKET_TRANSPORT_V1.md`; no HA token issuer exists.
+Do not apply historical blanket HTTP retry guidance to uncertain mutations. New
+routes remain unadvertised until connected implementation and qualification.
+
+Local app clients may use Home Assistant's native websocket API as an optional
+low-latency transport for DJConnect commands. This is a fast path for local
+control only; HTTP remains canonical and must remain available for remote use,
+pairing, Ask DJ history sync, clear/history requests, voice uploads, image
+proxy URLs, TTS/audio downloads and fallback behavior.
+
+Connect to Home Assistant's normal websocket endpoint derived from the local HA
+URL:
+
+- `ws://<local-ha-host>/api/websocket`
+- `wss://<local-ha-host>/api/websocket`
+
+Authenticate with Home Assistant's native websocket auth flow. The paired
+DJConnect device token is not accepted as the initial Home Assistant websocket
+login token unless Home Assistant itself explicitly supports that in a tested
+deployment. Product clients should assume they need an HA websocket access token
+or another HA-supported websocket auth mechanism before this fast path is
+product-ready. After HA websocket login, feature-detect DJConnect support with:
+
+Client contract fixtures are exported from `examples/client_contracts/` for
+Apple and Raspberry Pi client tests. Use
+`python3 tools/export_client_contracts.py --output <client-fixture-dir>` to copy
+the current golden payloads. The source manifest is named
+`contract_manifest.json` so Home Assistant hassfest does not confuse it with an
+integration manifest; the export tool still writes it to client repos as
+`manifest.json`.
+
+```json
+{
+  "id": 1,
+  "type": "djconnect/capabilities"
+}
+```
+
+A supporting server returns a successful result with
+`websocket_supported:true`, `transports.websocket:true` and
+`commands[]` containing supported DJConnect websocket message types. The same
+response also includes coarse `features{}` flags and `fallbacks{}` hints. Clients
+must feature-detect these fields rather than parse Home Assistant integration
+versions, and must fall back to HTTP or hide optional controls if a needed
+websocket command is missing, errors, times out or reports unsupported
+capabilities.
+
+The same response also advertises Profile Platform support:
+
+```json
+{
+  "capabilities": {
+    "profiles": true,
+    "explicit_profile_selection": true,
+    "private_sessions": true,
+    "profile_export": true,
+    "request_context": true,
+    "voice_endpoint_request_context": true,
+    "voice_endpoint_mappings": true
+  },
+  "contract_versions": {
+    "profile_context": 1,
+    "client_contract_fixtures": 1
+  }
+}
+```
+
+Profile-aware websocket commands accept `profile_id`, `private_session` and
+`privacy_mode` either inside the command `payload` object or as top-level
+websocket message fields. Payload fields win when both are present.
+
+Example capability fallback block:
+
+```json
+{
+  "features": {
+    "music_dna": true,
+    "music_discovery": true,
+    "music_discovery_feedback": true
+  },
+  "fallbacks": {
+    "music_discovery": {
+      "available": true,
+      "preferred_transport": "websocket",
+      "http_paths": {
+        "feed": "/api/djconnect/v1/music_discovery",
+        "refresh": "/api/djconnect/v1/music_discovery/refresh",
+        "play": "/api/djconnect/v1/music_discovery/play"
+      },
+      "missing_behavior": "use_http_or_hide_feature"
+    },
+    "music_discovery_feedback": {
+      "available": true,
+      "preferred_transport": "websocket",
+      "http_path": "/api/djconnect/v1/music_discovery/feedback",
+      "missing_behavior": "hide_negative_feedback_controls"
+    }
+  }
+}
+```
+
+Send commands with the same semantic payload used for
+`POST /api/djconnect/v1/command`:
+
+```json
+{
+  "id": 2,
+  "type": "djconnect/command",
+  "device_id": "djconnect-ios-XXXXXXXXXXXX",
+  "client_type": "ios",
+  "client_id": "djconnect-ios-XXXXXXXXXXXX",
+  "device_name": "Peter's iPhone/iPad",
+  "device_token": "<paired DJConnect device token>",
+  "command": "next",
+  "value": null,
+  "play": false
+}
+```
+
+Alternatively clients may put the command fields under `payload`; nested payload
+values win over top-level defaults. The server translates `device_token` or
+`authorization` into the same bearer-token check used by HTTP, and validates
+`device_id`/`client_type` with the normal DJConnect pairing rules. The Home
+Assistant websocket login is not a replacement for the DJConnect device token,
+and the DJConnect device token is not a replacement for the Home Assistant
+websocket login.
+
+Supported fast-path commands are the existing `/command` actions, including
+`play`, `pause`, `next`, `previous`, `status`, `devices`, `queue`, `playlists`,
+`set_volume`, `volume_delta`, `set_shuffle`, `set_repeat`, `set_output`,
+`ask_dj_followup_response`, `ask_dj_play_recommendation`,
+`ask_dj_play_recommendation_on_output`, `ask_dj_play_request_on_output` and
+`ask_dj_message` when a client already routes that action through
+`/api/djconnect/v1/command`. Chat clients should still prefer
+`POST /api/djconnect/v1/ask_dj/message` for normal text chat because that endpoint
+owns history append, `messages[]` ordering and push/history synchronization.
+
+Servers that advertise the message type may also accept normal Ask DJ chat on:
+
+```json
+{
+  "id": 3,
+  "type": "djconnect/ask_dj/message",
+  "device_id": "djconnect-ios-XXXXXXXXXXXX",
+  "client_type": "ios",
+  "device_token": "<paired DJConnect device token>",
+  "client_message_id": "client-generated-id",
+  "text": "Wat draait er nu?",
+  "audio_response": "auto"
+}
+```
+
+This route is the websocket equivalent of
+`POST /api/djconnect/v1/ask_dj/message`: it appends server-side history, returns
+the same `messages[]`, `history_revision` and `clear_revision` sync fields, and
+uses the same push/confirmation policy. Clients may use it as a local fast path
+only after capability detection; HTTP remains the fallback and remains required
+for remote-only sessions.
+
+Idle suggestions can use:
+
+```json
+{
+  "id": 4,
+  "type": "djconnect/ask_dj/idle_suggestion",
+  "device_id": "djconnect-ios-XXXXXXXXXXXX",
+  "client_type": "ios",
+  "device_token": "<paired DJConnect device token>",
+  "music_dna_key": "optional-client-key",
+  "mood": 72
+}
+```
+
+The response is the websocket equivalent of
+`POST /api/djconnect/v1/ask_dj/idle_suggestion`: it appends the server-generated
+system suggestion to user-scoped Ask DJ history and returns the same sync
+metadata as HTTP.
+
+Track Insight can use:
+
+```json
+{
+  "id": 5,
+  "type": "djconnect/track_insight",
+  "device_id": "djconnect-macos-XXXXXXXXXXXX",
+  "client_type": "macos",
+  "device_token": "<paired DJConnect device token>",
+  "title": "Windowlicker",
+  "artist": "Aphex Twin"
+}
+```
+
+The response is the same normalized Track Insight shape as
+`POST /api/djconnect/v1/track_insight`. If `title`/`artist` are omitted, the
+backend resolves Now Playing through the selected music backend just like the
+HTTP route.
+
+Music DNA can use these websocket equivalents when advertised in
+`djconnect/capabilities.commands[]`:
+
+```json
+{
+  "id": 6,
+  "type": "djconnect/music_dna/profile",
+  "device_id": "djconnect-ios-XXXXXXXXXXXX",
+  "client_type": "ios",
+  "device_token": "<paired DJConnect device token>",
+  "music_dna_key": "optional-client-key"
+}
+```
+
+```json
+{
+  "id": 7,
+  "type": "djconnect/music_dna/settings",
+  "device_id": "djconnect-ios-XXXXXXXXXXXX",
+  "client_type": "ios",
+  "device_token": "<paired DJConnect device token>",
+  "enabled": true
+}
+```
+
+```json
+{
+  "id": 8,
+  "type": "djconnect/music_dna/clear",
+  "device_id": "djconnect-ios-XXXXXXXXXXXX",
+  "client_type": "ios",
+  "device_token": "<paired DJConnect device token>"
+}
+```
+
+The response shapes match `POST /api/djconnect/v1/music_dna/profile`,
+`/settings` and `/clear`. HTTP remains the canonical fallback.
+Music DNA import/export is intentionally HTTP-only; clients should not expect
+`djconnect/music_dna/export` or `djconnect/music_dna/import` websocket commands
+in capabilities.
+
+Superseded unsafe retry guidance: a WebSocket failure is not proof that an
+operation did not execute. Do not automatically replay an action through HTTP
+on disconnect, timeout, cancellation or authoritative auth/Profile rejection.
+Only a qualified pre-send failure or repeatable read permits route fallback;
+uncertain mutations require the original operation identity and receipt policy.
+See `docs/product/TRANSPORT_OPERATION_RECOVERY_CONTRACT_V1.md`. Reconnect with
+bounded backoff; a different transport never bypasses an authoritative denial. Suggested client
+timeouts are about 2 seconds for short playback controls, 5 seconds for
+status/list requests and the existing longer Ask DJ/action timeout for commands
+that already wait on backend work. Never log HA auth tokens, DJConnect device
+tokens, authorization headers, raw prompts, raw audio, Ask DJ history or Music
+DNA while diagnosing websocket transport state.
+
+## VibeCast Feed
+
+Apple clients can poll `GET /api/djconnect/v1/vibecast` for a small live feed of
+track, artist, album, genre, trivia, listening-tip, mood, production, history or
+system bubbles around the current backend playback context. The route uses the
+same paired DJConnect device token and canonical identity fields as other app
+client routes. Supported client types are `ios`, `macos` and `watchos`.
+
+VibeCast is a premium-ready first-class DJConnect platform feature for both
+macOS and iOS, with the same backend contract and functionally equivalent
+experience on both platforms. `client_type:"macos"` and `client_type:"ios"` use
+the same endpoint, response contract, item kinds, structured text segment types,
+disabled reasons and polling/cache semantics. The backend must not treat macOS
+and iOS differently for content quality, entitlement, fact generation, cache,
+TTL, revision or current-track resolution. Platform differences should be
+presentation- or capability-driven only, such as screen space, hover/focus,
+compact layout or reported render capabilities. If a render capability such as
+`magnify` is unavailable, clients should gracefully degrade that segment type or
+the backend can return equivalent safe fallback segments without changing the
+meaning of the item.
+
+Clients should send identity and rendering metadata through query parameters or
+existing headers where available: `device_id`, `device_name`, `client_id`,
+`client_type`, app version/build, locale/language, timezone and supported
+render capabilities such as `bold`, `emphasis`, `magnify`, `accent` and
+`emoji_safe`.
+
+Successful responses include `enabled:true`, `revision`, `ttl_seconds`,
+`poll_after_seconds`, a backend-neutral `context` and `items[]`. Polling is the
+current transport; future websocket or push delivery can reuse the same response
+shape without changing client rendering.
+
+When genre metadata is known, `context.genre_badge` contains the first
+backend-provided genre as a compact badge hint. Clients should render
+`genre_badge.label` as a small badge in the top-right/top-trailing corner of the
+VibeCast surface and may keep `genre_badge.genre` as the canonical genre value.
+If `genre_badge` is omitted, clients should simply hide the badge.
+
+When the selected backend can provide artist artwork, VibeCast includes a
+proxied `context.artist_image_url` and mirrors it on the `artist_fact` item as
+`image_url`/`thumbnail_url` with `image_alt` and `image_source`. The URL always
+uses DJConnect's image proxy path, so clients should load the proxied
+`/api/djconnect/v1/image_proxy/...` URL rather than a direct Spotify, Wikipedia
+or catalog URL. If no artist image is available, those fields are omitted.
+
+Canonical item kinds are `track_fact`, `artist_fact`, `album_fact`,
+`genre_context`, `trivia`, `listening_tip`, `mood_context`,
+`production_note`, `history_note` and `system`. Clients should render unknown
+future kinds with the same safe text renderer and no provider-specific behavior.
+
+VibeCast text is structured rich text, never HTML or Markdown:
+
+```json
+[
+  { "type": "emoji", "value": "♪ ♫ " },
+  { "type": "text", "value": "This track rides on " },
+  { "type": "strong", "value": "space and pulse" },
+  { "type": "text", "value": "." }
+]
+```
+
+Allowed segment types are `text`, `strong`, `emphasis`, `magnify`, `accent` and
+`emoji`, and `line_break`. When clients advertise `emoji_safe`, VibeCast bubbles
+may include one short `emoji` segment with 1-3 decorative music/vibe symbols;
+clients that do not advertise `emoji_safe` receive text-only structured
+segments. Clients must ignore unknown fields and must not display raw
+provider, decoding or generative errors. Disabled responses always remain JSON,
+for example `enabled:false`, `reason:"no_active_playback"` and empty `items[]`.
+Known reasons include `feature_disabled`, `premium_unavailable`,
+`no_active_playback`, `playback_inactive`, `unknown_track`,
+`unsupported_backend`, `provider_unavailable`,
+`generative_provider_unavailable`, `rate_limited`, `cache_failure`,
+`unauthorized`, `invalid_client_type`, `client_type_mismatch` and
+`privacy_disabled`.
+
+Generated VibeCast copy is deliberately cautious. The backend may ask the
+configured Home Assistant conversation agent for three short bubbles using the
+current track title, artist, album and genres: one trivia/fact, one concrete
+listening tip and one mood/texture line. When that succeeds, items use
+`source.kind:"conversation"`; when the backend falls back to local
+metadata-shaped copy, `source.kind:"generated"`. `source.confidence` is usually
+`medium`; clients should present those bubbles as playful context, not as
+verified biographies, chart claims, rights/sample claims or personal artist
+details.
+
+Example success:
+
+```json
+{
+  "enabled": true,
+  "revision": 12,
+  "ttl_seconds": 45,
+  "poll_after_seconds": 20,
+  "context": {
+    "track_id": "provider-or-stable-track-id",
+    "title": "Song Title",
+    "artist": "Artist Name",
+    "album": "Album Name",
+    "genres": ["melodic techno"],
+    "genre_badge": {
+      "label": "melodic techno",
+      "genre": "melodic techno",
+      "placement": "top_trailing"
+    },
+    "artist_image_url": "/api/djconnect/v1/image_proxy/...",
+    "music_backend": "music_assistant",
+    "music_backend_name": "Music Assistant",
+    "music_backend_revision": 2
+  },
+  "items": [
+    {
+      "id": "stable-or-generated-id",
+      "kind": "track_fact",
+      "tone": "playful",
+      "priority": 50,
+      "display_seconds": 8,
+      "placement_hint": "side",
+      "text": [
+        { "type": "text", "value": "This track rides on " },
+        { "type": "strong", "value": "space and pulse" },
+        { "type": "text", "value": "." }
+      ],
+      "source": {
+        "kind": "generated",
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "stable-or-generated-id",
+      "kind": "artist_fact",
+      "image_url": "/api/djconnect/v1/image_proxy/...",
+      "thumbnail_url": "/api/djconnect/v1/image_proxy/...",
+      "image_alt": "Artist Name artist image",
+      "image_source": "spotify",
+      "text": [
+        { "type": "text", "value": "Artist Name keeps the mix expressive." }
+      ],
+      "source": {
+        "kind": "generated",
+        "confidence": "medium"
+      }
+    }
+  ],
+  "cache": {
+    "hit": false
+  }
+}
+```
+
+Example disabled response:
+
+```json
+{
+  "enabled": false,
+  "reason": "no_active_playback",
+  "ttl_seconds": 30,
+  "poll_after_seconds": 30,
+  "items": []
+}
+```
+
+## Shared contextual Ask DJ v1
+
+All application Ask DJ text, post-STT voice and compatibility transports use
+`ask_dj.service.async_exchange`. General and Session composers differ only by
+optional confirmed `conversation_context`; no screen-origin pipeline exists.
+The additive `ask_dj_contextual_dialogue` capability advertises contract version 1.
+Current application history/state/export/clear defaults to the paired Profile;
+explicit `conversation_scope: legacy` administrative access requires the HA user
+and never imports the old archive into model or functional memory.
+
+Responses may add `conversation`, a bounded immutable `result_set`, exact
+`selected_action_id`, `action_outcome`, `knowledge_basis` and `analysis_basis`.
+Existing media/links/cards remain available in the qualified current response;
+`media_delivery_basis: current_response_only` does not grant archival retention.
+Reads, result selection and inert navigation never dispatch playback. The same
+existing command adapters validate an explicit effect and distinguish successful
+dispatch from qualified readback. Duplicate accepted turns share their revision;
+a possible external effect is not automatically repeated after an uncertain
+outcome. Pairing/Profile/source authority is checked at the actual boundary.
+
+Optional `track_insight_target` is the closed version 1 Session/Moment/action DTO
+from a qualified `moment_track_insight_navigation_v1` offer. Dedicated detail and
+both composers reuse the existing TrackInsightService/cache, keep the selected
+recording across A→B, and fail on expiry/withdrawal without silently substituting
+B. Analysis discussion stays in chat; explicit navigation may open detail.
+Unknown measured audio stays unknown. Neither path produces a proactive Moment,
+rewrites its source, resets presence budget or exposes private conversation to
+VibeCast.
+
+The field, rights, lifecycle, error and resource contracts are canonical in
+[shared dialogue](docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md) and
+[Moment drilldown](docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md). Active HA
+routes retain HA Conversation/STT/TTS; direct API access is qualification-only.
+
+### Current-artist identification (2026-10-14 corrective qualification)
+
+Shared text/STT identification uses informational intent
+`current_artist_information`, optional existing selected-entry/Moment context,
+and normal paired Profile authority. It returns localized text, attribution,
+empty `playback_actions` and current/private response semantics; catalog display
+metadata is not external model input or durable archive permission. Missing or
+expired evidence gives an honest unavailable answer; it is not a failed playback.
+An admission-to-acceptance target change returns HTTP409
+`playback_context_changed` or existing `session_context_changed`. No alternate
+transport, automatic playback retry or different Profile bypass follows a
+rejection. See the [joint contextual contract](docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md#current-artist-identification-corrective-contract-2026-10-14).
+
+## Ask DJ Mood Zones
+
+iOS, macOS and watchOS clients send `mood` as an optional integer-like value from
+`0` to `100`. The Home Assistant integration accepts the value on:
+
+- `POST /api/djconnect/v1/ask_dj/message`
+- `POST /api/djconnect/v1/ask_dj/idle_suggestion`
+- `POST /api/djconnect/v1/voice`
+- `POST /api/djconnect/v1/status`
+
+The server clamps out-of-range values before using them:
+
+- `-10` becomes `0`
+- `120` becomes `100`
+
+The canonical server-side zones are lowercase:
+
+| Mood range | Zone | Client mode |
+| --- | --- | --- |
+| `0`-`24` | `chill` | Chill |
+| `25`-`59` | `groove` | Groove |
+| `60`-`84` | `energy` | Energy |
+| `85`-`100` | `party` | Party |
+
+Clients may send only `mood`; `mood_zone` is derived by Home Assistant. If a
+client includes `mood_zone` for display/debugging, HA still treats the numeric
+`mood` as canonical. Missing or invalid mood keeps the existing default Ask DJ
+behavior.
+
+The zone is used in Ask DJ prompt/context generation, recommendations, idle
+suggestions, Music DNA prompt context, spoken DJ announcement style and
+status/debug context. When runtime mood is available, the mood zone chooses the
+effective DJ voice profile: `chill -> late_night`, `groove -> classic_radio`,
+`energy -> energy` and `party -> clean_host`. The configured backend
+`voice_profile` is fallback only when a request has no valid mood. Responses do
+not need to echo mood fields.
+
+Spoken DJ announcements may include one short personal intro line when compact Music DNA makes that natural. Clients must not send arbitrary Home Assistant state or local memory for this.
+
+## Track Insight
+
+Additive exact-current mode is documented in
+[`CURRENT_TRACK_INSIGHT_SUBJECT_V1.md`](docs/product/CURRENT_TRACK_INSIGHT_SUBJECT_V1.md):
+`track_insight_subject:{schema_version:1,mode:"current"}` uses actual recording
+proof, an ephemeral response subject and current-source/transport fences,
+without falling back to an older published Moment. Feature detection and
+provider-unavailable behavior are separate. Explicit Moment selection retains
+its existing target contract; ordinary no-selection requests mean Now Playing.
+
+Track Insight is a backend-independent analysis feature for the currently
+playing track or an explicit artist/title. All entry points use the shared
+Track Insight service layer and the selected DJConnect music backend abstraction;
+clients must not assume Spotify, Music Assistant or a specific `media_player`.
+
+Entry points:
+
+- Ask DJ prompts such as `Tell me about this track`, `What is special about this
+  song?`, `What is the vibe of this track?`, `Geef Track Insight voor dit
+  nummer` or `Give me Track Insight`.
+- `POST /api/djconnect/v1/track_insight` with Home Assistant auth.
+- Home Assistant service `djconnect.track_insight`, which fires
+  `djconnect_track_insight` with the normalized result.
+
+Request fields may include `title`, `artist`, `album`, `entity_id`,
+`player_id`, `music_backend`, `force_refresh`, `locale`, `language`, `mood`,
+`music_dna_key`, `include_visual_profile` and `include_raw_response`. Clients
+may also send nested `track`, `playback` or `media` objects with aliases such as
+`track_name`, `artist_name`, `album_name`, `media_title`, `media_artist`,
+`album_image_url`, `image_url` and optional `genres[]`. If `title` and `artist`
+are present, the backend analyzes that explicit track; otherwise it resolves
+Now Playing through the music backend/status context.
+
+Responses use normalized TrackInsight JSON with `id`, `created_at`, `source`,
+`language`, optional `mood_context`, `track`, `analysis`, `visual_profile` and
+`cache`. `track` may include deterministic `genres[]` from playback or Spotify
+artist metadata. `analysis.genre` and `analysis.subgenre` are the primary genre
+display fields; clients can fall back to `track.genres[]`. Numeric analysis and
+visual values are normalized from `0.0` to `1.0`. Track Insight does not include
+measured timing or pitch-key cards and does not include a Music DNA per-track
+match score, label or reason; Music DNA remains a separate opt-in
+profile/context feature. `visual_profile` is deterministic and is only a
+rendering hint; clients remain responsible for final visualization and must not
+expect server-generated images or video. Structured errors use `error`/`message`,
+for example `no_track_playing`.
+
+## Music DNA Profile Contract
+
+Music DNA is a first-class opt-in feature. Clients must not assume it is
+enabled. Home Assistant only builds Music DNA knowledge after the resolved
+user/client context has explicitly opted in, and disabling Music DNA clears
+learned knowledge and stops future collection. Clearing Music DNA is always
+available and preserves the current opt-in setting; if it remains enabled, new
+knowledge starts building again from an empty profile.
+
+HTTP endpoints use the regular DJConnect bearer token, `device_id` and
+canonical `client_type` identity contract:
+
+- `POST /api/djconnect/v1/music_dna/profile`
+- `POST /api/djconnect/v1/music_dna/settings`
+- `POST /api/djconnect/v1/music_dna/clear`
+- `POST /api/djconnect/v1/music_dna/export`
+- `POST /api/djconnect/v1/music_dna/import`
+
+### Optional Music DNA artwork projection (21 October 2026)
+
+The ordinary paired `/music_dna/profile` HTTP response may add `image_url`,
+`image_subject_uri`, `image_captured_at`, `image_reference_expires_at`,
+`image_expires_at` and `image_attribution` to current exact-identity track,
+album and artist rows. UNIX UTC timestamps retain the original provider
+reference capture/expiry; the display capability expires at the earlier of
+that expiry and issue time +900 seconds. This uses the existing headerless
+Discovery image proxy and current Profile/account/privacy/generation authority.
+Missing, expired, name-only or conflicting identity data has no image fields.
+No additional provider fetch or playback is caused by artwork projection.
+
+Private Store artwork references, asset IDs and grants are omitted from plain
+profile/service/tool/export/import output. Older accepted Discovery records
+may use a current server-owned exact URI/album/owner reference without modifying
+the old record or renewing its clock. Matching names cannot supply artwork.
+See [Music DNA artwork contract](docs/product/MUSIC_DNA_ARTWORK_PROJECTION_V1.md)
+and the [synthetic actual HTTP fixture](examples/client_contracts/music_dna_artwork_v1/profile-and-legacy-accepted.json).
+
+### Active DJ Session Runtime and Planner Foundation (v4-01 / v4-02)
+
+The first v4 runtime slice exposes only the server-owned lifecycle below:
+
+- `POST /api/djconnect/v1/session/start`
+- `POST /api/djconnect/v1/session/end`
+- `GET /api/djconnect/v1/session/active`
+
+Requests use the paired client identity and bearer token, then resolve the
+owning DJConnect Profile. An authenticated Watch binding cannot start a Session.
+The start endpoint returns `403 session_start_not_allowed` before creating a
+Runtime, including for a legacy Watch device ID. A request's client label does
+not change the paired binding. A Profile may have exactly one active Runtime. Start
+returns `201` with the active session; a duplicate start returns `409
+active_session_exists` with the existing session. Active lookup returns the
+same runtime for client reconnect, or `session: null` when idle. End returns an
+`ended` session and disposes it from the active registry. The contract exposes
+only `session_id`, `owner_profile_id`, `room`, `selected_mood`,
+`music_backend`, `runtime_state`, `created_at`, `started_at` and the
+runtime-owned `planner` foundation. The Planner representation exposes a
+non-persistent `planner_state`, fixed `planning_horizon_minutes` of `15`,
+timestamps, placeholder `current_direction` (`maintain` initially), optional
+`current_goal`, empty `pending_events` and a Planner Output placeholder with
+its typed, deterministic `session_flow`. The initial flow is scoped to the
+15-minute horizon and contains only `now`, `next` and `later` placeholder
+items; it is neither a playlist nor a Music Backend playback queue.
+
+The same runtime representation exposes a runtime-owned `broadcast` state.
+It contains only canonical placeholders: `session` (`session_id`,
+`runtime_state`, `selected_mood`), empty `playback` fields, Planner state and
+direction, Planner-produced `session_flow`, empty `audience` and Broadcast
+`started_at`. It is the renderer-safe outward contract; clients must not read
+the nested Planner object or other Runtime internals as an alternative renderer
+interface.
+
+The Planner is created exactly once with its Runtime, is never shared between
+sessions and is discarded when the Runtime ends. It owns the future planning
+horizon and will later produce Session Flow. The Runtime owns the present,
+including active-session mood; the Planner may consume mood but never owns or
+persists it. Profiles never own mood.
+
+This foundation does not yet perform intelligent planning or non-placeholder
+flow generation, schedule Track Insight or Discover, generate announcements,
+make AI decisions, execute playback, distribute Broadcast Events, render
+Session Flow, implement VibeCast, Universal Session Receiver or Voice, or
+persist planner state.
+
+`/music_dna/settings` accepts:
+
+```json
+{
+  "device_id": "djconnect-ios-...",
+  "client_type": "ios",
+  "enabled": true
+}
+```
+
+`/music_dna/profile` and `/music_dna/clear` accept the same identity fields and
+optional `music_dna_key`, `language`, `locale` and realtime `mood`. Profile
+responses are structured for the Music DNA screen:
+
+`/music_dna/export` accepts the same identity/auth fields and returns a stable
+export envelope built by Home Assistant. Clients should use this route for JSON
+downloads instead of constructing the envelope locally from `/profile`.
+Export is HTTP-only and is not advertised through
+`djconnect/capabilities.commands[]`.
+
+```json
+{
+  "success": true,
+  "format": "djconnect.music_dna.export",
+  "schema_version": 1,
+  "exported_at": "2026-07-04T19:30:00Z",
+  "exported_by_client_type": "ios",
+  "app_version": "3.2.x",
+  "profile": {
+    "success": true,
+    "music_dna_key": "user:abc123",
+    "enabled": true,
+    "generation": 12,
+    "updated_at": "2026-07-04T19:30:00Z",
+    "profile": {"favorite_artists": [{"name": "The xx"}]},
+    "sources": []
+  }
+}
+```
+
+`/music_dna/import` accepts the same identity/auth fields plus a previously
+exported Music DNA profile response. It is an overwrite, not a merge, and it
+only succeeds when Music DNA is already enabled on the resolved server-side
+scope. Import must not create consent or opt-in by itself. If the scope is not
+enabled, Home Assistant returns HTTP `409` with
+`error:"music_dna_not_enabled"`. On success, Home Assistant increments
+`generation`, sets `updated_at`/`imported_at` internally to the import time and
+returns the normal profile response shape.
+Import is HTTP-only and is not advertised through
+`djconnect/capabilities.commands[]`.
+
+```json
+{
+  "identity": {
+    "device_id": "djconnect-ios-...",
+    "client_type": "ios",
+    "device_name": "iPhone"
+  },
+  "music_dna_key": "user:abc123",
+  "language": "nl",
+  "profile": {
+    "success": true,
+    "music_dna_key": "user:abc123",
+    "enabled": true,
+    "generation": 12,
+    "updated_at": "2026-07-04T19:30:00Z",
+    "profile": {"favorite_artists": [{"name": "The xx"}]},
+    "sources": []
+  }
+}
+```
+
+Clients may also wrap the profile response in an export envelope:
+
+```json
+{
+  "format": "djconnect.music_dna.export",
+  "schema_version": 1,
+  "exported_at": "2026-07-04T19:30:00Z",
+  "exported_by_client_type": "ios",
+  "app_version": "3.2.x",
+  "profile": {
+    "success": true,
+    "music_dna_key": "user:abc123",
+    "enabled": true,
+    "generation": 12,
+    "updated_at": "2026-07-04T19:30:00Z",
+    "profile": {"favorite_artists": [{"name": "The xx"}]},
+    "sources": []
+  }
+}
+```
+
+```json
+{
+  "success": true,
+  "music_dna_key": "user:abc123",
+  "enabled": true,
+  "generation": 2,
+  "clear_requested_at": null,
+  "updated_at": "2026-06-29T12:00:00+00:00",
+  "profile": {
+    "summary": "Je Music DNA bevat nu genres zoals ambient, techno.",
+    "favorite_genres": [{"name": "ambient"}],
+    "favorite_artists": [{"name": "The xx"}],
+    "playtime": {
+      "total_seconds": 5400,
+      "total_hours": 1.5,
+      "formatted_total": "1u 30m",
+      "top_artists": [
+        {"name": "The xx", "seconds": 3600, "hours": 1.0, "formatted": "1u"},
+        {"name": "Bon Iver", "seconds": 1200, "hours": 0.33, "formatted": "20m"},
+        {"name": "Radiohead", "seconds": 600, "hours": 0.17, "formatted": "10m"}
+      ],
+      "top_albums": [
+        {"name": "xx", "seconds": 2400, "hours": 0.67, "formatted": "40m"}
+      ]
+    },
+    "listening_rhythm": {
+      "sample_count": 6,
+      "top_daypart": "avond",
+      "top_weekday": "vrijdag",
+      "dayparts": [{"daypart": "avond", "count": 4, "percent": 66.7}],
+      "weekdays": [{"weekday": "vrijdag", "count": 3, "percent": 50.0}]
+    },
+    "mood_mix": {
+      "sample_count": 3,
+      "average": 57,
+      "top_zone": "groove",
+      "zones": [{"zone": "groove", "count": 2, "percent": 66.7}]
+    },
+    "repeat_magnets": {
+      "eligible": true,
+      "items": [
+        {"kind": "artist", "name": "The xx", "count": 3},
+        {"kind": "album", "name": "xx", "seconds": 2400, "formatted": "40m"}
+      ]
+    },
+    "explicit_positives": {
+      "eligible": true,
+      "signal_count": 2,
+      "favorite_tracks": [{"kind": "favorite_track", "title": "Far Behind", "artist": "Candlebox"}],
+      "accepted_recommendations": [{"kind": "accepted_recommendation", "title": "Intro", "subtitle": "The xx"}]
+    },
+    "taste_anchors": {
+      "eligible": true,
+      "items": [
+        {"kind": "artist", "name": "The xx", "play_count": 3, "seconds": 3600, "formatted": "1u"},
+        {"kind": "genre", "name": "ambient"}
+      ]
+    },
+    "recent_tracks": [{"title": "Intro", "artist": "The xx"}],
+    "recent_favorite_tracks": [{"title": "Far Behind", "artist": "Candlebox"}],
+    "top_tracks_by_range": {},
+    "top_artists_by_range": {},
+    "snapshot_history": [
+      {
+        "captured_at": "2026-06-29T12:00:00+00:00",
+        "source": "spotify",
+        "sources": ["spotify_recently_played", "spotify_top_tracks_short_term"],
+        "recent_artists": ["The xx"],
+        "top_artists": [{"name": "The xx", "uri": "spotify:artist:..."}],
+        "top_tracks": [{"title": "Intro", "artist": "The xx", "uri": "spotify:track:..."}],
+        "inferred_genres": ["ambient"],
+        "recent_track_count": 20
+      }
+    ],
+    "mood": {"value": 65, "zone": "energy", "prompt_hint": "..."},
+    "time_patterns": [],
+    "recommendation_signals": [],
+    "blocked_artists": [],
+    "blocked_items": [],
+    "discovery_feedback": {
+      "eligible": true,
+      "accepted_count": 1,
+      "negative_count": 1,
+      "accepted_items": [
+        {
+          "kind": "track",
+          "title": "Midnight City",
+          "subtitle": "M83",
+          "uri": "spotify:track:...",
+          "reason": "Past bij je recente synthpop.",
+          "source": "music_discovery_play",
+          "section_id": "new_for_you",
+          "quality_score": 91,
+          "quality_band": "high"
+        }
+      ],
+      "blocked_artists": [{"kind": "artist", "name": "Coldplay", "reason": "hide_artist"}],
+      "blocked_items": [
+        {
+          "kind": "track",
+          "name": "Radiohead - Karma Police",
+          "reason": "removed_from_favorites"
+        }
+      ]
+    },
+    "privacy_dashboard": {
+      "enabled": true,
+      "scope": "ha_user_or_client",
+      "stores_raw_audio": false,
+      "stores_oauth_tokens": false,
+      "stores_full_prompts": false,
+      "active_source_count": 3,
+      "data_sources": [
+        {"id": "recent_tracks", "label": "Recent DJConnect tracks", "enabled": true, "count": 3},
+        {"id": "spotify_listening_profile", "label": "Spotify recent/top profile snapshots", "enabled": true, "count": 1, "last_updated": "2026-06-29T12:00:00+00:00"},
+        {"id": "recommendation_feedback", "label": "Recommendation feedback", "enabled": true, "count": 2}
+      ],
+      "retention": {"recent_tracks_max": 20, "chat_facts_max": 20, "snapshot_history_max": 12},
+      "controls": {
+        "clear_supported": true,
+        "export_supported": true,
+        "import_supported": true,
+        "opt_out_preserves_clear": true
+      }
+    },
+    "last_profile_refresh": "2026-06-29T12:00:00+00:00",
+    "consent_updated_at": "2026-06-29T11:50:00+00:00"
+  },
+  "sources": [{"source": "djconnect_music_dna", "kind": "source", "title": "Music DNA"}]
+}
+```
+
+When Music DNA is disabled, `enabled:false` and `profile:{}` are returned.
+Clients should show an opt-in state instead of deriving a fake profile from
+local Track Insight history.
+
+Music DNA is server-authoritative. Clients should render backend-provided
+summary, favorite genres, favorite artists, total play time, top artists/albums
+by play time, listening rhythm, mood mix, recent tracks, energy/mood profile,
+repeat magnets, explicit positives, taste anchors, recent favorite tracks, taste
+direction, compact snapshot history, based-on values and update timestamps where present. Clients must not
+calculate favorite artists, favorite genres, play time, listening rhythm, mood
+mix, repeat magnets, explicit positives, taste anchors, favorite history,
+snapshot trends or taste direction locally from Ask DJ history or local playback
+cache.
+
+Favorite changes are also server-authoritative. Adding the current track to
+Spotify favorites is recorded as an explicit positive Music DNA signal when
+Music DNA is enabled. Removing the current track from favorites is recorded as
+a compact negative track preference with `reason:"removed_from_favorites"`;
+clients must not synthesize or persist that preference locally.
+
+`privacy_dashboard` is a compact transparency block for Music DNA settings and
+dashboard screens. It lists which backend signal sources currently contribute,
+rough counts, retention limits and supported controls. It must never include
+OAuth tokens, bearer tokens, raw audio, full prompts or full playback history.
+
+`snapshot_history` is a bounded backend summary of recent Spotify listening
+profile refreshes, not raw playback history. It keeps only compact timestamped
+top artists, top tracks, recent artist names, inferred genres, source labels and
+counts, currently capped to the most recent 12 snapshots.
+
+`discovery_feedback` is the compact bridge from Music Discovery back into Ask
+DJ. It summarizes accepted Discovery/Ask DJ recommendations and negative
+Discovery feedback so future Ask DJ recommendations can respect what the user
+played, hid or marked as not fitting. Clients must send feedback through the
+backend endpoints and must not build separate local taste rules.
+
+Music DNA dashboard fields are optional. Empty legacy placeholders such as empty
+arrays or empty objects are omitted; clients should hide absent blocks without a
+separate empty state. Conditional insight blocks expose `eligible:false` and a
+stable `reason` when there are not enough reliable compact signals. Clients
+should hide those blocks instead of showing empty charts. Current reasons include
+`insufficient_repeat_signals`, `no_explicit_positive_signals` and
+`insufficient_anchor_signals`.
+
+Home Assistant developer actions mirror the HTTP contract:
+
+- `djconnect.music_dna_profile`
+- `djconnect.set_music_dna_enabled`
+- `djconnect.clear_music_dna`
+
+The conversation/AI tool allowlist also exposes read-only
+`djconnect_music_dna_profile` so the DJConnect conversation agent can inspect
+the same structured profile without mutating playback or consent.
+
+## Music Discovery Contract
+
+Artwork continuity is specified in
+[`DISCOVERY_ARTWORK_CONTINUITY_V1.md`](docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md).
+Optional image output is a scoped relative HA proxy URL with UNIX-second
+`image_expires_at` and exact Spotify `image_attribution`. Reference TTL ≤6h;
+image lease ≤900s; feed TTL never extends either. Headerless image loads remain
+supported, explicitly wrong credentials fail401, expired/revoked grants fail404,
+unsafe/failed upstream content fails502. Existing legacy Ask DJ/shared-renderer
+image tokens retain their contract. Refresh context withdrawal returns409
+`music_dna_context_changed`; retry uses the same ordinary authorized routes.
+
+
+Music Discovery is a first-class client surface for iOS, macOS and watchOS. It
+uses Music DNA as its primary recommendation input and is disabled until Music
+DNA is enabled for the resolved user/client context. Clients must not generate
+recommendations or reasons locally.
+
+HTTP endpoints:
+
+- `GET /api/djconnect/v1/music_discovery`
+- `POST /api/djconnect/v1/music_discovery/refresh`
+- `POST /api/djconnect/v1/music_discovery/play`
+- `POST /api/djconnect/v1/music_discovery/feedback`
+
+WebSocket equivalents, when advertised by `djconnect/capabilities.commands[]`:
+
+- `djconnect/music_discovery/feed`
+- `djconnect/music_discovery/refresh`
+- `djconnect/music_discovery/play`
+- `djconnect/music_discovery/feedback`
+
+When Apple push is registered and Music DNA is enabled, Home Assistant may send
+one daily `music_discovery_ready` wake/sync hint around 08:00 local HA time. The
+push deep-links to the Ontdek/Music Discovery surface and tells clients to
+refresh the Music Discovery backend feed; the APNs payload never contains
+recommendation contents. Clients should open the Ontdek page and call
+`POST /api/djconnect/v1/music_discovery/refresh` or the equivalent websocket
+refresh command, falling back to the regular feed endpoint if refresh is
+rate-limited or unavailable.
+
+Home Assistant also refreshes Music Discovery server-side about once per hour
+for eligible runtimes. When Music DNA is enabled, this refresh updates compact
+Music DNA listening-profile data from Spotify recently-played/top tracks/top
+artists, then rebuilds the Music Discovery cache. Recently played tracks are
+used as seeds/context only; they must not be surfaced as raw Discovery cards.
+The feed cache is also context-aware: when compact Music DNA signals change
+between requests, for example new recent-track identities, changed top
+artist/track profile data, mood changes, accepted recommendations, blocked
+items/artists or Discovery play/feedback signals, Home Assistant can rebuild the
+feed even while the normal TTL is still valid. Clients should simply refetch the
+feed after meaningful user actions and render the returned revision.
+
+When Home Assistant debug logging is enabled for `custom_components.djconnect`,
+the HTTP handlers emit redacted diagnostics prefixed with
+`DJConnect Music Discovery`. These lines identify feed/refresh/play requests,
+auth failures, `music_dna_disabled`, cache hits, refresh rate limits and
+generated section/item counts. They include client type and device id but never
+tokens, raw prompts or full request payloads.
+
+Disabled response:
+
+```json
+{
+  "success": true,
+  "enabled": false,
+  "reason": "music_dna_disabled",
+  "sections": []
+}
+```
+
+Feed responses are cached per Music DNA key for about one day. User-triggered
+refresh may be rate-limited and returns the current cached feed when limited.
+Contextual server refreshes are automatic and do not require clients to decide
+which Music DNA fields changed:
+
+```json
+{
+  "success": true,
+  "enabled": true,
+  "revision": 12,
+  "generated_at": "2026-07-04T12:00:00+00:00",
+  "ttl_seconds": 86400,
+  "source": "music_dna",
+  "music_dna_key": "user:abc123",
+  "sections": [
+    {
+      "id": "new_for_you",
+      "title": "Nieuw voor jou",
+      "items": [
+        {
+          "id": "disc-123",
+          "kind": "track",
+          "title": "Fresh Discovery",
+          "subtitle": "New Artist",
+          "uri": "spotify:track:...",
+          "image_url": "/api/djconnect/v1/image_proxy/...",
+          "reason": "Omdat je vaak naar The xx luistert en ambient in je Music DNA zit.",
+          "reason_sources": ["spotify_recommendations", "djconnect_music_dna", "music_dna_artists", "music_dna_genres"],
+          "confidence": "medium",
+          "quality_score": 88,
+          "quality_band": "high",
+          "quality_factors": ["spotify_recommendation", "fresh_candidate", "favorite_artist_match"]
+        }
+      ]
+    },
+    {
+      "id": "rediscover",
+      "title": "Opnieuw ontdekken",
+      "items": [
+        {
+          "id": "disc-456",
+          "kind": "track",
+          "title": "Top Track",
+          "subtitle": "The xx",
+          "uri": "spotify:track:...",
+          "reason": "Een bekende favoriet uit je Music DNA om opnieuw op te pakken.",
+          "reason_sources": ["djconnect_music_dna", "spotify_top_tracks"],
+          "confidence": "medium",
+          "quality_score": 70,
+          "quality_band": "medium",
+          "quality_factors": ["known_favorite", "rediscover"]
+        }
+      ]
+    },
+    {
+      "id": "artist_spotlight",
+      "title": "Artiesten om verder te verkennen",
+      "items": [
+        {
+          "id": "disc-789",
+          "kind": "artist",
+          "title": "The xx",
+          "subtitle": "Artist",
+          "uri": "spotify:artist:...",
+          "reason": "Artiest die sterk terugkomt in je Music DNA.",
+          "reason_sources": ["djconnect_music_dna", "spotify_top_artists"],
+          "confidence": "medium",
+          "quality_score": 74,
+          "quality_band": "medium",
+          "quality_factors": ["artist_anchor", "spotify_top_artists"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+Displayed items must have `id`, `kind`, `title`, playable `uri` and a backend
+`reason`. If a good backend reason cannot be generated, the backend should not
+return the item. Reasons are based on compact Music DNA signals, Spotify profile
+seeds and backend recommendation provenance. Prefer specific explanations such
+as a favorite artist, genre or recent listening context over generic copy.
+`new_for_you` items are generated recommendations; `rediscover` may contain
+known favorite tracks from compact Music DNA/top-track profile data; and
+`artist_spotlight` may contain artist anchors for further exploration. Raw
+Spotify recently-played entries are not a Discovery section unless the backend
+explicitly returns such a section in the future. Clients should render one
+row/card per unique backend-provided `id` or `uri` and should not hardcode
+section ids.
+
+Items may include backend-owned quality metadata: `quality_score` from 0-100,
+`quality_band` (`low`, `medium`, `high`) and compact `quality_factors[]`.
+The backend uses these values to order items within a section; clients may show
+subtle confidence/fit hints but must not calculate or override quality locally.
+
+The backend applies freshness and dedupe filters before returning sections:
+known/recent/top/blocked track URIs are excluded from generated new-music rows,
+common title variants such as live, remix, radio edit and remaster are collapsed
+per artist, album/title overlap is treated as duplicate context, and a section
+should avoid overloading the user with too many items from the same artist.
+Clients must not attempt to recreate or loosen these filters locally.
+
+Play requests must use the discovery play endpoint instead of generic playback
+commands so the backend can record the click as positive Music DNA feedback:
+
+```json
+{
+  "device_id": "djconnect-ios-...",
+  "client_type": "ios",
+  "discovery_item_id": "disc-123",
+  "section_id": "new_for_you",
+  "music_dna_key": "user:abc123"
+}
+```
+
+Successful play responses include `played:true` and
+`music_dna_feedback_recorded:true` when the feedback was stored. The feedback
+record keeps the discovery item id, section id, kind, URI, title, reason,
+reason sources, optional quality metadata and source `music_discovery_play`; it
+does not store raw prompts, tokens or unlimited listening history. Stored
+Discovery play feedback is also exposed to Ask DJ through compact Music DNA
+context so later recommendations can lean into accepted discoveries.
+
+Negative feedback must use the discovery feedback endpoint, never local client
+filtering only. Supported `feedback` values are `not_for_me`, `less_like_this`
+and `hide_artist`:
+
+```json
+{
+  "device_id": "djconnect-ios-...",
+  "client_type": "ios",
+  "discovery_item_id": "disc-123",
+  "section_id": "new_for_you",
+  "feedback": "hide_artist",
+  "music_dna_key": "user:abc123"
+}
+```
+
+Successful feedback responses include `music_dna_feedback_recorded:true` when
+the compact negative signal was stored. The backend may remove the item from
+the cached feed immediately and filters future generated recommendations
+against blocked item and artist signals. Ask DJ also receives those compact
+negative signals through Music DNA context and should avoid repeating the same
+item or artist unless the user explicitly asks for it. Clients may show controls
+such as `Niet voor mij`, `Minder hiervan` and `Verberg artiest`, but must send
+the backend action and must not maintain their own long-lived blocklist.
+
+## AI Conversation Tools
+
+DJConnect exposes AI/conversation tools through an explicit allowlist, not by
+publishing every Home Assistant service as a tool. Read-only tools may inspect
+Track Insight, playback status, Music DNA, recent history, search results,
+outputs and recommendation candidates. Playback mutation is limited to a
+server-side confirmation pair:
+
+- `djconnect_track_insight`
+- `djconnect_now_playing`
+- `djconnect_music_dna_profile`
+- `djconnect_music_dna_summary`
+- `djconnect_music_discovery_feed`
+- `djconnect_vibecast_feed`
+- `djconnect_music_backend_status`
+- `djconnect_recently_played`
+- `djconnect_search_music`
+- `djconnect_list_outputs`
+- `djconnect_build_recommendations`
+- `djconnect_prepare_playback_action`
+- `djconnect_execute_confirmed_action`
+
+`djconnect_music_discovery_feed` reads the backend-built Music Discovery feed
+for the resolved Music DNA context and must not call discovery play, force
+refresh or mutate playback. `djconnect_vibecast_feed` reads the same
+privacy/premium-gated VibeCast feed exposed to supported app clients and must
+not bypass VibeCast feature, privacy, entitlement or client-type gates.
+`djconnect_music_backend_status` returns safe selected-backend availability,
+capability and target-player metadata without secrets. `djconnect_prepare_playback_action` stores a bounded pending confirmation in
+Music DNA and returns confirmation actions only; it must not start playback.
+`djconnect_execute_confirmed_action` may execute only the latest stored
+DJConnect AI-tool confirmation payload and must not accept arbitrary
+`command`/`value` input.
+
+The registry and implementation are intentionally separate. `tool_registry.py`
+is the contract surface for tool names, JSON schemas and read-only flags.
+`tool_handlers.py` is the backend use-case layer and is the only place where AI
+tools call DJConnect backend primitives. Ask DJ uses the same handlers for
+now-playing, outputs, Track Insight, recent history, search and recommendation
+workflows so those routes cannot drift from the exposed Home Assistant AI tools.
+
+## Ask DJ Message Actions
+
+`POST /api/djconnect/v1/ask_dj/message` responses may include
+`playback_actions[]`. Clients should render actions by `kind` and must not infer
+missing media from previous chat bubbles. If a response has no `images[]`, show
+it as text-only.
+
+Message responses include `user_message`, `assistant_message` and, on current
+servers, a canonical `messages[]` array in render order. For a normal exchange
+that array contains `[user, assistant]`. Both messages share an `exchange_id`;
+`exchange_order` is `0` for the user question and `1` for the assistant answer.
+Clients should prefer `messages[]` when merging the immediate HTTP response into
+local chat UI, and use `exchange_order` as the tie-breaker when optimistic UI,
+push events or history sync arrive close together. Older servers may omit these
+fields; in that case, keep the existing fallback of rendering the user message
+before the assistant message for the same `client_message_id`.
+
+Assistant messages may include `text_source:"generated"` and
+`is_generated_text:true` when Home Assistant's configured conversation agent
+created the answer text. Clients should show the generative-answer indicator
+from these fields even when the response is text-only. When `audio_url` is
+present on `assistant_message`, render the replay/play affordance for that exact
+assistant bubble; generated current-track answers such as `wat speelt er` can
+include both generated text metadata and a replayable TTS URL.
+
+### Legacy contract1 announcement routing — delivered compatibility only
+
+The following legacy wire example describes existing contract1 behavior only.
+It is not the selected contract3 implementation instruction. Follow the
+[current owner delta](docs/product/PROFILE_SESSION_SETTINGS_CONSOLIDATION_V1.md)
+for shared output, default client_device, explicit local replay in speaker modes,
+private targets and text_only fences. Windows is retired; no new Windows UI or
+adoption is authorized by these historical examples.
+
+DJ announcement audio routing is explicit. App clients may send or store
+`dj_announcement_output` as one of `client_device`, `both`, `ha_speaker` or
+`text_only`; the Home Assistant config/options flow owns the optional
+`dj_announcement_speaker_entity_id` and clients must not set the HA entity id.
+When no HA speaker is configured, app clients support only `client_device` and
+`text_only`. Raspberry Pi supports `text_only` and, when a backend speaker is
+configured, `ha_speaker`; it does not expose local client audio. ESP32 keeps the
+existing `/api/device/dj_response` device-speaker path and does not use these app
+announcement modes.
+
+Responses include an `announcement{}` object when Ask DJ evaluates announcement
+delivery:
+
+```json
+{
+  "announcement": {
+    "output": "both",
+    "delivery": "both",
+    "audio_response_effective": "always",
+    "audio_url": "/api/djconnect/v1/tts/token.mp3",
+    "audio_type": "mp3",
+    "target": {
+      "kind": "ha_media_player",
+      "entity_id": "media_player.voice_preview",
+      "name": "Voice Preview"
+    },
+    "warnings": []
+  }
+}
+```
+
+For `ha_speaker`, Home Assistant plays the generated TTS server-side on the
+configured `media_player` and does not return client-playback `audio_url`. For
+`both`, HA plays server-side and also returns `audio_url` for clients that allow
+autoplay/replay. For `text_only`, HA skips TTS entirely. Spotify Direct never
+pauses, resumes or changes Spotify volume for DJ announcements; the HA speaker
+plays separately from Spotify playback.
+
+### Supported action kinds
+
+- `album`: direct Play Now action for an album. The action includes
+  backend-aware metadata, `title`, optional `subtitle`/artist and optional
+  proxied `image_url`. Spotify Direct actions keep legacy `uri`/`context_uri`
+  fields; clients should prefer the nested `value` object when present.
+- `output`: backend output/player selection. Render the action as an output row
+  or button. Use `label`/`button_label` such as `Activeer`; an already active
+  output may use `Actief`.
+- `control`: immediate playback control action. Pause/stop responses can return
+  `command:"play"` with `label:"Resume"` / `button_label:"Resume"` so clients
+  show a Resume button. Clients may also send direct control commands such as
+  `volume_delta`, `set_shuffle`, `set_repeat`, `save_current_track` and
+  `set_current_track_favorite` through
+  `POST /api/djconnect/v1/command`. Current-track Ask DJ responses such as
+  `wat speelt er` may include a `set_current_track_favorite` control action
+  with `toggle:true`, `favorite_status`, `toggle_state:"on"|"off"|"unknown"`,
+  a boolean `value` target and `client_prompt` (`Zet huidig nummer in favorieten`
+  or `Haal huidig nummer uit favorieten`). Render it as an immediate Now
+  Playing / Ask DJ toggle button and do not route it through
+  `ask_dj_play_recommendation`. When the command succeeds with
+  `favorite_status:false` or `is_liked:false`, Home Assistant records a compact
+  negative Music DNA track signal if Music DNA is enabled.
+- `confirmation`: Ja/Nee follow-up action with
+  `command:"ask_dj_followup_response"` and a server-side pending proposal.
+  Generic playlist/recommendation offers may use labels such as `Ja graag` and
+  `Nee dank je`; render them as actionable buttons and do not add album art when
+  the response contains `images: []`.
+- Recommendation kinds `track`, `artist`, `playlist`, `album` and `track_mix`
+  remain Play Now candidates and must be sent back through
+  `command:"ask_dj_play_recommendation"` unless the action explicitly uses a
+  direct control/output command. A successful Play Now response returns
+  `dj_text`, `dj_response`, optional `audio_url`/`audio_type` and playback
+  metadata so clients can show and play the DJ announcement immediately instead
+  of waiting for ambient playback facts.
+
+Artist track-list questions such as `welke nummers heb je`,
+`welke nummers heb je van <artist>` and `more tracks by <artist>` are handled
+server-side. If the artist is omitted, the backend may resolve it from the
+current playback context or recent Ask DJ history. Successful responses return
+`playback_actions[]`/`items[]` rows with `kind:"track"` and Play Now labels; the
+client must render those backend rows and must not reinterpret the question as a
+style recommendation. Artist matching is tolerant of common textual differences
+such as `and` versus `&`.
+
+Playback actions are backend-aware. Clients must not assume Spotify URIs:
+
+```json
+{
+  "id": "spotify:track:123",
+  "kind": "track",
+  "command": "ask_dj_play_recommendation",
+  "label": "Play Now",
+  "backend": "spotify_direct",
+  "provider": "spotify",
+  "music_backend_revision": 1,
+  "value": {
+    "uri": "spotify:track:123",
+    "title": "Track Title",
+    "subtitle": "Artist Name",
+    "image_url": "/api/djconnect/v1/image_proxy/token"
+  }
+}
+```
+
+Music Assistant actions use provider-neutral item metadata and include the
+configured target player:
+
+```json
+{
+  "id": "ma:track:123",
+  "kind": "track",
+  "command": "ask_dj_play_recommendation",
+  "label": "Play Now",
+  "backend": "music_assistant",
+  "provider": "music_assistant",
+  "music_backend_revision": 4,
+  "value": {
+    "item_id": "ma:track:123",
+    "provider": "music_assistant",
+    "media_type": "track",
+    "title": "Track Title",
+    "subtitle": "Artist Name",
+    "image_url": "/api/djconnect/v1/image_proxy/token",
+    "target_player_id": "media_player.mass_woonkamer"
+  }
+}
+```
+
+Speaker/output questions such as `welke speakers zijn er?` or
+`wissel van uitvoer` return a short text intro plus one `output` action per
+available backend output/player. They must not include stale album art from an
+earlier music response.
+
+Album-discography questions such as `Welke albums bracht Nirvana uit?` return a
+formatted album list and `album` Play Now actions. Album playback announcements
+keep album and track fields separate: album requests set album metadata on
+`album`/`album_name`, and if Spotify starts the first track it appears as
+`track_name`/`title`. Clients should display the returned text instead of
+rewriting album responses locally.
+
+Help requests such as `help`, `hulp`, `wat kun je?` and `welke commando's?`
+return a text-only categorized command list. `Probeer opnieuw` / `retry` replays
+the previous retryable playback request server-side; clients should send the
+user's retry text normally and let the server resolve the prior request.
+The help list includes exact prompt examples that are covered by
+`examples/ask_dj_e2e_cases.json`; for example `Geef Track Insight voor dit
+nummer` maps to the read-only `track_insight` intent.
+
+Discover and Music DNA explanation questions such as `Hoe werkt Discover met
+feedback?`, `Refresh my Discover recommendations`, `Wat zegt mijn Music DNA?`
+and `welke gegevens bewaart Music DNA over mij?` are read-only. They return
+text plus source metadata, never start playback and never mutate Discover or
+Music DNA state directly.
+
+Same-title track variant searches such as
+`Geef me 10 uitvoeringen van [nummer] door verschillende artiesten`,
+`Doe me 10 uitvoeringen door verschillende artiesten van "[nummer]"`,
+`Zoek versies van "[nummer]"`, `Toon covers van "[nummer]"`,
+`Find versions of "[song]"` and `Give me versions titled [song]` return
+`intent.intent:"track_versions_search"`. Ask DJ searches Spotify tracks with
+limit 10, keeps only results whose title contains all meaningful words from the
+requested title, returns rows plus `kind:"track"` `Play Now` actions, and does
+not start playback automatically. Title extraction supports quoted titles or
+titles after `van`, `voor`, `of`, `called`, `named` or `titled`.
+
+Personal memory questions such as `wat weet je nu over mij?`, `wat staat er in
+mijn Music DNA?` and `what do you know about me?` return
+`intent.intent:"personal_music_dna_summary"` and `action:"music_dna_summary"`. The
+response is Music DNA-only: `sources[]` contains `djconnect_music_dna`, `images`
+and `playback_actions` are empty, and the backend must not use live playback
+artwork or Spotify listening-profile enrichment for the answer.
+
+Unknown, unsupported or low-confidence informational answers are text-only and
+return `images: []`. Clients must not reuse current-track album art for these
+fallback responses.
+
+## Ask DJ E2E Contract Validation
+
+Ask DJ client behavior can be validated with the shared case file
+`examples/ask_dj_e2e_cases.json`. Each case contains a request payload fragment
+and expected response contract fields such as intent, action, confirmation
+buttons, playback actions, source metadata, text snippets and allowed Spotify
+backend calls.
+
+Run the deterministic offline contract tests with mocked Spotify/Assist
+backends:
+
+```bash
+python3 -m unittest tests.test_ask_dj_e2e_contract
+```
+
+Run the same cases against a live Home Assistant instance with the HACS
+integration loaded:
+
+```bash
+python3 tools/run_ask_dj_e2e.py \
+  --base-url http://localhost:8123 \
+  --token "$HA_TOKEN" \
+  --cases examples/ask_dj_e2e_cases.json \
+  --out reports/ask_dj_e2e_results.json
+```
+
+The live runner posts each case to `/api/djconnect/v1/ask_dj/message` with a
+stable watchOS-style test identity. Offline tests additionally record backend
+commands so cases can assert that informational intents do not mutate playback.
+When adding a new client-visible Ask DJ intent, add or update a case in
+`examples/ask_dj_e2e_cases.json` together with the normal unit tests.
+
+The offline contract test also checks that every prompt returned by the Ask DJ
+help function appears exactly once or more in the shared case file. This keeps
+client-visible help text aligned with implemented intent behavior.
+
+## Ask DJ Recent Listening Lists
+
+Ask DJ supports read-only recent listening-history questions through Spotify
+`/me/player/recently-played`. Examples:
+
+- `welke nummers heb ik afgelopen uur afgespeeld?`
+- `welke albums heb ik vandaag geluisterd?`
+- `welke artiesten hoorde ik net?`
+- `welke playlists heb ik afgelopen uur gespeeld?`
+- `which tracks did I play in the last hour?`
+
+These responses use:
+
+- `intent.category: "informational"`
+- `intent.intent: "recently_played_history"`
+- `intent.action: "recently_played"`
+- `intent.item_type: "tracks" | "albums" | "artists" | "playlists"`
+- `action: "none"`
+- `sources[]` including `spotify_recently_played`
+
+If the selected music backend does not expose recent listening history, the
+response keeps `intent:"recently_played_history"`, `action:"none"` and empty
+playback actions, but returns a short backend-capability fallback text instead
+of Spotify OAuth or scope repair instructions.
+
+The response may include top-level `items[]` and the same list under
+`assistant_message.items[]`. Each item is display-ready:
+
+```json
+{
+  "kind": "track",
+  "title": "Even Flow",
+  "subtitle": "Pearl Jam",
+  "uri": "spotify:track:...",
+  "image_url": "/api/djconnect/v1/image_proxy/...",
+  "thumbnail_url": "/api/djconnect/v1/image_proxy/...",
+  "played_at": "2026-06-23T12:34:56Z",
+  "played_at_label": "12:34"
+}
+```
+
+Clients should render `items[]` as a compact vertical list with the returned art
+or a local fallback icon for the item kind. Do not render these answers as one
+large media card, do not reuse artwork from earlier chat bubbles, and do not add
+Play Now controls unless the backend explicitly returns `playback_actions[]`.
+Spotify's recently-played context may expose only a playlist URI without a
+playlist display name; in that case the backend can return a generic title such
+as `Spotify playlist` until richer playlist metadata is available.
+
+## Ask DJ Track Insight
+
+Ask DJ supports read-only Track Insight questions through the unified Track
+Insight contract. Examples:
+
+- `geef Track Insight voor dit nummer`
+- `analyseer dit nummer`
+- `tell me about this track`
+- `what is special about this song?`
+- `give me Track Insight`
+
+These responses use:
+
+- `intent.category: "informational"`
+- `intent.intent: "track_insight"`
+- `intent.action: "track_insight"`
+- `action: "track_insight"`
+- `type: "track_insight"`
+- `open_screen: "track_insight"`
+- `playback_actions: []`
+- top-level `track_insight{}` with normalized `track`, `analysis`,
+  `visual_profile` and `cache`
+
+Track Insight is the only Ask DJ current-track insight contract. It must not
+expose a parallel response shape or a backend-specific Spotify audio-analysis
+command path.
+
+## Ask DJ Playback Without Active Speaker
+
+When a playback or hybrid Ask DJ intent cannot start because Spotify reports no
+active output device, the backend should not return a dead-end generic playback
+failure if available Spotify devices can be listed. Instead it returns:
+
+- `success: true`
+- `error: "no_active_output"`
+- `action: "select_output"`
+- the original playback intent in `intent{}`
+- `playback_actions[]` / `items[]` containing speaker rows with `kind:"output"`
+  and `command:"ask_dj_play_request_on_output"`
+
+Each output action carries `value.output_id` and `value.request.text`, so clients
+can post it unchanged to `/api/djconnect/v1/command`. The command handler first
+sets the selected Spotify output and then replays the original Ask DJ playback
+request server-side. Clients must not reconstruct the original prompt locally.
+
+## Ask DJ History
+
+Ask DJ history is server-side and HA-user scoped. App clients synchronize through
+`GET /api/djconnect/v1/ask_dj/history?since_revision=<number>` and clear through
+`POST /api/djconnect/v1/ask_dj/history/clear`. Clients can export the current
+bounded server-side history through HTTP-only
+`POST /api/djconnect/v1/ask_dj/history/export`; this route is intentionally not a
+Home Assistant websocket command.
+
+`clear_revision` is the authoritative full-clear marker. When a history or clear
+response contains a higher `clear_revision` than the client has locally, the
+client must wipe its local Ask DJ cache for that HA user/context before merging
+new server messages.
+
+Clear responses also include `cleared:true`, `ask_dj_clear_required:true` and
+`messages:[]`. Clients should clear their local visible chat immediately after a
+successful clear response; do not wait for a later history fetch to empty the
+UI.
+
+Current retention limit: `1000` messages per HA user.
+
+History responses include `history_limit`, `history_trimmed_before` and
+`history_trimmed_count`. When trimming occurs, clients should delete local
+messages older than `history_trimmed_before` and must not parse retention message
+text.
+
+History export uses the same DJConnect bearer token and identity contract as
+history sync. The response is a backend-built envelope:
+
+```json
+{
+  "success": true,
+  "format": "djconnect.ask_dj.history.export",
+  "schema_version": 1,
+  "exported_at": "2026-07-04T19:30:00Z",
+  "exported_by_client_type": "ios",
+  "app_version": "3.2.x",
+  "user_id": "ha-user",
+  "history_revision": 12,
+  "clear_revision": 2,
+  "history_limit": 1000,
+  "history_trimmed_before": null,
+  "history_trimmed_count": 0,
+  "messages": []
+}
+```
+
+Export is read-only. It must not include bearer tokens, OAuth tokens,
+bootstrap proofs, raw prompts beyond the already persisted bounded chat
+messages, raw audio or Music DNA data. Ask DJ history import is not supported.
+
+When the last DJConnect Home Assistant config entry is unloaded or removed, HA
+clears server-side Music DNA and Ask DJ history. A deleted app/device entry must
+not keep using another active DJConnect runtime: requests with a stale
+`device_id` or bearer token are rejected instead of falling back to the current
+active entry. Clients should treat `401`/`403` and `not_configured`/stale-pairing
+responses as a reason to leave paired state and clear local Ask DJ cache for that
+HA installation.
+
+## Apple Push Notifications
+
+Apple push notification support is server-side and best-effort. Push is only a
+wake/attention signal; clients must always sync through authenticated DJConnect
+APIs when opened, especially `GET /api/djconnect/v1/ask_dj/history`.
+
+Endpoints:
+
+- `POST /api/djconnect/v1/push/bootstrap`
+- `POST /api/djconnect/v1/push/register`
+- `POST /api/djconnect/v1/push/unregister`
+
+All endpoints require the existing DJConnect bearer token and support only
+`ios`, `macos` and `watchos` clients. Home Assistant validates the client
+request, hashes the HA user id, and relays registration/unregistration to the
+central `djconnect-api` push relay. Home Assistant does not persist APNs tokens
+and never requires the APNs provider `.p8` key.
+
+Bootstrap payload:
+
+```json
+{
+  "device_id": "djconnect-macos-ABCDEFGHIJKL",
+  "client_type": "macos",
+  "push_environment": "sandbox",
+  "app_bundle_id": "dev.djconnect.mac",
+  "app_version": "3.2.36",
+  "locale": "nl-NL"
+}
+```
+
+The legacy `/push/bootstrap` endpoint does not mint local proofs and normally
+responds:
+
+```json
+{
+  "success": false,
+  "push_supported": true,
+  "push_registered": false,
+  "push_environment": "sandbox",
+  "error": "bootstrap_proof_unavailable",
+  "last_push_error": "bootstrap_proof_unavailable"
+}
+```
+
+Clients should treat `bootstrap_proof_unavailable` as an instruction to use the
+trusted Apple issuer flow. When `/push/register` reports
+`missing_bootstrap_proof`, request a central-issued proof from that issuer and
+retry registration with `bootstrap_proof` before it expires. Home Assistant does
+not locally mint, request or store bootstrap proofs for `/v1/install/token`.
+HA/HACS never calls central bootstrap-proof issuer routes and never has relay,
+pairing-issuer or APNs provider secrets.
+
+Register payload:
+
+```json
+{
+  "device_id": "djconnect-ios-...",
+  "client_type": "ios",
+  "push_token": "...",
+  "push_environment": "sandbox",
+  "app_bundle_id": "dev.djconnect.app",
+  "app_version": "3.2.18",
+  "locale": "nl-NL",
+  "notification_categories": ["ask_dj_response", "ask_dj_confirm", "playback_change"],
+  "bootstrap_proof": "djcboot_..."
+}
+```
+
+Unregister payload:
+
+```json
+{
+  "device_id": "djconnect-ios-...",
+  "client_type": "ios",
+  "push_token": "..."
+}
+```
+
+Registration responses include `push_supported`, `push_registered` and, when
+registered, `push_environment`. Status/capability responses may include
+`push_supported`, `push_registered`, `push_environment` and a redacted
+`last_push_error` summary.
+Clients may send `push_environment: "development"` for Apple development APNs
+entitlements; Home Assistant normalizes that to canonical `sandbox` for relay
+calls, stored status and registration responses. Production builds must keep
+using `push_environment: "production"`.
+
+Home Assistant also exposes `djconnect.test_apns_push` as a developer diagnostic
+service. By default it is a dry-run and does not contact APNs or the central
+relay. With `send:true`, it attempts one privacy-safe test event through
+`POST /v1/push/event`. Input fields are:
+
+- `device_id`, optional; defaults to the paired runtime device id.
+- `client_type`, optional; defaults to the paired runtime client type.
+- `event_type`, optional; default `ask_dj_confirm`.
+- `user_id`, optional; uses the service call context user id when omitted.
+- `send`, optional boolean; default `false`.
+- `explicit_user_request`, optional boolean; default `true`.
+
+Diagnostic responses are intentionally redacted and must not include APNs tokens,
+bearer tokens, bootstrap proofs, `djci_` token values, authorization headers,
+raw prompts, raw audio, Ask DJ history or Music DNA dumps:
+
+```json
+{
+  "success": false,
+  "send_requested": true,
+  "event_type": "ask_dj_confirm",
+  "device_id": "djconnect-macos-ABCDEFGHIJKL",
+  "client_type": "macos",
+  "user_id_provided": true,
+  "explicit_user_request": true,
+  "central_api_configured": false,
+  "ha_install_id_present": true,
+  "install_token_present": false,
+  "bootstrap_proof_present": false,
+  "decision": {"send": true},
+  "push_statuses": [
+    {
+      "device_id": "djconnect-macos-ABCDEFGHIJKL",
+      "client_type": "macos",
+      "push_registered": false,
+      "push_environment": null,
+      "last_push_error": "missing_bootstrap_proof"
+    }
+  ],
+  "sent": 0,
+  "error": "missing_bootstrap_proof"
+}
+```
+
+Expected diagnostic error reasons include `missing_bootstrap_proof`,
+`missing_install_token`, `push_relay_unavailable`, `rate_limited`,
+`client_recently_active`, `event_not_pushable` and `not_explicit_user_request`.
+
+The HACS integration only stores central API settings scoped to one Home
+Assistant installation:
+
+- `api_base_url`, default `https://api.djconnect.dev`
+- `ha_install_id`, generated once and kept stable for the HA installation
+- `djconnect_install_token`, a secret per-install token with prefix `djci_`
+
+Home Assistant obtains the install token automatically by calling
+`POST /v1/install/token` with the generated `ha_install_id`, non-sensitive
+integration metadata and a short-lived pairing/bootstrap proof supplied by an
+Apple push client (`ios`, `macos` or `watchos`). HACS never calls the token endpoint with a
+global secret and no longer attempts blind/public token minting without a proof.
+Users do not need to see, copy or enter the token. Push relay calls use
+`Authorization: Bearer <djci_install_token>` and include the matching
+`ha_install_id`. HACS must never contain a global relay secret, APNs provider
+`.p8` key, APNs private key or Cloudflare secret. When no bootstrap proof is
+available yet or the central API is temporarily unavailable, push stays disabled
+and normal Ask DJ flows continue; the next central API use can retry token
+bootstrap after an Apple client supplies a fresh proof. ESP32, Raspberry Pi and
+Assist-agent-only entries do not require this proof because they do not use APNs
+push. The central
+`djconnect-api` service owns proof validation, APNs provider-token auth, topics,
+sandbox/production selection, delivery retries and invalid-token handling. Token
+rotation uses `POST /v1/install/rotate` with the current install token and Home
+Assistant replaces the locally stored token only after a successful response.
+Users should never paste install tokens or logs containing secrets into issues.
+
+The central API also exposes operator-only endpoints for the website/admin
+surface. These endpoints require server-side operator auth using
+`DJCONNECT_RELAY_SECRET` and explicitly reject per-install `djci_...` tokens:
+
+- `GET /v1/admin/registrations`: privacy-safe Apple device registration
+  overview. It returns hashed/prefixed install and device identifiers plus
+  operational metadata only; it never returns raw APNs tokens, ciphertext,
+  nonces, relay secrets, prompts, responses or chat history.
+- `POST /v1/operator/install-token/revoke`: disables one compromised
+  per-install token by `ha_install_id` plus central API token ID. It never
+  accepts raw `djci_...` token material from the browser and never issues a
+  replacement token.
+
+The DJConnect website operator UI must call central operator endpoints only via
+server-side Pages Functions. `DJCONNECT_RELAY_SECRET` must never be present in
+browser bundles, static HTML, logs, screenshots or public fixtures.
+
+The central API stores APNs tokens encrypted at rest with
+`APNS_TOKEN_ENCRYPTION_KEY`. Planned key rotation requires the operator runbook
+in `pcvantol/djconnect-api/OPERATOR_RUNBOOK.md`; the current API runtime uses
+one active encryption key, so zero-downtime rotation requires temporary
+dual-key/backfill tooling before replacing the secret.
+
+Central API error responses keep the language-neutral `error` code stable.
+Clients may send `Accept-Language` or `lang`; the API may include an optional
+localized `message` in `en`, `nl`, `de`, `fr` or `es`. `Accept-Language`
+quality values are honored across supported languages. Unsupported locales fall
+back to the best supported language in the header, or English when none is
+present. Clients must make decisions from `error`, not localized message text.
+
+Push payloads are deliberately small and generic. They must not contain secrets,
+Spotify tokens, Home Assistant tokens, raw prompts, raw LLM context, full memory,
+full history or long/raw assistant responses. Default pushable events are only:
+
+- `ask_dj_response`: after an explicit user Ask DJ request and after server-side
+  history has advanced.
+- `ask_dj_confirm`: when the Ask DJ response contains `confirmation_actions` and
+  waits for a user choice.
+- `music_discovery_ready`: once daily around 08:00 local HA time, only when
+  Music DNA is enabled, as a generic Ontdek/Music Discovery refresh hint.
+
+DJConnect does not push for `track_change`, `playback_change`, `queue_change`,
+`volume_change`, `mood_change`, `idle_suggestion`, ambient/system messages,
+status refreshes, Spotify progress updates or ordinary current-track changes.
+`playback_change` may exist as a future relay category but is default disabled
+in the HACS integration.
+
+If a client status payload reports usable foreground/recent-active state, HA
+suppresses Ask DJ pushes back to that active client. HA rate-limits Ask DJ push
+events per HA user and device/client to at most one push per 30 seconds and five
+pushes per ten minutes. HA sends only the central API event payload below to
+`POST /v1/push/event`; the central API is responsible for APNs payload
+construction. APNs alert text is selected from the registered client locale when
+available. Supported central relay languages are `en`, `nl`, `de`, `fr` and
+`es`; unsupported locales fall back to English. APNs payload keys, event values
+and `open_target` values are protocol fields and are never localized.
+
+Central API event payload shape for `ask_dj_response`:
+
+```json
+{
+  "ha_install_id": "ha_...",
+  "ha_user_hash": "...",
+  "event_type": "ask_dj_response",
+  "open_target": "ask_dj",
+  "history_revision": 123,
+  "client_message_id": "client-1",
+  "announcement": {
+    "delivery": "both",
+    "audio_available": true,
+    "speaker_delivery": "attempted"
+  },
+  "client_types": ["ios", "macos", "watchos"]
+}
+```
+
+Central API event payload shape for `music_discovery_ready`:
+
+```json
+{
+  "ha_install_id": "ha_...",
+  "event_type": "music_discovery_ready",
+  "open_target": "music_discovery",
+  "refresh_target": "music_discovery",
+  "deeplink": "djconnect://music-discovery",
+  "title": "DJConnect",
+  "body": "Je nieuwe aanbevelingen staan klaar!",
+  "client_types": ["ios", "macos", "watchos"]
+}
+```
+
+Central API event payload shape for `ask_dj_confirm`:
+
+```json
+{
+  "ha_install_id": "ha_...",
+  "ha_user_hash": "...",
+  "event_type": "ask_dj_confirm",
+  "open_target": "ask_dj",
+  "history_revision": 124,
+  "client_types": ["ios", "macos", "watchos"]
+}
+```
+
+## Playback Confirmation
+
+If Ask DJ proposes music from a contextual follow-up, playback must still start only
+after confirmation via `playback_actions[]` / `confirmation_actions[]` and
+`command:"ask_dj_followup_response"`.
+
+## Ordinary paired Apple Session live transport v1
+
+`GET /api/djconnect/v1/capabilities` advertises
+`session_broadcast.paired_owner_websocket` v1 at
+`/api/djconnect/v1/session/broadcast/paired`. Existing paired Apple identity
+and device token authenticate the first JSON frame; only the existing owner
+Broadcast subscribe/recover commands are accepted. Authority is server-owned,
+with a 300-second connection lease and Profile/pairing revocation. No HA user
+credential is issued. See [the exact contract](docs/product/PAIRED_OWNER_LIVE_CONTRACT_V1.md)
+and [qualification evidence](docs/verification/paired-owner-live-auth-v1.md).
+
+### Provider-qualified Session voice/gender follow-up
+
+Existing paired `/speech/voice-options` and `/speech/prepare` version1 remain
+additive. See [Provider voice/gender](docs/product/PROVIDER_VOICE_GENDER_V1.md).
+`gender_selection.voice_ids` maps each advertised female/male value to its
+current deterministic target; unknown voice genders remain null. Prepare accepts
+existing `voice_preference` plus optional `voice_id`; if both are explicit they
+must match. Metadata/provider/locale/inventory changes invalidate revision and
+pending/cached bytes; no read performs synthesis. Re-read on menu open,
+foreground/reconnect and configuration invalidation. No new push subscription,
+client inference, pipeline write, silent fallback or original request replay.
+
+Owner-requested manual archived-Session erasure is selected in the canonical
+[Session history contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md#selected-manual-deletion-of-an-archived-session--18-october2026).
+The delivered whole/archive producer is specified in the 21 October2026
+producer section below; it preserves the entry-version2 read contract.
+
+Bulk archived-Session delete1 uses paired owner GET
+`/api/djconnect/v1/session/history/delete_snapshot` prepares the full terminal set,
+then confirmed POST `/api/djconnect/v1/session/history/delete_all` binds that
+snapshot and UUIDv7. No client loop or Profile clear. Active/newer Sessions are
+preserved; advertise `session_history_bulk_delete`/version1 only after producer
+qualification. Exact wire, snapshot concurrency, receipts and failures: selected
+bulk-deletion addendum in
+[`SESSION_CONVERSATION_HISTORY_CONTRACT.md`](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md).
+
+## Passive contribution correction —18October2026
+
+The [selected canonical addendum](docs/product/PASSIVE_SESSION_PROJECTION_V1.md#selected-correction-explicit-projection-negotiation-18october2026)
+keeps surface transport1 and legacy projection1 unchanged in vocabulary.
+Explicit projection2 is selected on authorize/read/image and bound to its grant;
+only it adds independently purpose-qualified researched narration, complete
+source/license attribution and closed omission reasons. Native/history rights
+are insufficient; generic web, private text and external-relay copy stay denied.
+Silence never revives the older card. Widgetlockedfalse is valid; Activitytrue
+remains required. Original short deadlines/read purity are unchanged.
+
+The user also selects best-effort existing-APNs integration: category-only wake
+and pure reread for widgets, distinct activity token/topic for ongoing Activity
+update/end, no push-to-start. Smallest missing API dependency is qualified
+registration/rotation/revoke/update/end for the exact install/recipient/purpose/
+Session/generation/environment/topic/expiry tuple and explicit relay content
+permission. No client credentials or rich content in hints; no lease from push.
+Background capability remains false until connected Core/API/Apple delivery and
+source-purpose gates pass. Existing writers only; no consumer/relay code adopted.
+
+
+## Owner whole/bulk archive deletion producer — 21 October2026
+
+The current Core increment implements the selected owner-only
+`POST /api/djconnect/v1/session/history/delete`,
+`GET /api/djconnect/v1/session/history/delete_snapshot` and
+`POST /api/djconnect/v1/session/history/delete_all` contracts, with additive
+`session_history_delete:1` / `session_history_bulk_delete:1` discovery.
+The [canonical payload/error contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md#selected-manual-deletion-of-an-archived-session--18-october2026)
+and [recovery/qualification boundary](docs/verification/OWNER_ARCHIVE_DELETION_20261021.md)
+apply. An opaque detail revision additionally binds the captured Store cascade;
+list integer revisions are never destructive CAS tokens. Original paired device,
+Profile, grant and runtime authority is checked at admission and delivery.
+Only exact Store-plus-SQL completion returns success. Individual content deletion
+#1225, native adoption, protected delivery and actual HA-dev install remain
+separate; no source receipt proves an installation or personal-data acceptance.
+
+
+## Individual owner content erasure and original status — 21 October2026
+
+The canonical [individual deletion v1](docs/product/SESSION_CONTENT_DELETION_V1.md)
+defines owner-bound POST `/api/djconnect/v1/session/content/delete/prepare`,
+confirmed POST `/api/djconnect/v1/session/content/delete`, and read-only GET
+`/api/djconnect/v1/session/content/delete/status`. Stable accepted row/Moment or
+original uncertain request identifiers select the full server unit and cascade;
+standalone Profile targets use explicit empty Session string, never a guessed
+Session. `session_content_delete:1` is separate from whole-Session erasure.
+
+Read-only GET `/api/djconnect/v1/session/history/delete/status` advertises
+`session_history_delete_status:1` for original single/bulk archive bodies; no
+invented content confirmation token. Both status contracts distinguish unknown,
+pending, completed and expired_unknown without renewing or executing a request.
+See the canonical field/authority/limits/error and recovery contract above.
+Source/fixture qualification, protected merge, distinct Finalization, actual
+installation and native acceptance remain separately evidenced.
+
+## Current Ask DJ identification reply images
+
+Current-recording identification may return an `images[]` entry with
+`kind:"album_art"`, `requires_device_auth:true`, `expires_at` and
+`cache_policy:"no-store"`. The client must stop displaying/caching the pixels
+when that original expiry or its owner/source admission ends; fetching again
+does not renew the lease.
+Use the image URL supplied by that response with the current paired device
+credentials; clients must not reconstruct a URI or borrow the current player's
+cover for an older reply. The existing Session image route applies when the
+original question had an active Session. A general Profile-only reply uses
+`GET /api/djconnect/v1/ask_dj/reply/image/{asset_id}`, an alias on the same
+managed image view with no Session identity. Both routes authenticate and
+resolve the requester and original owner/source again. Anonymous reads fail401;
+withdrawn or expired resources fail404. Successful delivery is no-store and
+no-referrer. No current-read image grants history/Session archival permission.
+
+The admitted pixels belong to the two matching original status observations:
+exact recording, album edition and provider asset. Their lease never exceeds
+the original status deadline or60seconds. Bounded optional CDN fetch/decoding
+uses existing shared RAM limits; no Spotify search, new model call, implicit
+playback or Session creation occurs. An unavailable image leaves the qualified
+text response intact. Native presentation and loading these authenticated image
+URLs remain the client's responsibility.
+
+### Accepted settings confirmation Moment v1 (draft PR1290)
+
+Profile settings v3 adds `settings_confirmation` to an accepted operation receipt
+only for actual Mood/Persona/Presence changes, and advertises
+`settings_confirmation_contract`. Existing paired auth, CAS and original operation
+readback remain authoritative. Active Sessions publish one owner-only Moment;
+Profile-only saves return an acknowledgement without creating a Session.
+`settings_confirmation_moment` / contract version 1 permits feature detection.
+Clients deduplicate the original identity; no replay/GET renews or re-autoplays it.
+See `docs/product/SETTINGS_CONFIRMATION_MOMENT_V1.md`. Native adoption remains open.
+
+
+## Additive DJ Bulletin Moment1 — draft Core1291 / Apple182
+
+See [DJ Bulletin V1](docs/product/DJ_BULLETIN_V1.md) and the actual isolated
+[owner wire fixture](examples/client_contracts/dj_bulletin_v1/actual-ha-wire.json).
+`dj_bulletin` is an ordinary owner-only live Flow Moment, not a new endpoint or
+Ask DJ turn. `generation_metadata.bulletin_schema` is `"1"`; two `sources` carry
+public provider, original URL, license, title and publication time. Existing
+`native_delivery` and Session speech descriptors remain authoritative. The
+original publication-plus-two-hours expiry and original owner/source/agent/settings
+admission apply to display and speech; reads do not renew them. Existing client
+speech autoplay controls rendition and does not debit a second contribution.
+Unknown consumers skip this unsupported Moment/speech while retaining surrounding
+Flow; no VibeCast, actions, shared projection or retained news archive is granted.
+This is unmerged candidate source, not installed or native acceptance.
+
+## Additive native surface push1 — unavailable pending issuer qualification
+
+`surface_push_registration` describes the closed role/platform matrix and five
+POST paths beneath `/api/djconnect/v1/push/surface/`: `context`, `register`,
+`revoke`, `status`, `read`. Its `available` flag is currently `false`; normal
+pairing or an installation token does not supply operator-enrolled push purpose
+authority. Clients must not show unavailable registration as ready or fall back
+to ordinary app registration. See [Native surface push V1](docs/product/NATIVE_SURFACE_PUSH_V1.md).
+
+Foreground operations require the original paired owner and a separately
+qualified RAM purpose credential with exact Session/source/device/target/expiry.
+The background `read` path accepts only the separate original registration read
+credential, never the ordinary app bearer. It projects accepted passive state
+without fetching content, extending expiry or granting mutation rights. Responses
+and errors use no-store/no-referrer; other methods return405. No public endpoint
+imports purpose credentials, exposes an issuer key or dispatches a widget event.
+
+Confirmed widget registrations can signal original semantic Broadcast changes
+through the internal once-only `widget_reload` operation. Progress, snapshot and
+registration replay do not generate fresh intents. The external relay receives
+no contribution text, track metadata, artwork or paired headers. Provider ACK
+acceptance does not demonstrate delivery or rendering. Exact Activity external
+content profiles are not admitted. This is unmerged source preparation without
+operator provisioning, APNs/native or installed acceptance.

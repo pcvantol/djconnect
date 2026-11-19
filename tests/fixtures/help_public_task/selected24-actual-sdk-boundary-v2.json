@@ -1,0 +1,1195 @@
+{
+  "scope": "EXTRACTED_COSTFREE_ACTUAL_SDK_TRANSPORT_ONLY_NOT_MODEL_QUALITY",
+  "original_report_sha256": "43cc52a7d78616829444418d400a1a40895571f14654cf1138a3ab27a250b929",
+  "original_mode": "target24_delivery_v3",
+  "report": {
+    "playback_generation_transport": "PUBLIC_HA_AI_TASK_TYPED_PLAYBACK_V2",
+    "model_calls": [
+      {
+        "case_id": "catalogue-play.artist-fr"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '\u2019]$",
+                          "maxLength": 700
+                        },
+                        "artist": {
+                          "type": "string",
+                          "pattern": "^(?: |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[ '\u2019])$",
+                          "maxLength": 700
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "artist",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "16eeba80f820e86251885247329ac45918298d52a179cd3a7c5d47ce9474a436",
+          "role_order": [
+            "title",
+            "artist",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "16eeba80f820e86251885247329ac45918298d52a179cd3a7c5d47ce9474a436",
+          "role_order": [
+            "title",
+            "artist",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.artist-fr"
+      },
+      {
+        "case_id": "catalogue-play.artist-fr"
+      },
+      {
+        "case_id": "catalogue-play.artist-fr",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.cooking-nl"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '\u2019]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "91e7c8b4c889297765f83be61700cab14795337a71ebe0e2e8b857a52d1e82b8",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "91e7c8b4c889297765f83be61700cab14795337a71ebe0e2e8b857a52d1e82b8",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.cooking-nl"
+      },
+      {
+        "case_id": "catalogue-play.cooking-nl"
+      },
+      {
+        "case_id": "catalogue-play.cooking-nl",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.cooking-de"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '\u2019]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "2a9083cc5c726e620945cdb846bb596402b5e6b67c03cef6831168e02d80a82b",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "2a9083cc5c726e620945cdb846bb596402b5e6b67c03cef6831168e02d80a82b",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.cooking-de"
+      },
+      {
+        "case_id": "catalogue-play.cooking-de"
+      },
+      {
+        "case_id": "catalogue-play.cooking-de",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.cooking-es"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '\u2019]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "f771247cdd583c1d2acbf737381971221e2e4b12f49ff1345d13701b322128f6",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "f771247cdd583c1d2acbf737381971221e2e4b12f49ff1345d13701b322128f6",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.cooking-es"
+      },
+      {
+        "case_id": "catalogue-play.cooking-es"
+      },
+      {
+        "case_id": "catalogue-play.cooking-es",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.quiet-en"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '\u2019]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "865b8f8963ce1d2161d2d13b4fa62890149766d3b436807f6fc5c13802f5d60e",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "865b8f8963ce1d2161d2d13b4fa62890149766d3b436807f6fc5c13802f5d60e",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.quiet-en"
+      },
+      {
+        "case_id": "catalogue-play.quiet-en"
+      },
+      {
+        "case_id": "catalogue-play.quiet-en",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.quiet-de"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '\u2019]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "2a9083cc5c726e620945cdb846bb596402b5e6b67c03cef6831168e02d80a82b",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "2a9083cc5c726e620945cdb846bb596402b5e6b67c03cef6831168e02d80a82b",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.quiet-de"
+      },
+      {
+        "case_id": "catalogue-play.quiet-de"
+      },
+      {
+        "case_id": "catalogue-play.quiet-de",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.quiet-fr"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '\u2019]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "0a9b9d626fb7fb296faab87d747ad7685454d11d1ae0bb09f7fb1f5b3eab4400",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "0a9b9d626fb7fb296faab87d747ad7685454d11d1ae0bb09f7fb1f5b3eab4400",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.quiet-fr"
+      },
+      {
+        "case_id": "catalogue-play.quiet-fr"
+      },
+      {
+        "case_id": "catalogue-play.quiet-fr",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-play.quiet-es"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '\u2019]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "f771247cdd583c1d2acbf737381971221e2e4b12f49ff1345d13701b322128f6",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "f771247cdd583c1d2acbf737381971221e2e4b12f49ff1345d13701b322128f6",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.quiet-es"
+      },
+      {
+        "case_id": "catalogue-play.quiet-es"
+      },
+      {
+        "case_id": "catalogue-play.quiet-es",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-listen.artist-en"
+      },
+      {
+        "case_id": "catalogue-listen.artist-en"
+      },
+      {
+        "case_id": "catalogue-listen.artist-en"
+      },
+      {
+        "case_id": "catalogue-listen.artist-en",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-listen.artist-nl"
+      },
+      {
+        "case_id": "catalogue-listen.artist-nl"
+      },
+      {
+        "case_id": "catalogue-listen.artist-nl"
+      },
+      {
+        "case_id": "catalogue-listen.artist-nl",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-listen.artist-fr"
+      },
+      {
+        "case_id": "catalogue-listen.artist-fr"
+      },
+      {
+        "case_id": "catalogue-listen.artist-fr"
+      },
+      {
+        "case_id": "catalogue-listen.artist-fr",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-listen.artist-es"
+      },
+      {
+        "case_id": "catalogue-listen.artist-es"
+      },
+      {
+        "case_id": "catalogue-listen.artist-es"
+      },
+      {
+        "case_id": "catalogue-listen.artist-es",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-chain-speaker-en-offer"
+      },
+      {
+        "case_id": "catalogue-chain-speaker-en-offer",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '\u2019]$",
+                          "maxLength": 700
+                        },
+                        "artist": {
+                          "type": "string",
+                          "pattern": "^(?: |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[ '\u2019])$",
+                          "maxLength": 700
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "artist",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "9f291de338f0b36fb77599c1b1fdf025bfeef545565788fbe103bba31fcade0d",
+          "role_order": [
+            "title",
+            "artist",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "9f291de338f0b36fb77599c1b1fdf025bfeef545565788fbe103bba31fcade0d",
+          "role_order": [
+            "title",
+            "artist",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-chain-speaker-en-accept"
+      },
+      {
+        "case_id": "catalogue-chain-speaker-en-accept"
+      },
+      {
+        "case_id": "catalogue-chain-speaker-en-accept",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-chain-album-en-offer",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '\u2019]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "7b74a7115b3e3c89ba158d5973f5c528b8941e7485e495531cefdc5fc8673b1f",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "7b74a7115b3e3c89ba158d5973f5c528b8941e7485e495531cefdc5fc8673b1f",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-chain-album-en-accept"
+      },
+      {
+        "case_id": "catalogue-chain-album-en-accept"
+      },
+      {
+        "case_id": "catalogue-chain-album-en-accept",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-chain-album-nl-offer",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '\u2019]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "74e94228a947ad8b73939488e0886844bb20097de60df25dbe61a4d75e9db439",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "74e94228a947ad8b73939488e0886844bb20097de60df25dbe61a4d75e9db439",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-chain-album-nl-accept"
+      },
+      {
+        "case_id": "catalogue-chain-album-nl-accept"
+      },
+      {
+        "case_id": "catalogue-chain-album-nl-accept",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "case_id": "catalogue-chain-album-es-offer",
+        "purpose": "answer_language_judge"
+      },
+      {
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '\u2019]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()\u2014\u2013-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "c747c518a9f57c7af2b0458625298832d540e880e092835885786be074755b9f",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "c747c518a9f57c7af2b0458625298832d540e880e092835885786be074755b9f",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-chain-album-es-accept"
+      },
+      {
+        "case_id": "catalogue-chain-album-es-accept"
+      },
+      {
+        "case_id": "catalogue-chain-album-es-accept",
+        "purpose": "answer_language_judge"
+      }
+    ]
+  }
+}

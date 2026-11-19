@@ -1,0 +1,1376 @@
+{
+  "scope": "EXTRACTED_COSTFREE_ACTUAL_SDK_MEDIUM_PROFILE_ONLY_NOT_MODEL_QUALITY",
+  "original_report_sha256": "0261cd9ffcb0839f0205d5c302690d02f04a8ecd34e68d55a330aba7755a007d",
+  "original_mode": "target24_delivery_v3",
+  "original_actual_REST_preflight_sha256": "e0def37f245ab90689ee34336f820ed6f89b83340d6b42b52f930a493649d6e6",
+  "original_admission_sha256": "11538d31e0eb01929e4931276f6c898bb5bc5cd9228da9dbc6a027d6bf7abb59",
+  "original_synthetic_content_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "report": {
+    "qualification_profile": "help_medium_v1",
+    "configured_reasoning_effort": "medium",
+    "configured_maximum_tokens": 3000,
+    "playback_generation_transport": "PUBLIC_HA_AI_TASK_TYPED_PLAYBACK_V2",
+    "model_calls": [
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.artist-fr"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '’]$",
+                          "maxLength": 700
+                        },
+                        "artist": {
+                          "type": "string",
+                          "pattern": "^(?: |[ .!?;,:()—–-][^{}\\r\\n]*[ '’])$",
+                          "maxLength": 700
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()—–-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "artist",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "bf22715741a5f4ea4d22d1bd71955b7588fed770e9a11c07d490db041068b85a",
+          "role_order": [
+            "title",
+            "artist",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "bf22715741a5f4ea4d22d1bd71955b7588fed770e9a11c07d490db041068b85a",
+          "role_order": [
+            "title",
+            "artist",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.artist-fr"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.artist-fr"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.artist-fr"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.cooking-nl"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '’]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()—–-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "80577e9c2c10466023200d434d0e5642513b1e46691b0ab791aa02dd06d38d3b",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "80577e9c2c10466023200d434d0e5642513b1e46691b0ab791aa02dd06d38d3b",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.cooking-nl"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.cooking-nl"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.cooking-nl"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.cooking-de"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '’]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()—–-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "ebd7c966ca82231ca01899fb50d424cc2a37039223bfbfddcadcdc2dc0c6578f",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "ebd7c966ca82231ca01899fb50d424cc2a37039223bfbfddcadcdc2dc0c6578f",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.cooking-de"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.cooking-de"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.cooking-de"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.cooking-es"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '’]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()—–-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "6800b7fbd916c367761b3a007f2ff7d415a2f5a56210909c3fe18a35614a860f",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "6800b7fbd916c367761b3a007f2ff7d415a2f5a56210909c3fe18a35614a860f",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.cooking-es"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.cooking-es"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.cooking-es"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.quiet-en"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '’]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()—–-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "e40604559b4885e78dfd334fa9548d9ba4aecaaf4191d33263bd75ea1d375faa",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "e40604559b4885e78dfd334fa9548d9ba4aecaaf4191d33263bd75ea1d375faa",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.quiet-en"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.quiet-en"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.quiet-en"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.quiet-de"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '’]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()—–-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "ebd7c966ca82231ca01899fb50d424cc2a37039223bfbfddcadcdc2dc0c6578f",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "ebd7c966ca82231ca01899fb50d424cc2a37039223bfbfddcadcdc2dc0c6578f",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.quiet-de"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.quiet-de"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.quiet-de"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.quiet-fr"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '’]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()—–-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "fb38e4efca513cd103a0ab8a3c572d44d7fda5581dbea8694ed2de4b801b4eb7",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "fb38e4efca513cd103a0ab8a3c572d44d7fda5581dbea8694ed2de4b801b4eb7",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.quiet-fr"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.quiet-fr"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.quiet-fr"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.quiet-es"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '’]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()—–-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "6800b7fbd916c367761b3a007f2ff7d415a2f5a56210909c3fe18a35614a860f",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "6800b7fbd916c367761b3a007f2ff7d415a2f5a56210909c3fe18a35614a860f",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-play.quiet-es"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.quiet-es"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-play.quiet-es"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-en"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-en"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-en"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-en"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-nl"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-nl"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-nl"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-nl"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-fr"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-fr"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-fr"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-fr"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-es"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-es"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-es"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-listen.artist-es"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-speaker-en-offer"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-speaker-en-offer"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '’]$",
+                          "maxLength": 700
+                        },
+                        "artist": {
+                          "type": "string",
+                          "pattern": "^(?: |[ .!?;,:()—–-][^{}\\r\\n]*[ '’])$",
+                          "maxLength": 700
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()—–-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "artist",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "e19ca8c7c041b4c866dd19d6ca1db9de9be1f1b6acfed3b2dd851fca1f58e703",
+          "role_order": [
+            "title",
+            "artist",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "e19ca8c7c041b4c866dd19d6ca1db9de9be1f1b6acfed3b2dd851fca1f58e703",
+          "role_order": [
+            "title",
+            "artist",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-chain-speaker-en-accept"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-speaker-en-accept"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-speaker-en-accept"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-album-en-offer"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '’]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()—–-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "219ac4dafbfdc7625dda7cf867408ba414fad86cb5c2ef119f9be63ac84d3a76",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "219ac4dafbfdc7625dda7cf867408ba414fad86cb5c2ef119f9be63ac84d3a76",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-chain-album-en-accept"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-album-en-accept"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-album-en-accept"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-album-nl-offer"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '’]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()—–-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "f68ca8c963bb124163666faf2d8dfcee577ebb00e4e2d03bcadd8635ec333e1e",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "f68ca8c963bb124163666faf2d8dfcee577ebb00e4e2d03bcadd8635ec333e1e",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-chain-album-nl-accept"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-album-nl-accept"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-album-nl-accept"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-album-es-offer"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "structured_output_format": {
+          "type": "json_schema",
+          "name": "djconnect_playback_handover",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "playback_role_gaps_v3"
+                ]
+              },
+              "drafts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "gaps": {
+                      "type": "object",
+                      "properties": {
+                        "media_kind": {
+                          "type": "string",
+                          "pattern": "^[^{}\\r\\n]*[ '’]$",
+                          "maxLength": 700
+                        },
+                        "title": {
+                          "type": "string",
+                          "enum": [
+                            " "
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "pattern": "^(?:[.!?] |[ .!?;,:()—–-][^{}\\r\\n]*[.!?] )$",
+                          "maxLength": 700
+                        }
+                      },
+                      "required": [
+                        "media_kind",
+                        "title",
+                        "status"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "gaps"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "schema",
+              "drafts"
+            ],
+            "additionalProperties": false
+          },
+          "strict": true
+        },
+        "structured_playback_generation": {
+          "schema_version": 2,
+          "prompt_sha256": "7cd1dfdd112e87749b7bc87eea7bf38058a8c3430cf8c5cd326a6846716bfd2c",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "structured_playback_input": {
+          "prompt_sha256": "7cd1dfdd112e87749b7bc87eea7bf38058a8c3430cf8c5cd326a6846716bfd2c",
+          "role_order": [
+            "media_kind",
+            "title",
+            "status"
+          ]
+        },
+        "provider_tools_absent": true,
+        "provider_store_false": true,
+        "case_id": "catalogue-chain-album-es-accept"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-album-es-accept"
+      },
+      {
+        "model": "gpt-6-luna",
+        "maximum_output_tokens": 3000,
+        "reasoning_effort": "medium",
+        "case_id": "catalogue-chain-album-es-accept"
+      }
+    ]
+  }
+}

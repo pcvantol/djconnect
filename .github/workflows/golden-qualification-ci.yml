@@ -1,0 +1,88 @@
+name: Advisory Golden Qualification
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  golden-smoke:
+    name: Advisory Golden Smoke
+    if: github.event_name == 'pull_request'
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: "3.11"
+      - name: Run existing Golden Smoke profile
+        id: qualification
+        run: |
+          report_path="$(mktemp "${RUNNER_TEMP}/golden-smoke.XXXXXX.md")"
+          echo "report_path=${report_path}" >> "$GITHUB_OUTPUT"
+          python tools/verification/run_golden_ci_qualification.py \
+            --profile golden_smoke \
+            --observe-browser-e2e \
+            --report-path "${report_path}"
+      - name: Publish bounded qualification summary
+        if: ${{ success() && steps.qualification.outcome == 'success' }}
+        run: cat "${{ steps.qualification.outputs.report_path }}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove temporary qualification report
+        if: ${{ always() }}
+        run: rm -f "${{ steps.qualification.outputs.report_path }}"
+
+  golden-regression:
+    name: Advisory Golden Regression
+    if: github.event_name != 'pull_request'
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: "3.11"
+      - name: Run existing Golden Regression profile
+        id: qualification
+        run: |
+          report_path="$(mktemp "${RUNNER_TEMP}/golden-regression.XXXXXX.md")"
+          echo "report_path=${report_path}" >> "$GITHUB_OUTPUT"
+          python tools/verification/run_golden_ci_qualification.py \
+            --profile golden_regression \
+            --observe-browser-e2e \
+            --report-path "${report_path}"
+      - name: Publish bounded qualification summary
+        if: ${{ success() && steps.qualification.outcome == 'success' }}
+        run: cat "${{ steps.qualification.outputs.report_path }}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove temporary qualification report
+        if: ${{ always() }}
+        run: rm -f "${{ steps.qualification.outputs.report_path }}"
+
+  golden-en-nl-functional:
+    name: Advisory Golden EN/NL feature regressions
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: "3.11"
+      - name: Run isolated EN/NL feature and recent-regression scenarios
+        run: |
+          python tools/verification/run_golden_en_nl_features.py \
+            --output "${RUNNER_TEMP}/golden-en-nl-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+      - name: Preserve original functional evidence, including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: golden-en-nl-functional-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/golden-en-nl-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: error

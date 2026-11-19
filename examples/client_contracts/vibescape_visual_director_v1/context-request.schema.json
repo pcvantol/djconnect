@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "client_type": {
+      "enum": [
+        "ios",
+        "macos"
+      ]
+    },
+    "device_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "visit_id": {
+      "type": "string",
+      "format": "uuid"
+    }
+  },
+  "required": [
+    "schema_version",
+    "client_type",
+    "device_id",
+    "session_id",
+    "visit_id"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DJConnect VibeScape Visual Director v1 context-request"
+}

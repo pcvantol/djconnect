@@ -1,0 +1,194 @@
+{
+  "qualification": "ACTUAL_SOURCE_RUNTIME_SQLITE_MEDIA_WITH_EXTERNAL_FIXTURES_NOT_HTTP_OR_INSTALLED",
+  "contract_version": 2,
+  "publication": "PENDING_QUALIFIED_PIN",
+  "qualified": false,
+  "producer_source_pins": {
+    "custom_components/djconnect/artist_photo.py": "49369dedce29fa90fcc545f918ea4ecc10909f58e0df5ebfe1acf35a7af5019c",
+    "custom_components/djconnect/session_artwork.py": "04fc8bcf005cc097172789c5840d7f168694c92ec2d09a47d6d909e43d826e4f",
+    "custom_components/djconnect/session_facts.py": "0cb8d6a0984baccdccc4ce3df5430c3b4dddf70c963537d45d2f7ce78acd79d7",
+    "custom_components/djconnect/session_runtime.py": "39a8bbbcffee034129d6ed6af704dc4adb25b9a5cd17443f4e22390a6f198297"
+  },
+  "native": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "real_artist_photo": "SEPARATE_PUBLIC_ADAPTER_PROBE",
+  "request": {
+    "contract_version": 2,
+    "session_id": "session-e6a671e14103407c812dd30c945b8de7",
+    "targets": [
+      {
+        "moment_id": "moment-7f0b5400b5894a89ac5ea976aba6d17a"
+      }
+    ]
+  },
+  "samples": {
+    "active": {
+      "schema_version": 2,
+      "session_id": "session-e6a671e14103407c812dd30c945b8de7",
+      "moment_id": "moment-7f0b5400b5894a89ac5ea976aba6d17a",
+      "revision": "9386ba36c4e970094a1fda04",
+      "artwork": {
+        "state": "ready",
+        "subject": {
+          "provider": "spotify",
+          "uri": "spotify:artist:ZZZZZZZZZZZZZZZZZZZZZZ",
+          "type": "artist",
+          "wikidata_id": "Q1"
+        },
+        "role": "contextual_artist",
+        "resolution_basis": "resolved_now",
+        "edition_basis": "not_applicable",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Fixture_band_concert.png",
+        "attribution": {
+          "provider": "Wikimedia Commons",
+          "mark": "wikimedia_commons",
+          "url": "https://commons.wikimedia.org/wiki/File:Fixture_band_concert.png",
+          "author": "Fixture Photographer",
+          "credit": "Own work",
+          "attribution_text": "Fixture Photographer — Own work — CC-BY-SA-4.0",
+          "license": "CC-BY-SA-4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "image_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "usage_basis": "licensed_artist_image_owner_display",
+        "captured_at": "2026-10-19T16:56:42.069121+00:00",
+        "expires_at": "2026-10-19T17:01:42.069121+00:00",
+        "current_display_allowed": true,
+        "active_flow_display_allowed": true,
+        "historical_display_allowed": false,
+        "cache_policy": "no-store",
+        "crop_allowed": false,
+        "requires_device_auth": true,
+        "width": 640,
+        "height": 360,
+        "alt_text": {
+          "en": "Artist image for Nora Vale 1",
+          "nl": "Artiestbeeld van Nora Vale 1",
+          "de": "Künstlerbild von Nora Vale 1",
+          "fr": "Image de l’artiste Nora Vale 1",
+          "es": "Imagen del artista Nora Vale 1"
+        },
+        "url": "/api/djconnect/v1/session/media/image/session-e6a671e14103407c812dd30c945b8de7/2qX5Eo9uDIA22LN-v_11wYmduhw9cRLV",
+        "upscale_allowed": false,
+        "image_source": {
+          "provider": "wikimedia_commons",
+          "selection": "licensed_artist_context"
+        },
+        "media_revision": "9386ba36c4e970094a1fda04"
+      }
+    },
+    "history": {
+      "schema_version": 2,
+      "session_id": "session-e6a671e14103407c812dd30c945b8de7",
+      "entry_id": "entry-d4f1c784ab4553f39bf2859037eff82b",
+      "revision": "9624f59b6cb5ab44c8b3df19",
+      "artwork": {
+        "state": "ready",
+        "subject": {
+          "provider": "spotify",
+          "uri": "spotify:artist:ZZZZZZZZZZZZZZZZZZZZZZ",
+          "type": "artist",
+          "wikidata_id": "Q1"
+        },
+        "role": "contextual_artist",
+        "resolution_basis": "resolved_now",
+        "edition_basis": "not_applicable",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Fixture_band_concert.png",
+        "attribution": {
+          "provider": "Wikimedia Commons",
+          "mark": "wikimedia_commons",
+          "url": "https://commons.wikimedia.org/wiki/File:Fixture_band_concert.png",
+          "author": "Fixture Photographer",
+          "credit": "Own work",
+          "attribution_text": "Fixture Photographer — Own work — CC-BY-SA-4.0",
+          "license": "CC-BY-SA-4.0",
+          "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "image_revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "usage_basis": "licensed_artist_image_owner_display",
+        "captured_at": "2026-10-19T16:56:42.082186+00:00",
+        "expires_at": "2026-10-19T17:01:42.082186+00:00",
+        "current_display_allowed": false,
+        "active_flow_display_allowed": false,
+        "historical_display_allowed": true,
+        "cache_policy": "no-store",
+        "crop_allowed": false,
+        "requires_device_auth": true,
+        "width": 640,
+        "height": 360,
+        "alt_text": {
+          "en": "Artist image for Nora Vale 1",
+          "nl": "Artiestbeeld van Nora Vale 1",
+          "de": "Künstlerbild von Nora Vale 1",
+          "fr": "Image de l’artiste Nora Vale 1",
+          "es": "Imagen del artista Nora Vale 1"
+        },
+        "url": "/api/djconnect/v1/session/media/image/session-e6a671e14103407c812dd30c945b8de7/DN3hC0r6k1xzN_bDqTVhvVyphVnV0hzr",
+        "upscale_allowed": false,
+        "image_source": {
+          "provider": "wikimedia_commons",
+          "selection": "licensed_artist_context"
+        },
+        "media_revision": "9624f59b6cb5ab44c8b3df19"
+      }
+    },
+    "legacy_missing": {
+      "schema_version": 1,
+      "session_id": "session-e6a671e14103407c812dd30c945b8de7",
+      "moment_id": "moment-7f0b5400b5894a89ac5ea976aba6d17a",
+      "revision": "missing_image",
+      "artwork": {
+        "state": "missing",
+        "reason": "missing_image",
+        "current_display_allowed": false,
+        "active_flow_display_allowed": false,
+        "historical_display_allowed": false
+      }
+    },
+    "spotify_v2": {
+      "schema_version": 2,
+      "session_id": "session-e1a3755f1c2f4843a9b6bd6343e70d1b",
+      "moment_id": "moment-45ba5e42d6224cde8e0d27408c8cae86",
+      "revision": "161a69354718c2659709f370",
+      "artwork": {
+        "state": "ready",
+        "subject": {
+          "provider": "spotify",
+          "uri": "spotify:artist:ZZZZZZZZZZZZZZZZZZZZZZ",
+          "type": "artist",
+          "wikidata_id": "Q1"
+        },
+        "role": "contextual_artist",
+        "resolution_basis": "resolved_now",
+        "edition_basis": "not_applicable",
+        "source_url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ",
+        "attribution": {
+          "provider": "Spotify",
+          "mark": "spotify",
+          "url": "https://open.spotify.com/artist/ZZZZZZZZZZZZZZZZZZZZZZ"
+        },
+        "usage_basis": "spotify_temporary_owner_display",
+        "captured_at": "2026-10-19T16:56:42.096415+00:00",
+        "expires_at": "2026-10-19T17:01:42.096415+00:00",
+        "current_display_allowed": true,
+        "active_flow_display_allowed": true,
+        "historical_display_allowed": false,
+        "cache_policy": "no-store",
+        "crop_allowed": false,
+        "requires_device_auth": true,
+        "width": 640,
+        "height": 360,
+        "alt_text": {
+          "en": "Artist image for Nora Vale 1",
+          "nl": "Artiestbeeld van Nora Vale 1",
+          "de": "Künstlerbild von Nora Vale 1",
+          "fr": "Image de l’artiste Nora Vale 1",
+          "es": "Imagen del artista Nora Vale 1"
+        },
+        "url": "/api/djconnect/v1/session/media/image/session-e1a3755f1c2f4843a9b6bd6343e70d1b/UfALNcO7Gtx9wLkdxXaJfb6KO4_OLHhz",
+        "upscale_allowed": false,
+        "media_revision": "161a69354718c2659709f370"
+      }
+    }
+  }
+}

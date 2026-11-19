@@ -1,0 +1,29 @@
+# Closed Pi wall-4inch rc.6 recovery binding —22October2026
+
+## Qualified prerequisite and publication
+
+Core producer source1276 `265f151293735cddcf2e496e6c822f16c7cd2064` and separate Final1277 `c8549876df54e22b71ed26fcded4ec822b3d166d` were actually raw QUALIFIED39685902722/39687649798. The retained original source raw remains unchanged after Actions retention404; no evidence reconstruction or rerun. Their contract/schema/inventory bytes remain untouched.
+
+Matching Pi source123 `042cf36479e6c4d1c42cebd19acd3bdd00cfef79` from independently reviewed `a91dba15cf27f1a3bc2651e674fd7623a7841876` is actually raw QUALIFIED39691284538. Distinct Pi Final124 `77fc4047f797066876c5345e8e43b346ab96d782` from independently reviewed `b542542087887803cabc6426754a39908c90afb9` is actually raw QUALIFIED39692225742. Core independently downloaded both raw artifacts and checked exact repository/PR/head/main/no-findings joins; reviewed trees equal protected merges. Source raw SHA256 `7dbe29566351e634b8f2b135766b30b2c67492f92a6f4ec4891e15a6f6ac7804`. Exact source OwnerAuth and27successful/4conditional-skipped checks, plus Final own normal gates, are distinct from runtime acceptance.
+
+Publication remains `0dde0abe22a0859f170a7c1d3eab41f1ade44d37` / run39658681213 / release419950704 / v4.0.0-rc.6. Actual23:13UTC downloaded Zero archive asset663515862 SHA256 `d67869ffca53c4936059bdbbdbdf6be63b36eafac269fa2f3f9b090922cd0d64` and release metadata663515914 SHA256 `c66098ee3fbb5ffab94d63ed90f011504121f9a958546a2a0bf3716b5278109c` match the original full80-runtime-file/installer/lock inspection. Native GitHub immutable is false: content/version/asset pins and fresh downloads confer no deletion protection or availability guarantee. Consumer revision and publication revision are deliberately distinct.
+
+## Actual human scope and qualified candidate gates
+
+Peter's direct human response “Ja, deze begrensde herstelroute” occurred at2026-10-21T22:39:09.307Z in the owning Pi task. It selected only the failed physical4-inch route: bounded watchdog pause, finish the same controlled installation, preserve config/pairing, restore watchdog and separate smoke. Original native response remains private. The manifest approval timestamp is this actual selection, not a claim Peter named later commit or artifact hashes. Exact independent review, applicable OwnerAuthorization, ordinary technical checks, protected Core source and separate Final with actual canonical evidence bind the selected scope to this concrete candidate. APPROVED text in an unqualified source branch never authorizes dispatch.
+
+## Single-instance binding and retained boundaries
+
+The new separate fixed [manifest](../release/PLATFORM_4_0_RC6_PI_WALL4_RECOVERY_MANIFEST.json) SHA256 is `de22c4eb8644ef21fb2f690689ad716226aae1958f385fc83df8221207e6b0de`. It uses the unchanged schema4 closed recovery contract, one wall-4inch/pi-zero-2w-arm64 row, original failed run39669504016/Core0b9/manifest8740/publication0dde/roothelper11ce, exact matching Pi Final `77fc4047f797066876c5345e8e43b346ab96d782`, dedicated recovery and separate recovery-smoke workflows. No old manifest, inventory, schema, contract or approved historical pair changes. Observer4ae5 remains pinned by that exact consumer and uses only its reviewed existing narrow fixed read-only route; no new sudoers, credential or privilege grant.
+
+The separate PI_RC6_WALL4_RECOVERY_CORE_SHA and PI_RC6_WALL4_RECOVERY_MANIFEST_SHA256 variables remain Pi-owned and must use the later actual qualified Core Final plus these exact manifest bytes. Core does not set them or dispatch effects. Latest physical intent, current exact readiness/config/boot, durable exclusive claim, no replay/rearm, original sealed installation and separate matching smoke remain required. Old V3/generic deployment/Pi10/aggregate/cross-consumer receipts are rejected. The original failure stays failed; recovery success is only RECOVERED_PENDING_SMOKE, matching smoke qualifies only this instance, never overall two-instance DEPLOYMENT_OPERATIONAL or physical/touch/native/audio/live/user acceptance.
+
+## Verification and unchanged HA
+
+Fresh native SharedData-root hostverify23:11UTC MATCH/exit0/onboarding4.5.4; same sole Core writer on clean synchronized basec854, originala31/8d67/d53/dashboardlock retained. Actual manifest is checked by the exact matching consumer's pure validator with real downloaded publication metadata, plus negative oldconsumer/V3/Pi10/mixed-pair cases. No test executes SSH/root/installer/device effects. Required lifecycle/roadmap/HACS, projection and full committed diff results are recorded before review.
+
+All233 Core product files stay unchanged. After actual protected source and distinct Final qualification, perform fresh installed-file/runtime/HTTP/SQL/backup readback rather than reinstall/restart identical code. HACS2.0.5 component is present, personal GitHub OAuth expired/0entries; configured panel/mobile rendering remains open. Apple explicit-style preview has bounded source review only. VibeScape1271, exact historical playback, captured reply artwork, queue-backed natural Forecast and personal DJ work remain selected/open. No new paid model/provider budget, production install, personal erasure, consumer-source write or deadline extension. Hard Core stop22October06:00UTC/08:00Amsterdam.
+
+Actual pure qualification: exact qualified consumer77fc accepted the real manifest/publication join;17 negative oldconsumer/V3/ordinary/Pi10/provenance/helper/path/aggregate/time cases rejected. All19 existing Pi release files retain original SHA256; no Core product delta. Structural validation is not readiness or dispatch permission. Offline projection and full diff checks PASS.
+
+Existing17 lifecycle/roadmap/HACS tests PASS14.910s. This release-only authority binding has no Golden/Session behavior delta and invokes no provider/model case. Required normal CI and independent review still apply.

@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.0.0-rc.1-pi-20260806",
+  "platform_version": "4.0",
+  "release_version": "4.0.0-rc.1",
+  "release_profile": "INTERNAL_RELEASE",
+  "generated_at": "2026-08-06",
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-08-06",
+    "approved_statement": "The maintainer explicitly authorized the DJConnect Platform 4.0 RC1 internal rollout. This binding authorizes only the immutable Raspberry Pi candidate, the rbpi-djconnect Pi Zero 2W target, and its matching deployment and smoke workflows.",
+    "effect": "This approval does not authorize stable publication, HACS stable publication, OTA promotion, store submission, or deployment to any other target."
+  },
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect-pi",
+      "source_sha": "bd4d44cfde82f6aea2b5408c039cdcc068d390aa",
+      "version": "4.0.0-rc.1",
+      "artifact_run": "31102444432"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "rbpi-djconnect",
+      "required": true
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "pcvantol/djconnect-pi-releases",
+      "target": "rbpi-djconnect",
+      "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v4.0.0-rc.1:djconnect-pi-4.0.0-rc.1.tar.gz",
+      "artifact_sha256": "1a3a66451c91791aba9f95d208b2b584f8c20d3bb11fa4d57a3eaca7767350e1",
+      "artifact_url": "https://github.com/pcvantol/djconnect-pi-releases/releases/download/v4.0.0-rc.1/djconnect-pi-4.0.0-rc.1.tar.gz",
+      "device_profile_artifacts": {
+        "pi-zero-2w-arm64": {
+          "artifact_id": "djconnect-pi-pi-zero-2w-arm64-4.0.0-rc.1.tar.gz",
+          "artifact_sha256": "bb940500511430342353b389dc7d8fcd1e3729458211c38670ce5bd041647ce3"
+        },
+        "pi5-arm64": {
+          "artifact_id": "djconnect-pi-pi5-arm64-4.0.0-rc.1.tar.gz",
+          "artifact_sha256": "d8f7a886af97f89c599df399445f16813c73dbcb86324dd69a07a2a79fb4f762"
+        }
+      }
+    }
+  ],
+  "constraints": [
+    "The candidate is an internal prerelease and must not be promoted to a stable release.",
+    "The rbpi-djconnect deployment consumes the generic immutable artifact and selects the Pi Zero 2W ARM64 profile through its local updater configuration.",
+    "The Pi 5 wall appliance remains a separately targeted deployment and smoke operation, even though its profile artifact is bound here for provenance.",
+    "Runtime protocol compatibility is 4.0 only; 3.3 clients receive the documented version_mismatch response until updated."
+  ],
+  "next_authorized_action": "Dispatch the Pi deployment workflow for rbpi-djconnect, then its matching post-deployment smoke workflow, using this exact binding."
+}

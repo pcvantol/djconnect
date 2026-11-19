@@ -1,0 +1,1638 @@
+{
+  "schema_version": 1,
+  "scope": "ORIGINAL608_EN_NL_TEXT_CONTENT40_PLUS_SEPARATE_CURRENT_AVAILABILITY_BRIDGE_NOT_NEW_MODEL_RUN",
+  "original_source": "608bc7d15aab813649edb0095476ceb4cfb42a7e",
+  "original_catalogue_sha256": "dfaa98a1659ef5673037da26f98136314b314beea8afe8e31af4ffd5bd6ac4e7",
+  "catalogue_revision": 2,
+  "catalogue_sha256": "5c8c52c044782f18dae53f10d6babe02b6c6e414131e52f16255d65ad60f730b",
+  "qualified_entry_locales": 28,
+  "pending_entry_locales": 42,
+  "qualified_languages": [
+    "en",
+    "nl"
+  ],
+  "preserved_pending_languages": [
+    "de",
+    "fr",
+    "es"
+  ],
+  "run_id": 40320113775,
+  "artifact_id": 12648649358,
+  "zip_sha256": "723b2f2ac78615bec6937f5fb98cc4d0ddc7c69226ab1a6ee78957ca3cd9d179",
+  "original_report_sha256": "9d83547a620127010d07782dfa7d3dbadb9a50221d28f7b1c1e7618f2d5ca64d",
+  "original_40_cases": [
+    {
+      "id": "catalogue-play.artist-en",
+      "entry_id": "play.artist",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "15eeb70faa974b7048081e39fb7afad71ecac4735d58086dbc792bb850679c7a",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/artists?ids=aaaaaaaaaaaaaaaaaaaaaa",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/search?q=artist%3A%22Volbeat%22&type=artist&limit=10&market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/artists/aaaaaaaaaaaaaaaaaaaaaa/top-tracks?market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "uris": [
+              "spotify:track:0000000000000000000000",
+              "spotify:track:1111111111111111111111",
+              "spotify:track:2222222222222222222222"
+            ]
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "uris": [
+              "spotify:track:0000000000000000000000",
+              "spotify:track:1111111111111111111111",
+              "spotify:track:2222222222222222222222"
+            ]
+          },
+          "accepted": true,
+          "status": 204
+        }
+      ],
+      "paid_attempts": 4
+    },
+    {
+      "id": "catalogue-play.artist-nl",
+      "entry_id": "play.artist",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "ad1299a120d663d646ebe2ebc97d16fb1bfc99c9b7da7a63d83ab2fe3882c32f",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/search?q=artist%3A%22Volbeat%22&type=artist&limit=10&market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/artists/aaaaaaaaaaaaaaaaaaaaaa/top-tracks?market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "uris": [
+              "spotify:track:0000000000000000000000",
+              "spotify:track:1111111111111111111111",
+              "spotify:track:2222222222222222222222"
+            ]
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "uris": [
+              "spotify:track:0000000000000000000000",
+              "spotify:track:1111111111111111111111",
+              "spotify:track:2222222222222222222222"
+            ]
+          },
+          "accepted": true,
+          "status": 204
+        }
+      ],
+      "paid_attempts": 4
+    },
+    {
+      "id": "catalogue-play.cooking-en",
+      "entry_id": "play.cooking",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "772518a2c2b3092e9937e51747511fcb7186e314b4b11789be974ac4fbbc2ee0",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/search?q=cooking&type=playlist&limit=1&market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "context_uri": "spotify:playlist:kkkkkkkkkkkkkkkkkkkkkk"
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "context_uri": "spotify:playlist:kkkkkkkkkkkkkkkkkkkkkk"
+          },
+          "accepted": true,
+          "status": 204
+        }
+      ],
+      "paid_attempts": 4
+    },
+    {
+      "id": "catalogue-play.cooking-nl",
+      "entry_id": "play.cooking",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "b5d87ba472af8df0550f0c6b45deebdf31216fcdf19a773ab54eb650f4d7ad68",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/search?q=muziek+voor+tijdens+het+koken&type=playlist&limit=1&market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "context_uri": "spotify:playlist:kkkkkkkkkkkkkkkkkkkkkk"
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "context_uri": "spotify:playlist:kkkkkkkkkkkkkkkkkkkkkk"
+          },
+          "accepted": true,
+          "status": 204
+        }
+      ],
+      "paid_attempts": 4
+    },
+    {
+      "id": "catalogue-play.quiet-en",
+      "entry_id": "play.quiet",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "3b6d5be37fe5dcbc7ee7271e96d586179903ed3d38cf82d2e58d6736cb9d1052",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/search?q=a+relaxing&type=playlist&limit=1&market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "context_uri": "spotify:playlist:kkkkkkkkkkkkkkkkkkkkkk"
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "context_uri": "spotify:playlist:kkkkkkkkkkkkkkkkkkkkkk"
+          },
+          "accepted": true,
+          "status": 204
+        }
+      ],
+      "paid_attempts": 4
+    },
+    {
+      "id": "catalogue-play.quiet-nl",
+      "entry_id": "play.quiet",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "1b262a418c07eb250a26b19eabac19066fdeffc532f0caac147aa591a47bc19a",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/search?q=een+rustige&type=playlist&limit=1&market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "context_uri": "spotify:playlist:kkkkkkkkkkkkkkkkkkkkkk"
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "context_uri": "spotify:playlist:kkkkkkkkkkkkkkkkkkkkkk"
+          },
+          "accepted": true,
+          "status": 204
+        }
+      ],
+      "paid_attempts": 4
+    },
+    {
+      "id": "catalogue-discover.artist_albums-en",
+      "entry_id": "discover.artist_albums",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "51878bf492af70e0c99f9669cab621a1ab005066234f2c4df269cb4ba5e3be0b",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/search?q=artist%3A%22Volbeat%22&type=artist&limit=10&market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/artists/aaaaaaaaaaaaaaaaaaaaaa/albums?include_groups=album&limit=50&market=NL&offset=0",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-discover.artist_albums-nl",
+      "entry_id": "discover.artist_albums",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "a830cee0be457cf49ad0f52f479043f1372dacf2ba079ff6c021a6b2a7cf11e1",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-discover.artist_tracks-en",
+      "entry_id": "discover.artist_tracks",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "9ea010d9ec6426fa8fdebb4cb02e0a39b8ff0b9c254faf5e4358d81e8c6a8741",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/search?q=Volbeat&type=track&limit=5&market=NL",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-discover.artist_tracks-nl",
+      "entry_id": "discover.artist_tracks",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "82e3d925c5a5dc62f50137f379d50e1dc3ad0acfd3506fcf5c9eac6426622ed6",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/search?q=Volbeat&type=track&limit=5&market=NL",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-discover.playlists-en",
+      "entry_id": "discover.playlists",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "07123211a8269041a6cf8f96579991422c1ed39ee22ae137c6243ee5a20ef143",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/playlists?limit=10&offset=0",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-discover.playlists-nl",
+      "entry_id": "discover.playlists",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "88edbfdcd5369c1094586a4bcd9cdb856eb3530717a5ff5fa34aaf447c6cf24e",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-discover.recent-en",
+      "entry_id": "discover.recent",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "2a9b5fc6a43928931d818758bb5ee21ea811d743baa997c3a6d4d30e9d4cfa62",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player/recently-played?limit=50",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-discover.recent-nl",
+      "entry_id": "discover.recent",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "2a40eee6b56b676fac0524b829c31aaf5f797690023a6919801fa2427f3c33dc",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player/recently-played?limit=50",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-listen.current-en",
+      "entry_id": "listen.current",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "7443bfdb732014d48f11da78e208fbcafcf0d3fe36f5c9bb1e68b7eef0d9d270",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-listen.current-nl",
+      "entry_id": "listen.current",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "51f75d8c7648c817de12d475b9f0f9016b938c440e06da33ef1f0e340d1c329c",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-listen.release-en",
+      "entry_id": "listen.release",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "beceffb20af4474431d159831c0be06add6ed348ccc512ebc224bf1f5261e18b",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-listen.release-nl",
+      "entry_id": "listen.release",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "559a04b88c035c80635ce42c04a77cc8c5bdd5be8ec2a97fd2a44c3680ca289c",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-listen.artist-en",
+      "entry_id": "listen.artist",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "b1ce514d0f530fdaa8a0ccfcc61815ed26f805e973168579d29ea51acf5287e1",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 4
+    },
+    {
+      "id": "catalogue-listen.artist-nl",
+      "entry_id": "listen.artist",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "b43dc2e5aa4c8cd983b25d7e115a0daf873fe23386e21dd7c934b36e4e4b6561",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 4
+    },
+    {
+      "id": "catalogue-listen.album_tracks-en",
+      "entry_id": "listen.album_tracks",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "73582f0a9f2b6ff9e832a857964f41b5ed16429c70f0e82e51356e21ffe9e5c2",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/albums/bbbbbbbbbbbbbbbbbbbbbb?market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/albums/bbbbbbbbbbbbbbbbbbbbbb/tracks?market=NL&limit=50&offset=0",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-listen.album_tracks-nl",
+      "entry_id": "listen.album_tracks",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "a02106e1193d1cc1863cdeb29b7c32d56d75c0de77eaefe6bc6226ce454cf9ca",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/albums/bbbbbbbbbbbbbbbbbbbbbb?market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/albums/bbbbbbbbbbbbbbbbbbbbbb/tracks?market=NL&limit=50&offset=0",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-listen.outputs-en",
+      "entry_id": "listen.outputs",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "9619850c2ef68f58ce9ecf122e58720e43d84330edf15dfb9ce93c735a8104f4",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player/devices",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-listen.outputs-nl",
+      "entry_id": "listen.outputs",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "b472bdb1e40466681a736633f9620bf6b5164d963e11ed767bd34bb6712613d4",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player/devices",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-listen.queue-en",
+      "entry_id": "listen.queue",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "6e4ebd968ec7db6107a25e77e92a1d9192273d28a10890c953c221bd40d76df2",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player/queue",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-listen.queue-nl",
+      "entry_id": "listen.queue",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "a1b58e237425a3f23dde3548979a01eb45ca6c91cda400a27a92deb25a0ab329",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player/queue",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-listen.forecast-en",
+      "entry_id": "listen.forecast",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "9bbaeeaf98d87993659bd1375f41440f57f18c6129c1a0f612c0eba588038173",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player/queue",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-listen.forecast-nl",
+      "entry_id": "listen.forecast",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "b828fa04098d6118ad9bf7b8f8b9f5f34738410f25850d5003430c23dea92f7b",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player/queue",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-chain-speaker-en-offer",
+      "entry_id": "play.artist",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "15eeb70faa974b7048081e39fb7afad71ecac4735d58086dbc792bb850679c7a",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/search?q=artist%3A%22Volbeat%22&type=artist&limit=10&market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/artists/aaaaaaaaaaaaaaaaaaaaaa/top-tracks?market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "uris": [
+              "spotify:track:0000000000000000000000",
+              "spotify:track:1111111111111111111111",
+              "spotify:track:2222222222222222222222"
+            ]
+          },
+          "accepted": false,
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "path": "/me/player/devices",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "uris": [
+              "spotify:track:0000000000000000000000",
+              "spotify:track:1111111111111111111111",
+              "spotify:track:2222222222222222222222"
+            ]
+          },
+          "accepted": false,
+          "status": 404
+        }
+      ],
+      "paid_attempts": 2
+    },
+    {
+      "id": "catalogue-chain-speaker-en-accept",
+      "entry_id": "play.artist",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "879990bf5526469e86566e376a17300f679f0f63376765276aca0d1025cd307f",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player/devices",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player/devices",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player",
+          "body": {
+            "device_ids": [
+              "own-speaker"
+            ],
+            "play": false
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player/play?device_id=own-speaker",
+          "body": {
+            "uris": [
+              "spotify:track:0000000000000000000000",
+              "spotify:track:1111111111111111111111",
+              "spotify:track:2222222222222222222222"
+            ]
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [
+        {
+          "method": "PUT",
+          "path": "/me/player",
+          "body": {
+            "device_ids": [
+              "own-speaker"
+            ],
+            "play": false
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player/play?device_id=own-speaker",
+          "body": {
+            "uris": [
+              "spotify:track:0000000000000000000000",
+              "spotify:track:1111111111111111111111",
+              "spotify:track:2222222222222222222222"
+            ]
+          },
+          "accepted": true,
+          "status": 204
+        }
+      ],
+      "paid_attempts": 3
+    },
+    {
+      "id": "catalogue-chain-speaker-en-duplicate",
+      "entry_id": "play.artist",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "879990bf5526469e86566e376a17300f679f0f63376765276aca0d1025cd307f",
+      "provider_operations": [],
+      "provider_writes": [],
+      "paid_attempts": 0
+    },
+    {
+      "id": "catalogue-chain-album-en-offer",
+      "entry_id": "discover.artist_albums",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "51878bf492af70e0c99f9669cab621a1ab005066234f2c4df269cb4ba5e3be0b",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-chain-album-en-accept",
+      "entry_id": "discover.artist_albums",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "280700caf2e90b2ccab8ce58f86a11e320fefff70681e9a8bb27aaddc0d4c0be",
+      "provider_operations": [
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "context_uri": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "context_uri": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "accepted": true,
+          "status": 204
+        }
+      ],
+      "paid_attempts": 3
+    },
+    {
+      "id": "catalogue-chain-album-en-duplicate",
+      "entry_id": "discover.artist_albums",
+      "language": "en",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "280700caf2e90b2ccab8ce58f86a11e320fefff70681e9a8bb27aaddc0d4c0be",
+      "provider_operations": [],
+      "provider_writes": [],
+      "paid_attempts": 0
+    },
+    {
+      "id": "catalogue-chain-speaker-nl-offer",
+      "entry_id": "play.artist",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "ad1299a120d663d646ebe2ebc97d16fb1bfc99c9b7da7a63d83ab2fe3882c32f",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/search?q=artist%3A%22Volbeat%22&type=artist&limit=10&market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/artists/aaaaaaaaaaaaaaaaaaaaaa/top-tracks?market=NL",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "uris": [
+              "spotify:track:0000000000000000000000",
+              "spotify:track:1111111111111111111111",
+              "spotify:track:2222222222222222222222"
+            ]
+          },
+          "accepted": false,
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "path": "/me/player/devices",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "uris": [
+              "spotify:track:0000000000000000000000",
+              "spotify:track:1111111111111111111111",
+              "spotify:track:2222222222222222222222"
+            ]
+          },
+          "accepted": false,
+          "status": 404
+        }
+      ],
+      "paid_attempts": 2
+    },
+    {
+      "id": "catalogue-chain-speaker-nl-accept",
+      "entry_id": "play.artist",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "22a91ccac055a29e94b6bddb47ed77138778ede0869c326fef90d77c5effab32",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player/devices",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player/devices",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player",
+          "body": {
+            "device_ids": [
+              "own-speaker"
+            ],
+            "play": false
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player/play?device_id=own-speaker",
+          "body": {
+            "uris": [
+              "spotify:track:0000000000000000000000",
+              "spotify:track:1111111111111111111111",
+              "spotify:track:2222222222222222222222"
+            ]
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [
+        {
+          "method": "PUT",
+          "path": "/me/player",
+          "body": {
+            "device_ids": [
+              "own-speaker"
+            ],
+            "play": false
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "PUT",
+          "path": "/me/player/play?device_id=own-speaker",
+          "body": {
+            "uris": [
+              "spotify:track:0000000000000000000000",
+              "spotify:track:1111111111111111111111",
+              "spotify:track:2222222222222222222222"
+            ]
+          },
+          "accepted": true,
+          "status": 204
+        }
+      ],
+      "paid_attempts": 3
+    },
+    {
+      "id": "catalogue-chain-speaker-nl-duplicate",
+      "entry_id": "play.artist",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "22a91ccac055a29e94b6bddb47ed77138778ede0869c326fef90d77c5effab32",
+      "provider_operations": [],
+      "provider_writes": [],
+      "paid_attempts": 0
+    },
+    {
+      "id": "catalogue-chain-album-nl-offer",
+      "entry_id": "discover.artist_albums",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "a830cee0be457cf49ad0f52f479043f1372dacf2ba079ff6c021a6b2a7cf11e1",
+      "provider_operations": [
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [],
+      "paid_attempts": 1
+    },
+    {
+      "id": "catalogue-chain-album-nl-accept",
+      "entry_id": "discover.artist_albums",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "656470fed7cded8544c8c6e2b32874b3ad864067c71af89ede132d47d2645a88",
+      "provider_operations": [
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "context_uri": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "accepted": true,
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/player",
+          "accepted": true,
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/me/tracks/contains?ids=0000000000000000000000",
+          "accepted": true,
+          "status": 200
+        }
+      ],
+      "provider_writes": [
+        {
+          "method": "PUT",
+          "path": "/me/player/play",
+          "body": {
+            "context_uri": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb"
+          },
+          "accepted": true,
+          "status": 204
+        }
+      ],
+      "paid_attempts": 3
+    },
+    {
+      "id": "catalogue-chain-album-nl-duplicate",
+      "entry_id": "discover.artist_albums",
+      "language": "nl",
+      "status": "PASS",
+      "findings": [],
+      "question_sha256": "656470fed7cded8544c8c6e2b32874b3ad864067c71af89ede132d47d2645a88",
+      "provider_operations": [],
+      "provider_writes": [],
+      "paid_attempts": 0
+    }
+  ],
+  "original_sdk_reserved": 70,
+  "original_sdk_completed": 70,
+  "billing": "UNKNOWN_NOT_A_BILLING_RECEIPT",
+  "root_all40_editorial_sha256": "c98ad0d4b55282ab51ab23656806707df8da28b735421336c25c3087be77169a",
+  "independent_all40_editorial_sha256": "134d2dba9268b6f59c43a0d07f7698cdc5abf69f35253c206a5c7d69b66356bc",
+  "root_semantic_bridge_sha256": "69afae35f0b7fbbf1f30b83f872a04223285c3897d4deee05856d2c03441962f",
+  "independent_semantic_bridge_sha256": "578354d37940b6c0edf9c9e47fca42457e78904f50fc4913b0133188f83226e5",
+  "current_HA_R5_original_sha256": "3762624137eb8ae625735897b94506bc4263e1247d9ade80c1aef09c06ed0ccc",
+  "current_HA_R5_admission_sha256": "cf652d1125614ea775645f174334f837763bc8ec3386c85d15d33732719624c3",
+  "current_HA_all14_result_sha256": "d77a407cd1a08c6097703b6c0a8c3bc7874df12af70cea1cf5f2968b842c7e25",
+  "execution_profile": {
+    "id": "help_medium_v1",
+    "model": "gpt-6-luna",
+    "reasoning_effort": "medium",
+    "maximum_output_tokens": 3000
+  },
+  "installed": "NOT_RUN",
+  "native": "NOT_RUN",
+  "real_playback_provider": "SYNTHETIC_FIXTURE_ONLY",
+  "automatic_rerun": "NONE",
+  "consumed_claims": "UNCHANGED"
+}

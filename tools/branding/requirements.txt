@@ -1,0 +1,3 @@
+# Build-only; no Home Assistant runtime dependency.
+Pillow==13.0.0
+fonttools==4.67.0

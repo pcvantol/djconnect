@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DJConnect Software Assurance CI Governance Policy",
+  "type": "object",
+  "required": ["schema_version", "policy_id", "policy_version", "ownership", "workflow_governance", "execution_profiles", "runner_governance", "retention_governance", "artifact_governance", "pull_request_governance", "repository_governance"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "policy_id": {"const": "djconnect.software_assurance.ci_governance"},
+    "policy_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "ownership": {"type": "object"},
+    "workflow_governance": {"type": "object"},
+    "execution_profiles": {"type": "object", "required": ["economy", "balanced", "release"]},
+    "runner_governance": {"type": "object", "required": ["github_hosted", "self_hosted", "hybrid"]},
+    "retention_governance": {"type": "object", "required": ["routine", "failure", "qualification", "release", "preservation_exceptions", "dry_run", "manual_cleanup"]},
+    "artifact_governance": {"type": "object"},
+    "pull_request_governance": {"type": "object"},
+    "repository_governance": {"type": "object"}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "kind": "golden_source_1472_finalization",
+  "source_pr": "https://github.com/pcvantol/djconnect/pull/1472",
+  "reviewed_head": "a04e424509437cc8c310f0c17b5a9282d586c214",
+  "source_merge": "5becc026f4931ccbf758e10c307bbee5a8a7522d",
+  "owner_authorization": "https://github.com/pcvantol/djconnect/actions/runs/42195024482",
+  "repository_state": "MERGED_UNRECONCILED_UNTIL_FINALIZATION_MERGE",
+  "workspace_state": "NOT_READY_UNTIL_LOCAL_CLEANUP",
+  "owner_selected_languages": [
+    "en",
+    "nl"
+  ],
+  "selected_case_count": 8,
+  "selected_case_status": "PASS_FOR_SELECTED_CASES_ONLY",
+  "selected_cases": [
+    {
+      "id": "ASKDJ-GOLDEN-001-en-partial",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-en-playback-partial",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-en-deictic",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-en-new-topic",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-nl-partial",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-nl-playback-partial",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-nl-deictic",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-nl-new-topic",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    }
+  ],
+  "deferred_languages": [
+    "de",
+    "fr",
+    "es"
+  ],
+  "deferred_cases": [
+    {
+      "id": "ASKDJ-GOLDEN-001-de-partial",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-de-playback-partial",
+      "status": "FAIL",
+      "findings": [
+        "wrong_or_missing_person",
+        "expected_public_fact_missing",
+        "qualified_biography_source_missing"
+      ],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-de-deictic",
+      "status": "FAIL",
+      "findings": [
+        "expected_public_fact_missing"
+      ],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-de-new-topic",
+      "status": "FAIL",
+      "findings": [
+        "wrong_or_missing_person",
+        "expected_public_fact_missing"
+      ],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-fr-partial",
+      "status": "FAIL",
+      "findings": [
+        "wrong_or_missing_person",
+        "expected_public_fact_missing",
+        "qualified_biography_source_missing"
+      ],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-fr-playback-partial",
+      "status": "FAIL",
+      "findings": [
+        "wrong_or_missing_person",
+        "expected_public_fact_missing",
+        "qualified_biography_source_missing"
+      ],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-fr-deictic",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-fr-new-topic",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-es-partial",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-es-playback-partial",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-es-deictic",
+      "status": "PASS",
+      "findings": [],
+      "paid_attempts": 2
+    },
+    {
+      "id": "ASKDJ-GOLDEN-001-es-new-topic",
+      "status": "FAIL",
+      "findings": [
+        "wrong_or_missing_person",
+        "expected_public_fact_missing"
+      ],
+      "paid_attempts": 2
+    }
+  ],
+  "original_full_manifest_sha256": "548be7b1223de3a493a45c3f07b82aceaa134d518302939d9e61006d1584e111",
+  "original_full_suite_status": "FAIL",
+  "original_full_passed": 14,
+  "original_full_total": 20,
+  "publication_setup_reliability": "OPEN_PRIOR_FAILURES_PRESERVED",
+  "core_findings_open": 39,
+  "real_quality_steps_open": 29,
+  "ui_supported_languages": [
+    "en",
+    "nl",
+    "de",
+    "fr",
+    "es"
+  ],
+  "source_ci": {
+    "run": "https://github.com/pcvantol/djconnect/actions/runs/42192509054",
+    "result": "PASS",
+    "tests_run": 4598,
+    "skipped": 54
+  },
+  "post_merge_ci": {
+    "run": "https://github.com/pcvantol/djconnect/actions/runs/42195720411",
+    "product_test_security_hacs_coverage": "PASS",
+    "housekeeping": "PASS_AFTER_ISOLATED_HTTP_502_RETRY",
+    "result": "PASS",
+    "attempt": 2,
+    "original_failure": "PRESERVED"
+  },
+  "actual_ha_protocols": 26,
+  "actual_ha_protocols_result": "PASS",
+  "related_unit_tests": 374,
+  "repaired_receipt_checks": 26,
+  "unchanged_product_count": 308,
+  "product_tree_sha256": "0feef271a6d270a890567f65c564144f39a29cb4807215725baba4db448065f2",
+  "execution_horizon": [
+    {
+      "id": "SETTINGS::APPLE::EDITOR",
+      "title": "One Jouw DJ editor and shared Session quick controls",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "dependencies": [
+        {
+          "id": "SETTINGS::CORE::PRODUCER",
+          "status": "Completed"
+        }
+      ]
+    },
+    {
+      "id": "SETTINGS::PI::ADOPTION",
+      "title": "Pi allowed shared Session settings and legacy disposition",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "dependencies": [
+        {
+          "id": "SETTINGS::CORE::PRODUCER",
+          "status": "Completed"
+        }
+      ]
+    },
+    {
+      "id": "SETTINGS::ESP32::ADOPTION",
+      "title": "ESP32 Assist/voice/settings compatibility and legacy disposition",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "dependencies": [
+        {
+          "id": "SETTINGS::CORE::PRODUCER",
+          "status": "Completed"
+        }
+      ]
+    },
+    {
+      "id": "SETTINGS::VIBECAST::COMPAT",
+      "title": "Shared renderer allowed Session fields without Profile preferences",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "dependencies": [
+        {
+          "id": "SETTINGS::CORE::PRODUCER",
+          "status": "Completed"
+        }
+      ]
+    },
+    {
+      "id": "SETTINGS::JOINT::ACCEPTANCE",
+      "title": "Cross-device six-field effects, persistence and cleanup acceptance",
+      "status": "Planned",
+      "assignment_status": "NOT_ISSUED",
+      "dependencies": [
+        {
+          "id": "SETTINGS::CORE::MIGRATION",
+          "status": "In progress"
+        }
+      ]
+    }
+  ],
+  "model_call_reservations_preserved": 236,
+  "timer_restarted": false,
+  "installation": "NOT_CHANGED_BY_SOURCE_OR_FINALIZATION",
+  "native_audible_apns_acceptance": "NOT_PROVEN",
+  "source_owner_evidence_sha256": "250d8854f86a966a7d31a06bb2aa3a943552330061ca0d44c766e4877cbde79d",
+  "source_ci_log_sha256": "eb293ac8814809fb75cb8a6803b5e15ae75ed753b410fcfa98ee90cde8889cd4",
+  "original_main_failure_log_sha256": "d96722bdb58c70d2f21c1f557d5d6a5aaf22f2e37264d8d6ac5bad34902cc4b8",
+  "state_at_review_freeze": "MERGED_UNRECONCILED",
+  "state_after_finalization_merge": "MERGED_RECONCILED"
+}

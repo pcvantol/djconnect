@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "kind": "djconnect_pi_publication_evidence",
+  "version": "4.0.3-rc.1",
+  "source": {
+    "publication_repository": "pcvantol/djconnect-pi",
+    "repository_id": 1267248532,
+    "source_sha": "5404184eb795c5eb16ef5565482c2313fca54082",
+    "workflow_path": ".github/workflows/publish-release.yml",
+    "publication_run_id": 43647710722,
+    "post_merge_evidence_run_id": 43647584550
+  },
+  "distribution": {
+    "repository": "djconnect-music-dj/djconnect-pi-releases",
+    "repository_id": 1267500969,
+    "release_id": 445631616,
+    "release_tag": "v4.0.3-rc.1",
+    "release_manifest_asset_id": 748963644,
+    "release_manifest_sha256": "d3d18db7f6fc0b7a4fba677b3e7068d9d40ac26c87b12254dc537c6f1d3d2dfd"
+  },
+  "inventory": {
+    "id": "pi-wall-devices-20261020-v1",
+    "sha256": "530220ee38f6ccbcc824a78331b9dd89f236a5fa6ede12ebf7899dac83ff50c0"
+  },
+  "profiles": [
+    {
+      "deployment_instance": "wall-4inch",
+      "device_profile": "pi-zero-2w-arm64",
+      "asset_id": 748963616,
+      "asset_name": "djconnect-pi-pi-zero-2w-arm64-4.0.3-rc.1.tar.gz",
+      "asset_sha256": "396b55ce6f101cdaaf46ff87dca4ff3fd76708737b7689bb147733c7e6b44852",
+      "asset_url": "https://github.com/djconnect-music-dj/djconnect-pi-releases/releases/download/v4.0.3-rc.1/djconnect-pi-pi-zero-2w-arm64-4.0.3-rc.1.tar.gz"
+    },
+    {
+      "deployment_instance": "wall-10inch",
+      "device_profile": "pi5-arm64",
+      "asset_id": 748963614,
+      "asset_name": "djconnect-pi-pi5-arm64-4.0.3-rc.1.tar.gz",
+      "asset_sha256": "254f27db7776ebecc0d1ede6c0b517ea8ee917d52c108caec02ac5ca529c7b1b",
+      "asset_url": "https://github.com/djconnect-music-dj/djconnect-pi-releases/releases/download/v4.0.3-rc.1/djconnect-pi-pi5-arm64-4.0.3-rc.1.tar.gz"
+    }
+  ],
+  "wheel": {
+    "name": "djconnect_pi-4.0.3rc1-py3-none-any.whl",
+    "sha256": "46e9a94f815fca627ac5442b55d6d3eff3f21478bde89957b155d9f87069d310",
+    "package_file_count": 107
+  }
+}

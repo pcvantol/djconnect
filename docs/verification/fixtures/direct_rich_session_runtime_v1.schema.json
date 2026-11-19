@@ -1,0 +1,1515 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:djconnect:direct-rich-session-runtime:v1",
+  "title": "Direct rich Session runtime v1 closed wire",
+  "description": "Source preparation; format alone supplies no display/clock/owner/provider authority. Byte, relational, unique-slot, hash, original-rights and actual lifecycle guards additionally required. Root rejects arbitrary JSON; endpoint MUST select the compiled operation binding. Raw byte/duplicate/number-token preflight is additionally mandatory; JSON Schema alone does not preserve lexical integer-vs-float syntax.",
+  "$defs": {
+    "authorize_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "device_id": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^djconnect-(ios|macos)-[A-Za-z0-9]{12}$"
+        },
+        "client_type": {
+          "enum": [
+            "ios",
+            "macos"
+          ]
+        },
+        "session_id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "surface": {
+          "enum": [
+            "widget",
+            "live_activity"
+          ]
+        },
+        "operation_id": {
+          "type": "string",
+          "maxLength": 36,
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "os_snapshot_cache": {
+          "type": "boolean"
+        },
+        "locked_display": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "contract_version",
+        "device_id",
+        "client_type",
+        "session_id",
+        "surface",
+        "operation_id",
+        "enabled",
+        "os_snapshot_cache",
+        "locked_display"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "surface": {
+                "const": "live_activity"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "client_type": {
+                "const": "ios"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "read_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "purpose_id": {
+          "type": "string",
+          "maxLength": 36,
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+        }
+      },
+      "required": [
+        "contract_version",
+        "purpose_id"
+      ]
+    },
+    "asset_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "purpose_id": {
+          "type": "string",
+          "maxLength": 36,
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+        },
+        "frame_id": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "asset_id": {
+          "type": "string",
+          "maxLength": 32,
+          "pattern": "^[A-Za-z0-9_-]{32}$"
+        }
+      },
+      "required": [
+        "contract_version",
+        "purpose_id",
+        "frame_id",
+        "asset_id"
+      ]
+    },
+    "manage_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "device_id": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^djconnect-(ios|macos)-[A-Za-z0-9]{12}$"
+        },
+        "client_type": {
+          "enum": [
+            "ios",
+            "macos"
+          ]
+        },
+        "session_id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "surface": {
+          "enum": [
+            "widget",
+            "live_activity"
+          ]
+        },
+        "operation_id": {
+          "type": "string",
+          "maxLength": 36,
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+        }
+      },
+      "required": [
+        "contract_version",
+        "device_id",
+        "client_type",
+        "session_id",
+        "surface",
+        "operation_id"
+      ]
+    },
+    "authorize_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "success": {
+          "const": true
+        },
+        "contract_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "profile_id": {
+          "const": "djconnect-direct-rich-v1"
+        },
+        "operation_id": {
+          "type": "string",
+          "maxLength": 36,
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+        },
+        "purpose_id": {
+          "type": "string",
+          "maxLength": 36,
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+        },
+        "surface": {
+          "enum": [
+            "widget",
+            "live_activity"
+          ]
+        },
+        "state": {
+          "const": "active"
+        },
+        "purpose_issued_at_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "purpose_expires_at_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "request_sha256": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "frame": {
+          "$ref": "#/$defs/frame"
+        },
+        "read_credential": {
+          "type": "string",
+          "maxLength": 55,
+          "pattern": "^djcrichread_[A-Za-z0-9_-]{43}$"
+        },
+        "asset_credential": {
+          "type": "string",
+          "maxLength": 56,
+          "pattern": "^djcrichasset_[A-Za-z0-9_-]{43}$"
+        }
+      },
+      "required": [
+        "success",
+        "contract_version",
+        "profile_id",
+        "operation_id",
+        "purpose_id",
+        "surface",
+        "state",
+        "purpose_issued_at_ms",
+        "purpose_expires_at_ms",
+        "request_sha256",
+        "frame",
+        "read_credential",
+        "asset_credential"
+      ]
+    },
+    "read_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "success": {
+          "const": true
+        },
+        "contract_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "profile_id": {
+          "const": "djconnect-direct-rich-v1"
+        },
+        "operation_id": {
+          "type": "string",
+          "maxLength": 36,
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+        },
+        "purpose_id": {
+          "type": "string",
+          "maxLength": 36,
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+        },
+        "surface": {
+          "enum": [
+            "widget",
+            "live_activity"
+          ]
+        },
+        "state": {
+          "const": "active"
+        },
+        "purpose_issued_at_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "purpose_expires_at_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "request_sha256": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "frame": {
+          "$ref": "#/$defs/frame"
+        }
+      },
+      "required": [
+        "success",
+        "contract_version",
+        "profile_id",
+        "operation_id",
+        "purpose_id",
+        "surface",
+        "state",
+        "purpose_issued_at_ms",
+        "purpose_expires_at_ms",
+        "request_sha256",
+        "frame"
+      ]
+    },
+    "manage_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "success": {
+          "const": true
+        },
+        "contract_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "profile_id": {
+          "const": "djconnect-direct-rich-v1"
+        },
+        "operation_id": {
+          "type": "string",
+          "maxLength": 36,
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+        },
+        "purpose_id": {
+          "type": "string",
+          "maxLength": 36,
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+        },
+        "surface": {
+          "enum": [
+            "widget",
+            "live_activity"
+          ]
+        },
+        "state": {
+          "enum": [
+            "active",
+            "withdrawn",
+            "expired",
+            "unknown"
+          ]
+        },
+        "purpose_issued_at_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "purpose_expires_at_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "success",
+        "contract_version",
+        "profile_id",
+        "operation_id",
+        "purpose_id",
+        "surface",
+        "state",
+        "purpose_issued_at_ms",
+        "purpose_expires_at_ms"
+      ]
+    },
+    "error_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "success": {
+          "const": false
+        },
+        "contract_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "error": {
+          "enum": [
+            "invalid_request",
+            "unauthorized",
+            "rich_not_allowed",
+            "rich_history_unknown",
+            "rich_asset_unavailable",
+            "rich_purpose_consumed",
+            "rich_frame_changed",
+            "rich_capacity",
+            "rich_unavailable",
+            "rich_frame_unavailable"
+          ]
+        }
+      },
+      "required": [
+        "success",
+        "contract_version",
+        "error"
+      ]
+    },
+    "frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1,
+          "type": "integer"
+        },
+        "binding_id": {
+          "type": "string",
+          "maxLength": 36,
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+        },
+        "generation": {
+          "type": "string",
+          "maxLength": 36,
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+        },
+        "session_id": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_-]{1,128}$"
+        },
+        "delivery_sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "frame_id": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "state": {
+          "enum": [
+            "active",
+            "stale"
+          ]
+        },
+        "observed_at_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "expires_at_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "playback_state": {
+          "enum": [
+            "playing",
+            "paused",
+            "stopped",
+            "unknown"
+          ]
+        },
+        "mood": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "value": {
+              "enum": [
+                null,
+                "chill",
+                "groove",
+                "energy",
+                "party"
+              ]
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "value",
+            "revision"
+          ]
+        },
+        "presence": {
+          "enum": [
+            "music_only",
+            "occasional",
+            "balanced",
+            "presenter"
+          ]
+        },
+        "persona": {
+          "enum": [
+            "home_dj",
+            "radio_dj",
+            "club_dj",
+            "festival_dj"
+          ]
+        },
+        "contribution": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "moment_id": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                    },
+                    "published_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "maxLength": 64
+                    },
+                    "text": {
+                      "type": "string",
+                      "maxLength": 640,
+                      "x-maxUTF8Bytes": 2560
+                    },
+                    "persona": {
+                      "enum": [
+                        "home_dj",
+                        "radio_dj",
+                        "club_dj",
+                        "festival_dj"
+                      ]
+                    },
+                    "source_attribution": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "provider": {
+                          "type": "string",
+                          "maxLength": 512
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "license": {
+                          "type": "string",
+                          "maxLength": 512
+                        }
+                      },
+                      "required": [
+                        "provider",
+                        "url",
+                        "license"
+                      ]
+                    },
+                    "usage_basis": {
+                      "const": "cc0_facts_authored_expression"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "maxLength": 64
+                    },
+                    "rights": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "passive_cache": {
+                          "const": true
+                        },
+                        "os_snapshot": {
+                          "const": true
+                        },
+                        "external_relay": {
+                          "const": false
+                        },
+                        "watch_replication": {
+                          "const": false
+                        }
+                      },
+                      "required": [
+                        "passive_cache",
+                        "os_snapshot",
+                        "external_relay",
+                        "watch_replication"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "moment_id",
+                    "published_at",
+                    "text",
+                    "persona",
+                    "source_attribution",
+                    "usage_basis",
+                    "expires_at",
+                    "rights"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "moment_id": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                    },
+                    "published_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "maxLength": 64
+                    },
+                    "text": {
+                      "type": "string",
+                      "maxLength": 640,
+                      "x-maxUTF8Bytes": 2560
+                    },
+                    "persona": {
+                      "enum": [
+                        "home_dj",
+                        "radio_dj",
+                        "club_dj",
+                        "festival_dj"
+                      ]
+                    },
+                    "source_attribution": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "provider": {
+                          "type": "string",
+                          "maxLength": 512
+                        },
+                        "url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        },
+                        "license": {
+                          "type": "string",
+                          "maxLength": 512
+                        },
+                        "revision_url": {
+                          "type": "string",
+                          "maxLength": 2048
+                        }
+                      },
+                      "required": [
+                        "provider",
+                        "url",
+                        "license",
+                        "revision_url"
+                      ]
+                    },
+                    "usage_basis": {
+                      "const": "public_artist_narration_v1"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "maxLength": 64
+                    },
+                    "rights": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "passive_cache": {
+                          "const": true
+                        },
+                        "os_snapshot": {
+                          "const": true
+                        },
+                        "external_relay": {
+                          "const": false
+                        },
+                        "watch_replication": {
+                          "const": false
+                        }
+                      },
+                      "required": [
+                        "passive_cache",
+                        "os_snapshot",
+                        "external_relay",
+                        "watch_replication"
+                      ]
+                    },
+                    "sources": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "provider": {
+                            "type": "string",
+                            "maxLength": 2048
+                          },
+                          "title": {
+                            "type": "string",
+                            "maxLength": 2048
+                          },
+                          "url": {
+                            "type": "string",
+                            "maxLength": 2048
+                          },
+                          "kind": {
+                            "const": "source"
+                          },
+                          "language": {
+                            "enum": [
+                              "en",
+                              "nl",
+                              "de",
+                              "fr",
+                              "es"
+                            ]
+                          },
+                          "fetched_at": {
+                            "type": "string",
+                            "maxLength": 2048
+                          },
+                          "expires_at": {
+                            "type": "string",
+                            "maxLength": 2048
+                          },
+                          "license": {
+                            "type": "string",
+                            "maxLength": 2048
+                          },
+                          "revision_url": {
+                            "type": "string",
+                            "maxLength": 2048
+                          },
+                          "wikidata_id": {
+                            "type": "string",
+                            "maxLength": 2048
+                          },
+                          "content_hash": {
+                            "type": "string",
+                            "maxLength": 64,
+                            "pattern": "^[a-f0-9]{64}$"
+                          },
+                          "claim_scope": {
+                            "const": "fetched_public_music_reference"
+                          }
+                        },
+                        "required": [
+                          "provider",
+                          "title",
+                          "url",
+                          "kind",
+                          "language",
+                          "fetched_at",
+                          "expires_at",
+                          "license",
+                          "revision_url",
+                          "wikidata_id",
+                          "content_hash",
+                          "claim_scope"
+                        ]
+                      }
+                    },
+                    "expression_license": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "const": "CC-BY-SA-4.0"
+                        },
+                        "url": {
+                          "const": "https://creativecommons.org/licenses/by-sa/4.0/"
+                        },
+                        "adapted": {
+                          "const": true
+                        },
+                        "attribution_required": {
+                          "const": true
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "url",
+                        "adapted",
+                        "attribution_required"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "moment_id",
+                    "published_at",
+                    "text",
+                    "persona",
+                    "source_attribution",
+                    "usage_basis",
+                    "expires_at",
+                    "rights",
+                    "sources",
+                    "expression_license"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "moment_id": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "pattern": "^[A-Za-z0-9_-]{1,128}$"
+                    },
+                    "published_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "maxLength": 64
+                    },
+                    "text": {
+                      "type": "string",
+                      "maxLength": 640,
+                      "x-maxUTF8Bytes": 2560
+                    },
+                    "persona": {
+                      "enum": [
+                        "home_dj",
+                        "radio_dj",
+                        "club_dj",
+                        "festival_dj"
+                      ]
+                    },
+                    "source_attribution": {
+                      "type": "object",
+                      "properties": {},
+                      "required": [],
+                      "additionalProperties": false
+                    },
+                    "usage_basis": {
+                      "const": "runtime_authored_direction"
+                    },
+                    "expires_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "maxLength": 64
+                    },
+                    "rights": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "passive_cache": {
+                          "const": true
+                        },
+                        "os_snapshot": {
+                          "const": true
+                        },
+                        "external_relay": {
+                          "const": false
+                        },
+                        "watch_replication": {
+                          "const": false
+                        }
+                      },
+                      "required": [
+                        "passive_cache",
+                        "os_snapshot",
+                        "external_relay",
+                        "watch_replication"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "moment_id",
+                    "published_at",
+                    "text",
+                    "persona",
+                    "source_attribution",
+                    "usage_basis",
+                    "expires_at",
+                    "rights"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "now_playing": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "item_id": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "pattern": "^[a-f0-9]{24}$"
+                },
+                "subject_uri": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "pattern": "^spotify:track:[A-Za-z0-9]{22}$"
+                },
+                "track": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "artist": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "album": {
+                  "type": "string",
+                  "maxLength": 512
+                },
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "maxLength": 64
+                },
+                "expires_at": {
+                  "type": "string",
+                  "format": "date-time",
+                  "maxLength": 64
+                },
+                "source_url": {
+                  "type": "string",
+                  "maxLength": 2048
+                },
+                "attribution": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "provider": {
+                      "const": "Spotify"
+                    },
+                    "mark": {
+                      "const": "spotify"
+                    },
+                    "url": {
+                      "type": "string",
+                      "maxLength": 2048
+                    }
+                  },
+                  "required": [
+                    "provider",
+                    "mark",
+                    "url"
+                  ]
+                },
+                "usage_basis": {
+                  "const": "spotify_temporary_passive_metadata"
+                }
+              },
+              "required": [
+                "item_id",
+                "subject_uri",
+                "track",
+                "artist",
+                "album",
+                "observed_at",
+                "expires_at",
+                "source_url",
+                "attribution",
+                "usage_basis"
+              ]
+            }
+          ]
+        },
+        "artwork": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "slot": {
+                "enum": [
+                  "contribution",
+                  "now_playing"
+                ]
+              },
+              "asset_id": {
+                "type": "string",
+                "maxLength": 32,
+                "pattern": "^[A-Za-z0-9_-]{32}$"
+              },
+              "subject": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "provider": {
+                    "const": "spotify"
+                  },
+                  "uri": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "pattern": "^spotify:(track|album):[A-Za-z0-9]{22}$"
+                  },
+                  "type": {
+                    "enum": [
+                      "track",
+                      "album"
+                    ]
+                  },
+                  "album_uri": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "pattern": "^spotify:album:[A-Za-z0-9]{22}$"
+                  }
+                },
+                "required": [
+                  "provider",
+                  "uri",
+                  "type"
+                ]
+              },
+              "role": {
+                "enum": [
+                  "contextual_cover",
+                  "current_cover"
+                ]
+              },
+              "media_revision": {
+                "type": "string",
+                "maxLength": 24,
+                "pattern": "^[a-f0-9]{24}$"
+              },
+              "captured_at": {
+                "type": "string",
+                "format": "date-time",
+                "maxLength": 64
+              },
+              "expires_at": {
+                "type": "string",
+                "format": "date-time",
+                "maxLength": 64
+              },
+              "source_url": {
+                "type": "string",
+                "maxLength": 2048
+              },
+              "attribution": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "provider": {
+                    "const": "Spotify"
+                  },
+                  "mark": {
+                    "const": "spotify"
+                  },
+                  "url": {
+                    "type": "string",
+                    "maxLength": 2048
+                  }
+                },
+                "required": [
+                  "provider",
+                  "mark",
+                  "url"
+                ]
+              },
+              "alt_text": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "en": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "nl": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "de": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "fr": {
+                    "type": "string",
+                    "maxLength": 512
+                  },
+                  "es": {
+                    "type": "string",
+                    "maxLength": 512
+                  }
+                },
+                "required": [
+                  "en",
+                  "nl",
+                  "de",
+                  "fr",
+                  "es"
+                ]
+              },
+              "width": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4096
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4096
+              },
+              "crop_allowed": {
+                "const": false
+              },
+              "usage_basis": {
+                "const": "spotify_temporary_passive_cover"
+              },
+              "rights": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "passive_cache": {
+                    "const": true
+                  },
+                  "os_snapshot": {
+                    "const": true
+                  },
+                  "external_relay": {
+                    "const": false
+                  },
+                  "watch_replication": {
+                    "const": false
+                  }
+                },
+                "required": [
+                  "passive_cache",
+                  "os_snapshot",
+                  "external_relay",
+                  "watch_replication"
+                ]
+              },
+              "bytes_sha256": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "byte_length": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 256000
+              },
+              "mime_type": {
+                "enum": [
+                  "image/png",
+                  "image/jpeg"
+                ]
+              }
+            },
+            "required": [
+              "slot",
+              "asset_id",
+              "subject",
+              "role",
+              "media_revision",
+              "captured_at",
+              "expires_at",
+              "source_url",
+              "attribution",
+              "alt_text",
+              "width",
+              "height",
+              "crop_allowed",
+              "usage_basis",
+              "rights",
+              "bytes_sha256",
+              "byte_length",
+              "mime_type"
+            ],
+            "x-maxPixels": 16000000,
+            "x-singleCompleteImage": true
+          }
+        },
+        "contribution_status": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "const": "available"
+                },
+                "reason": {
+                  "const": "qualified"
+                }
+              },
+              "required": [
+                "state",
+                "reason"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "const": "suppressed"
+                },
+                "reason": {
+                  "enum": [
+                    "presence_music_only",
+                    "intentional_silence"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "reason"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "const": "stale"
+                },
+                "reason": {
+                  "const": "original_snapshot_expired"
+                }
+              },
+              "required": [
+                "state",
+                "reason"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "const": "unavailable"
+                },
+                "reason": {
+                  "enum": [
+                    "source_not_qualified",
+                    "original_deadline_expired",
+                    "copy_too_long",
+                    "representation_not_supported",
+                    "no_publication",
+                    "no_observation",
+                    "subject_changed",
+                    "playback_inactive",
+                    "no_eligible_context",
+                    "not_prepared",
+                    "no_matching_subject",
+                    "asset_not_supported"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "reason"
+              ]
+            }
+          ]
+        },
+        "now_playing_status": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "const": "available"
+                },
+                "reason": {
+                  "const": "qualified"
+                }
+              },
+              "required": [
+                "state",
+                "reason"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "const": "suppressed"
+                },
+                "reason": {
+                  "enum": [
+                    "presence_music_only",
+                    "intentional_silence"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "reason"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "const": "stale"
+                },
+                "reason": {
+                  "const": "original_snapshot_expired"
+                }
+              },
+              "required": [
+                "state",
+                "reason"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "const": "unavailable"
+                },
+                "reason": {
+                  "enum": [
+                    "source_not_qualified",
+                    "original_deadline_expired",
+                    "copy_too_long",
+                    "representation_not_supported",
+                    "no_publication",
+                    "no_observation",
+                    "subject_changed",
+                    "playback_inactive",
+                    "no_eligible_context",
+                    "not_prepared",
+                    "no_matching_subject",
+                    "asset_not_supported"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "reason"
+              ]
+            }
+          ]
+        },
+        "artwork_status": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "const": "available"
+                },
+                "reason": {
+                  "const": "qualified"
+                }
+              },
+              "required": [
+                "state",
+                "reason"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "const": "suppressed"
+                },
+                "reason": {
+                  "enum": [
+                    "presence_music_only",
+                    "intentional_silence"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "reason"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "const": "stale"
+                },
+                "reason": {
+                  "const": "original_snapshot_expired"
+                }
+              },
+              "required": [
+                "state",
+                "reason"
+              ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "state": {
+                  "const": "unavailable"
+                },
+                "reason": {
+                  "enum": [
+                    "source_not_qualified",
+                    "original_deadline_expired",
+                    "copy_too_long",
+                    "representation_not_supported",
+                    "no_publication",
+                    "no_observation",
+                    "subject_changed",
+                    "playback_inactive",
+                    "no_eligible_context",
+                    "not_prepared",
+                    "no_matching_subject",
+                    "asset_not_supported"
+                  ]
+                }
+              },
+              "required": [
+                "state",
+                "reason"
+              ]
+            }
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "binding_id",
+        "generation",
+        "session_id",
+        "delivery_sequence",
+        "frame_id",
+        "state",
+        "observed_at_ms",
+        "expires_at_ms",
+        "playback_state",
+        "mood",
+        "presence",
+        "persona",
+        "contribution",
+        "now_playing",
+        "artwork",
+        "contribution_status",
+        "now_playing_status",
+        "artwork_status"
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/authorize_request"
+    },
+    {
+      "$ref": "#/$defs/read_request"
+    },
+    {
+      "$ref": "#/$defs/asset_request"
+    },
+    {
+      "$ref": "#/$defs/manage_request"
+    },
+    {
+      "$ref": "#/$defs/authorize_response"
+    },
+    {
+      "$ref": "#/$defs/read_response"
+    },
+    {
+      "$ref": "#/$defs/manage_response"
+    },
+    {
+      "$ref": "#/$defs/error_response"
+    },
+    {
+      "$ref": "#/$defs/frame"
+    }
+  ],
+  "x-operation-bindings": {
+    "authorize": {
+      "request": "#/$defs/authorize_request",
+      "response": "#/$defs/authorize_response"
+    },
+    "read": {
+      "request": "#/$defs/read_request",
+      "response": "#/$defs/read_response"
+    },
+    "asset": {
+      "request": "#/$defs/asset_request",
+      "response": "original_bytes_only"
+    },
+    "status": {
+      "request": "#/$defs/manage_request",
+      "response": "#/$defs/manage_response"
+    },
+    "withdraw": {
+      "request": "#/$defs/manage_request",
+      "response": "#/$defs/manage_response"
+    }
+  }
+}

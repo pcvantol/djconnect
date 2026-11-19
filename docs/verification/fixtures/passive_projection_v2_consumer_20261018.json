@@ -1,0 +1,546 @@
+{
+  "fixture_kind": "decoder_input_derived_from_actual_ha",
+  "source_report_sha256": "2a5d080236d8fd05ccd8a3039d42a585cd7b9a9e9cd9c5e95dd6737a31ee9804",
+  "opaque_values": "synthetic_non_authorizing; not server-returned credentials or grant identities",
+  "native_acceptance": "NOT_RUN",
+  "cases": [
+    {
+      "id": "legacy_vocabulary_preserved",
+      "frame": {
+        "schema_version": 1,
+        "surface": "widget",
+        "binding_id": "4a13e83a8b7d9fb91359ea0e7172e775",
+        "generation": "5bbc6f1b7c02717823b032a66551b87a",
+        "session_id": "session-114fdd1dbc92404087316a8bd1499b9e",
+        "delivery_sequence": 142,
+        "as_of": "2026-10-18T11:51:35.053980+00:00",
+        "observed_at": "2026-10-18T11:51:35.034566+00:00",
+        "expires_at": "2026-10-18T11:53:35.034566+00:00",
+        "state": "active",
+        "playback_state": "playing",
+        "cache_policy": {
+          "scope": "current_surface_only",
+          "maximum_seconds": 120,
+          "renew_on_read": false,
+          "locked_display": false,
+          "os_pixel_erasure": "best_effort_when_learned"
+        },
+        "mood": {
+          "value": "groove",
+          "revision": 0
+        },
+        "presence": "balanced",
+        "persona": "home_dj",
+        "navigation": {
+          "kind": "open_session",
+          "session_id": "session-114fdd1dbc92404087316a8bd1499b9e"
+        },
+        "contribution": null,
+        "now_playing": {
+          "item_id": "02e3d582594577327c335fc0",
+          "subject_uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
+          "track": "Fixture track",
+          "artist": "Northline",
+          "album": "Fixture album",
+          "observed_at": "2026-10-18T11:51:35.018626+00:00",
+          "expires_at": "2026-10-18T11:53:35.018626+00:00",
+          "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
+          "attribution": {
+            "provider": "Spotify",
+            "mark": "spotify",
+            "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+          },
+          "usage_basis": "spotify_temporary_passive_metadata"
+        },
+        "artwork": [
+          {
+            "slot": "now_playing",
+            "asset_id": "OmsRyONwsoRbLlhIo5lbwB4qex61LbsA",
+            "subject": {
+              "provider": "spotify",
+              "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
+              "type": "track",
+              "album_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB"
+            },
+            "role": "current_cover",
+            "media_revision": "3a39ef84b7583d8d8fca35fa",
+            "captured_at": "2026-10-18T11:50:02.849283+00:00",
+            "expires_at": "2026-10-18T11:52:02.849283+00:00",
+            "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
+            "attribution": {
+              "provider": "Spotify",
+              "mark": "spotify",
+              "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+            },
+            "alt_text": {
+              "en": "Artwork for Fixture track",
+              "nl": "Hoes van Fixture track",
+              "de": "Cover von Fixture track",
+              "fr": "Pochette de Fixture track",
+              "es": "Portada de Fixture track"
+            },
+            "width": 64,
+            "height": 64,
+            "crop_allowed": false,
+            "usage_basis": "spotify_temporary_passive_cover",
+            "image_path": "/api/djconnect/v1/session/surface/image/session-114fdd1dbc92404087316a8bd1499b9e/OmsRyONwsoRbLlhIo5lbwB4qex61LbsA",
+            "rights": {
+              "passive_cache": true,
+              "os_snapshot": true,
+              "external_relay": false,
+              "watch_replication": false
+            }
+          }
+        ],
+        "revision": "1196b5398d8e953727dad38b3a64a0a3"
+      }
+    },
+    {
+      "id": "researched_complete_copy_actual_paired_http_and_image",
+      "frame": {
+        "schema_version": 2,
+        "surface": "widget",
+        "binding_id": "fdb508f0e9d306a40b978c84d2fd7fce",
+        "generation": "b22741a17c9ef02bed2e0aee13deca61",
+        "session_id": "session-114fdd1dbc92404087316a8bd1499b9e",
+        "delivery_sequence": 142,
+        "as_of": "2026-10-18T11:51:35.057675+00:00",
+        "observed_at": "2026-10-18T11:51:35.034566+00:00",
+        "expires_at": "2026-10-18T11:53:35.034566+00:00",
+        "state": "active",
+        "playback_state": "playing",
+        "cache_policy": {
+          "scope": "current_surface_only",
+          "maximum_seconds": 120,
+          "renew_on_read": false,
+          "locked_display": false,
+          "os_pixel_erasure": "best_effort_when_learned"
+        },
+        "mood": {
+          "value": "groove",
+          "revision": 0
+        },
+        "presence": "balanced",
+        "persona": "home_dj",
+        "navigation": {
+          "kind": "open_session",
+          "session_id": "session-114fdd1dbc92404087316a8bd1499b9e"
+        },
+        "contribution": {
+          "moment_id": "moment-1be0cf3f9c1c4bc0938e807562f11d87",
+          "published_at": "2026-10-18T11:51:35.020451+00:00",
+          "text": "Northline nam Paper Lanterns op met Ada Reed. Zo kijk ik graag even mee achter die naam.",
+          "persona": "home_dj",
+          "source_attribution": {
+            "provider": "Wikipedia",
+            "url": "https://nl.wikipedia.org/wiki/Northline",
+            "license": "CC-BY-SA-4.0",
+            "revision_url": "https://nl.wikipedia.org/w/index.php?oldid=1234"
+          },
+          "usage_basis": "public_artist_narration_v1",
+          "expires_at": "2026-10-18T11:52:15.020451+00:00",
+          "rights": {
+            "passive_cache": true,
+            "os_snapshot": true,
+            "external_relay": false,
+            "watch_replication": false
+          },
+          "sources": [
+            {
+              "claim_scope": "fetched_public_music_reference",
+              "content_hash": "7eec16bd1876d13bb737d9fa899e6634b7f6308b7fe9ec18e9663848488e6400",
+              "expires_at": "2026-10-18T12:51:35.022645+00:00",
+              "fetched_at": "2026-10-18T11:51:35.022645+00:00",
+              "kind": "source",
+              "language": "nl",
+              "license": "CC-BY-SA-4.0",
+              "provider": "Wikipedia",
+              "revision_url": "https://nl.wikipedia.org/w/index.php?oldid=1234",
+              "title": "Northline",
+              "url": "https://nl.wikipedia.org/wiki/Northline",
+              "wikidata_id": "Q1"
+            },
+            {
+              "claim_scope": "fetched_public_music_reference",
+              "content_hash": "7eec16bd1876d13bb737d9fa899e6634b7f6308b7fe9ec18e9663848488e6400",
+              "expires_at": "2026-10-18T12:51:35.022945+00:00",
+              "fetched_at": "2026-10-18T11:51:35.022945+00:00",
+              "kind": "source",
+              "language": "en",
+              "license": "CC-BY-SA-4.0",
+              "provider": "Wikipedia",
+              "revision_url": "https://en.wikipedia.org/w/index.php?oldid=1234",
+              "title": "Northline",
+              "url": "https://en.wikipedia.org/wiki/Northline",
+              "wikidata_id": "Q1"
+            },
+            {
+              "claim_scope": "fetched_public_music_reference",
+              "content_hash": "a0f08566e4a27f88a5b89415b86fbe8e137d5ba488653bfb568d7a3986ac6745",
+              "expires_at": "2026-10-18T12:21:32.804046+00:00",
+              "fetched_at": "2026-10-18T11:51:35.023078+00:00",
+              "kind": "source",
+              "language": "nl",
+              "license": "CC0-1.0",
+              "provider": "MusicBrainz",
+              "revision_url": "",
+              "title": "Northline",
+              "url": "https://musicbrainz.org/artist/12345678-1234-1234-1234-123456789abc",
+              "wikidata_id": "Q1"
+            }
+          ],
+          "expression_license": {
+            "id": "CC-BY-SA-4.0",
+            "url": "https://creativecommons.org/licenses/by-sa/4.0/",
+            "adapted": true,
+            "attribution_required": true
+          }
+        },
+        "now_playing": {
+          "item_id": "02e3d582594577327c335fc0",
+          "subject_uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
+          "track": "Fixture track",
+          "artist": "Northline",
+          "album": "Fixture album",
+          "observed_at": "2026-10-18T11:51:35.018626+00:00",
+          "expires_at": "2026-10-18T11:53:35.018626+00:00",
+          "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
+          "attribution": {
+            "provider": "Spotify",
+            "mark": "spotify",
+            "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+          },
+          "usage_basis": "spotify_temporary_passive_metadata"
+        },
+        "artwork": [
+          {
+            "slot": "now_playing",
+            "asset_id": "OmsRyONwsoRbLlhIo5lbwB4qex61LbsA",
+            "subject": {
+              "provider": "spotify",
+              "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
+              "type": "track",
+              "album_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB"
+            },
+            "role": "current_cover",
+            "media_revision": "3a39ef84b7583d8d8fca35fa",
+            "captured_at": "2026-10-18T11:50:02.849283+00:00",
+            "expires_at": "2026-10-18T11:52:02.849283+00:00",
+            "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
+            "attribution": {
+              "provider": "Spotify",
+              "mark": "spotify",
+              "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+            },
+            "alt_text": {
+              "en": "Artwork for Fixture track",
+              "nl": "Hoes van Fixture track",
+              "de": "Cover von Fixture track",
+              "fr": "Pochette de Fixture track",
+              "es": "Portada de Fixture track"
+            },
+            "width": 64,
+            "height": 64,
+            "crop_allowed": false,
+            "usage_basis": "spotify_temporary_passive_cover",
+            "image_path": "/api/djconnect/v1/session/surface/image/session-114fdd1dbc92404087316a8bd1499b9e/OmsRyONwsoRbLlhIo5lbwB4qex61LbsA",
+            "rights": {
+              "passive_cache": true,
+              "os_snapshot": true,
+              "external_relay": false,
+              "watch_replication": false
+            }
+          }
+        ],
+        "contribution_status": {
+          "state": "available",
+          "reason": "qualified"
+        },
+        "now_playing_status": {
+          "state": "available",
+          "reason": "qualified"
+        },
+        "artwork_status": {
+          "state": "available",
+          "reason": "qualified"
+        },
+        "revision": "8411595cb7e3d530355f062eef7c3c4d"
+      }
+    },
+    {
+      "id": "independent_activity_grant_and_exact_copy",
+      "frame": {
+        "schema_version": 2,
+        "surface": "live_activity",
+        "binding_id": "a6761068e83d5994ea0c52908f01bd36",
+        "generation": "6a94dded728149d1739bb2e5acaa5b82",
+        "session_id": "session-114fdd1dbc92404087316a8bd1499b9e",
+        "delivery_sequence": 142,
+        "as_of": "2026-10-18T11:51:35.070544+00:00",
+        "observed_at": "2026-10-18T11:51:35.034566+00:00",
+        "expires_at": "2026-10-18T11:53:35.034566+00:00",
+        "state": "active",
+        "playback_state": "playing",
+        "cache_policy": {
+          "scope": "current_surface_only",
+          "maximum_seconds": 120,
+          "renew_on_read": false,
+          "locked_display": true,
+          "os_pixel_erasure": "best_effort_when_learned"
+        },
+        "mood": {
+          "value": "groove",
+          "revision": 0
+        },
+        "presence": "balanced",
+        "persona": "home_dj",
+        "navigation": {
+          "kind": "open_session",
+          "session_id": "session-114fdd1dbc92404087316a8bd1499b9e"
+        },
+        "contribution": {
+          "moment_id": "moment-1be0cf3f9c1c4bc0938e807562f11d87",
+          "published_at": "2026-10-18T11:51:35.020451+00:00",
+          "text": "Northline nam Paper Lanterns op met Ada Reed. Zo kijk ik graag even mee achter die naam.",
+          "persona": "home_dj",
+          "source_attribution": {
+            "provider": "Wikipedia",
+            "url": "https://nl.wikipedia.org/wiki/Northline",
+            "license": "CC-BY-SA-4.0",
+            "revision_url": "https://nl.wikipedia.org/w/index.php?oldid=1234"
+          },
+          "usage_basis": "public_artist_narration_v1",
+          "expires_at": "2026-10-18T11:52:15.020451+00:00",
+          "rights": {
+            "passive_cache": true,
+            "os_snapshot": true,
+            "external_relay": false,
+            "watch_replication": false
+          },
+          "sources": [
+            {
+              "claim_scope": "fetched_public_music_reference",
+              "content_hash": "7eec16bd1876d13bb737d9fa899e6634b7f6308b7fe9ec18e9663848488e6400",
+              "expires_at": "2026-10-18T12:51:35.022645+00:00",
+              "fetched_at": "2026-10-18T11:51:35.022645+00:00",
+              "kind": "source",
+              "language": "nl",
+              "license": "CC-BY-SA-4.0",
+              "provider": "Wikipedia",
+              "revision_url": "https://nl.wikipedia.org/w/index.php?oldid=1234",
+              "title": "Northline",
+              "url": "https://nl.wikipedia.org/wiki/Northline",
+              "wikidata_id": "Q1"
+            },
+            {
+              "claim_scope": "fetched_public_music_reference",
+              "content_hash": "7eec16bd1876d13bb737d9fa899e6634b7f6308b7fe9ec18e9663848488e6400",
+              "expires_at": "2026-10-18T12:51:35.022945+00:00",
+              "fetched_at": "2026-10-18T11:51:35.022945+00:00",
+              "kind": "source",
+              "language": "en",
+              "license": "CC-BY-SA-4.0",
+              "provider": "Wikipedia",
+              "revision_url": "https://en.wikipedia.org/w/index.php?oldid=1234",
+              "title": "Northline",
+              "url": "https://en.wikipedia.org/wiki/Northline",
+              "wikidata_id": "Q1"
+            },
+            {
+              "claim_scope": "fetched_public_music_reference",
+              "content_hash": "a0f08566e4a27f88a5b89415b86fbe8e137d5ba488653bfb568d7a3986ac6745",
+              "expires_at": "2026-10-18T12:21:32.804046+00:00",
+              "fetched_at": "2026-10-18T11:51:35.023078+00:00",
+              "kind": "source",
+              "language": "nl",
+              "license": "CC0-1.0",
+              "provider": "MusicBrainz",
+              "revision_url": "",
+              "title": "Northline",
+              "url": "https://musicbrainz.org/artist/12345678-1234-1234-1234-123456789abc",
+              "wikidata_id": "Q1"
+            }
+          ],
+          "expression_license": {
+            "id": "CC-BY-SA-4.0",
+            "url": "https://creativecommons.org/licenses/by-sa/4.0/",
+            "adapted": true,
+            "attribution_required": true
+          }
+        },
+        "now_playing": {
+          "item_id": "02e3d582594577327c335fc0",
+          "subject_uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
+          "track": "Fixture track",
+          "artist": "Northline",
+          "album": "Fixture album",
+          "observed_at": "2026-10-18T11:51:35.018626+00:00",
+          "expires_at": "2026-10-18T11:53:35.018626+00:00",
+          "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
+          "attribution": {
+            "provider": "Spotify",
+            "mark": "spotify",
+            "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+          },
+          "usage_basis": "spotify_temporary_passive_metadata"
+        },
+        "artwork": [
+          {
+            "slot": "now_playing",
+            "asset_id": "OmsRyONwsoRbLlhIo5lbwB4qex61LbsA",
+            "subject": {
+              "provider": "spotify",
+              "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
+              "type": "track",
+              "album_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB"
+            },
+            "role": "current_cover",
+            "media_revision": "3a39ef84b7583d8d8fca35fa",
+            "captured_at": "2026-10-18T11:50:02.849283+00:00",
+            "expires_at": "2026-10-18T11:52:02.849283+00:00",
+            "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
+            "attribution": {
+              "provider": "Spotify",
+              "mark": "spotify",
+              "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+            },
+            "alt_text": {
+              "en": "Artwork for Fixture track",
+              "nl": "Hoes van Fixture track",
+              "de": "Cover von Fixture track",
+              "fr": "Pochette de Fixture track",
+              "es": "Portada de Fixture track"
+            },
+            "width": 64,
+            "height": 64,
+            "crop_allowed": false,
+            "usage_basis": "spotify_temporary_passive_cover",
+            "image_path": "/api/djconnect/v1/session/surface/image/session-114fdd1dbc92404087316a8bd1499b9e/OmsRyONwsoRbLlhIo5lbwB4qex61LbsA",
+            "rights": {
+              "passive_cache": true,
+              "os_snapshot": true,
+              "external_relay": false,
+              "watch_replication": false
+            }
+          }
+        ],
+        "contribution_status": {
+          "state": "available",
+          "reason": "qualified"
+        },
+        "now_playing_status": {
+          "state": "available",
+          "reason": "qualified"
+        },
+        "artwork_status": {
+          "state": "available",
+          "reason": "qualified"
+        },
+        "revision": "f0e59dbaa127430fab3e802687f808c2"
+      }
+    },
+    {
+      "id": "runtime_silence_http_barrier_preserves_music",
+      "frame": {
+        "schema_version": 2,
+        "surface": "widget",
+        "binding_id": "fdb508f0e9d306a40b978c84d2fd7fce",
+        "generation": "b22741a17c9ef02bed2e0aee13deca61",
+        "session_id": "session-114fdd1dbc92404087316a8bd1499b9e",
+        "delivery_sequence": 146,
+        "as_of": "2026-10-18T11:51:35.073733+00:00",
+        "observed_at": "2026-10-18T11:51:35.072993+00:00",
+        "expires_at": "2026-10-18T11:53:35.072993+00:00",
+        "state": "active",
+        "playback_state": "playing",
+        "cache_policy": {
+          "scope": "current_surface_only",
+          "maximum_seconds": 120,
+          "renew_on_read": false,
+          "locked_display": false,
+          "os_pixel_erasure": "best_effort_when_learned"
+        },
+        "mood": {
+          "value": "groove",
+          "revision": 0
+        },
+        "presence": "balanced",
+        "persona": "home_dj",
+        "navigation": {
+          "kind": "open_session",
+          "session_id": "session-114fdd1dbc92404087316a8bd1499b9e"
+        },
+        "contribution": null,
+        "now_playing": {
+          "item_id": "02e3d582594577327c335fc0",
+          "subject_uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
+          "track": "Fixture track",
+          "artist": "Northline",
+          "album": "Fixture album",
+          "observed_at": "2026-10-18T11:51:35.018626+00:00",
+          "expires_at": "2026-10-18T11:53:35.018626+00:00",
+          "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
+          "attribution": {
+            "provider": "Spotify",
+            "mark": "spotify",
+            "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+          },
+          "usage_basis": "spotify_temporary_passive_metadata"
+        },
+        "artwork": [
+          {
+            "slot": "now_playing",
+            "asset_id": "OmsRyONwsoRbLlhIo5lbwB4qex61LbsA",
+            "subject": {
+              "provider": "spotify",
+              "uri": "spotify:track:AAAAAAAAAAAAAAAAAAAAAA",
+              "type": "track",
+              "album_uri": "spotify:album:BBBBBBBBBBBBBBBBBBBBBB"
+            },
+            "role": "current_cover",
+            "media_revision": "3a39ef84b7583d8d8fca35fa",
+            "captured_at": "2026-10-18T11:50:02.849283+00:00",
+            "expires_at": "2026-10-18T11:52:02.849283+00:00",
+            "source_url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA",
+            "attribution": {
+              "provider": "Spotify",
+              "mark": "spotify",
+              "url": "https://open.spotify.com/track/AAAAAAAAAAAAAAAAAAAAAA"
+            },
+            "alt_text": {
+              "en": "Artwork for Fixture track",
+              "nl": "Hoes van Fixture track",
+              "de": "Cover von Fixture track",
+              "fr": "Pochette de Fixture track",
+              "es": "Portada de Fixture track"
+            },
+            "width": 64,
+            "height": 64,
+            "crop_allowed": false,
+            "usage_basis": "spotify_temporary_passive_cover",
+            "image_path": "/api/djconnect/v1/session/surface/image/session-114fdd1dbc92404087316a8bd1499b9e/OmsRyONwsoRbLlhIo5lbwB4qex61LbsA",
+            "rights": {
+              "passive_cache": true,
+              "os_snapshot": true,
+              "external_relay": false,
+              "watch_replication": false
+            }
+          }
+        ],
+        "contribution_status": {
+          "state": "suppressed",
+          "reason": "intentional_silence"
+        },
+        "now_playing_status": {
+          "state": "available",
+          "reason": "qualified"
+        },
+        "artwork_status": {
+          "state": "available",
+          "reason": "qualified"
+        },
+        "revision": "b4ad1fb1c89436b9ca617f919b069632"
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+name: DJConnect EP consumer boundary
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  retirement-guard:
+    name: Guard retired source and project identity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.14'
+      - name: Verify no embedded EP runtime or active legacy source dependency
+        run: python3 -m unittest tests.test_ep_source_retirement
+      - name: Verify committed AI-development projection
+        run: |
+          python3 docs/ai-development/validate_projection.py \
+            --profile djconnect \
+            --source-commit ec070e399ff4dbd92e760370002995fe4f4d52d6 \
+            --extension-identity DJCONNECT_DEVELOPMENT_EXTENSION
+
+  pinned-release:
+    name: Verify installed standalone EP release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.14'
+      - name: Download only the exact published wheel with its qualified digest
+        run: |
+          EP_VENV="$RUNNER_TEMP/djconnect-ep-release-venv"
+          EP_DIST="$RUNNER_TEMP/djconnect-ep-release-dist"
+          python3 -m venv "$EP_VENV"
+          "$EP_VENV/bin/python" -m pip download \
+            --no-deps --only-binary=:all: --require-hashes \
+            -r .engineering-platform/requirements.txt --dest "$EP_DIST"
+          set -- "$EP_DIST"/engineering_platform-*.whl
+          test "$#" -eq 1
+          "$EP_VENV/bin/python" -m pip install --no-index --no-deps "$1"
+          "$EP_VENV/bin/python" - <<'PY'
+          import json
+          from importlib.metadata import version
+          from pathlib import Path
+
+          pin = json.loads(Path('.engineering-platform/release-pin.json').read_text())
+          assert version('engineering-platform') == pin['version']
+          PY
+          "$EP_VENV/bin/engineering-platform" --help >/dev/null
+          "$EP_VENV/bin/engineering-platform-server" --help >/dev/null

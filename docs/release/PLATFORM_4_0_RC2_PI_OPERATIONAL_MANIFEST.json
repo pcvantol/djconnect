@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.0.0-rc.2-pi-20260806",
+  "platform_version": "4.0",
+  "release_version": "4.0.0-rc.2",
+  "release_profile": "INTERNAL_RELEASE",
+  "generated_at": "2026-08-06",
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-08-06",
+    "approved_statement": "The maintainer authorized the corrected DJConnect Platform 4.0 RC2 internal Pi rollout after RC1 installer validation exposed a resumable-install defect.",
+    "effect": "This approval authorizes only the immutable RC2 Pi candidate, the rbpi-djconnect Pi Zero 2W target, and its matching deployment and smoke workflows."
+  },
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect-pi",
+      "source_sha": "a0cd28e304dec2977fbda565b09086ce385bb461",
+      "version": "4.0.0-rc.2",
+      "artifact_run": "31109064228"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "rbpi-djconnect",
+      "required": true,
+      "device_profile": "pi-zero-2w-arm64"
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "pcvantol/djconnect-pi-releases",
+      "target": "rbpi-djconnect",
+      "device_profile": "pi-zero-2w-arm64",
+      "artifact_id": "release-asset:pcvantol/djconnect-pi-releases:v4.0.0-rc.2:djconnect-pi-pi-zero-2w-arm64-4.0.0-rc.2.tar.gz",
+      "artifact_sha256": "f73aa350e7e56b742ae61792ebcd1b0abd232c35d02c5c190f64256744010327",
+      "artifact_url": "https://github.com/pcvantol/djconnect-pi-releases/releases/download/v4.0.0-rc.2/djconnect-pi-pi-zero-2w-arm64-4.0.0-rc.2.tar.gz"
+    }
+  ],
+  "constraints": [
+    "The candidate is an internal prerelease and must not be promoted to a stable release.",
+    "The deployment must resume safely after an interrupted installer run and verify the exact Pi Zero 2W ARM64 artifact checksum.",
+    "The Pi 5 wall appliance remains a separately targeted deployment and smoke operation.",
+    "Runtime protocol compatibility remains 4.0 only."
+  ],
+  "next_authorized_action": "Dispatch the Pi deployment workflow for rbpi-djconnect, then its matching post-deployment smoke workflow, using this exact binding."
+}

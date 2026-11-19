@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DJConnect VibeScape Visual Director v1 revoke-response",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "success": {
+      "const": true
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "visit_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "status": {
+      "const": "revoked"
+    }
+  },
+  "required": [
+    "success",
+    "schema_version",
+    "visit_id",
+    "status"
+  ]
+}

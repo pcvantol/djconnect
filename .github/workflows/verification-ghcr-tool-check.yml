@@ -1,0 +1,49 @@
+name: Verification runtime OCI tool qualification
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/verification-platform-docker-release.yml'
+      - '.github/workflows/verification-ghcr-tool-check.yml'
+      - 'tools/verification/oci_manifest_digest.py'
+permissions:
+  contents: read
+jobs:
+  oci-load:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          persist-credentials: false
+      - name: Set up pinned Buildx builder
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        with:
+          version: v0.38.1
+          driver: docker-container
+          driver-opts: image=moby/buildkit@sha256:c5f8862f52499773af85bc07695b2379ef08e8002352b0df2c4864c91d78dabe
+      - name: Verify pinned Buildx binary
+        run: |
+          echo "e25d5cd675092bb5d1d03632fdc46cdf3fede7b514dc5f023a105e00d3ce5ad4  $HOME/.docker/cli-plugins/docker-buildx" | sha256sum --check
+      - name: Install exact Skopeo package
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y skopeo=1.13.3+ds1-2ubuntu0.24.04.3
+          skopeo --version
+      - name: Build synthetic OCI archive and load without a registry
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/oci-check/context"
+          printf 'synthetic\n' > "$RUNNER_TEMP/oci-check/context/value"
+          printf 'FROM scratch\nCOPY value /value\n' > "$RUNNER_TEMP/oci-check/context/Dockerfile"
+          docker buildx build --platform linux/amd64 --provenance=false \
+            --output "type=oci,dest=$RUNNER_TEMP/oci-check/image.tar" "$RUNNER_TEMP/oci-check/context"
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from tools.verification.oci_manifest_digest import manifest_details
+          digest, config = manifest_details(Path(os.environ["RUNNER_TEMP"]) / "oci-check/image.tar")
+          (Path(os.environ["RUNNER_TEMP"]) / "oci-check/config.txt").write_text(config)
+          print("Verified synthetic OCI manifest:", digest)
+          PY
+          skopeo copy "oci-archive:$RUNNER_TEMP/oci-check/image.tar" docker-daemon:verification-oci-check:local
+          test "$(docker image inspect --format '{{.Id}}' verification-oci-check:local)" = "$(cat "$RUNNER_TEMP/oci-check/config.txt")"

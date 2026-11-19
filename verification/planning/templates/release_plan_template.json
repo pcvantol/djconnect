@@ -1,0 +1,10 @@
+{
+  "template_id": "release",
+  "strategy": "release",
+  "policy": "release_candidate",
+  "matrix_profiles": ["Release Qualification Profile", "Privacy Profile", "Localization Profile", "Regression Profile"],
+  "data_profiles": ["smoke", "regression", "localization", "security", "compatibility", "migration"],
+  "modes": ["functional", "privacy", "localization", "accessibility", "compatibility", "resilience", "release_qualification"],
+  "expected_runtime": "hours",
+  "blocking": true
+}

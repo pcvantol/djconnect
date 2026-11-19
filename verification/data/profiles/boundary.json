@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "profile_version": "1.0",
+  "id": "boundary",
+  "purpose": "Boundary values for parser, schema and storage limits",
+  "generator_refs": ["strings.boundary.v1"],
+  "selection": {
+    "strings": ["empty", "single_character", "maximum_allowed", "maximum_plus_one", "very_long"],
+    "numbers": ["zero", "one", "minus_one", "int_max", "int_min", "maximum_plus_one"],
+    "arrays": ["empty", "one_item", "maximum_allowed", "maximum_plus_one"],
+    "objects": ["minimal", "typical", "maximum", "missing_required_fields"]
+  },
+  "max_generated_items": 500,
+  "traceability": {
+    "verification_modes": ["boundary"],
+    "risk_categories": ["validation", "overflow", "schema"]
+  }
+}

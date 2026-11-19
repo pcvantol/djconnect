@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "qualification": "Captured Core prepare handler output with an external generic HA TTS entity fixture; no native, installed or audible claim.",
+  "producer_status": "LOCAL_REPAIR_NOT_RELEASED",
+  "effective_voice": {
+    "processor": "ha_configured",
+    "engine": "tts.fixture_cloud",
+    "pipeline_id": "selected",
+    "provider": "fixture_cloud_provider",
+    "voice_id": null,
+    "voice_name": null,
+    "voice_selection": "provider_default",
+    "locale": "en-US",
+    "gender": null,
+    "processing_scope": "configured_provider",
+    "configuration_revision": "5b08a2a258e3e97e2deed8d2"
+  },
+  "consumer_requirements": {
+    "voice_id_nullable": true,
+    "voice_name_nullable": true,
+    "provider_default_is_usable": true,
+    "no_invented_voice_id": true,
+    "preserve_exact_engine_pipeline_locale_configuration_revision": true
+  }
+}

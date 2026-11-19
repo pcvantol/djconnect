@@ -1,0 +1,12 @@
+{
+  "pcvantol/djconnect": "3.3.0",
+  "pcvantol/djconnect-api": "3.3.0",
+  "pcvantol/djconnect-app": "3.3.0",
+  "pcvantol/djconnect-windows": "3.3.0",
+  "pcvantol/djconnect-pi": "3.3.0",
+  "pcvantol/djconnect-esp32": "3.3.0",
+  "pcvantol/djconnect-website": "3.3.0",
+  "pcvantol/djconnect-firmware": "3.3.0",
+  "pcvantol/djconnect-app-releases": "3.3.0",
+  "pcvantol/djconnect-pi-releases": "3.3.0"
+}

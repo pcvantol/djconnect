@@ -1,0 +1,19 @@
+services:
+  fake-music-backend:
+    image: ${DJCONNECT_VERIFICATION_FAKE_MUSIC_IMAGE:-python:3.13-alpine}
+    container_name: ${DJCONNECT_VERIFICATION_FAKE_MUSIC_CONTAINER:-djconnect-verification-fake-music}
+    labels:
+      djconnect.verification: "true"
+      djconnect.lab.service: "fake_music_backend"
+    command:
+      - python
+      - -m
+      - http.server
+      - "8080"
+    ports:
+      - "${DJCONNECT_VERIFICATION_FAKE_MUSIC_PORT:-18141}:8080"
+    volumes:
+      - ${DJCONNECT_VERIFICATION_LAB_ROOT:-./.runtime}/fake-music:/fixtures
+    networks:
+      - djconnect-verification
+    restart: "no"

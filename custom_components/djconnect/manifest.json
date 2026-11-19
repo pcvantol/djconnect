@@ -1,0 +1,37 @@
+{
+  "domain": "djconnect",
+  "name": "DJConnect",
+  "after_dependencies": [
+    "cloud",
+    "openai_conversation",
+    "wyoming"
+  ],
+  "bluetooth": [
+    {
+      "service_uuid": "7f705000-9f8f-4f1a-9b5f-570071fd0001"
+    }
+  ],
+  "codeowners": [
+    "@pcvantol"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "http",
+    "network",
+    "zeroconf",
+    "bluetooth",
+    "bluetooth_adapters",
+    "conversation",
+    "assist_pipeline",
+    "tts"
+  ],
+  "documentation": "https://github.com/djconnect-music-dj/djconnect",
+  "integration_type": "device",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/djconnect-music-dj/djconnect/issues",
+  "requirements": [
+    "segno>=1.6.1",
+    "defusedxml>=0.7.1"
+  ],
+  "version": "4.1.0"
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "profile_version": "1.0",
+  "id": "security",
+  "purpose": "Security payloads for hostile input and redaction behavior",
+  "generator_refs": ["security.payloads.v1", "strings.boundary.v1"],
+  "selection": {
+    "security_categories": ["sql_injection", "nosql_injection", "command_injection", "prompt_injection", "path_traversal", "header_injection", "script_injection", "malformed_utf", "oversized_payload"],
+    "expected_behaviors": ["reject", "sanitize", "treat_as_inert_text", "structured_error"]
+  },
+  "max_generated_items": 1000,
+  "traceability": {
+    "verification_modes": ["security", "chaos"],
+    "risk_categories": ["injection", "privacy", "redaction", "availability"]
+  }
+}

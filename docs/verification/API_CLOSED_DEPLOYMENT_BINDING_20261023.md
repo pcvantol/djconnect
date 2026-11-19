@@ -1,0 +1,21 @@
+# Closed API deployment binding — 23 October 2026
+
+## Human scope
+
+Peter requested Core to finish push with the API owner, and directly instructed the API owner “ga deployen dan” (actual human message01a167d3-c223-7900-b2c6-80d3f31d9da5, personally read by Core). Normal protected delivery and actual provider smoke remain separate. This approval does not grant new issuer/public/QA activation, enrolled keys, service purposes, Activity/native/device rights, destructive database operations, secret rotation or a new budget.
+
+## Exact delivered inputs
+
+API source PR135 revieweddf6a8306b503cb1acc565855060bd46ecda1e113 → protectedc04864ce7c885e0de5fb365aa0139a64c7921b22, equal tree76fec115f87441b7f50473abc32c940c64a2f857. Original source formal39926788415 has zero findings/digest823417ba5112b04679c0a84da92f86f32dbcf7a161cef35246f1db033d948525, actual RAW SHA25668677b0248741034bc87cb721a25a21d88aba7fb64a54329af63b9e77deb9abf. Source-main native/browser39926574420 attempt2 actually SUCCESS; cancelled first attempt remains cancelled and preserved. Original durable asset668522576 validates/matches source evidence.
+
+Separate API Final PR136 reviewedabe8f4a6fce5ce3bbcd110a35ee743d2d2945a6e → protected812eec9a6bf6393a8d98889dc73aa7d1fca25d6f, tree984696850c1d7c6daf9a61dbcce9c825e632eaea, four documentary files only. Root exact four-file SOURCE_GO; actual all eight Final-main workflows SUCCESS, including native/browser39928453020. Original Final formal39928648112 has zero findings/digest13035d9c2d1cc5e7f4a6367190c1c78db6b76d658ffb067030d8f4b0049b206e; original2137byte RAW SHA256847c3923f6e3da138bd1554e9f54cd2225384a02b1047562bf7ec80406b5ea8c. Durable668561178 validates and matches. Later automatic removal of older source CI runs does not fabricate a new live PASS; protected Final snapshots and original downloaded RAW/durable records retain their exact scope.
+
+The deployment selects the sourcec048 artifact12489837064/run39926787789, TAR SHA2564ecd3a6cbb597ece37a3b6d4099e25e0c750605db8eb30ef0f9bd7c15bdb7b5b. Root independently rehashed the actual TAR and1288570byte Worker f702ae9827a21f2c92e2411e91e2bad77f80396310b8453a4b2879ee9422ccd9. The separate Final812 artifact has a different release stamp and is not silently substituted. Existing API workflow fetches the fixed central RC2 manifest path; its new manifest ID identifies this fresh binding. The full old20October manifest is archived byte-for-byte, SHA2560c198c1a023bdf7884b7c5a858e1b966957844f2c703e2b857b89956e06e3b4d; its approval/artifact is not reused.
+
+## Provider and rollback boundary
+
+Fresh owning readback09:02:32UTC reports current live source3458ad603350ab9481073277c7dbe561433b4453, deploymentd17b035d-ff02-40c5-bfde-ad004f5c1297 and retained Worker version0ab3ffc5-416f-4e81-9428-e213192c7635. Preserved actual deployed module/retained TAR rehash7f62a93b6107955b9fb3d941f8201375108cf908762a58ded074282e7c23bf71/e1fda102658e1dbcf59c13c78d477a7a541547b094920f11a6e2bcc5b71a1748; provider version/etag/live stamp match. This is not a new direct provider module-byte export. Old GitHub artifact12275167706 now404 and is not reused. Existing D1 schema-only readback SHA25633dea165f33c66e49d3be51e9fff302b7770f39e1d52b81a32dddecdbd7a0a86 has no surface tables. The eight existing migration byte sets are unchanged; only0009_surface_push.sql and0010_surface_delegations.sql are pending additive changes. No capability, enrollment or right is seeded. Retain existing rows/secrets/bindings and new additive schema on Worker rollback; no D1 reset/drop/restore or secret rotation. A rollback effect still needs its own actual authorization.
+
+## Delivery gates
+
+This candidate changes documentation/central operational metadata only; all262HA product files remain unchanged and require no restart. It needs exact independent Core source/commit review, normal CI/Owner Authorization, protected merge, original qualification and a separate documentary Core Final with its own original qualification before API dispatch. Private preparation is not operative approval. Actual deployment must return its original receipt and separate exact health smoke before production acceptance. All22 full-service gates remain OPEN and compiled issuer/public/fixedQA guards remain false. No operational APNs/Activity/native/physical delivery follows from source qualification or deployment.

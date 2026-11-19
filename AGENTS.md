@@ -1,0 +1,361 @@
+## Current Help publication boundary
+
+The EN/NL-only textual qualification release is explicit human scope:28 entry-locale leaves,42 unchanged pending DE/FR/ES leaves. Preserve all five-language UI/localization data. The pure paired Help GET and shared typed Help base use only committed, already loaded owner/source/configuration evidence; no warming, auth learning, provider/model calls or catalogue-ID execution. Free Send stays independent. See `docs/product/ASK_DJ_HELP_CONTEXT_V1.md`; normal protected Source/separate Final and installed/native gates remain mandatory.
+
+# DJConnect context
+
+Project: DJConnect
+
+Windows-clientretirement: het Windows-app-product is beëindigd volgens
+`DJC-WINDOWS-RETIREMENT-V1-20261008`; de Core-disposition staat in
+`docs/product/WINDOWS_CLIENT_RETIREMENT_V1.md`. Windows-clientwaarden en prefixes
+hieronder dienen uitsluitend legacyherkenning en veilige afmelding. Bied geen
+nieuwe Windows-appkoppeling, ondersteuning of device-auth aan. Behoud gedeelde
+Profiles, accounts en geschiedenis en alle ondersteunde Apple/Pi/ESP/Assist-paden.
+Generieke Windows-ontwikkeltooling en historische dossiers vallen hier niet onder.
+
+Doel:
+- DJConnect device als Spotify/HA voice remote.
+- HA custom integration heet `djconnect`.
+- ESP firmware heet DJConnect.
+- ESP stuurt generieke playback commands naar Home Assistant en bewaart geen playback-backend credentials.
+- HA doet pairing, Spotify OAuth/backend playback, OTA, status, voice/AI integratie.
+
+Belangrijke repos:
+- HA integration: github.com/djconnect-music-dj/djconnect
+- Apple clients source: github.com/djconnect-music-dj/djconnect-app
+- ESP32 firmware source: github.com/djconnect-music-dj/djconnect-esp32
+- Windows client source: github.com/djconnect-music-dj/djconnect-windows
+- Raspberry Pi client source: github.com/djconnect-music-dj/djconnect-pi
+- Product website/docs source: github.com/djconnect-music-dj/djconnect-website
+- Central API / APNs relay source: github.com/djconnect-music-dj/djconnect-api
+- Public firmware releases: github.com/djconnect-music-dj/djconnect-firmware
+
+## DJConnect Platform Bootstrap
+
+For a clean Codex/AI-agent session, first follow the canonical platform bootstrap:
+
+`djconnect-music-dj/djconnect/BOOTSTRAP_CODEX_SESSION.md`
+
+Then continue with the repository-specific instructions in this file.
+
+This repository is the canonical source of the DJConnect Platform Foundation.
+Repository-specific guidance in this file remains authoritative for
+implementation details.
+
+## DJConnect Platform Foundation
+
+This repository is the canonical source of truth for the entire DJConnect platform.
+
+`PLATFORM_STRATEGY.md` defines the stable long-term strategy above the
+foundation. It explains why current work prioritizes platform buildout,
+verification, cross-platform consistency and Platform Baseline v1.0 before
+business-first feature velocity.
+
+Before implementing new product features, architecture changes, API contracts, cross-repository changes, release processes or platform decisions, consult and update the canonical foundation documents in this repository.
+
+Treat the following documents as the authoritative platform guidance:
+
+- `PLATFORM_STRATEGY.md`
+- `DJCONNECT_CONSTITUTION.md`
+- `PRODUCT_VISION.md`
+- `DESIGN_PRINCIPLES.md`
+- `ARCHITECTURE_PRINCIPLES.md`
+- `DOMAIN_MODEL.md`
+- `CLIENT_CAPABILITY_MATRIX.md`
+- `PRODUCT_LANGUAGE.md`
+- `PLATFORM_GOVERNANCE.md`
+- `PLATFORM_QUALITY_STANDARD.md`
+- `PLATFORM_BACKLOG.md`
+- `INNOVATION_LAB.md`
+- `LOCALIZATION_STANDARD.md`
+- `ADR_INDEX.md`
+- `CI_CD_RELEASE_GOVERNANCE.md`
+
+These foundation documents complement the repository-specific guidance below.
+
+Implementation details, API contracts, operational procedures, release workflows and repository-specific instructions in this AGENTS file remain authoritative for this repository.
+
+## Meta Engineering Foundation
+
+The Meta Engineering Foundation is mandatory reading before significant
+engineering work, architecture changes, verification work, completion reports
+or AI-agent execution.
+
+Start from `docs/meta/README.md`. It links the canonical Meta Engineering
+navigation, reading order and documents. Do not duplicate those documents in
+prompts or chat context.
+
+## Localization
+
+DJConnect user-facing product surfaces must follow the canonical five-language
+contract in `LOCALIZATION_STANDARD.md`.
+
+Supported language families are exactly `en`, `nl`, `de`, `fr` and `es`.
+Regional variants may be used by native platform tooling, but cross-repository
+parity normalizes to those five families.
+
+New user-facing strings, public website copy, release/install copy and
+localized accessibility labels must ship with all five supported languages
+where applicable. Machine-readable API codes, protocol values, JSON keys,
+service names, endpoint paths, log tokens and source identifiers remain
+untranslated.
+
+Each presentation or distribution repository owns correct localized rendering
+for its surfaces. This HA repository owns the canonical language contract,
+canonical terminology and shared validation policy.
+
+Architectuur beslissingen:
+- HA integration orchestreert pairing, OAuth, backend playback, OTA, status en Assist/TTS; ESP firmware blijft eigenaar van device runtime/audio/UI.
+- Huidige firmware gebruikt de lokale ESP API met bearer token voor device-acties.
+- Pairing/status gebruikt canoniek `client_type` om client runtimes te onderscheiden; huidige waarden zijn `esp32`, `ios`, `macos`, `watchos`, `raspberry_pi` en `windows`. ESP firmware moet verplicht `client_type: "esp32"` meesturen op JSON payloads.
+- iOS/macOS/watchOS/Raspberry Pi/Windows client IDs zijn respectievelijk `djconnect-ios-XXXXXXXXXXXX`, `djconnect-macos-XXXXXXXXXXXX`, `djconnect-watchos-XXXXXXXXXXXX`, `djconnect-raspberry-pi-XXXXXXXXXXXX` en `djconnect-windows-XXXXXXXXXXXX`, met de eerste 12 alfanumerieke chars van de client install ID; `client_type` moet met het device-id prefix matchen.
+- Backend playback loopt via de HA integration en wordt user-facing aangeboden via DJConnect commands, Ask DJ en client-UI's; er is geen native `media_player` playback proxy meer en er worden geen losse Spotify/Music Assistant playback entities voor volume/output/repeat/shuffle/queue/playlists meer aangemaakt. Device-instellingen lopen via `POST /api/device/command`.
+- Ask DJ / Music DNA is server-side in de HA integration. Apple Watch, iOS, macOS, Raspberry Pi en Windows bewaren geen Music DNA; HA bewaart compacte runtime session memory en persistente Home Assistant Store data met key `djconnect_music_dna`, versie `1`, gescopeerd op HA user id indien beschikbaar en anders op DJConnect device/client id. Music DNA is expliciet opt-in: zolang `enabled` niet waar is, mag HA geen nieuwe Music DNA kennis opbouwen uit Ask DJ, listening profiles, recente tracks of voorkeuren. Memory mag nooit OAuth tokens, bearer tokens, raw audio of volledige prompts opslaan.
+- Music DNA is een first-class client/backend feature met dedicated endpoints `POST /api/djconnect/v1/music_dna/profile`, `/settings` en `/clear`. Clients gebruiken `/profile` voor structured dashboarddata, `/settings` voor opt-in/out en `/clear` om DNA altijd te wissen; clear behoudt de opt-in setting en als de feature aan staat begint kennisopbouw daarna opnieuw vanaf leeg. HA exposeert dezelfde functionaliteit via developer services `djconnect.music_dna_profile`, `djconnect.set_music_dna_enabled`, `djconnect.clear_music_dna` en read-only AI tool `djconnect_music_dna_profile`.
+- Ask DJ chat history is ook server-side en is de bron van waarheid voor iOS, macOS, Apple Watch, Raspberry Pi en Windows. Gebruik Home Assistant Store key `djconnect_ask_dj_history`, versie `1`, met history per HA user id. `client_id`/`client_type` zijn metadata, geen primaire history-key. Houd maximaal de laatste 1000 berichten per user en gebruik `history_revision` plus `clear_revision` voor sync.
+- Als Ask DJ history door de limiet van 1000 berichten wordt getrimd, geeft de backend `history_limit`, `history_trimmed_before` en `history_trimmed_count` terug en voegt maximaal één assistant system message toe met `message_kind:"system"`, `origin:"history_retention"` en intent `history_limit_reached`. Clients moeten lokale berichten ouder dan `history_trimmed_before` verwijderen en niet op tekstinhoud parsen.
+- `POST /api/djconnect/v1/ask_dj/message` is het tekstuele Ask DJ endpoint voor iOS, macOS, watchOS, Raspberry Pi en Windows clients. ESP32 krijgt geen Ask DJ chat UI/history en gebruikt de bestaande voice/playback command flow. Requests mogen top-level identity of een `identity` object bevatten met `client_type`, `device_id` en `device_name`, plus `client_message_id`, `client_id`, `text`, optioneel `music_dna_key`, `mood`, `dj_style` en `audio_response` (`auto`/`always`/`never`). Sla user request en assistant response op in user-scoped history. Dubbele `client_message_id` voor dezelfde HA user mag geen dubbele chat entry maken.
+- `GET /api/djconnect/v1/ask_dj/history?since_revision=<number>` geeft `user_id`, `history_revision`, `clear_revision`, bounded `messages[]` en `server_time`. `POST /api/djconnect/v1/ask_dj/history/clear` wist alleen de authenticated HA user history en verhoogt `clear_revision` plus `history_revision`.
+- `POST /api/djconnect/v1/ask_dj` blijft bruikbaar als developer/raw Ask DJ call, maar app-clients gebruiken `/ask_dj/message` voor server-side history sync. Responses gebruiken uniform `success`, `text`/`dj_text`/`message`, optioneel `audio_url`, `images[]`, `links[]`, `sources[]`, `playback_actions[]`, `intent`, `action`, `user_message`, `assistant_message`, `history_revision` en `clear_revision`.
+- Ask DJ follow-upvragen kunnen `confirmation_actions[]` en confirmation-style `playback_actions[]` bevatten voor Ja/Nee knoppen. Clients antwoorden via `POST /api/djconnect/v1/command` met `command:"ask_dj_followup_response"`. Pending follow-up state staat server-side compact in Music DNA, verloopt na ongeveer 10 minuten en mag niet client-side worden nagebouwd.
+- Ask DJ herkent lifecycle-intents zoals `Goedemorgen`/`Good morning` als gepersonaliseerde ochtend-suggestie met Ja/Nee controls zonder directe playback, en `Ik ga slapen`/`I'm going to sleep` als directe pauzeeractie. Obvious gibberish, sandbox-escape prompts en prompt-injection-achtige verzoeken moeten op de neutrale onbekend-fallback uitkomen zonder Spotify search, HA device lookup of playback mutatie.
+- Ask DJ helpvragen zoals `help`, `hulp`, `wat kun je?` en `welke commando's?` geven een tekst-only gecategoriseerde lijst met promptopties terug. `Probeer opnieuw` / `retry` herhaalt server-side het vorige retrybare playbackverzoek; clients reconstrueren dat niet lokaal.
+- Ask DJ speaker/output-vragen geven tekst plus `playback_actions[]` met `kind:"output"` en `Activeer`/`Actief` labels terug. Albumlijstvragen geven bullets plus `kind:"album"` Play Now acties terug. Pauze/stop-antwoorden mogen een `kind:"control"`, `command:"play"`, `label:"Resume"` actie teruggeven. Clients mogen geen artwork/media uit vorige chatbubbels hergebruiken wanneer de nieuwe response text-only is of een ander action type bevat.
+- Ask DJ recent-played vragen zoals `welke nummers heb ik afgelopen uur afgespeeld?`, `welke albums heb ik vandaag geluisterd?`, `welke artiesten hoorde ik net?` en `welke playlists heb ik afgelopen uur gespeeld?` gebruiken Spotify `/me/player/recently-played`, blijven informatief en mogen playback niet muteren. Responses gebruiken intent `recently_played_history`, `intent.item_type` (`tracks`, `albums`, `artists`, `playlists`), top-level `items[]`, `assistant_message.items[]`, geproxiede `images[]` en source `spotify_recently_played`. Clients renderen dit als compacte lijst met art/icon links en mogen geen Play Now knoppen of oude artwork reconstrueren tenzij `playback_actions[]` expliciet aanwezig is.
+- `POST /api/djconnect/v1/voice` met `Content-Type: audio/wav` is voor iOS, macOS en watchOS ook Ask DJ Push-To-Talk input. Raspberry Pi Ask DJ is in eerste instantie tekst-only en gebruikt `/api/djconnect/v1/ask_dj/message`; Pi hoeft geen voice/PTT of lokale DJ-response audio endpoint te ondersteunen tenzij zijn capabilities dat later expliciet melden. Na STT moet HA het transcript door dezelfde Ask DJ backend sturen als tekstchat, inclusief memory, intent routing, Spotify listening profile context, sources/images/links/audio_url en clear-history semantiek. Response bevat `transcript` en legacy `recognized_text`. STT-fouten voor app Ask DJ voice geven HTTP `422` met `error: stt_failed`; ruwe audio wordt standaard niet opgeslagen.
+- Ask DJ audio response beleid: `audio_response:auto` is de default. Informatieve tekstchat genereert standaard geen TTS voor snelheid; playback/hybrid intents en voice/PTT input genereren wel TTS als HA TTS beschikbaar is. `audio_response:always` forceert replaybare audio, `audio_response:never` onderdrukt audio.
+- Pairing/status responses adverteren `ask_dj_supported`, `ask_dj_voice_supported`, `voice_supported` en `ask_dj_audio_response_supported`.
+- Deze legacy booleans betekenen endpointimplementatie, geen actuele provider-readiness. De additieve Apple `device_speech` schema1 op afgeronde pairing/status kwalificeert geselecteerde/default HA-STT, HA-TTS en speakerdoel apart via actuele metadata, na laatste await en oorspronkelijke device/entry/token/Profilefence. Ontbrekend/onbekend is niet beschikbaarheid. Lokale Apple-spraak/OS-permissies en settings3/text_only blijven afzonderlijk; zie `docs/product/DEVICE_SPEECH_CAPABILITIES_V1.md`.
+- Ask DJ intent `personal_music_profile_analysis` is altijd informatief en mag geen playback muteren: niet starten, pauzeren, queuen, skippen, liken of output verplaatsen. Gebruik alleen beschikbare Music DNA/playback history voor recente tracks, artiesten, genres, albums, mood/energy en luistercontext; default periode is de laatste 30 dagen als de gebruiker geen periode noemt. Bij te weinig data eerlijk antwoorden.
+- Voor `personal_music_profile_analysis` mag HA Spotify Web API profieldata ophalen via `GET /me/player/recently-played` en `GET /me/top/{artists,tracks}` met `short_term`, `medium_term` en `long_term`, waarvoor scopes `user-read-recently-played` en `user-top-read` verplicht zijn. Cache alleen compacte snapshots/samenvattingen in Music DNA (`recent_track_ids`, `recent_artists`, `top_artists_by_range`, `top_tracks_by_range`, `inferred_genres`, `mood/energy`, `last_profile_refresh`) met TTL rond 6-24 uur; sla geen onbeperkte Spotify luistergeschiedenis op.
+- Ask DJ responses voor profielanalyse vullen `sources[]` met onder andere `spotify_recently_played`, `spotify_top_tracks_short_term`, `spotify_top_artists_medium_term` en `djconnect_music_dna`.
+- Ask DJ intent `personal_music_recommendations` blijft informatief en mag playback niet wijzigen. Concrete aanbevelingen mogen als `playback_actions[]` terugkomen met Spotify URI metadata en geproxiede images. Alleen expliciet `/api/djconnect/v1/command` met `command:"ask_dj_play_recommendation"` mag zo'n aanbeveling starten. Sta uitsluitend Spotify URI types `track`, `album`, `artist` en `playlist` toe en schrijf succesvolle Play Now keuzes compact als positief signaal naar Music DNA.
+- Ask DJ clear/history synchronisatie loopt canonical via `GET /api/djconnect/v1/ask_dj/history` en `POST /api/djconnect/v1/ask_dj/history/clear`. Clear verhoogt `clear_revision`; clients wissen lokale chatcache wanneer hun lokale clear revision lager is dan de serverwaarde. De developer services `djconnect.clear_ask_dj_history` en `djconnect.ask_dj_history_state` gebruiken dezelfde revision-bron.
+- Als de laatste DJConnect config entry uit Home Assistant wordt verwijderd/unloaded, wist HA server-side Music DNA en Ask DJ history. Oude app-clients mogen niet paired blijven door alleen Keychain/cache; bij `401`/`403`, `not_configured` of stale-pairing moeten clients lokale pairingstatus en lokale Ask DJ cache voor die HA installatie wissen.
+- Ask DJ image responses moeten externe URLs via HA/DJConnect proxyen met `GET /api/djconnect/v1/image_proxy/{token}`; clients hoeven geen directe externe content URLs te laden. Links/sources blijven aparte `links[]` entries met `kind: "source"` of `source: "source"`.
+- DJConnect initialiseert niet bij ieder verzoek externe music-knowledge bronnen. De DJ response prompt noemt Spotify metadata, Music DNA/media-context en daarna MusicBrainz, Wikidata, korte Wikipedia summaries, Last.fm, Discogs en TheAudioDB als bronprioriteit wanneer die kennis beschikbaar is; trivia mag niet verzonnen worden.
+- ESP backend playback commands naar `POST /api/djconnect/v1/command` gebruiken losse `set_shuffle` boolean en `set_repeat` met `off`/`track`/`context`; gebruik geen gecombineerde `set_play_mode` flow.
+- HA integration en ESP firmware moeten dezelfde `major.minor` protocolversie hebben: HA `3.0.z` praat alleen met ESP `3.0.z`, HA `3.1.z` alleen met ESP `3.1.z`; patchversies mogen verschillen.
+- Bij major/minor mismatch retourneert HA HTTP `426` met `error: version_mismatch` en HA/firmware metadata; dit is geen pairing-token failure en mag pairing/token niet wissen.
+- ESP uploadt raw WAV audio naar `POST /api/djconnect/v1/voice`; de HA integration doet Assist/STT intern via HA `stt.async_get_speech_to_text_engine(...).async_process_audio_stream` met eerst de opgeslagen Assist pipeline, daarna HA preferred/default pipeline, eerste pipeline met STT, eerste HA `stt.*` entity of als laatste HA `assist_pipeline.async_pipeline_from_audio_stream`, kan daarna via HA Assist een defensieve fuzzy-correctie op de STT-tekst uitvoeren, en geeft tekst plus optionele WAV/MP3 `audio_url` terug.
+- `/api/djconnect/v1/status`, `/api/djconnect/v1/command` en `/api/djconnect/v1/voice` mogen optioneel `mood` (`0`-`100`), `dj_style` en `music_dna_key` accepteren voor Ask DJ. HA mag `music_dna_key` normaliseren/overrulen en kan de resolved `music_dna_key` teruggeven.
+- Ask DJ mood-zones worden server-side uit numerieke Apple client mood afgeleid: `0`-`24` = `chill`, `25`-`59` = `groove`, `60`-`84` = `energy`, `85`-`100` = `party`; waarden worden naar `0`-`100` geclamped en ontbrekende/ongeldige mood behoudt bestaand defaultgedrag.
+- Ask DJ aankondigingsstijl gebruikt runtime mood als leidende bron voor het effectieve stemprofiel: `chill -> late_night`, `groove -> classic_radio`, `energy -> energy`, `party -> clean_host`. Het geconfigureerde `voice_profile` is alleen fallback wanneer de request geen geldige mood bevat. Er is geen losse user-facing DJ style/prompt optie meer. Album-playbackantwoorden houden album- en trackmetadata gescheiden, zodat een albumrequest niet het album als tracktitel uitspreekt.
+- DJ aankondigingen mogen één korte persoonlijke introzin gebruiken op basis van compacte Music DNA. DJConnect mag hiervoor geen willekeurige HA state of client-local memory gebruiken.
+- Track Insight is server-side en client-authoritative velden blijven beperkt tot `track`, `analysis`, `visual_profile`, `mood_context` en `cache`. Genre wordt weergegeven via `analysis.genre`/`analysis.subgenre` en fallback `track.genres[]`, dat HA via Spotify artist metadata mag verrijken. Clients mogen geen eigen Track Insight of Music DNA conclusies berekenen.
+- Actieve HA routes gebruiken geen directe externe AI/STT/TTS APIs; gebruik HA Assist en HA TTS.
+- DJ responses spelen op het DJConnect device af, niet via Spotify Connect of HA media_player; HA post `text` plus optionele tijdelijke WAV/MP3 `audio_url` naar `/api/device/dj_response`.
+- Fallback DJ responses bij command/playback fouten moeten de gekozen `device_language` volgen (`en`/`nl`).
+- Spotify OAuth loopt via HA external step met PKCE; geen handmatig `oauth_result` veld.
+- Spotify OAuth refresh tokens kunnen roteren; bewaar nieuwe refresh tokens direct persistent en gebruik credentials alleen HA-intern voor backend playback.
+- Spotify access tokens zijn kortlevend; cache ze HA-intern tot vlak voor expiry, refresh on demand en retry één keer bij Spotify API `401` voordat je een refresh-token repair overweegt.
+- Spotify refresh-token rotatie moet stil blijven voor clients: als een refresh token `invalid_grant` geeft, probeer eerst iedere nieuwere opgeslagen runtime/config-entry/config refresh token voordat je een Repair issue aanmaakt. Log alleen expiry/bron/rotatie-metadata en nooit tokenwaarden.
+- Als ESP `/api/djconnect/v1/status` `spotify_configured=false` meldt, behandel dit alleen als compat/statushint voor backend playback; stuur geen Spotify OAuth credentials naar ESP.
+- BLE provisioning doet alleen WiFi SSID/password; geen Spotify credentials, device tokens of andere secrets via BLE.
+- Runtime discovery prefereert device-reported `local_url`, exacte `_djconnect._tcp` mDNS matches en daarna alleen een enkele zichtbare DJConnect mDNS service; genereer geen hostnames uit 6-cijferige setupcodes.
+- Normale config-flow blijft klein; de setupmethode wordt alleen in de eerste stap gekozen en niet herhaald in de detailschermen. De volgende stap kiest het clienttype voordat koppelvelden worden getoond. App-keuzes staan user-facing in de volgorde iPhone/iPad, Apple Watch, macOS en Windows; lokale apparaatkeuzes zijn ESP32 en Linux/Raspberry Pi. Firmware channel is alleen zichtbaar voor ESP32 clients; iOS/macOS/watchOS lopen voor een Internal Release via Apple Secure Distribution Relay met lokale Developer signing op de maintainer-MacBook. Publieke Apple distributie loopt uitsluitend via een afzonderlijk goedgekeurd App Store Connect-traject. Linux/Raspberry Pi/Windows lopen via eigen GitHub source/install flow. Max audio bytes, OTA battery settings en DJ announcement audio TTL gebruiken interne defaults en worden niet meer als config/options velden getoond. Spotify source override en standaard playlist override worden niet meer als config/options velden getoond. Firmware repo/asset/device settings horen niet meer in de flow; ESP32 OTA selecteert automatisch uit het public firmware manifest op basis van ESP device status/info. ESP32 gebruikers mogen wisselen tussen firmwarekanaal `stable` en `beta`.
+- Alle entities horen onder één HA device met één stabiele device identifier.
+- DJConnect repos zijn MIT-licensed tenzij een specifieke third-party dependency anders vermeldt.
+- Geen secrets in diagnostics/logs; redactie voor keys met `token`, `password`, `secret`, `proof`, `authorization`, `prompt`, `history`, `memory` of `raw_audio`.
+- Spotify trademark/non-affiliation notice blijft zichtbaar in docs/UI/diagnostics.
+
+Licentie/commercieel:
+- HA integration blijft MIT-licensed via `LICENSE`.
+- DJConnect client- en firmware-repos zijn ook MIT-licensed tenzij hun eigen repo expliciet anders vermeldt.
+- Copyright: `Copyright (c) 2026 Peter van Tol.`
+- Hardware mag white-label worden ingekocht en als DJConnect device met firmware en gratis HA integration online worden verkocht.
+- Wijzigingen aan docs/release-info moeten de MIT-licentiepositie voor DJConnect repos behouden.
+- `THIRD_PARTY_NOTICES.md` moet blijven bestaan en Home Assistant APIs, manifest requirements/dependencies en Spotify API/trademark notice noemen.
+- Spotify is een trademark van Spotify AB.
+- DJConnect mag nergens claimen verbonden te zijn aan, goedgekeurd te zijn door of gesponsord te zijn door Spotify AB.
+- README legal sectie moet compact vermelden:
+  - DJConnect repos MIT-licensed zijn;
+  - HA integration separaat gedistribueerd mag worden voor DJConnect devices;
+  - Spotify trademark/non-affiliation disclaimer;
+  - third-party/open-source dependencies hun eigen licenties houden.
+
+HA integration:
+- domain: `djconnect`
+- HACS custom integration.
+- Actuele integratieversie: `3.3.1`.
+- Config flow moet blijven laden.
+- Centrale DJConnect API calls vanuit HACS gebruiken per-install `djci_` tokens, nooit een globale relay/operator secret. Voor Apple push clients (`ios`, `macos`, `watchos`) mag HACS een short-lived `bootstrap_proof` uit push registration/pairing/status gebruiken om via `/v1/install/token` een `djci_` token te minten; zonder proof blijft Apple push disabled/best-effort. ESP32, Raspberry Pi en Assist Conversation Agent-only entries hebben deze proof niet nodig omdat zij geen APNs push gebruiken.
+- Config flow blokkeert niet meer op een officiële Home Assistant Spotify `media_player` entity; DJConnect gebruikt eigen Spotify OAuth en de Spotify Web API voor backend playback.
+- Spotify OAuth gebruikt een HA external step en opent de Spotify website.
+- Spotify OAuth gebruikt bij voorkeur Nabu Casa HTTPS external URL.
+- Spotify OAuth gebruikt PKCE met een door de gebruiker aangemaakte Spotify Developer app. De config-flow vraagt om `spotify_client_id`, toont de exacte redirect URI die in Spotify Developer Dashboard geregistreerd moet worden, en gebruikt bij voorkeur de Nabu Casa HTTPS external URL.
+- Spotify OAuth stap moet `ha_external_url` automatisch prefilling uit HA external URL/Nabu Casa waar beschikbaar, maar handmatige correctie toestaan. Als de HA external URL wijzigt, moet de gebruiker de Spotify Developer redirect URI aanpassen en opnieuw autoriseren.
+- Spotify OAuth scopes moeten `playlist-read-private` bevatten zodat ESP private/eigen `DJConnect Liked Proxy` playlists via `/me/playlists` kan vinden.
+- Oude config entries zonder `playlist-read-private` moeten via diagnostics/repairs duidelijke reauthorize instructies krijgen.
+- Nieuwe Spotify refresh tokens uit OAuth callbacks moeten `CONF_SPOTIFY_REFRESH_TOKEN` persistent overschrijven en in runtime als latest token beschikbaar zijn.
+- Pair/status responses mogen nooit Spotify OAuth secrets bevatten; gebruik latest refresh token alleen HA-intern.
+- Spotify `invalid_grant` / revoked refresh tokens moeten als gebruikersvriendelijke reauthorize melding en native HA Repairs Fix-flow zichtbaar worden; de Fix-flow opent Spotify OAuth, slaat de nieuwe refresh token op en verwijdert de repair issue. Toon geen ruwe token-response en log nooit de refresh token.
+- Options-flow moet ook een expliciete `Spotify opnieuw autoriseren` actie hebben die dezelfde OAuth callback gebruikt.
+- Redirect path: `/api/djconnect/v1/spotify/callback`
+- Geen handmatig `oauth_result` veld tonen.
+- Config flow ondersteunt optionele BLE WiFi provisioning vóór normale pairing.
+- BLE config-flow gebruikt één exclusieve actie-keuze: WiFi via Bluetooth schrijven, Bluetooth devices opnieuw scannen of doorgaan naar koppelen als captive-portal WiFi al klaar is.
+- BLE provisioning schrijft alleen WiFi SSID/password naar het DJConnect device; geen Spotify credentials, device tokens of andere secrets via BLE.
+- BLE service UUID: `7f705000-9f8f-4f1a-9b5f-570071fd0001`
+- BLE WiFi write characteristic: `7f705001-9f8f-4f1a-9b5f-570071fd0001`
+- BLE status characteristic: `7f705002-9f8f-4f1a-9b5f-570071fd0001`
+- Voice velden moeten defaults hebben.
+- Options-flow mag `config_entry` niet assignen; gebruik een eigen attribuut omdat recente Home Assistant versies `config_entry` read-only maken.
+- Options-flow bevat aparte acties voor instellingen opslaan, pairing opnieuw proberen met de huidige code, en volledig opnieuw koppelen met een nieuwe koppelcode; re-pair maakt een nieuw device token, bewaart dat persistent en probeert `/api/device/pair` opnieuw.
+- `POST /api/device/pair` mag alleen bij initiële config-flow pairing, expliciete re-pair/token rotation of stale-pairing recovery worden aangeroepen; nooit bij normale status sync, playback commands, settings sync of HA startup als er al een device token is opgeslagen.
+- Setup-code based pairing mag tijdelijk `djconnect-[6-cijferige-code]` gebruiken, maar HA moet na de eerste ESP status/command/voice call met dezelfde bearer token alleen de echte model-specifieke `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX` device-id accepteren, leren en persistent opslaan.
+- ESP32 device UI language wordt tijdens pairing automatisch gekozen als `en`/`nl`, default op HA taal indien ondersteund, en alleen voor ESP32 meegestuurd als `device_language` en `language`; ESP slaat dit op als `provision.language`. iOS, macOS, watchOS, Raspberry Pi en Windows clients bepalen hun taal zelf en krijgen geen HA-geforceerde `device_language`/`language` in pairing/status responses.
+- HA stuurt tijdens pairing `client_type` mee en bewaart dit persistent; ESP firmware gebruikt `esp32`, Apple app-clients gebruiken respectievelijk `ios`, `macos` of `watchos`, Raspberry Pi clients gebruiken `raspberry_pi` en Windows clients gebruiken `windows`.
+- De 6-cijferige koppelcode uit de HA config-flow moet worden opgeslagen en ESP pairing moet een afwijkende code weigeren.
+- HA pairingstatus mag pas `paired` tonen nadat ESP `ha_pairing_status=paired` bevestigt; een lokaal HA `device_token` is hooguit `pending`.
+- `spotify_player` is niet meer nodig; backend playback loopt via DJConnect commands, Ask DJ en client-UI's, en ESP device-instellingen via de lokale ESP command API.
+- Gebruik waar veilig HA-populated combo boxes/dropdowns i.p.v. vrije tekst:
+  - Assist pipeline uit HA Assist pipelines.
+  - Spotify market vaste keuzes.
+  - DJ response prompt preset plus vrij tekstveld.
+  - Firmware device wordt automatisch uit ESP status/info afgeleid voor ESP32 OTA manifestselectie.
+- Toon firmwarekanaal alleen voor ESP32 clients; toon het niet voor iOS, macOS, Apple Watch, Linux/Raspberry Pi, Windows of Assist Conversation Agent-only entries.
+- Toon max audio bytes, min battery for OTA, allow OTA on battery en DJ response audio TTL niet meer in config/options flow; gebruik de interne defaults.
+- Laat velden vrije tekst waar HA geen betrouwbare bron heeft; toon geen standaard playlist override meer in de flow.
+- STT/TTS engine, taal en stem worden in Home Assistant Assist beheerd en niet als losse DJConnect config/options velden getoond.
+- Spotify source/device naam is dynamisch; toon geen Spotify source override meer in config/options.
+- Huidige firmware gebruikt de lokale ESP API met bearer token voor device-acties.
+- Diagnostics moeten alle keys met `token`, `password`, `secret`, `proof`, `authorization`, `prompt`, `history`, `memory` of `raw_audio` redacteren; log geen volledige ESP event payloads, ruwe prompts, ruwe audio of Ask DJ history.
+- Diagnostics output moet legal metadata bevatten:
+  - `copyright`: `Copyright (c) 2026 Peter van Tol.`
+  - `spotify_trademark`: `Spotify is a trademark of Spotify AB.`
+  - `affiliation`: `DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB.`
+- Config-flow/options-flow UI moet subtiel en kort de Spotify trademark/non-affiliation notice tonen zonder UX te vervuilen.
+- Verberg lokale/manual device URL in de normale flow; toon die alleen onder HA advanced options als mDNS/manual override nodig is.
+- Als manual device URL leeg is tijdens setup, sla geen hostname op uit de 6-cijferige koppelcode; runtime blijft device-reported `local_url` en `_djconnect._tcp` mDNS prefereren en negeert oude `djconnect-[6-digit-code].local` fallbacks.
+- Alle DJConnect entities moeten onder één HA device vallen met hetzelfde device identifier.
+- ESP32 clients krijgen ESP-only hardware/update/settings entities zoals batterij, WiFi RSSI, schermstatus, LED status, schermhelderheid/timeout, speaker volume, wake word, device language, auto-off, theme/log-level, firmware update en reboot. iOS, macOS, watchOS, Raspberry Pi en Windows clients krijgen die ESP-only entities niet; zij houden client/runtime en backend/playback entities.
+- ESP status payloads naar HA moeten actuele device settings meesturen voor native entities, zoals screen_brightness_percent/screen_brightness, speaker_volume_percent/speaker_volume, wake_word_enabled/wake_word, screen_off_timeout_ms, turn_off_after/turn_off_after_ms, nested `settings`, `screen` en `led`; HA accepteert aliases en converteert milliseconden naar seconden/minuten.
+- Legacy `number.djconnect_volume` wordt niet meer aangemaakt; als oude installs hem nog in de registry hebben, wordt hij bij setup opgeruimd in plaats van met onbekende backendwaarden te blijven hangen.
+- Config-flow foutpaden moeten heldere NL/EN gebruikersmeldingen hebben, bijvoorbeeld bij lege of foutieve 6-cijferige koppelcode, ontbrekende Spotify Client ID, foutieve external URL en OAuth fouten.
+- Bestaande modules niet verwijderen, zoals `wav_util.py`, `pipeline.py`.
+- Actieve routes gebruiken HA Assist/TTS en geen directe externe AI/STT/TTS API.
+- Voice STT mag niet afhankelijk zijn van niet-beschikbare/private Assist audio pipeline helpers; gebruik HA's ondersteunde STT helper en geef `No STT provider configured. Checked Assist pipeline/default STT.` terug als er geen STT provider is.
+- Legacy `stt_engine` en `tts_*` options mogen runtime niet meer sturen; gebruik de geselecteerde/opgeslagen Assist pipeline, preferred/default pipeline en STT entity fallback.
+- Als `assist_pipeline_id` leeg is, gebruik HA preferred/default Assist pipeline; als opgeslagen pipeline ontbreekt, fallback naar preferred/default of eerste pipeline met STT. Geef alleen no-provider terug als de geselecteerde pipeline echt geen STT engine/provider heeft.
+- DJConnect exposeert een Home Assistant conversation agent met vaste naam `DJConnect DJ` voor Assist satellites zoals Voice Preview Edition. De initiële config-flow heeft een aparte `Assist Conversation Agent` setupkeuze die geen DJConnect client-koppelcode, device token of Client adres vereist. De conversation-agent options-flow blijft compact en toont geen Client adres, Assist pipeline, firmwarekanaal, DJ aankondiging playback-toggle of OTA/audio advanced velden.
+- DJ responses worden niet via Spotify Connect of HA media_player afgespeeld; HA genereert waar mogelijk een tijdelijke WAV/MP3 `audio_url` en POST `text` + optionele `audio_url` naar ESP endpoint `/api/device/dj_response`.
+- Als HA TTS WAV of MP3 audio teruggeeft, mag HA een tijdelijke `audio_url` meesturen; ESP bepaalt wav/mp3/unknown. Alleen onbekende audio wordt text-only zonder warning.
+- ESP firmware stuurt microfoon-WAV naar `POST /api/djconnect/v1/voice` met `Authorization: Bearer <device_token>` en `X-DJConnect-Device-ID`.
+- `POST /api/djconnect/v1/voice` accepteert raw WAV uploads voor backend HA Assist/STT en blijft tekstcommands ondersteunen voor developer tests.
+- Text-only/JSON requests naar `/api/djconnect/v1/voice` zijn DJ-response tests en mogen geen Spotify command parsing/playback uitvoeren; raw WAV PTT requests blijven wel STT + command parser + Spotify playback gebruiken.
+- De HA Assist tekstprompt voor DJConnect moet vragen om, waar mogelijk, één kort leuk feitje over de artiest en/of het nummer in de DJ announcement.
+
+ESP firmware:
+- Voeg pairing, mDNS, OTA en Spotify provisioning toe zonder bestaande Spotify/audio/UI code te herschrijven.
+- mDNS service: `_djconnect._tcp`
+- Device ID: `djconnect-lilygo-t-embed-s3-XXXXXXXXXXXX`; accepteer geen legacy `djconnect-XXXXXXXXXXXX` device IDs.
+- NVS namespace: `djconnect`
+- OTA endpoint: `POST /api/device/ota`
+- ESP device command endpoint voor device-instellingen: `POST /api/device/command`
+- ESP naar HA backend command endpoint: `POST /api/djconnect/v1/command`
+- Device info endpoint: `GET /api/device/info`
+- Status endpoint naar HA: `POST /api/djconnect/v1/status`
+- Voice tekst endpoint naar HA: `POST /api/djconnect/v1/voice`
+- ESP moet `firmware` bij status meesturen en HTTP `426` `version_mismatch` van HA behandelen als update-required/protocolblokkade zonder NVS pairing/token te wissen.
+
+Firmware releases:
+- Build vanuit separate repo `djconnect-esp32`.
+- Publish binaries naar public repo `djconnect-firmware`.
+- Private firmware repo moet bij voorkeur een eigen `release.sh` one-liner hebben:
+  - `./release.sh X.Y.Z`
+  - `./release.sh X.Y.Z --dry-run`
+  - optioneel `./release.sh X.Y.Z --publish-firmware-repo ../djconnect-firmware`
+- ESP firmware release-script moet semantic version valideren, firmware metadata bijwerken, PlatformIO builds draaien, binaries device-specifiek renamen, SHA256 berekenen, `firmware_manifest.json` bijwerken, committen, taggen en pushen.
+- Release asset namen:
+  `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin`
+- Manifest:
+  `firmware_manifest.json`
+- Firmware manifest gebruikt `firmwares[]` met per device `device`, `asset`, `url`, `sha256` en `size`; HA gebruikt geen top-level `device`/`asset`/`sha256` fallback meer.
+- LilyGO gebruikt manifest device `lilygo-t-embed-s3`.
+- Firmwarekanaal `stable` gebruikt GitHub latest non-prerelease; firmwarekanaal `beta` gebruikt de nieuwste GitHub prerelease uit `djconnect-music-dj/djconnect-firmware`.
+- Firmwareversie wordt via PlatformIO build flags uit Git tag geïnjecteerd.
+- Public firmware repo mag alleen release binary, `firmware_manifest.json`, release metadata en niet-geheime documentatie bevatten.
+- Public firmware repo mag geen firmware source, NVS secrets, device tokens, Spotify refresh tokens of Home Assistant tokens bevatten.
+
+README/release:
+- README moet actueel blijven voor HACS installatie, Spotify OAuth, endpoints, OTA en release workflow.
+- De product/marketing website staat buiten deze HA integration repo op `https://djconnect.dev`; houd deze repo gefocust op HACS integration, docs, brand assets en release workflow.
+- De website How To Start pagina moet dezelfde basisvereisten noemen als de HACS docs: Home Assistant, HACS, Spotify Premium, HA Assist-pipeline met een beschikbare conversatieagent (HA STT/TTS optioneel voor pairing), lokaal netwerk tijdens pairing, ESP 2.4 GHz WiFi en Nabu Casa/externe HTTPS URL voor Spotify OAuth.
+- Cross-repo sync prompts staan uitsluitend in `djconnect-music-dj/djconnect/SYNC_PROMPTS.md`; voeg oude losse promptbestanden of sibling-repo kopieën niet opnieuw toe.
+- Product roadmap staat uitsluitend in `djconnect-music-dj/djconnect/PRODUCT_ROADMAP.md`; voeg sibling-repo roadmap kopieën niet opnieuw toe.
+- Release checklist moet in README en AGENTS blijven staan en bij elke release worden gevolgd.
+- Pre-release checklist:
+  - Controleer dat de working tree alleen bedoelde wijzigingen bevat.
+  - Update `custom_components/djconnect/manifest.json` naar de target versie.
+  - Update `custom_components/djconnect/const.py` naar dezelfde target versie.
+  - Update alle documentatiebestanden in deze repo die door de wijziging of release geraakt worden: minimaal `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `API_CONTRACT.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` en relevante files onder `examples/`.
+  - Update en JSON-valideer `examples/djconnect.postman_collection.json` als HTTP endpoints, auth headers, request payloads of response shapes wijzigen.
+  - Houd de geautomatiseerde Postman collection validator actueel; CI draait `python -m unittest tests.test_postman_collection` voor schema, placeholder secrets, auth headers en client identity voorbeelden.
+  - Houd `examples/ask_dj_e2e_cases.json` actueel voor client-zichtbare Ask DJ intents; CI en `release.sh` draaien `python -m unittest tests.test_ask_dj_e2e_contract` voor offline Ask DJ E2E contractvalidatie.
+  - Update `README.md` current version, examples, endpoints, HACS instructies en release workflow.
+  - Update `CHANGELOG.md` met een nieuw blok per release; behoud eerdere releaseblokken en consolideer niet meer naar één actuele versie.
+  - Houd `AGENTS.md` gelijk met actuele versie en release-eisen.
+  - Houd `HANDOFF.md`, `TODO.md` en `ISSUES.md` actueel met release-status, bekende checks en resterende veldvalidatie.
+  - Houd `djconnect-music-dj/djconnect/SYNC_PROMPTS.md` actueel als cross-repo contracten, clienttypes, endpoints of pairing/discovery wijzigen, ook als de wijziging vanuit een andere DJConnect repo komt.
+  - Houd `djconnect-music-dj/djconnect/PRODUCT_ROADMAP.md` actueel als productideeën, productie must-haves, premium feature kandidaten of shipped roadmap items wijzigen, ook als de wijziging vanuit een andere DJConnect repo komt.
+  - Houd `TECHNICAL_DESIGN_DECISIONS.md` actueel als code-level design patterns, coding conventions, frameworks, libraries, third-party dependencies, versions, licenses of source URLs wijzigen.
+  - Houd `info.md` en HACS-facing tekst actueel voor de gebruiker.
+  - Loop bij elke release altijd alle vijf ondersteunde vertalingen (`en`, `nl`, `de`, `fr`, `es`) handmatig na, ook als er geen nieuwe UI-string lijkt te zijn. Actualiseer ze voor gewijzigde config-flow, options-flow, repair-flow, entity-, service-, endpoint- en client-facing teksten.
+  - Controleer bij elke code- of contractwijziging expliciet of de testdekking uitgebreid moet worden; voeg tests toe voor nieuwe gedragspaden, regressierisico's, vertalingen en edge cases.
+  - Controleer `custom_components/djconnect/brand/icon.png`, `icon@2x.png` en `logo.png`.
+  - Controleer dat `LICENSE` deze repo dekt en dat gerelateerde DJConnect repos hun MIT license metadata actueel houden.
+  - Controleer vóór build/test/release of third-party libraries, frameworks en build tools updates hebben; voer veilige upgrades uit als reviewbare wijzigingen en werk lockfiles/manifests, `THIRD_PARTY_NOTICES.md` en `TECHNICAL_DESIGN_DECISIONS.md` bij. Als dependency/framework/tool-versies zijn geüpgraded, is actualisatie van `THIRD_PARTY_NOTICES.md` en dependency/design documentatie verplicht. Als een upgrade bewust wordt overgeslagen, noteer waarom in `HANDOFF.md`.
+  - Controleer dat `THIRD_PARTY_NOTICES.md` actueel is voor manifest dependencies/requirements.
+  - Controleer README/config-flow/options-flow/diagnostics legal notices.
+  - Controleer config/options-flow base/EN/NL/DE/FR/ES translation keysets en stale `data_description` keys.
+  - Draai `python3 -m unittest tests.test_translations`.
+  - Controleer diagnostics/log redaction voor token/password/secret/proof/authorization/prompt/history/memory/raw_audio aliases.
+  - Draai `python3 -m unittest tests.test_ask_dj_e2e_contract`.
+  - Draai `python3 -m unittest discover -s tests`.
+- HACS release workflow bevat minimaal:
+  - One-liner mag via `./release.sh X.Y.Z`.
+  - `./release.sh X.Y.Z` moet de versie automatisch bijwerken in `manifest.json`, `const.py`, `README.md`, `CHANGELOG.md`, `AGENTS.md` en relevante voorbeeldmetadata voordat commit/tag gebeurt.
+  - Controleer vóór release handmatig of alle documentatiebestanden (`README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `API_CONTRACT.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md`, `examples/*`) inhoudelijk kloppen; niet alleen versienummers.
+  - Controleer vóór release handmatig dat `examples/djconnect.postman_collection.json` de actuele API contracten en testvoorbeelden bevat en geldige JSON is.
+  - Controleer vóór release handmatig dat alle ondersteunde vertalingen (`en`, `nl`, `de`, `fr`, `es`) compleet, passend en inhoudelijk actueel zijn, ook wanneer de wijziging vooral API/docs/client-contract lijkt.
+  - Controleer vóór release handmatig of de testdekking past bij de wijziging; documentatie-only changes mogen zonder nieuwe tests, maar code-/contract-/UI-string changes moeten expliciet bestaande of nieuwe tests dekken.
+  - Dry-run kan via `./release.sh X.Y.Z --dry-run`.
+  - `git add .`
+  - `git commit -m "Release DJConnect vX.Y.Z"`
+  - `git tag vX.Y.Z`
+  - `git push origin main`
+  - `git push origin vX.Y.Z`
+  - `gh release create vX.Y.Z --title "DJConnect vX.Y.Z" --notes-file CHANGELOG.md`
+  - Standaard oude completed GitHub Actions workflow runs opruimen; bewaar alleen de nieuwste release/tag-validatie en nieuwste `main`-validatie, tenzij debugging expliciet vereist dat meer runs blijven staan.
+  - Standaard oude semver releases/tags opruimen met `./cleanup_old_releases.sh --keep 1 --execute`, tenzij de gebruiker expliciet vraagt om meerdere releases te behouden.
+  - HACS update-info refresh/redownload.
+  - Nieuwe release installeren vanuit HACS.
+  - Home Assistant restart.
+  - DJConnect integration opnieuw toevoegen indien nodig.
+  - Options-flow openen en controleren dat er geen internal server error is.
+  - Browser/app cache refreshen en controleren dat integration icon/logo verschijnt.
+  - `djconnect.test_parse`, `djconnect.test_command` en `djconnect.test_tts` testen.
+  - Status, last command, last track en firmware update entities controleren.
+- Firmware release cross-check:
+  - Build firmware vanuit separate repo `djconnect-esp32`.
+  - Gebruik bij voorkeur `./release.sh X.Y.Z` in de firmware repo.
+  - Gebruik `./release.sh X.Y.Z --dry-run` bij twijfel voordat gepubliceerd wordt.
+  - Publish binaries naar public repo `djconnect-firmware`.
+  - Release asset is `djconnect-lilygo-t-embed-s3-vX.Y.Z.bin`.
+  - Update `firmware_manifest.json` met manifest-level `version`, `version_tag`, `channel`, `min_ha_integration` en `firmwares[]` entries met `device`, `asset`, `url`, `sha256` en `size`.
+  - Markeer beta firmware releases als GitHub prerelease zodat HA ze alleen toont wanneer firmwarekanaal `beta` gekozen is.
+  - Controleer dat OTA de nieuwe firmware via de HA update entity ontdekt.
+
+Tests:
+- Testcode staat onder `tests/`.
+- Lichtgewicht tests draaien zonder volledige Home Assistant installatie met:
+  `python3 -m unittest discover -s tests`
+- Houd tests voor:
+  - Spotify OAuth redirect/PKCE URL helpers.
+  - Config-flow helper/default gedrag.
+  - App/Raspberry Pi mDNS discovery, pairing-info prefill, duplicate handling en Client adres fallback.
+  - Vertaalcoverage voor config-flow error keys.
+  - Diagnostics redaction en legal metadata.
+  - HA/ESP `major.minor` version mismatch geeft HTTP 426 `version_mismatch` en houdt pairing intact.

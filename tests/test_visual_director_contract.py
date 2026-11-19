@@ -1,0 +1,130 @@
+"""Actual producer decoder joins, preserved old artifacts and private omissions."""
+
+from __future__ import annotations
+
+from datetime import datetime
+import hashlib
+import json
+from pathlib import Path
+import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+DIRECTORY = ROOT / "examples/client_contracts/vibescape_visual_director_v1"
+
+
+class VisualDirectorContractTests(unittest.TestCase):
+    def fixture(self):
+        return json.loads((DIRECTORY / "actual-ha-wire-core-consolidation-20261022.json").read_text())
+
+    def test_four_world_context_grid_is_actual_producer_data_not_extra_visual_wire_fields(self):
+        data = self.fixture()
+        rows = data["examples"]["four_world_context_states"]
+        expected = {(persona, mood, dynamics)
+                    for persona in ("home_dj", "radio_dj", "club_dj", "festival_dj")
+                    for mood in ("chill", "groove", "energy", "party")
+                    for dynamics in (0.0, 0.5, 1.0)}
+        self.assertEqual(len(rows), 48)
+        self.assertEqual({(r["dj_persona"], r["selected_mood"], r["local_dynamics"]) for r in rows}, expected)
+        for row in rows:
+            self.assertEqual(row["qualification"], "ACTUAL_CORE_CONTEXT_NOT_RENDERER_OR_GPU_ACCEPTANCE")
+            self.assertEqual(row["response"]["context_lease_id"], row["context"]["context_lease_id"])
+            self.assertEqual(row["response"]["observed_occurrence_id"], row["context"]["observed_occurrence_id"])
+            self.assertEqual(set(row["response"]["directive"]["patch"]), {"depth"})
+            self.assertIsNone(row["context"]["music_context"]["audio_features"])
+            self.assertEqual(row["context"]["music_context"]["genres"], [])
+            for omitted in ("owner_profile_id", "dj_persona", "persona_revision", "mood_revision"):
+                self.assertNotIn(omitted, row["context"])
+
+    def test_actual_registered_wire_pins_current_producer_and_declares_boundary(self):
+        data = self.fixture()
+        current = json.loads((ROOT / 'examples/client_contracts/vibescape_visual_director_v1/vibescape_http-requalification-bulletin-diagnostics-current.json').read_text())
+        self.assertTrue(current['source_before_after_equal'])
+        self.assertEqual(len(current['source_pins']), 315)
+        self.assertEqual(hashlib.sha256((ROOT / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
+        extension = current['receipt']['extension']
+        self.assertEqual(extension['model_provider_calls'], 0)
+        self.assertEqual(extension['real_microphone_native_GPU_user_acceptance'], 'NOT_RUN')
+        self.assertTrue(extension['cases'])
+        self.assertEqual(set(extension['cases'].values()), {'PASS'})
+        for relative, expected in current['source_pins'].items():
+            # The historical renderer digest is not a claim about the current 4.1 renderer.
+            if relative == "custom_components/djconnect/vibecast.html":
+                self.assertEqual(expected, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
+                continue
+            if relative == "custom_components/djconnect/vibecast_display.html":
+                self.assertEqual(expected, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
+                continue
+            # Historical receipts do not qualify the current migration-edited files.
+            if relative in (
+                "custom_components/djconnect/manifest.json",
+                "custom_components/djconnect/artist_photo.py",
+                "custom_components/djconnect/ask_dj/public_research.py",
+                "custom_components/djconnect/const.py",
+                "custom_components/djconnect/session_facts.py",
+            ):
+                continue
+            self.assertEqual(
+                hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(), expected, relative
+            )
+        self.assertEqual(data["ha_sdk_version"], "2026.10.0")
+        self.assertEqual(data["model_provider_calls"], 0)
+        self.assertEqual(data["consumer_adoption"], "NOT_RUN")
+        self.assertEqual(data["installed"], "NOT_RUN")
+        self.assertIn("SYNTHETIC_PROVIDER_IO", data["qualification"])
+        self.assertIn(
+            "initial_unavailable_context_no_SQL_Profile_history_access_after_task_drain",
+            data["cases"],
+        )
+        self.assertIn("different_output_ids_with_same_name_fence_original_lease", data["cases"])
+
+    def test_interpret_echoes_original_admission_without_application_or_identity_leak(self):
+        examples = self.fixture()["examples"]
+        request, answer = examples["interpret_request"], examples["interpret_response"]
+        context = next(
+            row["body"]
+            for row in self.fixture()["visual_receipts"]
+            if row["kind"] == "context"
+            and row["status"] == 200
+            and row["body"]["context_lease_id"] == request["context_lease_id"]
+        )
+        for key in (
+            "visit_id",
+            "client_turn_id",
+            "base_scene_revision",
+            "context_lease_id",
+            "observed_occurrence_id",
+        ):
+            self.assertEqual(answer[key], request[key])
+        self.assertEqual(answer["expires_at"], context["expires_at"])
+        duration = (
+            datetime.fromisoformat(context["expires_at"])
+            - datetime.fromisoformat(context["issued_at"])
+        ).total_seconds()
+        self.assertGreater(duration, 0)
+        self.assertLessEqual(duration, 15)
+        self.assertAlmostEqual(duration * 1000, context["lease_duration_ms"])
+        self.assertEqual(answer["status"], "interpreted")
+        self.assertNotIn("applied", answer)
+        self.assertNotIn("text", answer)
+        self.assertNotIn("synthetic-exact-output", json.dumps(context))
+        self.assertIsNone(context["music_context"]["audio_features"])
+
+    def test_actual_action_union_and_error_receipts_have_no_fallback_success(self):
+        kinds = set()
+        errors = 0
+        for row in self.fixture()["visual_receipts"]:
+            body = row["body"]
+            self.assertEqual(body["schema_version"], 1)
+            if row["status"] != 200:
+                errors += 1
+                self.assertEqual(set(body), {"success", "schema_version", "error"})
+                self.assertFalse(body["success"])
+            elif row["kind"] == "interpret":
+                kind = body["directive"]["kind"]
+                kinds.add(kind)
+                self.assertEqual(body["effect_code"], "visual_" + kind)
+                if kind == "patch":
+                    self.assertTrue(body["directive"]["patch"])
+                    self.assertNotIn("dynamics_bias", body["directive"]["patch"])
+        self.assertEqual(kinds, {"patch", "undo", "reset", "variant", "hold"})
+        self.assertGreaterEqual(errors, 10)

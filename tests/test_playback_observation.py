@@ -1,0 +1,1005 @@
+from __future__ import annotations
+
+import asyncio
+import re
+import importlib.util
+from pathlib import Path
+import sys
+import types
+import unittest
+from unittest.mock import AsyncMock, patch
+
+
+ROOT = Path(__file__).resolve().parents[1]
+PACKAGE = "custom_components.djconnect"
+
+
+def _load_modules():
+    package = types.ModuleType(PACKAGE)
+    package.__path__ = [str(ROOT / "custom_components" / "djconnect")]
+    sys.modules[PACKAGE] = package
+
+    const = types.ModuleType(f"{PACKAGE}.const")
+    const.DOMAIN = "djconnect"
+    const.MUSIC_BACKEND_SPOTIFY_DIRECT = "spotify_direct"
+    const.DEFAULT_MUSIC_BACKEND = "spotify_direct"
+    const.API_IMAGE_PROXY_BASE = "/api/djconnect/v1/image_proxy"
+    sys.modules[f"{PACKAGE}.const"] = const
+
+    helpers = sys.modules.setdefault("homeassistant.helpers", types.ModuleType("homeassistant.helpers"))
+    event = types.ModuleType("homeassistant.helpers.event")
+    scheduled: list[dict] = []
+
+    def track_interval(hass, callback, interval):
+        item = {"callback": callback, "interval": interval, "removed": False}
+        scheduled.append(item)
+
+        def remove():
+            item["removed"] = True
+
+        return remove
+
+    event.async_track_time_interval = track_interval
+    helpers.event = event
+    sys.modules["homeassistant.helpers.event"] = event
+
+    spotify = types.ModuleType(f"{PACKAGE}.spotify_backend")
+
+    class SpotifyBackendError(RuntimeError):
+        pass
+
+    class SpotifyBackend:
+        responses: list[object] = []
+        calls = 0
+
+        def __init__(self, hass, runtime):
+            self.hass = hass
+            self.runtime = runtime
+
+        async def async_observe_current_playback(self):
+            type(self).calls += 1
+            response = type(self).responses.pop(0)
+            if isinstance(response, Exception):
+                raise response
+            return response
+
+        async def async_observe_next_item(self, media_identity):
+            return {}
+
+    spotify.SpotifyBackend = SpotifyBackend
+    spotify.SpotifyBackendError = SpotifyBackendError
+    sys.modules[f"{PACKAGE}.spotify_backend"] = spotify
+
+    runtime_spec = importlib.util.spec_from_file_location(
+        f"{PACKAGE}.session_runtime",
+        ROOT / "custom_components" / "djconnect" / "session_runtime.py",
+    )
+    runtime = importlib.util.module_from_spec(runtime_spec)
+    sys.modules[runtime_spec.name] = runtime
+    assert runtime_spec.loader is not None
+    runtime_spec.loader.exec_module(runtime)
+
+    observation_spec = importlib.util.spec_from_file_location(
+        f"{PACKAGE}.playback_observation",
+        ROOT / "custom_components" / "djconnect" / "playback_observation.py",
+    )
+    observation = importlib.util.module_from_spec(observation_spec)
+    sys.modules[observation_spec.name] = observation
+    assert observation_spec.loader is not None
+    observation_spec.loader.exec_module(observation)
+    return runtime, observation, spotify, scheduled
+
+
+class PlaybackObservationTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.runtime, cls.observation, cls.spotify, cls.scheduled = _load_modules()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        for name in (
+            f"{PACKAGE}.playback_observation",
+            f"{PACKAGE}.session_runtime",
+            f"{PACKAGE}.spotify_backend",
+            f"{PACKAGE}.const",
+        ):
+            sys.modules.pop(name, None)
+
+    def setUp(self) -> None:
+        self.scheduled.clear()
+        self.spotify.SpotifyBackend.responses = []
+        self.spotify.SpotifyBackend.calls = 0
+        self.hass = types.SimpleNamespace(data={})
+        self.manager = self.runtime.session_runtime_manager(self.hass)
+        self.observer = self.observation.playback_observation_manager(self.hass)
+        # These unit observations use object() runtimes without a paired
+        # Profile. Declare that boundary instead of depending on test order
+        # to preload a real Profile/HA module graph.
+        from custom_components.djconnect import forecast_imagery
+        patcher = patch.object(forecast_imagery, "artist_authority", return_value=lambda: False)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        profile = types.ModuleType(f"{PACKAGE}.profile_context")
+        def absent_storage(_hass):
+            raise RuntimeError("synthetic runtime has no paired Profile")
+        profile.profile_storage = absent_storage
+        patcher = patch.dict(sys.modules, {profile.__name__: profile})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _observation(self, uri: str = "", *, playing: bool = True, artwork_url: str = ""):
+        return types.SimpleNamespace(
+            is_playing=playing, media_identity=uri, artwork_url=artwork_url
+        )
+
+    async def _insight(self):
+        return {
+            "track": {"title": "Observed Track", "artists": ["Observed Artist"]},
+            "analysis": {"summary": "Observed context."},
+        }
+
+    def test_catalog_source_denial_prevents_general_insight_and_late_withdrawal_discards_it(self):
+        async def scenario(initially_denied, empty_catalog):
+            session = await self.manager.async_start(owner_profile_id='profile-a', music_backend='spotify_direct')
+            session = await self.manager.async_update_presence(owner_profile_id='profile-a',
+                session_id=session.session_id, selected_presence='presenter')
+            uri = 'spotify:track:'+'A'*22
+            catalog = {'uri': uri, 'title': 'Fixture live recording', 'artist': 'Fixture group'}
+            observed = types.SimpleNamespace(is_playing=True, state='playing', media_identity=uri,
+                title=catalog['title'], artist=catalog['artist'], target_name='', artwork_url='',
+                position_ms=0, duration_ms=300000, catalog={} if empty_catalog else catalog)
+            self.spotify.SpotifyBackend.responses = [observed]
+            if empty_catalog:
+                # With no initial catalogue, stage one intentionally baselines
+                # playback. Exercise the real later changed-recording entrance.
+                self.spotify.SpotifyBackend.responses.insert(0, self._observation('spotify:track:'+'B'*22))
+            available = [not initially_denied]
+            storage = types.SimpleNamespace(authority_revision=1)
+            profile = types.ModuleType(f'{PACKAGE}.profile_context')
+            profile.profile_storage = lambda hass: storage
+            from custom_components.djconnect import forecast_imagery, session_facts
+            source_calls, insight_calls = [], []
+            returned_insights = []
+            process = self.manager.async_process_track_started
+            async def inspect_return(**kwargs):
+                provide = kwargs['insight_provider']
+                async def inspected():
+                    value = await provide()
+                    returned_insights.append(value)
+                    return value
+                return await process(**{**kwargs, 'insight_provider': inspected})
+            entered, release = asyncio.Event(), asyncio.Event()
+            async def resolve(catalog, *, authorize):
+                authorize()
+                source_calls.append('empty_source')
+                return ()
+            async def insight():
+                insight_calls.append('general_insight')
+                entered.set()
+                if not initially_denied:
+                    await release.wait()
+                return await self._insight()
+            with patch.dict(sys.modules, {profile.__name__: profile}), \
+                    patch.object(forecast_imagery, 'artist_authority', return_value=lambda: available[0]), \
+                    patch.object(session_facts, 'session_facts_resolver', return_value=types.SimpleNamespace(resolve=resolve)), \
+                    patch.object(self.manager, 'async_process_track_started', inspect_return):
+                async def observe():
+                    await self.observer.async_start_spotify(
+                        integration_runtime=object(), session=session, insight_provider=insight)
+                    if empty_catalog:
+                        await self.observer._async_poll_spotify(self.observer._spotify_sessions['profile-a'])
+                task = asyncio.create_task(observe())
+                try:
+                    if not initially_denied:
+                        await asyncio.wait_for(entered.wait(), 1)
+                        available[0] = False
+                        release.set()
+                    await asyncio.wait_for(task, 2)
+                finally:
+                    release.set()
+                    if not task.done():
+                        task.cancel()
+                        await asyncio.gather(task, return_exceptions=True)
+            self.assertEqual(insight_calls, [] if initially_denied else ['general_insight'])
+            self.assertEqual(source_calls, [] if initially_denied else ['empty_source'])
+            self.assertTrue(returned_insights)
+            self.assertTrue(all('analysis' not in value for value in returned_insights))
+            active = self.manager.current_active('profile-a')
+            if empty_catalog:
+                # The old no-fact planning entrance may record intentional
+                # Silence. It must contain no returned source text or claim.
+                self.assertTrue(all(m.moment_type is self.runtime.DJMomentType.SILENCE and not m.content
+                                    for m in active.broadcast.state.dj_moments))
+            else:
+                self.assertEqual(active.broadcast.state.dj_moments, ())
+            self.assertEqual(active.presence_ledger.total_published, 0)
+        for initially_denied in (True, False):
+            for empty_catalog in (True, False):
+                with self.subTest(initially_denied=initially_denied, empty_catalog=empty_catalog):
+                    self.setUp()
+                    asyncio.run(scenario(initially_denied, empty_catalog))
+
+    def _start(self, strategy=None):
+        return asyncio.run(
+            self.manager.async_start(
+                owner_profile_id="profile-a",
+                music_backend="spotify_direct",
+                session_start_strategy=(strategy or self.runtime.SessionStartStrategy.MANUAL),
+            )
+        )
+
+    def test_stage_one_baselines_then_processes_one_changed_uri(self) -> None:
+        session = self._start()
+        self.spotify.SpotifyBackend.responses = [
+            self._observation("spotify:track:a"),
+            self._observation("spotify:track:b"),
+            self._observation("spotify:track:b"),
+        ]
+
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=self._insight
+            )
+        )
+        active = asyncio.run(self.manager.async_get_active("profile-a"))
+        self.assertEqual(active.last_accepted_media_identity, "spotify:track:a")
+        self.assertEqual(len(active.moment_engine.moments), 0)
+
+        asyncio.run(self.scheduled[0]["callback"](None))
+        active = asyncio.run(self.manager.async_get_active("profile-a"))
+        self.assertEqual(active.last_accepted_media_identity, "spotify:track:b")
+        self.assertEqual(len(active.moment_engine.moments), 1)
+        self.assertEqual(
+            len(
+                [
+                    item
+                    for item in active.planner.output.session_flow.items
+                    if item.item_type is self.runtime.SessionFlowItemType.DJ_MOMENT
+                ]
+            ),
+            1,
+        )
+        self.assertEqual(len(active.broadcast.state.dj_moments), 1)
+
+        asyncio.run(self.scheduled[0]["callback"](None))
+        active = asyncio.run(self.manager.async_get_active("profile-a"))
+        self.assertEqual(len(active.moment_engine.moments), 1)
+
+    def test_initial_insight_failure_recovers_on_same_recording(self) -> None:
+        self._initial_insight_recovery("facts")
+
+    def test_empty_fact_recovery_never_retries_general_insight(self) -> None:
+        self._initial_insight_recovery("empty")
+
+    def test_failed_fact_recovery_is_once_only(self) -> None:
+        self._initial_insight_recovery("failure")
+
+    def test_recovery_does_not_rearm_after_authority_changed_back(self) -> None:
+        self._initial_insight_recovery("authority")
+
+    def test_recovery_does_not_rearm_after_presence_changed_back(self) -> None:
+        self._initial_insight_recovery("presence")
+
+    def test_recovery_rejects_authority_change_during_source_await(self) -> None:
+        self._initial_insight_recovery("late_authority")
+
+    def test_recovery_rejects_original_source_loss(self) -> None:
+        self._initial_insight_recovery("source")
+
+    def test_concurrent_poll_cannot_repeat_fact_recovery(self) -> None:
+        self._initial_insight_recovery("concurrent")
+
+    def test_later_recording_empty_recovery_never_enters_legacy_planning(self) -> None:
+        self._initial_insight_recovery("later_empty")
+
+    def test_cancelled_recovery_cannot_be_repeated(self) -> None:
+        self._initial_insight_recovery("cancel")
+
+    def test_recovery_cannot_publish_expired_facts(self) -> None:
+        self._initial_insight_recovery("expired")
+
+    def test_recovery_does_not_rearm_after_pause_resume(self) -> None:
+        self._initial_insight_recovery("pause")
+
+    def _initial_insight_recovery(self, outcome):
+        async def scenario():
+            from custom_components.djconnect import session_facts, forecast_imagery
+
+            now = [100.0]
+            self.manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: now[0])
+            self.hass.data.setdefault("djconnect", {})["session_runtime_manager"] = self.manager
+            session = await self.manager.async_start(
+                owner_profile_id="profile-a", music_backend="spotify_direct", locale="nl"
+            )
+            session = await self.manager.async_update_presence(
+                owner_profile_id=session.owner_profile_id, session_id=session.session_id,
+                selected_presence="presenter",
+            )
+            uri = "spotify:track:" + "A" * 22
+            catalog = {"uri": uri, "title": "Test recording", "artist": "Test artist"}
+            qualified_catalog = {**catalog, "album_name": "Test edition",
+                                 "album_uri": "spotify:album:" + "B" * 22,
+                                 "release_date": "2001-03-04", "release_date_precision": "day"}
+            facts = tuple(session_facts.catalog_facts(qualified_catalog))
+            self.assertTrue(facts)
+            observation = types.SimpleNamespace(
+                is_playing=True, state="playing", media_identity=uri,
+                title=catalog["title"], artist=catalog["artist"], album="Test edition",
+                artwork_url="", target_name="", duration_ms=300000, position_ms=0,
+                catalog=catalog,
+            )
+            self.spotify.SpotifyBackend.responses = [observation] * 8
+            if outcome == "later_empty":
+                self.spotify.SpotifyBackend.responses.insert(0, self._observation("spotify:track:" + "C" * 22))
+            source_calls = 0
+            insight_calls = 0
+            source_valid = [True]
+            started, release = asyncio.Event(), asyncio.Event()
+
+            async def resolve(_catalog, *, authorize):
+                nonlocal source_calls
+                authorize()
+                source_calls += 1
+                if source_calls == 1 or outcome in {"empty", "later_empty"}:
+                    return ()
+                if outcome == "failure":
+                    raise TimeoutError("synthetic source unavailable")
+                if outcome == "late_authority":
+                    storage.authority_revision += 1
+                if outcome in {"concurrent", "cancel"}:
+                    started.set()
+                    await release.wait()
+                authorize()
+                if outcome == "expired":
+                    from dataclasses import replace
+                    return tuple(replace(f, source_expires_at=0) for f in facts)
+                return facts
+
+            async def insight():
+                nonlocal insight_calls
+                insight_calls += 1
+                raise TimeoutError("synthetic unavailable insight")
+
+            # Synthetic admission boundary; no Profile persistence or artwork I/O.
+            profile = types.ModuleType(f"{PACKAGE}.profile_context")
+            storage = types.SimpleNamespace(authority_revision=1)
+            def no_storage(_hass):
+                return storage
+            profile.profile_storage = no_storage
+            forbidden = AsyncMock(side_effect=AssertionError("fact recovery entered general planning"))
+            fallback = AsyncMock(side_effect=AssertionError("fact recovery assembled legacy insight"))
+            narration = AsyncMock(side_effect=AssertionError("fact recovery entered general narration"))
+            with patch.dict(sys.modules, {profile.__name__: profile}), \
+                    patch.object(forecast_imagery, "artist_authority", return_value=lambda: source_valid[0]), \
+                    patch.object(self.spotify.SpotifyBackend, "async_observe_current_genres",
+                                 new=AsyncMock(return_value={}), create=True), \
+                    patch.object(session_facts, "session_facts_resolver",
+                                 return_value=types.SimpleNamespace(resolve=resolve)), \
+                    patch.object(type(session.planning_coordinator), "async_coordinate_track_started", new=forbidden), \
+                    patch.object(self.runtime.DJKnowledgeEngine, "async_assemble_track_context", new=fallback), \
+                    patch.object(self.manager, "_async_enrich_runtime_moment", new=narration):
+                await self.observer.async_start_spotify(
+                    integration_runtime=object(), session=session, insight_provider=insight
+                )
+                if outcome == "later_empty":
+                    await self.scheduled[0]["callback"](None)
+                self.assertEqual(len(session.broadcast.state.dj_moments), 0)
+                now[0] += 15
+                await self.scheduled[0]["callback"](None)
+                self.assertEqual(source_calls, 1)
+                if outcome == "authority":
+                    storage.authority_revision += 1
+                elif outcome == "source":
+                    source_valid[0] = False
+                elif outcome == "presence":
+                    for presence in ("music_only", "presenter"):
+                        await self.manager.async_update_presence(
+                            owner_profile_id=session.owner_profile_id, session_id=session.session_id,
+                            selected_presence=presence)
+                elif outcome == "pause":
+                    await self.manager.async_update_playback_projection(
+                        owner_profile_id=session.owner_profile_id, session_id=session.session_id,
+                        state="paused", media_identity=uri, title=catalog["title"],
+                        artist=catalog["artist"], album="Test edition",
+                        duration_ms=300000, position_ms=0)
+                now[0] += 15
+                if outcome in {"concurrent", "cancel"}:
+                    pending = asyncio.create_task(self.scheduled[0]["callback"](None))
+                    await asyncio.wait_for(started.wait(), 2)
+                    await self.scheduled[0]["callback"](None)
+                    self.assertEqual(source_calls, 2)
+                    if outcome == "cancel":
+                        pending.cancel()
+                    else:
+                        release.set()
+                    await pending
+                else:
+                    await self.scheduled[0]["callback"](None)
+                if outcome == "source":
+                    source_valid[0] = True
+                expected_sources = 1 if outcome in {"authority", "presence", "source", "pause"} else 2
+                expected_moments = int(outcome in {"facts", "concurrent"})
+                for _ in range(2):
+                    now[0] += 15
+                    await self.scheduled[0]["callback"](None)
+                self.assertEqual(source_calls, expected_sources)
+                self.assertEqual(insight_calls, 1)
+                self.assertEqual(len(session.broadcast.state.dj_moments), expected_moments)
+                forbidden.assert_not_called()
+                fallback.assert_not_called()
+                narration.assert_not_called()
+
+        asyncio.run(scenario())
+
+    def test_observer_delivers_a_second_evidenced_type_on_one_long_track(self) -> None:
+        async def scenario():
+            now = [100.0]
+            manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: now[0])
+            self.hass.data.setdefault("djconnect", {})["session_runtime_manager"] = manager
+            session = await manager.async_start(
+                owner_profile_id="profile-a", music_backend="spotify_direct", locale="nl"
+            )
+            # This short-slot mechanism probe explicitly selects Presenter.
+            session = await manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id, selected_presence="presenter")
+            def observed(uri, position):
+                return types.SimpleNamespace(
+                    is_playing=True, state="playing", media_identity=uri,
+                    title="Current" if uri.endswith("b") else "Previous",
+                    artist="Artist", album="Album", artwork_url="", target_name="",
+                    duration_ms=240_000, position_ms=position,
+                )
+            self.spotify.SpotifyBackend.responses = [
+                observed("spotify:track:a", 0),
+                observed("spotify:track:b", 0),
+                observed("spotify:track:b", 15_000),
+                observed("spotify:track:b", 45_000),
+                observed("spotify:track:b", 60_000),
+            ]
+            insight_calls = 0
+
+            async def insight():
+                nonlocal insight_calls
+                insight_calls += 1
+                return {
+                    "track": {"title":"Current", "artist":"Artist", "album":"Album", "genres":["soul"]},
+                    "analysis": {"summary":"A measured bass line anchors the song.",
+                                 "full_text":"The bass leaves space for the melody.", "genre":"soul"},
+                }
+
+            await self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=insight
+            )
+            await self.scheduled[0]["callback"](None)
+            for seconds, expected_count in ((15, 1), (30, 2), (15, 2)):
+                now[0] += seconds
+                await self.scheduled[0]["callback"](None)
+                assert len(session.broadcast.state.dj_moments) == expected_count
+            return session, insight_calls
+
+        session, insight_calls = asyncio.run(scenario())
+        self.assertEqual(insight_calls, 1)
+        self.assertEqual(len(session.broadcast.state.dj_moments), 2)
+        self.assertEqual(
+            {moment.moment_type for moment in session.broadcast.state.dj_moments},
+            {self.runtime.DJMomentType.TRACK, self.runtime.DJMomentType.GENRE},
+        )
+
+    def test_unload_cancels_slow_later_moment_before_broadcast(self) -> None:
+        async def scenario():
+            now = [100.0]
+            manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: now[0])
+            self.hass.data.setdefault("djconnect", {})["session_runtime_manager"] = manager
+            session = await manager.async_start(
+                owner_profile_id="profile-a", music_backend="spotify_direct", locale="nl"
+            )
+            # This short-slot mechanism probe explicitly selects Presenter.
+            session = await manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id, selected_presence="presenter")
+            runtime = object()
+            def observed(uri, position):
+                return types.SimpleNamespace(
+                    is_playing=True, state="playing", media_identity=uri,
+                    title="Current" if uri.endswith("b") else "Previous",
+                    artist="Artist", album="Album", artwork_url="", target_name="",
+                    duration_ms=240_000, position_ms=position,
+                )
+            self.spotify.SpotifyBackend.responses = [
+                observed("spotify:track:a", 0),
+                observed("spotify:track:b", 0),
+                observed("spotify:track:b", 45_000),
+            ]
+
+            async def insight():
+                return {
+                    "track": {"title":"Current", "artist":"Artist", "album":"Album", "genres":["soul"]},
+                    "analysis": {"summary":"A measured bass line anchors the song.",
+                                 "full_text":"The bass leaves space for the melody.", "genre":"soul"},
+                }
+
+            await self.observer.async_start_spotify(
+                integration_runtime=runtime, session=session, insight_provider=insight
+            )
+            await self.scheduled[0]["callback"](None)
+            self.assertEqual(len(session.broadcast.state.dj_moments), 1)
+            started, release = asyncio.Event(), asyncio.Event()
+            original = self.runtime.DJKnowledgeEngine.async_assemble_track_context
+
+            async def slow(engine, *args, **kwargs):
+                started.set()
+                await release.wait()
+                return await original(engine, *args, **kwargs)
+
+            with patch.object(self.runtime.DJKnowledgeEngine, "async_assemble_track_context", slow):
+                now[0] += 45
+                pending = asyncio.create_task(self.scheduled[0]["callback"](None))
+                await asyncio.wait_for(started.wait(), 2)
+                await self.observer.async_stop_runtime(runtime)
+                release.set()
+                await pending
+            return session
+
+        session = asyncio.run(scenario())
+        self.assertEqual(len(session.broadcast.state.dj_moments), 1)
+        self.assertEqual(len(session.planner.output.session_flow.items), 6)
+
+    def test_all_active_start_strategies_are_eligible(self) -> None:
+        for strategy in self.runtime.SessionStartStrategy:
+            self.setUp()
+            session = self._start(strategy)
+            self.spotify.SpotifyBackend.responses = [
+                self._observation(f"spotify:track:{strategy.value}")
+            ]
+            asyncio.run(
+                self.observer.async_start_spotify(
+                    integration_runtime=object(), session=session, insight_provider=self._insight
+                )
+            )
+            self.assertEqual(len(self.scheduled), 2)
+
+    def test_observation_publishes_only_an_existing_ha_proxy_artwork_url(self) -> None:
+        session = self._start()
+        external_artwork = "https://image-cdn.example/cover.jpg"
+        self.spotify.SpotifyBackend.responses = [
+            self._observation("spotify:track:a", artwork_url=external_artwork)
+        ]
+
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=self._insight
+            )
+        )
+
+        active = asyncio.run(self.manager.async_get_active("profile-a"))
+        playback = active.broadcast.as_dict()["playback"]
+        self.assertTrue(playback["artwork_url"].startswith("/api/djconnect/v1/image_proxy/"))
+        self.assertNotIn(external_artwork, str(playback))
+
+    def test_no_active_or_non_spotify_session_does_not_schedule_observation(self) -> None:
+        session = asyncio.run(
+            self.manager.async_start(
+                owner_profile_id="profile-a", music_backend="music_assistant"
+            )
+        )
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=self._insight
+            )
+        )
+        self.assertEqual(self.scheduled, [])
+        self.assertEqual(self.spotify.SpotifyBackend.calls, 0)
+
+    def test_pause_absence_failure_and_session_end_do_not_publish(self) -> None:
+        session = self._start()
+        self.spotify.SpotifyBackend.responses = [
+            self._observation("spotify:track:a"),
+            self._observation("spotify:track:a", playing=False),
+            self.spotify.SpotifyBackendError("temporary"),
+            self._observation("spotify:track:b"),
+        ]
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=self._insight
+            )
+        )
+        asyncio.run(self.scheduled[0]["callback"](None))
+        asyncio.run(self.scheduled[0]["callback"](None))
+        active = asyncio.run(self.manager.async_get_active("profile-a"))
+        self.assertEqual(active.last_accepted_media_identity, "spotify:track:a")
+        self.assertEqual(len(active.moment_engine.moments), 0)
+
+        asyncio.run(self.observer.async_stop("profile-a", session.session_id))
+        asyncio.run(self.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id))
+        asyncio.run(self.scheduled[0]["callback"](None))
+        self.assertTrue(self.scheduled[0]["removed"])
+        self.assertTrue(self.scheduled[1]["removed"])
+        self.assertIsNone(asyncio.run(self.manager.async_get_active("profile-a")))
+
+    def test_overlapping_poll_is_suppressed(self) -> None:
+        session = self._start()
+        self.spotify.SpotifyBackend.responses = [self._observation("spotify:track:a")]
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=self._insight
+            )
+        )
+        observed = self.observer._spotify_sessions["profile-a"]
+
+        async def poll_while_locked():
+            await observed.poll_lock.acquire()
+            try:
+                await self.observer._async_poll_spotify(observed)
+            finally:
+                observed.poll_lock.release()
+
+        asyncio.run(poll_while_locked())
+        self.assertEqual(self.spotify.SpotifyBackend.calls, 1)
+
+    def test_slow_insight_does_not_block_new_track_and_is_cancelled(self) -> None:
+        async def scenario() -> None:
+            session = await self.manager.async_start(
+                owner_profile_id="profile-a", music_backend="spotify_direct"
+            )
+            # This short-slot mechanism probe explicitly selects Presenter.
+            session = await self.manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id, selected_presence="presenter")
+            self.spotify.SpotifyBackend.responses = [
+                self._observation("spotify:track:a"),
+                self._observation("spotify:track:b"),
+                self._observation("spotify:track:c"),
+            ]
+            slow_started = asyncio.Event()
+            calls = 0
+
+            async def insight() -> dict:
+                nonlocal calls
+                calls += 1
+                if calls == 1:
+                    slow_started.set()
+                    await asyncio.Event().wait()
+                return {
+                    "track": {"title": "Current Track", "artist": "Current Artist"},
+                    "analysis": {"summary": "Current context."},
+                }
+
+            await self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=insight
+            )
+            slow_poll = asyncio.create_task(self.scheduled[0]["callback"](None))
+            await slow_started.wait()
+            current_poll = asyncio.create_task(self.scheduled[0]["callback"](None))
+            await current_poll
+            await slow_poll
+
+            active = await self.manager.async_get_active("profile-a")
+            self.assertEqual(self.spotify.SpotifyBackend.calls, 3)
+            self.assertEqual(active.last_accepted_media_identity, "spotify:track:c")
+            self.assertEqual(len(active.broadcast.state.dj_moments), 1)
+            self.assertEqual(
+                active.broadcast.as_dict()["dj_moments"][0]["playback_item_id"],
+                active.broadcast.as_dict()["playback"]["item_id"],
+            )
+
+        asyncio.run(scenario())
+
+    def test_paused_track_retries_cancelled_enrichment_after_resume(self) -> None:
+        async def scenario() -> None:
+            session = await self.manager.async_start(
+                owner_profile_id="profile-a",
+                music_backend="spotify_direct",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+            # This short-slot mechanism probe explicitly selects Presenter.
+            session = await self.manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id, selected_presence="presenter")
+            self.spotify.SpotifyBackend.responses = [
+                self._observation("spotify:track:a"),
+                self._observation("spotify:track:b"),
+                self._observation("spotify:track:b", playing=False),
+                self._observation("spotify:track:b"),
+            ]
+            slow_started = asyncio.Event()
+            calls = 0
+
+            async def insight() -> dict:
+                nonlocal calls
+                calls += 1
+                if calls == 1:
+                    slow_started.set()
+                    await asyncio.Event().wait()
+                return {
+                    "track": {"title": "Resumed Track", "artist": "Current Artist"},
+                    "analysis": {"summary": "Resumed context."},
+                }
+
+            await self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=insight
+            )
+            slow_poll = asyncio.create_task(self.scheduled[0]["callback"](None))
+            await slow_started.wait()
+            await self.scheduled[0]["callback"](None)
+            await slow_poll
+            active = await self.manager.async_get_active("profile-a")
+            self.assertEqual(active.last_accepted_media_identity, "spotify:track:a")
+            self.assertEqual(active.planner.discover_event_number, 0)
+
+            await self.scheduled[0]["callback"](None)
+            active = await self.manager.async_get_active("profile-a")
+            self.assertEqual(active.last_accepted_media_identity, "spotify:track:b")
+            self.assertEqual(len(active.broadcast.state.dj_moments), 1)
+            self.assertEqual(active.planner.discover_event_number, 1)
+            self.assertEqual(calls, 2)
+
+        asyncio.run(scenario())
+
+    def test_replacement_poll_stays_inert_when_observer_stops_during_cancel(self) -> None:
+        async def scenario() -> None:
+            calls = 0
+
+            async def insight() -> dict:
+                nonlocal calls
+                calls += 1
+                return {
+                    "track": {"title": "Stopped Track", "artist": "Stopped Artist"},
+                    "analysis": {"summary": "Stopped context."},
+                }
+
+            session = await self.manager.async_start(
+                owner_profile_id="profile-a", music_backend="spotify_direct"
+            )
+            # This short-slot mechanism probe explicitly selects Presenter.
+            session = await self.manager.async_update_presence(owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id, selected_presence="presenter")
+            self.spotify.SpotifyBackend.responses = [
+                self._observation("spotify:track:a"),
+                self._observation("spotify:track:b"),
+            ]
+            await self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=insight
+            )
+            observed = self.observer._spotify_sessions["profile-a"]
+            cancelled = asyncio.Event()
+            release = asyncio.Event()
+
+            async def lingering_enrichment() -> None:
+                try:
+                    await asyncio.Event().wait()
+                except asyncio.CancelledError:
+                    cancelled.set()
+                    try:
+                        await release.wait()
+                    except asyncio.CancelledError:
+                        return
+
+            previous = asyncio.create_task(lingering_enrichment())
+            observed.enrichment_task = previous
+            observed.enrichment_media_identity = "spotify:track:a"
+            replacement = asyncio.create_task(self.scheduled[0]["callback"](None))
+            await cancelled.wait()
+            await self.observer.async_stop("profile-a", session.session_id)
+            release.set()
+            await replacement
+
+            self.assertEqual(calls, 0)
+            self.assertNotIn("profile-a", self.observer._spotify_sessions)
+            active = await self.manager.async_get_active("profile-a")
+            assert active is not None
+            self.assertEqual(active.broadcast.state.dj_moments, ())
+
+        asyncio.run(scenario())
+
+    def test_runtime_reload_resumes_same_active_spotify_session(self) -> None:
+        session = self._start()
+        old_runtime = object()
+        new_runtime = object()
+        self.spotify.SpotifyBackend.responses = [
+            self._observation("spotify:track:a"),
+            self._observation("spotify:track:b"),
+        ]
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=old_runtime,
+                session=session,
+                insight_provider=self._insight,
+            )
+        )
+        resume_keys = self.observer.resume_keys_for_runtime(old_runtime)
+
+        asyncio.run(self.observer.async_stop_runtime(old_runtime))
+        self.assertTrue(self.scheduled[0]["removed"])
+        self.assertTrue(self.scheduled[1]["removed"])
+
+        asyncio.run(
+            self.observer.async_resume_spotify(
+                integration_runtime=new_runtime,
+                resume_keys=resume_keys,
+                insight_provider_factory=lambda _runtime, _session: self._insight,
+            )
+        )
+
+        observed = self.observer._spotify_sessions["profile-a"]
+        self.assertIs(observed.integration_runtime, new_runtime)
+        self.assertEqual(observed.session_id, session.session_id)
+        self.assertEqual(len(self.scheduled), 4)
+        active = asyncio.run(self.manager.async_get_active("profile-a"))
+        self.assertEqual(active.last_accepted_media_identity, "spotify:track:b")
+        self.assertEqual(len(active.moment_engine.moments), 1)
+
+    def test_runtime_reload_does_not_resume_ended_or_non_spotify_session(self) -> None:
+        session = self._start()
+        old_runtime = object()
+        self.spotify.SpotifyBackend.responses = [self._observation("spotify:track:a")]
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=old_runtime,
+                session=session,
+                insight_provider=self._insight,
+            )
+        )
+        resume_keys = self.observer.resume_keys_for_runtime(old_runtime)
+        asyncio.run(self.observer.async_stop_runtime(old_runtime))
+        asyncio.run(
+            self.manager.async_end(
+                owner_profile_id="profile-a", session_id=session.session_id
+            )
+        )
+
+        asyncio.run(
+            self.observer.async_resume_spotify(
+                integration_runtime=object(),
+                resume_keys=resume_keys,
+                insight_provider_factory=lambda _runtime, _session: self._insight,
+            )
+        )
+
+        self.assertNotIn("profile-a", self.observer._spotify_sessions)
+        self.assertEqual(len(self.scheduled), 2)
+
+    def test_session_started_during_reload_is_resumed_on_replacement_runtime(self) -> None:
+        old_runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-a")
+        )
+        new_runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-a")
+        )
+        self.hass.data["djconnect"]["entry-a"] = old_runtime
+        resume_keys = self.observer.begin_runtime_reload(old_runtime)
+        self.assertEqual(resume_keys, ())
+
+        session = self._start()
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=old_runtime,
+                session=session,
+                insight_provider=self._insight,
+            )
+        )
+        self.assertEqual(self.scheduled, [])
+        self.assertEqual(self.spotify.SpotifyBackend.calls, 0)
+
+        self.hass.data["djconnect"]["entry-a"] = new_runtime
+        resume_keys = self.observer.finish_runtime_reload(old_runtime, resume_keys)
+        self.spotify.SpotifyBackend.responses = [self._observation("spotify:track:a")]
+        asyncio.run(
+            self.observer.async_resume_spotify(
+                integration_runtime=new_runtime,
+                resume_keys=resume_keys,
+                insight_provider_factory=lambda runtime, _session: (
+                    self._insight if runtime is new_runtime else None
+                ),
+            )
+        )
+
+        observed = self.observer._spotify_sessions["profile-a"]
+        self.assertIs(observed.integration_runtime, new_runtime)
+        self.assertEqual(observed.session_id, session.session_id)
+        self.assertEqual(len(self.scheduled), 2)
+
+    def test_late_old_runtime_start_uses_current_runtime_and_provider(self) -> None:
+        old_runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-a")
+        )
+        new_runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-a")
+        )
+        self.hass.data["djconnect"]["entry-a"] = new_runtime
+        session = self._start()
+        self.spotify.SpotifyBackend.responses = [self._observation("spotify:track:a")]
+        factory_runtimes = []
+
+        def provider_factory(runtime, _session):
+            factory_runtimes.append(runtime)
+            return self._insight
+
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=old_runtime,
+                session=session,
+                insight_provider_factory=provider_factory,
+            )
+        )
+
+        observed = self.observer._spotify_sessions["profile-a"]
+        self.assertIs(observed.integration_runtime, new_runtime)
+        self.assertEqual(factory_runtimes, [new_runtime])
+
+    def test_failed_reload_restores_session_started_during_reload(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-a")
+        )
+        self.hass.data["djconnect"]["entry-a"] = runtime
+        resume_keys = self.observer.begin_runtime_reload(runtime)
+        session = self._start()
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=runtime,
+                session=session,
+                insight_provider=self._insight,
+            )
+        )
+        self.assertEqual(self.scheduled, [])
+
+        rollback_keys = self.observer.abort_runtime_reload(runtime, resume_keys)
+        self.spotify.SpotifyBackend.responses = [self._observation("spotify:track:a")]
+        asyncio.run(
+            self.observer.async_resume_spotify(
+                integration_runtime=runtime,
+                resume_keys=rollback_keys,
+                insight_provider_factory=lambda _runtime, _session: self._insight,
+            )
+        )
+
+        observed = self.observer._spotify_sessions["profile-a"]
+        self.assertIs(observed.integration_runtime, runtime)
+        self.assertEqual(observed.session_id, session.session_id)
+        self.assertEqual(len(self.scheduled), 2)
+
+    def test_rolling_records_reconcile_current_merged_implementation(self) -> None:
+        engineering_status = (ROOT / "ENGINEERING_STATUS.md").read_text()
+        current_section = engineering_status.split("## Historical operational context", 1)[0]
+        current_increment = re.search(
+            r"PR \[#(?P<number>\d+)\].*?merged as\s+`(?P<commit>[0-9a-f]{40})`",
+            current_section,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(current_increment)
+        assert current_increment is not None
+
+        current_pr = current_increment.group("number")
+        current_commit = current_increment.group("commit")
+        current_state = re.search(
+            r"Repository State(?: is|:)\s+`(?P<state>MERGED_(?:UN)?RECONCILED)`",
+            current_section,
+        )
+        self.assertIsNotNone(current_state)
+        assert current_state is not None
+        expected_state = current_state.group("state")
+
+        for name in (
+            "ENGINEERING_STATUS.md",
+            "REPOSITORY_STATUS.md",
+            "MANAGEMENT_SUMMARY.md",
+        ):
+            contents = (ROOT / name).read_text()
+            self.assertIn(f"PR [#{current_pr}]", contents)
+            self.assertIn(current_commit, contents)
+            normalized_contents = re.sub(r"\s+", " ", contents)
+            self.assertIn(
+                f"Repository State: `{expected_state}`", normalized_contents
+            )
+
+        prompt_index = (ROOT / "PROMPT_INDEX.md").read_text()
+        self.assertIn(f"PR [#{current_pr}]", prompt_index)
+        self.assertIn(current_commit, prompt_index)
+        self.assertIn(expected_state.lower(), prompt_index.lower())
+
+    def test_media_identity_never_enters_public_runtime_representation(self) -> None:
+        session = self._start()
+        self.spotify.SpotifyBackend.responses = [self._observation("spotify:track:a")]
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=self._insight
+            )
+        )
+        active = asyncio.run(self.manager.async_get_active("profile-a"))
+        self.assertNotIn("last_accepted_media_identity", active.as_dict())

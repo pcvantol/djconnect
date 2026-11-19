@@ -1,0 +1,9 @@
+{
+  "release_profile": "INTERNAL_RELEASE",
+  "requested_by": "representative-validation",
+  "non_production": true,
+  "actions": [
+    {"operation": "workflow_dispatch", "repository": "example/source", "category": "build", "workflow": "platform-release-execution.yml", "ref": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "inputs": {"action": "build", "candidate_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "execution_mode": "dry_run", "manifest_id": "release-sim-be1c4f4209c8c529", "platform_version": "3.3", "release_profile": "INTERNAL_RELEASE"}},
+    {"operation": "workflow_dispatch", "repository": "example/distribution", "category": "deployment", "workflow": "platform-release-execution.yml", "ref": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "inputs": {"action": "deployment", "candidate_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "execution_mode": "dry_run", "manifest_id": "release-sim-be1c4f4209c8c529", "platform_version": "3.3", "release_profile": "INTERNAL_RELEASE"}}
+  ]
+}

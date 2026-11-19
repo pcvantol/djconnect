@@ -1,0 +1,690 @@
+"""Transport-independent owner query contracts for historical projections."""
+
+from __future__ import annotations
+import json
+
+from contextvars import ContextVar
+
+from .persistence.history import (
+    HistoricalDJMomentProjection,
+    HistoricalProjectionRepository,
+    HistoricalSessionProjection,
+)
+
+
+_projection_ancestry = ContextVar("session_history_projection_ancestry", default=frozenset())
+
+SUPPORTED_PROJECTION_VERSIONS = frozenset({1})
+
+
+class HistoricalProjectionAccessDenied(PermissionError):
+    """Raised when a caller tries to access another owner's history."""
+
+
+class HistoricalProjectionVersionUnsupported(ValueError):
+    """Raised when a durable projection cannot satisfy this app contract."""
+
+
+class HistoricalProjectionQueryService:
+    """Apply canonical owner-only history visibility above storage repositories."""
+
+    def __init__(
+        self,
+        repository: HistoricalProjectionRepository,
+        history_manager=None,
+        source_validator=None,
+        grant_revision=None,
+        summary_validator=None,
+        grant_revision_now=None,
+    ) -> None:
+        self._repository = repository
+        self._conversation_history = history_manager
+        self._source_validator = source_validator
+        self._grant_revision = grant_revision
+        self._grant_revision_now = grant_revision_now
+        self._summary_validator = summary_validator
+        self.media_projector = None
+        from .session_history_projection import HistoryCursorCodec
+
+        self._history_cursor = HistoryCursorCodec()
+
+    async def async_get_session(
+        self, requester_profile_id: str, historical_session_id: str
+    ) -> HistoricalSessionProjection | None:
+        """Load one owner-visible historical Session by its projection ID."""
+        projection = await self._repository.async_get_session(historical_session_id)
+        return self._authorize_session(requester_profile_id, projection)
+
+    async def async_get_owner_session(
+        self, requester_profile_id: str, originating_session_id: str
+    ) -> HistoricalSessionProjection | None:
+        """Load one owner-visible historical Session by its source Session ID."""
+        projection = await self._repository.async_get_session_for_originating_id(
+            originating_session_id
+        )
+        return self._authorize_session(requester_profile_id, projection)
+
+    async def async_list_recent_owner_sessions(
+        self, requester_profile_id: str
+    ) -> tuple[HistoricalSessionProjection, ...]:
+        """List an owner's historical Sessions in canonical recent-first order."""
+        projections = await self._repository.async_list_sessions_for_owner(requester_profile_id)
+        return tuple(
+            self._authorize_session(requester_profile_id, projection)
+            for projection in projections
+            if projection is not None
+        )
+
+    async def async_get_moment(
+        self, requester_profile_id: str, historical_moment_id: str
+    ) -> HistoricalDJMomentProjection | None:
+        """Load one owner-visible, owner-only historical DJMoment."""
+        projection = await self._repository.async_get_moment(historical_moment_id)
+        return self._authorize_moment(requester_profile_id, projection)
+
+    async def async_list_session_moments(
+        self, requester_profile_id: str, historical_session_id: str
+    ) -> tuple[HistoricalDJMomentProjection, ...]:
+        """List owner-visible DJMoments for one owner-visible historical Session."""
+        session = await self.async_get_session(requester_profile_id, historical_session_id)
+        if session is None:
+            return ()
+        projections = await self._repository.async_list_moments_for_session(
+            session.originating_session_id
+        )
+        return tuple(
+            self._authorize_moment(requester_profile_id, projection)
+            for projection in projections
+            if projection is not None
+        )
+
+    async def async_conversation_source_visible(self, owner: str, message: dict) -> bool:
+        """Retained provider prose keeps its original source grant, not a label."""
+        if message.get("content_state") == "source_withdrawn":
+            return False
+        source = message.get("session_turn",{}).get("provider_display_source")
+        from .ask_dj.recent_presentation import KEY as RECENT_KEY, checked as recent_display
+        if RECENT_KEY in message and (source is None or recent_display(message[RECENT_KEY]) is None):
+            return False
+        if source is not None:
+            if (not isinstance(source,dict) or set(source) != {"provider","source_context"}
+                    or self._source_validator is None):
+                return False
+            if not await self._source_validator(owner, {"kind":"dj_moment", "body":json.dumps({
+                    "archive_basis":"owner_metadata_narration_v1", **source})}):
+                return False
+        for target in message.get("historical_entry_references",[]):
+            try:
+                await self.async_open_source_entry(owner,target['session_id'],target['entry_id'])
+            except PermissionError:
+                return False
+        return True
+
+    async def _project_entry(self, owner: str, row: dict) -> dict | None:
+        from .session_history_projection import project_entry
+
+        if self._source_validator is not None and not await self._source_validator(owner, row):
+            try:
+                body = json.loads(row['body'])
+            except (TypeError,ValueError):
+                return None
+            if not isinstance(body,dict):
+                return None
+            if row['kind'] != 'dj_moment' or body.get('archive_basis') != 'owner_metadata_narration_v1':
+                return None
+            from .session_history_projection import publication_receipt
+            row = {**row,'kind':'dj_publication',
+                   'body':json.dumps(publication_receipt(body,'source_withdrawn'))}
+        entry = project_entry(row)
+        if entry is not None:
+            from .historical_playback import offer
+            entry = offer(row, entry)
+        if entry is not None and self.media_projector is not None:
+            entry = self.media_projector(owner, row, entry)
+        if entry is None or "conversation_reference" not in entry:
+            if entry is not None and entry["kind"] == "dj_moment":
+                from .session_speech import retained_projection
+                entry["session_speech"] = retained_projection(entry)
+            return entry
+        ref = entry["conversation_reference"]
+        if not self._conversation_history or ref.get("history_scope") != "profile:" + owner:
+            return None
+        messages = await self._conversation_history.async_messages_by_id(
+            "profile:" + owner, {str(ref.get("message_id") or "")}
+        )
+        message = messages.get(ref.get("message_id"))
+        if not message or message.get("session_turn", {}).get("turn_id") != ref.get("turn_id"):
+            return None
+        expected_role = "user" if row["kind"] == "conversation_user" else "assistant"
+        if message.get("role") != expected_role:
+            return None
+        ancestry = _projection_ancestry.get()
+        key = (owner, row["session_id"], row["entry_id"])
+        if key in ancestry or len(ancestry) >= 20:
+            return None
+        entry.pop("conversation_reference", None)
+        entry["origin_message_id"] = message["id"]
+        entry["client_message_id"] = message.get("client_message_id")
+        entry["turn_id"] = ref["turn_id"]
+        entry["role"] = expected_role
+        entry["input_type"] = message.get("session_turn", {}).get("input_type", "text")
+        # Explicit recursion state is passed through a task-local ContextVar below.
+        token = _projection_ancestry.set(ancestry | {key})
+        try:
+            if not await self.async_conversation_source_visible(owner, message):
+                return {
+                    **entry,
+                    "text": "",
+                    "state": "source_withdrawn",
+                    "context": {"session_id": row["session_id"]},
+                }
+        finally:
+            _projection_ancestry.reset(token)
+        entry["text"] = str(message.get("text") or "")
+        entry["effective_style"] = message.get("session_turn", {}).get("effective_style")
+        # Original acceptance owns this optional provenance. Legacy absence is
+        # not permission to send arbitrary archived text to a cloud processor.
+        entry["speech_processing_basis"] = message.get("speech_processing_basis")
+        entry["context"] = message.get("session_turn", {}).get("context", {})
+        for field in ("sources", "links", "historical_matches", "navigation_actions"):
+            if isinstance(message.get(field), list):
+                entry[field] = message[field][:20]
+        from .ask_dj.recent_presentation import KEY as RECENT_KEY, checked as recent_display
+        recent = recent_display(message.get(RECENT_KEY))
+        if recent is not None and message.get("session_turn", {}).get("provider_display_source") is not None:
+            entry[RECENT_KEY] = recent
+        if entry["kind"] == "conversation_dj":
+            from .session_speech import retained_projection
+            entry["session_speech"] = retained_projection(entry)
+        return entry
+
+    def _project_public_images(self, owner, entries):
+        """Attach only existing owner-bound leases after all awaited query checks."""
+        project = getattr(self._conversation_history, "live_public_images", None)
+        if not callable(project):
+            return
+        for entry in entries:
+            if entry.get("kind") == "conversation_dj" and entry.get("state") != "source_withdrawn":
+                pictures = project("profile:" + owner, entry.get("client_message_id"))
+                if pictures:
+                    entry["images"] = pictures
+
+    def _validate_grant_revision(self, owner, expected):
+        if self._grant_revision_now is not None and self._grant_revision_now(owner) != expected:
+            from .session_history_projection import HistoryQueryError
+            raise HistoryQueryError("invalid_history_cursor")
+
+    @staticmethod
+    def _validate_entry_deadlines(entries):
+        from .session_history_projection import entry_retained, HistoryQueryError
+        # Collection building may have yielded after projecting any earlier row.
+        # Keep every original cap; no refreshed lease or partial stale snapshot.
+        if any(not entry_retained(entry) for entry in entries):
+            raise HistoryQueryError("invalid_history_cursor")
+
+    async def _revision_session(self, owner: str, session: dict) -> dict:
+        suffix = (
+            await self._conversation_history.async_scope_revision("profile:" + owner)
+            if self._conversation_history
+            else "0:0"
+        )
+        deletion_scope = ""
+        if self._conversation_history is not None:
+            from .persistence.history_deletion import HistoryDeletionRepository
+            journal = HistoryDeletionRepository(self._repository._persistence)
+            targets = frozenset({session['session_id']})
+            deletion_scope = await self._conversation_history.async_archive_scope_digest(
+                owner, targets, entry_index=lambda messages: journal.async_scope_index(owner, messages, targets))
+        grant = await self._grant_revision(owner) if self._grant_revision else ""
+        retention = await self._repository.async_retention_policy()
+        if (session.get('retention_revision', retention[1]) != retention[1]
+                or self._repository.retention_fence[1]
+                or session.get('retention_fence', self._repository.retention_fence) != self._repository.retention_fence):
+            from .session_history_projection import HistoryQueryError
+            raise HistoryQueryError('invalid_history_cursor')
+        self._validate_grant_revision(owner, grant)
+        # A natural deadline can pass while unchanged revision/grant reads wait.
+        from .session_history_projection import session_retained
+        if not session_retained(session, retention_days=retention[0]):
+            raise HistoricalProjectionAccessDenied("session_unavailable")
+        return {
+            **session,
+            "_deletion_scope": deletion_scope,
+            "_sql_revision": session["revision"],
+            "revision": str(session["revision"])
+            + ":"
+            + session["lifecycle_status"]
+            + ":"
+            + suffix
+            + ":"
+            + grant + ":retention:" + str(retention[1]) + ":" + str(self._repository.retention_fence[0]) + (":delete:" + deletion_scope if deletion_scope else ""),
+        }
+
+    async def _qualify_summary(self, owner, session, cache=None):
+        if self._summary_validator is None or not session.get("summary_binding"):
+            return session
+        import json
+
+        cache = {} if cache is None else cache
+        key = json.dumps(session["summary_binding"], sort_keys=True)
+        if key not in cache:
+            cache[key] = await self._summary_validator(owner, session["summary_binding"])
+        if not cache[key]:
+            for name in ("tracks_observed", "moments_published"):
+                session["summary"][name].update(value=None, coverage="withdrawn")
+        return session
+
+    async def _session(self, owner: str, session_id: str) -> dict:
+        from .session_history_projection import session_retained
+        fence = self._repository.retention_fence
+        session = await self._repository.async_session_record(session_id)
+        retention, retention_revision = await self._repository.async_retention_policy()
+        if not session or session["owner_profile_id"] != owner or not session_retained(session, retention_days=retention):
+            raise HistoricalProjectionAccessDenied("session_unavailable")
+        session['retention_revision'] = retention_revision
+        session['retention_fence'] = fence
+        await self._qualify_summary(owner, session)
+        result = await self._revision_session(owner, session)
+        # Store/grant awaits may cross an intent commit. Never return the header
+        # captured before that commit, even if its renderer revision is stable.
+        fresh = await self._repository.async_session_record(session_id)
+        if not fresh:
+            raise HistoricalProjectionAccessDenied("session_unavailable")
+        if fresh['revision'] != session['revision']:
+            from .session_history_projection import HistoryQueryError
+            raise HistoryQueryError('invalid_history_cursor')
+        return result
+
+    async def async_session_page(
+        self, owner: str, *, limit: int = 20, cursor: str = "", include_active: bool = False
+    ) -> dict:
+        from .session_history_projection import (
+            checked_limit,
+            public_session,
+            session_retained,
+            HistoryQueryError,
+        )
+
+        checked_limit(limit)
+        fence = self._repository.retention_fence
+        retention, retention_revision = await self._repository.async_retention_policy()
+        revision = await self._repository.async_owner_revision(owner, include_active=include_active)
+        grant = await self._grant_revision(owner) if self._grant_revision else ""
+        scope = {
+            "grant_revision": grant,
+            "profile_id": owner,
+            "mode": "sessions",
+            "revision": revision,
+            "include_active": include_active,
+            "paging_version": 2,
+            "retention_revision": retention_revision,
+            "retention_epoch": fence[0],
+        }
+        from .history_entry_contract import cursor_scope
+        scope = cursor_scope(scope)
+        after = self._history_cursor.decode(cursor, scope) if cursor else None
+        if after is not None and not isinstance(after, list):
+            raise HistoryQueryError("invalid_history_cursor")
+        rows = await self._repository.async_session_records(
+            owner, limit=251, before=after, include_active=include_active
+        )
+        page = []
+        included_sessions = []
+        last = None
+        summary_cache = {}
+        for row in rows[:250]:
+            last = [row["created_at"], row["session_id"]]
+            if session_retained(row, retention_days=retention):
+                await self._qualify_summary(owner, row, summary_cache)
+                page.append(public_session(row))
+                included_sessions.append(row)
+            if len(page) >= limit:
+                break
+        more = bool(last and any([r["created_at"], r["session_id"]] < last for r in rows))
+        if (
+            await self._repository.async_owner_revision(owner, include_active=include_active)
+            != revision
+            or (await self._grant_revision(owner) if self._grant_revision else "") != grant
+            or await self._repository.async_retention_policy() != (retention, retention_revision)
+            or fence[1] or self._repository.retention_fence != fence
+        ):
+            raise HistoryQueryError("invalid_history_cursor")
+        self._validate_grant_revision(owner, grant)
+        if any(not session_retained(row, retention_days=retention) for row in included_sessions):
+            raise HistoryQueryError("invalid_history_cursor")
+        return {
+            "success": True,
+            "schema_version": 1,
+            "sessions": page,
+            "revision": revision,
+            "next_cursor": self._history_cursor.encode(scope, last) if more else None,
+            "coverage": "saved_sessions_keyset",
+            "retention_days": retention,
+            "retention_revision": retention_revision,
+        }
+
+    async def async_latest_playback_observations(self, owner: str, session_id: str) -> dict:
+        """At most three accepted rows, without skipping a withdrawn predecessor."""
+        from .session_history_projection import HistoryQueryError
+        session = await self._session(owner, session_id)
+        rows = await self._repository.async_entry_records(owner, session_id, descending=True,
+            kind="playback_observed", limit=3)
+        observations = []
+        for row in rows:
+            entry = await self._project_entry(owner, row)
+            if entry is None:
+                # Hidden source evidence is a gap, never permission to guess past it.
+                break
+            observations.append(entry)
+        if (await self._session(owner, session_id))["revision"] != session["revision"]:
+            raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines(observations)
+        return {"entries": observations, "revision": session["revision"],
+                "coverage": "stage1_distinct_accepted_observations", "complete": False}
+
+    async def _feed_replacements(self, owner: str, session_id: str, rows: list[dict]) -> dict:
+        from .session_history_projection import is_playback_occurrence
+
+        observed = {row["reference_id"]: row["order"] for row in rows
+                    if row["kind"] == "playback_observed"
+                    and is_playback_occurrence(row["reference_id"])}
+        if not observed:
+            return {}
+        replacements = {}
+        for row in await self._repository.async_feed_announcements(owner, session_id, list(observed)):
+            entry = await self._project_entry(owner, row)
+            if (not entry or entry.get("kind") != "dj_moment"
+                    or entry.get("moment_type") != "music_announcement"
+                    or entry.get("archive_basis") != "owner_metadata_narration_v1"
+                    or not isinstance(entry.get("text"), str) or not entry["text"].strip()):
+                continue
+            metadata = entry.get("music_announcement")
+            if not isinstance(metadata, dict) or metadata.get("schema_version") != 1:
+                continue
+            occurrence = metadata.get("occurrence_id")
+            if is_playback_occurrence(occurrence) and occurrence in observed and row["order"] > observed[occurrence]:
+                replacements[occurrence] = entry
+        return replacements
+
+    async def async_timeline_page(
+        self, owner: str, session_id: str, *, limit: int = 20, cursor: str = ""
+    ) -> dict:
+        from .session_history_projection import (
+            checked_limit,
+            public_session,
+            revision_scope,
+        )
+
+        checked_limit(limit)
+        session = await self._session(owner, session_id)
+        scope = revision_scope(owner, session, "timeline")
+        after = self._history_cursor.decode(cursor, scope) if cursor else 0
+        rows = await self._repository.async_entry_records(owner, session_id, after=after)
+        replacements = await self._feed_replacements(owner, session_id, rows[:250])
+        visible = []
+        last = after
+        for row in rows[:250]:
+            last = row["order"]
+            if row["kind"] == "playback_observed" and row["reference_id"] in replacements:
+                continue
+            entry = await self._project_entry(owner, row)
+            if entry is not None:
+                visible.append(entry)
+            if len(visible) >= limit:
+                break
+        more = any(r["order"] > last for r in rows)
+        from .session_history_projection import HistoryQueryError
+
+        if (await self._session(owner, session_id))["revision"] != session["revision"]:
+            raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines([*visible, *replacements.values()])
+        self._project_public_images(owner, visible)
+        return {
+            "success": True,
+            "schema_version": 1,
+            "session": public_session(session),
+            "entries": visible,
+            "revision": session["revision"],
+            "next_cursor": self._history_cursor.encode(scope, last) if more else None,
+            "coverage": "saved_entries_only",
+        }
+
+    async def async_timeline_window(
+        self,
+        owner: str,
+        session_id: str,
+        *,
+        window: str,
+        limit: int = 20,
+        anchor_entry_id: str = "",
+    ) -> dict:
+        """Bounded revalidation window; fresh appends never require a first-page walk."""
+        from .session_history_projection import checked_limit, public_session, HistoryQueryError
+
+        checked_limit(limit)
+        session = await self._session(owner, session_id)
+        if window not in {"tail", "anchor"}:
+            raise HistoryQueryError("invalid_history_window")
+        if window == "anchor":
+            anchor = (await self.async_open_entry(owner, session_id, anchor_entry_id))["entry"]
+            # Include the retained anchor, then later accepted rows in canonical order.
+            rows = await self._repository.async_entry_records(
+                owner, session_id, after=anchor["order"] - 1
+            )
+        else:
+            rows = await self._repository.async_entry_records(owner, session_id, descending=True)
+        replacements = await self._feed_replacements(owner, session_id, rows[:250])
+        visible = []
+        scanned = []
+        for row in rows[:250]:
+            scanned.append(row["order"])
+            if row["kind"] == "playback_observed" and row["reference_id"] in replacements:
+                continue
+            entry = await self._project_entry(owner, row)
+            if entry is not None:
+                visible.append(entry)
+            if len(visible) >= limit:
+                break
+        visible.sort(key=lambda entry: entry["order"])
+        if (await self._session(owner, session_id))["revision"] != session["revision"]:
+            raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines([*visible, *replacements.values()])
+        self._project_public_images(owner, visible)
+        return {
+            "success": True,
+            "schema_version": 1,
+            "session": public_session(session),
+            "entries": visible,
+            "revision": session["revision"],
+            "next_cursor": None,
+            "coverage": "bounded_saved_entry_window",
+            "window": window,
+            "anchor_entry_id": anchor_entry_id if window == "anchor" else None,
+            "scanned_order_min": min(scanned) if scanned else None,
+            "scanned_order_max": max(scanned) if scanned else None,
+            "scan_complete": len(scanned) == len(rows),
+            "window_limit": limit,
+        }
+
+    async def async_search_entries(
+        self, owner: str, session_id: str, query: str, *, limit: int = 20, cursor: str = ""
+    ) -> dict:
+        from .session_history_projection import (
+            checked_limit,
+            revision_scope,
+            text_highlights,
+            HistoryQueryError,
+        )
+
+        checked_limit(limit)
+        if not isinstance(query, str) or not query.strip() or len(query) > 200:
+            raise HistoryQueryError("invalid_history_search")
+        session = await self._session(owner, session_id)
+        scope = revision_scope(owner, session, "search", query)
+        after = self._history_cursor.decode(cursor, scope) if cursor else 0
+        rows = await self._repository.async_entry_records(owner, session_id, after=after)
+        matches = []
+        last = after
+        for row in rows[:250]:
+            last = row["order"]
+            entry = await self._project_entry(owner, row)
+            # Silence/withdrawn publication receipts have an explicit null body.
+            # They occupy a stable place in Flow but cannot match a text query.
+            marks = text_highlights(entry.get("text") or "", query) if entry else []
+            if marks:
+                matches.append({**entry, "highlights": marks})
+            if len(matches) >= limit:
+                break
+        more = any(r["order"] > last for r in rows)
+        from .session_history_projection import HistoryQueryError
+
+        if (await self._session(owner, session_id))["revision"] != session["revision"]:
+            raise HistoryQueryError("invalid_history_cursor")
+        self._validate_entry_deadlines(matches)
+        return {
+            "success": True,
+            "schema_version": 1,
+            "session_id": session_id,
+            "query": query,
+            "revision": session["revision"],
+            "matches": matches,
+            "returned_count": len(matches),
+            "total_count": len(matches) if not cursor and not more else None,
+            "complete": not more,
+            "next_cursor": self._history_cursor.encode(scope, last) if more else None,
+            "normalization": "NFKC-casefold",
+            "highlight_units": "utf16",
+        }
+
+    async def async_open_source_entry(self, owner: str, session_id: str, entry_id: str) -> dict:
+        """Navigation receipts never grant retained text to a dependent turn/audio."""
+        opened=await self.async_open_entry(owner,session_id,entry_id)
+        if (opened['entry'].get('state')=='source_withdrawn'
+                or opened['entry'].get('kind')=='dj_publication'):
+            raise HistoricalProjectionAccessDenied('entry_source_withdrawn')
+        # Temporary presentation capabilities never enter dependent source/model input.
+        opened['entry'].pop('images', None)
+        return opened
+
+    async def async_open_entry(
+        self, owner: str, session_id: str, entry_id: str, *, moment_id: str | None = None
+    ) -> dict:
+        from .session_history_projection import HistoryQueryError, public_session
+
+        session = await self._session(owner, session_id)
+        # Anchor reads are scoped directly; they do not traverse unbounded timelines.
+        row = await self._repository.async_entry_record(
+            owner, session_id, entry_id, moment_id=moment_id
+        )
+        entry = await self._project_entry(owner, row) if row else None
+        if entry is None:
+            raise HistoricalProjectionAccessDenied("entry_unavailable")
+        if (await self._session(owner, session_id))["revision"] != session["revision"]:
+            raise HistoryQueryError("history_cursor_stale")
+        from .session_history_projection import entry_retained
+        if not entry_retained(entry):
+            raise HistoricalProjectionAccessDenied("entry_unavailable")
+        self._project_public_images(owner, [entry])
+        return {
+            "success": True,
+            "schema_version": 1,
+            "session": public_session(session),
+            "entry": entry,
+            "read_only": session["lifecycle_status"] in {"ENDED", "INTERRUPTED"},
+            "navigation_only": True,
+        }
+
+    async def async_find_playback(
+        self, owner: str, *, artist: str = "", title: str = "", album: str = "", limit: int = 20
+    ) -> dict:
+        from .session_history_projection import checked_limit, normalize_text
+
+        checked_limit(limit)
+        grant = await self._grant_revision(owner) if self._grant_revision else ""
+        initial_revision = await self._repository.async_owner_revision(owner, include_active=True)
+        matches = []
+        rows = await self._repository.async_playback_records(owner)
+        for row in rows[:250]:
+            try:
+                await self._session(owner, row["session_id"])
+            except HistoricalProjectionAccessDenied:
+                continue
+            entry = await self._project_entry(owner, row)
+            if not entry:
+                continue
+            fields = entry["playback"]
+            if any(
+                wanted and normalize_text(wanted) not in normalize_text(str(fields.get(key) or ""))
+                for key, wanted in [("artist", artist), ("title", title), ("album", album)]
+            ):
+                continue
+            matches.append(
+                {
+                    **entry,
+                    "open_action": {
+                        "kind": "open_session",
+                        "session_id": row["session_id"],
+                        "entry_id": row["entry_id"],
+                        "navigation_only": True,
+                    },
+                }
+            )
+            if len(matches) >= limit:
+                break
+        if (
+            await self._grant_revision(owner) if self._grant_revision else ""
+        ) != grant or await self._repository.async_owner_revision(
+            owner, include_active=True
+        ) != initial_revision:
+            from .session_history_projection import HistoryQueryError
+
+            raise HistoryQueryError("invalid_history_cursor")
+        self._validate_grant_revision(owner, grant)
+        self._validate_entry_deadlines(matches)
+        return {
+            "success": True,
+            "schema_version": 1,
+            "matches": matches,
+            "coverage": "saved_observed_playback_only",
+            "full_listens_proven": False,
+            "repeat_counts_supported": False,
+            "complete": len(rows) <= 250 and len(matches) < limit,
+        }
+
+    @staticmethod
+    def _authorize_session(
+        requester_profile_id: str, projection: HistoricalSessionProjection | None
+    ) -> HistoricalSessionProjection | None:
+        if projection is None:
+            return None
+        HistoricalProjectionQueryService._authorize_owner(
+            requester_profile_id, projection.owner_profile_id
+        )
+        HistoricalProjectionQueryService._ensure_supported_version(projection.projection_version)
+        return projection
+
+    @staticmethod
+    def _authorize_moment(
+        requester_profile_id: str, projection: HistoricalDJMomentProjection | None
+    ) -> HistoricalDJMomentProjection | None:
+        if projection is None:
+            return None
+        HistoricalProjectionQueryService._authorize_owner(
+            requester_profile_id, projection.owner_profile_id
+        )
+        if projection.visibility != "owner":
+            raise HistoricalProjectionAccessDenied("historical_moment_visibility_not_supported")
+        HistoricalProjectionQueryService._ensure_supported_version(projection.projection_version)
+        return projection
+
+    @staticmethod
+    def _authorize_owner(requester_profile_id: str, owner_profile_id: str) -> None:
+        if requester_profile_id != owner_profile_id:
+            raise HistoricalProjectionAccessDenied("historical_projection_owner_mismatch")
+
+    @staticmethod
+    def _ensure_supported_version(projection_version: int) -> None:
+        if projection_version not in SUPPORTED_PROJECTION_VERSIONS:
+            raise HistoricalProjectionVersionUnsupported(
+                f"unsupported_historical_projection_version:{projection_version}"
+            )

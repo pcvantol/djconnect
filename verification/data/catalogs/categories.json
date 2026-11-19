@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.0",
+  "dataset_version": "1.0",
+  "owner": "pcvantol/djconnect",
+  "categories": [
+    {
+      "id": "strings",
+      "purpose": "String parsing, rendering, validation and sanitization coverage",
+      "cases": [
+        "normal",
+        "empty",
+        "whitespace",
+        "single_character",
+        "very_long",
+        "maximum_allowed",
+        "maximum_plus_one",
+        "unicode",
+        "emoji",
+        "rtl",
+        "combining_characters",
+        "zero_width",
+        "bom",
+        "normalization",
+        "control_characters",
+        "html",
+        "markdown",
+        "json",
+        "xml",
+        "sql",
+        "javascript",
+        "command_injection",
+        "prompt_injection",
+        "path_traversal",
+        "unicode_homoglyphs",
+        "invalid_utf",
+        "unknown_encoding",
+        "mixed_encoding"
+      ]
+    },
+    {
+      "id": "numbers",
+      "purpose": "Numeric boundary and parser coverage",
+      "cases": [
+        "zero",
+        "one",
+        "minus_one",
+        "int_max",
+        "int_min",
+        "float",
+        "nan",
+        "infinity",
+        "maximum_allowed",
+        "maximum_plus_one",
+        "minimum_minus_one",
+        "random",
+        "negative",
+        "huge",
+        "scientific_notation",
+        "hexadecimal"
+      ]
+    },
+    {
+      "id": "booleans",
+      "purpose": "Boolean parser and schema behavior",
+      "cases": ["true", "false", "missing", "null", "unexpected_values"]
+    },
+    {
+      "id": "enums",
+      "purpose": "Enum compatibility and failure behavior",
+      "cases": ["valid", "deprecated", "unknown", "future", "wrong_case", "whitespace", "mixed_case", "invalid_value", "missing"]
+    },
+    {
+      "id": "arrays",
+      "purpose": "Collection size, type and order behavior",
+      "cases": ["empty", "one_item", "many_items", "maximum_allowed", "maximum_plus_one", "duplicates", "null_entries", "mixed_types", "random_order"]
+    },
+    {
+      "id": "objects",
+      "purpose": "Object shape and parser behavior",
+      "cases": ["minimal", "typical", "maximum", "unknown_fields", "missing_required_fields", "recursive", "deep_nesting", "duplicate_keys", "malformed"]
+    },
+    {
+      "id": "date_time",
+      "purpose": "Temporal parsing and timezone behavior",
+      "cases": ["epoch", "leap_year", "dst_transition", "timezone", "future", "past", "current", "maximum", "minimum", "invalid", "malformed"]
+    },
+    {
+      "id": "binary",
+      "purpose": "Binary artifact and transport behavior",
+      "cases": ["empty", "small", "large", "maximum", "corrupted", "invalid_checksum", "random"]
+    }
+  ],
+  "traceability": {
+    "scenario_categories": ["Setup", "Profiles", "Resolver", "Ask DJ", "Music DNA", "Discover", "Track Insight", "Playback", "Backend", "Privacy", "Localization", "Performance", "Hardware", "Networking", "Capabilities", "Release", "Export", "Import"],
+    "verification_modes": ["smoke", "regression", "boundary", "security", "localization", "performance", "migration", "compatibility", "accessibility", "chaos"],
+    "risk_categories": ["parsing", "validation", "privacy", "security", "localization", "compatibility", "performance", "reliability"]
+  }
+}

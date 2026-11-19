@@ -1,0 +1,3 @@
+# Immutable prompt history — Pi rc.5 operational binding Finalization
+
+20 October 2026. Existing Core sole writer reconciles protected source PR1240/a0f72feca7c9a4e8f5f14343824e0a5ac5373351 and exact reviewed1e89d64bde1cf5477b08dc3be0553712573a688c. Scope: documentary rolling-record reconciliation, preserved authority/publication/byte evidence, exact producer source/final/manifest handoff after protected readback, and safe own workspace cleanup with complete recovery evidence. No contract/manifest/runtime/DAG/consumer source change, new hardware authority, configuration mutation, dispatch, installation or model-budget use. Preserve the contextual-DJ and older Brand worktrees, dashboard lock, all unique evidence and uncertain refs. Hard stop18:26:14Z.

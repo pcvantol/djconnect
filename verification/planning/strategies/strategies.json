@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "strategies": [
+    {
+      "id": "minimal",
+      "default_policy": "smoke",
+      "optimizes": ["runtime"],
+      "reduction": "mandatory_only"
+    },
+    {
+      "id": "smoke",
+      "default_policy": "smoke",
+      "optimizes": ["runtime", "critical_path_confidence"],
+      "reduction": "critical_path"
+    },
+    {
+      "id": "regression",
+      "default_policy": "regression",
+      "optimizes": ["coverage", "risk"],
+      "reduction": "risk_based"
+    },
+    {
+      "id": "release",
+      "default_policy": "release_candidate",
+      "optimizes": ["release_confidence", "blocking_risk"],
+      "reduction": "risk_and_mandatory"
+    },
+    {
+      "id": "security",
+      "default_policy": "security",
+      "optimizes": ["security_risk"],
+      "reduction": "security_risk"
+    },
+    {
+      "id": "localization",
+      "default_policy": "localization",
+      "optimizes": ["locale_coverage"],
+      "reduction": "representative_locale"
+    },
+    {
+      "id": "accessibility",
+      "default_policy": "accessibility",
+      "optimizes": ["accessibility_coverage"],
+      "reduction": "representative_accessibility"
+    },
+    {
+      "id": "performance",
+      "default_policy": "nightly",
+      "optimizes": ["latency_signal", "resource_signal"],
+      "reduction": "performance_hotspots"
+    },
+    {
+      "id": "hardware",
+      "default_policy": "hardware",
+      "optimizes": ["hardware_confidence", "exclusive_resource_use"],
+      "reduction": "resource_limited"
+    },
+    {
+      "id": "nightly",
+      "default_policy": "nightly",
+      "optimizes": ["coverage", "risk", "confidence"],
+      "reduction": "pairwise_and_risk"
+    },
+    {
+      "id": "research",
+      "default_policy": "research",
+      "optimizes": ["learning"],
+      "reduction": "exploratory"
+    }
+  ]
+}

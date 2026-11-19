@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "qualification": "ACTUAL_ISOLATED_HA_HTTP_SYNTHETIC_SPOTIFY",
+  "publication": "PENDING_QUALIFIED_PRODUCER_PIN",
+  "native": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "source_receipt_sha256": "5b839c4634f294749584d798c9d98de39d9fa2834e68c151ac0204315cb1052a",
+  "note": "Expired synthetic lab action/image IDs illustrate shape only; no live playback authority.",
+  "response": {
+    "success": true,
+    "text": "Op Synthetic release vind je verder:",
+    "items": [
+      {
+        "id": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb",
+        "uri": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb",
+        "context_uri": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb",
+        "kind": "album",
+        "title": "Synthetic release",
+        "artist": "Volbeat",
+        "subtitle": "Volbeat",
+        "label": "Speel album",
+        "button_label": "Speel album",
+        "action_style": "play_now",
+        "image_url": "/api/djconnect/v1/image_proxy/LG7C5WxR1EzTB9O39uqr8JEL",
+        "result_set_id": "choices-6075dab843e847459a278e0a540e484a",
+        "action_id": "835d0c23f2f2044a13d5e6ca45f2e815"
+      },
+      {
+        "id": "bbbbbbbbbbbbbbbbbbbbbb:1",
+        "kind": "track",
+        "uri": "spotify:track:1111111111111111111111",
+        "title": "Synthetic live recording",
+        "artist": "Volbeat",
+        "disc_number": null,
+        "track_number": null,
+        "subtitle": "Volbeat",
+        "image_url": "/api/djconnect/v1/image_proxy/LG7C5WxR1EzTB9O39uqr8JEL",
+        "label": "Afspelen",
+        "button_label": "Afspelen",
+        "action_style": "play_now",
+        "result_set_id": "choices-6075dab843e847459a278e0a540e484a",
+        "action_id": "f5a2d8050e885e7e13dde9d89babaff5"
+      },
+      {
+        "id": "bbbbbbbbbbbbbbbbbbbbbb:2",
+        "kind": "track",
+        "uri": "spotify:track:2222222222222222222222",
+        "title": "Synthetic acoustic recording",
+        "artist": "Volbeat",
+        "disc_number": null,
+        "track_number": null,
+        "subtitle": "Volbeat",
+        "image_url": "/api/djconnect/v1/image_proxy/LG7C5WxR1EzTB9O39uqr8JEL",
+        "label": "Afspelen",
+        "button_label": "Afspelen",
+        "action_style": "play_now",
+        "result_set_id": "choices-6075dab843e847459a278e0a540e484a",
+        "action_id": "58e2cfcf223ed3f0b078154fab8ed4d1"
+      }
+    ],
+    "playback_actions": [
+      {
+        "id": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb",
+        "uri": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb",
+        "context_uri": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb",
+        "kind": "album",
+        "title": "Synthetic release",
+        "artist": "Volbeat",
+        "subtitle": "Volbeat",
+        "label": "Speel album",
+        "button_label": "Speel album",
+        "action_style": "play_now",
+        "image_url": "/api/djconnect/v1/image_proxy/LG7C5WxR1EzTB9O39uqr8JEL",
+        "result_set_id": "choices-6075dab843e847459a278e0a540e484a",
+        "action_id": "835d0c23f2f2044a13d5e6ca45f2e815"
+      },
+      {
+        "id": "bbbbbbbbbbbbbbbbbbbbbb:1",
+        "kind": "track",
+        "uri": "spotify:track:1111111111111111111111",
+        "title": "Synthetic live recording",
+        "artist": "Volbeat",
+        "disc_number": null,
+        "track_number": null,
+        "subtitle": "Volbeat",
+        "image_url": "/api/djconnect/v1/image_proxy/LG7C5WxR1EzTB9O39uqr8JEL",
+        "label": "Afspelen",
+        "button_label": "Afspelen",
+        "action_style": "play_now",
+        "result_set_id": "choices-6075dab843e847459a278e0a540e484a",
+        "action_id": "f5a2d8050e885e7e13dde9d89babaff5"
+      },
+      {
+        "id": "bbbbbbbbbbbbbbbbbbbbbb:2",
+        "kind": "track",
+        "uri": "spotify:track:2222222222222222222222",
+        "title": "Synthetic acoustic recording",
+        "artist": "Volbeat",
+        "disc_number": null,
+        "track_number": null,
+        "subtitle": "Volbeat",
+        "image_url": "/api/djconnect/v1/image_proxy/LG7C5WxR1EzTB9O39uqr8JEL",
+        "label": "Afspelen",
+        "button_label": "Afspelen",
+        "action_style": "play_now",
+        "result_set_id": "choices-6075dab843e847459a278e0a540e484a",
+        "action_id": "58e2cfcf223ed3f0b078154fab8ed4d1"
+      }
+    ],
+    "images": [],
+    "result_set": {
+      "schema_version": 1,
+      "result_set_id": "choices-6075dab843e847459a278e0a540e484a",
+      "expires_in": 600.0,
+      "items": [
+        {
+          "id": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb",
+          "uri": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb",
+          "context_uri": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb",
+          "kind": "album",
+          "title": "Synthetic release",
+          "artist": "Volbeat",
+          "subtitle": "Volbeat",
+          "label": "Speel album",
+          "button_label": "Speel album",
+          "action_style": "play_now",
+          "image_url": "/api/djconnect/v1/image_proxy/LG7C5WxR1EzTB9O39uqr8JEL",
+          "result_set_id": "choices-6075dab843e847459a278e0a540e484a",
+          "action_id": "835d0c23f2f2044a13d5e6ca45f2e815"
+        },
+        {
+          "id": "bbbbbbbbbbbbbbbbbbbbbb:1",
+          "kind": "track",
+          "uri": "spotify:track:1111111111111111111111",
+          "title": "Synthetic live recording",
+          "artist": "Volbeat",
+          "disc_number": null,
+          "track_number": null,
+          "subtitle": "Volbeat",
+          "image_url": "/api/djconnect/v1/image_proxy/LG7C5WxR1EzTB9O39uqr8JEL",
+          "label": "Afspelen",
+          "button_label": "Afspelen",
+          "action_style": "play_now",
+          "result_set_id": "choices-6075dab843e847459a278e0a540e484a",
+          "action_id": "f5a2d8050e885e7e13dde9d89babaff5"
+        },
+        {
+          "id": "bbbbbbbbbbbbbbbbbbbbbb:2",
+          "kind": "track",
+          "uri": "spotify:track:2222222222222222222222",
+          "title": "Synthetic acoustic recording",
+          "artist": "Volbeat",
+          "disc_number": null,
+          "track_number": null,
+          "subtitle": "Volbeat",
+          "image_url": "/api/djconnect/v1/image_proxy/LG7C5WxR1EzTB9O39uqr8JEL",
+          "label": "Afspelen",
+          "button_label": "Afspelen",
+          "action_style": "play_now",
+          "result_set_id": "choices-6075dab843e847459a278e0a540e484a",
+          "action_id": "58e2cfcf223ed3f0b078154fab8ed4d1"
+        }
+      ],
+      "presentation": {
+        "kind": "album_tracks",
+        "caption": "Op Synthetic release vind je verder:",
+        "primary_action_id": "835d0c23f2f2044a13d5e6ca45f2e815",
+        "track_action_ids": [
+          "f5a2d8050e885e7e13dde9d89babaff5",
+          "58e2cfcf223ed3f0b078154fab8ed4d1"
+        ]
+      }
+    },
+    "album_track_observation": {
+      "schema_version": 1,
+      "state": "complete",
+      "album_uri": "spotify:album:bbbbbbbbbbbbbbbbbbbbbb",
+      "current_track_omitted": true,
+      "returned_count": 2,
+      "as_of": "2026-10-19T15:10:55.019624+00:00",
+      "valid_until": "2026-10-19T15:11:55.019624+00:00"
+    }
+  }
+}

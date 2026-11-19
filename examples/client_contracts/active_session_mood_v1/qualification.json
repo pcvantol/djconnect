@@ -1,0 +1,43 @@
+{
+  "assignment": "DJC-CORE-ACTIVE-SESSION-MOOD-V1-20261011",
+  "baseline": "baseline.json",
+  "early_pin": "ad178c7b88d8f2e502c2930afe95352554838572",
+  "early_receipt_sha256": "2fb00996b65c803b505159f642736b1ba593ed46c0c695e143507282a60f6030",
+  "browser_receipt_sha256": "21d20c126cc4d2b0d2c091d384b729c94bd81874d41e9ef0bcfbbed6720820a7",
+  "qualification": {
+    "ACTIVE_MOOD_CONTRACT": "SOFTWARE_PASS",
+    "OWNER_AUTH_AND_LIFECYCLE": "REAL_ISOLATED_HA_PASS",
+    "RUNTIME_BROADCAST_PROPAGATION": "REAL_ISOLATED_HA_PASS",
+    "FUTURE_MOMENT_SEMANTICS": "QUALIFIED_SYNTHETIC_INPUT_REAL_CHAIN_PASS",
+    "APPLE_CONSUMER_HANDOFF": "EARLY_PIN_TRANSFERRED_APPLE87_6110323886",
+    "VIBECAST_COMPATIBILITY": "REAL_HA_BROWSER_PASS_CAF_MODELED",
+    "native": "NOT_RUN",
+    "installed": "NOT_RUN",
+    "hardware": "NOT_RUN"
+  },
+  "checks": {
+    "unittest": {
+      "run": 1697,
+      "skipped": 7,
+      "failures": 0
+    },
+    "verification_pytest": {
+      "passed": 172
+    },
+    "runtime_races": {
+      "passed": 5
+    },
+    "ruff": "PASS",
+    "bandit_medium_high": "ZERO",
+    "paired_live_sdk": "PASS",
+    "conversation_history_sdk": {
+      "requests": 24,
+      "result": "PASS"
+    }
+  },
+  "review": {
+    "technical_privacy": "FINAL_BOUNDED_GO",
+    "consumer_ux": "FINAL_BOUNDED_GO_FOUR_FRAMES_VISUALLY_INSPECTED"
+  },
+  "coverage_session_mood_percent": 91.30434782608695
+}
