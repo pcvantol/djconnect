@@ -253,15 +253,15 @@ project-specific assets must be mounted or supplied by the repository under
 test.
 
 Runtime product positioning, capabilities, compatibility, metadata, roadmap
-and releases are canonical under `tools/verification/RUNTIME_*.md`. The Docker
-Hub repository remains `pcvantol/djconnect-verification-platform`; it is the
-distribution channel, not a separate product name.
+and releases are canonical under `tools/verification/RUNTIME_*.md`. The image
+is distributed through GitHub Container Registry as
+`ghcr.io/djconnect-music-dj/djconnect-verification-platform`.
 
 Build command:
 
 ```bash
 python -m tools.verification.cli docker release \
-  --image pcvantol/djconnect-verification-platform \
+  --image ghcr.io/djconnect-music-dj/djconnect-verification-platform \
   --base-image python:3.12-slim \
   --release-sha "$(git rev-parse HEAD)"
 ```
@@ -282,8 +282,8 @@ python -m tools.verification.cli
 ```
 
 At the start of every live verification run, the Execution Environment pulls
-the configured published runtime image from Docker Hub. The default reference
-is `pcvantol/djconnect-verification-platform:1.1.0`. A pull failure is a
+the configured published runtime image from GitHub Container Registry. The default
+reference is `ghcr.io/djconnect-music-dj/djconnect-verification-platform@sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619`. A pull failure is a
 fail-closed environment gate and stops the run before scenario execution, so a
 stale local image is never used silently.
 
@@ -292,7 +292,7 @@ Typical use with a checked-out project mounted as `/workspace`:
 ```bash
 docker run --rm \
   -v "$PWD:/workspace" \
-  pcvantol/djconnect-verification-platform:1.1.0 \
+  ghcr.io/djconnect-music-dj/djconnect-verification-platform@sha256:3f0b8d3ba5f07afa5c8f05cd305dd92c43806e0fed24395be96d832e7ef72619 \
   --root /workspace config
 ```
 
