@@ -62,21 +62,30 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
         script = script.rstrip().removesuffix('"')
         for failure in ("none", "swap", "restart", "existing", "symlink", "missing"):
             with self.subTest(failure=failure), tempfile.TemporaryDirectory() as tmp:
-                root = Path(tmp); target = root / "target"; stage = root / "stage"; backup = root / "backup"
-                target.mkdir(); (target / "version").write_text("old")
-                stage.mkdir(); (stage / "version").write_text("new")
+                root = Path(tmp)
+                target = root / "target"
+                stage = root / "stage"
+                backup = root / "backup"
+                target.mkdir()
+                (target / "version").write_text("old")
+                stage.mkdir()
+                (stage / "version").write_text("new")
                 if failure == "existing":
-                    backup.mkdir(); (backup / "version").write_text("earlier")
+                    backup.mkdir()
+                    (backup / "version").write_text("earlier")
                 if failure == "symlink":
                     backup.symlink_to(root / "nonexistent")
                 if failure == "missing":
-                    (target / "version").unlink(); target.rmdir()
-                bindir = root / "bin"; bindir.mkdir()
+                    (target / "version").unlink()
+                    target.rmdir()
+                bindir = root / "bin"
+                bindir.mkdir()
                 mv = bindir / "mv"
                 mv.write_text('#!/bin/sh\nif [ "$FAIL" = swap ] && [ "$1" = "$staging" ]; then exit 1; fi\nexec /bin/mv "$@"\n')
                 ha = bindir / "ha"
                 ha.write_text('#!/bin/sh\nif [ "$FAIL" = restart ] && [ "$2" = restart ] && [ ! -e "$MARKER" ]; then touch "$MARKER"; exit 1; fi\nexit 0\n')
-                mv.chmod(0o755); ha.chmod(0o755)
+                mv.chmod(0o755)
+                ha.chmod(0o755)
                 env = dict(os.environ, PATH=f"{bindir}:/usr/bin:/bin", target=str(target), staging=str(stage), backup=str(backup), FAIL=failure, MARKER=str(root / "marker"))
                 result = subprocess.run(["sh", "-eu", "-c", script], env=env, capture_output=True, text=True)
                 self.assertEqual(result.returncode == 0, failure == "none", result.stderr)
