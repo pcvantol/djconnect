@@ -17,6 +17,11 @@ class ReleaseRepositoryIdentityTests(unittest.TestCase):
                     self.assertIn(profile.source_repository, names)
                     self.assertTrue(set(profile.participants) <= names)
 
+    def test_hacs_profile_uses_transferred_source(self):
+        profile = COMPONENT_PROFILES["hacs-integration"]
+        self.assertEqual(profile.source_repository, "djconnect-music-dj/djconnect")
+        self.assertEqual(profile.participants, ("djconnect-music-dj/djconnect",))
+
     def test_pi_profile_uses_transferred_source_and_distribution(self):
         profile = COMPONENT_PROFILES["pi-renderer-family"]
         self.assertEqual(profile.source_repository, "djconnect-music-dj/djconnect-pi")
