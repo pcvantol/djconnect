@@ -7,7 +7,7 @@ services:
     labels:
       djconnect.verification: "true"
       djconnect.phase: "9L"
-      djconnect.repository: "pcvantol/djconnect"
+      djconnect.repository: "djconnect-music-dj/djconnect"
       djconnect.source_sha: "${DJCONNECT_VERIFICATION_SOURCE_SHA:-unknown}"
       djconnect.source_fingerprint: "${DJCONNECT_VERIFICATION_SOURCE_FINGERPRINT:-unknown}"
     ports:
