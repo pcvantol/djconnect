@@ -5364,7 +5364,7 @@ Requirements:
   `APNS_TOKEN_ENCRYPTION_KEY`.
 - Store APNs tokens encrypted at rest with AES-GCM using
   `APNS_TOKEN_ENCRYPTION_KEY`. Planned key rotation must follow
-  `pcvantol/djconnect-api/OPERATOR_RUNBOOK.md`; the current runtime uses one
+  `djconnect-music-dj/djconnect-api/OPERATOR_RUNBOOK.md`; the current runtime uses one
   active key, so zero-downtime rotation requires temporary dual-key/backfill
   tooling before replacing the secret.
 - Keep sandbox endpoint `https://api.sandbox.push.apple.com` and production
