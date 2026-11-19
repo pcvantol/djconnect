@@ -1,5 +1,10 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.13 — 2026-11-19
+
+- Use the organization repository when cloning DJConnect Core.
+- Preserve all previously generated onboarding packages.
+
 ## 4.5.12 — 2026-11-17
 
 - Update the isolated Pico developer Ruff tool to 0.17.5.
