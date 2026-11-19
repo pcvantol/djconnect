@@ -46,8 +46,28 @@ def accepted_text(fact, *, locale='nl',persona='home_dj',mood='energy'):
 
 
 class LiveImpressionTest(unittest.IsolatedAsyncioTestCase):
-    setUpClass=classmethod(base_tests.PublicArtistNarrationTest.setUpClass.__func__)
-    tearDownClass=classmethod(base_tests.PublicArtistNarrationTest.tearDownClass.__func__)
+    @classmethod
+    def setUpClass(cls):
+        # The shared harness replaces Runtime for its disposable HA stubs.
+        # Restore both module identities so later HTTP fixtures catch the same
+        # revision exception classes their manager actually raises.
+        import sys
+        cls._prior_runtime=sys.modules.get('custom_components.djconnect.session_runtime')
+        base_tests.PublicArtistNarrationTest.setUpClass()
+
+    @classmethod
+    def tearDownClass(cls):
+        import sys
+        import custom_components.djconnect as package
+        base_tests.PublicArtistNarrationTest.tearDownClass()
+        if cls._prior_runtime is None:
+            sys.modules.pop('custom_components.djconnect.session_runtime',None)
+        else:
+            sys.modules['custom_components.djconnect.session_runtime']=cls._prior_runtime
+        if cls._prior_runtime is None:
+            package.__dict__.pop('session_runtime',None)
+        else:
+            package.session_runtime=cls._prior_runtime
     asyncSetUp=base_tests.PublicArtistNarrationTest.asyncSetUp
     asyncTearDown=base_tests.PublicArtistNarrationTest.asyncTearDown
 
@@ -89,11 +109,23 @@ class LiveImpressionTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(a['qualification'],'qualified')
         self.assertIsNone(a['source_expires_at'])
         self.assertFalse(a['requires_spotify_attribution'])
+        # New private source/media rights never become a passive or receiver grant.
+        _,receiver=self.session.broadcast.subscribe_with_broadcast_token(self.session.broadcast.broadcast_token,lambda event:None)
+        self.assertNotIn('live_impression',json.dumps(receiver))
+        from custom_components.djconnect.passive_contribution import contribution
+        import time
+        passive,_=contribution(self.session.broadcast,time.monotonic(),projection_version=3)
+        self.assertNotEqual(passive.get('moment_id') if passive else None,moment.moment_id)
         context=SimpleNamespace(profile_id='profile-a')
         photo=wire['live_impression']['photos'][0]
         media=await art.prepare(self.hass,self.runtime,context,session_id=self.session.session_id,
             target={'moment_id':moment.moment_id,'photo_id':photo['photo_id']},contract_version=3)
         self.assertEqual(media['artwork']['state'],'ready',media)
+        result,status=await art.handle_prepare(self.hass,{**self.identity,'contract_version':3,
+            'session_id':self.session.session_id,'targets':[{'moment_id':moment.moment_id,'photo_id':photo['photo_id']}]},headers=self.headers)
+        self.assertEqual(status,200,result)
+        self.assertEqual(result['session_media'][0]['schema_version'],3)
+        self.assertEqual(result['session_media'][0]['artwork']['state'],'ready',result)
         self.assertEqual(media['artwork']['media_revision'],photo['revision'])
         asset_id=media['artwork']['url'].rsplit('/',1)[-1]
         body=await art.image(self.hass,context,self.session.session_id,asset_id,runtime=self.runtime)
@@ -172,10 +204,15 @@ class LiveImpressionTest(unittest.IsolatedAsyncioTestCase):
         reference=json.loads(text.accepted.reference_json)
         async def guard():
             pass
-        photo=SimpleNamespace(revision=reference['commons_revision'],url=reference['url'],original_url=reference['original_url'],
-            license_id=reference['license'],license_url=reference['license_url'])
+        photo=media.artist_photo.Candidate('File:Nora Vale concert fixture.png',reference['url'],1024,768,
+            'Fixture Photographer','Original photo','Fixture Photographer · CC BY-SA 4.0',
+            reference['license'],reference['license_url'],reference['commons_revision'],True,reference['original_url'])
+        caption='Nora Vale 1 performed at Fixture Hall, Fixture City, 2020-06-02.'
+        reference['source_metadata_revision']=media.metadata_revision(photo,caption,'2020-06-02')
+        data={'query':{'pages':[{'title':photo.title,'imageinfo':[{'extmetadata':{
+            'ImageDescription':{'value':caption},'DateTimeOriginal':{'value':'2020-06-02'}}}]}]}}
         async def request(*args,**kwargs):
-            return 200,'{}','https://commons.wikimedia.org/'
+            return 200,json.dumps(data),'https://commons.wikimedia.org/'
         async def image(*args,**kwargs):
             return b'changed','image/png'
         with patch.object(media.EventPublicFetch,'request',request),patch.object(media.EventPublicFetch,'image',image),\
@@ -217,7 +254,10 @@ class LiveImpressionTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(candidates),1)
         self.assertEqual(candidates[0][2],'')  # Upload metadata never dates the event.
         self.assertIn('generator=search',fetch.request.call_args.args[0])
-        for field,value in [('LicenseShortName','unknown'),('ImageDescription','Other Artist Live at Fixture Hall')]:
+        for field,value in [('LicenseShortName','unknown'),('ImageDescription','Other Artist Live at Fixture Hall'),
+            ('ImageDescription','Nora Vale 1 at the meet and greet of her concert at Fixture Hall'),
+            ('ImageDescription','Nora Vale 1 backstage at Fixture Hall concert'),
+            ('ImageDescription','Nora Vale 1 concert soundcheck at Fixture Hall')]:
             bad=deepcopy(data)
             bad['query']['pages'][0]['imageinfo'][0]['extmetadata'][field]['value']=value
             fetch.request.return_value=(200,json.dumps(bad),'https://commons.wikimedia.org/w/api.php')
@@ -247,7 +287,7 @@ class LiveImpressionTest(unittest.IsolatedAsyncioTestCase):
         async def ha_model(*args,**kwargs):
             calls.append(args)
             return {'response':{'speech':{'plain':{'speech':'draft'}}}}
-        async def failed(brief,*,ask,admission,debug=None):
+        async def failed(brief,*,ask,admission,debug=None,fetch=None):
             await ask('one bounded draft')
             return None
         fallback=AsyncMock(return_value='must never be called')
@@ -259,3 +299,77 @@ class LiveImpressionTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result,brief.seed)
         self.assertEqual(len(calls),1)
         fallback.assert_not_called()
+
+
+    async def test_same_pixels_changed_source_metadata_withdraws_only_image(self):
+        from custom_components.djconnect import live_impression_media as media
+        from unittest.mock import AsyncMock
+        sample=accepted_text(self.fact)
+        reference=json.loads(sample.accepted.reference_json)
+        photo=media.artist_photo.Candidate('File:Nora Vale concert fixture.png',reference['url'],1024,768,
+            'Fixture Photographer','Original photo','Fixture Photographer · CC BY-SA 4.0',
+            reference['license'],reference['license_url'],reference['commons_revision'],True,reference['original_url'])
+        caption=json.loads(sample.accepted.payload_json)['photos'][0]['caption']
+        reference['source_metadata_revision']=media.metadata_revision(photo,caption,'2020-06-02')
+        data={'query':{'pages':[{'title':photo.title,'imageinfo':[{'extmetadata':{
+            'ImageDescription':{'value':caption},'DateTimeOriginal':{'value':'2020-06-02'}}}]}]}}
+        async def guard():
+            pass
+        image=AsyncMock(return_value=(sample.pixels,sample.mime))
+        with patch.object(media.EventPublicFetch,'request',AsyncMock(return_value=(200,json.dumps(data),'https://commons.wikimedia.org/'))), \
+             patch.object(media.EventPublicFetch,'image',image), \
+             patch.object(media.artist_photo,'candidates',return_value=[photo]):
+            self.assertEqual(await media.refetch(reference,guard),(sample.pixels,sample.mime))
+        for field,value in [('ImageDescription','Corrected: a different concert'),('DateTimeOriginal','2021-06-02')]:
+            changed=deepcopy(data)
+            changed['query']['pages'][0]['imageinfo'][0]['extmetadata'][field]['value']=value
+            image.reset_mock()
+            with patch.object(media.EventPublicFetch,'request',AsyncMock(return_value=(200,json.dumps(changed),'https://commons.wikimedia.org/'))), \
+                 patch.object(media.EventPublicFetch,'image',image), \
+                 patch.object(media.artist_photo,'candidates',return_value=[photo]):
+                with self.assertRaisesRegex(PermissionError,'metadata_withdrawn'):
+                    await media.refetch(reference,guard)
+                image.assert_not_awaited()
+            self.assertTrue(sample.accepted.valid())
+            self.assertEqual(str(sample),sample.accepted.text)
+
+
+    async def test_future_exact_original_date_cannot_be_coarsened_to_current_year(self):
+        from datetime import UTC, datetime, date
+        from custom_components.djconnect import live_impression_research as research
+        sample=accepted_text(self.fact)
+        data={'date':'2026','date_precision':'year','venue':'Fixture Hall','city':'Fixture City',
+            'title':sample.accepted.title,'lead':sample.accepted.lead,'text':str(sample),
+            'alt_text':json.loads(sample.accepted.payload_json)['photos'][0]['alt_text']}
+        clock=SimpleNamespace(now=lambda tz:datetime(2026,6,1,tzinfo=UTC))
+        caption='Nora Vale 1 Live at Fixture Hall, Fixture City.'
+        with patch.object(research,'datetime',clock):
+            self.assertIsNone(research.event_candidate(data,subject='Nora Vale 1',caption=caption,
+                captured_date='2026-06-02 18:00'))
+            self.assertIsNone(research.event_candidate(data,subject='Nora Vale 1',caption=caption+' 2026-06-02',
+                captured_date=''))
+            self.assertIsNotNone(research.event_candidate(data,subject='Nora Vale 1',caption=caption,
+                captured_date='2026-05-31 18:00'))
+        self.assertFalse(research.original_date_not_future('2026-06-02',today=date(2026,6,1)))
+        self.assertTrue(research.original_date_not_future('2026-05-31',today=date(2026,6,1)))
+
+    def test_tracked_actual_ha_http_receipt_binds_final_source_and_declared_fixture_scope(self):
+        from pathlib import Path
+        root=Path(__file__).resolve().parents[1]
+        proof=json.loads((root/'examples/client_contracts/live_impression_v1/actual-ha-wire.json').read_text())
+        self.assertTrue(proof['source_before_after_equal'])
+        self.assertEqual(len(proof['source_pins']),318)
+        for path,digest in proof['source_pins'].items():
+            self.assertEqual(hashlib.sha256((root/path).read_bytes()).hexdigest(),digest,path)
+        self.assertEqual(hashlib.sha256((root/proof['harness']).read_bytes()).hexdigest(),proof['harness_sha256'])
+        raw=proof['receipt']
+        self.assertTrue(raw['source_unchanged'])
+        self.assertEqual(len(raw['source_files_sha256']),proof['raw_selected_product_count'])
+        extension=raw['extension']
+        self.assertEqual(extension['state'],'PASS')
+        self.assertEqual(extension['declared_synthetic_source_and_narration_calls'],1)
+        self.assertEqual((extension['real_model_calls'],extension['real_public_source_calls']),(0,0))
+        self.assertTrue(extension['ordinary_paired_media_prepare3'])
+        self.assertTrue(extension['ordinary_paired_local_speech_prepare3'])
+        self.assertTrue(extension['original_story_photo_event_survive_restart'])
+        self.assertEqual(extension['native_or_installed_acceptance'],'NOT_RUN')

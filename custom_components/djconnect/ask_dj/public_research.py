@@ -1039,6 +1039,14 @@ async def web_references(fetch, subject, question, locale, *, album=None, angle=
     return sources
 
 
+def _proactive_fetch_owner(fetch, guard):
+    if type(fetch) is PublicFetch:
+        return fetch.guard is guard
+    from ..live_impression_research import EventPublicFetch
+    return (type(fetch) is EventPublicFetch and fetch.guard is guard
+            and fetch.maximum_requests <= MAX_REQUESTS)
+
+
 async def research(subject, question, locale, guard, *, qualified_music=False, expected_roles=(),
                    expected_entity_id="", allow_web=True, fetch=None,original_paragraphs=False,artist_introduction=False,story_topic='',research_angle='',lookup_topic='',secondary_language=True):
     """One explicit turn owns source work; caller keeps all owner/Session guards."""
@@ -1133,7 +1141,7 @@ async def research(subject, question, locale, guard, *, qualified_music=False, e
                 owner = ConcertPublicFetch if research_angle == 'current_events' else ResearchPublicFetch
                 async with owner(guard) as owned:
                     await collect(owned)
-            elif type(fetch) is PublicFetch and fetch.guard is guard:
+            elif _proactive_fetch_owner(fetch, guard):
                 # A proactive producer's actor lookup and public pages consume
                 # one owner/budget, not a second eight-request allowance.
                 await collect(fetch)

@@ -65,6 +65,7 @@ async def qualify(hass, manager, history, request, client):
     from verify_hybrid_transport_http import tls
     from custom_components.djconnect import api_handlers, pipeline
     from custom_components.djconnect.bulletin_intake import SOURCES
+    from custom_components.djconnect import bulletin_service
     from custom_components.djconnect.bulletin_runtime import capture_work
     from custom_components.djconnect.bulletin_service import (
         async_start_bulletin_service, async_close_bulletin_service)
@@ -136,7 +137,10 @@ async def qualify(hass, manager, history, request, client):
     assert work is not None
     service = secure_site = viewer_client = viewer_ws = None
     try:
+        # Exercise the original public-news collector explicitly. The normal
+        # product default is private headlines; fixture feeds are public SOURCES.
         with patch("aiohttp.ClientSession", return_value=http) as factory, \
+                patch.object(bulletin_service,"PRIVATE_SOURCES",SOURCES), \
                 patch.object(pipeline, "_call_conversation_process_transport", fixture_transport):
             await async_start_bulletin_service(hass)
             service = hass.data["djconnect"]["bulletin_service"]

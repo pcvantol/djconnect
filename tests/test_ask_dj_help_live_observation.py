@@ -47,28 +47,12 @@ class HelpObservationTests(unittest.IsolatedAsyncioTestCase):
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
         receipts = root / 'examples/client_contracts/ask_dj_help_context_v1'
-        original = json.loads((receipts / 'actual-ha-wire.json').read_text())
-        fixture = json.loads((receipts / 'actual-ha-wire-bulletin-diagnostics-current.json').read_text())
+        original = json.loads((receipts / 'actual-ha-wire-live-impression-20261119.json').read_text())
+        fixture = json.loads((receipts / 'actual-ha-wire-bulletin-diagnostics-current-live-impression-20261119.json').read_text())
         self.assertEqual(fixture['status'], 'PASS')
         self.assertTrue(fixture['source_before_after_equal'])
-        self.assertEqual(len(fixture['source_hashes']), 315)
+        self.assertEqual(len(fixture['source_hashes']), 318)
         for path, digest in fixture['source_hashes'].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if path == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if path == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if path in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root / path).read_bytes()).hexdigest(), digest, path)
         self.assertEqual(hashlib.sha256((root / original['harness']).read_bytes()).hexdigest(), original['harness_sha256'])
         self.assertEqual(len(fixture['cases']), 18)

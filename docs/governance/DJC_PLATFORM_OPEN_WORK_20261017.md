@@ -4,7 +4,7 @@ Current combined local checkpoint: 49 reported issues, 36 families, 140 steps; 1
 
 Direct owner request; existing Core writer, [register #1101](https://github.com/pcvantol/djconnect/issues/1101). This dated evidence overlay does not start a product slice, dispatch another writer or replace the living DAG.
 
-Observed 2026-10-17T13:54:01.609247+00:00; Core main `cc9b49fe9ca5312dd3bf962b3bac319aa25b3f15`. 13 repositories, 15 open issues/registers and 7 open PRs. All 62 explicitly Planned/In-progress maintenance gates are retained below; null-status historical inventory/projection rows are not counted as unfinished product assignments. Windows remains retired; its register is historical.
+Observed 2026-10-17T13:54:01.609247+00:00; Core main `cc9b49fe9ca5312dd3bf962b3bac319aa25b3f15`. 13 repositories, 15 open issues/registers and 7 open PRs. All 66 explicitly Planned/In-progress maintenance gates are retained below; null-status historical inventory/projection rows are not counted as unfinished product assignments. Windows remains retired; its register is historical.
 
 ## What can close and what stays open
 
@@ -443,6 +443,10 @@ This is the initial readback; subsequent scoped closures are listed above.
 | `SETTINGS::WEBSITE::COPY` | DJC-WEBSITE | Planned |
 | `SETTINGS::JOINT::ACCEPTANCE` | DJC-CORE | Planned |
 | `CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE` | DJC-CORE | In progress |
+| `LIVE-IMPRESSION::CONTRACT` | DJC-CORE | In progress |
+| `LIVE-IMPRESSION::PRODUCER` | DJC-CORE | In progress |
+| `LIVE-IMPRESSION::APPLE` | DJC-APPLE | In progress |
+| `LIVE-IMPRESSION::ACCEPTANCE` | DJC-CORE | Planned |
 
 ## Cleanup and resource result
 

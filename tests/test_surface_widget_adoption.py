@@ -379,11 +379,11 @@ class WidgetAdoptionTests(unittest.IsolatedAsyncioTestCase):
 class WidgetActualHAContractTests(unittest.TestCase):
     def test_original_actual_ha_widget_source_join_preserves_closed_acceptance_boundary(self):
         root = Path(__file__).resolve().parents[1]
-        wire = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-actual-ha.json').read_text())
+        wire = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-actual-ha-live-impression-20261119.json').read_text())
         self.assertEqual(wire['ha_sdk_version'], '2026.10.0')
-        current = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-requalification-bulletin-diagnostics-current.json').read_text())
+        current = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-requalification-bulletin-diagnostics-current-live-impression-20261119.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
-        self.assertEqual(len(current['source_pins']), 315)
+        self.assertEqual(len(current['source_pins']), 318)
         self.assertEqual(current['harness'], wire['harness'])
         self.assertEqual(current['harness_sha256'], wire['harness_sha256'])
         extension = current['receipt']['extension']
@@ -391,22 +391,6 @@ class WidgetActualHAContractTests(unittest.TestCase):
         self.assertEqual(extension['external_API_calls'], 0)
         self.assertIn('custom_components/djconnect/artist_review_words.py', current['source_pins'])
         for relative, expected in current['source_pins'].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if relative == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(expected, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if relative == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(expected, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if relative in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), expected, relative)
         self.assertEqual(hashlib.sha256((root / wire['harness']).read_bytes()).hexdigest(), wire['harness_sha256'])
         for key in ('pre_scheduling_unload_denied', 'late_paired_authority_scrubbed',

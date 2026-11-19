@@ -514,12 +514,22 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
                 from .ask_dj.public_research import operation_fetch_budget
                 budget = operation_fetch_budget.set([12])
                 try:
-                    live = await realize_live(narration, ask=ask, admission=guard, debug=debug)
-                    if live is not None:
-                        return live
-                    if model_calls:
-                        return fallback_text  # A rejected rich story never buys another writer/reviewer pair.
-                    return await realize(narration, ask=ask, admission=guard, debug=debug) or fallback_text
+                    from .public_artist_narration import eligible_subject
+                    if eligible_subject(narration) is None:
+                        return await realize(narration, ask=ask, admission=guard, debug=debug) or fallback_text
+                    from .live_impression_research import EventPublicFetch
+                    async def source_guard():
+                        guard()
+                    async with EventPublicFetch(source_guard) as fetch:
+                        live = await realize_live(narration, ask=ask, admission=guard, debug=debug,fetch=fetch)
+                        if live is not None:
+                            return live
+                        if model_calls:
+                            return fallback_text  # No second writer/reviewer pair after a rejected rich story.
+                        # Ordinary artist fallback shares the same HTTP owner and
+                        # original eight reads, including the image lookup spent.
+                        fetch.maximum_requests=8
+                        return await realize(narration, ask=ask, admission=guard, debug=debug,fetch=fetch) or fallback_text
                 finally:
                     operation_fetch_budget.reset(budget)
             if type(narration) is PlaybackRequestBrief:

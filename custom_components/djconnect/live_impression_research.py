@@ -1,7 +1,7 @@
 """Bounded event web/image research over the existing public-source and HA owners."""
 from __future__ import annotations
 import asyncio
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 import hashlib
 import json
 import re
@@ -40,6 +40,24 @@ class EventPublicFetch(research.PublicFetch):
             return bytes(pixels), response.content_type
 
 
+def original_metadata(page):
+    infos=page.get('imageinfo',[]) if isinstance(page,dict) else []
+    ext=infos[0].get('extmetadata',{}) if len(infos)==1 and isinstance(infos[0],dict) else {}
+    def field(key):
+        value=ext.get(key,{}) if isinstance(ext,dict) else {}
+        return artist_photo.plain(value.get('value'),4000) if isinstance(value,dict) else ''
+    return field('ImageDescription'),field('DateTimeOriginal')
+
+
+def metadata_revision(photo, caption, original_date):
+    """Source semantics and license revision independent from image byte digest."""
+    return hashlib.sha256(_json({'title':photo.title,'source_url':artist_photo.file_url(photo.title),
+        'image_revision':photo.revision,'original_url':photo.original_url,
+        'author':photo.author,'credit':photo.credit,'attribution':photo.attribution,
+        'license':photo.license_id,'license_url':photo.license_url,
+        'caption':caption,'original_date':original_date}).encode()).hexdigest()
+
+
 async def discover(fetch, subject):
     """Real image search then original licensed file metadata, not a seed fixture."""
     status, body, _ = await fetch.request(artist_photo.API + '?' + urlencode({
@@ -62,19 +80,27 @@ async def discover(fetch, subject):
         if min(photo.width,photo.height)<512:
             continue
         page = next(p for p in pages if p.get('title')==photo.title)
-        ext = page['imageinfo'][0].get('extmetadata',{})
-        def field(key):
-            return artist_photo.plain(ext.get(key,{}).get('value'),4000)
-        caption = field('ImageDescription')
+        caption,original_date=original_metadata(page)
         if not re.search(r'\b(?:concerts?|live at|live performance|on stage|performing live|festival)\b',caption,re.I):
             continue
         # Original caption, not search filename, must name the resolved artist.
         if not re.search(r'(?<!\w)'+re.escape(subject)+r'(?!\w)',caption,re.I):
             continue
-        if re.search(r'\b(?:tribute|cover band|cancelled|canceled|upcoming|AI.generated|stock photo)\b',caption,re.I):
+        if re.search(r'\b(?:tribute|cover band|cancelled|canceled|upcoming|AI.generated|stock photo|meet[ -]and[ -]greet|meet[ -]?[&][ -]?greet|backstage|soundcheck|rehearsal|press conference|red carpet|arriving|arrival|leaving the venue)\b',caption,re.I):
             continue
-        result.append((photo,caption,field('DateTimeOriginal')))
+        result.append((photo,caption,original_date))
     return result
+
+
+def original_date_not_future(value, *, today=None):
+    """A known exact capture day cannot be hidden behind a coarse event year."""
+    match=re.match(r'^([0-9]{4}-[0-9]{2}-[0-9]{2})(?:$|[ T])',value) if isinstance(value,str) else None
+    if match is None:
+        return True  # Unknown camera precision still needs original caption evidence.
+    try:
+        return date.fromisoformat(match[1]) <= (today or datetime.now(UTC).date())
+    except ValueError:
+        return False
 
 
 def event_candidate(data, *, subject, caption, captured_date, evidence=''):
@@ -83,6 +109,14 @@ def event_candidate(data, *, subject, caption, captured_date, evidence=''):
         return None
     if not all(_label(data[k], 2000 if k=='text' else 500) for k in ('date','venue','city','title','lead','text')):
         return None
+    if not original_date_not_future(captured_date):
+        return None
+    # Do not downgrade a known future original caption date to its current
+    # month/year. The public caption is data, never permission to assume past.
+    if data['date_precision'] in {'month','year'}:
+        exact=re.findall(r'(?<![0-9])([0-9]{4}-[0-9]{2}-[0-9]{2})(?![0-9])',caption)
+        if any(day.startswith(data['date']) and not original_date_not_future(day) for day in exact):
+            return None
     if (data['date_precision'] not in {'day','month','year'}
             or data['date'] not in caption+' '+captured_date
             or data['venue'].casefold() not in (caption+' '+evidence).casefold()
@@ -109,7 +143,7 @@ def event_topic(subject, caption, original_date):
     return research.safe_lookup_topic(hint)
 
 
-async def realize(brief, *, ask, admission, debug=None):
+async def realize(brief, *, ask, admission, debug=None, fetch=None):
     """Called only by the existing qualified artist-story HA realization owner."""
     from .public_artist_narration import eligible_subject
     from .narration_brief import _object
@@ -122,7 +156,8 @@ async def realize(brief, *, ask, admission, debug=None):
         if not brief.current():
             raise PermissionError('live_impression_source_expired')
     try:
-        async with EventPublicFetch(guard) as fetch:
+        from contextlib import nullcontext
+        async with (EventPublicFetch(guard) if fetch is None else nullcontext(fetch)) as fetch:
             candidates = await discover(fetch,subject)
             previous={key for row in brief.recent_public_stories for key in row[2]}
             candidates=[row for row in candidates if 'photo-'+hashlib.sha256(artist_photo.file_url(row[0].title).encode()).hexdigest()[:32] not in previous]
@@ -183,7 +218,8 @@ async def realize(brief, *, ask, admission, debug=None):
         # reference-page identity. Future explicit media reads bind exact bytes.
         reference={'photo_id':descriptor['photo_id'],'url':photo.url,'original_url':photo.original_url,
             'revision':revision,'source_url':descriptor['source_url'],'license':photo.license_id,
-            'license_url':photo.license_url,'commons_revision':photo.revision}
+            'license_url':photo.license_url,'commons_revision':photo.revision,
+            'source_metadata_revision':metadata_revision(photo,caption,captured)}
         source_records=[{'provider':s.provider,'title':s.title,'url':s.url,'license':s.license} for s in sources]
         values=(brief.fact,data['title'],data['lead'],data['text'],_json(payload),_json(source_records),
             _json(reference),brief.locale,brief.persona,brief.mood)

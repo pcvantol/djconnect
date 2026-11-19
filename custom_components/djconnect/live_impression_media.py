@@ -11,7 +11,7 @@ from urllib.parse import urlencode
 
 from . import artist_photo
 from .live_impression import BASIS, admitted, checked
-from .live_impression_research import EventPublicFetch
+from .live_impression_research import EventPublicFetch,metadata_revision,original_metadata
 
 
 def authority(hass, owner):
@@ -79,12 +79,17 @@ async def refetch(reference,guard):
             'iiurlwidth':1600,'format':'json','formatversion':2}),maximum=512000)
         if status!=200:
             raise ValueError('original_photo_unavailable')
-        photos=artist_photo.candidates(json.loads(body),[title])
+        data=json.loads(body)
+        photos=artist_photo.candidates(data,[title])
         photo=next((p for p in photos if p.revision==reference.get('commons_revision')
             and p.url==reference.get('url') and p.original_url==reference.get('original_url')
             and p.license_id==reference['license'] and p.license_url==reference['license_url']),None)
         if photo is None:
             raise PermissionError('original_photo_withdrawn')
+        page=next((p for p in data.get('query',{}).get('pages',[]) if p.get('title')==title),None)
+        caption,original_date=original_metadata(page)
+        if metadata_revision(photo,caption,original_date)!=reference.get('source_metadata_revision'):
+            raise PermissionError('original_photo_metadata_withdrawn')
         pixels,mime=await fetch.image(photo.url)
         from .forecast_imagery import image_format
         if not image_format(pixels,mime) or hashlib.sha256(pixels).hexdigest()!=reference['revision']:

@@ -119,7 +119,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md](../../../docs/product/ASK_DJ_PLAYBACK_REQUEST_TRUTH_V1.md) | `01005eb8ec55e996a9c18723dea9aae1c3eb8d43b2b8c9a5fea07a73be26b36f` |
 | [docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md](../../../docs/verification/ASK_DJ_CONTEXTUAL_GOLDEN_RELEASE_GATE_V1.md) | `554a0702ec56a4295be7cef1d8280df2a160f7d0e52d162609e7a3b2bfb8e189` |
 | [docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md](../../../docs/product/VIBECAST_RECEIVER_END_AUTHORITY_RETIREMENT_V1.md) | `c014f140421d129abcc9b890bd1bd94fc0f19ebfcad3b3da6d03d413911f8b6e` |
-| [docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md](../../../docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md) | `06cc36df67c9c85d866efc2c8a23d3121ed5fd2d8379ff65944786ad88ef73d8` |
+| [docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md](../../../docs/governance/DJC_PLATFORM_OPEN_WORK_20261017.md) | `6cc2f921e59a822267e4fa3ca09cb513e62372b0b6a97bf92f30d4f801fde971` |
 | [docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md](../../../docs/history/prompts/2026-10-17-integral-open-work-audit-finalization.md) | `038d885b93a9f08d3d4a1782ef3f74f4a9f7b53c041b261420dede3bd48bbaee` |
 | [docs/verification/VIBECAST_END_RETIREMENT_QUALIFICATION_20261017.md](../../../docs/verification/VIBECAST_END_RETIREMENT_QUALIFICATION_20261017.md) | `97b1ccbc4485cb91f011fd4a8a0e0d200b809b1cf56d25e06471e7d3b5f71bcd` |
 | [docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md](../../../docs/verification/VIBECAST_END_RETIREMENT_SOURCE_READBACK_20261017.md) | `ccc5771889755f1b96fd4ba7942bff0ec7c237b2afb6948efe943182ef8c6588` |
@@ -140,4 +140,4 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/ALBUM_NARRATION_20261018.md](../../../docs/verification/ALBUM_NARRATION_20261018.md) | `62ea9307ab7031261cfec2c9a4b8125015439d62aa7f4bc1953f75a02a26e767` |
 | [docs/verification/HISTORY_ENTRY_COMPATIBILITY_20261018.md](../../../docs/verification/HISTORY_ENTRY_COMPATIBILITY_20261018.md) | `ae3755dab4a7736b14c820f3fb44dfabf3f19b86b390421fb766943305a4eec6` |
 | [docs/product/LIVE_IMPRESSION_EXPERIENCE_V1.md](../../../docs/product/LIVE_IMPRESSION_EXPERIENCE_V1.md) | `8e01964954d777557f96ff51681cc511e66cfb3ec11dcc1521beaf93a5e70f13` |
-| [docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md](../../../docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md) | `d650a65d709e63b9ff3fb3463de0ed210e58d8acd8f11a45f4e069ce5c2d7c1c` |
+| [docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md](../../../docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md) | `2d40d63e6d7d1321cacbf17f981135dfb5daa8b19d67b8f21975c804ed36228b` |

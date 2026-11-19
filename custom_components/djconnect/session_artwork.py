@@ -563,7 +563,8 @@ def attach_live_projection(hass, owner, session_id):
                 # Explicit-response resources never become Session/Flow cards,
                 # including their loading, expired or withdrawn state entries.
                 continue
-            target = {k:v for k,v in key[2] if k in {'moment_id','entry_id'}}
+            version=3 if ('media_contract_version','3') in key[2] else 1
+            target = {k:v for k,v in key[2] if k in {'moment_id','entry_id','photo_id'}}
             a = admissions.get(target.get('moment_id'), {})
             if 'moment_id' in target and not (a.get('current_display_allowed') or a.get('active_flow_display_allowed')):
                 continue
@@ -573,7 +574,7 @@ def attach_live_projection(hass, owner, session_id):
                     result.append(project(asset, current=a.get('current_display_allowed', False), historical=False))
             else:
                 reason = 'loading' if key in registry.inflight else registry.states.get(key, (0,'not_prepared'))[1]
-                result.append(unavailable(session_id, target, reason))
+                result.append(unavailable(session_id, target, reason,contract_version=version))
         return sorted(result, key=lambda item: str(item.get('moment_id') or item.get('entry_id')))
 
     active.broadcast.media_projector = projected
@@ -625,7 +626,7 @@ async def handle_prepare(hass, data, *, headers=None, user_id=None):
     async def one(target):
         try:
             return await prepare(hass, runtime, context, session_id=data['session_id'], target=target,
-                                 **({'contract_version':2} if data['contract_version']==2 else {}))
+                                 **({'contract_version':data['contract_version']} if data['contract_version'] in {2,3} else {}))
         except (ValueError, PermissionError):
             return unavailable(data['session_id'], target, 'target_unavailable',contract_version=data['contract_version'])
     projections = await asyncio.gather(*(one(t) for t in targets))

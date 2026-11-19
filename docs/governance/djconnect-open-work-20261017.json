@@ -312,436 +312,332 @@
     {
       "id": "PROJ::INTELLIGENCE::DJ-PRESENCE",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Adjustable DJ presence",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SLICE::APPLE::DJ-PRESENCE-CONTROL",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Native iPhone/iPad/Mac presence slider",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "QUAL::VIBECAST::DJ-PRESENCE-COMPAT",
       "lane": "DJC-VIBECAST",
-      "status": "Planned",
-      "title": "Local/static presence compatibility",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "QUAL::PRODUCT::DJ-PRESENCE-V1",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Joint presence v1 acceptance",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "CORRECTION::APPLE::DISCOVERY-ARTWORK-ACCEPTANCE",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Native Discovery artwork and lifecycle readback",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "RELATION::CONSUMERS::ALBUM-CONTINUITY-ACCEPTANCE",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Separate native and joint album continuity acceptance",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "FORECAST::APPLE::VIEW",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Native Flow | Forecast with qualified imagery",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "FORECAST::PRODUCT::JOINT",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Joint Forecast product acceptance",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "FORECAST::VIBECAST::VISIBLE",
       "lane": "DJC-VIBECAST",
-      "status": "Planned",
-      "title": "Visible ambient Forecast composition/adoption",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "FORECAST::CORE::UPCOMING",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Optional qualified upcoming media and artist anchors",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "AMBIENT::APPLE::JOIN",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Verify Session-only proactive content and retained Ask DJ history",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "AMBIENT::PRODUCT::JOINT",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Joint ambient convergence acceptance",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "ENTRY::CORE::LIFECYCLE",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Core entry/readiness and exact lifecycle operations",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "ENTRY::CORE::ASK-LIFECYCLE",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Common text/voice lifecycle semantics",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "ENTRY::CORE::PAUSE-RECOVERY",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Pause and observation recovery policy",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "ENTRY::APPLE::NAVIGATION",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Native preparation/music selection and return",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "ENTRY::APPLE::LIFECYCLE",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Native exact lifecycle invocation integration",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "HISTORY::APPLE::SUMMARY",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Native history list/header summary adoption",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SURFACE::APPLE::NAVIGATION",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Typed native Session navigation",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SURFACE::APPLE::ADOPTION",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Session widget/Activity/Island adoption",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SURFACE::APPLE::QUIET-TRANSPORT",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Quiet surface update transport qualification",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SURFACE::PRODUCT::JOINT",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Joint selected native surface acceptance",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "CONTINUATION::CORE::POLICY",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Independent opportunity/consent policy",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "CONTINUATION::APPLE::ALERT-TRANSPORT",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Continuation invitation native transport",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "CONTINUATION::PRODUCT::JOINT",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Joint Continuation invitation acceptance",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "CONVERSATION::APPLE::SHARED-ADOPTION",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "One native Ask DJ controller with optional Session context",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "INSIGHT::APPLE::MOMENT-DRILLDOWN",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Native pinned Track Insight and return to the same Flow/draft",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "CONVERSATION::PRODUCT::JOINT",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Shared dialogue and exact Moment detail joint acceptance",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "TRANSPORT::APPLE::HYBRID",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Existing Apple route coordinator adopts qualified producer contract",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "TRANSPORT::JOINT::HYBRID",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Native LAN external and recovery acceptance across supported Apple devices",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "MEDIA::APPLE::SESSION-ARTWORK",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Shared native Session artwork presentation",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "MEDIA::JOINT::SESSION-ARTWORK",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Core and Apple subject/rights/expiry acceptance",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::DISPOSITION",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Implement reviewed web-first legacy disposition",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::TRUST",
       "lane": "DJC-CORE",
-      "status": "In progress",
-      "title": "Qualify browser-bound onboarding and guest trust contract",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "In progress"
     },
     {
       "id": "WEB::BOOTSTRAP",
       "lane": "DJC-API",
-      "status": "Planned",
-      "title": "Temporary encrypted rendezvous service",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::DISPLAY",
       "lane": "DJC-CORE",
-      "status": "In progress",
-      "title": "Separate HA code and readonly display grant",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "In progress"
     },
     {
       "id": "WEB::OWNER-SCANNER",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Paired owner scanner and explicit installation confirmation",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::SHARED",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Explicit shared Flow NowPlaying Forecast projection",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::MEDIA",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Independent shared artwork and speech grants expiry attribution",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::GUEST",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Invitation redemption guest principal and revocation",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::BROWSER",
       "lane": "DJC-VIBECAST",
-      "status": "Planned",
-      "title": "One responsive web UI and accountless browser join",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::DISTRIBUTION",
       "lane": "DJC-VIBECAST",
-      "status": "Planned",
-      "title": "Receiver public bootstrap selected; serviceadapter conditionally selected; full E2E separately gated",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::DISCOVERY",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Admission-scoped HA local discovery announcement",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::APP",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Isolated temporary guest shell discovery scanner leave home restore",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::REACTIONS",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Five subject-bound ephemeral reactions and bounded sparkle",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::AGGREGATE",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Temporary audience aggregation and host lock budget policy",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::INFLUENCE",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Bounded DJ-led Mood direction influence and owner confirmation",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::CHAT",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Guest Ask DJ isolated thread safe dispatch and spend budgets",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::REQUEST",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Exact recording clarification and guest proposal dialogue",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::EFFECT-POLICY",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "DJ request consideration fairness and uncertain-effect policy",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::ENQUEUE",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Real enqueue reconciliation and observed-recording Persona announcement",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "WEB::JOINT",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Joint browser native media lifecycle physical five-language acceptance",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SPEECH::APPLE::ADOPTION",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "Native shared speech, voice and autoplay adoption",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SPEECH::JOINT::ACCEPTANCE",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Visible and audible shared product qualification",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SETTINGS::CORE::MIGRATION",
       "lane": "DJC-CORE",
-      "status": "In progress",
-      "title": "Qualified legacy migration/removal and owning-lane reconciliation",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "In progress"
     },
     {
       "id": "SETTINGS::APPLE::EDITOR",
       "lane": "DJC-APPLE",
-      "status": "Planned",
-      "title": "One Jouw DJ editor and shared Session quick controls",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SETTINGS::PI::ADOPTION",
       "lane": "DJC-PI",
-      "status": "Planned",
-      "title": "Pi allowed shared Session settings and legacy disposition",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SETTINGS::ESP32::ADOPTION",
       "lane": "DJC-ESP32",
-      "status": "Planned",
-      "title": "ESP32 Assist/voice/settings compatibility and legacy disposition",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SETTINGS::VIBECAST::COMPAT",
       "lane": "DJC-VIBECAST",
-      "status": "Planned",
-      "title": "Shared renderer allowed Session fields without Profile preferences",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SETTINGS::WEBSITE::COPY",
       "lane": "DJC-WEBSITE",
-      "status": "Planned",
-      "title": "Six-parameter scope/help and obsolete settings copy audit",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "SETTINGS::JOINT::ACCEPTANCE",
       "lane": "DJC-CORE",
-      "status": "Planned",
-      "title": "Cross-device six-field effects, persistence and cleanup acceptance",
-      "disposition": "PRESERVED_NOT_NEWLY_DISPATCHED"
+      "status": "Planned"
     },
     {
       "id": "CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE",
       "lane": "DJC-CORE",
-      "status": "In progress",
-      "title": "Personal DJ restoration: current corrective acceptance remains open",
-      "disposition": "EXISTING_CORRECTION_RETAINED_NOT_NEW_DISPATCH"
+      "status": "In progress"
+    },
+    {
+      "id": "LIVE-IMPRESSION::CONTRACT",
+      "lane": "DJC-CORE",
+      "status": "In progress"
+    },
+    {
+      "id": "LIVE-IMPRESSION::PRODUCER",
+      "lane": "DJC-CORE",
+      "status": "In progress"
+    },
+    {
+      "id": "LIVE-IMPRESSION::APPLE",
+      "lane": "DJC-APPLE",
+      "status": "In progress"
+    },
+    {
+      "id": "LIVE-IMPRESSION::ACCEPTANCE",
+      "lane": "DJC-CORE",
+      "status": "Planned"
     }
   ],
   "proofs": [
@@ -1882,5 +1778,6 @@
     "golden_execution": "ALL_NAMED_OWNER_FILES_SCHEDULED;ACTUAL_EXECUTION_CHECK_RETAINED;NODE_RENDERER_SEPARATE_HOST_FIXTURE",
     "voice_preview": "LOCAL_PAIRED_OWNER_IMPLEMENTED;PROTECTED_REAL_PROVIDER_NATIVE_AUDIBLE_OPEN",
     "ci_url_fixture_security": "SIX_SCANNER_FINDINGS_FIXED_BY_EXACT_URL_COMPONENTS;CAUSAL_HOST_SPOOF_NEGATIVES;HELPER_SOURCE_HASH_BOUND;EXACT_CI_RECHECK_REQUIRED"
-  }
+  },
+  "live_impression_delta_20261119": "Four new canonical Live-impressie leaves retained. Historical repository, GitHub and installed proof readbacks were not globally refreshed."
 }
