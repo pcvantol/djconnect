@@ -68,7 +68,7 @@ def export(root: Path, revision: str) -> tuple[bytes, dict]:
         raise ValueError("committed_recipe_mismatch")
     handoff = {
         "schema_version": 1, "brand_version": manifest["brand_version"],
-        "producer_repository": "pcvantol/djconnect", "producer_commit": revision,
+        "producer_repository": "djconnect-music-dj/djconnect", "producer_commit": revision,
         "brand_manifest": MANIFEST, "brand_manifest_sha256": hashlib.sha256(raw_manifest).hexdigest(),
         "master_sha256": manifest["master"]["sha256"],
         "acceptance": "candidate only; protected Core review and explicit consumer acceptance required",

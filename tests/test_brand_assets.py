@@ -2,10 +2,13 @@
 
 import base64
 import hashlib
+import io
 import json
 from pathlib import Path
 import struct
+import subprocess
 import unittest
+import zipfile
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +20,18 @@ class BrandAssetsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.manifest = json.loads((FAMILY / "manifest.json").read_text())
+
+    def test_new_brand_handoff_identifies_current_repository_and_exact_source(self):
+        from scripts.package_brand import export
+
+        revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+        archive, handoff = export(ROOT, revision)
+        self.assertEqual(handoff["producer_repository"], "djconnect-music-dj/djconnect")
+        self.assertEqual(handoff["producer_commit"], revision)
+        with zipfile.ZipFile(io.BytesIO(archive)) as packaged:
+            self.assertEqual(json.loads(packaged.read("handoff.json")), handoff)
+        self.assertEqual(handoff["consumers"]["apple"], "pcvantol/djconnect-app#138")
+        self.assertEqual(handoff["consumers"]["website"], "pcvantol/djconnect-website#62")
 
     def test_exact_approved_source_and_all_packaged_digests(self):
         master = self.manifest["master"]
