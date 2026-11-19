@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from pathlib import Path
 import sys
+import io
+import json
+from contextlib import redirect_stdout
+from unittest.mock import patch
 import unittest
 
 
@@ -9,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.software_assurance.workflow_closure import scan_workflow_closure  # noqa: E402
+from tools.software_assurance.workflow_closure import main, scan_workflow_closure  # noqa: E402
 
 
 SHA_A = "a" * 40
@@ -18,6 +22,16 @@ SHA_C = "c" * 40
 
 
 class WorkflowClosureTest(unittest.TestCase):
+    def test_cli_default_targets_organization_repository(self) -> None:
+        output = io.StringIO()
+        with patch.object(sys, "argv", ["workflow_closure", "--format", "json"]), \
+             patch("tools.software_assurance.workflow_closure.load_registry", return_value=set()), \
+             patch("tools.software_assurance.workflow_closure.scan_workflow_closure", return_value=([], [])) as scan, \
+             redirect_stdout(output):
+            self.assertEqual(main(), 0)
+        self.assertEqual(scan.call_args.args[0], "djconnect-music-dj/djconnect")
+        self.assertEqual(json.loads(output.getvalue())["repository"], "djconnect-music-dj/djconnect")
+
     def test_resolves_recursive_closure_and_keeps_duplicate_edges(self) -> None:
         sources = {
             ".github/workflows/root.yml": (

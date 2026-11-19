@@ -546,7 +546,7 @@ Current exact Source, CI, editorial and installed gates remain separate.
 
 ## OTA / Firmware Updates
 
-- Verify firmware release discovery from `pcvantol/djconnect-firmware`.
+- Verify firmware release discovery from `djconnect-music-dj/djconnect-firmware`.
 - Verify `firmware_manifest.json` is parsed even if GitHub serves it as `application/octet-stream`.
 - Verify update entity displays firmware asset, manifest URL, target device, sha256 and min HA integration.
 - Verify OTA payload sends manifest `device`, currently `lilygo-t-embed-s3`.
@@ -625,8 +625,8 @@ Current exact Source, CI, editorial and installed gates remain separate.
 - Keep `VOICE_INTENT_DATA.md` aligned with `examples/voice_intents.json` and processor/music parser behavior.
 - Before every release, review all documentation files in this repo: `README.md`, `CHANGELOG.md`, `AGENTS.md`, `HANDOFF.md`, `TODO.md`, `ISSUES.md`, `SYNC_PROMPTS.md`, `PRODUCT_ROADMAP.md`, `TECHNICAL_DESIGN_DECISIONS.md`, `CHAT_BOOTSTRAP.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `info.md` and relevant `examples/*`.
 - Before every release, explicitly check whether tests need to be expanded for the change; add coverage for new behavior paths, regression risks, translations and edge cases.
-- Keep cross-repo sync prompts only in `pcvantol/djconnect/SYNC_PROMPTS.md`; do not re-add retired loose prompt files or sibling-repo copies.
-- Keep product roadmap only in `pcvantol/djconnect/PRODUCT_ROADMAP.md`; do not re-add sibling-repo roadmap copies.
+- Keep cross-repo sync prompts only in `djconnect-music-dj/djconnect/SYNC_PROMPTS.md`; do not re-add retired loose prompt files or sibling-repo copies.
+- Keep product roadmap only in `djconnect-music-dj/djconnect/PRODUCT_ROADMAP.md`; do not re-add sibling-repo roadmap copies.
 - Document known HA restart requirement after HACS custom integration updates.
 
 ## Website / Marketing

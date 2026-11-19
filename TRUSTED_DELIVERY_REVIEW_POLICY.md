@@ -1,7 +1,7 @@
 # Trusted Delivery Review Policy
 
 Status: proposed implementation policy
-Owner: `pcvantol/djconnect`
+Owner: `djconnect-music-dj/djconnect`
 Applies to: active repositories discovered in `REPOSITORY_OWNERSHIP.md`
 
 ## Risk classes

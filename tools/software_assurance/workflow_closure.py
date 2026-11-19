@@ -210,7 +210,7 @@ def markdown_report(repository: str, edges: list[Edge], findings: list[str]) -> 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--repository", default="pcvantol/djconnect")
+    parser.add_argument("--repository", default="djconnect-music-dj/djconnect")
     parser.add_argument("--workflow-dir", type=Path, default=Path(".github/workflows"))
     parser.add_argument(
         "--registry", type=Path, default=Path("software_assurance/action-pinning/batch-1-pins.json")

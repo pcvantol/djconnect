@@ -189,6 +189,8 @@ def run_macos_unit(function_call: str, *arguments: str) -> subprocess.CompletedP
 class DevOnboardingScriptTests(unittest.TestCase):
     def test_macos_clone_defaults_use_migrated_organization(self):
         source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("https://github.com/djconnect-music-dj/djconnect.git", source)
+        self.assertNotIn("https://github.com/pcvantol/djconnect.git", source)
         for repo in ("pico", "api", "windows", "firmware"):
             self.assertIn(f"https://github.com/djconnect-music-dj/djconnect-{repo}.git", source)
             self.assertNotIn(f"https://github.com/pcvantol/djconnect-{repo}.git", source)

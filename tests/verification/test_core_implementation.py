@@ -192,6 +192,7 @@ class VerificationCoreImplementationTests(unittest.TestCase):
         self.assertEqual("doctor", parser.parse_args(["doctor"]).command)
         self.assertEqual("schema", parser.parse_args(["schema"]).command)
         self.assertEqual("config", parser.parse_args(["config"]).command)
+        self.assertEqual("djconnect-music-dj/djconnect", parser.parse_args(["coverage", "ingest", "report.xml", "--format", "cobertura"]).repository)
 
     def test_cli_parses_parallel_execution_controls(self) -> None:
         parser = build_parser()

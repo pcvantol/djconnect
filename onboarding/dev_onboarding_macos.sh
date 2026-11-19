@@ -917,7 +917,7 @@ step_5_clone_or_update_repo() {
     git -C "$REPO_ROOT" status --short
     return
   fi
-  run git clone https://github.com/pcvantol/djconnect.git "$REPO_ROOT"
+  run git clone https://github.com/djconnect-music-dj/djconnect.git "$REPO_ROOT"
 }
 
 step_6_python_validation() {

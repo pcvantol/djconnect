@@ -222,10 +222,10 @@ tagged image has been published:
 
 ```bash
 python -m tools.verification.cli docker release \
-  --image pcvantol/djconnect-verification-platform \
+  --image ghcr.io/djconnect-music-dj/djconnect-verification-platform \
   --release-sha "$(git rev-parse HEAD)"
 
-docker run --rm pcvantol/djconnect-verification-platform:1.1.0 config
+docker run --rm ghcr.io/djconnect-music-dj/djconnect-verification-platform:1.1.0 config
 ```
 
 Published Verification Platform releases are authoritative. The coordinated release workflow builds and publishes to GHCR. Before adopting a new runtime, publish or copy it to the
@@ -341,7 +341,7 @@ Build the generic Verification Runtime image from the repository root:
 
 ```bash
 python -m tools.verification.cli docker release \
-  --image pcvantol/djconnect-verification-platform \
+  --image ghcr.io/djconnect-music-dj/djconnect-verification-platform \
   --release-sha "$(git rev-parse HEAD)"
 ```
 
@@ -360,7 +360,7 @@ For the current stable runtime this means tags such as `1.1.0`, `1.1`,
 Smoke test an image with:
 
 ```bash
-docker run --rm pcvantol/djconnect-verification-platform:1.1.0 config
+docker run --rm ghcr.io/djconnect-music-dj/djconnect-verification-platform:1.1.0 config
 ```
 
 Run repository scenarios by mounting a checkout and invoking the runtime from
@@ -371,7 +371,7 @@ released image:
 docker run --rm \
   -v "$PWD:/workspace:ro" \
   -v "$PWD/artifacts/verification:/artifacts/verification" \
-  pcvantol/djconnect-verification-platform:1.1.0 \
+  ghcr.io/djconnect-music-dj/djconnect-verification-platform:1.1.0 \
   --config /workspace/verification-config.json validate
 ```
 

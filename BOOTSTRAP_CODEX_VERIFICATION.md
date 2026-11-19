@@ -29,7 +29,7 @@ dedicated local Home Assistant verification lab exist.
 
 The Verification Runtime is an independently versioned engineering product
 inside this repository. Current runtime version: `1.1.0`. The canonical Docker
-distribution is `pcvantol/djconnect-verification-platform`. Runtime identity is
+distribution is `ghcr.io/djconnect-music-dj/djconnect-verification-platform`. Runtime identity is
 captured in environment snapshots, run metadata and reports under
 `verification_runtime`. Execution summaries include total execution time and
 scenario status counts. The Docker runtime image contains only reusable engine

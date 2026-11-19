@@ -28,12 +28,12 @@ Keep these release streams separate:
 The canonical Docker distribution is:
 
 ```text
-pcvantol/djconnect-verification-platform
+ghcr.io/djconnect-music-dj/djconnect-verification-platform
 ```
 
-Do not introduce another Docker Hub repository for the Verification Runtime.
-Do not rename the existing distribution repository. The product name is
-Verification Runtime; the Docker repository is the distribution mechanism.
+The product name is Verification Runtime; the organization registry hosts its
+published distribution. Historical Docker Hub references below describe the
+registry used for earlier qualification records.
 
 ## Release Policy
 

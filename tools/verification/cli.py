@@ -90,7 +90,7 @@ def build_parser() -> argparse.ArgumentParser:
     coverage_ingest = coverage_subparsers.add_parser("ingest")
     coverage_ingest.add_argument("report", type=Path)
     coverage_ingest.add_argument("--format", required=True, choices=("cobertura", "lcov", "apple-xccov"))
-    coverage_ingest.add_argument("--repository", default="pcvantol/djconnect")
+    coverage_ingest.add_argument("--repository", default="djconnect-music-dj/djconnect")
     coverage_ingest.add_argument("--commit-sha", default=None)
     coverage_ingest.add_argument("--expected-commit-sha", default=None)
     coverage_ingest.add_argument("--scope", default="repository")

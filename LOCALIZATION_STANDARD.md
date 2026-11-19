@@ -53,7 +53,7 @@ merely by retaining its template. See
 # DJConnect Localization Standard
 
 Status: Accepted
-Owner: `pcvantol/djconnect`
+Owner: `djconnect-music-dj/djconnect`
 Source language: English
 
 ## Purpose

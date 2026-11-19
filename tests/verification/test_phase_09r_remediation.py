@@ -84,6 +84,7 @@ class Phase09RRemediationTests(unittest.TestCase):
 
     def test_investigator_marks_unknown_low_confidence_for_human_review(self) -> None:
         result = VerificationInvestigator().investigate_bundle({"run_id": "run-1", "failures": [{"message": "odd"}]})[0]
+        self.assertEqual(result.owning_repository, "djconnect-music-dj/djconnect")
 
         self.assertEqual("unknown", result.classification)
         self.assertTrue(result.human_review_required)
