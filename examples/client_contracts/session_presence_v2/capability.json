@@ -1,0 +1,12 @@
+{
+  "available": true,
+  "version": 2,
+  "transport_contract_version": 1,
+  "path": "/api/djconnect/v1/session/presence",
+  "method": "POST",
+  "authentication": "paired_device_bearer",
+  "values": ["music_only", "occasional", "balanced", "presenter"],
+  "default": "balanced",
+  "ordering": "expected_presence_revision",
+  "scope": "active_device_bound_owner_session"
+}

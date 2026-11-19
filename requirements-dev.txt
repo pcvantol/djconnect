@@ -1,0 +1,9 @@
+# Reproducible local and CI tooling for verification and release evidence.
+PyYAML==6.0.3
+coverage==7.17.3
+pytest==9.2.0
+# Developer tests use Pillow13; the separate HA2026.10.0 decoder baseline stays12.3.
+# CI qualifies the same original synthetic image bytes under both exact versions.
+Pillow==13.0.0
+# Same hardened XML parser as the integration runtime.
+defusedxml==0.7.1

@@ -1,0 +1,359 @@
+{
+  "assignment": "DJC-CORE-WINDOWS-CLIENT-RETIREMENT-V1-20261011",
+  "installed_acceptance": "NOT_CLAIMED",
+  "receipts": [
+    {
+      "stage": "mixed_profile_real_apple_pairing",
+      "device_token_from_pair_router": true,
+      "ha_user_credentials_issued": 0
+    },
+    {
+      "stage": "real_runtime_sqlite_history",
+      "rows": 1,
+      "captured_provider_id": "windows-donor"
+    },
+    {
+      "stage": "shared_provider_transfer",
+      "apple_token_unchanged": true,
+      "credential_owners": 1,
+      "history_body_unchanged": true,
+      "stale_view_rejected": true
+    },
+    {
+      "stage": "eager_listener_fence",
+      "calls": 4,
+      "reloads": 0
+    },
+    {
+      "stage": "idempotent_disk_readback",
+      "equal": true
+    },
+    {
+      "stage": "real_store_reload",
+      "credential_owners": 1
+    },
+    {
+      "stage": "actual_committed_stage_cold_recovery",
+      "boundary": 1,
+      "stored_history_body_unchanged": true,
+      "retained_device_token_unchanged": true
+    },
+    {
+      "stage": "activated_cold_reference_recovery",
+      "boundary": 2,
+      "existing_reference_rebound": true,
+      "disabled_state_and_no_device_authority_preserved": true
+    },
+    {
+      "stage": "actual_committed_stage_cold_recovery",
+      "boundary": 2,
+      "stored_history_body_unchanged": true,
+      "retained_device_token_unchanged": true
+    },
+    {
+      "stage": "activated_cold_reference_recovery",
+      "boundary": 3,
+      "existing_reference_rebound": true,
+      "disabled_state_and_no_device_authority_preserved": true
+    },
+    {
+      "stage": "actual_committed_stage_cold_recovery",
+      "boundary": 3,
+      "stored_history_body_unchanged": true,
+      "retained_device_token_unchanged": true
+    },
+    {
+      "stage": "retained_backend_lifecycle_withdrawal",
+      "condition": "runtime_unload",
+      "cached_token_denied": true,
+      "no_network_request": true
+    },
+    {
+      "stage": "retained_backend_lifecycle_withdrawal",
+      "condition": "entry_unload",
+      "cached_token_denied": true,
+      "no_network_request": true
+    },
+    {
+      "stage": "retained_backend_lifecycle_withdrawal",
+      "condition": "disabled",
+      "cached_token_denied": true,
+      "no_network_request": true
+    },
+    {
+      "stage": "retained_backend_lifecycle_withdrawal",
+      "condition": "runtime_replaced",
+      "cached_token_denied": true,
+      "no_network_request": true
+    },
+    {
+      "stage": "retained_backend_lifecycle_withdrawal",
+      "condition": "entry_replaced",
+      "cached_token_denied": true,
+      "no_network_request": true
+    },
+    {
+      "stage": "default_backend_change",
+      "captured_account_history_retained": true
+    },
+    {
+      "stage": "completed_handoff_profile_reassignment",
+      "live_old_account_denied": true,
+      "cross_profile_history_alias_denied": true
+    },
+    {
+      "stage": "successor_revocation",
+      "history_access": false
+    },
+    {
+      "stage": "late_related_peer",
+      "unlocked_successor_not_used": true,
+      "migration_did_not_write": true
+    },
+    {
+      "stage": "late_reference_rollback",
+      "boundary": 1,
+      "existing_provider_and_new_reference_retained": true
+    },
+    {
+      "stage": "late_reference_rollback",
+      "boundary": 2,
+      "existing_provider_and_new_reference_retained": true
+    },
+    {
+      "stage": "late_reference_rollback",
+      "boundary": 3,
+      "existing_provider_and_new_reference_retained": true
+    },
+    {
+      "stage": "closed_quarantine",
+      "condition": "no_loaded_peer",
+      "entry_store_unchanged": true,
+      "donor_grant_and_peer_token_retained": true
+    },
+    {
+      "stage": "closed_quarantine",
+      "condition": "ambiguous_peers",
+      "entry_store_unchanged": true,
+      "donor_grant_and_peer_token_retained": true
+    },
+    {
+      "stage": "closed_quarantine",
+      "condition": "conflicting_grant",
+      "entry_store_unchanged": true,
+      "donor_grant_and_peer_token_retained": true
+    },
+    {
+      "stage": "closed_quarantine",
+      "condition": "malformed_bindings",
+      "entry_store_unchanged": true,
+      "donor_grant_and_peer_token_retained": true
+    },
+    {
+      "stage": "closed_quarantine",
+      "condition": "invalid_prepared_binding",
+      "entry_store_unchanged": true,
+      "donor_grant_and_peer_token_retained": true
+    },
+    {
+      "stage": "closed_quarantine",
+      "condition": "revoked_donor",
+      "entry_store_unchanged": true,
+      "donor_grant_and_peer_token_retained": true
+    },
+    {
+      "stage": "concurrent_oauth_preserved",
+      "boundary": 1,
+      "old_copy_not_activated": true,
+      "normal_listener_replayed": true
+    },
+    {
+      "stage": "concurrent_oauth_preserved",
+      "boundary": 2,
+      "old_copy_not_activated": true,
+      "normal_listener_replayed": true
+    },
+    {
+      "stage": "concurrent_oauth_preserved",
+      "boundary": 3,
+      "old_copy_not_activated": true,
+      "normal_listener_replayed": true
+    },
+    {
+      "stage": "rollback_oauth_preserved",
+      "target": "windows-donor",
+      "boundary": 1,
+      "new_grant_retained": true,
+      "normal_listener_replayed": true
+    },
+    {
+      "stage": "rollback_oauth_preserved",
+      "target": "windows-donor",
+      "boundary": 2,
+      "new_grant_retained": true,
+      "normal_listener_replayed": true
+    },
+    {
+      "stage": "rollback_oauth_preserved",
+      "target": "windows-donor",
+      "boundary": 3,
+      "new_grant_retained": true,
+      "normal_listener_replayed": true
+    },
+    {
+      "stage": "rollback_oauth_preserved",
+      "target": "apple-peer",
+      "boundary": 1,
+      "new_grant_retained": true,
+      "normal_listener_replayed": true
+    },
+    {
+      "stage": "rollback_oauth_preserved",
+      "target": "apple-peer",
+      "boundary": 2,
+      "new_grant_retained": true,
+      "normal_listener_replayed": true
+    },
+    {
+      "stage": "rollback_oauth_preserved",
+      "target": "apple-peer",
+      "boundary": 3,
+      "new_grant_retained": true,
+      "normal_listener_replayed": true
+    },
+    {
+      "stage": "changed_authority_abort",
+      "mutation": "profile_switch",
+      "boundary": 1,
+      "donor_credentials_retained": true,
+      "management_change_preserved": true
+    },
+    {
+      "stage": "changed_authority_abort",
+      "mutation": "profile_switch",
+      "boundary": 2,
+      "donor_credentials_retained": true,
+      "management_change_preserved": true
+    },
+    {
+      "stage": "changed_authority_abort",
+      "mutation": "profile_switch",
+      "boundary": 3,
+      "donor_credentials_retained": true,
+      "management_change_preserved": true
+    },
+    {
+      "stage": "changed_authority_abort",
+      "mutation": "account_unlink",
+      "boundary": 1,
+      "donor_credentials_retained": true,
+      "management_change_preserved": true
+    },
+    {
+      "stage": "changed_authority_abort",
+      "mutation": "account_unlink",
+      "boundary": 2,
+      "donor_credentials_retained": true,
+      "management_change_preserved": true
+    },
+    {
+      "stage": "changed_authority_abort",
+      "mutation": "account_unlink",
+      "boundary": 3,
+      "donor_credentials_retained": true,
+      "management_change_preserved": true
+    },
+    {
+      "stage": "changed_authority_abort",
+      "mutation": "successor_runtime_unload",
+      "boundary": 1,
+      "donor_credentials_retained": true,
+      "management_change_preserved": true
+    },
+    {
+      "stage": "changed_authority_abort",
+      "mutation": "successor_runtime_unload",
+      "boundary": 2,
+      "donor_credentials_retained": true,
+      "management_change_preserved": true
+    },
+    {
+      "stage": "changed_authority_abort",
+      "mutation": "successor_runtime_unload",
+      "boundary": 3,
+      "donor_credentials_retained": true,
+      "management_change_preserved": true
+    },
+    {
+      "stage": "interrupted_transfer_rollback",
+      "boundary": 1,
+      "original_owner_restored": true,
+      "history_unchanged": true,
+      "disk_credential_owners": 1
+    },
+    {
+      "stage": "interrupted_transfer_rollback",
+      "boundary": 2,
+      "original_owner_restored": true,
+      "history_unchanged": true,
+      "disk_credential_owners": 1
+    },
+    {
+      "stage": "interrupted_transfer_rollback",
+      "boundary": 3,
+      "original_owner_restored": true,
+      "history_unchanged": true,
+      "disk_credential_owners": 1
+    },
+    {
+      "stage": "cancelled_writer_cold_recovery",
+      "boundary": 1,
+      "writer_completed_before_unlock": true,
+      "new_manager_owner": "apple-peer",
+      "history_unchanged": true
+    },
+    {
+      "stage": "cancelled_writer_cold_recovery",
+      "boundary": 2,
+      "writer_completed_before_unlock": true,
+      "new_manager_owner": "apple-peer",
+      "history_unchanged": true
+    },
+    {
+      "stage": "cancelled_writer_cold_recovery",
+      "boundary": 3,
+      "writer_completed_before_unlock": true,
+      "new_manager_owner": "apple-peer",
+      "history_unchanged": true
+    },
+    {
+      "stage": "actual_retired_setup",
+      "quarantined": true,
+      "active_apple_runtime_retained": true
+    },
+    {
+      "stage": "real_ha_manager_remove",
+      "legacy_removed": true,
+      "apple_token_and_shared_account_retained": true,
+      "persisted_history_body_unchanged": true
+    },
+    {
+      "stage": "actual_flow_manager_profile_reuse",
+      "retained_profile_selected": true,
+      "duplicate_name_recovers_to_existing_profile": true,
+      "no_new_profile_or_oauth": true
+    },
+    {
+      "stage": "retained_apple_http_after_remove",
+      "ordinary_device_token": true,
+      "timeline_search_and_ask_dj_history": true,
+      "extra_ha_user_credentials": 0
+    },
+    {
+      "stage": "retained_apple_live_after_remove",
+      "actual_pairing_token": true,
+      "auth_snapshot_update": true,
+      "extra_ha_user_credentials": 0
+    }
+  ]
+}

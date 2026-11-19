@@ -1,0 +1,65 @@
+{
+  "assignment": "DJC-CORE-SESSION-HISTORY-SUMMARY-V1-20261013",
+  "phase": "SOURCE_PROTECTED_MERGED_FINALIZATION_PENDING",
+  "schema_version": "djconnect-session-history-summary/1",
+  "migration": 6,
+  "core_software": {
+    "real_pairing": true,
+    "broad_ha_test_credentials": false,
+    "real_storage_reopen": true,
+    "predeclared_expected": {
+      "tracks_observed": 2,
+      "moments_published": 2,
+      "readable_moment_bodies": 1,
+      "mood": "energy"
+    },
+    "observed_matches_expected": true,
+    "duration_seconds": 74,
+    "providers": "external Spotify and existing HA conversation response fixtures only",
+    "actual_owner_transport_states": [
+      "zero_complete",
+      "partial_at_8192_key_bound",
+      "withdrawn",
+      "legacy_final_unknown_no_backfill"
+    ]
+  },
+  "regression": {
+    "tests": 1788,
+    "existing_skips": 7,
+    "owning_tests": 27,
+    "result": "PASS"
+  },
+  "security": {
+    "bandit_medium": 0,
+    "bandit_high": 0,
+    "ruff": "PASS"
+  },
+  "dag": {
+    "tests": 134,
+    "canonical_json": true,
+    "historical_snapshot_retained": true,
+    "result": "PASS"
+  },
+  "consumer": {
+    "early_apple_handoff": "https://github.com/pcvantol/djconnect-app/issues/87#issuecomment-6140844276",
+    "native": "NOT_RUN",
+    "installed": "NOT_RUN",
+    "hardware": "NOT_RUN",
+    "joint_acceptance": "OPEN"
+  },
+  "delivery": {
+    "source": "PROTECTED_MERGED",
+    "required_checks": "PASS",
+    "artifact_main_readback": "PASS",
+    "finalization": "LOCAL_RECONCILIATION_SEPARATE_EXACT_GATE",
+    "source_main_sha": "ccbb839f4e544b3739c31202685d147207e4c289",
+    "source_pr": "https://github.com/pcvantol/djconnect/pull/1162"
+  },
+  "review_fixes": [
+    "Mood authority after storage wait",
+    "semantic retry opportunity consumption",
+    "rollback on actual COMMIT failure",
+    "exact integer Mood intervals",
+    "source/freshness/read-fit after storage wait"
+  ]
+}

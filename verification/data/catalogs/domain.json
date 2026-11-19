@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "dataset_version": "1.0",
+  "domain_generators": [
+    {
+      "id": "profile.personal",
+      "entity": "Profile",
+      "variants": ["personal", "private_session_enabled", "no_music_dna", "music_dna_enabled"],
+      "scenario_categories": ["Profiles", "Resolver", "Ask DJ", "Music DNA", "Privacy", "Export", "Import"],
+      "risk_categories": ["profile_isolation", "privacy", "persistence"]
+    },
+    {
+      "id": "profile.household",
+      "entity": "Household Profile",
+      "variants": ["shared_home", "shared_room", "fallback"],
+      "scenario_categories": ["Profiles", "Resolver", "Voice", "Privacy"],
+      "risk_categories": ["shared_context", "identity_resolution"]
+    },
+    {
+      "id": "profile.guest",
+      "entity": "Guest Profile",
+      "variants": ["guest_safe", "transient", "no_personal_history"],
+      "scenario_categories": ["Profiles", "Ask DJ", "Discover", "Privacy"],
+      "risk_categories": ["privacy", "leakage_prevention"]
+    },
+    {
+      "id": "profile.kids",
+      "entity": "Kids Profile",
+      "variants": ["safe_backend", "restricted_recommendations"],
+      "scenario_categories": ["Profiles", "Discover", "Playback"],
+      "risk_categories": ["safety", "routing"]
+    },
+    {
+      "id": "location.area_room_zone",
+      "entity": "Area Room Playback Zone",
+      "variants": ["area", "room", "playback_zone", "unmapped"],
+      "scenario_categories": ["Resolver", "Voice", "Playback"],
+      "risk_categories": ["identity_resolution", "fallback"]
+    },
+    {
+      "id": "device.client",
+      "entity": "Device",
+      "variants": ["ios", "macos", "watchos", "windows", "raspberry_pi", "esp32", "voice_endpoint"],
+      "scenario_categories": ["Setup", "Capabilities", "Hardware", "Networking"],
+      "risk_categories": ["pairing", "capability_discovery"]
+    },
+    {
+      "id": "music.backend",
+      "entity": "Music Backend",
+      "variants": ["spotify_direct", "music_assistant", "fake_backend", "future_backend"],
+      "scenario_categories": ["Backend", "Playback", "Discover", "Track Insight"],
+      "risk_categories": ["provider_drift", "token_safety"]
+    },
+    {
+      "id": "session.state",
+      "entity": "Session",
+      "variants": ["normal", "private", "fresh", "resumed", "roaming"],
+      "scenario_categories": ["Profiles", "Ask DJ", "Music DNA", "Privacy"],
+      "risk_categories": ["persistence", "cache_invalidation"]
+    }
+  ]
+}

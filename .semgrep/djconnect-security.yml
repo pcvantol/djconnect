@@ -1,0 +1,48 @@
+rules:
+  - id: djconnect-no-token-print
+    message: Avoid printing token-like values. Use redacted diagnostics/logging instead.
+    severity: WARNING
+    languages: [python]
+    patterns:
+      - pattern-either:
+          - pattern: print(..., $VALUE, ...)
+          - pattern: print($VALUE)
+      - metavariable-regex:
+          metavariable: $VALUE
+          regex: (?i).*(token|secret|password).*
+
+  - id: djconnect-no-token-logger
+    message: Avoid logging token-like values. Use redacted diagnostics/logging instead.
+    severity: WARNING
+    languages: [python]
+    patterns:
+      - pattern-either:
+          - pattern: $LOGGER.debug(..., $VALUE, ...)
+          - pattern: $LOGGER.info(..., $VALUE, ...)
+          - pattern: $LOGGER.warning(..., $VALUE, ...)
+          - pattern: $LOGGER.error(..., $VALUE, ...)
+          - pattern: $LOGGER.exception(..., $VALUE, ...)
+      - metavariable-regex:
+          metavariable: $VALUE
+          regex: (?i).*(token|secret|password).*
+
+  - id: djconnect-no-shell-true
+    message: Avoid shell=True in subprocess calls unless the input is fully controlled.
+    severity: ERROR
+    languages: [python]
+    pattern-either:
+      - pattern: subprocess.run(..., shell=True, ...)
+      - pattern: subprocess.call(..., shell=True, ...)
+      - pattern: subprocess.Popen(..., shell=True, ...)
+
+  - id: djconnect-no-raw-external-image-url-in-response
+    message: Ask DJ image responses should use the DJConnect image proxy instead of direct external image URLs.
+    severity: WARNING
+    languages: [python]
+    patterns:
+      - pattern-either:
+          - pattern: {"images": [..., $URL, ...]}
+          - pattern: $RESPONSE["images"] = [..., $URL, ...]
+      - metavariable-regex:
+          metavariable: $URL
+          regex: (?i).*https?://.*

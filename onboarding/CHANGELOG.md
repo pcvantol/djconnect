@@ -1,0 +1,198 @@
+# DJConnect Developer Onboarding Changelog
+
+## 4.5.13 — 2026-11-19
+
+- Use the organization repository when cloning DJConnect Core.
+- Preserve all previously generated onboarding packages.
+
+## 4.5.12 — 2026-11-17
+
+- Update the isolated Pico developer Ruff tool to 0.17.5.
+
+## 4.5.11 — 2026-11-17
+
+- Qualify repository-owner routing tests for the macOS runner recovery package.
+
+## 4.5.10 — 2026-11-16
+
+- Use organization repository URLs for Pico, API, Windows and firmware.
+- Align development-host version and integrity checks.
+
+## 4.5.9 — 2026-11-16
+
+- Use the transferred Pi source repository and preserve earlier distributions.
+- Align the development-host version and integrity guards.
+
+## 4.5.8 — 2026-11-16
+
+- Use organization URLs for migrated Apple, ESP32 and website source.
+- Preserve earlier packages and align the development-host version guards.
+
+## 4.5.7 — 2026-11-15
+
+- Pin the isolated Pico developer Ruff tool to 0.17.4.
+- Publish a new deterministic archive and align the exact onboarding version
+  guards in bootstrap 2.0.25 and desired-state profile 3.3.4.
+- Preserve onboarding 4.5.6 and all earlier distributions.
+
+## 4.5.6 — 2026-11-01
+
+- Pin isolated Pico developer Ruff to 0.17.2; publish a new deterministic
+  distribution instead of changing any previous archive.
+- Align the desired-state profile 3.3.3 and bootstrap 2.0.24 exact-version
+  guards. Verification remains read-only; source delivery installs no tools.
+
+## 4.5.5 — 2026-10-24
+
+- Pin the isolated Pico developer-tool Ruff dependency to0.17.1 and align the
+  tool-version matrix with its existing requirements.
+- Publish a new deterministic4.5.5 distribution. Preserve the complete4.5.4
+  distribution and every earlier bundle unchanged. The matching canonical
+  bootstrap2.0.23 requires package4.5.5; both exact-version guards remain
+  fail-closed. This source release does not install tools or run host repair.
+
+## 4.5.4 — 2026-10-19
+
+- Quote verification-artifact cleanup script and log paths for relocated GitHub
+  roots containing spaces, and escape cron percent syntax. Preserve the existing
+  schedule and unrelated cron entries. Refresh the deterministic distribution
+  with its host-bootstrap regressions; retain earlier versioned bundles.
+
+## 4.5.3 — 2026-10-03
+
+- Retire current instructions for the embedded Engineering Platform Inbox,
+  watcher and dashboard after the generic source moved to the standalone peer.
+- Preserve the immutable 4.5.2 distribution artifacts unchanged.
+
+## 4.5.2 — 2026-09-30
+
+- Update the Pico developer-tool Ruff requirement to 0.16.8 and publish a new
+  deterministic onboarding bundle.
+- Preserve the immutable 4.5.1 distribution artifacts unchanged.
+
+## 4.5.1 — 2026-09-29
+
+- Install the verification-artifact cleanup as a separate daily 03:00 cron
+  entry on the Mac mini, replacing the old 10:00 LaunchAgent setup.
+- Keep the immutable 4.5.0 distribution artifacts unchanged.
+
+## 4.5.0 — 2026-08-02
+
+- Document the bounded Engineering Platform component lifecycle audit trail:
+  watcher/dashboard startup, received shutdown signal, orderly shutdown and
+  confirmed owned-component restart requests.
+- Clarify that lifecycle diagnostics are redacted SQLite application evidence,
+  not repository truth or execution authority, and retain LaunchAgent streams
+  as the fallback for early-startup failures.
+- Require the matching `4.5.0` package in macOS host-bootstrap verification and
+  recovery.
+
+## 4.4.0 — 2026-08-02
+
+- Document report-bound Engineering Platform runtime provenance: Runtime
+  Provider, reported AI Model, reported Reasoning and Configuration Profiles,
+  and detected Codex CLI Version.
+- Clarify that unavailable runtime metadata is shown as `not reported` and
+  cannot be inferred from the current dashboard configuration or another run.
+- Require the matching `4.4.0` canonical onboarding package during macOS host
+  bootstrap verification and recovery.
+
+## 4.3.0 — 2026-08-01
+
+- Add the private Engineering Status Tailnet relay recovery guidance, including
+  the scoped ESET firewall rule required for iPhone dashboard access.
+- Preserve the immutable `4.2.0` distribution artifact; this release carries
+  all onboarding-content changes introduced after that version.
+
+## 4.2.0 — 2026-08-01
+
+- Align the canonical onboarding package, developer-machine readiness contract
+  and bootstrap requirement with the Engineering Platform 1.5 operational
+  hardening update.
+- Document the local-only Engineering Platform evidence model, including the
+  iCloud Inbox transport boundary, local reports and component logging.
+- Require the Engineering Platform watcher, dashboard, loopback health check,
+  local status/report storage and iCloud Inbox transport to be healthy during
+  development-host readiness verification.
+- Make host-bootstrap repair diagnose and restart only the canonical local
+  Engineering Platform services when those readiness checks report drift.
+
+## 4.1.0 — 2026-07-30
+
+- Add the macOS-first Raspberry Pi Pico 2 W MicroPython profile to canonical
+  onboarding: isolated `mpremote`, `micropython-stubber` and Ruff tooling;
+  Homebrew `picotool`; and required VS Code MicroPico/Python/Pylance extensions.
+- Add a deterministic read-only Pico readiness report with PASS/WARNING/FAIL
+  checks for host tools, versions, PATH, USB visibility, serial access and a
+  connected board's MicroPython implementation.
+- Add Pico to the shared macOS desired-state formula and runner-profile model.
+
+## 4.0.0 — 2026-07-28
+
+- Add explicit, opt-in cleanup of ignored local build output and a read-only
+  per-repository storage report to macOS developer readiness.
+- Install the ignored verification-artifact retention task for 10:00 daily.
+
+## 3.3.1 — 2026-07-17
+
+- Fix the Windows virtual-service-account migration: configure its `obj=`
+  identity without a `password=` argument, which Service Control Manager
+  rejects for virtual accounts; document direct elevated recovery/verification
+  when the UAC wrapper reports a failure.
+- Make the scheduled macOS maintenance task the single tooling-currency owner:
+  it upgrades every installed Homebrew formula and cask, including ngrok,
+  while retaining Tailscale's verified signed-app auto-update path.
+- Add the explicit Windows onboarding step that elevates only the migration of
+  an existing GitHub Actions runner to its dedicated passwordless virtual
+  service identity.
+- Make the Windows runner bootstrap use a per-service `NT SERVICE` account,
+  scoped filesystem ACLs and removal of the temporary `NETWORK SERVICE` grant.
+- Document that service-account hardening does not create an interactive GUI
+  session; MAUI/WinUI smoke remains a separate interactive-relay concern.
+
+## 3.3.0 — 2026-07-16
+
+- Add a macOS-only, explicit machine-transfer export/import utility for
+  encrypted transfer of selected DJConnect developer assets.
+- Exclude Keychain, browser and CLI credential stores; require interactive
+  service reauthentication on the replacement machine.
+- Add a read-only macOS network and firewall assessment for known outbound
+  dependencies, active TCP endpoints, local listeners and Docker-published
+  ports.
+- Add portable Home Assistant development-lab configuration and Compose
+  baselines, rendered only for missing local files without overwriting existing
+  runtime configuration.
+
+- Align the package release version with DJConnect Platform Release 3.3.0 for
+  operator clarity.
+- Record that the alignment is descriptive only: no platform runtime,
+  artifact, desired-state or compatibility dependency is introduced.
+
+## 1.1.4 — 2026-07-16
+
+- Add executable package-contract coverage for independent desired-state
+  manifest versioning and fail-closed compatibility outcomes.
+
+## 1.1.3 — 2026-07-16
+
+- Document independent desired-state manifest versioning and the required
+  `minimum_tool_version` apply-compatibility contract.
+
+## 1.1.2 — 2026-07-16
+
+- Compare the running macOS onboarding package with the local versioned
+  distribution catalog before execution.
+- Require explicit confirmation before continuing with an older package and
+  record the decision in the Markdown onboarding report.
+
+## 1.1.1 — 2026-07-16
+
+- Require the macOS preflight to verify that no patch update is available for
+  the installed macOS major version.
+- Fail preflight when the Software Update scan cannot establish that security
+  patch currency, while leaving major macOS upgrades optional.
+
+## 1.1.0 — 2026-07-16
+
+- Package the macOS and Windows developer-onboarding scripts with deterministic
+  distributable artifacts and Linux CI verification.

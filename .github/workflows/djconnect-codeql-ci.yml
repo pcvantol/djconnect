@@ -1,0 +1,25 @@
+name: DJConnect shared CodeQL CI
+
+on:
+  workflow_call:
+    inputs:
+      languages:
+        description: Comma-separated CodeQL language list, for example "python" or "javascript-typescript".
+        required: false
+        type: string
+        default: "python"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          languages: ${{ inputs.languages }}
+      - uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3

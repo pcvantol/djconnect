@@ -1,0 +1,557 @@
+# VibeCast HA display admission B v1
+
+Current Core qualification and selected-target disposition,21October2026:
+[fresh actual B/readiness record](../verification/VIBECAST_SELECTED_TARGET_READINESS_20261021.md)
+binds the installed232-file producer, twelve actual isolated HA groups and a new
+credential-free transport fixture. Fixed, separately compiled A QA service/browser
+origins do not change B's independently selected HA origin or explicit owner/
+current-Session consent. The exact receiver QA source received only a limited
+static Core B-compatibility review. Actual selected iPhone owner/context, external
+route, operational A and native/TV acceptance remain separate OPEN gates. No new
+B wire, authority, endpoint, renderer or runtime behavior is introduced.
+
+Current source status, checked20October2026: **B_PROTECTED_SOURCE /
+A_SEPARATE / JOINT_ACCEPTANCE_OPEN**. PR1197 merged as
+`c98cbf3e3114afb8b8212e18224a337b12af3e27`; protected main8b221d07 contains
+the registered B implementation. A fresh actual isolated HA rerun passes all
+twelve owning groups with zero provider calls. See the exact
+[source/readback and consumer sequence](../verification/VIBECAST_B_PROTECTED_SOURCE_READBACK_20261020.md).
+This supersedes the historical draft/not-merged status below; it does not
+qualify an installed public route, A integration, native or physical acceptance.
+
+Part of `DJC-CORE-VIBECAST-DISPLAY-ADMISSION-V1-20261016`, existing Core
+writer, base1329ad1ce8bd066d65a08b3988261a44e2cac730 and draft1197.
+Historical pre-merge status: **B_CORE_SOURCE_GO / DRAFT_NOT_MERGED / A_UNAVAILABLE**.
+Exact B-design `ae2adfe9e162a00d00715e26418656976b6f02a2` received independent
+technical/privacy and product/UX/privacy GO after the three concrete findings
+were fixed. Independent isolated Core B implementation may proceed while A is
+fully unavailable; no A crypto/profile value is a prerequisite for that work.
+Current B source implementation includes Runtime-owned in-memory authority,
+normal paired-owner fences, closed transitions, bounded HTTP/snapshot delivery,
+one WSS writer per display and a thin host over the maintained shared renderer.
+Its own isolated real HA HTTPS probe exercises ordinary pairing, Session start,
+claim/resolve/explicit approve/one-time collect/renew, snapshot/live, Mood update,
+socket replacement, revoke and Session end. Only external provider I/O is a
+fixture; the pairing, Profile storage, Runtime and HTTP/WSS chain are real.
+Chromium/WebKit exercise admission, current playback, an actual published Artist
+Moment with unchanged text/source link, portrait/landscape geometry and clearing
+at ordinary Session end. Their served app bytes match the separate static build
+and its manifest digest; this is not receiver deployment/adoption. Normal product
+registration is now connected and independently exercised by the real HA probe.
+A bounded70.466s single-viewer run measured74 frames, three renewals, a256KiB peak
+projection reservation, seven sampled HA tasks and292KiB RSS high-water increase.
+Real preauth source-capacity denial/released slots and owner-effect denials pass.
+Both browsers clear offline, recover a fresh live snapshot and discard the
+originally expired Moment without clock rewriting. Combined owning coverage is
+88%, including real-HA and adapter execution. Independent technical/privacy and
+product/UX/privacy source reviews GO on candidate325aabc7, whose integration tree
+equals producer3cb9cf12; A and broader maximum-load/public-route/native/joint
+qualification remain open. B support discovery is declared, without asserting
+route/consent/admission availability. This is B software evidence, not complete
+product acceptance. Unit tests alone are not HA auth or product acceptance.
+This refines the [parent admission contract](VIBECAST_DISPLAY_ADMISSION_V1.md),
+not a second assignment. No endpoint or capability below exists merely because
+it is described here. A's unresolved trust/profile/wire remains a separate gate;
+this document neither authenticates A nor selects a crypto library or TV input.
+
+## Authority and identity
+
+The B owner client types are `ios`, `macos` and `raspberry_pi`, advertised by
+`session_broadcast.paired_display_admission.owner_client_types`. Older responses
+without that field do not establish Raspberry Pi sender support. The Raspberry Pi
+uses its ordinary paired device bearer and the same bound Profile and current
+Session as other owners. A display claim still requires separate, explicit
+approval from that owner. This capability concerns the B sender contract only.
+
+The existing HTTP transport-capability projection adds
+`session_broadcast.paired_display_admission` version1; HA WebSocket discovery
+uses `fallbacks.session_broadcast_transport.paired_display_admission` with the
+same value. `supported:true` declares
+the implemented B protocol, not configured external reachability, an active
+Session/share, consent, successful admission or A availability. The object has
+`availability:"owner_context_required"`, `owner_context_path`, `entry_path`,
+`requires_external_https:true`, owner/display authentication kinds,
+`read_only:true` and `rendezvous_a:false`. The paired client must read owner
+context and handle `display_external_url_unavailable`/current authority errors;
+it must not construct/guess a destination from discovery. No concrete HA URL,
+identity, credential or Session is exposed by capability discovery. Both
+transports serialize the same declarative source. This B-only discovery is
+independent of A and gives old consumers no new mandatory behavior.
+
+B runs only at the selected HA HTTPS origin after an explicit owner action.
+No A code, API state, redirect, QR, owner Broadcast token or invitation is B
+authority. A display receives a new read-only principal with no reaction,
+Ask DJ, settings, playback, queue, output, volume, share-close or Session-end
+permission. Current owner routes continue using ordinary paired device auth.
+
+Reuse the existing SessionRuntimeManager as Session/share state owner and
+existing Flow/Broadcast as publication owner. No second planner/eventbus or
+general token authority. New B state is bounded, memory-only and forgotten on
+HA restart, last unload or Runtime end. No Runtime serialization or historical
+display registry is introduced.
+
+`issuer_epoch` is32 random bytes encoded base64url, generated once for this
+loaded integration process, shared by B records and rotated on restart/unload.
+It is a local stale-state fence, **not a persistent HA ID, signing key or A
+trust anchor**. The independently authenticated selected origin supplies B's
+installation boundary. The relay `ha_install_id` stored per config entry is
+not redefined or migrated. Internal records also bind the exact approving
+entry/generation, pairing-token fingerprint, current device→Profile binding
+generation, Profile/Session, source/account/privacy and share consent.
+These private identifiers/fingerprints are never sent to displays.
+
+Owner context resolves current normal pairing and device-bound Profile. Reuse
+the qualified checks underlying PairedAuthority; do not make display access
+depend on permission to archive/read owner conversation history. Revalidate
+after every await and at the commit/release boundary. No stored plaintext owner
+bearer is needed in a display record. Revocation uses current loaded entries,
+pairing fingerprints, Profile/source bindings and Runtime generations.
+Capture the authenticated entry/token/generation before the first Profile await;
+never adopt a replacement pairing from an in-flight old request. Reuse the
+existing ProfilePlatformStorage `authority_revision` as the conservative monotone
+withdrawal fence. A committed Profile-store change invalidates old B authority,
+including A→B→A changes between reads; it requires fresh explicit admission.
+This does not change or end the active Session. Ordinary Runtime Mood/Persona/
+presence updates are not Profile-store commits. Once a validator observes loss
+of authority it stays invalid, even if current fields later revert.
+
+## Fixed proposed bounds, subject to independent design/load review
+
+| Resource | Proposed v1 bound |
+| --- | --- |
+| Pending claims |64 globally,3 per network source; no eviction of another live claim |
+| Claim/code lifetime |120s original monotonic deadline; no renewal |
+| Code | Exactly six ASCII digits, CSPRNG; unique among pending claims |
+| Claim ID / secret / browser nonce | Independent32-byte CSPRNG values; ID is not authority |
+| Failed approvals |5 per claim and10 per current owner per60s; generic errors, no enumeration |
+| Throttle bookkeeping |256 unexpired owner-window entries; deny new keys at capacity, no eviction/reset |
+| Active shares | One per Runtime,16 globally; explicit owner consent only |
+| Active/approved display reservations |1 per Profile and active Session, 64 globally, reserved before collection |
+| Share absolute lifetime | Explicit owner choice120–28,800s, default7,200s; never beyond Session end |
+| Display online lease |60s, renewal request at20s; bounded by original share expiry and current authority |
+| HTTP JSON / WSS preauth |4KiB body/message; first authentication within5s;16 preauth sockets globally,2 per source |
+| Live displays | One live socket per display; new authenticated connection supersedes old connection generation |
+| Outbound data |128KiB maximum serialized snapshot/frame; truncate nothing that removes attribution or changes facts |
+| Writer backlog |16 frames and256KiB per display,4MiB globally; bounded reservations before allocation |
+| Projection/write work | One writer and at most one current projection per display;8 projections globally; no task per event |
+| Slow consumer |5s send timeout; overflow closes connection1013 and clears viewer state; no unbounded catch-up |
+
+These are testable policy proposals, not measured qualification. Legacy handoff
+300s/global64 behavior does not prove the new bounds. Derive wall-clock expiry
+labels from the same captured monotonic deadline; equality means expired.
+Network source is rate metadata, never identity or a spoofable forwarded header.
+The hard global bound applies even when source attribution is uncertain.
+An exhausted owner throttle denies further attempts without extending any claim.
+
+## Proposed routes and closed request shapes
+
+New routes use `contract_version:1` and reject unknown authority/effect fields.
+All responses carry no-store, no-referrer and nosniff; the shell has a reviewed
+self-only CSP. No cookie authentication, wildcard CORS, credentials in URLs,
+localStorage/sessionStorage, analytics or payload logging. Browser POST and WSS
+requests require exact configured selected HA Origin; absent/null/foreign Origin
+is denied for display authority. Native owner requests use ordinary explicit
+paired identity, not an Origin exemption for display credentials. No untrusted
+Host/header URL guessing.
+
+The public shell GET is the explicit exception: top-level navigation normally
+has no Origin. It allocates no claim/grant/state, returns no private content and
+accepts ordinary absent Origin; a supplied null/foreign Origin is denied. Harden
+with CSP, frame-ancestors none and no-store/no-referrer/nosniff. GET serves the
+shell only; it never counts as native or display authority. Authenticated context
+and snapshot are POST pure reads, not GET requests that assume a browser can set
+the forbidden Origin header. Qualify the real browser wire before implementation
+acceptance; a mocked request dictionary does not prove this policy works.
+
+| Route | Caller / exact purpose |
+| --- | --- |
+| GET `/djconnect/vibecast/display` | Public empty shell; direct200; no Session data |
+| POST `/api/djconnect/v1/display/owner/context` | Paired owner; current Session and B epoch/limits/share metadata; pure read |
+| POST `/api/djconnect/v1/display/claim` | Same-origin public browser; create one bounded claim |
+| POST `/api/djconnect/v1/display/owner/resolve` | Paired owner plus code; resolve opaque claim ID/generation/deadline only |
+| POST `/api/djconnect/v1/display/owner/approve` | Paired owner; approve exact claim and explicit existing/new share |
+| POST `/api/djconnect/v1/display/collect` | Original browser claim secret; one-time dedicated display credential |
+| POST `/api/djconnect/v1/display/cancel` | Original claim secret; cancel this pending/approved-uncollected claim only |
+| POST `/api/djconnect/v1/display/renew` | Display bearer; renew current lease idempotently while consent remains valid |
+| POST `/api/djconnect/v1/display/leave` | Display bearer; revoke itself only |
+| POST `/api/djconnect/v1/display/owner/revoke` | Paired current owner; revoke exact display or close exact share, distinct from Session end |
+| POST `/api/djconnect/v1/display/snapshot` | Display Authorization bearer plus closed context body; pure bounded shared snapshot |
+| GET `/api/djconnect/v1/display/live` | Same-origin WSS; first bounded message authenticates display; no token in URL |
+
+Owner requests include the existing paired `identity` object and required
+`session_id` where Session authority is used. No client-selected Profile/account.
+Context returns only the caller's actual active Session, `issuer_epoch`, limits,
+and optional current `share_id`, `share_generation`, `expires_at`. It also returns
+`display_entry_url`, the canonical configured external origin plus the fixed
+entry path, and `route_trust:"paired_owner_response"`. This owner-only read is
+the existing paired-app source of the destination for code-free A; it is neither
+an independent HA-issuer attestation nor a QR/Session approval. No browser/QR
+supplies or overrides that URL. Missing unsupported external configuration is
+`display_external_url_unavailable`, with no HTTP/IP/Host fallback. No capability
+is advertised until handlers, source fences and real-chain tests are delivered.
+Snapshot body is exactly `{contract_version, issuer_epoch, display_id}`; its
+bearer remains in Authorization, never body/query. Context includes version and
+paired identity, plus the current session_id when available. POST reads perform
+no write, renewal, provider lookup or publication.
+
+### Live screen status for paired devices
+
+A successful `owner/context` can advertise `live_display_status` with
+`version:1`, `observation_revision` and `displays`. Each list entry carries only
+`display_id`, its `share_id` and `connection_generation`. The top-level `session_id` and
+`issuer_epoch` scope the observation. The list comes from the current authorised
+WebSocket writers for the resolved Profile and Session. Share permission remains
+in the separate existing share fields. A successful empty list means there are
+no connected displays in scope. An absent or failed observation means unknown.
+Pending approvals and disconnected or expired grants do not count. The status
+describes Core transport and does not assert that the physical screen is visible.
+
+To stop a listed display, send `issuer_epoch` and `connection_generation` together
+with the existing `owner/revoke` fields `identity`, `session_id`, `share_id`,
+`display_id` and `contract_version`. Core checks the current Profile, Session,
+share, epoch and connection before invalidating the target. A stale target
+returns `display_context_changed` (409). Other screens, playback and share
+permission remain available. Legacy revoke requests retain their existing semantics.
+
+The targeted stop returns an `observation_revision` in the same ordering as
+context reads. Clients discard older responses after a newer observation or
+successful stop, and clear the state on a change of installation, pairing,
+Profile, Session or issuer epoch. Refresh authenticated context after a stale
+stop. This status covers HA display grants only. It does not use central
+Rendezvous transactions or sender-local Cast status as a live screen signal.
+
+### One external screen per Profile and Session
+
+The optional `live_display_status.screen_slot` has `version:1` and state
+`available`, `reserved`, `live` or `unavailable`. Only an explicit
+`available` permits a new choice. The slot is independent of the separate
+share permission and of the live-only list. Reserved and live slots carry a
+stop target with `display_id`, `share_id` and `connection_generation`.
+Generation zero identifies a reservation that has yet to connect. A disconnected
+grant keeps its existing lease as a reconnect window. Only a current writer can
+extend that lease.
+
+A fresh approval reserves the slot under the Runtime lock. Another approval
+for the same Profile and Session returns `display_slot_occupied` (409);
+repeating the same successful approval returns the original reservation.
+Collection and connection transfer the reservation without opening another slot.
+A stop with the current target generation removes the reservation and invalidates
+the writer, while preserving playback, Session and share permission. After any
+stop outcome, clients use a fresh paired observation before showing the picker.
+
+### Claim and approval
+
+Claim request is `{contract_version, browser_nonce}` with optional `request_id`.
+The display page keeps a random 256-bit request ID in the current browser
+history entry. A same-source reload can use it to replace a pending,
+unapproved claim while keeping the original code, deadline and failure count.
+Replacement issues a new browser nonce binding, secret and generation.
+An approved claim cannot be resumed this way. The history entry contains
+neither a code nor a collect secret or display grant.
+
+The response is
+`{success, contract_version, issuer_epoch, claim_id, claim_secret, code,
+browser_generation, expires_at, expires_in}`. No Profile, Session, device list,
+media, owner token or grant. Six digits identify a claim but cannot poll/collect.
+The browser retains the secret/nonce only in memory and never sends them to A.
+
+Owner resolve is `{contract_version, identity, code}`; successful response has
+`claim_id`, `browser_generation`, `issuer_epoch`, `expires_at`. Rate-limit failed
+lookups. Resolving never approves or reveals claim_secret/browser nonce.
+
+Approve is `{contract_version, identity, session_id, issuer_epoch, claim_id,
+browser_generation, code, share}`. `share` is exactly one of:
+
+```json
+{"mode":"existing","share_id":"opaque-id","share_generation":1}
+```
+
+```json
+{"mode":"create","consent":true,"lifetime_seconds":7200}
+```
+
+An explicit create approval atomically opens a share and reserves that display;
+it neither starts a Session nor changes playback/planning. Existing share mode
+never extends expiry. Owner UI must make creation/expiry clear; no implicit share
+from a read, scan, lookup, connect or reconnect. Response has approval state,
+opaque display/share IDs, generation and original deadlines; never a bearer.
+The claim binds to this exact Session/Profile/approving entry/share thereafter.
+
+Collect/cancel require `{contract_version, issuer_epoch, claim_id, claim_secret,
+browser_generation, browser_nonce}`. A pending collect returns only pending.
+First valid approved collect atomically creates one `djcd_` display bearer and
+returns `{state:"admitted", display_id, grant_token, issuer_epoch, session_id,
+share_id, share_generation, lease_revision:0, lease_expires_at,
+share_expires_at, capabilities}`. An admitted response may also include
+`session_locale` from the exact approved active Session, limited to
+`en`, `nl`, `de`, `fr` and `es`. The browser language governs pairing.
+After admission, the bound snapshot's `session.locale` supplies the screen
+language. Published Moment text remains unchanged.
+No owner/end/invitation credential.
+Capabilities explicitly deny all owner/guest effects. Collection consumes claim
+authority once; token hash/purpose and the full private binding remain server-side.
+Lost one-time collection requires fresh admission; no plaintext token replay
+cache. Its abandoned reservation expires within the original claim/lease bound.
+
+Only a current display bearer authenticates snapshot/live/renew/leave. Those
+routes reject owner Broadcast tokens, claim secrets and invitations. Ordinary
+owner APIs reject display credentials regardless of asserted device_id. WSS
+first message is `{type:"authenticate", contract_version, grant_token,
+issuer_epoch, display_id, connection_nonce}`. No data precedes authentication.
+Only transport ping/close is accepted afterward; audience signals and all
+mutations return `display_read_only`. B never accepts `end_grant`.
+
+## State, idempotence and commit points
+
+Claim state: pending → approved → collected, or terminal cancelled/expired.
+Same claim ID/generation is never recreated. Approve retry with the same full
+binding returns the same public approval summary without opening a share again,
+extending deadlines or reserving another display. Different binding returns409.
+Resolve requires strong claim ID before approve, so expiry followed by reuse of
+the same six digits can never retarget an old retry. Once the claim and display
+are terminal, retry fails404/410; it does not reconstruct state from a code.
+
+Runtime manager owns B coordination under its existing lock. New B claims,
+share records, reservations, approval/collection/renew/revoke transitions use
+that same owner rather than nesting the legacy handoff-manager lock. Capture
+immutable entry/Profile/Runtime/source fences; prepare awaited authority/source
+work outside the commit lock; validate synchronous current fences again under
+the lock before committing. No provider/storage await while holding that lock.
+Cancellation before commit changes nothing; after commit it cannot fabricate a
+rollback or repeat the effect. Publication/WS delivery failure is not a second
+approval. Legacy handoff stays separate until audited retirement.
+
+Renew request includes current bearer, epoch/display binding and monotonically
+increasing `renew_sequence`, starting1. Server accepts only the next sequence;
+the immediately repeated sequence returns the same recorded lease result,
+without extending again. Older/out-of-order sequences fail409. Expired leases
+cannot be renewed even if a previous response was lost. Renewal rechecks active
+share/Session, approving entry, current pairing/Profile/source rights and original
+absolute share deadline. Pure reads do not renew. Client rejects stale revisions.
+
+Connection generation fences late snapshots/events from superseded sockets.
+Reconnect within the current lease uses a fresh authorized shared snapshot,
+not replay of owner/private history or old display effects. Page reload/state
+loss needs new admission; no secret recovery from browser storage. Lease expiry,
+offline resume, revoke, Session/share end or authority loss immediately clears
+cards, decoded media and pending callbacks. An expired viewer cannot resurrect
+content after a late successful HTTP/WSS response.
+
+Use the existing bounded-writer/backpressure pattern explicitly; merely using
+WSS does not inherit it. Each display owns one long-lived writer. Callbacks queue
+bounded invalidation descriptors/revisions, never retain old private/content
+frames or spawn a task per publication. Coalesce consecutive invalidations to a
+fresh shared snapshot; never replay historical effects. Enforce both queue count
+and serialized-byte budgets globally and per display before reservation. Bound
+in-flight projection output too; an oversized item fails closed or falls back
+without dropping attribution/changing fact text. At most one projection per
+display and8 globally; waiting work is one bounded invalidation flag/display.
+
+Build/send under current issuer/share/lease/entry/Profile/source/generation
+fences. Check after projection awaits and immediately before each actual send;
+discard stale queued work. Revocation/end fences the generation and cancels the
+writer before further content release. A send already started cannot recall
+bytes already delivered; if authority changes while awaiting it, cancel/close
+and issue no later data. Sendtimeout5s or overflow closes1013, releases queue/
+task/socket reservations and leaves only the original still-current lease.
+Client clears content and may reconnect with backoff only within that lease;
+it does not renew expiry or build a backlog. Test blocked sends plus revoke/end,
+not only an empty queue. Actual byte/task/resource accounting remains a runtime
+qualification requirement, not proof supplied by these proposed limits.
+
+The optional [Origin wire probe](../../scripts/verification/vibecast_origin_wire_probe.mjs)
+measures actual Chromium/WebKit GET/POST/upgrade header behavior on own temporary
+loopback servers using the same existing Playwright prerequisites as the frame
+probe. It uses synthetic strings, no real credentials, and deliberately refuses
+the upgrade. It proves neither HA authentication nor successful B/live transport.
+
+Entry removal/re-pair/Profile reassignment invalidates displays approved by that
+entry; loss of the share-creating consent closes that share and all displays.
+Another current paired device on the same Profile may explicitly revoke or
+create/approve a new share; it does not silently inherit old consent. Session
+end/restart closes all related state. Display leave never closes the share or
+owner Session. Already delivered bytes/screenshots cannot be recalled.
+
+## Shared projection and media
+
+Build a closed server allowlist from existing immutable publications/current
+playback, not an owner response with fields hidden by renderer CSS. Required
+identity fields are contract version, issuer/display/share/Session generation,
+coherent projection revision and as_of. Allow qualified public current-track
+labels, approved non-Silence shared Moments with immutable fact text, sources/
+attribution and original expiry. Optional `session_presentation` is exactly
+`{mood, persona, presence}` containing only qualified current active-Session enum
+labels under the explicit share policy. Unknown/unqualified labels are omitted;
+never infer them from Profile defaults or rewrite a published Moment's original
+Persona/Mood. No settings/default snapshot, settings revision, voice, gender,
+announcement_output, provider/pipeline or device preference appears here. These
+three presentation labels confer no settings read/write capability.
+Optional `horizon` contains only `valid_until` and up to three localized
+`{title, text}` sections. It expresses the current authored Forecast for the
+shared track and Session presentation. Core checks source authority, freshness
+and track identity again before release. The receiver clears Horizon on expiry,
+when playback no longer matches and there is no replacement, or when display
+authority ends.
+
+Raw Planner state, queue data, media, links and owner fields are excluded from
+`horizon`. Owner Flow conversation, Ask DJ/history/DNA, account/device/Profile
+IDs, prompts, source payloads and private native deliveries are not serialized.
+Unknown fields are denied. Display reads never generate a Moment or provider call.
+
+`SESSION_SHARED`/`PUBLIC_BROADCAST` labels alone are not proof of audience/source
+rights. Revalidate current publication qualification, audience, channel, locale,
+source/account/edition/subject and original deadline before projection and again
+after any await. Source withdrawal invalidates live items and queued projections.
+Forecast is included only when its text/media are independently qualified for
+this share; otherwise absent, not copied from private owner projection.
+
+No owner session_media/speech/image URL or private Discovery grant is forwarded.
+Shared media needs a separate display-purpose object/source/subject/account/
+share-generation capability with expiry=min(asset, publication, share, lease).
+If this cannot be qualified, deliver text/fallback without artwork/audio. For
+qualified authenticated bytes, the thin host may use bounded fetch+object URLs;
+only its own registered object URLs are renderable and all are revoked/decoded
+buffers cleared on expiry/withdrawal/end. No arbitrary blob URL allowance, direct
+provider hotlink, token query, asset persistence or automatic speech generation.
+
+### Playback and Flow covers
+
+The normal Spotify observer can prepare the current track edition cover in memory
+while a display is admitted. Reuse the bounded Session artwork decoder. Pin the authenticated source account,
+current playback item and the exact Spotify CDN image observed for that item. Display reads consume prepared bytes only.
+
+The snapshot may advertise a display-bound cover reference for the current
+playback item. `POST /api/djconnect/v1/display/artwork` requires the same TLS,
+origin and grant checks as snapshot, plus the exact reference. The release
+fence checks the source, playback item, display, share and original deadlines
+again before sending bytes. The display host alone creates the object URL
+and clears it on track change, withdrawal, disconnect or expiry.
+
+A qualified Flow contribution can carry the cover captured for its published
+playback item, regardless of contribution type. Up to twelve prepared covers
+stay in Session memory for at most thirty minutes from observation, for shares
+that were active when the cover was captured. Flow references require the
+original source authority and a currently eligible contribution in the shared
+Flow. Cover links lead to the corresponding Spotify track. The host revokes
+the image when its last matching Flow card expires or leaves the projection.
+Contributions without a qualified cover remain readable.
+
+### Read-only playback output
+
+Paired owner context advertises `output_status_consent_supported: true`.
+When explicitly chosen in owner approval, the `share` object may include
+`include_output_status: true` in either create or existing mode. The choice
+applies to that display only, defaults to false and is bound to the approval
+transaction. Joining an existing share does not inherit another display's
+choice. A current playing or paused snapshot can then include
+`playback.output_label` and an observed integer `playback.volume_percent` from
+0 to 100. Unknown values are omitted. No output IDs or controls are exposed.
+
+The display presents these values as text beside the playback progress and
+a decorative equalizer. The equalizer animates only during playback and
+honors reduced-motion preferences.
+
+### Shared Session Flow
+
+The optional `shared_flow` list contains up to twelve currently qualified
+proactive DJ contributions ordered by original publication. Each card carries
+its original spotlight deadline in `display_expires_at` and its feed deadline in
+`flow_expires_at`. Active Flow retention uses the original source deadline for
+qualified retained contributions and qualified Spotify metadata shown with its
+attribution. Removal from the active Flow, source withdrawal and loss of
+share consent still remove the card. Owner conversation, user interactions,
+playback observations and private Moments remain outside this projection.
+The display shows the newest contribution at the top and renders older cards
+more subtly below it. New publications preserve the viewer's reading position.
+
+### Temporary DJ spotlight
+
+The snapshot's `current_moment_id` identifies the same current contribution
+as native delivery, provided the contribution is in the shared screen
+projection. It is null when the DJ is quiet or the current contribution is
+private. The display shows that contribution below Now Playing until its
+original display/source deadline or withdrawal. The Flow is visually hidden
+during the spotlight and fades back at the preserved reading position.
+The decorative DJ avatar uses the confirmed session mood palette. Reduced-motion
+preferences disable the fade and avatar animation.
+
+## Failure codes and real acceptance before delivery
+
+Machine codes: `display_contract_unsupported`, `display_origin_denied`,
+`display_external_url_unavailable`, `display_tls_required`,
+`display_capacity`, `display_claim_unavailable`, `display_code_invalid`,
+`display_rate_limited`, `display_context_changed`, `display_share_unavailable`,
+`display_grant_invalid`, `display_lease_expired`, `display_read_only`.
+400 malformed;401 unknown credential;403 authority/origin/purpose;
+404 generic unavailable claim/session;409 stale binding/sequence;
+410 expired locally known authority;429 budget;503 unavailable integration.
+No response distinguishes another Profile's Session existence. Shared renderer
+functional messages ship in en/nl/de/fr/es before runtime acceptance.
+
+Design review must assess these bounds, new endpoint/capability naming,
+multi-device consent/revocation, UI clarity and safe independent B qualification
+while A remains unavailable. Neither this proposal nor a schema-only test is
+permission to bypass that review or advertise working display admission.
+
+Then prove actual isolated HA pairing→Runtime→claim→owner approval→collect→
+scoped snapshot/live→revoke/end, and all private/effect route denials. Include
+duplicate/racing approve/collect/renew, cancellation at each await, storage/source
+failure, wrong origin/entry/Profile/Session/share/purpose/browser/generation,
+expiry equality, failed sends, reconnect/reload/restart, source withdrawal and
+bounded capacity/long runs. Test local/static shared renderer portrait/landscape,
+facts/links/readability/expiry/end with genuinely admitted display credentials.
+External provider boundaries alone may be fixtures. Native Apple/TV, public
+TLS/proxy acceptance and A remain separately open until actually measured.
+
+### Manual shared Flow and artwork checks
+
+Record the exact installed HA-dev source and verify it in Safari on the
+Mac mini with an owner-approved display. Start playback and observe at
+least two real proactive DJ publications. Check that the track bar and
+its authorized album cover stay fixed while the Flow scrolls independently.
+Check publication order and that the newest card is most prominent.
+At the live edge, a new card should scroll into view. With Reduce Motion
+enabled, it should appear immediately without an animated transition.
+
+Test TV remote arrows, laptop mouse wheel, laptop trackpad and iPad touch
+separately. For each input, scroll back and check that the reading position
+holds when another contribution arrives. Return to the live edge or use
+the return-to-live control, then verify that the next contribution scrolls
+into view. Send an Ask DJ request and confirm its question and reply stay
+out of the Flow. Check that playback-only updates add no card and that
+cards and artwork disappear when their authorization expires or is revoked.
+
+Record browser and input results separately from the HA-dev installation
+receipt. These checks are pending until observed on the stated target.
+
+## Eight-display bounded transport qualification — 17 October
+
+The historical [eight-viewer receipt](../../examples/client_contracts/vibecast_display_admission_v1/b-eight-viewer-qualification-v1.json)
+pins the networkless HA image and probe5528aa75; production integration bytes
+remain equal to producer3cb9cf12. Source/probe hashes were frozen throughout and
+independently reread after execution. Enable DJC_DISPLAY_MULTI_CLIENT=1 with
+DJC_DISPLAY_MULTI_SECONDS=70 in the existing real-HA probe. Default execution
+and the earlier26 HTTP/WSS fixture capture remain unchanged. No client identity,
+grant, key, URL secret or private payload is retained in this aggregate receipt.
+
+Ordinary pairing and a fresh Session create one explicitly consented share.
+Before the single-screen policy, eight separately approved/collected display principals opened eight real WSS
+connections. A ninth ordinary approval returns429/display_capacity while the
+original eight principals/connections survive. The probe drains frames and uses
+normal authorized Mood and renewal routes; it never injects Runtime events.
+
+Measured total70.191s including admission/end:626frames across eight viewers
+(79,79,78,78,78,78,78,78),24renewal commits and3confirmed Mood changes delivered
+to every viewer. Peak eight connections,256KiB projection reservation and one
+simultaneously observed projection; sampled34tasks include eight probe readers.
+Process RSS high-water152200→158332KiB (+6132KiB) includes test-client work and
+Session state, not a per-module memory guarantee. B requests made zero provider
+calls. Actual owner Session-end closes all eight sockets, releases every
+connection/projection/preauth reservation and denies every old grant snapshot.
+
+This is a single-share transport/lifecycle qualification. It does not exercise
+global64display/16preauth saturation, eight simultaneously blocked projections,
+slow-drain worst-case, public configured TLS/proxy or eight browser/native
+renderers. Existing actual Chromium/WebKit portrait/landscape evidence is
+separate. A, installed/native/hardware and whole-assignment acceptance remain
+open. The original single-viewer evidence is preserved, not relabelled.

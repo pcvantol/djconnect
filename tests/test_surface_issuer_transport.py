@@ -1,0 +1,324 @@
+"""Closed HTTP adapter tests with a scoped synthetic aiohttp module; zero network."""
+import asyncio
+import base64
+import json
+import sys
+import types
+import unittest
+from unittest.mock import patch
+
+from tests.test_surface_issuer_owner import capture
+from custom_components.djconnect.surface_issuer_transport import FirstKeyHTTPS, IssuerHTTPS
+from custom_components.djconnect.surface_issuer_wire import PREFIX
+from custom_components.djconnect.surface_push_contract import SurfacePushError
+
+
+class IssuerHTTPBoundaryTests(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        self.original = capture()
+        e = self.original.expected
+        self.envelope = {'payload': {'contract_version': 1, 'purpose': 'surface_push',
+            'action': 'status', 'operation_id': e.operation_id, 'delegation_id': e.delegation_id,
+            'delegation_revision': 1, 'key_thumbprint': e.key_thumbprint}, 'signature': 'A' * 86}
+        self.calls, self.settings, self.timeout = [], [], []
+        self.raw, self.status, self.on_read = b'{"success":false}', 200, None
+        self.closed, self.guard_count, self.reads = 0, 0, 0
+        self.headers = {'Content-Type': 'application/json'}
+        test = self
+        class Headers(dict):
+            def getall(self, key, default):
+                value = self.get(key)
+                return default if value is None else value if isinstance(value, list) else [value]
+        class Response:
+            def __init__(self):
+                self.status = test.status
+                self.content = self
+                self.remaining = bytearray(test.raw)
+                self.headers = Headers(test.headers)
+            async def __aenter__(self):
+                return self
+            async def __aexit__(self, *_):
+                test.closed += 1
+            async def read(self, limit):
+                test.reads += 1
+                if test.on_read:
+                    await test.on_read()
+                chunk = bytes(self.remaining[:limit])
+                del self.remaining[:limit]
+                return chunk
+        class Session:
+            def __init__(self, **kw):
+                test.settings.append(kw)
+            async def __aenter__(self):
+                return self
+            async def __aexit__(self, *_):
+                test.closed += 1
+            def post(self, url, **kw):
+                test.calls.append((url, kw))
+                return Response()
+        def timeout(**kw):
+            test.timeout.append(kw)
+            return kw
+        self.cookies = object()
+        module = types.SimpleNamespace(ClientSession=Session,
+            DummyCookieJar=lambda: self.cookies, ClientTimeout=timeout)
+        self.module = patch.dict(sys.modules, {'aiohttp': module})
+        self.module.start()
+        self.addCleanup(self.module.stop)
+        self.transport = IssuerHTTPS(monotonic=lambda: 100.0)
+
+    def guard(self):
+        self.guard_count += 1
+
+    async def send(self, **kw):
+        return await self.transport.post_once(self.original, 'status', self.envelope,
+            guard=self.guard, deadline=110.0, **kw)
+
+    async def test_one_exact_origin_post_dedicated_session_no_ambient_authority_or_redirect(self):
+        result = await self.send()
+        self.assertEqual(result.body, {'success': False})
+        self.assertEqual(len(self.calls), 1)
+        url, kw = self.calls[0]
+        self.assertEqual(url, self.original.origin + PREFIX + 'status')
+        self.assertEqual(self.settings[0]['trust_env'], False)
+        self.assertIs(self.settings[0]['cookie_jar'], self.cookies)
+        self.assertIsNone(self.settings[0]['auth'])
+        self.assertIsNone(kw['proxy'])
+        self.assertIsNone(kw['auth'])
+        self.assertFalse(kw['allow_redirects'])
+        self.assertEqual(set(kw['headers']), {'Content-Type', 'Accept', 'Accept-Encoding'})
+        self.assertEqual(kw['headers']['Accept-Encoding'], 'identity')
+        self.assertNotIn('Authorization', kw['headers'])
+        self.assertEqual(self.timeout, [{'total': 10.0}])
+        self.assertEqual(self.closed, 2)
+        self.assertGreaterEqual(self.guard_count, 6)
+
+    async def test_first_key_register_can_send_maximum_attestation(self):
+        proof = base64.b64encode(bytes(16_384)).decode("ascii")
+        body = {"apple_proof": {"kind": "attestation", "proof_b64": proof}}
+        transport = FirstKeyHTTPS(self.original.origin, machine_headers=lambda _: {
+            "CF-Access-Client-Id": "fixture-client", "CF-Access-Client-Secret": "fixture-secret",
+        }, monotonic=lambda: 100.0)
+        await transport.post_first_key("register", body,
+            "djci_example", currentness={"fixture": True}, guard=self.guard, deadline=110.0)
+        url, request = self.calls[0]
+        self.assertEqual(url, self.original.origin + "/v1/push/native/key/register")
+        self.assertEqual(request["headers"]["Authorization"], "Bearer djci_example")
+        self.assertEqual(request["headers"]["X-DJC-First-Key-Currentness"], '{"fixture":true}')
+        self.assertFalse(request["allow_redirects"])
+        self.assertEqual(json.loads(request["data"]), body)
+        self.assertGreater(len(request["data"]), 16_384)
+
+    async def test_first_key_limits_apply_to_the_entire_serialized_request(self):
+        transport = FirstKeyHTTPS(self.original.origin, machine_headers=lambda _: {
+            "CF-Access-Client-Id": "fixture-client", "CF-Access-Client-Secret": "fixture-secret",
+        }, monotonic=lambda: 100.0)
+        for action, limit in (("register", 32_768), ("challenge", 16_384),
+                ("status/challenge", 16_384), ("status", 16_384)):
+            with self.subTest(action=action):
+                await transport.post_first_key(action,
+                    {"pad": "x" * (limit - 10)}, "djci_example", currentness={"fixture": True},
+                    guard=self.guard, deadline=110.0)
+                self.assertEqual(len(self.calls[-1][1]["data"]), limit)
+                sent = len(self.calls)
+                with self.assertRaises(SurfacePushError) as error:
+                    await transport.post_first_key(action,
+                        {"pad": "x" * (limit - 9)}, "djci_example", currentness={"fixture": True},
+                        guard=self.guard, deadline=110.0)
+                self.assertEqual(error.exception.status, 413)
+                self.assertEqual(len(self.calls), sent)
+
+    async def test_retirement_requires_its_own_machine_identity(self):
+        body = {"event_id": "fixture"}
+        transport = FirstKeyHTTPS(self.original.origin, monotonic=lambda: 100.0)
+        with self.assertRaisesRegex(SurfacePushError, "native_machine_authority_unavailable"):
+            await transport.post_retirement(body, guard=self.guard, deadline=110.0)
+        self.assertEqual(self.calls, [])
+        selected_origins = []
+
+        def machine_headers(origin):
+            selected_origins.append(origin)
+            return {"CF-Access-Client-Id": "fixture-client",
+                    "CF-Access-Client-Secret": "fixture-secret"}
+
+        transport = FirstKeyHTTPS(self.original.origin, machine_headers=machine_headers,
+                                   monotonic=lambda: 100.0)
+        await transport.post_retirement(body, guard=self.guard, deadline=110.0)
+        url, request = self.calls[0]
+        self.assertEqual(selected_origins, [self.original.origin])
+        self.assertEqual(url, self.original.origin + "/v1/push/native/key/retire")
+        self.assertEqual(request["data"], b'{"event_id":"fixture"}')
+        self.assertIn("CF-Access-Client-Id", request["headers"])
+        self.assertNotIn("Authorization", request["headers"])
+        self.assertFalse(request["allow_redirects"])
+
+    async def test_first_key_owner_change_rejects_response(self):
+        transport = FirstKeyHTTPS(self.original.origin, machine_headers=lambda _: {
+            "CF-Access-Client-Id": "fixture-client", "CF-Access-Client-Secret": "fixture-secret",
+        }, monotonic=lambda: 100.0)
+        current = True
+
+        def guard():
+            if not current:
+                raise SurfacePushError("pairing_changed", 403)
+
+        async def retire():
+            nonlocal current
+            current = False
+
+        self.on_read = retire
+        with self.assertRaisesRegex(SurfacePushError, "pairing_changed"):
+            await transport.post_first_key("register", {}, "djci_example", currentness={"fixture": True},
+                guard=guard, deadline=110.0)
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(self.closed, 2)
+
+    async def test_compression_and_nonjson_rejected_before_any_body_read(self):
+        for headers in ({'Content-Type': 'text/html'},
+                {'Content-Type': 'application/json', 'Content-Encoding': 'gzip'},
+                {'Content-Type': 'application/json', 'Content-Encoding': 'br'},
+                {'Content-Type': 'application/json', 'Content-Encoding': 'identity, gzip'},
+                {'Content-Type': 'application/json; charset=utf-16'},
+                {'Content-Type': ['application/json', 'text/html']},
+                {'Content-Type': 'application/json', 'Content-Encoding': ['identity', 'gzip']}, {}):
+            self.headers = headers
+            before = self.reads
+            with self.subTest(headers=headers):
+                with self.assertRaises(SurfacePushError):
+                    await self.send()
+                self.assertEqual(self.reads, before)
+        self.assertIs(self.settings[-1].get('auto_decompress'), False)
+
+    async def test_ordinary_json_utf8_identity_positive_control_no_auto_unpacking(self):
+        self.headers = {'Content-Type': 'application/json; charset=UTF-8', 'Content-Encoding': 'identity'}
+        result = await self.send()
+        self.assertEqual(result.body, {'success': False})
+        self.assertIs(self.settings[-1].get('auto_decompress'), False)
+
+    async def test_redirect_and_failure_are_unknown_without_retry_or_parsing_body(self):
+        for code in (301, 302, 307, 308, 401, 404, 429, 500):
+            self.status, self.raw = code, b'private upstream content'
+            before = len(self.calls)
+            with self.subTest(code=code), self.assertRaisesRegex(SurfacePushError, 'surface_issuer_outcome_unknown'):
+                await self.send()
+            self.assertEqual(len(self.calls), before + 1)
+
+    async def test_overlarge_or_duplicate_or_nonutf8_response_cannot_become_ack(self):
+        for raw in (b'{"x":true,"x":false}', b'{"x":"\xff"}', b' ' * 8193):
+            self.raw = raw
+            before = len(self.calls)
+            with self.subTest(size=len(raw)), self.assertRaises(SurfacePushError):
+                await self.send()
+            self.assertEqual(len(self.calls), before + 1)
+
+    async def test_original_expiry_before_send_has_zero_session_or_request(self):
+        with self.assertRaises(SurfacePushError):
+            await self.transport.post_once(self.original, 'status', self.envelope,
+                guard=self.guard, deadline=100.0)
+        self.assertEqual(self.calls, [])
+        self.assertEqual(self.settings, [])
+
+    async def test_owner_loss_during_body_read_blocks_return_and_closes_both_contexts(self):
+        def stale():
+            raise SurfacePushError('synthetic_original_owner_lost')
+        async def read():
+            self.guard = stale
+        self.on_read = read
+        # Transport captures original callable; its underlying authority changes.
+        valid = [True]
+        def guard():
+            if not valid[0]:
+                stale()
+        async def lose():
+            valid[0] = False
+        self.on_read = lose
+        with self.assertRaises(SurfacePushError):
+            await self.transport.post_once(self.original, 'status', self.envelope,
+                guard=guard, deadline=110.0)
+        self.assertEqual(self.closed, 2)
+        self.assertEqual(len(self.calls), 1)
+
+    async def test_cancellation_is_propagated_never_converted_to_ack_or_retry(self):
+        async def cancelled():
+            raise asyncio.CancelledError
+        self.on_read = cancelled
+        with self.assertRaises(asyncio.CancelledError):
+            await self.send()
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(self.closed, 2)
+
+
+    def private_transport(self, *, origin=None):
+        from custom_components.djconnect.surface_widget_private_transport import (
+            PrivateWidgetHTTPS, WidgetAccessBinding,
+        )
+        generation = object()
+        self.access_generation = generation
+        binding = WidgetAccessBinding(origin or self.original.origin, generation,
+            lambda: self.access_generation, "fixture-access-id", "fixture-access-secret")
+        return PrivateWidgetHTTPS(binding, monotonic=lambda: 100.0)
+
+    async def test_private_issuer_and_redeem_preserve_separate_proofs(self):
+        transport = self.private_transport()
+        await transport.post_once(self.original, "status", self.envelope,
+            guard=self.guard, deadline=110.0)
+        await transport.redeem(self.original, self.envelope, "djce_" + "A" * 43,
+            guard=self.guard, deadline=110.0)
+        self.assertEqual([url for url, _ in self.calls], [
+            self.original.origin + PREFIX + "status",
+            self.original.origin + "/v1/push/surface/enrollment/redeem"])
+        issuer, redeem = [kw["headers"] for _, kw in self.calls]
+        for headers in (issuer, redeem):
+            self.assertEqual(headers["CF-Access-Client-Id"], "fixture-access-id")
+            self.assertEqual(headers["CF-Access-Client-Secret"], "fixture-access-secret")
+        self.assertNotIn("Authorization", issuer)
+        self.assertEqual(redeem["Authorization"], "Bearer djce_" + "A" * 43)
+
+    async def test_private_transport_rejects_mismatched_origin_and_management_path(self):
+        transport = self.private_transport(origin="https://other.example")
+        with self.assertRaisesRegex(SurfacePushError, "surface_widget_origin_changed"):
+            await transport.post_once(self.original, "status", self.envelope,
+                guard=self.guard, deadline=110.0)
+        with self.assertRaisesRegex(SurfacePushError, "surface_widget_operation_invalid"):
+            await transport.post_once(self.original, "../enrollment/revoke", self.envelope,
+                guard=self.guard, deadline=110.0)
+        self.assertEqual(self.calls, [])
+
+    async def test_private_transport_discards_success_after_access_rotation(self):
+        transport = self.private_transport()
+
+        async def rotate():
+            self.access_generation = object()
+
+        self.on_read = rotate
+        with self.assertRaisesRegex(SurfacePushError, "surface_widget_access_changed"):
+            await transport.post_once(self.original, "status", self.envelope,
+                guard=self.guard, deadline=110.0)
+        self.assertEqual(len(self.calls), 1)
+        self.assertFalse(self.calls[0][1]["allow_redirects"])
+
+    async def test_private_relay_uses_only_admitted_widget_bearer(self):
+        from custom_components.djconnect.surface_push_purpose import SurfacePurposeCredential
+
+        transport = self.private_transport()
+        capture = self.original
+        expires = capture.expected.original_grant_expires_ms
+        purpose = SurfacePurposeCredential(
+            "djcs_" + "A" * 43, capture.origin, "fixture", capture.expected.delegation_id,
+            capture.expected.scope_digest, capture.binding_id, capture.device_binding,
+            capture.owner_binding, capture.grant_binding, capture.source_binding,
+            capture.policy_json, expires - 1000, 100.0, lambda: True,
+            wall=lambda: expires - 1000, monotonic=lambda: 100.0, private_transport=transport)
+        body = {key: getattr(capture, key) for key in
+            ("binding_id", "device_binding", "owner_binding")}
+        admission = types.SimpleNamespace(purpose=purpose, validate=self.guard)
+        from custom_components.djconnect.surface_push_relay import post_once
+        await post_once(None, None, "status", body, admission)
+        url, request = self.calls[0]
+        self.assertEqual(url, capture.origin + "/v1/push/surface/status")
+        self.assertEqual(request["headers"]["Authorization"], "Bearer " + purpose.bearer)
+        self.assertEqual(request["headers"]["CF-Access-Client-Id"], "fixture-access-id")
+        purpose.withdraw()
+        with self.assertRaisesRegex(SurfacePushError, "surface_purpose_withdrawn"):
+            await transport.relay(admission, "status", body, deadline=110.0)
+        self.assertEqual(len(self.calls), 1)

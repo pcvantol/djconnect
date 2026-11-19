@@ -1,0 +1,183 @@
+## Current prepared host-wake runtime: original local proof resource ceiling
+
+The prepared seven-route runtime retains its local 30-second proof-submission ceiling from the original challenge request before body/SQL/HTTP awaits. Fresh complete requests and replies cannot restart it. This is local custody only; API owns its own nonce UTC/admission. Original token SHA256 is checked before registration disclosure. Public errors use the existing closed push-specific v1 contract.
+
+Current prepared first-key/clock document SHA256: `be043350ea59b254d3dca86b895e0c46cabf2bee45c736c61fe0528635ae7d44`. Earlier prefixes below retain their original historical snapshot. No whole-source qualification, installation, SDK, provider or device acceptance follows from these WIP checks.
+
+## Original installation first key and host-wake clock ownership, 1 November2026
+
+The canonical [first-key and deadline contract](docs/product/HOST_WAKE_FIRST_KEY_V1.md)
+separates installation-bound SDK key generation before Core prepare from genuine
+API-selected attestation and registration. Local first-key custody needs actual
+operator/effect authority, signed installation/task identity and durable once
+before SDK; no JSON flag, QR reference or key existence is permission.
+
+API owns UTC/SQL admission deadlines; Core retains original local context and
+wall/mono ceilings; Apple retains its actual pre-authorize ContinuousClock root.
+No receipt-time reanchor or unproved cross-OS rate is authority. Local bounded
+SDK effects and server admission are separate; no no-SDK-after-remote-expiry
+claim is made without a real additional bound. Late results cannot enroll or
+register. Existing rich-field rights/privacy and accepted stale OS status retain
+their own scopes. This source preparation authorizes no signing/install/key,
+provider or native action and supplies no operative consumer pin.
+
+# DJConnect v4 Architecture
+
+**Status:** Accepted architecture direction
+**Owner:** DJConnect Product Development
+**Scope:** Canonical v4 product architecture; documentation only
+
+## Purpose
+
+DJConnect v4 converges the existing product around one model: an AI DJ hosts
+one or more active **DJ Sessions**. Playback is context supplied by a Music
+Backend; the DJ Session is the product.
+
+This is an architectural convergence, not a new application. Future delivery
+must reuse proven components where they fit, move responsibility to its
+canonical owner, and remove obsolete architecture when it no longer fits. As
+DJConnect v3 was never publicly released, v4 introduces no compatibility
+layer, migration path, or transitional architecture solely for v3 support.
+
+## Ownership model
+
+```text
+Profile (persistent)
+  -> exactly one Music Backend binding
+  -> Music DNA, settings, preferences and conversation history
+  -> persistent DJ Sessions and Session History
+
+DJ Session (persistent lifecycle aggregate)
+  -> one immutable owner Profile and durable historical projections
+  -> may have one ephemeral execution
+
+DJ Session Runtime (ephemeral, server-owned)
+  -> Playback Context
+  -> Session Planner
+  -> DJ Moment Engine
+  -> Conversation Engine
+  -> live Session Memory and Session Flow
+  -> Broadcast Engine and deferred Audience Experience
+  -> active Runtime State
+```
+
+A Profile owns persistent identity and long-term state. A persistent DJ Session
+owns its lifecycle and permitted historical renderer-safe outcomes. A Session
+Runtime owns only the active listening experience and ends with its execution;
+it is never restored as an object. A Music Backend belongs to a Profile, never
+to a DJ Session.
+
+The v4 ownership chain is strict: Profile owns identity and history; Runtime
+owns the present; Planner owns the future; the DJ Moment Engine owns creative
+execution; Broadcast owns distribution; Renderers own local presentation; and
+the Music Backend owns playback execution. The Runtime is the only
+orchestrator: inputs enter the Runtime, which coordinates its Planner, DJ
+Moment Engine and then its Broadcast Engine. Renderers never read Planner state
+or other Runtime internals directly.
+
+## Session Planner and Session Flow
+
+The **Session Planner** is the central AI orchestration engine. Its accepted
+Rolling Session Horizon target is roughly the next twenty minutes and it
+replans as playback, listener
+interaction, conversation, mood, backend availability or permitted Music DNA
+changes. Audience Events and Audience Projections are not Planner inputs; any
+future Audience Observation requires a separate explicit decision.
+
+The Planner does not generate a static playlist and does not take ownership of
+provider playback. It supplies a **Session Flow**: what the DJ is planning
+next, including the current track, announcements, Track Insights, Discover
+moments, musical direction and planned transitions. A provider queue can
+remain available as an advanced view under More, but is no longer the primary
+DJConnect experience.
+
+The Planner's presentation output is a **Knowledge Intent**: what the DJ should
+communicate, never its wording, voice, visual treatment or delivery. A DJ
+Moment Engine combines the Knowledge Intent with Runtime context, current
+Session Mood and DJ Persona, then creates one immutable **DJ Moment** with its
+resolved Presentation Intent. The Planner remains responsible for timing; the
+Moment Engine is responsible for creative execution.
+The Horizon is internal Runtime-scoped Planner state; it never becomes a
+provider queue, Session history or renderer projection. Its detailed contract
+is [`ROLLING_SESSION_HORIZON_ARCHITECTURE.md`](ROLLING_SESSION_HORIZON_ARCHITECTURE.md).
+
+## Broadcast and rendering
+
+The **Broadcast Engine** publishes an event-driven **Broadcast Feed** for an
+active DJ Session. It is not video streaming and is not server-rendered video.
+Receivers render the feed locally according to their capabilities and privacy
+scope.
+
+VibeCast is a renderer of an active DJ Session's Broadcast Feed. It is
+delivered by one Universal Session Receiver with render modes such as TV,
+Guest, Desktop, Browser, Raspberry Pi and Chromecast.
+
+Renderers belong to three experience categories:
+
+| Category | Responsibility | Examples |
+| --- | --- | --- |
+| Personal Experience | Native, profile-bound DJ Session experience and control. | iPhone, iPad, macOS, Windows, Apple Watch |
+| Shared Experience | Universal Session Receiver for an active shared session. | Browser, TV, Chromecast, Raspberry Pi, desktop, guest phones |
+| Room Experience | Voice/control rendering for the active room DJ Session. | HA Voice, ESP32 Voice Satellite |
+
+The native Apple application is one shell containing Owner, Guest and Demo
+runtimes. Its interface is capability-driven, not mode-driven.
+
+Every active Runtime owns exactly one ephemeral Broadcast Engine. It publishes
+the canonical Broadcast State and, in future, Broadcast Events; it does not
+plan, execute playback or render pixels. The initial state is intentionally
+empty except for safe session, planner and lifecycle placeholders. It is the
+only outward-facing representation of an active DJ Session.
+
+```text
+Inputs -> Session Runtime -> Session Planner -> Knowledge Intent -> DJ Moment Engine -> DJ Moment -> Broadcast Engine -> Renderers
+```
+
+All renderers consume Broadcast State and Broadcast Events only: Native Owner,
+Native Guest, Demo, Universal Session Receiver, TV, Browser, Pi, Chromecast
+and Room Voice. No renderer accesses Runtime internals. Session Flow remains
+Planner-owned, Broadcast-distributed and renderer-presented. The V4-04
+foundation creates only deterministic current-horizon placeholders; it does
+not add AI planning, recommendations or content generation. VibeCast is a renderer that consumes the
+Broadcast Feed, never a Broadcast implementation, Planner or Runtime. Room
+Voice likewise consumes the Runtime through the Broadcast model rather than
+querying the Planner directly.
+
+## Boundaries
+
+- Clients never store Profile state or become sources of persistent session
+  truth.
+- Music Backend adapters retain provider credentials and provider-specific
+  behaviour. Their Playback Control Boundary owns playback, queues and
+  transport; their Playback Observation Boundary owns normalized playback
+  observation. The latter may provide a future Continue bootstrap only through
+  the opaque Playback Instance Identity contract in
+  [`CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
+- Session Runtimes consume Playback Context; they do not own a backend,
+  provider account or playback state. A future Continue bootstrap may consume
+  one safe Current Playback Projection only as defined in
+  [`docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md).
+- Broadcast receivers render locally and do not infer private Profile data.
+- This document defines target architecture only. It creates no storage,
+  protocol, API, synchronization, client UI, migration or implementation
+ commitment.
+
+The detailed conceptual model, including Personas, Presentation Intents,
+immutable Moments and explicit Silence, is
+[`docs/product/DJ_PRESENTATION_ARCHITECTURE.md`](docs/product/DJ_PRESENTATION_ARCHITECTURE.md).
+
+## Delivery consequences
+
+Future implementation must first establish the runtime, event and privacy
+contracts needed by this model, then adopt the Session Planner, Session Flow,
+Broadcast Feed and renderers in bounded increments. No client may recreate the
+planner, persistent profile state or broadcast semantics locally.
+
+`DJ_SESSION_RUNTIME_CONTRACTS.md` is the canonical lifecycle, ownership and
+capability contract for this architecture.
+`SESSION_FLOW_RECOVERY_ARCHITECTURE.md` is the canonical recovery-identity
+amendment for future Flow delta and Broadcast replay capabilities.
+`PERSISTENT_SESSION_ARCHITECTURE.md` is the canonical durable Session boundary,
+lifecycle, historical projection and future persistence roadmap.
+`DJCONNECT_STORAGE_ARCHITECTURE.md` is the canonical cross-host storage,
+backup, import/export and renderer-recovery contract.

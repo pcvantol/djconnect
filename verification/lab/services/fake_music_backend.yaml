@@ -1,0 +1,26 @@
+service_id: fake_music_backend
+provided_capabilities:
+  - music.fake_backend
+  - music.playback_target
+  - djconnect.playback
+  - djconnect.track_insight
+required_capabilities:
+  - docker.runtime
+image: local-verification-fake-music-backend
+configuration_inputs:
+  - DJCONNECT_VERIFICATION_FAKE_MUSIC_PORT
+secrets: []
+networks:
+  - djconnect-verification
+volumes:
+  - fake_music_fixtures
+ports:
+  - 18141:8080
+health_probe: fake_music_backend_health
+readiness_probe: deterministic_fixture_probe
+bootstrap_dependencies:
+  - music.fixtures
+cleanup: remove_container_and_dedicated_lab_volume
+evidence_sources:
+  - fixture_catalog
+  - request_response

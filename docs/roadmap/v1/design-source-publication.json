@@ -1,0 +1,12 @@
+{
+  "source_merge": "4c88f46efcd73ad5b706a7d94efe0dceefcb2f4a",
+  "safe_regular_files": 145,
+  "mismatches": 0,
+  "archive_sha256": "1eada5ed21a51ce6d03e02e5bc9c1dedf2e23e987934ef6771b1bcb131a7c514",
+  "qualification_sha256": "e925f1ee8125687d20a33cf9df368d3d463502fd0048c529931257b4bf9cf583",
+  "canonical_integrity": "12f9d95ef9860e7762a09c29869d67dae177ae6a6ef2dfca4c4be386b222a281",
+  "formal_outcome": "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED",
+  "canonical_validation": "PASS",
+  "artifact_run": 38153112956,
+  "qualification_run": 38153112979
+}

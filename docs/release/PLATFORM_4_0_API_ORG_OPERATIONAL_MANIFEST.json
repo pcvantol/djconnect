@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "status": "NOT_AUTHORIZED",
+  "manifest_id": "release-4.0.0-api-worker-org-transfer-147baaf",
+  "generated_at": "2026-11-14T13:37:43Z",
+  "platform_version": "4.0",
+  "release_version": "4.0.0",
+  "release_profile": "INTERNAL_RELEASE",
+  "approval": {
+    "state": "PENDING",
+    "authority_record": null,
+    "approved_statement": null
+  },
+  "repositories": [
+    {
+      "repository": "djconnect-music-dj/djconnect-api",
+      "repository_id": 1275206655,
+      "source_sha": "147baaf76e75283bfa322a998a8f5894e8d64452",
+      "tree": "8797632716fb3b4b715b1adcc8eadbcb3d2f84f7",
+      "version": "4.0.0",
+      "validate_run": null,
+      "artifact_run": null
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "cloudflare_workers_production",
+      "required": true
+    }
+  ],
+  "artifact_bindings": [],
+  "migration_evidence": {
+    "source_repository": "pcvantol/djconnect-api",
+    "repository_id": 1275206655,
+    "source_sha": "147baaf76e75283bfa322a998a8f5894e8d64452",
+    "source_validate_run": "43595448600",
+    "source_artifact_run": "43595629700",
+    "source_artifact_id": "14114077656",
+    "source_artifact_sha256": "62c60046f559b9ddf5c189066887744282c05fec5e70dd971b6547b9c260675b",
+    "live_worker_source_sha": "38f0d79b35e2b09e4cf35aed3b0b2ffe29cc7715"
+  },
+  "next_authorized_action": "Repository migration preparation only. After transfer, verify protected main and scoped Owner Authorization access, run Validate on main and record the artifact produced by the destination repository. Production dispatch requires separately approved artifact and live deployment preflight."
+}

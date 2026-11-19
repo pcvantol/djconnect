@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "djconnect.historical-queue-preservation.v2.unavailable",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "success",
+    "error",
+    "message"
+  ],
+  "properties": {
+    "success": {
+      "const": false
+    },
+    "error": {
+      "const": "historical_queue_preservation_unavailable"
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

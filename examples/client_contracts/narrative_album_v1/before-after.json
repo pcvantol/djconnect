@@ -1,0 +1,66 @@
+{
+  "before_main": "0f37b53cc56f89109a1adcbcf39dd454ba52c72d",
+  "input_sha256": {
+    "1": "6dfe0ba260d826ae4f712336cbddeb648dd6b96a3702533aaa05ca713fb916e7",
+    "2": "1f1f51062a1a25b784e223d19d07f91f2f26b6d6bb3823bec7749c34573ff91e"
+  },
+  "before": {
+    "first": {
+      "moment_id": "moment-26f5c353d3954deb85e28a609639450b",
+      "session_id": "session-611eeccb7504433db8538c2712d86349",
+      "created_at": "2026-10-12T10:15:37.800010+00:00",
+      "type": "album",
+      "knowledge_intent": {
+        "type": "album_story",
+        "goal": "Share one qualified current-track fact."
+      },
+      "presentation_intent": {
+        "source_session_mood": "groove",
+        "dj_persona": "home_dj",
+        "tone_of_voice": "warm and conversational",
+        "energy_level": "groove",
+        "delivery_style": "short contextual music story",
+        "voice_style": "persona-guided",
+        "visual_theme": "music-context",
+        "importance": "normal",
+        "maximum_duration_seconds": 40,
+        "delivery_channels": [
+          "broadcast",
+          "owner",
+          "shared"
+        ],
+        "visibility": "session_shared"
+      },
+      "title": "Exact edition",
+      "summary": "Exact edition",
+      "content": "Een datum bij deze uitgave van Exact edition: Spotify vermeldt 2001-03-04.",
+      "artwork": null,
+      "actions": [],
+      "visibility": "session_shared",
+      "delivery_channels": [
+        "broadcast",
+        "owner",
+        "shared"
+      ],
+      "importance": "normal",
+      "source_references": [
+        "Spotify"
+      ],
+      "generation_metadata": {
+        "provider": "Spotify",
+        "validated": "true"
+      },
+      "source_attribution": {
+        "provider": "Spotify",
+        "url": "https://open.spotify.com/album/ZZZZZZZZZZZZZZZZZZZZZZ",
+        "license": "Spotify metadata display"
+      }
+    },
+    "second": null
+  },
+  "after": "See actual nl/home_dj transport-fixture: published Album A then immutable Track B",
+  "comparison": "Identical declared external Spotify raw_track(1/2) inputs and normal paired HTTP start/end; no baseline runtime patches",
+  "native": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "hardware": "NOT_RUN"
+}

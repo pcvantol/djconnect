@@ -1,0 +1,40 @@
+## Current typed playback boundary V2 — 25 October 2026
+
+Original trial40227839784 returned20PASS/4FAIL; its failure and consumed claim remain.
+Public schema boundary rules plus unchanged-return validation are source work,
+not content qualification. Help stays draft/70pending; no installed claim.
+[Exact behavior and remaining gates](HELP_PUBLIC_PLAYBACK_BOUNDARY_V2_20261025.md).
+
+# 2026-10-25 verified playback alternatives — source scope
+
+The verified playback prompt now asks for two grammatically distinct complete handovers using the existing closed 1..2-draft ABI and whole-batch compiler. Both describe the same already accepted selection/state; the existing independent full-text reviews select only a whole draft with all support/language/style checks true. No extra generation/review, playback effect, prose repair, missing-key default, deadline extension or guard relaxation. Legacy single replies and artist research remain unchanged.
+
+See `docs/verification/HELP_TWO_PLAYBACK_ALTERNATIVES_20261025.md`. This is source preparation, not actual model quality, catalogue publication, configuration, installation or native acceptance. The last two genuine short trials remain failures (22/24 and19/24); all claims remain consumed. Catalogue DFAA stays draft/70 pending. Future publication also requires the separately reviewed current-configuration/consumer readiness bridge; local source qualification is not current task/provider authority. All24 requests/nine gates and prior receipts remain in the byte-preserved body below with their own historical scopes.
+
+## Optional public HA playback-task source (25 October 2026)
+
+The new optional `assist_structured_task_id` path uses a separately qualified official HA AI Task only for playback-draft generation; empty selection keeps the conversation path. Its typed-result ABI, exact schema, original Core-role witness, owner/config/cancellation fences and unchanged whole-answer judges are described in [the current source note](HELP_PUBLIC_STRUCTURED_PLAYBACK_TASK_20261025.md). This is source preparation, not catalogue, installed or provider/native acceptance. The original99a2 run40210947501 remainsFAILURE19PASS5FAIL/63responses; no consumed run is retried. CatalogueDFAA staysdraft/70pending; all24requests/ninegates remain. Prior sections below retain their original source/evidence scopes.
+
+---
+
+> Current structural preparation25October: named-role playback gapsv3 explicitly bind every Core role key, then use the unchanged literal compiler and whole-answer judge. Old malformed anonymous arrays remain denied. See [current implementation and evidence](HELP_PLAYBACK_ROLE_GAPS_V3_20261025.md). Actual18b6/40206158531 remains19PASS5FAIL/61responses; all prior model failures/claims retain their own scope. New protected Source/original qualification and a new same-content24PASS/editorial gate precede100/publication. Cataloguefalse70, all24requests/ninegates and installed/provider/native gates remain. Historical body below retained byteexact.
+
+> Current preparation25October: original full10040200070048 remains93PASS7FAIL,173attempted171completed2incomplete, not qualification. New single-draft playback instructions preserve original1..2decoder/hash review/20s23s fences. Closed target24_delivery_v3 includes all seven failures and complete chains; four duplicate cases,82attempts/900s maximum, schema3 and4x2 public inputs. Historical6/18 modes and consumed failures retain their own scope. Full100 requires the SAME new content’s original24PASS and independent editorial review. See [current source scope](HELP_SINGLE_DRAFT_DELIVERY_20261025.md). Cataloguefalse70, all24requests/ninegates and installed/provider/native gates remain. Historical body below is retained unchanged.
+
+> 25 October: the prospectively bounded French reflexive-performance homonym correction and exact original negative/positive witnesses are documented in `HELP_FRENCH_REFLEXIVE_PERFORMANCE_20261025.md`. Original4765 remainsFAIL12/6/46; automated quietFR PASS is not editorial quality. Catalogue70pending/installedunchanged; older evidence below retains its scope.
+
+# Core-owned playback roles, model-owned natural words
+
+Repeated original paid development reports rejected malformed playback alternatives before any normalization: required `media_kind` was omitted even though the prompt illustrated the complete inventory. Source1346 retained those failures. Telling12 run40192692466 also remains 12PASS/6FAIL,44 reserved and completed responses, with no rerun or publication approval.
+
+The new internal `playback_literal_gaps_v2` generation wire makes Core the owner of every required opaque role. A draft supplies only one literal string immediately before each role in `core_slot_order`. Core interleaves that original complete role inventory, with status last. It supplies no natural words, punctuation, translations, factual assertions or repaired model text. Exact count/types/field sets, bounded response and compiled length, no braces/control characters/surrogates, known unique roles and original final-status separator are required before any normalizer runs. A malformed second alternative rejects the entire batch. The ordinary unchanged normalizer, complete-answer hash, roles, independent factual/language/style assessment, receipt, original deadline, cancellation and owner/effect guards still decide acceptance.
+
+Old `playback_slot_drafts_v1` and historical strict text inputs remain compatible and equally strict. Missing-role inputs from the consumed original reports remain failures. A new wire is not a compatibility repair for those old inputs. Natural grammar, Persona/Mood, unsupported claims and musical identity remain subject to the same whole-answer review.
+
+The synthetic catalogue provider now recognizes the German cooking stem `koch`, covering the actual original query `Kochmusik` as well as `kochen`. The original run received an empty synthetic result, not an actual Spotify outage. This corrects simulated search fidelity only. The original failure is retained; all 100 original user questions, effects and result requirements remain unchanged. Unrelated queries and non-playlist searches must remain empty.
+
+The artist instruction requests two complete alternative paraphrases of one documented action, each with the same grounded open follow-up. Reusing actual evidence is permitted; adding facts, expanding roles, changing tense or weakening the independent review is not. The original one-or-two-draft ABI remains unchanged.
+
+New source/controller qualification and fresh original same-content strict18 followed by full100 and independent all-answer editorial acceptance are required. This document does not release the Help catalogue: revision1/draft/70pending and its original hash remain unchanged. Winning protected Source plus a separate cumulative Final, original-byte bridge, exact publication metadata proof, actual published-catalogue HA, Apple adoption and controlled installed verification remain separate gates. All24 requests, nine gates and shared DJ Bulletin/VibeCast work remain preserved. No native/APNs/provider/physical or production installation claim follows from these source tests.
+
+Source preparation:3636tests/3629PASS/7existingSKIP in107.683seconds; Ruff5changedPython0findings; configuredBandit0medium/high with17existinglow. Fresh14isolatedHA groups allPASS with264sourcehashesbefore/container/afterequal andowncontainersremoved. Cost-free actualSDK18 strict49reserved49completed and20negativecontrols pass with zero model/networkcalls. These are source/runtime checks, not genuine model/content acceptance. The old12currentfixturebodies and originalRAWs remain preserved in the private evidence dossier before fresh original receipt joins.

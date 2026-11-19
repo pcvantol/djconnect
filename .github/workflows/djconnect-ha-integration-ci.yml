@@ -1,0 +1,186 @@
+name: DJConnect shared Home Assistant integration CI
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: Python version for the CI runner.
+        required: false
+        type: string
+        default: "3.11"
+      test-command:
+        description: Command used to run the repository test suite.
+        required: false
+        type: string
+        default: "python -m unittest discover -s tests"
+      parallel-test-evidence:
+        description: "Upload the opt-in isolated Core unittest worker reports"
+        required: false
+        type: boolean
+        default: false
+      run-tests:
+        description: Run Python tests.
+        required: false
+        type: boolean
+        default: true
+      run-ruff:
+        description: Run Ruff linting.
+        required: false
+        type: boolean
+        default: true
+      ruff-continue-on-error:
+        description: Report Ruff results without failing the workflow.
+        required: false
+        type: boolean
+        default: false
+      run-bandit:
+        description: Run Bandit security checks.
+        required: false
+        type: boolean
+        default: true
+      bandit-continue-on-error:
+        description: Report Bandit results without failing the workflow.
+        required: false
+        type: boolean
+        default: false
+      run-hassfest:
+        description: Run Home Assistant hassfest validation.
+        required: false
+        type: boolean
+        default: true
+      run-hacs:
+        description: Run HACS repository validation.
+        required: false
+        type: boolean
+        default: true
+      run-dependency-audit:
+        description: Report available updates for runtime dependencies and CI tools.
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  software-assurance-governance:
+    name: Software Assurance governance
+    permissions:
+      contents: read
+    uses: djconnect-music-dj/djconnect-shared-workflows/.github/workflows/software-assurance-governance-5f12.yml@4025a68add8ba98f1f2e0307d7f3998e45c0d9ef
+    with:
+      execution_profile: balanced
+      owner: djconnect-music-dj/djconnect
+
+  dependency-audit:
+    if: inputs.run-dependency-audit
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Report dependency and tool update candidates
+        run: |
+          python -m pip install --upgrade pip
+          python - <<'PY' > /tmp/djconnect-runtime-requirements.txt
+          import json
+
+          with open("custom_components/djconnect/manifest.json", encoding="utf-8") as handle:
+              manifest = json.load(handle)
+
+          for requirement in manifest.get("requirements", []):
+              print(requirement)
+          PY
+          echo "Runtime requirements declared by manifest:"
+          cat /tmp/djconnect-runtime-requirements.txt
+          python -m pip install -r /tmp/djconnect-runtime-requirements.txt || true
+          echo
+          echo "Outdated installed runtime packages, if any:"
+          python -m pip list --outdated --format=columns || true
+          echo
+          echo "Latest CI tool versions visible to pip:"
+          python -m pip index versions ruff || true
+          python -m pip index versions bandit || true
+
+  tests:
+    if: inputs.run-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Record historical evidence scope
+        run: |
+          message="Historical HA receipts do not bind the current manifest, three HTTP User-Agent source files, or firmware default source. Current manifest and firmware default are tested separately. Passing CI does not establish runtime or installed-device acceptance."
+          echo "::notice::$message"
+          echo "### Historical HA evidence scope" >> "$GITHUB_STEP_SUMMARY"
+          echo "$message" >> "$GITHUB_STEP_SUMMARY"
+      - name: Run tests
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements-dev.txt ]; then
+            python -m pip install -r requirements-dev.txt
+          fi
+          ${{ inputs.test-command }}
+      - name: Upload isolated unittest worker evidence
+        if: ${{ always() && inputs.parallel-test-evidence }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ha-parallel-unittest-workers
+          path: ${{ runner.temp }}/ha-parallel-unittest
+          if-no-files-found: error
+
+  ruff:
+    if: inputs.run-ruff
+    continue-on-error: ${{ inputs.ruff-continue-on-error }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install Ruff
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ruff
+      - name: Run Ruff
+        run: ruff check custom_components/djconnect tests
+
+  bandit:
+    if: inputs.run-bandit
+    continue-on-error: ${{ inputs.bandit-continue-on-error }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: ${{ inputs.python-version }}
+      - name: Install Bandit
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install bandit[toml]
+      - name: Run Bandit
+        run: bandit -c pyproject.toml -r custom_components/djconnect --severity-level medium
+
+  hassfest:
+    if: inputs.run-hassfest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: home-assistant/actions/hassfest@86d4564712fa02543c808e3a693dd04f9d3f8361 # master governed exception
+
+  hacs:
+    if: inputs.run-hacs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa # main governed exception
+        # HACS treats `tags/` in branch names as a tag path while fetching raw files.
+        # A commit SHA is unambiguous for both pull requests and pushes.
+        env:
+          REPOSITORY_REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        with:
+          category: integration

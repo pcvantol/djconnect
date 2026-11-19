@@ -1,0 +1,108 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "success": {
+      "const": true
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "visit_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "context_lease_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "observed_occurrence_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lease_duration_ms": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 15000
+    },
+    "music_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "basis": {
+          "const": "authorized_current_observation_and_selected_session_mood"
+        },
+        "recording": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "artist": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "required": [
+            "title",
+            "artist"
+          ]
+        },
+        "symbolic_session_mood": {
+          "enum": [
+            "chill",
+            "groove",
+            "energy",
+            "party"
+          ]
+        },
+        "genres": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "audio_features": {
+          "const": null
+        }
+      },
+      "required": [
+        "basis",
+        "recording",
+        "symbolic_session_mood",
+        "genres",
+        "audio_features"
+      ]
+    }
+  },
+  "required": [
+    "success",
+    "schema_version",
+    "visit_id",
+    "context_lease_id",
+    "observed_occurrence_id",
+    "issued_at",
+    "expires_at",
+    "lease_duration_ms",
+    "music_context"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DJConnect VibeScape Visual Director v1 context-response"
+}

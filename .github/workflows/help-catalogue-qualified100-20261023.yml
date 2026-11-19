@@ -1,0 +1,67 @@
+name: New authorized Help catalogue qualification 23 October 2026
+
+on:
+  workflow_dispatch:
+    inputs:
+      grant:
+        description: Exact single-use human authorization identifier
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-help-catalogue-new100-20261023
+  cancel-in-progress: false
+
+jobs:
+  exact100:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      DJC_HELP100_GRANT: ${{ inputs.grant }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          ref: ${{ github.sha }}
+          path: qualification-runner
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with:
+          ref: 56ff7275ed31f74cc96af4a9e0744403ac3fbf1e
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Admit exact first run and first attempt before model secret access
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 qualification-runner/tools/verification/run_help_catalogue_qualification_20261023.py \
+            --source-root "$GITHUB_WORKSPACE/candidate" \
+            --report-dir "$RUNNER_TEMP/help-catalogue-new100" --admit-only
+      - name: Pull exact existing HA test image before paid execution
+        run: docker pull ghcr.io/home-assistant/home-assistant@sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4
+      - name: Execute the one NEW approved100-case Help test only
+        env:
+          DJCONNECT_GOLDEN_OPENAI_API_KEY: ${{ secrets.DJCONNECT_GOLDEN_OPENAI_API_KEY }}
+        run: |
+          python3 qualification-runner/tools/verification/run_help_catalogue_qualification_20261023.py \
+            --source-root "$GITHUB_WORKSPACE/candidate" \
+            --report-dir "$RUNNER_TEMP/help-catalogue-new100"
+      - name: Preserve allowlisted synthetic receipts without private logs or credentials
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: help-catalogue-qualified100-20261023
+          path: |
+            ${{ runner.temp }}/help-catalogue-new100/admission.json
+            ${{ runner.temp }}/help-catalogue-new100/once-reservation.json
+            ${{ runner.temp }}/help-catalogue-new100/cleanup.json
+            ${{ runner.temp }}/help-catalogue-new100/summary.json
+            ${{ runner.temp }}/help-catalogue-new100/catalogue-progress.json
+            ${{ runner.temp }}/help-catalogue-new100/catalogue-golden.json
+          if-no-files-found: error
+          retention-days: 7

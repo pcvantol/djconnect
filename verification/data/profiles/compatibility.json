@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "profile_version": "1.0",
+  "id": "compatibility",
+  "purpose": "Future, deprecated and unknown values for compatibility behavior",
+  "generator_refs": ["domain.profile.v1", "strings.boundary.v1"],
+  "selection": {
+    "enums": ["valid", "deprecated", "unknown", "future", "wrong_case", "missing"],
+    "capabilities": ["known", "unsupported", "future"],
+    "backends": ["spotify_direct", "music_assistant", "fake_backend", "future_backend"]
+  },
+  "max_generated_items": 250,
+  "traceability": {
+    "verification_modes": ["compatibility", "regression"],
+    "risk_categories": ["forward_compatibility", "capability_discovery"]
+  }
+}

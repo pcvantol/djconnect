@@ -1,0 +1,237 @@
+# Native surface push V1 — source preparation
+
+## Automatic enrollment for Apple push
+
+Validate the same enrollment flow on HA-dev that a new production installation
+will use. Start with ordinary app pairing and use the central API's existing
+per-installation authentication. The approved test needs a fresh HA
+installation and real paired Apple devices.
+
+Push defaults to off. The user chooses separately for each device and channel.
+The four channels are WidgetKit, Live Activities, Moments in the app, and
+Watch Smart Stack. Pairing, a shared Profile, an OS notification permission and
+a grant for local display or retained reads do not authorize push.
+
+Core records the explicit choice under the current paired device. It binds each
+authorization to the installation, device, pairing generation, consent
+generation, channel and native target. The central API verifies that binding and
+issues scoped credentials automatically. The Core and API lanes must qualify
+the installation signing key, exact signed protocol and replay rules before
+enabling issuance. The legacy bootstrap checks the request shape and limits its
+rate. First trust additionally requires an independently verified original
+pairing. Core and API must bind that proof to the enrolled signing key.
+Evaluate reuse of the [existing native first-key flow](HOST_WAKE_FIRST_KEY_V1.md)
+per platform. Apple uses the existing native renderer and proves the actual
+target. Where the original pairing or platform proof is unavailable,
+enrollment stays closed.
+
+The Core pair journal captures the exact loaded ConfigEntry, including its
+options. First-time central credential persistence replaces those options.
+The automatic flow must complete that write before retaining the pair
+acknowledgement for the native witness, or carry the same original pair
+through only that verified credential write. A pending setup response,
+status request, arbitrary options update or restored acknowledgement cannot
+supply a replacement pairing witness.
+
+Turning off one channel invalidates that device and channel's authorization
+before awaiting remote withdrawal. Unpairing retires all authorizations for
+that pairing. Renewal and recovery require current authorization and preserve
+the original target scope. The API validates current authorization independently
+of client and Core retries. The Watch preference and recovery chain stays
+separate from WidgetKit. Live Activities use their own scope and field rights.
+
+For each supported device and channel, capture the result of ordinary pairing,
+opt-in, automatic enrollment, actual DJ publication, APNs acceptance, native
+display or opening, and withdrawal. Verify the default-off case and that
+withdrawing one device/channel leaves the other chosen scopes eligible. The
+large widget receives a content-free refresh signal and reads the latest
+authorized contribution through the existing v4 background read contract.
+
+The isolated Cloudflare Access setup from #1528 remains in the historical test
+evidence. The shipping Core runtime has no operator-mounted service token
+setting. Customer installations use the central API and require no Cloudflare
+configuration or operator action.
+
+## Original widget issuer-to-service adoption — 23 October 2026
+
+This source candidate adds the internal WIDGET-ONLY join between the existing issuer lifecycle and the HA surface service. Ordinary startup still supplies no enrolled owner, retains an empty purpose map and advertises no operational push availability. There is no new HTTP/configuration/Store/client credential-import route, operator enrollment, signer factory, public API activation, provider call or Activity/external-content permission.
+
+A separate required `WidgetIssuerOwner.validate_widget_adoption` port must attest the same original enrolled witness and exact service/owner/device/binding/Session/Broadcast/grant/source/policy context. The implementation captures the pending original service context before the first await, guards existing issuer awaits, adopts only the original winning RAM object with a final no-await check, and keeps original clocks, deadlines and budgets. Session end, unload, explicit local withdrawal and service close synchronously fence pending and adopted work. Historical issuer status and withdrawal retain their separate authority and cannot restore a bearer. Closed replay handles retain opaque identities, not the old Session/Broadcast, paired headers or authority.
+
+The new isolated HA qualification exercises actual pairing/source/Session/Broadcast, SQL15/14, HTTP and real software ES256 with explicitly synthetic pre-enrolled owner/RPC boundaries. The two adversarial cases deny adoption before task scheduling and scrub a late actual paired response after unload; original acquisition is once-only and idempotent. All twelve previous HA groups also passed against the identical263 product snapshot; both owned disposable containers were removed. No host configuration, provider, model, native device or installed HA effect occurred.
+
+Independent preliminary review found two P2 retention defects in the new candidate: retired handles retained the original live context, and a late paired response could refill authority after fencing. Both were corrected; original and corrected pure counterproofs plus GC/race regressions are retained. The first full run remains recorded as3433tests/three current-fixture source-pin FAIL/seven existing skips. Ten current fixtures now join fresh original HA receipts; all previous fixture bytes and RAWs remain preserved. The refreshed complete suite passed3436tests in96.002seconds with seven existing skips. Forty-eight focused service/lifecycle/race tests also pass; whole-source review remains separate. Earlier failures are not reused as PASS.
+
+API production remains actualc048 with deployment39936190936 and separate health smoke39936315814. Source preparation does not activate the compiled-closed issuer or settle actual operator approval, enrollment, signer custody, Core service admission, Apple registration/native receipt or Live Activity rights. HA-dev remains the previous qualified262-file/schema15 installation; this263-file candidate is not installed. HA-production remains unchanged while its native configuration result is pending. All24 retained requests and nine later gates remain tracked in their own scopes; all22 operational service gates remain OPEN.
+
+Peter's same sole-writer/thread/automation window ends today15:15Europe/Amsterdam=13:15UTC, cutoff13:05; safe checkpoint and PAUSE by13:15, no automatic extension. No further paid budget, retention scope or Root Pi/device action follows. This candidate needs exact whole-source and commit review, normal protected source delivery and a separate originally qualified Final before any installed claim.
+
+
+This additive transport does not yet advertise an available end-to-end push
+feature. The capability `surface_push_registration.available` is `false` until
+operator-enrolled, original purpose credentials can be adopted through a
+qualified issuer. Ordinary pairing and installation credentials do not establish
+that permission. This candidate does not enrol an installation, provision a key,
+contact APNs, start an Activity, or demonstrate native delivery.
+
+## Platform and role boundary
+
+Widget tokens and Live Activity update/start tokens are separate roles. The
+closed platform matrix is generated by `surface_push_contract.capability()`;
+WidgetKit push requires the supported OS generation. A Mac or Watch displaying
+an iPhone Activity does not acquire an independent Activity update token. tvOS
+has no widget role. An unsupported role/platform/target combination is rejected.
+Live Activity external-content profiles remain unadmitted until the Apple/API
+owners qualify their exact Attributes, ContentState, date/null encoding, target
+and transport rights. A widget signal does not confer those content rights.
+
+## Existing owner, original permission
+
+The HA process holds one surface service. A registration must retain its paired
+device, Profile owner, provider/source connection, original Session/Broadcast,
+operator delegation, purpose capability, target and original absolute expiry.
+Those bindings are captured before asynchronous authority resolution. A fresh
+Runtime value object during normal playback does not replace the Broadcast.
+A withdrawn original authority cannot become current again after an ABA change.
+
+The relay accepts only the original, scoped RAM `djcs_` credential and exact
+HTTPS origin. It never imports a credential from client JSON, repairs a token,
+uses `djci_`, copies installation identity into the body, redirects, or retries
+an uncertain mutation. Background reads use a separate `djcsurface_` credential
+for exactly one original registration. It cannot perform mutations or mint new
+permissions. Restart/unload loses both process-local credentials.
+
+## Routes and bounded effects
+
+All five paths are POST-only beneath `/api/djconnect/v1/push/surface/`:
+`context`, `register`, `revoke`, `status`, and `read`. Each response, including
+method/authentication/input failures, is no-store and no-referrer. Requests use a
+closed, duplicate-key-free JSON schema, bounded UTF-8 input and a body deadline.
+The context is unavailable when no original issuer purpose exists. Status is a
+local receipt, not proof of provider delivery.
+
+SQLite schema 14 adds the bounded surface effect journal on the existing
+persistence owner. A confirmed reservation and `sent_unknown` commit precede a
+remote attempt. Save failure, stale journal-owner CAS, cancellation or a lost
+acknowledgement cannot establish a usable read grant or authorize a retry. The
+journal contains hashes and bounded receipt coordinates, not APNs tokens,
+content, paired headers or bearer secrets. Its original operation lifetime is
+not extended by replay. The provider ACK must match the original operation,
+registration generation/revision, state and absolute expiry.
+
+An original revoke or token rotation fences the prior row and its watch before
+waiting for a lock or journal save. The dispatch child also checks the exact
+original row, coordinates, phase, expiry and current purpose before sending.
+A late ACK cannot revive that row. Session end withdraws before persistence can
+yield; entry unload withdraws before platform teardown can yield. Failed teardown
+does not rearm the former permission. Expiry collection retires a watch even if
+an idle/paused Session emits no further Broadcast event.
+
+## Widget signals
+
+A confirmed widget registration subscribes to its original accepted Broadcast.
+It sends only the closed `widget_reload` signal. No contribution text, playback
+metadata, artwork or client identity is included. The extension separately reads
+an already qualified passive projection under its original background grant.
+There is no provider lookup, generation, new image acquisition or lease renewal
+on a background read. Unprepared images remain unavailable.
+
+Progress ticks, repeated snapshots and registration replay do not create a new
+push intent. Display changes include playback pause/resume, recording identity,
+mood, persona, presence and already accepted contributions. One HA-owned worker
+retains at most one coalesced later original operation ID. IDs are timestamped in
+the original callback before any await. Original attempt budgets include unknown
+outcomes; a failed signal is not automatically resent. Shared task capacity,
+registration capacity and payload limits remain bounded. Provider acceptance
+means acceptance of that signal, not rendering or listening on a device.
+
+## Qualification boundary
+
+Current source checks include synthetic-boundary unit/SQLite races and an
+isolated Home Assistant 2026.10.0 HTTP/Runtime/SQL qualification. The harness uses
+real pairing, source fences, route registration, persistence and Broadcast
+lifecycle. Issuer admission, external API replies and clock advancement are
+explicit synthetic boundaries; it has no external network, installed HA state,
+operator key, native client, APNs or device effect. Original failed regressions
+and superseded receipts are retained separately.
+
+Full coherent-source tests, refreshed original HA fixtures, exact independent
+source review, qualified issuer adoption and Apple/API native interoperability
+remain release gates. The candidate stays in the existing draft PR under the
+human merge/deployment hold. No partial native-delivery or installed claim is
+made by this document.
+
+## Signed issuer and original lifecycle preparation (API 134 / 2a6)
+
+`surface_issuer_wire.py` implements only the closed offline statement grammar,
+exact POST route/action/domain serialization, canonical public P-256 key
+thumbprint and raw64 ES256 verification against API's unchanged public vectors.
+It uses HA's standard cryptography implementation; the wire never accepts DER,
+padded base64url, extra/private JWK fields or a changed operation/route/scope.
+The public test vectors are expired synthetic proofs with no enrolled key.
+Valid signatures establish byte compatibility, not operator approval or current
+owner, source, grant, Session or deadline authority.
+
+The required-port lifecycle supplies no actual enrolled-key owner, key generator,
+key custody, operator enrolment or service adoption. Its constructor requires
+an independently qualified owner and transport; neither normal pairing nor a
+boolean approval can fill that role. The live purpose map stays empty and the
+public capability stays unavailable. Activity profiles remain closed.
+
+`begin(original_operation_id)` synchronously captures the original owner/key
+generation witness, source, origin, closed widget policy and both clocks before
+the caller schedules acquisition. Its opaque in-process management handle is
+accepted only by its original lifecycle; a clone or a handle from another
+instance confers no authority. Schema15 adds a separate hash-only issuer stage
+journal, with at most64 identities and no eviction to restore an attempt budget.
+Definitive SQLite commits precede both the challenge and issue signer/network
+attempts. They share one original UUID but retain separate signed-body digests.
+Nonces, signatures, keys, raw identity fields and bearer credentials are not
+stored. Cancellation after a definitive commit still blocks the next effect.
+
+Every suspending boundary rechecks the same original authority and UTC plus
+monotonic deadlines. The server's challenge deadline can start after network
+latency; the accepted local deadline is capped at the earlier original
+pre-await120-second limit, UUID lifetime and grant expiry. It is never anchored
+to response arrival. Only an exact winning nonreplayed issue response, followed
+by the committed issue stage and current original guards, produces a RAM purpose
+with the original grant anchors. Lost or duplicate responses remain unavailable;
+there is no reissue with a new operation or a reconstructed bearer after restart.
+
+Historical status uses the retained original handle and issue UUID, with a
+separate current enrolled-key status authority even after grant expiry. It
+returns unavailable metadata and never restores readiness. Withdrawal closes
+the local purpose before cancellation, storage, signer or network waits, then
+requires its own enrolled-key authority and a fresh bounded UUID. A lifecycle
+close synchronously scrubs every purpose and prevents late ACK adoption. A lost
+key requires the owning operator's reconciliation; it does not create a new key.
+
+The dedicated issuer HTTPS adapter makes one request with no ambient bearer,
+cookies, environment proxy, redirect, bootstrap or retry. The lifecycle independently
+verifies the original raw64 ES256 envelope before invoking it. Requests are bounded
+to16KiB and replies to8KiB, with an original deadline and at most10seconds for
+the signing/network phase. Automatic response decompression is disabled;
+`Accept-Encoding: identity` is explicit. Nonidentity encoding, non-JSON media,
+duplicate relevant headers, duplicate JSON fields, invalid UTF-8 and unsafe
+numeric values cannot become an acknowledgement.
+
+Isolated qualification exercises real ES256 and SQLite15 with an explicitly
+synthetic pre-enrolled owner and RPC boundary. A separate actual aiohttp loopback
+HTTPS harness executes the product adapter with synthetic DNS and a temporary
+test TLS trust root/key in container RAM. It accepts ordinary JSON and rejects
+compressed, wrong-media, duplicate-header, overlarge, malformed and redirected
+responses. This does not prove actual operator custody, production DNS/TLS,
+service adoption, APNs delivery, native rendering or an installed integration.
+
+The relay response boundary also requires strict UTF-8 JSON with unique object
+keys at every depth. Non-finite/ambiguous numeric values, invalid Unicode text
+and over-deep objects are rejected before any ACK is interpreted. The bounded
+single network attempt remains consumed on such a response; parsing never
+normalizes conflicting fields into readiness or triggers another send.
+
+
+## Actual isolated HTTP consumer fixture
+
+`examples/client_contracts/surface_push_v1/actual-ha-wire.json` retains actual HA2026.10.0 HTTP request JSON and response bodies from the disposable producer harness, with exact product/harness and original RAW hashes. It covers unavailable/no-purpose context, registration winner and replay, generation-preserving revision+1 rotation, separate background reads, status, revoke and unknown-outcome replay. HEAD is status/header-only. Synthetic issuer/API boundaries are explicit. Fixture credentials and captured original timestamps are test data, never enrollment, a fresh lease or native delivery evidence. Do not replace original timestamps or mint a grant from this fixture.
+
+Rotation retains the registration ID, generation and original expiry; only revision increments by exactly one. The `djcsurface_` read credential is separate from paired app authentication and issuer `djcs_` mutation authority. Unknown outcomes do not return a read credential or authorize a new operation retry.

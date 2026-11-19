@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "suite": "askdj_release_matrix_v1",
+  "candidate_sha": "7e14e5970b3f68d33d243ae6bab2b281fad59bb2",
+  "status": "FAIL",
+  "profiles": [
+    {
+      "id": "test_ask_dj*.py",
+      "kind": "deterministic_owner_contract",
+      "status": "FAIL",
+      "tests_run": 0,
+      "execution_runtime": "pinned_ha_container"
+    }
+  ],
+  "native_installed_hardware": "NOT_RUN",
+  "inventory": {
+    "proactive_golden_cases": 560,
+    "status": "PASS",
+    "literal_core_routes": 48,
+    "single_turn_cases": 112,
+    "executable_help_cases": 60,
+    "conversation_families": 39,
+    "conversation_steps": 165,
+    "reported_issues": 57,
+    "open_core_findings": [
+      "ASKDJ-ISSUE-research-unsupported-fact",
+      "ASKDJ-ISSUE-generic-persona-mood",
+      "ASKDJ-ISSUE-track-insight-data",
+      "ASKDJ-ISSUE-published-flow-retention",
+      "ASKDJ-ISSUE-unsupported-source-relationship",
+      "ASKDJ-ISSUE-atomic-quote-coverage",
+      "ASKDJ-ISSUE-catalogue-conversation-retention",
+      "ASKDJ-ISSUE-submit-misreported-as-history",
+      "ASKDJ-ISSUE-producer-story-too-shallow",
+      "ASKDJ-ISSUE-active-history-reference",
+      "ASKDJ-ISSUE-passive-surface-isolation",
+      "ASKDJ-ISSUE-metallica-native-tts"
+    ],
+    "open_quality_steps": [
+      "ASKDJ-FLOW-albums-versions-playlists-step-8",
+      "ASKDJ-FLOW-person-context-step-5",
+      "ASKDJ-FLOW-track-insight-step-1",
+      "ASKDJ-FLOW-voice-audio-failure-step-1",
+      "ASKDJ-FLOW-voice-audio-failure-step-2",
+      "ASKDJ-FLOW-style-lifecycle-step-1",
+      "ASKDJ-FLOW-style-lifecycle-step-2",
+      "ASKDJ-FLOW-son-mieux-rich-story",
+      "ASKDJ-FLOW-producer-rich-story",
+      "ASKDJ-FLOW-session-opening-real-quality",
+      "ASKDJ-FLOW-album-researched-quality",
+      "moment_mood_prosody-step-3",
+      "ASKDJ-REGRESSION-public-music-evidence-step-3",
+      "ASKDJ-REGRESSION-research-grounding-boundary-step-1",
+      "ASKDJ-REGRESSION-research-grounding-boundary-step-3",
+      "ASKDJ-REGRESSION-research-grounding-boundary-step-4",
+      "ASKDJ-REGRESSION-research-grounding-boundary-step-5",
+      "ASKDJ-FLOW-failed-submit-artist",
+      "ASKDJ-FLOW-failed-submit-singers",
+      "ASKDJ-FLOW-explicit-persona-touch-step-6"
+    ],
+    "matrix_sha256": "3cb4aee812d406512e0fe9a54b9f0f44a3ef83be13043fce5e002a09b774a665",
+    "single_turn_sha256": "4ca1173a4f20f4a385e7d4fc96b10b1104530bdd65b4420d55ccf8b7a2043ccd"
+  }
+}

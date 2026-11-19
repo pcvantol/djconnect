@@ -1,0 +1,743 @@
+{
+  "version": "3.1.x",
+  "description": "DJConnect spoken music intent examples for the post-STT PTT pipeline.",
+  "handling_order": [
+    "current_track",
+    "playback_control",
+    "default_playlist",
+    "playlist",
+    "artist_with_track",
+    "album",
+    "track",
+    "artist"
+  ],
+  "rules": [
+    "Explicit media words win over generic phrasing.",
+    "Requests with album/plaat are album intents, even when the sentence also contains van/by.",
+    "Requests with nummer/liedje/track/song are track intents.",
+    "Generic requests such as Speel Nirvana remain artist-first.",
+    "Explicit artist-prefix playback requests such as Speel artiest Nirvana and play artist Radiohead remain artist-first.",
+    "Current-track questions read Spotify playback status and generate a DJ response without starting playback.",
+    "Direct playback-control phrases bypass Spotify search and Assist intent parsing.",
+    "Local deterministic parsing can override stale or generic HA Assist results.",
+    "HA may use Assist STT correction before intent parsing, but Spotify credentials are never sent to Assist."
+  ],
+  "ask_dj_rules": [
+    "Ask DJ text and app voice/PTT requests are conversational and can answer without changing playback.",
+    "Informational Ask DJ requests keep action none unless the user clearly asks for playback.",
+    "Playback/hybrid Ask DJ requests may execute Spotify/Home Assistant actions and return a DJ response.",
+    "Short acknowledgements such as Geeft niet, Dank je and Laat maar are conversational follow-ups, not new lookups.",
+    "Help, speaker/output and recent listening-history requests are read-only unless the backend explicitly returns playback_actions.",
+    "Ambient Ask DJ facts can appear without a user request when Spotify artist/album context changes; these use message_kind system."
+  ],
+  "intents": {
+    "current_track": {
+      "spotify_type": "status",
+      "plays_music": false,
+      "description": "Ask which track is currently active. DJConnect reads Spotify playback state and returns a DJ response. If nothing is playing or Spotify is unavailable, it still returns a friendly answer.",
+      "nl": [
+        "Welk nummer draait er nu?",
+        "Welk nummer speelt er nu?",
+        "Wat draait er?",
+        "Wat speelt er?",
+        "Wat is dit?"
+      ],
+      "en": [
+        "What song is playing?",
+        "What track is playing now?",
+        "What's playing?",
+        "Which song is this?"
+      ]
+    },
+    "playback_control": {
+      "spotify_type": "backend_command",
+      "plays_music": false,
+      "description": "Direct playback controls. These do not run provider search. They call the selected DJConnect backend command and then generate a DJ response.",
+      "commands": {
+        "pause": {
+          "spotify_command": "pause",
+          "nl": [
+            "Stop muziek",
+            "Stop de muziek",
+            "Pauzeer muziek"
+          ],
+          "en": [
+            "Stop music",
+            "Pause music"
+          ]
+        },
+        "play": {
+          "spotify_command": "play",
+          "nl": [
+            "Start muziek",
+            "Start de muziek",
+            "Hervat muziek"
+          ],
+          "en": [
+            "Start music",
+            "Play music",
+            "Resume music"
+          ]
+        },
+        "volume_up": {
+          "spotify_command": "set_volume",
+          "delta": 10,
+          "nl": [
+            "Zet harder",
+            "Zet de muziek harder",
+            "Volume omhoog"
+          ],
+          "en": [
+            "Turn it up",
+            "Volume up",
+            "Louder"
+          ]
+        },
+        "volume_down": {
+          "spotify_command": "set_volume",
+          "delta": -10,
+          "nl": [
+            "Zet zachter",
+            "Zet de muziek zachter",
+            "Volume omlaag"
+          ],
+          "en": [
+            "Turn it down",
+            "Volume down",
+            "Quieter"
+          ]
+        },
+        "next": {
+          "spotify_command": "next",
+          "nl": [
+            "Volgende nummer",
+            "Volgend nummer",
+            "Volgende track"
+          ],
+          "en": [
+            "Next song",
+            "Next track",
+            "Skip"
+          ]
+        },
+        "previous": {
+          "spotify_command": "previous",
+          "nl": [
+            "Vorig nummer",
+            "Vorige track",
+            "Vorig liedje"
+          ],
+          "en": [
+            "Previous song",
+            "Previous track"
+          ]
+        },
+        "save_current_track": {
+          "spotify_command": "set_current_track_favorite",
+          "nl": [
+            "Zet huidig nummer in favorieten",
+            "Haal huidig nummer uit favorieten",
+            "Voeg dit nummer toe aan favorieten",
+            "Bewaar deze track in favorieten",
+            "Like dit nummer",
+            "Zet deze song in mijn liked songs"
+          ],
+          "en": [
+            "Save this track to liked songs",
+            "Add this song to favorites",
+            "Like this track"
+          ]
+        }
+      }
+    },
+    "artist": {
+      "spotify_type": "artist",
+      "plays_music": true,
+      "nl": [
+        "Speel Nirvana",
+        "Speel artiest Nirvana",
+        "Speel band Pearl Jam",
+        "Start Metallica",
+        "Zet London Grammar op",
+        "Draai Pearl Jam",
+        "Ik heb wel zin in Nirvana",
+        "Ik wil Metallica horen",
+        "Nirvana wil ik wel horen"
+      ],
+      "en": [
+        "Play Nirvana",
+        "Play artist Radiohead",
+        "Start Metallica",
+        "Put on London Grammar",
+        "I want Pearl Jam",
+        "I feel like Nirvana"
+      ]
+    },
+    "track": {
+      "spotify_type": "track",
+      "plays_music": true,
+      "nl": [
+        "Speel nummer Lithium",
+        "Speel nummer Lithium van Nirvana",
+        "Speel Lithium van Nirvana",
+        "Zet het liedje Black van Pearl Jam op",
+        "Draai track Nothing Else Matters van Metallica",
+        "Speel artiest Nirvana met nummer Lithium",
+        "Speel de monsterhit In And Out Of Love van Armin van Buuren",
+        "Draai die dikke knaller Adagio For Strings van Tiësto",
+        "Zet de beuker Sandstorm op"
+      ],
+      "en": [
+        "Play song Lithium",
+        "Play Lithium by Nirvana",
+        "Play the track Black by Pearl Jam",
+        "Play artist Nirvana with song Lithium"
+      ]
+    },
+    "album": {
+      "spotify_type": "album",
+      "plays_music": true,
+      "nl": [
+        "Speel album Nevermind",
+        "Speel album Ten van Pearl Jam",
+        "Zet de plaat OK Computer van Radiohead op",
+        "Draai album Rumours van Fleetwood Mac"
+      ],
+      "en": [
+        "Play album Nevermind",
+        "Play the album Ten by Pearl Jam",
+        "Put on album OK Computer by Radiohead"
+      ]
+    },
+    "playlist": {
+      "spotify_type": "playlist",
+      "plays_music": true,
+      "nl": [
+        "Speel playlist DJConnect",
+        "Start mijn afspeellijst Roadtrip",
+        "Zet Chill playlist op",
+        "Draai afspeellijst Avond"
+      ],
+      "en": [
+        "Play playlist DJConnect",
+        "Start my playlist Roadtrip",
+        "Put on Chill playlist"
+      ]
+    },
+    "default_playlist": {
+      "spotify_type": "playlist",
+      "plays_music": true,
+      "nl": [
+        "Speel mijn standaard playlist",
+        "Start favorieten",
+        "Zet liked songs op"
+      ],
+      "en": [
+        "Play my default playlist",
+        "Start liked songs",
+        "Play favorites"
+      ]
+    }
+  },
+  "ask_dj_intents": {
+    "conversation_followup": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Short conversational replies are answered naturally without rerunning the previous lookup or mutating playback.",
+      "nl": [
+        "Geeft niet",
+        "Dank je",
+        "Laat maar",
+        "Prima",
+        "Jammer"
+      ],
+      "en": [
+        "No worries",
+        "Thanks",
+        "Never mind",
+        "That's fine",
+        "Too bad"
+      ]
+    },
+    "help": {
+      "plays_music": false,
+      "action": "none",
+      "intent": "help",
+      "response_shape": {
+        "text_only": true,
+        "images": [],
+        "playback_actions": []
+      },
+      "description": "Ask what DJConnect can do. The response is a categorized text-only list of prompt options and must not reuse media cards or artwork.",
+      "nl": [
+        "Help",
+        "Hulp",
+        "Wat kun je?",
+        "Welke commando's kan ik gebruiken?"
+      ],
+      "en": [
+        "Help",
+        "What can you do?",
+        "Which commands can I use?"
+      ]
+    },
+    "personal_music_dna_summary": {
+      "plays_music": false,
+      "action": "music_dna_summary",
+      "intent": "personal_music_dna_summary",
+      "response_shape": {
+        "text_only": true,
+        "images": [],
+        "playback_actions": [],
+        "sources": [
+          "djconnect_music_dna"
+        ]
+      },
+      "description": "Ask what DJConnect currently remembers about the user. The response must be based on Music DNA only, without live playback artwork, Spotify profile enrichment or Play Now actions.",
+      "nl": [
+        "Wat weet je nu over mij?",
+        "Wat weet je over mij?",
+        "Wat weet DJConnect over mij?",
+        "Wat staat er in mijn Music DNA?",
+        "Wat herinner je je over mij?"
+      ],
+      "en": [
+        "What do you know about me?",
+        "What does DJConnect know about me?",
+        "What is in my Music DNA?",
+        "What do you remember about me?"
+      ]
+    },
+    "speaker_outputs": {
+      "plays_music": false,
+      "action": "devices",
+      "intent": "list_outputs",
+      "response_shape": {
+        "playback_actions_kind": "output",
+        "button_labels": [
+          "Activeer",
+          "Actief"
+        ]
+      },
+      "description": "Ask which backend output devices or target players are available, or request speaker switching. DJConnect returns a text list plus backend-aware output actions when outputs are known.",
+      "nl": [
+        "Welke speakers zijn er?",
+        "Welke apparaten kan ik gebruiken?",
+        "Wissel van speaker",
+        "Zet de muziek op de woonkamer speaker"
+      ],
+      "en": [
+        "Which speakers are available?",
+        "Which devices can I use?",
+        "Switch speaker",
+        "Move music to the living room speaker"
+      ]
+    },
+    "retry_previous_request": {
+      "plays_music": true,
+      "action": "retry",
+      "intent": "retry_previous_request",
+      "description": "Retry the previous retryable playback request from server-side Ask DJ history or memory. Clients must not reconstruct the old request locally.",
+      "nl": [
+        "Probeer opnieuw",
+        "Nog een keer",
+        "Retry",
+        "Doe nog eens"
+      ],
+      "en": [
+        "Try again",
+        "Retry",
+        "One more time",
+        "Do that again"
+      ]
+    },
+    "contextual_play_followup": {
+      "plays_music": true,
+      "action": "play_music",
+      "description": "Short playback follow-ups resolve against recent Ask DJ chat context. If the recent track has no artist context, Ask DJ asks which artist the user means instead of guessing.",
+      "nl": [
+        "Speel af",
+        "Speel maar",
+        "Speel maar af",
+        "Zet maar op",
+        "Wat is die beuker?",
+        "Speel die dikke knaller",
+        "Vertel iets over die monsterhit",
+        "Welke artiest bedoel je?"
+      ],
+      "en": [
+        "Play it",
+        "Play that",
+        "Play this",
+        "Which artist do you mean?"
+      ]
+    },
+    "album_discography": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Ask for an artist's albums. DJConnect can return a chronological album list with proxied album covers and Play Now actions per album.",
+      "nl": [
+        "Welke albums hebben Radiohead uitgebracht?",
+        "Welke albums bracht deze artiest uit?",
+        "Welke albums zijn er van Prince?",
+        "Albums van Suzan en Freek",
+        "Geef me de albums van Guns N' Roses"
+      ],
+      "en": [
+        "Which albums has Radiohead released?",
+        "Which albums did this artist release?",
+        "Albums by Prince"
+      ]
+    },
+    "artist_item_list": {
+      "plays_music": false,
+      "action": "none",
+      "intent": "artist_item_list",
+      "response_shape": {
+        "playback_actions_kind": [
+          "track",
+          "album",
+          "playlist"
+        ],
+        "button_labels": [
+          "Play Now"
+        ],
+        "images": "proxied when Spotify art is available"
+      },
+      "description": "Ask which tracks, albums or playlists exist for an artist. DJConnect parses the artist name from natural phrasing and returns Play Now rows without starting playback.",
+      "nl": [
+        "Welke muziek heeft Scooter gemaakt?",
+        "Welke nummers heeft Radiohead gemaakt?",
+        "Geef me 5 nummers van Pearl Jam",
+        "Geef me albums van Radiohead",
+        "Toon playlists van Metallica"
+      ],
+      "en": [
+        "What music has Scooter made?",
+        "Which songs has Radiohead released?",
+        "Give me 5 songs by Pearl Jam",
+        "Show albums by Radiohead",
+        "Find playlists from Metallica"
+      ]
+    },
+    "similar_artists": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Ask for artists with similar music, using an explicit artist, current playback artist or recent conversation artist.",
+      "nl": [
+        "Welke artiesten maken vergelijkbare muziek als Radiohead?",
+        "Welke artiesten maken vergelijkbare muziek als wat nu speelt?",
+        "Welke artiesten lijken op deze artiest?",
+        "Vergelijkbare artiesten als de artiest waar het in de conversatie over gaat"
+      ],
+      "en": [
+        "Which artists make similar music to Radiohead?",
+        "Which artists are similar to what is playing now?",
+        "Similar artists to this artist"
+      ]
+    },
+    "artist_genre_style": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Ask what kind of music an artist makes. DJConnect phrases Spotify genre/profile data naturally.",
+      "nl": [
+        "Wat voor muziek maakt Beastie Boys?",
+        "Wat voor muziek maakt deze artiest?",
+        "Welk genre maakt Muse?",
+        "Wat is het genre van Radiohead?"
+      ],
+      "en": [
+        "What kind of music does Beastie Boys make?",
+        "What kind of music does this artist make?",
+        "What genre is Muse?"
+      ]
+    },
+    "concert_agenda": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Ask for upcoming concerts. DJConnect can return date, location and clickable source links when web agenda data is available.",
+      "nl": [
+        "Wanneer speelt Radiohead in Nederland?",
+        "Heeft deze artiest binnenkort concerten?",
+        "Concerten van The National",
+        "Tourdata voor Muse"
+      ],
+      "en": [
+        "When does Radiohead play in the Netherlands?",
+        "Does this artist have upcoming concerts?",
+        "Concerts for The National",
+        "Tour dates for Muse"
+      ]
+    },
+    "next_track_info": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Ask what the next queued track is. DJConnect reads Spotify queue context and can return track, artist, album art and a Play Now action without skipping automatically.",
+      "nl": [
+        "Wat wordt het volgende nummer?",
+        "Wat is het volgende nummer?",
+        "Welke track komt hierna?"
+      ],
+      "en": [
+        "What is the next song?",
+        "Which track is up next?",
+        "What will play next?"
+      ]
+    },
+    "current_track_versions": {
+      "plays_music": false,
+      "action": "none",
+      "intent": "current_track_versions",
+      "response_shape": {
+        "playback_actions_kind": "track",
+        "button_labels": [
+          "Play Now"
+        ],
+        "images": "proxied per result when Spotify art is available"
+      },
+      "description": "Ask for live, acoustic or remix versions of the current track. DJConnect searches Spotify using the current track and artist, returns matching Play Now rows and does not start playback automatically.",
+      "nl": [
+        "Heb je een live versie?",
+        "Zoek een live versie van dit nummer",
+        "Heb je een akoestische versie?",
+        "Is er een unplugged versie?",
+        "Heb je remixes?",
+        "Zoek een remix van dit nummer"
+      ],
+      "en": [
+        "Do you have a live version?",
+        "Find a live version of this song",
+        "Do you have an acoustic version?",
+        "Is there an unplugged version?",
+        "Do you have remixes?",
+        "Find a remix of this track"
+      ]
+    },
+    "track_versions_search": {
+      "plays_music": false,
+      "action": "none",
+      "intent": "track_versions_search",
+      "response_shape": {
+        "playback_actions_kind": "track",
+        "button_labels": [
+          "Play Now"
+        ],
+        "max_results": 10,
+        "requires_all_title_words": true
+      },
+      "description": "Ask for versions, covers, remixes, live or acoustic recordings of a named track title, possibly by different artists. DJConnect searches Spotify tracks, requires every meaningful title word in returned titles, returns Play Now rows and does not start playback automatically.",
+      "nl": [
+        "Geef me 10 uitvoeringen van [nummer] door verschillende artiesten",
+        "Doe me 10 uitvoeringen door verschillende artiesten van \"[nummer]\"",
+        "Zoek versies van \"[nummer]\"",
+        "Toon covers van \"[nummer]\"",
+        "Heb je live versies van \"[nummer]\""
+      ],
+      "en": [
+        "Find versions of \"[song]\"",
+        "Show covers of \"[song]\"",
+        "Give me 10 versions of [song] by different artists",
+        "Give me versions titled [song]",
+        "Do you have live versions of \"[song]\""
+      ]
+    },
+    "personal_music_profile_analysis": {
+      "plays_music": false,
+      "action": "profile_analysis",
+      "description": "Ask for a personal listening profile based on Music DNA and Spotify recently played/top profile data.",
+      "nl": [
+        "Omschrijf eens waar ik zoal naar luisterde de afgelopen maand",
+        "Wat zegt mijn muziek van de laatste twee weken over mijn stemming?",
+        "Welke genres luister ik de laatste tijd veel?",
+        "Maak een profiel van mijn muzieksmaak dit jaar"
+      ],
+      "en": [
+        "Describe what I have been listening to over the last month",
+        "What does my music from the last two weeks say about my mood?",
+        "Which genres have I been listening to lately?",
+        "Make a profile of my music taste this year"
+      ]
+    },
+    "track_insight": {
+      "plays_music": false,
+      "action": "track_insight",
+      "intent": "track_insight",
+      "intent_category": "informational",
+      "sources": [
+        "track_insight"
+      ],
+      "response_shape": {
+        "track_insight": true,
+        "analysis": true,
+        "visual_profile": true,
+        "playback_actions": "none"
+      },
+      "description": "Ask for Track Insight on the current track, returning normalized track metadata, concise analysis and deterministic visualization hints.",
+      "nl": [
+        "Geef Track Insight voor dit nummer",
+        "Vertel me over deze track",
+        "Wat is de vibe van deze plaat?",
+        "Wat maakt dit nummer bijzonder?"
+      ],
+      "en": [
+        "Give me Track Insight for this song",
+        "Tell me about this track",
+        "What is the vibe of this song?",
+        "What makes this track special?"
+      ]
+    },
+    "recently_played_history": {
+      "plays_music": false,
+      "action": "recently_played",
+      "intent": "recently_played_history",
+      "intent_category": "informational",
+      "sources": [
+        "spotify_recently_played"
+      ],
+      "item_types": [
+        "tracks",
+        "albums",
+        "artists",
+        "playlists"
+      ],
+      "response_shape": {
+        "items": true,
+        "assistant_message_items": true,
+        "images": true,
+        "playback_actions": "none unless explicitly returned by backend",
+        "rendering": "compact_list"
+      },
+      "description": "Ask for recent listening-history lists for tracks, albums, artists or playlist contexts. DJConnect reads Spotify recently played data and returns read-only items with art/icon metadata.",
+      "nl": [
+        "Welke nummers heb ik afgelopen uur afgespeeld?",
+        "Welke tracks heb ik net gehoord?",
+        "Welke albums heb ik vandaag geluisterd?",
+        "Welke artiesten hoorde ik net?",
+        "Welke playlists heb ik afgelopen uur gespeeld?",
+        "Wat heb ik vandaag geluisterd?"
+      ],
+      "en": [
+        "Which tracks did I play in the last hour?",
+        "Which songs did I just hear?",
+        "Which albums did I listen to today?",
+        "Which artists did I just hear?",
+        "Which playlists did I play in the last hour?",
+        "What did I listen to today?"
+      ]
+    },
+    "personal_music_recommendations": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Ask for recommendations. DJConnect can return Play Now actions but does not start playback until the user taps Play Now.",
+      "nl": [
+        "Speel wat anders",
+        "Doe maar wat leuks van Radiohead",
+        "Zet een leuke playlist op met rustige muziek",
+        "Ik voel me moe en geprikkeld, zet iets ontspannends klaar"
+      ],
+      "en": [
+        "Play something different",
+        "Give me something fun by Radiohead",
+        "Find a nice playlist with calm music",
+        "I feel tired and overstimulated, suggest something relaxing"
+      ]
+    },
+    "seed_playlist_mix": {
+      "plays_music": false,
+      "action": "none",
+      "description": "Ask DJ to compose a playable mix from artist, track or genre seeds. The response returns backend-aware Play Now actions; Spotify Direct can later save the mix as a Spotify playlist.",
+      "nl": [
+        "Stel een playlist samen op basis van Radiohead, Massive Attack en Portishead",
+        "Maak een mix met Above & Beyond, Armin van Buuren en Ferry Corsten",
+        "Ik wil een playlist obv tracks Reckoner, Teardrop en Angel",
+        "Ik wil een playlist in genre ambient, techno en downtempo",
+        "Maak een 90s dance mix",
+        "Maak playlist obv huidig nummer",
+        "Ik wil meer van deze muziek horen",
+        "Heb je meer nummers die hierop lijken",
+        "Heb je meer nummers die hierop lijken?",
+        "Ik wil vergelijkbare tracks",
+        "Speel vergelijkbare nummers",
+        "Sla deze mix op als Spotify playlist"
+      ],
+      "en": [
+        "Create a playlist based on Radiohead, Massive Attack and Portishead",
+        "Make a mix with Above & Beyond, Armin van Buuren and Ferry Corsten",
+        "I want a playlist based on tracks Reckoner, Teardrop and Angel",
+        "I want a playlist in genres ambient, techno and downtempo",
+        "Make a 90s dance mix",
+        "Create a playlist based on the current track",
+        "I want more of this music",
+        "Do you have more songs like this",
+        "I want similar tracks",
+        "Queue similar tracks",
+        "Save this mix as a Spotify playlist"
+      ]
+    },
+    "save_current_track": {
+      "plays_music": false,
+      "action": "set_current_track_favorite",
+      "intent": "playback_control",
+      "response_shape": {
+        "text_only": true,
+        "images": [],
+        "playback_actions": []
+      },
+      "description": "Toggle the currently playing Spotify track in the user's Liked Songs/favorites. Now Playing cards can expose this as a control action with toggle:true, current favorite status and client_prompt.",
+      "nl": [
+        "Zet huidig nummer in favorieten",
+        "Haal huidig nummer uit favorieten",
+        "Voeg dit nummer toe aan favorieten",
+        "Bewaar deze track in favorieten",
+        "Like dit nummer"
+      ],
+      "en": [
+        "Save this track to liked songs",
+        "Add this song to favorites",
+        "Like this track",
+        "Save the current song"
+      ]
+    },
+    "dj_announcement": {
+      "plays_music": false,
+      "action": "announce",
+      "description": "Ask for a DJ-style announcement for the current or next track without changing playback.",
+      "nl": [
+        "Geef me een leuke aankondiging voor wat nu speelt",
+        "Maak een DJ intro voor dit nummer",
+        "Vertel iets leuks over het volgende nummer"
+      ],
+      "en": [
+        "Give me a fun announcement for what is playing now",
+        "Make a DJ intro for this song",
+        "Tell me something fun about the next track"
+      ]
+    },
+    "ambient_music_fact": {
+      "plays_music": false,
+      "action": "none",
+      "message_kind": "system",
+      "origin": "spotify_playback_context",
+      "description": "Backend-generated text-only Ask DJ fact when Spotify playback moves to another artist/album combination. This has no user phrase and is included so website/client docs can explain the system bubble.",
+      "nl": [
+        "Automatisch DJ feitje bij nieuw album of nieuwe artiest"
+      ],
+      "en": [
+        "Automatic DJ fact when a new album or artist starts"
+      ]
+    },
+    "idle_suggestion": {
+      "plays_music": false,
+      "action": "none",
+      "message_kind": "system",
+      "origin": "idle_suggestion",
+      "description": "Backend-generated Ask DJ system message when the client opens Ask DJ while Spotify is idle. It can include one personalized Play Now action.",
+      "nl": [
+        "Er speelt nu niets. Zin in iets nieuws?"
+      ],
+      "en": [
+        "Nothing is playing right now. Want something new?"
+      ]
+    }
+  }
+}

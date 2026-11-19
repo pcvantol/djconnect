@@ -1,0 +1,778 @@
+from __future__ import annotations
+
+import asyncio
+import importlib
+import logging
+from pathlib import Path
+import sys
+import types
+import unittest
+
+from tests.test_http_voice_helpers import install_http_stubs
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def runtime_for(memory):
+    return types.SimpleNamespace(
+        memory=memory,
+        entry=types.SimpleNamespace(entry_id="entry-1"),
+        config={},
+        pairing_device_id="djconnect-ios-ABCDEFGHIJKL",
+        device_status={
+            "device_id": "djconnect-ios-ABCDEFGHIJKL",
+            "client_type": "ios",
+            "device_name": "iPhone",
+        },
+        client_type=lambda: "ios",
+    )
+
+
+class FakeStore:
+    def __init__(self):
+        self.data = None
+        self.saved = None
+
+    async def async_load(self):
+        return self.data
+
+    async def async_save(self, data):
+        self.saved = data
+        self.data = data
+
+
+class MusicDnaApiHandlersTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        install_http_stubs()
+        if str(ROOT) not in sys.path:
+            sys.path.insert(0, str(ROOT))
+        cls.api_handlers = importlib.import_module("custom_components.djconnect.api_handlers")
+        cls.music_dna = importlib.import_module("custom_components.djconnect.music_dna")
+
+    def setUp(self) -> None:
+        self.store = FakeStore()
+        self.memory = self.music_dna.MusicDNAManager(store=self.store)
+        self.runtime = runtime_for(self.memory)
+        self.hass = types.SimpleNamespace()
+        self._original_resolve_runtime = self.api_handlers.resolve_runtime
+        self._original_authorize = self.api_handlers.authorize_runtime_device_request
+        self._original_run_music_command = self.api_handlers.run_music_command
+        self.api_handlers.resolve_runtime = lambda hass, device_id, headers=None: self.runtime
+        self.api_handlers.authorize_runtime_device_request = (
+            lambda runtime, headers, device_id=None, client_type=None: True
+        )
+
+    def tearDown(self) -> None:
+        self.api_handlers.resolve_runtime = self._original_resolve_runtime
+        self.api_handlers.authorize_runtime_device_request = self._original_authorize
+        self.api_handlers.run_music_command = self._original_run_music_command
+
+    def test_profile_returns_disabled_empty_profile_before_opt_in(self) -> None:
+        result, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_profile_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertTrue(result["success"])
+        self.assertFalse(result["enabled"])
+        self.assertEqual(result["profile"], {})
+        self.assertEqual(result["music_dna_key"], "user:ha-user-1")
+
+    def test_settings_enables_music_dna_and_profile_returns_structured_data(self) -> None:
+        result, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_settings_payload(
+                self.hass,
+                {
+                    "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                    "client_type": "ios",
+                    "enabled": True,
+                    "mood": 65,
+                },
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+        self.assertEqual(status, 200)
+        self.assertTrue(result["enabled"])
+
+        asyncio.run(
+            self.memory.async_update_last_ask_dj(
+                self.runtime,
+                input_text="Draai The xx",
+                result={
+                    "intent": {"intent": "play_music"},
+                    "dj_text": "Komt eraan.",
+                    "playback": {"track": {"title": "Intro", "artist": "The xx"}},
+                },
+                payload={"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+        profile, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_profile_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertTrue(profile["enabled"])
+        self.assertEqual(profile["profile"]["recent_tracks"][0]["artist"], "The xx")
+        self.assertEqual(profile["profile"]["mood"]["value"], 65)
+        privacy = profile["profile"]["privacy_dashboard"]
+        self.assertTrue(privacy["enabled"])
+        self.assertFalse(privacy["stores_raw_audio"])
+        self.assertFalse(privacy["stores_oauth_tokens"])
+        self.assertFalse(privacy["stores_full_prompts"])
+        self.assertTrue(privacy["controls"]["clear_supported"])
+        self.assertIn("recent_tracks", [source["id"] for source in privacy["data_sources"]])
+
+    def test_profile_fixture_shapes_cover_disabled_empty_and_rich_states(self) -> None:
+        disabled, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_profile_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+        self.assertEqual(status, 200)
+        self.assertFalse(disabled["enabled"])
+        self.assertEqual(disabled["profile"], {})
+
+        enabled, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_settings_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios", "enabled": True},
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+        self.assertEqual(status, 200)
+        self.assertTrue(enabled["enabled"])
+        empty, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_profile_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+        self.assertEqual(status, 200)
+        self.assertTrue(empty["enabled"])
+        self.assertIn("summary", empty["profile"])
+        self.assertNotIn("recent_tracks", empty["profile"])
+        self.assertNotIn("snapshot_history", empty["profile"])
+        self.assertNotIn("discovery_feedback", empty["profile"])
+        self.assertIn("privacy_dashboard", empty["profile"])
+
+        asyncio.run(
+            self.memory.async_update_listening_profile(
+                self.runtime,
+                {
+                    "recent_tracks": [{"track_name": "Intro", "artist": "The xx", "uri": "spotify:track:intro"}],
+                    "top_tracks_by_range": {"short_term": [{"track_name": "Intro", "artist": "The xx", "uri": "spotify:track:intro"}]},
+                    "top_artists_by_range": {"short_term": [{"name": "The xx", "uri": "spotify:artist:the-xx", "genres": ["indie"]}]},
+                    "inferred_genres": ["indie"],
+                    "sources": ["spotify_recently_played", "spotify_top_tracks_short_term"],
+                    "last_profile_refresh": "2026-07-09T10:00:00+00:00",
+                },
+                {"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+        asyncio.run(
+            self.memory.async_record_discovery_play(
+                self.runtime,
+                {
+                    "id": "disc-1",
+                    "kind": "track",
+                    "uri": "spotify:track:discovery",
+                    "title": "Discovery Track",
+                    "subtitle": "New Artist",
+                    "reason": "Past bij je Music DNA.",
+                    "quality_score": 89,
+                    "quality_band": "high",
+                },
+                {"section_id": "new_for_you", "client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+        asyncio.run(
+            self.memory.async_record_blocked_music_preference(
+                self.runtime,
+                {"kind": "artist", "name": "Blocked Artist", "reason": "hide_artist"},
+                {"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+
+        rich, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_profile_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+        self.assertEqual(status, 200)
+        profile = rich["profile"]
+        self.assertEqual(profile["recent_tracks"][0]["artist"], "The xx")
+        self.assertEqual(profile["snapshot_history"][0]["top_tracks"][0]["title"], "Intro")
+        self.assertEqual(profile["discovery_feedback"]["accepted_items"][0]["title"], "Discovery Track")
+        self.assertEqual(profile["discovery_feedback"]["accepted_items"][0]["quality_score"], 89)
+        self.assertEqual(profile["discovery_feedback"]["blocked_artists"][0]["name"], "Blocked Artist")
+        privacy = profile["privacy_dashboard"]
+        self.assertFalse(privacy["stores_raw_audio"])
+        self.assertFalse(privacy["stores_oauth_tokens"])
+        self.assertFalse(privacy["stores_full_prompts"])
+        source_ids = {source["id"] for source in privacy["data_sources"] if source.get("enabled")}
+        self.assertIn("spotify_listening_profile", source_ids)
+        self.assertIn("recommendation_feedback", source_ids)
+        self.assertIn("negative_feedback", source_ids)
+
+    def test_profile_payload_is_client_dashboard_contract(self) -> None:
+        asyncio.run(
+            self.memory.async_set_enabled(
+                self.runtime,
+                True,
+                {"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+        asyncio.run(
+            self.memory.async_update_listening_profile(
+                self.runtime,
+                {
+                    "recent_tracks": [
+                        {
+                            "track_name": "Intro",
+                            "artist": "The xx",
+                            "uri": "spotify:track:intro",
+                            "album_image_url": "/api/djconnect/v1/image_proxy/art",
+                        }
+                    ],
+                    "top_tracks_by_range": {
+                        "short_term": [
+                            {
+                                "track_name": "Intro",
+                                "artist": "The xx",
+                                "uri": "spotify:track:intro",
+                            }
+                        ]
+                    },
+                    "top_artists_by_range": {
+                        "short_term": [
+                            {
+                                "name": "The xx",
+                                "uri": "spotify:artist:the-xx",
+                                "genres": ["indie"],
+                            }
+                        ]
+                    },
+                    "inferred_genres": ["indie"],
+                    "sources": ["spotify_recently_played", "spotify_top_tracks_short_term"],
+                    "last_profile_refresh": "2026-07-09T10:00:00+00:00",
+                },
+                {"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+        asyncio.run(
+            self.memory.async_record_discovery_play(
+                self.runtime,
+                {
+                    "id": "disc-1",
+                    "kind": "track",
+                    "uri": "spotify:track:discovery",
+                    "title": "Discovery Track",
+                    "subtitle": "New Artist",
+                    "quality_score": 91,
+                    "quality_band": "high",
+                },
+                {"section_id": "new_for_you", "client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+
+        result, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_profile_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertTrue(result["success"])
+        self.assertTrue(result["enabled"])
+        self.assertEqual(result["music_dna_key"], "user:ha-user-1")
+        profile = result["profile"]
+        self.assertLessEqual(
+            {
+                "summary",
+                "favorite_genres",
+                "recent_tracks",
+                "top_tracks_by_range",
+                "top_artists_by_range",
+                "snapshot_history",
+                "discovery_feedback",
+                "privacy_dashboard",
+            },
+            set(profile),
+        )
+        self.assertEqual(profile["recent_tracks"][0]["track_name"], "Intro")
+        self.assertEqual(profile["snapshot_history"][0]["captured_at"], "2026-07-09T10:00:00+00:00")
+        self.assertEqual(
+            profile["discovery_feedback"]["accepted_items"][0]["quality_band"],
+            "high",
+        )
+        privacy = profile["privacy_dashboard"]
+        self.assertTrue(privacy["enabled"])
+        self.assertIsInstance(privacy["data_sources"], list)
+        self.assertIsInstance(privacy["controls"], dict)
+        self.assertTrue(privacy["controls"]["clear_supported"])
+        for source in privacy["data_sources"]:
+            self.assertLessEqual({"id", "label", "enabled"}, set(source))
+        self.assertFalse(privacy["stores_raw_audio"])
+        self.assertFalse(privacy["stores_oauth_tokens"])
+        self.assertFalse(privacy["stores_full_prompts"])
+
+    def test_profile_refreshes_stale_spotify_listening_profile_hourly(self) -> None:
+        asyncio.run(
+            self.memory.async_set_enabled(
+                self.runtime,
+                True,
+                {"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+        calls = []
+
+        async def command(hass, runtime, command_name, value=None, *, play=None):
+            calls.append((command_name, value, play))
+            if command_name == "listening_profile":
+                return {
+                    "success": True,
+                    "profile": {
+                        "recent_tracks": [
+                            {
+                                "id": "outside",
+                                "track_name": "Outside DJConnect",
+                                "artist": "Native Spotify",
+                                "uri": "spotify:track:outside",
+                            }
+                        ],
+                        "top_tracks_by_range": {
+                            "short_term": [
+                                {
+                                    "track_name": "Top Native Track",
+                                    "artist": "Native Spotify",
+                                    "uri": "spotify:track:top-native",
+                                }
+                            ]
+                        },
+                        "top_artists_by_range": {
+                            "short_term": [
+                                {
+                                    "name": "Native Spotify",
+                                    "uri": "spotify:artist:native",
+                                    "genres": ["indie"],
+                                }
+                            ]
+                        },
+                        "inferred_genres": ["indie"],
+                        "sources": ["spotify_recently_played", "spotify_top_tracks_short_term"],
+                        "last_profile_refresh": "2026-07-09T10:00:00+00:00",
+                    },
+                }
+            raise AssertionError(f"unexpected command: {command_name}")
+
+        self.api_handlers.run_music_command = command
+
+        profile, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_profile_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertEqual(calls, [("listening_profile", None, None)])
+        self.assertTrue(profile["enabled"])
+        self.assertEqual(profile["profile"]["recent_tracks"][0]["track_name"], "Outside DJConnect")
+        self.assertEqual(profile["profile"]["top_tracks_by_range"]["short_term"][0]["track_name"], "Top Native Track")
+        self.assertEqual(profile["profile"]["favorite_genres"][0]["name"], "indie")
+        snapshot = profile["profile"]["snapshot_history"][0]
+        self.assertEqual(snapshot["captured_at"], "2026-07-09T10:00:00+00:00")
+        self.assertEqual(snapshot["top_tracks"][0]["title"], "Top Native Track")
+        self.assertEqual(snapshot["top_artists"][0]["name"], "Native Spotify")
+        self.assertEqual(snapshot["inferred_genres"], ["indie"])
+        privacy = profile["profile"]["privacy_dashboard"]
+        spotify_source = next(
+            source for source in privacy["data_sources"] if source["id"] == "spotify_listening_profile"
+        )
+        self.assertTrue(spotify_source["enabled"])
+        self.assertEqual(spotify_source["count"], 1)
+        self.assertEqual(spotify_source["last_updated"], "2026-07-09T10:00:00+00:00")
+
+    def test_clear_preserves_opt_in_and_returns_empty_enabled_profile(self) -> None:
+        asyncio.run(
+            self.memory.async_set_enabled(
+                self.runtime,
+                True,
+                {"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+        asyncio.run(
+            self.memory.async_update_last_ask_dj(
+                self.runtime,
+                input_text="Draai The xx",
+                result={
+                    "intent": {"intent": "play_music"},
+                    "dj_text": "Komt eraan.",
+                    "playback": {"track": {"title": "Intro", "artist": "The xx"}},
+                },
+                payload={"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+
+        result, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_clear_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertTrue(result["enabled"])
+        self.assertNotIn("recent_tracks", result["profile"])
+        self.assertGreaterEqual(result["generation"], 1)
+
+    def test_unauthorized_music_dna_request_is_rejected(self) -> None:
+        self.api_handlers.authorize_runtime_device_request = (
+            lambda runtime, headers, device_id=None, client_type=None: False
+        )
+
+        result, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_profile_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer wrong"},
+            )
+        )
+
+        self.assertEqual(status, 401)
+        self.assertEqual(result["error"], "unauthorized")
+
+    def test_unauthorized_music_dna_import_is_rejected(self) -> None:
+        self.api_handlers.authorize_runtime_device_request = (
+            lambda runtime, headers, device_id=None, client_type=None: False
+        )
+
+        result, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_import_payload(
+                self.hass,
+                {
+                    "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                    "client_type": "ios",
+                    "profile": {
+                        "success": True,
+                        "enabled": True,
+                        "profile": {"favorite_artists": ["The xx"]},
+                    },
+                },
+                headers={"Authorization": "Bearer wrong"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 401)
+        self.assertEqual(result["error"], "unauthorized")
+
+    def test_unauthorized_music_dna_export_is_rejected(self) -> None:
+        self.api_handlers.authorize_runtime_device_request = (
+            lambda runtime, headers, device_id=None, client_type=None: False
+        )
+
+        result, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_export_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer wrong"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 401)
+        self.assertEqual(result["error"], "unauthorized")
+
+    def test_export_returns_backend_envelope_with_profile_response(self) -> None:
+        asyncio.run(
+            self.memory.async_set_enabled(
+                self.runtime,
+                True,
+                {"client_type": "ios", "app_version": "3.2.21"},
+                user_id="ha-user-1",
+            )
+        )
+        asyncio.run(
+            self.memory.async_update_last_ask_dj(
+                self.runtime,
+                input_text="Draai The xx",
+                result={
+                    "intent": {"intent": "play_music"},
+                    "dj_text": "Komt eraan.",
+                    "playback": {"track": {"title": "Intro", "artist": "The xx"}},
+                },
+                payload={"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+
+        result, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_export_payload(
+                self.hass,
+                {
+                    "identity": {
+                        "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                        "client_type": "ios",
+                        "device_name": "iPhone",
+                    },
+                    "app_version": "3.2.21",
+                },
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertTrue(result["success"])
+        self.assertEqual(result["format"], "djconnect.music_dna.export")
+        self.assertEqual(result["schema_version"], 1)
+        self.assertEqual(result["exported_by_client_type"], "ios")
+        self.assertEqual(result["app_version"], "3.2.21")
+        self.assertIn("exported_at", result)
+        self.assertTrue(result["profile"]["success"])
+        self.assertTrue(result["profile"]["enabled"])
+        self.assertEqual(result["profile"]["music_dna_key"], "user:ha-user-1")
+        self.assertEqual(result["profile"]["profile"]["recent_tracks"][0]["artist"], "The xx")
+
+    def test_import_disabled_music_dna_returns_conflict(self) -> None:
+        result, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_import_payload(
+                self.hass,
+                {
+                    "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                    "client_type": "ios",
+                    "profile": {
+                        "success": True,
+                        "music_dna_key": "user:ha-user-1",
+                        "enabled": True,
+                        "generation": 7,
+                        "profile": {"favorite_artists": ["The xx"]},
+                        "sources": [],
+                    },
+                },
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 409)
+        self.assertFalse(result["success"])
+        self.assertEqual(result["error"], "music_dna_not_enabled")
+
+    def test_import_overwrites_existing_profile_and_bumps_generation(self) -> None:
+        enabled, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_settings_payload(
+                self.hass,
+                {
+                    "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                    "client_type": "ios",
+                    "enabled": True,
+                    "mood": 65,
+                },
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+        self.assertEqual(status, 200)
+        before_generation = enabled["generation"]
+        asyncio.run(
+            self.memory.async_update_last_ask_dj(
+                self.runtime,
+                input_text="Draai The xx",
+                result={
+                    "intent": {"intent": "play_music"},
+                    "dj_text": "Komt eraan.",
+                    "playback": {"track": {"title": "Intro", "artist": "The xx"}},
+                },
+                payload={"client_type": "ios"},
+                user_id="ha-user-1",
+            )
+        )
+
+        previous = self.api_handlers._LOGGER.level
+        self.api_handlers._LOGGER.setLevel(logging.DEBUG)
+        try:
+            with self.assertLogs(self.api_handlers._LOGGER, level="DEBUG") as captured:
+                result, status = asyncio.run(
+                    self.api_handlers.async_handle_music_dna_import_payload(
+                        self.hass,
+                        {
+                            "identity": {
+                                "device_id": "djconnect-ios-ABCDEFGHIJKL",
+                                "client_type": "ios",
+                                "device_name": "iPhone",
+                            },
+                            "language": "nl",
+                            "profile": {
+                                "format": "djconnect.music_dna.export",
+                                "schema_version": 1,
+                                "exported_at": "2026-07-04T19:30:00Z",
+                                "exported_by_client_type": "ios",
+                                "app_version": "3.2.20",
+                                "profile": {
+                                    "success": True,
+                                    "music_dna_key": "user:ha-user-1",
+                                    "enabled": True,
+                                    "generation": 12,
+                                    "updated_at": "2026-07-04T19:30:00Z",
+                                    "profile": {
+                                        "favorite_artists": ["Bicep"],
+                                        "favorite_genres": ["electronica"],
+                                        "recent_tracks": [
+                                            {
+                                                "title": "Glue",
+                                                "artist": "Bicep",
+                                                "uri": "spotify:track:glue",
+                                            }
+                                        ],
+                                        "mood": {"value": 88, "zone": "party"},
+                                    },
+                                    "sources": [],
+                                },
+                            },
+                        },
+                        headers={"Authorization": "Bearer token"},
+                        user_id="ha-user-1",
+                    )
+                )
+        finally:
+            self.api_handlers._LOGGER.setLevel(previous)
+        logs = "\n".join(captured.output)
+        self.assertIn("Music DNA import request", logs)
+        self.assertIn("Music DNA import result", logs)
+        self.assertIn("djconnect.music_dna.export", logs)
+        self.assertNotIn("Bicep", logs)
+        self.assertNotIn("Glue", logs)
+        self.assertNotIn("spotify:track:glue", logs)
+        self.assertNotIn("Bearer token", logs)
+
+        self.assertEqual(status, 200)
+        self.assertTrue(result["success"])
+        self.assertTrue(result["enabled"])
+        self.assertGreater(result["generation"], before_generation)
+        self.assertEqual(result["profile"]["favorite_artists"][0]["name"], "Bicep")
+        self.assertEqual(result["profile"]["favorite_genres"][0]["name"], "electronica")
+        self.assertEqual(result["profile"]["recent_tracks"][0]["title"], "Glue")
+        self.assertEqual(result["profile"]["mood"]["value"], 88)
+        self.assertEqual(result["profile"]["mood"]["zone"], "party")
+        self.assertNotEqual(result["profile"]["recent_tracks"][0]["artist"], "The xx")
+
+        profile, status = asyncio.run(
+            self.api_handlers.async_handle_music_dna_profile_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer token"},
+                user_id="ha-user-1",
+            )
+        )
+
+        self.assertEqual(status, 200)
+        self.assertEqual(profile["generation"], result["generation"])
+        self.assertEqual(profile["profile"]["favorite_artists"][0]["name"], "Bicep")
+        self.assertEqual(profile["profile"]["recent_tracks"][0]["title"], "Glue")
+
+    def test_profile_fences_final_store_readback_withdrawal_and_disabled_initial_read(self) -> None:
+        async def exercise(enabled, stage, change):
+            self.runtime.profile_context_profile_id = ""
+            self.runtime.device_token = "original-device-token"
+            await self.memory.async_set_enabled(self.runtime, enabled, {}, user_id="ha-user-1")
+            if enabled:
+                await self.memory.async_update_listening_profile(
+                    self.runtime, {"top_tracks_by_range": {}}, {}, user_id="ha-user-1"
+                )
+            self.memory.data["memories"]["user:ha-user-1"]["favorite_artists"] = [
+                "Private trusted choice"
+            ]
+            saves = 0
+            original_save = self.store.async_save
+
+            async def withdraw_at_readback(data):
+                nonlocal saves
+                saves += 1
+                if saves == stage:
+                    if change == "token":
+                        self.runtime.device_token = "rotated-device-token"
+                    elif change == "profile":
+                        self.runtime.profile_context_profile_id = "other-profile"
+                    elif change == "privacy":
+                        self.runtime.profile_context_privacy_policy = types.SimpleNamespace(
+                            mode="guest-safe",
+                            allow_personal_read=False,
+                            allow_music_dna_persistence=False,
+                        )
+                    else:
+                        current = self.memory.data["memories"]["user:ha-user-1"]
+                        current["generation"] = int(current.get("generation", 0)) + 1
+                        current.pop("favorite_artists", None)
+                await original_save(data)
+
+            self.store.async_save = withdraw_at_readback
+            result, status = await self.api_handlers.async_handle_music_dna_profile_payload(
+                self.hass,
+                {"device_id": "djconnect-ios-ABCDEFGHIJKL", "client_type": "ios"},
+                headers={"Authorization": "Bearer original-device-token"},
+                user_id="ha-user-1",
+            )
+            self.assertEqual(status, 409, (enabled, stage, change, result))
+            self.assertEqual(result, {"success": False, "error": "music_dna_context_changed"})
+            self.assertNotIn("Private trusted choice", repr(result))
+
+        for enabled, stage, change in [
+            (True, 3, "token"),
+            (True, 3, "profile"),
+            (True, 3, "privacy"),
+            (True, 3, "clear"),
+            (False, 1, "token"),
+        ]:
+            with self.subTest(enabled=enabled, stage=stage, change=change):
+                # Reset case data without re-patching module globals or
+                # overwriting the originals restored by tearDown.
+                self.store = FakeStore()
+                self.memory = self.music_dna.MusicDNAManager(store=self.store)
+                self.runtime = runtime_for(self.memory)
+                asyncio.run(exercise(enabled, stage, change))
+
+
+
+if __name__ == "__main__":
+    unittest.main()

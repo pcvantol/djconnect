@@ -1,0 +1,39 @@
+name: DJConnect shared Semgrep CI
+
+on:
+  workflow_call:
+    inputs:
+      config:
+        description: Semgrep config path or URL.
+        required: false
+        type: string
+        default: "https://raw.githubusercontent.com/djconnect-music-dj/djconnect/main/.semgrep/djconnect-security.yml"
+      continue-on-error:
+        description: Report Semgrep results without failing the workflow.
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  software-assurance-governance:
+    name: Software Assurance governance
+    permissions:
+      contents: read
+    uses: djconnect-music-dj/djconnect-shared-workflows/.github/workflows/software-assurance-governance-5f12.yml@4025a68add8ba98f1f2e0307d7f3998e45c0d9ef
+    with:
+      execution_profile: balanced
+      owner: djconnect-music-dj/djconnect
+
+  semgrep:
+    name: Semgrep
+    continue-on-error: ${{ inputs.continue-on-error }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+      - uses: semgrep/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d # v1
+        with:
+          config: ${{ inputs.config }}

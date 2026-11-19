@@ -1,0 +1,239 @@
+# DJ Session Broadcast Transport
+
+The selected [Album→Track relation](../product/NARRATIVE_ALBUM_CONTINUITY_V1.md)
+uses existing immutable Track / track_context, source_attribution, visual_only
+and native_delivery v1 fields. Existing snapshot/event/recovery and Cast1.1
+remain unchanged. Only current B is eligible, with original earliest source
+deadline and Spotify attribution; no private questions or archives are shared.
+
+## Status
+
+`CONFIRMED_CODE` — V4-06
+
+## Canonical renderer integration model
+
+The Home Assistant authenticated WebSocket is the canonical live transport
+for an active DJ Session. It is a Runtime-owned Broadcast subscription, not a
+second planner, VibeCast feed, guest transport or Universal Session Receiver.
+An owner may also retrieve the same renderer-safe Broadcast snapshot over HTTP
+as point-in-time recovery; HTTP does not poll, subscribe or deliver live events.
+
+```text
+Broadcast State
+  ↓ complete snapshot on subscribe
+Incremental Broadcast Events
+  ↓ authenticated owner WebSocket
+Renderer
+```
+
+### Owner HTTP snapshot fallback
+
+`GET /api/djconnect/v1/session/broadcast/{session_id}` returns the existing
+owner-authorized Broadcast State projection for the exact active Session. It is
+the HTTP recovery fallback for a disconnected owner renderer and is equivalent
+to the initial owner WebSocket snapshot. It creates no subscription, callback,
+Session, Flow entry or playback action.
+
+The endpoint is snapshot-only. Its snapshot includes the Broadcast-owned
+watermark for its current delivery boundary, but it exposes no sequence query,
+cursor issuance or validation, replay, Flow delta, deduplication or
+ordering-recovery protocol. The bounded Replay Log and owner-scoped Recovery
+Cursor remain internal infrastructure. `GET /session/active`
+remains a broader owner Runtime resource, not the renderer snapshot contract.
+
+`GET /api/djconnect/v1/capabilities` is the transport discovery surface for
+HTTP clients. Its Broadcast declaration is shared with the WebSocket capability
+response and reports only this implemented snapshot-recovery contract.
+
+The server remains authoritative:
+
+```text
+Profile → Session Runtime → Session Planner → Broadcast Engine → Renderer
+```
+
+Renderers do not poll Runtime internals and do not derive planner state.
+
+## DJ Moment projection
+
+The current transport remains the authoritative V4-06 Broadcast State
+contract. The canonical presentation model adds immutable DJ Moments to that
+state rather than giving renderers creative responsibility:
+
+```text
+Session Planner → Knowledge Intent → DJ Moment Engine → DJ Moment → Broadcast → Renderer
+```
+
+A Moment is a renderer-safe snapshot with its Presentation Intent already
+resolved. A renderer may choose how to display the supplied content for its
+surface, but must not rewrite the Persona, Mood, delivery, importance or
+follow-up actions. This is architecture and domain modelling only; it does not
+add a Moment field, event or WebSocket payload to the current transport.
+See [`../product/DJ_PRESENTATION_ARCHITECTURE.md`](../product/DJ_PRESENTATION_ARCHITECTURE.md).
+
+### First production Moment projection
+
+The first bounded Moment slice adds `dj_moments` to Broadcast State and the
+incremental `dj_moment_published` event. Each payload is a frozen,
+renderer-safe DJ Moment. Owner subscriptions receive their Profile Runtime's
+authorized Moment projection. Broadcast Token subscriptions receive only
+`session_shared` and `public_broadcast` Moments; `owner_only` Moment snapshots
+and events are filtered server-side. Silence remains a Session Flow decision
+and is intentionally not emitted as a visual Moment event.
+
+See [`DJ_MOMENT_ENGINE.md`](DJ_MOMENT_ENGINE.md) for the current production
+scope and reuse boundary.
+
+## Presentation Projection
+
+Broadcast additionally carries the additive immutable `presentations` snapshot
+collection and `presentation_published` incremental event. A Presentation
+Projection is created only after one approved DJMoment has been realized. It
+contains the Presentation and source Moment identities, source Moment type,
+safe visibility, and optional Speech Presentation mode with ordered `{ordinal,
+speaker_role, text}` segments. It is not a replacement for `dj_moments` and it
+does not create or alter a Session Flow item.
+
+The Projection excludes Session Runtime context, Session identity, Planner,
+Knowledge, prompts, provider payloads, renderer configuration and Profile
+private state. Broadcast Token subscriptions apply the same visibility rule as
+DJMoment projections. Speech is text-only: no audio, TTS provider, voice,
+room-routing or renderer control is transported.
+
+## Subscription contract
+
+After completing the normal Home Assistant WebSocket authentication, an owner
+renderer sends `djconnect/session/broadcast/subscribe` with its existing
+DJConnect identity/token fields and the active `session_id`.
+
+- The server resolves `authenticated device → server-owned device binding →
+  bound Profile → requested active Session → Session owner_profile_id`.
+- Only the bound Profile's active Runtime may be subscribed to. A supplied
+  `profile_id`, HA-user hint, room, area or fallback Profile never selects a
+  Broadcast owner.
+- Multiple devices bound to that same Profile may subscribe. Devices bound to
+  another Profile, unknown devices and explicitly unbound devices are rejected.
+- The transport never exposes a list of Profiles.
+- The command result contains a full `snapshot` of the current canonical
+  Broadcast State.
+- The initial snapshot is always delivered before later incremental events.
+  During setup, the owner callback is registered once in a pending state before
+  the canonical snapshot is built; events produced before the successful result
+  are buffered and delivered only after that result. This is setup ordering,
+  not replay, sequencing, cursor recovery or duplicate suppression.
+- Later events use the stable Home Assistant event type
+  `djconnect/session/broadcast` and contain `event_type`, `session_id` and an
+  incremental `payload`.
+- The existing Broadcast vocabulary is preserved, including
+  `runtime_created`, `runtime_ended`, `planner_updated`,
+  `session_flow_updated`, `broadcast_started` and `broadcast_stopped`.
+- When a Runtime ends, subscribers receive `runtime_ended` and
+  `broadcast_stopped`; the server then releases all Runtime subscriptions.
+- When a WebSocket closes, its subscription is unregistered without changing
+  Broadcast State.
+
+### Owner WebSocket recovery
+
+An owner renderer that holds the opaque `recovery_cursor` returned by its
+previous owner subscription may send
+`djconnect/session/broadcast/recover` with that cursor and the exact active
+`session_id`. The normal Home Assistant and DJConnect device/profile
+authorization chain is applied again; the cursor is not a credential.
+
+- Broadcast replays only the bounded, renderer-safe publications after a
+  retained cursor for that active Runtime.
+- The response is either `replayed` with those publications or
+  `snapshot_required` with a fresh owner-authorized snapshot when replay is
+  unavailable, discontinuous or outside the bounded log.
+- A malformed cursor is rejected. A cursor cannot recover another Session,
+  survive Runtime disposal or expose Broadcast delivery internals.
+- This command does not add HTTP recovery, Flow delta, a public replay query,
+  acknowledgement, persistence or renderer-specific recovery policy.
+
+There is no anonymous transport: owner access requires its existing device
+authorization and Receiver access requires the constrained Broadcast Token.
+Voice, audience and VibeCast transports remain out of scope.
+
+## Universal Session Receiver access
+
+The complete Receiver ownership, lifecycle and security architecture is
+[`UNIVERSAL_RECEIVER_ARCHITECTURE.md`](UNIVERSAL_RECEIVER_ARCHITECTURE.md).
+
+V4-07 adds a separate ephemeral **Broadcast Token** for the Universal Session
+Receiver. The token is cryptographically unpredictable, belongs to exactly one
+active Runtime and becomes invalid when that Runtime ends. It is not a device
+pairing credential, Profile credential or general DJConnect API token.
+
+An authenticated owner device may obtain its active Runtime's token through the
+existing owner authorization chain. A Receiver then uses only that token and
+the exact Session ID to open the read-only Broadcast WebSocket. It receives the
+same initial snapshot followed by the same incremental Broadcast events.
+
+The server supplies capabilities with every Receiver connection:
+
+```json
+{"view_broadcast": true, "like": false, "audience_signals": true, "ask_dj": false, "owner_controls": false}
+```
+
+Receiver frames cannot invoke owner commands, playback or Profile state. The
+existing bounded `audience_signal` frame may contribute an aggregated audience
+signal through the Runtime; it does not grant Planner, playback or owner
+controls. Tokens cannot access owner endpoints or another Runtime. Broader
+receiver interaction policy remains deferred.
+
+## Renderer behavior
+
+A renderer applies the complete snapshot first, then applies each incremental
+event to the displayed Broadcast State. A temporary owner-socket interruption
+may use the bounded recovery command with its existing opaque cursor; when the
+server requires a snapshot, that fresh snapshot is authoritative. A renderer
+may also reconnect and subscribe again using the same active Session ID. A
+rejected subscription or recovery because no active Runtime remains means the
+renderer returns to its idle Session state.
+
+## Security
+
+The transport reuses both existing Home Assistant WebSocket authentication and
+DJConnect Runtime device authorization. Its Profile authorization uses only
+the existing server-side device binding. It does not expose an anonymous
+subscription endpoint and does not broaden the established owner privacy
+boundary. Broadcast State exposes only renderer-safe Session, Planner, Flow
+and safe backend context metadata; it excludes Music DNA, preferences, session
+history and conversation history.
+
+## Owner-refinement display fields and separate end authority
+
+The [current-slice refinement contract](../product/VIBECAST_OWNER_REFINEMENTS_CONTRACT.md)
+adds optional `playback.source_url`, `playback.up_next` (one title/artist/proxied
+artwork, current-item hash and `expires_at`) and `dj_moment.source_attribution`
+(provider/public resource URL/license). These fields expose no Profile, raw
+provider response or credential. Missing/expired next-item data stays hidden.
+
+Ordinary Broadcast tokens retain their existing read-only transport scope.
+With explicit HA-owner `vibecast_session_end_allowed` opt-in and normal paired
+handoff approval, `handoff/collect` may return a separate `end_grant` in its
+private no-store response. It is never part of a snapshot, WebSocket frame or
+URL. `POST /api/djconnect/v1/session/broadcast/control/end` accepts JSON
+`session_id` plus `end_grant`; only that exact Session can end. A confirmed end
+returns `{success:true,state:"ended"}`; invalid/expired/revoked/Broadcast-only
+authority gets403. It grants no playback command or owner projection. The
+renderer waits for backend confirmation before clearing to idle. The grant is
+single-use, expires after1h and revokes on Session end or observer unload/reload.
+
+## Native source-bound delivery admission
+
+The selected native-delivery increment adds a dynamic `native_delivery` v1
+projection to the existing owner snapshot/events. Immutable Moment semantics
+are unchanged. Qualification and original source deadlines are server-owned;
+renderers may show only its current/active-Flow allowed IDs and must remove
+expired or absent admissions on replacement/reconnect/end. Source-expired
+text, Presentation copies and Flow labels cannot be revived by replay.
+See `../product/NATIVE_MOMENT_DELIVERY_CONTRACT.md` for field-specific rights,
+source/current-card/Session lifetimes and the empty native execution allowlist.
+Session HTTP JSON responses, including errors, are `Cache-Control: no-store`.
+
+Owner subscriptions bind the already-authorized entry ID and its existing
+entry generation internally, never client-supplied metadata. Entry unload
+withdraws just those live/pending/recovery channels; it preserves the Profile
+Session and other authorized channels. A terminal setup denial may have no
+delivery sequence and only clears native authority; consumers process it before
+ordinary ordering. No source lifetime is renewed by entry reload or reconnect.

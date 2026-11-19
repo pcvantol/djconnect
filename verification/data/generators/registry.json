@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0",
+  "registry_version": "1.0",
+  "seed_strategy": {
+    "required_inputs": ["seed", "run_id", "scenario_id", "generator_id", "profile_id"],
+    "algorithm": "sha256(seed + run_id + scenario_id + generator_id + profile_id)",
+    "deterministic": true,
+    "random_without_seed_allowed": false
+  },
+  "generators": [
+    {
+      "id": "strings.boundary.v1",
+      "generator_version": "1.0",
+      "category": "strings",
+      "catalog_refs": ["catalogs/categories.json#strings", "catalogs/boundaries.json#string_lengths"],
+      "outputs": ["normal", "empty", "whitespace", "very_long", "maximum_allowed", "maximum_plus_one"],
+      "traceability": {
+        "scenario_categories": ["Setup", "Ask DJ", "Privacy", "Localization", "Export", "Import"],
+        "verification_modes": ["boundary", "regression"]
+      }
+    },
+    {
+      "id": "security.payloads.v1",
+      "generator_version": "1.0",
+      "category": "security",
+      "catalog_refs": ["security/payloads.json"],
+      "outputs": ["sql_injection", "command_injection", "prompt_injection", "path_traversal", "malformed_json"],
+      "traceability": {
+        "scenario_categories": ["Privacy", "Ask DJ", "Networking", "Import", "Backend"],
+        "verification_modes": ["security", "chaos"]
+      }
+    },
+    {
+      "id": "localization.payloads.v1",
+      "generator_version": "1.0",
+      "category": "localization",
+      "catalog_refs": ["localization/payloads.json"],
+      "outputs": ["canonical_locales", "rtl", "emoji", "long_translation", "normalization"],
+      "traceability": {
+        "scenario_categories": ["Localization", "Setup", "Privacy", "Release"],
+        "verification_modes": ["localization", "accessibility"]
+      }
+    },
+    {
+      "id": "domain.profile.v1",
+      "generator_version": "1.0",
+      "category": "domain",
+      "catalog_refs": ["catalogs/domain.json#profile.personal", "catalogs/domain.json#profile.household", "catalogs/domain.json#profile.guest", "catalogs/domain.json#profile.kids"],
+      "outputs": ["personal", "household", "guest", "kids"],
+      "traceability": {
+        "scenario_categories": ["Profiles", "Resolver", "Ask DJ", "Music DNA", "Privacy"],
+        "verification_modes": ["smoke", "regression", "migration", "privacy"]
+      }
+    },
+    {
+      "id": "performance.large_payloads.v1",
+      "generator_version": "1.0",
+      "category": "performance",
+      "catalog_refs": ["catalogs/boundaries.json"],
+      "outputs": ["large_string", "large_array", "large_object", "large_binary"],
+      "traceability": {
+        "scenario_categories": ["Performance", "Ask DJ", "Import", "Export"],
+        "verification_modes": ["performance", "chaos"]
+      }
+    }
+  ]
+}

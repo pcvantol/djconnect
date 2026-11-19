@@ -1,0 +1,10 @@
+{
+  "template_id": "nightly",
+  "strategy": "nightly",
+  "policy": "nightly",
+  "matrix_profiles": ["Regression Profile", "Localization Profile", "Privacy Profile"],
+  "data_profiles": ["regression", "boundary", "security", "localization", "performance"],
+  "modes": ["functional", "boundary", "security", "privacy", "localization", "compatibility", "performance", "resilience", "nightly"],
+  "expected_runtime": "overnight",
+  "blocking": false
+}

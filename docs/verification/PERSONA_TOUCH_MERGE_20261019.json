@@ -1,0 +1,46 @@
+{
+  "kind": "persona_touch_current_main_reconciliation",
+  "base_main": "baac22d771bf3141404001517f62a5e34f8c8644",
+  "reviewed_handler_commit": "a89f44546d3e4fcb274cb04ebc6f48b2884734e6",
+  "unchanged_handler_sha256": {
+    "custom_components/djconnect/persona_reactions.py": "4a4a98a3caf9d208e69d69a716e6478baecebd3fbc1a68b7ac0dc81f7878cc22",
+    "custom_components/djconnect/transport_operations.py": "3f87b3eda57f9fee4e0ccd7a69fe87c9df3893b746a46328708b7e15e16d133a",
+    "custom_components/djconnect/hybrid_transport.py": "fe283d58d4409edc4b5e8a81d41838f922a3b33fab6b5f4b93383a938cab1117",
+    "custom_components/djconnect/hybrid_service.py": "73b13ea09894ac7b6c30e1cd065086a2f629688cfd57f8d034127d4965c98e7c",
+    "custom_components/djconnect/hybrid_contract.py": "098acf391b0bbbbfb4caf5d2355df274b155e6566679a08d4f4a2ad04ca95b7a"
+  },
+  "host_suite": {
+    "tests_run": 2662,
+    "skipped": 7,
+    "seconds": 61.932,
+    "status": "PASS"
+  },
+  "pinned_ha_image": "ghcr.io/home-assistant/home-assistant@sha256:1b64d38f38d922bf9d59336451fd6453e1d614f934456af4ee3d2a51061be3a4",
+  "pinned_ha_owner_profile": {
+    "pattern": "test_ask_dj*.py",
+    "status": "PASS",
+    "tests_run": 488,
+    "paid_attempts": 0,
+    "failed": [],
+    "errors": [],
+    "skipped": []
+  },
+  "owner_profile_receipt_sha256": "37a0deeed8fe89c13f4cc1b787107d6f8a6aef010ed4336f40c343d2bbf316a6",
+  "touch_http_ws": {
+    "status": "PASS_ISOLATED_REAL_HA_PAIRED_HTTP_WS_WITHDRAWAL",
+    "operations": 9,
+    "frames": 5,
+    "source_hash_count": 182,
+    "private_receipt_sha256": "76fb071bd00a7f90d7be0d50d29d5ef2a4cb77abd65759349b696e5d38eeab26"
+  },
+  "historical_runtime_failure": {
+    "run_id": 39312303769,
+    "tests_run": 0,
+    "cause": "unknown",
+    "retroactive_pass": false
+  },
+  "native": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "audible": "NOT_RUN",
+  "open_release_gates": 32
+}
