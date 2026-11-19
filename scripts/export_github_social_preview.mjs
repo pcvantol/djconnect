@@ -39,7 +39,7 @@ try{
 }finally{await browser.close();}
 const files={'social-preview-v2.svg':Buffer.from(svg),'social-preview-v2.png':png};
 for(const [name,bytes] of Object.entries(files))await writeFile(path.join(output,name),bytes,{flag:'wx'});
-const manifest={schema_version:1,brand_version:2,producer_repository:'pcvantol/djconnect',
+const manifest={schema_version:1,brand_version:2,producer_repository:'djconnect-music-dj/djconnect',
  approved_brand_source_commit:sourceCommit,approved_brand_manifest_sha256:sha(brandManifest),
  wordmark_source:{path:asset,sha256:sha(wordmark),width:2048,height:512},
  recipe_sha256:sha(await readFile(fileURLToPath(import.meta.url))),
