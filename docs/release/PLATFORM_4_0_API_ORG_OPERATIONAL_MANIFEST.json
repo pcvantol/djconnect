@@ -2,10 +2,10 @@
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
   "status": "NOT_AUTHORIZED",
-  "manifest_id": "release-4.0.0-api-worker-org-transfer-147baaf",
-  "generated_at": "2026-11-14T13:37:43Z",
-  "platform_version": "4.0",
-  "release_version": "4.0.0",
+  "manifest_id": "release-4.1.0-api-worker-0c298a9",
+  "generated_at": "2026-11-19",
+  "platform_version": "4.1",
+  "release_version": "4.1.0",
   "release_profile": "INTERNAL_RELEASE",
   "approval": {
     "state": "PENDING",
@@ -16,11 +16,12 @@
     {
       "repository": "djconnect-music-dj/djconnect-api",
       "repository_id": 1275206655,
-      "source_sha": "147baaf76e75283bfa322a998a8f5894e8d64452",
-      "tree": "8797632716fb3b4b715b1adcc8eadbcb3d2f84f7",
-      "version": "4.0.0",
-      "validate_run": null,
-      "artifact_run": null
+      "source_sha": "0c298a9e3e11d8fc6aaada089b4096b3b4d9ecd9",
+      "tree": "115097d05d4188ea4f061c1cf49de018e0d728e1",
+      "version": "4.1.0",
+      "validate_run": "44498079236",
+      "artifact_run": "44498354620",
+      "release_evidence_run": "44498355912"
     }
   ],
   "required_targets": [
@@ -29,7 +30,13 @@
       "required": true
     }
   ],
-  "artifact_bindings": [],
+  "artifact_bindings": [
+    {
+      "target": "cloudflare_workers_production",
+      "artifact_id": "14516121627",
+      "artifact_sha256": "efcb272653acd92d26692e3769c826fb68f55d9827cb24712ddf67072bc25b45"
+    }
+  ],
   "migration_evidence": {
     "source_repository": "pcvantol/djconnect-api",
     "repository_id": 1275206655,
@@ -40,5 +47,16 @@
     "source_artifact_sha256": "62c60046f559b9ddf5c189066887744282c05fec5e70dd971b6547b9c260675b",
     "live_worker_source_sha": "38f0d79b35e2b09e4cf35aed3b0b2ffe29cc7715"
   },
-  "next_authorized_action": "Repository migration preparation only. After transfer, verify protected main and scoped Owner Authorization access, run Validate on main and record the artifact produced by the destination repository. Production dispatch requires separately approved artifact and live deployment preflight."
+  "live_baseline": {
+    "version": "4.0.0",
+    "source_sha": "38f0d79b35e2b09e4cf35aed3b0b2ffe29cc7715",
+    "cloudflare_deployment_version_id": "234309bf-354c-4368-a127-5dd0e125c502",
+    "health_check": "PASS",
+    "deployment_identity_source": "Owner-provided Cloudflare active deployment screenshot and copied version ID, 2026-11-19"
+  },
+  "next_authorized_action": "Verify rollback capability and live D1 ledger, then record authorization and dispatch the exact artifact with a separate post-deployment smoke.",
+  "migration_boundary": {
+    "preflight_pending": [],
+    "pending_sha256": {}
+  }
 }
