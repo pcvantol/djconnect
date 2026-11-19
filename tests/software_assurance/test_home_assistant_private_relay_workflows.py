@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
+import os
+import subprocess
+import tempfile
 import unittest
 
 
@@ -41,19 +44,50 @@ class HomeAssistantPrivateRelayWorkflowTest(unittest.TestCase):
         ):
             self.assertIn(token, workflow)
 
-    def test_deployment_does_not_leave_manifest_bearing_backup_components(self) -> None:
+    def test_deployment_preserves_previous_integration_outside_components(self) -> None:
         workflow = self._workflow("deploy-home-assistant-private-network.yml")
+        self.assertIn(r'backup=\"/config/.djconnect-rollback-${GITHUB_RUN_ID}\"', workflow)
+        self.assertIn(r'test ! -e \"\$backup\"', workflow)
+        self.assertIn(r'test ! -L \"\$backup\"', workflow)
+        self.assertIn(r'mv \"\$target\" \"\$backup\"', workflow)
+        self.assertNotIn("-name '.djconnect-pre-*' -exec rm -rf", workflow)
+        self.assertNotIn(r'rm -rf \"\$backup\"', workflow)
 
-        stale_backup_cleanup = (
-            "find /config/custom_components -mindepth 1 -maxdepth 1 -type d "
-            "-name '.djconnect-pre-*' -exec rm -rf {} +"
-        )
-        self.assertIn(stale_backup_cleanup, workflow)
-        self.assertIn(r'rm -rf \"\$backup\"', workflow)
-        self.assertLess(
-            workflow.index(stale_backup_cleanup),
-            workflow.index(r'mv \"\$target\" \"\$backup\"'),
-        )
+    def test_swap_and_restart_failures_restore_existing_integration(self) -> None:
+        workflow = (WORKFLOWS / "deploy-home-assistant-private-network.yml").read_text()
+        start = workflow.index("          test ! -e ", workflow.index("# Keep the previous integration"))
+        end = workflow.index('\n      - name: Publish redacted deployment evidence', start)
+        script = workflow[start:end].replace("\\", "")
+        # The final quote closes the outer ssh command in the actual workflow.
+        script = script.rstrip().removesuffix('"')
+        for failure in ("none", "swap", "restart", "existing", "symlink", "missing"):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp); target = root / "target"; stage = root / "stage"; backup = root / "backup"
+                target.mkdir(); (target / "version").write_text("old")
+                stage.mkdir(); (stage / "version").write_text("new")
+                if failure == "existing":
+                    backup.mkdir(); (backup / "version").write_text("earlier")
+                if failure == "symlink":
+                    backup.symlink_to(root / "nonexistent")
+                if failure == "missing":
+                    (target / "version").unlink(); target.rmdir()
+                bindir = root / "bin"; bindir.mkdir()
+                mv = bindir / "mv"
+                mv.write_text('#!/bin/sh\nif [ "$FAIL" = swap ] && [ "$1" = "$staging" ]; then exit 1; fi\nexec /bin/mv "$@"\n')
+                ha = bindir / "ha"
+                ha.write_text('#!/bin/sh\nif [ "$FAIL" = restart ] && [ "$2" = restart ] && [ ! -e "$MARKER" ]; then touch "$MARKER"; exit 1; fi\nexit 0\n')
+                mv.chmod(0o755); ha.chmod(0o755)
+                env = dict(os.environ, PATH=f"{bindir}:/usr/bin:/bin", target=str(target), staging=str(stage), backup=str(backup), FAIL=failure, MARKER=str(root / "marker"))
+                result = subprocess.run(["sh", "-eu", "-c", script], env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode == 0, failure == "none", result.stderr)
+                if failure == "missing":
+                    self.assertFalse(target.exists())
+                else:
+                    self.assertEqual((target / "version").read_text(), "new" if failure == "none" else "old")
+                if failure == "none":
+                    self.assertEqual((backup / "version").read_text(), "old")
+                if failure == "existing":
+                    self.assertEqual((backup / "version").read_text(), "earlier")
 
     def test_smoke_is_separate_read_only_operational_evidence(self) -> None:
         workflow = self._workflow("smoke-home-assistant-private-network.yml")

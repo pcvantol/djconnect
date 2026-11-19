@@ -257,27 +257,39 @@ jobs:
           workdir=\"/config/.djconnect-release-${GITHUB_RUN_ID}\"
           staging=\"/config/custom_components/.djconnect-staging-${GITHUB_RUN_ID}\"
           target=/config/custom_components/djconnect
-          backup=\"/config/custom_components/.djconnect-pre-${GITHUB_RUN_ID}\"
+          backup=\"/config/.djconnect-rollback-${GITHUB_RUN_ID}\"
+          test ! -e \"\$workdir\"
+          test ! -L \"\$workdir\"
+          test ! -e \"\$staging\"
+          test ! -L \"\$staging\"
           trap 'rm -rf \"\$workdir\" \"\$staging\"; rm -f \"\$archive\"' EXIT
           test \"\$(sha256sum \"\$archive\" | awk '{print \$1}')\" = \"\$expected_sha\"
-          rm -rf \"\$workdir\" \"\$staging\"
-          mkdir -p \"\$workdir\" /config/custom_components
+          mkdir \"\$workdir\"
           tar -xzf \"\$archive\" -C \"\$workdir\"
           test -f \"\$workdir/djconnect/manifest.json\"
           mv \"\$workdir/djconnect\" \"\$staging\"
-          # Home Assistant discovers every directory under custom_components,
-          # including dot-prefixed directories. A retained previous release
-          # therefore shadows the active djconnect package through its own
-          # manifest.json and produces an invalid module path.
-          find /config/custom_components -mindepth 1 -maxdepth 1 -type d -name '.djconnect-pre-*' -exec rm -rf {} +
+          # Keep the previous integration outside custom_components so HA
+          # cannot discover it; never delete an existing rollback directory.
           test ! -e \"\$backup\"
-          if test -e \"\$target\"; then mv \"\$target\" \"\$backup\"; fi
-          mv \"\$staging\" \"\$target\"
-          rm -rf \"\$backup\"
+          test ! -L \"\$backup\"
+          test -d \"\$target\"
+          test ! -L \"\$target\"
+          mv \"\$target\" \"\$backup\"
+          if ! mv \"\$staging\" \"\$target\"; then
+            if test -e \"\$backup\" && test ! -e \"\$target\"; then mv \"\$backup\" \"\$target\"; fi
+            exit 1
+          fi
           if ! ha core check >/dev/null 2>&1; then
             echo 'Home Assistant configuration check reported pre-existing diagnostics; continuing to the supported Core restart.' >&2
           fi
-          ha core restart"
+          if ! ha core restart; then
+            mv \"\$target\" \"\$staging\"
+            if test -e \"\$backup\"; then
+              mv \"\$backup\" \"\$target\"
+              ha core restart || true
+            fi
+            exit 1
+          fi"
       - name: Publish redacted deployment evidence
         env:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
