@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/16",
+    "schema_version": "djconnect-federated-planning-delta/17",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -39772,6 +39772,101 @@
             "mode": "AND"
           }
         ]
+      },
+      {
+        "id": "LIVE-IMPRESSION::CONTRACT",
+        "title": "Canonical Live-impressie product design and Core→Apple versioned fixtures",
+        "lane": "DJC-CORE",
+        "repository": "djconnect-music-dj/djconnect",
+        "status": "In progress",
+        "assignment_status": "USER_AUTHORIZED_IMPLEMENTATION",
+        "scope": "DJC-LIVE-IMPRESSION-V1-20261108; existing owners, no separate engine or deployment",
+        "acceptance_boundary": "Software/source delivery distinct from real sources, HA model, native and physical acceptance",
+        "contract_binding": "docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-LIVE-IMPRESSION-20261108"
+        ],
+        "parent_reference": "PROJ::ROADMAP::SESSION-INTELLIGENCE",
+        "family_reference": "Live-impressie existing DJMoment/Knowledge/Session family",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "LIVE-IMPRESSION::PRODUCER",
+        "title": "Event web/image research, reviewed story, original media and retained Moment",
+        "lane": "DJC-CORE",
+        "repository": "djconnect-music-dj/djconnect",
+        "status": "In progress",
+        "assignment_status": "USER_AUTHORIZED_IMPLEMENTATION",
+        "scope": "DJC-LIVE-IMPRESSION-V1-20261108; existing owners, no separate engine or deployment",
+        "acceptance_boundary": "Software/source delivery distinct from real sources, HA model, native and physical acceptance",
+        "contract_binding": "docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-LIVE-IMPRESSION-20261108"
+        ],
+        "parent_reference": "PROJ::ROADMAP::SESSION-INTELLIGENCE",
+        "family_reference": "Live-impressie existing DJMoment/Knowledge/Session family",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "LIVE-IMPRESSION-1"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "LIVE-IMPRESSION::APPLE",
+        "title": "Native photo-first Moment, original detail, speech and history consumer",
+        "lane": "DJC-APPLE",
+        "repository": "djconnect-music-dj/djconnect-app",
+        "status": "In progress",
+        "assignment_status": "USER_AUTHORIZED_IMPLEMENTATION",
+        "scope": "DJC-LIVE-IMPRESSION-V1-20261108; existing owners, no separate engine or deployment",
+        "acceptance_boundary": "Software/source delivery distinct from real sources, HA model, native and physical acceptance",
+        "contract_binding": "docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-LIVE-IMPRESSION-20261108"
+        ],
+        "parent_reference": "PROJ::ROADMAP::SESSION-INTELLIGENCE",
+        "family_reference": "Live-impressie existing DJMoment/Knowledge/Session family",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "LIVE-IMPRESSION-2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "LIVE-IMPRESSION::ACCEPTANCE",
+        "title": "Joint real-source/model/native editorial acceptance LI01–LI20",
+        "lane": "DJC-CORE",
+        "repository": "djconnect-music-dj/djconnect",
+        "status": "Planned",
+        "assignment_status": "OPEN_ACCEPTANCE",
+        "scope": "DJC-LIVE-IMPRESSION-V1-20261108; existing owners, no separate engine or deployment",
+        "acceptance_boundary": "Software/source delivery distinct from real sources, HA model, native and physical acceptance",
+        "contract_binding": "docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-LIVE-IMPRESSION-20261108"
+        ],
+        "parent_reference": "PROJ::ROADMAP::SESSION-INTELLIGENCE",
+        "family_reference": "Live-impressie existing DJMoment/Knowledge/Session family",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "LIVE-IMPRESSION-3"
+            ]
+          },
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "LIVE-IMPRESSION-4"
+            ]
+          }
+        ]
       }
     ],
     "edges": [
@@ -41811,6 +41906,70 @@
         "required_subset": "Current actual publication, quality, retention and speech proof; historical delivery remains preserved",
         "contract_or_evidence": "docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md",
         "reason": "Corrective acceptance under the existing family, not a duplicate family or new writer"
+      },
+      {
+        "id": "LIVE-IMPRESSION-1",
+        "producer": "LIVE-IMPRESSION::CONTRACT",
+        "consumer": "LIVE-IMPRESSION::PRODUCER",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-LIVE-IMPRESSION-20261108"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "required_subset": "Exact agreed schema1 and producer-consumer fixture",
+        "contract_or_evidence": "docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md",
+        "reason": "Functional producer-consumer requirement; no voice/VibeCast/global release dependency"
+      },
+      {
+        "id": "LIVE-IMPRESSION-2",
+        "producer": "LIVE-IMPRESSION::CONTRACT",
+        "consumer": "LIVE-IMPRESSION::APPLE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-LIVE-IMPRESSION-20261108"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "required_subset": "Exact agreed schema1 and producer-consumer fixture",
+        "contract_or_evidence": "docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md",
+        "reason": "Functional producer-consumer requirement; no voice/VibeCast/global release dependency"
+      },
+      {
+        "id": "LIVE-IMPRESSION-3",
+        "producer": "LIVE-IMPRESSION::PRODUCER",
+        "consumer": "LIVE-IMPRESSION::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-LIVE-IMPRESSION-20261108"
+        ],
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "required_subset": "Actual compatible Core and Apple source plus separate real/native proof",
+        "contract_or_evidence": "docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md",
+        "reason": "Functional producer-consumer requirement; no voice/VibeCast/global release dependency"
+      },
+      {
+        "id": "LIVE-IMPRESSION-4",
+        "producer": "LIVE-IMPRESSION::APPLE",
+        "consumer": "LIVE-IMPRESSION::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-LIVE-IMPRESSION-20261108"
+        ],
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "required_subset": "Actual compatible Core and Apple source plus separate real/native proof",
+        "contract_or_evidence": "docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md",
+        "reason": "Functional producer-consumer requirement; no voice/VibeCast/global release dependency"
       }
     ],
     "document_references": [
@@ -41856,7 +42015,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "e1a0fbd29c3a4b204e5c9593bd31713c480ccfbedf0ebc32c9a63d7a25b88271"
+        "sha256": "bd418c8b9b3a0b0ef048e499d10c69a3ebbc0474350b88e21f2f24274407c53a"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -42257,6 +42416,14 @@
       {
         "path": "docs/verification/HISTORY_ENTRY_COMPATIBILITY_20261018.md",
         "sha256": "ae3755dab4a7736b14c820f3fb44dfabf3f19b86b390421fb766943305a4eec6"
+      },
+      {
+        "path": "docs/product/LIVE_IMPRESSION_EXPERIENCE_V1.md",
+        "sha256": "8e01964954d777557f96ff51681cc511e66cfb3ec11dcc1521beaf93a5e70f13"
+      },
+      {
+        "path": "docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md",
+        "sha256": "d650a65d709e63b9ff3fb3463de0ed210e58d8acd8f11a45f4e069ce5c2d7c1c"
       }
     ],
     "implementation_receipt": {
@@ -43068,6 +43235,23 @@
         "ask_dj": "e3d7b55f5c67019a306cc4a4b3a31b2028304c9c",
         "display": "6e560061cbee3bed86c50fc0deee7d74b9bfee9b"
       }
+    },
+    "live_impression_receipt": {
+      "assignment_id": "DJC-LIVE-IMPRESSION-V1-20261108",
+      "owner_issue": "https://github.com/djconnect-music-dj/djconnect/issues/1533",
+      "core_lane": "https://github.com/djconnect-music-dj/djconnect/issues/1101#issuecomment-6718377604",
+      "apple_lane": "https://github.com/djconnect-music-dj/djconnect-app/issues/87#issuecomment-6718384458",
+      "source_base": "e1281e440e688657f5c2e14a1a7f73ab27a44e0e",
+      "source_delivery": "LOCAL_IMPLEMENTATION_NOT_MERGED",
+      "software": "IN_VALIDATION",
+      "real_public_sources": "OPEN",
+      "live_model": "NOT_RUN",
+      "native": "OPEN_APPLE",
+      "installed": "NOT_RUN",
+      "shared_tv": "NOT_RUN",
+      "automatic_dispatch": false,
+      "predecessor_path": "history/20261119/live-impression-predecessor-maintenance-v16.json",
+      "predecessor_sha256": "81383bc584fb8987a50230284161275405d18a5c6ade30227e409cc8efd9cb58"
     }
   }
 }

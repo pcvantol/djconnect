@@ -349,7 +349,7 @@ def _contribution_descriptor(reference, *, text, locale, persona, persona_revisi
             "attribution": attribution, "cache_policy": "private,no-store"}
 
 
-def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
+def moment_projection(broadcast, moment, *, autoplay=False, admission=None, retained_expiry=None):
     """Pure owner speech admission over already published immutable content."""
     reference = {"session_id": broadcast.state.session_id, "moment_id": moment.moment_id}
     from .session_runtime import DJMomentType
@@ -361,12 +361,14 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
     confirmation = settings_context(moment)
     from .track_start_announcement import accepted as announcement_accepted
     announcement = announcement_accepted(moment)
+    from .live_impression import admitted as admitted_live
+    live = admitted_live(moment)
     if not announcement and confirmation is None and (broadcast.state.selected_presence == 'music_only'
             or (opening is not None and opening.presence == 'music_only')):
         autoplay = False
     output = getattr(broadcast, 'owner_speech_output', None)
     if callable(output) and output() == 'text_only':
-        if not announcement:
+        if not announcement and not live:
             return unavailable(reference, 'announcement_text_only')
         autoplay = False
     if admission is None:
@@ -385,6 +387,8 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
     expiry = (admission['display_expires_at'] if confirmation is not None else
               admission["source_expires_at"] or boundary.utc_at(boundary.published_monotonic + 1800)
               if admission["active_flow_display_allowed"] else admission["display_expires_at"])
+    if live and retained_expiry is not None:
+        expiry=retained_expiry  # Only an actual original-row read may supply this authority.
     if not expiry or datetime.fromisoformat(expiry).timestamp() <= time.time():
         return unavailable(reference, "original_source_expired")
     descriptor = _contribution_descriptor(reference, text=moment.content, locale=broadcast.state.locale,
@@ -399,6 +403,8 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None):
         # The new source use is manual only, never a new autoplay opportunity.
         if manual_ha_speech_admitted(moment):
             descriptor["autoplay_eligible"] = False
+    if live:
+        descriptor['moment_type'] = 'live_impression'
     if announcement:
         descriptor['moment_type'] = 'music_announcement'
     return descriptor
@@ -420,7 +426,9 @@ async def resolve_moment(hass, profile_id, reference, *, history=None):
     from .track_start_announcement import retained as retained_announcement
     archive_guard = None
     archive_expiry = None
-    if retained_announcement(moment):
+    from .live_impression import admitted as admitted_live
+    live=admitted_live(moment)
+    if retained_announcement(moment) or live:
         # A RAM seal must not outlive the actual retained row's current
         # deletion/retention/source rights. Reuse the existing archive owner.
         if history is None or manager._historical_projections is None:
@@ -434,7 +442,8 @@ async def resolve_moment(hass, profile_id, reference, *, history=None):
         if not retained_descriptor['manual_allowed']:
             raise PermissionError('speech_reference_unavailable')
         archive_expiry = datetime.fromisoformat(retained_descriptor['expires_at']).timestamp()
-    descriptor = moment_projection(broadcast, moment)
+    retained_until=datetime.fromtimestamp(archive_expiry,UTC).isoformat() if live and archive_expiry is not None else None
+    descriptor = moment_projection(broadcast, moment,retained_expiry=retained_until)
     if not descriptor["manual_allowed"]:
         raise PermissionError("speech_reference_unavailable")
     descriptor["expires_at"] = datetime.fromtimestamp(min(time.time()+TTL,
@@ -446,7 +455,7 @@ async def resolve_moment(hass, profile_id, reference, *, history=None):
         current = manager.current_active(profile_id)
         if (current is None or current.broadcast is not broadcast
                 or moment.moment_id in broadcast.content_pending_moment_ids
-                or not moment_projection(broadcast, moment)["manual_allowed"]):
+                or not moment_projection(broadcast, moment,retained_expiry=retained_until)["manual_allowed"]):
             raise PermissionError("speech_reference_withdrawn")
     guard = PrivateSpeechSource(hass, validate,
         expires_at=datetime.fromisoformat(descriptor["expires_at"]).timestamp(), session_id=active.session_id,
@@ -456,11 +465,12 @@ async def resolve_moment(hass, profile_id, reference, *, history=None):
         guard.private_bulletin_ha_use = lambda: manual_ha_speech_admitted(moment)
     source = moment.source_fact
     from .public_artist_narration import ResearchMomentAcceptance
+    from .live_impression import admitted as admitted_live
     from .settings_confirmation import context as settings_context
     from .bulletin_runtime import admitted as bulletin_admitted
     guard.processor_basis = ("public_news_bulletin_v1" if bulletin_admitted(moment)
         else "runtime_accepted_settings_v1" if settings_context(moment) is not None
-        else "qualified_dialogue_v1" if type(moment.narration_acceptance) is ResearchMomentAcceptance
+        else "qualified_dialogue_v1" if type(moment.narration_acceptance) is ResearchMomentAcceptance or admitted_live(moment)
         else "spotify_owner_local_read_v1" if (source is not None and source.provider == "Spotify") or moment.observed_playback is not None or moment.genre_transition is not None or getattr(moment, 'track_announcement', None) is not None
         else "cc0_normalized_fields_v1" if source is not None else "runtime_authored_direction_v1")
     broadcast.speech_cleanup = lambda: invalidate_private_speech_sources(hass, session_id=active.session_id)
@@ -473,7 +483,7 @@ def retained_projection(entry):
     """Pure owner-entry speech state; no resources or new read-time deadline."""
     reference = {"session_id": entry["session_id"], "entry_id": entry["entry_id"]}
     if entry["kind"] == "dj_moment" and entry.get("archive_basis") in {
-            "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "runtime_accepted_settings_v1", "owner_metadata_narration_v1", "public_artist_narration_v1"}:
+            "cc0_normalized_fields_v1", "runtime_authored_direction_v1", "runtime_accepted_settings_v1", "owner_metadata_narration_v1", "public_artist_narration_v1", "public_live_impression_v1"}:
         style = {"language": entry.get("locale"), "persona": entry.get("persona"),
                  "mood": entry.get("mood"),
                  "persona_revision": entry.get("persona_revision")}
@@ -485,10 +495,16 @@ def retained_projection(entry):
         attribution = entry.get("sources") or []
     else:
         return unavailable(reference, "original_source_unqualified")
+    if entry.get("archive_basis") == "public_live_impression_v1":
+        from .live_impression import checked
+        if checked(entry.get("live_impression")) is None:
+            return unavailable(reference,"original_source_unqualified")
     descriptor = _contribution_descriptor(reference, text=entry.get("text"), locale=style.get("language"),
         persona=style.get("persona"), persona_revision=style.get("persona_revision"),
         mood=style.get("mood"),
         expires_at=entry["retained_until"], source_kind="retained_dj_contribution", attribution=attribution)
+    if entry.get('archive_basis') == 'public_live_impression_v1':
+        descriptor['moment_type']='live_impression'
     if (entry.get('moment_type') == 'music_announcement'
             and entry.get('archive_basis') == 'owner_metadata_narration_v1'):
         descriptor['moment_type'] = 'music_announcement'
@@ -516,7 +532,7 @@ async def resolve_retained(hass, history, profile_id, reference, *, moment_only=
              else entry.get("speech_processing_basis") or "retained_owner_local_read_v1")
     if basis == 'owner_metadata_narration_v1':
         basis = 'spotify_owner_local_read_v1'
-    elif basis == 'public_artist_narration_v1':
+    elif basis in {'public_artist_narration_v1','public_live_impression_v1'}:
         basis = 'qualified_dialogue_v1'
     expires = min(time.time() + TTL, datetime.fromisoformat(entry["retained_until"]).timestamp())
     if descriptor["manual_allowed"]:

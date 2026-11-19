@@ -8015,3 +8015,8 @@ candidate: docs/product/PASSIVE_RETAINED_LATEST_CONTRIBUTION_V1.md. No change to
 approved #1484, existing v1/v2/v3 or Watch minimal scope; explicit projection4
 purpose/consent, original bounded publication lease and separate native gates
 must qualify before use. Current now_playing survives independent DJ expiry.
+
+
+## Live-impressie v1 — Core→Apple, 19 November 2026
+
+Canonical design: docs/product/LIVE_IMPRESSION_EXPERIENCE_V1.md. Additive consumer contract: docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md. Apple #87 consumes live_impression schema1, public_live_impression_v1 retained basis and explicit session-media version3. Source implementation/testing/native acceptance remain separately reported; no install/deploy authorized.

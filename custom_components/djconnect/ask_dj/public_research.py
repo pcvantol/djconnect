@@ -7,6 +7,8 @@ Search snippets discover pages; only fetched page content becomes evidence.
 from __future__ import annotations
 
 import asyncio
+from contextvars import ContextVar
+
 from dataclasses import dataclass
 from datetime import UTC, datetime
 import hashlib
@@ -18,6 +20,8 @@ import socket
 import time
 from urllib.parse import parse_qs, quote, urlencode, urljoin, urlsplit
 from urllib.robotparser import RobotFileParser
+
+operation_fetch_budget = ContextVar("public_research_operation_budget", default=None)
 
 USER_AGENT = "DJConnect/4 (https://github.com/djconnect-music-dj/djconnect)"
 MAX_REQUESTS = 8
@@ -174,6 +178,11 @@ class PublicFetch:
                 from .. import musicbrainz_rate
                 if not await musicbrainz_rate.admit(self.guard):
                     raise ResearchUnavailable('musicbrainz_temporarily_unavailable')
+            shared = operation_fetch_budget.get()
+            if shared is not None:
+                if shared[0] <= 0:
+                    raise ResearchUnavailable("public_research_budget")
+                shared[0] -= 1
             self.requests += 1
             try:
                 async with self.session.get(url, allow_redirects=False) as response:
@@ -909,7 +918,7 @@ async def wikipedia(fetch, subject, question, locale, *, expected_roles=(), expe
     return None
 
 
-async def web_references(fetch, subject, question, locale, *, album=None, angle="", lookup_topic="", alternate=False):
+async def web_references(fetch, subject, question, locale, *, album=None, angle="", lookup_topic="", alternate=False, event_topic=""):
     """Best-effort discovery, then actual public pages; no snippet-only evidence."""
     # Never export the full conversational question or its incidental private context.
     kind, _ = direct_question(question)
@@ -936,6 +945,10 @@ async def web_references(fetch, subject, question, locale, *, album=None, angle=
         query += ' \"' + lookup_topic + '\"'
     if album is not None:
         query = subject + ' "' + album[2] + '" recording interview behind the scenes'
+    if event_topic := safe_lookup_topic(event_topic):
+        # Literal public event hint, never private question or a quoted full
+        # camera filename; source identity is checked after actual page reads.
+        query = subject + " concert review " + event_topic
     search = "https://html.duckduckgo.com/html/?" + urlencode({"q": query})
     if not await fetch.robots(search):
         return []
@@ -1011,7 +1024,7 @@ async def web_references(fetch, subject, question, locale, *, album=None, angle=
                 final_url,
                 excerpt(text, question, 600, lookup_topic=lookup_topic),
                 page.language,
-                current=bool(direct_question(question)[0] == "current_events" or re.search(r"concert|tour|live|optreden|tournée|gira", question, re.I)),
+                current=bool(not event_topic and (direct_question(question)[0] == "current_events" or re.search(r"concert|tour|live|optreden|tournée|gira", question, re.I))),
                 source_anchors=source_work_anchors(text, page.source_anchors) if lookup_topic else (),
             )
         if result:

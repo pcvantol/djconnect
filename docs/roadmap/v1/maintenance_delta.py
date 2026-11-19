@@ -84,6 +84,9 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             errors.append("maintenance: " + reason)
 
     version = d.get("schema_version")
+    if version == "djconnect-federated-planning-delta/17":
+        from live_impression_delta import validate
+        return validate(plan, validate_delta)
     if version == "djconnect-federated-planning-delta/16":
         from branch_consolidation_delta import validate
         return validate(plan, validate_delta)
@@ -1031,6 +1034,11 @@ def render_delta(p):
         state = ('protected source delivered contract3 (Core producer only)' if r['source_delivery'] == 'PROTECTED_MERGED'
                  else 'implemented local contract3 (runtime checkpoint3, unpublished until protected delivery)')
         intro += f"Selected shared Profile/Session settings consolidation: {r['assignment_id']}; six shared Persona/voice/gender/Mood/Presence/announcement_output, {state}, last explicit accepted choice becomes default, atomic active+default acceptance. Source {r['source_delivery']}; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.\n\n"
+    if d.get("live_impression_receipt"):
+        intro += ("Live-impressie v1: user-authorized Core and Apple implementation, source LOCAL_IMPLEMENTATION_NOT_MERGED. "
+                  "Canonical design and exact contract recorded; original event/photos, history and speech remain owner-scoped. "
+                  "LI01–LI20 real-source/model/native acceptance remains OPEN. No install, shared-screen delivery or deployment. "
+                  "Prior maintenance16 below is historical and unchanged.\n\n")
     if d.get("branch_consolidation_receipt"):
         intro += ("Current maintenance16 combines both preserved maintenance15 inputs in the existing Core draft1197. "
                   "Original input refs and premerge repair refs are separately pinned; both histories remain immutable. "

@@ -12,6 +12,8 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
+Live-impressie v1: user-authorized Core and Apple implementation, source LOCAL_IMPLEMENTATION_NOT_MERGED. Canonical design and exact contract recorded; original event/photos, history and speech remain owner-scoped. LI01–LI20 real-source/model/native acceptance remains OPEN. No install, shared-screen delivery or deployment. Prior maintenance16 below is historical and unchanged.
+
 Current maintenance16 combines both preserved maintenance15 inputs in the existing Core draft1197. Original input refs and premerge repair refs are separately pinned; both histories remain immutable. Source LOCAL_COMBINED_DRAFT_PREPARATION, overall OPEN, merge NOT_QUALIFIED, native OPEN, The immutable composition receipt predates the private HA-dev candidate3a89473e; later local producer/Forecast repairs are not installed. Audible/native acceptance remains OPEN. No second writer, consumer writes or automatic dispatch. See `docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md`.
 
 Current personal-DJ corrective work: LOCAL / UNPUBLISHED; historical SPEECH::CORE::REALIZATION delivery remains preserved, while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. All-family narrative and actual publication Golden, Track Insight, native and audible acceptance are not established by earlier metadata/type fixtures or the private development install. See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. No consumer dispatch or new writer.
@@ -36,7 +38,7 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/product/DJ_PRESENCE_CORE_POLICY_V1.md](../../../docs/product/DJ_PRESENCE_CORE_POLICY_V1.md) | `8d8a0871538d18df4a273c583836b29a4e45f3cb5f95ed663f8bde21977fde7e` |
 | [docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md](../../../docs/product/DJ_PRESENCE_OWNER_CONTRACT_V1.md) | `be132d88b24f54659f4ab64e8381b4d2e3a45e3fdd874ce37ab6cf5e515bcc9c` |
 | [docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md](../../../docs/product/DISCOVERY_ARTWORK_CONTINUITY_V1.md) | `66afc37ff6b71b0dacffe6e340ccde274bd3f0f7354155920ebd327fd822ed98` |
-| [API_CONTRACT.md](../../../API_CONTRACT.md) | `e1a0fbd29c3a4b204e5c9593bd31713c480ccfbedf0ebc32c9a63d7a25b88271` |
+| [API_CONTRACT.md](../../../API_CONTRACT.md) | `bd418c8b9b3a0b0ef048e499d10c69a3ebbc0474350b88e21f2f24274407c53a` |
 | [docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md](../../../docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md) | `179d45df97a9f4e260c90fdfa211563f6ed2789ec78a0e691f4d89784c4f5552` |
 | [docs/product/DJ_INTELLIGENCE_MATURITY.md](../../../docs/product/DJ_INTELLIGENCE_MATURITY.md) | `d74bd11b57afda561c21bc3df0cd829c5a2ae0b3baf6e8138a89e91d1c5b8241` |
 | [docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md](../../../docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md) | `d06d2563b1de4fcfdff15bd76e0952e19f0970666b8ce5677db10cf6ee11a2ed` |
@@ -137,3 +139,5 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/verification/SESSION_OPENING_20261018.md](../../../docs/verification/SESSION_OPENING_20261018.md) | `8136efdd91a4cb79841f610c06131644204ca7392c1b29350d459b04e84625a4` |
 | [docs/verification/ALBUM_NARRATION_20261018.md](../../../docs/verification/ALBUM_NARRATION_20261018.md) | `62ea9307ab7031261cfec2c9a4b8125015439d62aa7f4bc1953f75a02a26e767` |
 | [docs/verification/HISTORY_ENTRY_COMPATIBILITY_20261018.md](../../../docs/verification/HISTORY_ENTRY_COMPATIBILITY_20261018.md) | `ae3755dab4a7736b14c820f3fb44dfabf3f19b86b390421fb766943305a4eec6` |
+| [docs/product/LIVE_IMPRESSION_EXPERIENCE_V1.md](../../../docs/product/LIVE_IMPRESSION_EXPERIENCE_V1.md) | `8e01964954d777557f96ff51681cc511e66cfb3ec11dcc1521beaf93a5e70f13` |
+| [docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md](../../../docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md) | `d650a65d709e63b9ff3fb3463de0ed210e58d8acd8f11a45f4e069ce5c2d7c1c` |

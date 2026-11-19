@@ -471,8 +471,13 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
         # A qualified request must never silently choose a different agent.
         if not context.get("agent_id"):
             return fallback_text
+        model_calls = 0
         async def ask(prompt, *, structured=False):
+            nonlocal model_calls
             guard()
+            if model_calls >= 2:
+                raise PermissionError("narration_model_budget")
+            model_calls += 1
             if debug is not None:
                 debug["model_attempts"] += 1
             from .structured_playback import TASK_CONFIG
@@ -505,7 +510,18 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
                 # Source retrieval and both calls share one bounded allowance.
                 # Source/owner/playback/fit guards remain active throughout.
                 # Failure does not buy another two-call symbolic attempt.
-                return await realize(narration, ask=ask, admission=guard, debug=debug) or fallback_text
+                from .live_impression_research import realize as realize_live
+                from .ask_dj.public_research import operation_fetch_budget
+                budget = operation_fetch_budget.set([12])
+                try:
+                    live = await realize_live(narration, ask=ask, admission=guard, debug=debug)
+                    if live is not None:
+                        return live
+                    if model_calls:
+                        return fallback_text  # A rejected rich story never buys another writer/reviewer pair.
+                    return await realize(narration, ask=ask, admission=guard, debug=debug) or fallback_text
+                finally:
+                    operation_fetch_budget.reset(budget)
             if type(narration) is PlaybackRequestBrief:
                 import json
                 from .narration_brief import draft_review_prompt, bound_draft_reviews

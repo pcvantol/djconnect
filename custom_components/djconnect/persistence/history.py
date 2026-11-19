@@ -787,6 +787,7 @@ class HistoricalProjectionRepository(PersistenceRepository):
                 "runtime_authored_direction_v1",
                 "runtime_accepted_settings_v1",
                 "public_artist_narration_v1",
+                "public_live_impression_v1",
             }:
                 continue
             tx.execute(
@@ -802,7 +803,8 @@ class HistoricalProjectionRepository(PersistenceRepository):
                         {
                             "archive_basis": body["archive_basis"],
                             "source_attribution": body.get("source_attribution", {}),
-                            **({"sources":body["sources"]} if body.get("archive_basis") == "public_artist_narration_v1" else {}),
+                            **({"sources":body["sources"]} if body.get("archive_basis") in {"public_artist_narration_v1","public_live_impression_v1"} else {}),
+                            **({"live_impression":body["live_impression"],"title":body.get("title"),"summary":body.get("summary")} if body.get("archive_basis")=="public_live_impression_v1" else {}),
                         },
                         sort_keys=True,
                     ),

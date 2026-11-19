@@ -5504,3 +5504,8 @@ their own container; nine original-receipt-derived fixtures are refreshed.
 Ruff finds no issues in all72changedPython files; Bandit retains one unchanged
 LOW import warning against8fd, with0new findings/errors and no waiver.
 Independent whole-source and exactcommit review remain separate gates.
+
+
+## 2026-11-19 — Live-impressie Core + Apple candidate
+
+User-selected integral implementation DJC-LIVE-IMPRESSION-V1-20261108. Core branch `codex/core-live-impression-20261119`; Apple has a separate concurrent native writer. Verified Mac host exit0/MATCH, onboarding4.5.13. Canonical product/technical docs and roadmap17 preserve historical16; existing research, HA agent, Session/Planner, SQLite, media registry, Ask and speech owners reused. Local8integrated tests cover immutable publication, original-photo digest, cross-profile denial, restart/history, original-event follow-up, manual speech with autoplay off, withdrawal/retention and model budget. Independent producer→Apple decoder compatibility passed. Exact current validation/PR readbacks follow in the completion record; no merge/install/deploy or real-model/native acceptance claimed.

@@ -70,6 +70,13 @@ def published_context(moments, qid):
         accepted = artist_story_memory(moment)
         if accepted is not None and accepted.subject_identity[4] == qid:
             rows.append((accepted.editorial_topic, accepted.text, accepted.episode_keys))
+        elif getattr(moment,'live_impression',None) is not None:
+            from .live_impression import admitted
+            if admitted(moment) and moment.live_impression.fact.public_artist_qid == qid:
+                import json
+                live=json.loads(moment.live_impression.payload_json)
+                rows.append(('live_performance',moment.content,
+                    (live['event']['event_id'],*(p['photo_id'] for p in live['photos']))))
     return tuple(rows[-8:])
 
 
