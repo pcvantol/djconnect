@@ -50,8 +50,13 @@
   "live_baseline": {
     "version": "4.0.0",
     "source_sha": "38f0d79b35e2b09e4cf35aed3b0b2ffe29cc7715",
-    "cloudflare_deployment_version_id": null,
-    "health_check": "PASS"
+    "cloudflare_deployment_version_id": "234309bf-354c-4368-a127-5dd0e125c502",
+    "health_check": "PASS",
+    "deployment_identity_source": "Owner-provided Cloudflare active deployment screenshot and copied version ID, 2026-11-19"
   },
-  "next_authorized_action": "Verify the current Cloudflare production deployment identity and rollback capability, then record authorization and dispatch the exact artifact with a separate post-deployment smoke."
+  "next_authorized_action": "Verify rollback capability and live D1 ledger, then record authorization and dispatch the exact artifact with a separate post-deployment smoke.",
+  "migration_boundary": {
+    "preflight_pending": [],
+    "pending_sha256": {}
+  }
 }
