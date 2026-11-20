@@ -620,21 +620,6 @@
       "status": "In progress"
     },
     {
-      "id": "LIVE-IMPRESSION::CONTRACT",
-      "lane": "DJC-CORE",
-      "status": "In progress"
-    },
-    {
-      "id": "LIVE-IMPRESSION::PRODUCER",
-      "lane": "DJC-CORE",
-      "status": "In progress"
-    },
-    {
-      "id": "LIVE-IMPRESSION::APPLE",
-      "lane": "DJC-APPLE",
-      "status": "In progress"
-    },
-    {
       "id": "LIVE-IMPRESSION::ACCEPTANCE",
       "lane": "DJC-CORE",
       "status": "Planned"
@@ -1779,5 +1764,23 @@
     "voice_preview": "LOCAL_PAIRED_OWNER_IMPLEMENTED;PROTECTED_REAL_PROVIDER_NATIVE_AUDIBLE_OPEN",
     "ci_url_fixture_security": "SIX_SCANNER_FINDINGS_FIXED_BY_EXACT_URL_COMPONENTS;CAUSAL_HOST_SPOOF_NEGATIVES;HELPER_SOURCE_HASH_BOUND;EXACT_CI_RECHECK_REQUIRED"
   },
-  "live_impression_delta_20261119": "Four new canonical Live-impressie leaves retained. Historical repository, GitHub and installed proof readbacks were not globally refreshed."
+  "live_impression_delta_20261119": "Four new canonical Live-impressie leaves retained. Historical repository, GitHub and installed proof readbacks were not globally refreshed.",
+  "live_impression_finalization_20261120": {
+    "source_delivery": "SOURCE_DELIVERED",
+    "core_pr": 1661,
+    "core_merge": "912e1efbd6e9475521779d04f98fd805f0b1f385",
+    "apple_pr": 396,
+    "apple_merge": "8668da1fca60596d99e19c58d9d7c88390c8d21e",
+    "completed_source_nodes": [
+      "LIVE-IMPRESSION::APPLE",
+      "LIVE-IMPRESSION::CONTRACT",
+      "LIVE-IMPRESSION::PRODUCER"
+    ],
+    "joint_acceptance": "Planned/OPEN",
+    "live_model": "NOT_RUN",
+    "installed": "NOT_RUN",
+    "shared_tv": "NOT_RUN",
+    "evidence": "docs/technical/LIVE_IMPRESSION_SOURCE_FINALIZATION_20261120.md",
+    "historical_inventory_not_globally_refreshed": true
+  }
 }

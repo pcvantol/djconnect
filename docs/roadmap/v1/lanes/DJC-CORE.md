@@ -12,7 +12,7 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
-Live-impressie v1: user-authorized Core and Apple implementation, source LOCAL_IMPLEMENTATION_NOT_MERGED. Canonical design and exact contract recorded; original event/photos, history and speech remain owner-scoped. LI01–LI20 real-source/model/native acceptance remains OPEN. No install, shared-screen delivery or deployment. Prior maintenance16 below is historical and unchanged.
+Live-impressie v1 SOURCE_DELIVERED: Core #1661 and Apple #396 protected merged; exact source trees and independent main evidence qualified. Three software/source leaves Completed; joint LI01–LI20 ACCEPTANCE remains Planned/OPEN. Real-model/editorial and native/physical acceptance are not claimed; installed/shared-TV NOT_RUN. No new implementation or consumer dispatch. The immutable maintenance17 freeze remains historical.
 
 Current maintenance16 combines both preserved maintenance15 inputs in the existing Core draft1197. Original input refs and premerge repair refs are separately pinned; both histories remain immutable. Source LOCAL_COMBINED_DRAFT_PREPARATION, overall OPEN, merge NOT_QUALIFIED, native OPEN, The immutable composition receipt predates the private HA-dev candidate3a89473e; later local producer/Forecast repairs are not installed. Audible/native acceptance remains OPEN. No second writer, consumer writes or automatic dispatch. See `docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md`.
 
@@ -81,8 +81,8 @@ A product choice: LIMITED_APP_ATTESTED_REPORTED_ROUTE selected with the stated c
 - `SETTINGS::CORE::MIGRATION` — In progress; Qualified legacy migration/removal and owning-lane reconciliation; six shared parameters incl announcement_output; no new owning writer or automatic dispatch
 - `SETTINGS::JOINT::ACCEPTANCE` — Planned; Cross-device six-field effects, persistence and cleanup acceptance; six shared parameters incl announcement_output; no new owning writer or automatic dispatch
 - `CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE` — In progress; Existing personal DJ restoration; source, native, installed and audible outcomes separate
-- `LIVE-IMPRESSION::CONTRACT` — In progress; DJC-LIVE-IMPRESSION-V1-20261108; existing owners, no separate engine or deployment
-- `LIVE-IMPRESSION::PRODUCER` — In progress; DJC-LIVE-IMPRESSION-V1-20261108; existing owners, no separate engine or deployment
+- `LIVE-IMPRESSION::CONTRACT` — Completed; DJC-LIVE-IMPRESSION-V1-20261108; existing owners, no separate engine or deployment
+- `LIVE-IMPRESSION::PRODUCER` — Completed; DJC-LIVE-IMPRESSION-V1-20261108; existing owners, no separate engine or deployment
 - `LIVE-IMPRESSION::ACCEPTANCE` — Planned; DJC-LIVE-IMPRESSION-V1-20261108; existing owners, no separate engine or deployment
 
 Fresh owner/writer/resource admission is separate from functional prerequisites. Historical writer observations are not current leases.

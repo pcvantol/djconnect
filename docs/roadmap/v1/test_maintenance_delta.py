@@ -40,7 +40,7 @@ class SharedSettingsMaintenanceTests(unittest.TestCase):
     def test_six_parameter_scope_preserves_frozen_predecessor(self):
         self.assertEqual(validate(self.p), [])
         d = self.p['planning_maintenance']
-        self.assertEqual(d['schema_version'], 'djconnect-federated-planning-delta/17')
+        self.assertEqual(d['schema_version'], 'djconnect-federated-planning-delta/18')
         self.assertEqual(d['settings_consolidation_receipt']['parameters'],
                          ['persona', 'voice', 'gender', 'mood', 'presence', 'announcement_output'])
         self.assertIn('six shared Persona/voice/gender/Mood/Presence/announcement_output', render(self.p)['README.md'])
@@ -122,7 +122,7 @@ def delivered_settings_plan():
 def delivered_passive_plan():
     import json
     plan = load(ROOT / 'djconnect-platform-v1.json')
-    if plan['planning_maintenance']['schema_version'] in {'djconnect-federated-planning-delta/15','djconnect-federated-planning-delta/16','djconnect-federated-planning-delta/17'}:
+    if plan['planning_maintenance']['schema_version'] in {'djconnect-federated-planning-delta/15','djconnect-federated-planning-delta/16','djconnect-federated-planning-delta/17','djconnect-federated-planning-delta/18'}:
         refs = plan['planning_maintenance']['document_references']
         plan['planning_maintenance'] = json.loads((ROOT / 'history/20261017/settings-finalization-maintenance-v14.json').read_text())
         plan['planning_maintenance']['document_references'] = refs

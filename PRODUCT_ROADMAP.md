@@ -1,3 +1,23 @@
+## 2026-11-20 — Live-impressie source delivered; joint acceptance remains open
+
+Core PR [#1661](https://github.com/djconnect-music-dj/djconnect/pull/1661) merged as
+`912e1efbd6e9475521779d04f98fd805f0b1f385`, with complete tree
+`7a7565d985edd97b2427d70b851033f58605faa1` equal to qualified head
+`f1b45dbf5363e87986ab5b8bb2354e5682a1995c`. Apple PR
+[#396](https://github.com/djconnect-music-dj/djconnect-app/pull/396) merged as
+`8668da1fca60596d99e19c58d9d7c88390c8d21e` with its qualified tree unchanged. [Apple exact-main CI44700356839](https://github.com/djconnect-music-dj/djconnect-app/actions/runs/44700356839),
+including unsigned builds/coverage, and [formal publication44701910005](https://github.com/djconnect-music-dj/djconnect-app/actions/runs/44701910005)
+passed. Its downloaded durable qualification asset also passed the pinned-policy
+validator; this remains software/source evidence.
+[Independent Core main validation](https://github.com/djconnect-music-dj/djconnect/actions/runs/44700319366)
+and [automatic artifact/evidence publication](https://github.com/djconnect-music-dj/djconnect/actions/runs/44700925335)
+passed, including HACS and exact-main coverage. The internal artifact and durable
+qualification record were downloaded: all 318 product files match the qualified
+source, both asset digests match GitHub, and the pinned-policy evidence validator
+passes. This is source/internal-publication evidence, not an installation.
+
+Maintenance18 marks only LIVE-IMPRESSION::CONTRACT/PRODUCER/APPLE Completed / SOURCE_DELIVERED. LIVE-IMPRESSION::ACCEPTANCE remains Planned; real-model/editorial/native/installed/shared-TV acceptance is not promoted. [Source Finalization](docs/technical/LIVE_IMPRESSION_SOURCE_FINALIZATION_20261120.md) preserves the immutable v17 freeze and all unrelated planning records. No new execution selection.
+
 ## 2026-11-05 — Voor jou replaces the Session surprise launcher
 
 Owner-selected source candidate: one compact iPhone/iPad/Mac card immediately
