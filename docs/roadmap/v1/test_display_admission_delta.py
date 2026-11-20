@@ -17,7 +17,7 @@ class DisplayAdmissionMaintenanceTests(unittest.TestCase):
         self.assertEqual(validate(self.plan), [])
         self.assertEqual(
             self.plan["planning_maintenance"]["schema_version"],
-            "djconnect-federated-planning-delta/17",
+            "djconnect-federated-planning-delta/18",
         )
         self.assertIn("wire NOT_FROZEN, runtime B_SOFTWARE_QUALIFIED_NOT_INSTALLED", render(self.plan)["README.md"])
 
@@ -31,6 +31,13 @@ class DisplayAdmissionMaintenanceTests(unittest.TestCase):
                     self.assertIn("native/TV/joint open", body)
                     self.assertIn("does not close A", body)
         p = deepcopy(self.plan)
+        # These are allowed mutations of the historical display contract.
+        # Current Finalization must preserve that receipt, so exercise its
+        # original scope rather than rewriting it through maintenance18.
+        if p["planning_maintenance"]["schema_version"] == "djconnect-federated-planning-delta/18":
+            references = p["planning_maintenance"]["document_references"]
+            p["planning_maintenance"] = load(ROOT / "history/20261120/live-impression-freeze-maintenance-v17.json")
+            p["planning_maintenance"]["document_references"] = references
         receipt = p["planning_maintenance"]["display_admission_receipt"]
         receipt.update(phase="CONTRACT_REVIEW", runtime="NOT_IMPLEMENTED",
                        source_delivery="UNPUBLISHED")

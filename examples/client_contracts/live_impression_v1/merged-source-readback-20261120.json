@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "scope": "MERGED_SOURCE_AND_AUTOMATIC_INTERNAL_PUBLICATION_ONLY",
+  "core_pr": "https://github.com/djconnect-music-dj/djconnect/pull/1661",
+  "qualified_head": "f1b45dbf5363e87986ab5b8bb2354e5682a1995c",
+  "merge_sha": "912e1efbd6e9475521779d04f98fd805f0b1f385",
+  "tree_sha": "7a7565d985edd97b2427d70b851033f58605faa1",
+  "tree_equal_to_qualified_head": true,
+  "main_workflow_run": 44700319366,
+  "main_workflow_result": "PASS",
+  "automatic_publication_workflow_run": 44700925335,
+  "automatic_publication_result": "PASS",
+  "post_merge_status": "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED",
+  "release_tag": "internal-ha-912e1efbd6e9475521779d04f98fd805f0b1f385",
+  "release_url": "https://github.com/djconnect-music-dj/djconnect/releases/tag/internal-ha-912e1efbd6e9475521779d04f98fd805f0b1f385",
+  "artifact_name": "djconnect-home-assistant-integration-912e1efbd6e9475521779d04f98fd805f0b1f385.tar.gz",
+  "artifact_sha256": "d9a35d36ad6058d414d4ff4df0bfa0633fa71709fc9172ce4504a6d75e62ca6d",
+  "qualified_product_count": 318,
+  "archive_product_hash_mismatches": [],
+  "durable_qualification_name": "qualification-evidence-912e1efbd6e9475521779d04f98fd805f0b1f385.json",
+  "durable_qualification_sha256": "23ffb9d7a92e6dd06d8133eab5cc081b04ccbcb846bebb2f6631cd51065965e1",
+  "durable_qualification": {
+    "commit_sha": "912e1efbd6e9475521779d04f98fd805f0b1f385",
+    "integrity": {
+      "algorithm": "sha256-canonical-json",
+      "digest": "836ed8dfe70b16400d2728f23a37acf10eebd6fbf7d1cf1ea8f0f45839320e4d"
+    },
+    "kind": "durable_qualification_evidence",
+    "policy_source_identity": {
+      "original_repository_id": 1258575431,
+      "original_revision": "ebbb35f038a7a3c7d46c12660968bcd50eb67580",
+      "repository": "djconnect-music-dj/.github",
+      "repository_id": 1461539726,
+      "revision": "89a2a8b4c7571965249bed745bf7c5c37a1221f1",
+      "snapshot": "evidence-ebbb"
+    },
+    "published_at": "2026-11-20T08:14:38Z",
+    "qualification": {
+      "outcome": "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED",
+      "profile": "post_merge_release_evidence",
+      "required_checks": {
+        "post_merge_build_validation": "PASS",
+        "post_merge_ci": "PASS",
+        "post_merge_coverage": "PASS",
+        "post_merge_governance": "PASS",
+        "post_merge_lint": "PASS",
+        "post_merge_static_analysis": "PASS",
+        "post_merge_tests": "PASS",
+        "required_checks": "PASS",
+        "software_assurance": "PASS",
+        "trusted_delivery": "PASS",
+        "verification": "PASS",
+        "workflow_integrity": "PASS"
+      }
+    },
+    "record_id": "djconnect-music-dj/djconnect@912e1efbd6e9475521779d04f98fd805f0b1f385:post-merge-release-evidence",
+    "redaction": {
+      "included_data": "formal allowlisted decision fields only",
+      "policy_version": 1,
+      "status": "REDACTED"
+    },
+    "release_identifier": "internal-ha-912e1efbd6e9475521779d04f98fd805f0b1f385",
+    "repository": "djconnect-music-dj/djconnect",
+    "repository_role": "active_source",
+    "retention_class": "LONG_TERM",
+    "revision": 1,
+    "schema_version": 1,
+    "source_evidence_digest": "25f20895ca7c0b9bd4e82a139c2f4ecba7295275e4e5ef527c61e281f9d71e3f",
+    "source_revision": "89a2a8b4c7571965249bed745bf7c5c37a1221f1",
+    "supplemental_evidence": [
+      {
+        "kind": "coverage_artifact_digest",
+        "sha256": "2decedb2ab3e24b7e09524dda588abeaa4d2a829fee83665a7adb0b887c90a05"
+      }
+    ],
+    "workflow_references": {
+      "post_merge_run_ids": [
+        "44700319366"
+      ],
+      "producer_run_id": "44700925335"
+    }
+  },
+  "live_model": "NOT_RUN",
+  "installed": "NOT_RUN",
+  "native_physical": "NOT_RUN",
+  "shared_tv": "NOT_RUN",
+  "durable_validator_findings": [],
+  "expected_policy_source": {
+    "repository": "djconnect-music-dj/.github",
+    "repository_id": 1461539726,
+    "revision": "89a2a8b4c7571965249bed745bf7c5c37a1221f1",
+    "snapshot": "evidence-ebbb",
+    "original_repository_id": 1258575431,
+    "original_revision": "ebbb35f038a7a3c7d46c12660968bcd50eb67580"
+  },
+  "archive_product_count": 318,
+  "unexpected_archive_products": [],
+  "apple_source_publication": {
+    "canonical_integrity": "PASS",
+    "ci": 44700356839,
+    "ci_attempt": 1,
+    "coverage_lines": 0.62804701801715,
+    "coverage_targets": 7,
+    "durable_asset_id": 771030589,
+    "durable_release": "internal-ha-8668da1fca60596d99e19c58d9d7c88390c8d21e",
+    "durable_sha256": "75b5a0d9e0c00ae665d68c2aba6febae330c3c5eb30567b1a7af47fafbb837e4",
+    "evidence_digest": "e1bb5301f1abd4f24a08510989989093326214e67d2fb3358a0baa0f9cdce1ec",
+    "formal": 44701910005,
+    "formal_decision": "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED",
+    "main_sha": "8668da1fca60596d99e19c58d9d7c88390c8d21e",
+    "original_artifacts": [
+      {
+        "id": 14612448995,
+        "members_sha256": {
+          "coverage-main-sha.txt": "98161fff1e743324e9146d6e143716b2339c55e063466de1474c995ac25ea01f",
+          "coverage.json": "64f5bdea6a4b3da05bf8929934a38bf17c2ea827da4d8da17d59e394d2e32de1"
+        },
+        "name": "apple-xccov-coverage",
+        "provider_zip_sha256": "db7669d1e14df5080bb3a9eda1d5bdfcf1ded375734c9b14172a1b910feede67",
+        "run": 44700356839
+      },
+      {
+        "id": 14613726899,
+        "members_sha256": {
+          "post-merge-release-evidence.json": "aa903e07b49e4624698f768e03209eae0daab90021193edab68e2f53733a543e"
+        },
+        "name": "post-merge-release-evidence",
+        "provider_zip_sha256": "485f48c30c4d271ad9fe979adc31395c93e7a9670ff04f2a0874fddb83c586e7",
+        "run": 44701910005
+      }
+    ],
+    "policy_source_identity": {
+      "original_repository_id": 1258575431,
+      "original_revision": "4877403ba6fc69881439e70d3048da13ecb5576b",
+      "repository": "djconnect-music-dj/.github",
+      "repository_id": 1461539726,
+      "revision": "89a2a8b4c7571965249bed745bf7c5c37a1221f1",
+      "snapshot": "evidence-4877"
+    },
+    "repository": "djconnect-music-dj/djconnect-app",
+    "required_checks": {
+      "post_merge_build_validation": "PASS",
+      "post_merge_ci": "PASS",
+      "post_merge_coverage": "PASS",
+      "post_merge_governance": "PASS",
+      "post_merge_lint": "PASS",
+      "post_merge_static_analysis": "PASS",
+      "post_merge_tests": "PASS",
+      "required_checks": "PASS",
+      "software_assurance": "PASS",
+      "trusted_delivery": "PASS",
+      "verification": "PASS",
+      "workflow_integrity": "PASS"
+    },
+    "schema_version": 1,
+    "validator_sha256": "3fba299f26c75e47804e66218cabea8fd50627bd2a84a1dd294d59009714466f"
+  }
+}
