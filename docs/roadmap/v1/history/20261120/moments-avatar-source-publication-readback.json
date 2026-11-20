@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "scope": "MERGED_SOURCE_AND_AUTOMATIC_INTERNAL_PUBLICATION_ONLY",
+  "core_pr": "https://github.com/djconnect-music-dj/djconnect/pull/1664",
+  "qualified_head": "373e324e736b884e181f95dc2274bbb7ea15baaa",
+  "merge_sha": "948dbb8f7575df76a39e31335953fa53024b0831",
+  "tree_sha": "7f5b032c6e54b4e9a2d2b912c35059a757365ab3",
+  "product_tree_sha": "497192771bedc7add1d3e14283cc1c3f92e604d1",
+  "tree_equal_to_qualified_head": true,
+  "main_workflow_run": 44796552623,
+  "main_workflow_result": "PASS",
+  "automatic_publication_workflow_run": 44797292807,
+  "automatic_publication_result": "PASS",
+  "post_merge_status": "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED",
+  "release_tag": "internal-ha-948dbb8f7575df76a39e31335953fa53024b0831",
+  "release_url": "https://github.com/djconnect-music-dj/djconnect/releases/tag/internal-ha-948dbb8f7575df76a39e31335953fa53024b0831",
+  "artifact_name": "djconnect-home-assistant-integration-948dbb8f7575df76a39e31335953fa53024b0831.tar.gz",
+  "artifact_sha256": "4f5cca7eb115edd92d5ffd40e943a8f56df0e6b7e559d043d747e8cf1fd19b16",
+  "qualified_product_count": 321,
+  "archive_product_count": 321,
+  "archive_product_hash_mismatches": [],
+  "unexpected_archive_products": [],
+  "durable_qualification_name": "qualification-evidence-948dbb8f7575df76a39e31335953fa53024b0831.json",
+  "durable_qualification_sha256": "0f80ddfc1185e7fd9f5c17ea2778e09c71946e6abc03b2ea7618aacf0bd4a51e",
+  "durable_qualification": {
+    "commit_sha": "948dbb8f7575df76a39e31335953fa53024b0831",
+    "integrity": {
+      "algorithm": "sha256-canonical-json",
+      "digest": "437db8ca07c32a5e1f6999b8e68880fcfed41df027adaec1f464cf84c926369f"
+    },
+    "kind": "durable_qualification_evidence",
+    "policy_source_identity": {
+      "original_repository_id": 1258575431,
+      "original_revision": "ebbb35f038a7a3c7d46c12660968bcd50eb67580",
+      "repository": "djconnect-music-dj/.github",
+      "repository_id": 1461539726,
+      "revision": "89a2a8b4c7571965249bed745bf7c5c37a1221f1",
+      "snapshot": "evidence-ebbb"
+    },
+    "published_at": "2026-11-20T18:55:49Z",
+    "qualification": {
+      "outcome": "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED",
+      "profile": "post_merge_release_evidence",
+      "required_checks": {
+        "post_merge_build_validation": "PASS",
+        "post_merge_ci": "PASS",
+        "post_merge_coverage": "PASS",
+        "post_merge_governance": "PASS",
+        "post_merge_lint": "PASS",
+        "post_merge_static_analysis": "PASS",
+        "post_merge_tests": "PASS",
+        "required_checks": "PASS",
+        "software_assurance": "PASS",
+        "trusted_delivery": "PASS",
+        "verification": "PASS",
+        "workflow_integrity": "PASS"
+      }
+    },
+    "record_id": "djconnect-music-dj/djconnect@948dbb8f7575df76a39e31335953fa53024b0831:post-merge-release-evidence",
+    "redaction": {
+      "included_data": "formal allowlisted decision fields only",
+      "policy_version": 1,
+      "status": "REDACTED"
+    },
+    "release_identifier": "internal-ha-948dbb8f7575df76a39e31335953fa53024b0831",
+    "repository": "djconnect-music-dj/djconnect",
+    "repository_role": "active_source",
+    "retention_class": "LONG_TERM",
+    "revision": 1,
+    "schema_version": 1,
+    "source_evidence_digest": "b7060e1f083c22a81f083f9c7b39c4ab6051385d5d9ffea357577fa9ec755c6d",
+    "source_revision": "89a2a8b4c7571965249bed745bf7c5c37a1221f1",
+    "supplemental_evidence": [
+      {
+        "kind": "coverage_artifact_digest",
+        "sha256": "aca1869217cf5bf2d48885c9e74089e0ac3cb83652913e79e36ddc561702350f"
+      }
+    ],
+    "workflow_references": {
+      "post_merge_run_ids": [
+        "44796552623"
+      ],
+      "producer_run_id": "44797292807"
+    }
+  },
+  "durable_validator_findings": [],
+  "expected_policy_source": {
+    "repository": "djconnect-music-dj/.github",
+    "repository_id": 1461539726,
+    "revision": "89a2a8b4c7571965249bed745bf7c5c37a1221f1",
+    "snapshot": "evidence-ebbb",
+    "original_repository_id": 1258575431,
+    "original_revision": "ebbb35f038a7a3c7d46c12660968bcd50eb67580"
+  },
+  "pinned_validator_sha256": "3a771cf7cedc03639c9254ba938c21d99f5154d50b49a51b4bc55c429bd57cf8",
+  "source_tde": {
+    "member": ".tde/evidence/evidence/6e716c58a797609da08c8eab7f883cfbe30d146d0e4bb8c89c3c13b9372f99da.json",
+    "member_sha256": "b7e73765f876f0c5a6072b4445016fdab9873401ea97f44d04c1e1ad5981e309",
+    "decision": "FAIL",
+    "qualification": "FAIL",
+    "finding_count": 1006,
+    "policy_result_count": 69,
+    "metrics": [
+      {
+        "affectedCapability": "code_size",
+        "affectedEvidence": {
+          "measurementId": "code_size.repository.source",
+          "targetEntityId": "repository.git.80c167d92d15ef38"
+        },
+        "measuredValue": 120308,
+        "metricKey": "code_size.source_lines",
+        "outcome": "FAIL",
+        "ruleId": "code_size.repository_lines",
+        "threshold": 75000
+      },
+      {
+        "affectedCapability": "complexity",
+        "affectedEvidence": {
+          "measurementId": "complexity.repository_product.1d502149f08be3cd.maximum",
+          "targetEntityId": "repository.git.80c167d92d15ef38"
+        },
+        "measuredValue": 262,
+        "metricKey": "complexity.cyclomatic.product.maximum",
+        "outcome": "FAIL",
+        "ruleId": "complexity.product.maximum",
+        "threshold": 30
+      }
+    ],
+    "head": "948dbb8f7575df76a39e31335953fa53024b0831",
+    "workflow_run": 44796551707,
+    "artifact_id": 14657234932,
+    "zip_sha256": "f47ce0d8931a38f99903a9eb13f206585568b6c2707b30ca84a5acd5fb330c08",
+    "canonical_findings_equal_to_qualified_candidate": true,
+    "open_new_critical": "session_speech.moment_projection CC40→47",
+    "overall_tde_pass": false,
+    "repository_qualification": "FAILED",
+    "qualification_canonical_member": ".tde/qualifications/repository-qualification.e815bbb28dc8f3ddf519ef4d.json",
+    "qualification_member_sha256": "305ee87d204adb83a438f4b9af01862970e68479219ce68738db84827997d03e",
+    "qualification_evidence_member": ".tde/evidence/evidence/e09128c41ba4ef057300a173bc7161b22dba1425af45ff1664a51df07dafab81.json",
+    "qualification_evidence_sha256": "c4a4e049c4d3b1f403454964c52f5e1105583ce51eb873cc7f69c1bd49dedb14",
+    "assessment_and_qualification_findings_equal": true
+  },
+  "actual_installed_model_editorial_acceptance": "NOT_CLAIMED",
+  "apple_source_publication": {
+    "canonical_integrity": "PASS",
+    "durable_qualification": {
+      "commit_sha": "83e2f03822deac1c52cc1dbedd8623d4a0e09b06",
+      "integrity": {
+        "algorithm": "sha256-canonical-json",
+        "digest": "a69dd5b8dc68aa77992966ac025b52f0daee77cc379af5b8742b9e36554c98f6"
+      },
+      "kind": "durable_qualification_evidence",
+      "policy_source_identity": {
+        "original_repository_id": 1258575431,
+        "original_revision": "4877403ba6fc69881439e70d3048da13ecb5576b",
+        "repository": "djconnect-music-dj/.github",
+        "repository_id": 1461539726,
+        "revision": "89a2a8b4c7571965249bed745bf7c5c37a1221f1",
+        "snapshot": "evidence-4877"
+      },
+      "published_at": "2026-11-20T19:31:00Z",
+      "qualification": {
+        "outcome": "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED",
+        "profile": "post_merge_release_evidence",
+        "required_checks": {
+          "post_merge_build_validation": "PASS",
+          "post_merge_ci": "PASS",
+          "post_merge_coverage": "PASS",
+          "post_merge_governance": "PASS",
+          "post_merge_lint": "PASS",
+          "post_merge_static_analysis": "PASS",
+          "post_merge_tests": "PASS",
+          "required_checks": "PASS",
+          "software_assurance": "PASS",
+          "trusted_delivery": "PASS",
+          "verification": "PASS",
+          "workflow_integrity": "PASS"
+        }
+      },
+      "record_id": "djconnect-music-dj/djconnect-app@83e2f03822deac1c52cc1dbedd8623d4a0e09b06:post-merge-release-evidence",
+      "redaction": {
+        "included_data": "formal allowlisted decision fields only",
+        "policy_version": 1,
+        "status": "REDACTED"
+      },
+      "release_identifier": "internal-ha-83e2f03822deac1c52cc1dbedd8623d4a0e09b06",
+      "repository": "djconnect-music-dj/djconnect-app",
+      "repository_role": "active_source",
+      "retention_class": "LONG_TERM",
+      "revision": 1,
+      "schema_version": 1,
+      "source_evidence_digest": "a3ee5d161d936f6470e49062bb4abf1f67b195f1641b63549b2c4c5035ffe561",
+      "source_revision": "89a2a8b4c7571965249bed745bf7c5c37a1221f1",
+      "supplemental_evidence": [
+        {
+          "kind": "coverage_artifact_digest",
+          "sha256": "68456bc1438e6978d613baff40b689a1763d1c4e676237ddb0b51554acab2724"
+        }
+      ],
+      "workflow_references": {
+        "post_merge_run_ids": [
+          "44800859483"
+        ],
+        "producer_run_id": "44802814160"
+      }
+    },
+    "durable_sha256": "65133af677b0e503b01731f0a15437138e02b8fe4c364f5a62224b02b8025484",
+    "expected_policy_source": {
+      "original_repository_id": 1258575431,
+      "original_revision": "4877403ba6fc69881439e70d3048da13ecb5576b",
+      "repository": "djconnect-music-dj/.github",
+      "repository_id": 1461539726,
+      "revision": "89a2a8b4c7571965249bed745bf7c5c37a1221f1",
+      "snapshot": "evidence-4877"
+    },
+    "formal_decision": "POST_MERGE_RELEASE_EVIDENCE_QUALIFIED",
+    "formal_workflow_run": 44802814160,
+    "main_sha": "83e2f03822deac1c52cc1dbedd8623d4a0e09b06",
+    "main_validation": "PASS",
+    "main_workflow_run": 44800859483,
+    "qualified_head": "9b95eb553b300ef85697e747fa75d1c735263d25",
+    "required_checks": {
+      "post_merge_build_validation": "PASS",
+      "post_merge_ci": "PASS",
+      "post_merge_coverage": "PASS",
+      "post_merge_governance": "PASS",
+      "post_merge_lint": "PASS",
+      "post_merge_static_analysis": "PASS",
+      "post_merge_tests": "PASS",
+      "required_checks": "PASS",
+      "software_assurance": "PASS",
+      "trusted_delivery": "PASS",
+      "verification": "PASS",
+      "workflow_integrity": "PASS"
+    },
+    "tree_sha": "439b950ed45c8f398782b5feb81de77c98a8e127",
+    "validator_sha256": "3fba299f26c75e47804e66218cabea8fd50627bd2a84a1dd294d59009714466f",
+    "tree_equal_to_qualified_head": true,
+    "tde_assessment": "FAIL",
+    "tde_repository_qualification": "FAILED",
+    "tde_findings": 437,
+    "native_physical_editorial_acceptance": "OPEN"
+  }
+}

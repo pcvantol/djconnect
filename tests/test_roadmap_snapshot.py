@@ -13,14 +13,15 @@ PLANNING = ROOT / "docs" / "roadmap" / "v1"
 class FederatedPlanningCITest(unittest.TestCase):
     def test_snapshot_validator_and_negative_cases(self):
         result = subprocess.run(
-            [sys.executable, "-m", "unittest", "-q", "test_snapshot", "test_maintenance_delta"],
+            [sys.executable, "-m", "unittest", "discover", "-q"],
             cwd=PLANNING,
             capture_output=True,
             text=True,
-            # The maintained graph now validates all historical deltas plus
-            # 171 schema/negative/generation cases. Shared Python3.11 runners
-            # exceed30s; retain every assertion with a bounded execution limit.
-            timeout=120,
+            # Discover every maintained schema/negative/generation module.
+            # The expanded198-case suite exceeds120s on shared Python3.11 CI
+            # beside the other three workers. Keep every assertion and allow
+            # a bounded five-minute subprocess instead of truncating discovery.
+            timeout=300,
             check=False,
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

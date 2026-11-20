@@ -12,7 +12,7 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
-Current user-selected execution: Ask DJ Moments avatarcard under existing Interactive DJMoments; contract/Core/Apple In progress, joint AM01–AM12 Planned. Explicit user selection supersedes the prior five-settings horizon; no automatic dispatch, installation or whole-family acceptance. Maintenance18 and all prior source/publication records remain immutable.
+Ask DJ Moments SOURCE_DELIVERED: Core #1664 and Apple #400 protected merged; both exact-main/publication records independently qualified. Three software leaves Completed; joint AM01–AM12 ACCEPTANCE stays Planned/OPEN, actual installed/model/editorial/a11y acceptance unclaimed. New and inherited TDE maintainability risks remain OPEN, actual assessment FAIL. Original maintenance19 and every earlier receipt remain immutable; no new consumer dispatch.
 
 Live-impressie v1 SOURCE_DELIVERED: Core #1661 and Apple #396 protected merged; exact source trees and independent main evidence qualified. Three software/source leaves Completed; joint LI01–LI20 ACCEPTANCE remains Planned/OPEN. Real-model/editorial and native/physical acceptance are not claimed; installed/shared-TV NOT_RUN. No new implementation or consumer dispatch. The immutable maintenance17 freeze remains historical.
 
@@ -86,8 +86,8 @@ A product choice: LIMITED_APP_ATTESTED_REPORTED_ROUTE selected with the stated c
 - `LIVE-IMPRESSION::CONTRACT` — Completed; DJC-LIVE-IMPRESSION-V1-20261108; existing owners, no separate engine or deployment
 - `LIVE-IMPRESSION::PRODUCER` — Completed; DJC-LIVE-IMPRESSION-V1-20261108; existing owners, no separate engine or deployment
 - `LIVE-IMPRESSION::ACCEPTANCE` — Planned; DJC-LIVE-IMPRESSION-V1-20261108; existing owners, no separate engine or deployment
-- `ASK-DJ-MOMENTS::CONTRACT` — In progress; Existing Interactive DJMoments selected explicitly by user; no parallel engine or install/deploy authority
-- `ASK-DJ-MOMENTS::PRODUCER` — In progress; Existing Interactive DJMoments selected explicitly by user; no parallel engine or install/deploy authority
+- `ASK-DJ-MOMENTS::CONTRACT` — Completed; Existing Interactive DJMoments selected explicitly by user; no parallel engine or install/deploy authority
+- `ASK-DJ-MOMENTS::PRODUCER` — Completed; Existing Interactive DJMoments selected explicitly by user; no parallel engine or install/deploy authority
 - `ASK-DJ-MOMENTS::ACCEPTANCE` — Planned; Existing Interactive DJMoments selected explicitly by user; no parallel engine or install/deploy authority
 
 Fresh owner/writer/resource admission is separate from functional prerequisites. Historical writer observations are not current leases.

@@ -12,7 +12,7 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
-Current user-selected execution: Ask DJ Moments avatarcard under existing Interactive DJMoments; contract/Core/Apple In progress, joint AM01–AM12 Planned. Explicit user selection supersedes the prior five-settings horizon; no automatic dispatch, installation or whole-family acceptance. Maintenance18 and all prior source/publication records remain immutable.
+Ask DJ Moments SOURCE_DELIVERED: Core #1664 and Apple #400 protected merged; both exact-main/publication records independently qualified. Three software leaves Completed; joint AM01–AM12 ACCEPTANCE stays Planned/OPEN, actual installed/model/editorial/a11y acceptance unclaimed. New and inherited TDE maintainability risks remain OPEN, actual assessment FAIL. Original maintenance19 and every earlier receipt remain immutable; no new consumer dispatch.
 
 Live-impressie v1 SOURCE_DELIVERED: Core #1661 and Apple #396 protected merged; exact source trees and independent main evidence qualified. Three software/source leaves Completed; joint LI01–LI20 ACCEPTANCE remains Planned/OPEN. Real-model/editorial and native/physical acceptance are not claimed; installed/shared-TV NOT_RUN. No new implementation or consumer dispatch. The immutable maintenance17 freeze remains historical.
 
@@ -87,9 +87,6 @@ A product choice: LIMITED_APP_ATTESTED_REPORTED_ROUTE selected with the stated c
 - `SETTINGS::JOINT::ACCEPTANCE` — Planned: Core source, native/installed/audible/hardware and whole-family cleanup distinct; owning consumer evidence required.
 - `CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE` — In progress: Historical Speech realization is not current all-family acceptance. No consumer dispatch..
 - `LIVE-IMPRESSION::ACCEPTANCE` — Planned: Software/source delivery distinct from real sources, HA model, native and physical acceptance.
-- `ASK-DJ-MOMENTS::CONTRACT` — In progress: Software/source, actual HA fixture, native/model/editorial/device AM12 acceptance remain separate.
-- `ASK-DJ-MOMENTS::PRODUCER` — In progress: Software/source, actual HA fixture, native/model/editorial/device AM12 acceptance remain separate.
-- `ASK-DJ-MOMENTS::APPLE` — In progress: Software/source, actual HA fixture, native/model/editorial/device AM12 acceptance remain separate.
 - `ASK-DJ-MOMENTS::ACCEPTANCE` — Planned: Software/source, actual HA fixture, native/model/editorial/device AM12 acceptance remain separate.
 
 Policy values/budgets/default and exact presence route/schema remain unqualified design details. No runtime/native/browser/installed/hardware PASS.

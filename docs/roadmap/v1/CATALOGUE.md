@@ -12,7 +12,7 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
-Current user-selected execution: Ask DJ Moments avatarcard under existing Interactive DJMoments; contract/Core/Apple In progress, joint AM01–AM12 Planned. Explicit user selection supersedes the prior five-settings horizon; no automatic dispatch, installation or whole-family acceptance. Maintenance18 and all prior source/publication records remain immutable.
+Ask DJ Moments SOURCE_DELIVERED: Core #1664 and Apple #400 protected merged; both exact-main/publication records independently qualified. Three software leaves Completed; joint AM01–AM12 ACCEPTANCE stays Planned/OPEN, actual installed/model/editorial/a11y acceptance unclaimed. New and inherited TDE maintainability risks remain OPEN, actual assessment FAIL. Original maintenance19 and every earlier receipt remain immutable; no new consumer dispatch.
 
 Live-impressie v1 SOURCE_DELIVERED: Core #1661 and Apple #396 protected merged; exact source trees and independent main evidence qualified. Three software/source leaves Completed; joint LI01–LI20 ACCEPTANCE remains Planned/OPEN. Real-model/editorial and native/physical acceptance are not claimed; installed/shared-TV NOT_RUN. No new implementation or consumer dispatch. The immutable maintenance17 freeze remains historical.
 
@@ -118,7 +118,7 @@ A product choice: LIMITED_APP_ATTESTED_REPORTED_ROUTE selected with the stated c
 | `LIVE-IMPRESSION::PRODUCER` | DJC-CORE | Completed | Event web/image research, reviewed story, original media and retained Moment |
 | `LIVE-IMPRESSION::APPLE` | DJC-APPLE | Completed | Native photo-first Moment, original detail, speech and history consumer |
 | `LIVE-IMPRESSION::ACCEPTANCE` | DJC-CORE | Planned | Joint real-source/model/native editorial acceptance LI01–LI20 |
-| `ASK-DJ-MOMENTS::CONTRACT` | DJC-CORE | In progress | Canonical avatar Moments inventory and versioned original-subject contract |
-| `ASK-DJ-MOMENTS::PRODUCER` | DJC-CORE | In progress | Explicit rich Moment request through existing Knowledge, narration and durable acceptance |
-| `ASK-DJ-MOMENTS::APPLE` | DJC-APPLE | In progress | Single avatarcard chooser, pending, original rich result and history |
+| `ASK-DJ-MOMENTS::CONTRACT` | DJC-CORE | Completed | Canonical avatar Moments inventory and versioned original-subject contract |
+| `ASK-DJ-MOMENTS::PRODUCER` | DJC-CORE | Completed | Explicit rich Moment request through existing Knowledge, narration and durable acceptance |
+| `ASK-DJ-MOMENTS::APPLE` | DJC-APPLE | Completed | Single avatarcard chooser, pending, original rich result and history |
 | `ASK-DJ-MOMENTS::ACCEPTANCE` | DJC-CORE | Planned | Joint AM01–AM12 real model, device, editorial and accessibility acceptance |
