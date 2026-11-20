@@ -1,0 +1,601 @@
+{
+  "source": {
+    "assessment": {
+      "canonical_evidence_id": "sha256:deb182da1dd7f80ffc7d6a44d45c8da052db797d331c83b07fd0bcf0f0d40da6",
+      "canonical_member": ".tde/evidence/evidence/deb182da1dd7f80ffc7d6a44d45c8da052db797d331c83b07fd0bcf0f0d40da6.json",
+      "canonical_member_sha256": "6bf16c0018e1fe6cebac56bc4350f337ef8c1918030b9ceed94d60ef2158d23e",
+      "decision": "FAIL",
+      "finding_count": 992,
+      "policy_result_count": 68,
+      "metrics": [
+        {
+          "affectedCapability": "code_size",
+          "affectedEvidence": {
+            "measurementId": "code_size.repository.source",
+            "targetEntityId": "repository.git.80c167d92d15ef38"
+          },
+          "measuredValue": 118835,
+          "metricKey": "code_size.source_lines",
+          "outcome": "FAIL",
+          "ruleId": "code_size.repository_lines",
+          "threshold": 75000
+        },
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "measurementId": "complexity.repository_product.1d502149f08be3cd.maximum",
+            "targetEntityId": "repository.git.80c167d92d15ef38"
+          },
+          "measuredValue": 262,
+          "metricKey": "complexity.cyclomatic.product.maximum",
+          "outcome": "FAIL",
+          "ruleId": "complexity.product.maximum",
+          "threshold": 30
+        }
+      ],
+      "finding_classes": {
+        "PRODUCT_SOURCE": 941,
+        "TEST": 51
+      }
+    },
+    "qualification": {
+      "canonical_evidence_id": "sha256:d164e4312027822d4a7a075bbd2050b8f68b1cddbdc3b4d8bd2713f7a858d48c",
+      "canonical_member": ".tde/evidence/evidence/d164e4312027822d4a7a075bbd2050b8f68b1cddbdc3b4d8bd2713f7a858d48c.json",
+      "canonical_member_sha256": "77fbdbfcee7f1cb8eea134296b8d3fe91ba0fe3381ea67ec17d6acf5217075c1",
+      "decision": "FAIL",
+      "finding_count": 992,
+      "policy_result_count": 68,
+      "metrics": [
+        {
+          "affectedCapability": "code_size",
+          "affectedEvidence": {
+            "measurementId": "code_size.repository.source",
+            "targetEntityId": "repository.git.80c167d92d15ef38"
+          },
+          "measuredValue": 118835,
+          "metricKey": "code_size.source_lines",
+          "outcome": "FAIL",
+          "ruleId": "code_size.repository_lines",
+          "threshold": 75000
+        },
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "measurementId": "complexity.repository_product.1d502149f08be3cd.maximum",
+            "targetEntityId": "repository.git.80c167d92d15ef38"
+          },
+          "measuredValue": 262,
+          "metricKey": "complexity.cyclomatic.product.maximum",
+          "outcome": "FAIL",
+          "ruleId": "complexity.product.maximum",
+          "threshold": 30
+        }
+      ],
+      "finding_classes": {
+        "PRODUCT_SOURCE": 941,
+        "TEST": 51
+      }
+    },
+    "artifact_id": 14611654888,
+    "run": 44700318979,
+    "zip_sha256": "0d9e56ecb81d3dbdf30705872316f31aec9500061ead9fbf4acc8f064b0e2134",
+    "workflow_conclusion": "SUCCESS",
+    "assessment_decision": "FAIL",
+    "repository_qualification": "FAILED",
+    "summary": "# TDE observe result\n\n- Runtime: `technical-debt-engine-runtime==1.1.1`\n- Assessment profile: `standard`\n- Executed capabilities: code_size, complexity, coverage, dependency_health\n- Assessment decision: FAIL\n- Repository qualification: FAILED\n- Assessment exit code: 2 (observed only)\n- Qualification exit code: 2 (observed only)\n- Duration: 59s\n- Started: 2026-11-20T08:14:44Z\n- Evidence artifact: `tde-observe-evidence`\n",
+    "assessment_and_qualification_findings_equal": true
+  },
+  "final": {
+    "assessment": {
+      "canonical_evidence_id": "sha256:ecbd93254b12a2d7d4a997a92f1b3a5ce8549a514db85d5efd5c2ebe22629207",
+      "canonical_member": ".tde/evidence/evidence/ecbd93254b12a2d7d4a997a92f1b3a5ce8549a514db85d5efd5c2ebe22629207.json",
+      "canonical_member_sha256": "5ba09334c3f03af2ccb977ff847314a1ec2286d65018582063f93ed70eeeb21f",
+      "decision": "FAIL",
+      "finding_count": 994,
+      "policy_result_count": 69,
+      "metrics": [
+        {
+          "affectedCapability": "code_size",
+          "affectedEvidence": {
+            "measurementId": "code_size.repository.source",
+            "targetEntityId": "repository.git.80c167d92d15ef38"
+          },
+          "measuredValue": 118835,
+          "metricKey": "code_size.source_lines",
+          "outcome": "FAIL",
+          "ruleId": "code_size.repository_lines",
+          "threshold": 75000
+        },
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "measurementId": "complexity.repository_product.1d502149f08be3cd.maximum",
+            "targetEntityId": "repository.git.80c167d92d15ef38"
+          },
+          "measuredValue": 263,
+          "metricKey": "complexity.cyclomatic.product.maximum",
+          "outcome": "FAIL",
+          "ruleId": "complexity.product.maximum",
+          "threshold": 30
+        }
+      ],
+      "finding_classes": {
+        "PRODUCT_SOURCE": 942,
+        "TEST": 52
+      }
+    },
+    "qualification": {
+      "canonical_evidence_id": "sha256:65e3462c103a23de72ff963c7fa9b5dfaf4728698ce6842898e0ffba8f0228eb",
+      "canonical_member": ".tde/evidence/evidence/65e3462c103a23de72ff963c7fa9b5dfaf4728698ce6842898e0ffba8f0228eb.json",
+      "canonical_member_sha256": "08bdb68894551453281b3c31557e954704c1329d0ef90df609dde94213b49900",
+      "decision": "FAIL",
+      "finding_count": 994,
+      "policy_result_count": 69,
+      "metrics": [
+        {
+          "affectedCapability": "code_size",
+          "affectedEvidence": {
+            "measurementId": "code_size.repository.source",
+            "targetEntityId": "repository.git.80c167d92d15ef38"
+          },
+          "measuredValue": 118835,
+          "metricKey": "code_size.source_lines",
+          "outcome": "FAIL",
+          "ruleId": "code_size.repository_lines",
+          "threshold": 75000
+        },
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "measurementId": "complexity.repository_product.1d502149f08be3cd.maximum",
+            "targetEntityId": "repository.git.80c167d92d15ef38"
+          },
+          "measuredValue": 263,
+          "metricKey": "complexity.cyclomatic.product.maximum",
+          "outcome": "FAIL",
+          "ruleId": "complexity.product.maximum",
+          "threshold": 30
+        }
+      ],
+      "finding_classes": {
+        "PRODUCT_SOURCE": 942,
+        "TEST": 52
+      }
+    },
+    "artifact_id": 14613954690,
+    "run": 44704356937,
+    "zip_sha256": "c798fb9d47c053d32775ae5d68a938ebc0ba7b415646294f9fa90bc13c25670b",
+    "workflow_conclusion": "SUCCESS",
+    "assessment_decision": "FAIL",
+    "repository_qualification": "FAILED",
+    "summary": "# TDE observe result\n\n- Runtime: `technical-debt-engine-runtime==1.1.1`\n- Assessment profile: `standard`\n- Executed capabilities: code_size, complexity, coverage, dependency_health\n- Assessment decision: FAIL\n- Repository qualification: FAILED\n- Assessment exit code: 2 (observed only)\n- Qualification exit code: 2 (observed only)\n- Duration: 42s\n- Started: 2026-11-20T08:43:33Z\n- Evidence artifact: `tde-observe-evidence`\n",
+    "assessment_and_qualification_findings_equal": true
+  },
+  "comparison": {
+    "assessment": {
+      "added_findings": [
+        {
+          "affectedEntityId": "symbol.1a60e2dd227ac1df",
+          "capabilityId": "complexity",
+          "category": "COMPLEXITY",
+          "classification": "PRODUCT_SOURCE",
+          "confidence": 1,
+          "description": "Cyclomatic complexity is 51 (threshold: 41).",
+          "evidenceReferences": [
+            "complexity.symbol.d6d8340e76d06681.value"
+          ],
+          "findingId": "complexity.critical.symbol.1a60e2dd227ac1df",
+          "location": {
+            "endLine": 89,
+            "line": 11,
+            "path": "docs/roadmap/v1/live_impression_finalization_delta.py"
+          },
+          "regression": "UNKNOWN",
+          "ruleId": "complexity.critical",
+          "severity": "CRITICAL",
+          "state": "OPEN",
+          "suppressible": true,
+          "title": "Critical Complexity"
+        },
+        {
+          "affectedEntityId": "symbol.f27e3965a9c31cc1",
+          "capabilityId": "complexity",
+          "category": "COMPLEXITY",
+          "classification": "PRODUCT_SOURCE",
+          "confidence": 1,
+          "description": "Cyclomatic complexity is 45 (threshold: 41).",
+          "evidenceReferences": [
+            "complexity.symbol.56d80aef7bd88034.value"
+          ],
+          "findingId": "complexity.critical.symbol.f27e3965a9c31cc1",
+          "location": {
+            "endLine": 1186,
+            "line": 936,
+            "path": "docs/roadmap/v1/maintenance_delta.py"
+          },
+          "regression": "UNKNOWN",
+          "ruleId": "complexity.critical",
+          "severity": "CRITICAL",
+          "state": "OPEN",
+          "suppressible": true,
+          "title": "Critical Complexity"
+        },
+        {
+          "affectedEntityId": "symbol.f3a2d3990abd8f17",
+          "capabilityId": "complexity",
+          "category": "COMPLEXITY",
+          "classification": "TEST",
+          "confidence": 1,
+          "description": "Cyclomatic complexity is 11 (threshold: 11).",
+          "evidenceReferences": [
+            "complexity.symbol.0748b51172bfa8dd.value"
+          ],
+          "findingId": "complexity.high.symbol.f3a2d3990abd8f17",
+          "location": {
+            "endLine": 53,
+            "line": 41,
+            "path": "docs/roadmap/v1/test_live_impression_finalization_delta.py"
+          },
+          "regression": "UNKNOWN",
+          "ruleId": "complexity.high",
+          "severity": "HIGH",
+          "state": "OPEN",
+          "suppressible": true,
+          "title": "High Complexity"
+        }
+      ],
+      "removed_findings": [
+        {
+          "affectedEntityId": "symbol.88828a8c01cc1c8f",
+          "capabilityId": "complexity",
+          "category": "COMPLEXITY",
+          "classification": "PRODUCT_SOURCE",
+          "confidence": 1,
+          "description": "Cyclomatic complexity is 44 (threshold: 41).",
+          "evidenceReferences": [
+            "complexity.symbol.78d4988472d58af6.value"
+          ],
+          "findingId": "complexity.critical.symbol.88828a8c01cc1c8f",
+          "location": {
+            "endLine": 1177,
+            "line": 933,
+            "path": "docs/roadmap/v1/maintenance_delta.py"
+          },
+          "regression": "UNKNOWN",
+          "ruleId": "complexity.critical",
+          "severity": "CRITICAL",
+          "state": "OPEN",
+          "suppressible": true,
+          "title": "Critical Complexity"
+        }
+      ],
+      "changed_findings": [
+        {
+          "finding_id": "complexity.critical.symbol.036d82f4227778f7",
+          "source": {
+            "affectedEntityId": "symbol.036d82f4227778f7",
+            "capabilityId": "complexity",
+            "category": "COMPLEXITY",
+            "classification": "PRODUCT_SOURCE",
+            "confidence": 1,
+            "description": "Cyclomatic complexity is 262 (threshold: 41).",
+            "evidenceReferences": [
+              "complexity.symbol.ffbb50c68b08c28e.value"
+            ],
+            "findingId": "complexity.critical.symbol.036d82f4227778f7",
+            "location": {
+              "endLine": 930,
+              "line": 76,
+              "path": "docs/roadmap/v1/maintenance_delta.py"
+            },
+            "regression": "UNKNOWN",
+            "ruleId": "complexity.critical",
+            "severity": "CRITICAL",
+            "state": "OPEN",
+            "suppressible": true,
+            "title": "Critical Complexity"
+          },
+          "final": {
+            "affectedEntityId": "symbol.036d82f4227778f7",
+            "capabilityId": "complexity",
+            "category": "COMPLEXITY",
+            "classification": "PRODUCT_SOURCE",
+            "confidence": 1,
+            "description": "Cyclomatic complexity is 263 (threshold: 41).",
+            "evidenceReferences": [
+              "complexity.symbol.ffbb50c68b08c28e.value"
+            ],
+            "findingId": "complexity.critical.symbol.036d82f4227778f7",
+            "location": {
+              "endLine": 933,
+              "line": 76,
+              "path": "docs/roadmap/v1/maintenance_delta.py"
+            },
+            "regression": "UNKNOWN",
+            "ruleId": "complexity.critical",
+            "severity": "CRITICAL",
+            "state": "OPEN",
+            "suppressible": true,
+            "title": "Critical Complexity"
+          }
+        }
+      ],
+      "added_policy_results": [
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "measurementId": "complexity.repository_product.1d502149f08be3cd.maximum",
+            "targetEntityId": "repository.git.80c167d92d15ef38"
+          },
+          "measuredValue": 263,
+          "metricKey": "complexity.cyclomatic.product.maximum",
+          "outcome": "FAIL",
+          "ruleId": "complexity.product.maximum",
+          "threshold": 30
+        },
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "findingId": "complexity.critical.symbol.1a60e2dd227ac1df"
+          },
+          "findingId": "complexity.critical.symbol.1a60e2dd227ac1df",
+          "outcome": "FAIL",
+          "ruleId": "critical.product.finding",
+          "severity": "CRITICAL"
+        },
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "findingId": "complexity.critical.symbol.f27e3965a9c31cc1"
+          },
+          "findingId": "complexity.critical.symbol.f27e3965a9c31cc1",
+          "outcome": "FAIL",
+          "ruleId": "critical.product.finding",
+          "severity": "CRITICAL"
+        }
+      ],
+      "removed_policy_results": [
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "measurementId": "complexity.repository_product.1d502149f08be3cd.maximum",
+            "targetEntityId": "repository.git.80c167d92d15ef38"
+          },
+          "measuredValue": 262,
+          "metricKey": "complexity.cyclomatic.product.maximum",
+          "outcome": "FAIL",
+          "ruleId": "complexity.product.maximum",
+          "threshold": 30
+        },
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "findingId": "complexity.critical.symbol.88828a8c01cc1c8f"
+          },
+          "findingId": "complexity.critical.symbol.88828a8c01cc1c8f",
+          "outcome": "FAIL",
+          "ruleId": "critical.product.finding",
+          "severity": "CRITICAL"
+        }
+      ],
+      "runtime_component_findings_identical": true,
+      "runtime_component_finding_count": 906
+    },
+    "qualification": {
+      "added_findings": [
+        {
+          "affectedEntityId": "symbol.1a60e2dd227ac1df",
+          "capabilityId": "complexity",
+          "category": "COMPLEXITY",
+          "classification": "PRODUCT_SOURCE",
+          "confidence": 1,
+          "description": "Cyclomatic complexity is 51 (threshold: 41).",
+          "evidenceReferences": [
+            "complexity.symbol.d6d8340e76d06681.value"
+          ],
+          "findingId": "complexity.critical.symbol.1a60e2dd227ac1df",
+          "location": {
+            "endLine": 89,
+            "line": 11,
+            "path": "docs/roadmap/v1/live_impression_finalization_delta.py"
+          },
+          "regression": "UNKNOWN",
+          "ruleId": "complexity.critical",
+          "severity": "CRITICAL",
+          "state": "OPEN",
+          "suppressible": true,
+          "title": "Critical Complexity"
+        },
+        {
+          "affectedEntityId": "symbol.f27e3965a9c31cc1",
+          "capabilityId": "complexity",
+          "category": "COMPLEXITY",
+          "classification": "PRODUCT_SOURCE",
+          "confidence": 1,
+          "description": "Cyclomatic complexity is 45 (threshold: 41).",
+          "evidenceReferences": [
+            "complexity.symbol.56d80aef7bd88034.value"
+          ],
+          "findingId": "complexity.critical.symbol.f27e3965a9c31cc1",
+          "location": {
+            "endLine": 1186,
+            "line": 936,
+            "path": "docs/roadmap/v1/maintenance_delta.py"
+          },
+          "regression": "UNKNOWN",
+          "ruleId": "complexity.critical",
+          "severity": "CRITICAL",
+          "state": "OPEN",
+          "suppressible": true,
+          "title": "Critical Complexity"
+        },
+        {
+          "affectedEntityId": "symbol.f3a2d3990abd8f17",
+          "capabilityId": "complexity",
+          "category": "COMPLEXITY",
+          "classification": "TEST",
+          "confidence": 1,
+          "description": "Cyclomatic complexity is 11 (threshold: 11).",
+          "evidenceReferences": [
+            "complexity.symbol.0748b51172bfa8dd.value"
+          ],
+          "findingId": "complexity.high.symbol.f3a2d3990abd8f17",
+          "location": {
+            "endLine": 53,
+            "line": 41,
+            "path": "docs/roadmap/v1/test_live_impression_finalization_delta.py"
+          },
+          "regression": "UNKNOWN",
+          "ruleId": "complexity.high",
+          "severity": "HIGH",
+          "state": "OPEN",
+          "suppressible": true,
+          "title": "High Complexity"
+        }
+      ],
+      "removed_findings": [
+        {
+          "affectedEntityId": "symbol.88828a8c01cc1c8f",
+          "capabilityId": "complexity",
+          "category": "COMPLEXITY",
+          "classification": "PRODUCT_SOURCE",
+          "confidence": 1,
+          "description": "Cyclomatic complexity is 44 (threshold: 41).",
+          "evidenceReferences": [
+            "complexity.symbol.78d4988472d58af6.value"
+          ],
+          "findingId": "complexity.critical.symbol.88828a8c01cc1c8f",
+          "location": {
+            "endLine": 1177,
+            "line": 933,
+            "path": "docs/roadmap/v1/maintenance_delta.py"
+          },
+          "regression": "UNKNOWN",
+          "ruleId": "complexity.critical",
+          "severity": "CRITICAL",
+          "state": "OPEN",
+          "suppressible": true,
+          "title": "Critical Complexity"
+        }
+      ],
+      "changed_findings": [
+        {
+          "finding_id": "complexity.critical.symbol.036d82f4227778f7",
+          "source": {
+            "affectedEntityId": "symbol.036d82f4227778f7",
+            "capabilityId": "complexity",
+            "category": "COMPLEXITY",
+            "classification": "PRODUCT_SOURCE",
+            "confidence": 1,
+            "description": "Cyclomatic complexity is 262 (threshold: 41).",
+            "evidenceReferences": [
+              "complexity.symbol.ffbb50c68b08c28e.value"
+            ],
+            "findingId": "complexity.critical.symbol.036d82f4227778f7",
+            "location": {
+              "endLine": 930,
+              "line": 76,
+              "path": "docs/roadmap/v1/maintenance_delta.py"
+            },
+            "regression": "UNKNOWN",
+            "ruleId": "complexity.critical",
+            "severity": "CRITICAL",
+            "state": "OPEN",
+            "suppressible": true,
+            "title": "Critical Complexity"
+          },
+          "final": {
+            "affectedEntityId": "symbol.036d82f4227778f7",
+            "capabilityId": "complexity",
+            "category": "COMPLEXITY",
+            "classification": "PRODUCT_SOURCE",
+            "confidence": 1,
+            "description": "Cyclomatic complexity is 263 (threshold: 41).",
+            "evidenceReferences": [
+              "complexity.symbol.ffbb50c68b08c28e.value"
+            ],
+            "findingId": "complexity.critical.symbol.036d82f4227778f7",
+            "location": {
+              "endLine": 933,
+              "line": 76,
+              "path": "docs/roadmap/v1/maintenance_delta.py"
+            },
+            "regression": "UNKNOWN",
+            "ruleId": "complexity.critical",
+            "severity": "CRITICAL",
+            "state": "OPEN",
+            "suppressible": true,
+            "title": "Critical Complexity"
+          }
+        }
+      ],
+      "added_policy_results": [
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "measurementId": "complexity.repository_product.1d502149f08be3cd.maximum",
+            "targetEntityId": "repository.git.80c167d92d15ef38"
+          },
+          "measuredValue": 263,
+          "metricKey": "complexity.cyclomatic.product.maximum",
+          "outcome": "FAIL",
+          "ruleId": "complexity.product.maximum",
+          "threshold": 30
+        },
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "findingId": "complexity.critical.symbol.1a60e2dd227ac1df"
+          },
+          "findingId": "complexity.critical.symbol.1a60e2dd227ac1df",
+          "outcome": "FAIL",
+          "ruleId": "critical.product.finding",
+          "severity": "CRITICAL"
+        },
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "findingId": "complexity.critical.symbol.f27e3965a9c31cc1"
+          },
+          "findingId": "complexity.critical.symbol.f27e3965a9c31cc1",
+          "outcome": "FAIL",
+          "ruleId": "critical.product.finding",
+          "severity": "CRITICAL"
+        }
+      ],
+      "removed_policy_results": [
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "measurementId": "complexity.repository_product.1d502149f08be3cd.maximum",
+            "targetEntityId": "repository.git.80c167d92d15ef38"
+          },
+          "measuredValue": 262,
+          "metricKey": "complexity.cyclomatic.product.maximum",
+          "outcome": "FAIL",
+          "ruleId": "complexity.product.maximum",
+          "threshold": 30
+        },
+        {
+          "affectedCapability": "complexity",
+          "affectedEvidence": {
+            "findingId": "complexity.critical.symbol.88828a8c01cc1c8f"
+          },
+          "findingId": "complexity.critical.symbol.88828a8c01cc1c8f",
+          "outcome": "FAIL",
+          "ruleId": "critical.product.finding",
+          "severity": "CRITICAL"
+        }
+      ],
+      "runtime_component_findings_identical": true,
+      "runtime_component_finding_count": 906
+    }
+  },
+  "scope": "READ_ONLY_OBSERVE_ONLY_TDE_SEMANTIC_AUDIT_NO_RERUN_WAIVER_OR_REFACTOR",
+  "conclusion": "TDE FAIL/FAILED remains real. Baseline code size and complexity debt persists, plus Finalization introduces/changes docs-roadmap complexity findings; runtime component findings unchanged.",
+  "canonical_existing_boundary": {
+    "planning": "docs/governance/TDE_1_1_1_PLANNING_RECONCILIATION.md",
+    "backlog": "PRODUCT_BACKLOG.md#tde-boundary",
+    "workflow": ".github/workflows/tde-observe.yml"
+  }
+}

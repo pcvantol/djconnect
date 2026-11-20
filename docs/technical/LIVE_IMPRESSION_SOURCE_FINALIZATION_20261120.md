@@ -63,3 +63,25 @@ PASS. `WORKSPACE_READY` is the separate prospective workspace target, effective
 only after the actual task-scoped cleanup report satisfies its criteria. Until
 then Source #1661 is `MERGED_UNRECONCILED` and the workspace is `NOT_READY`.
 No runtime product file, provider, installation or deployment changes here.
+
+
+## Observe-only TDE semantic correction
+
+The source and Finalization TDE workflows completed successfully, but their
+actual canonical assessments are FAIL / repository qualification FAILED
+(exit2/2). Source912 has992 findings/68 failing policy results; Final9486 has994/69.
+All906 runtime-component findings and code size118835 are unchanged. Finalization
+also introduced a CRITICAL51-complexity governance validator, a TEST HIGH11 case,
+and increments in existing maintenance dispatch262→263 and rendering44→45.
+These are not an overall technical-debt PASS or an all-baseline-only result.
+
+The [original semantic comparison](../roadmap/v1/history/20261120/live-impression-tde-source-final-comparison.json)
+preserves both original canonical FAIL records and digests. A separate
+[bounded corrective record](../history/prompts/2026-11-20-live-impression-validator-correction.md)
+retains every original guard and admitted rendering result while separating
+proof responsibilities. Fresh candidate TDE must be read semantically; existing
+observe-only scope remains as defined by
+[TDE planning governance](../governance/TDE_1_1_1_PLANNING_RECONCILIATION.md) and
+[the canonical backlog boundary](../../PRODUCT_BACKLOG.md#tde-boundary).
+No runtime refactor, policy waiver, assessment relabel or new product work follows
+from this disclosure.
