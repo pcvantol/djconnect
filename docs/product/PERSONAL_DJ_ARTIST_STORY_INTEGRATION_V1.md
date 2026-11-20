@@ -70,3 +70,8 @@ original failure/RAW evidence. Earlier protected1423/1424 scopes remain qualifie
 none is installation evidence for this new source. Actual public-source/model
 prose, audible behavior and joint HA-dev/client acceptance remain separate. No
 new paid test or installation has been executed by this increment.
+
+
+## Live-impressie content family
+
+Event-specific public concert photographs and narratives use the same research/Session owners. See [canonical experience](LIVE_IMPRESSION_EXPERIENCE_V1.md) and [bounded contract](../technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md). Ordinary artist-photo identity and all existing rights remain unchanged.

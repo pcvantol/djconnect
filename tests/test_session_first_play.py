@@ -536,14 +536,14 @@ class FirstPlayTests(IsolatedAsyncioTestCase):
 
 
 class FirstPlayWireEvidenceTests(IsolatedAsyncioTestCase):
-    async def test_actual_source_fixture_binds_all_products_and_original_harness(self):
+    async def test_current_for_you_source_and_frozen_legacy_first_play_evidence_are_distinct(self):
         import json
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
         fixture = json.loads((root/'examples/client_contracts/session_first_play_v2/actual-ha-wire.json').read_text())
-        current = json.loads((root / 'examples/client_contracts/session_for_you_v1/actual-ha-wire.json').read_text())
+        current = json.loads((root / 'examples/client_contracts/session_for_you_v1/actual-ha-wire-live-impression-20261119.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
-        self.assertEqual(len(current['source_pins']), 315)
+        self.assertEqual(len(current['source_pins']), 318)
         self.assertEqual(hashlib.sha256((root / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
         extension = current['receipt']['extension']
         self.assertEqual(extension['model_provider_calls'], 0)
@@ -552,42 +552,12 @@ class FirstPlayWireEvidenceTests(IsolatedAsyncioTestCase):
         self.assertTrue(extension['cases'])
         self.assertEqual(set(extension['cases'].values()), {'PASS'})
         for name, digest in current['source_pins'].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if name == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if name == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if name in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
         for name, digest in current['receipt']['source_files_sha256'].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if name == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if name == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if name in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
-        self.assertEqual(hashlib.sha256((root/fixture['harness']).read_bytes()).hexdigest(), fixture['harness_sha256'])
+        # Legacy output-before-search evidence is frozen; current For-you is
+        # qualified above by its own fresh paired HTTP receipt.
+        self.assertEqual(hashlib.sha256((root/'examples/client_contracts/session_first_play_v2/actual-ha-wire.json').read_bytes()).hexdigest(), 'b67ab7393daed4e688b30b5af6bbbf50d9187777602ab512e845b4c641fad6c2')
         self.assertEqual((fixture['model_provider_calls'], fixture['real_provider_calls']), (0, 0))
         self.assertTrue(fixture['all304_before_inside_after_equal'])
         self.assertTrue(fixture['own_container_verified_absent'])

@@ -12,6 +12,8 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
+Live-impressie v1: user-authorized Core and Apple implementation, source LOCAL_IMPLEMENTATION_NOT_MERGED. Canonical design and exact contract recorded; original event/photos, history and speech remain owner-scoped. LI01–LI20 real-source/model/native acceptance remains OPEN. No install, shared-screen delivery or deployment. Prior maintenance16 below is historical and unchanged.
+
 Current maintenance16 combines both preserved maintenance15 inputs in the existing Core draft1197. Original input refs and premerge repair refs are separately pinned; both histories remain immutable. Source LOCAL_COMBINED_DRAFT_PREPARATION, overall OPEN, merge NOT_QUALIFIED, native OPEN, The immutable composition receipt predates the private HA-dev candidate3a89473e; later local producer/Forecast repairs are not installed. Audible/native acceptance remains OPEN. No second writer, consumer writes or automatic dispatch. See `docs/verification/CORE_BRANCH_CONSOLIDATION_20261017.md`.
 
 Current personal-DJ corrective work: LOCAL / UNPUBLISHED; historical SPEECH::CORE::REALIZATION delivery remains preserved, while CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE remains In progress. All-family narrative and actual publication Golden, Track Insight, native and audible acceptance are not established by earlier metadata/type fixtures or the private development install. See `docs/verification/CORE_LANE_REQUIREMENT_RECONCILIATION_20261017.md`. No consumer dispatch or new writer.
@@ -110,3 +112,7 @@ A product choice: LIMITED_APP_ATTESTED_REPORTED_ROUTE selected with the stated c
 | `SETTINGS::WEBSITE::COPY` | DJC-WEBSITE | Planned | Six-parameter scope/help and obsolete settings copy audit |
 | `SETTINGS::JOINT::ACCEPTANCE` | DJC-CORE | Planned | Cross-device six-field effects, persistence and cleanup acceptance |
 | `CORRECTION::CORE::PERSONAL-DJ-EXPERIENCE` | DJC-CORE | In progress | Personal DJ restoration: current corrective acceptance remains open |
+| `LIVE-IMPRESSION::CONTRACT` | DJC-CORE | In progress | Canonical Live-impressie product design and Core→Apple versioned fixtures |
+| `LIVE-IMPRESSION::PRODUCER` | DJC-CORE | In progress | Event web/image research, reviewed story, original media and retained Moment |
+| `LIVE-IMPRESSION::APPLE` | DJC-APPLE | In progress | Native photo-first Moment, original detail, speech and history consumer |
+| `LIVE-IMPRESSION::ACCEPTANCE` | DJC-CORE | Planned | Joint real-source/model/native editorial acceptance LI01–LI20 |

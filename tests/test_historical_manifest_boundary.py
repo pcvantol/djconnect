@@ -10,7 +10,7 @@ from tests import test_ask_dj_help_live_observation as help_observation_tests
 
 
 class HistoricalManifestBoundaryTests(unittest.TestCase):
-    def test_receipt_exception_is_limited_to_explicit_migration_files(self):
+    def test_fresh_source_receipts_have_no_historical_migration_exemptions(self):
         expected = {
             "custom_components/djconnect/manifest.json",
             "custom_components/djconnect/artist_photo.py",
@@ -31,11 +31,11 @@ class HistoricalManifestBoundaryTests(unittest.TestCase):
             for value in matches:
                 self.assertEqual(set(ast.literal_eval(value)), expected, str(file))
                 count += 1
-        self.assertGreater(count, 0)
+        self.assertEqual(count, 0)
 
     def test_non_manifest_source_mismatch_remains_a_failure(self):
         root = Path(__file__).resolve().parents[1]
-        proof = json.loads((root / "examples/client_contracts/ask_dj_help_context_v1/actual-ha-wire-bulletin-diagnostics-current.json").read_text())
+        proof = json.loads((root / "examples/client_contracts/ask_dj_help_context_v1/actual-ha-wire-bulletin-diagnostics-current-live-impression-20261119.json").read_text())
         manifest = "custom_components/djconnect/manifest.json"
         deferred = {manifest, "custom_components/djconnect/artist_photo.py",
                     "custom_components/djconnect/ask_dj/public_research.py",

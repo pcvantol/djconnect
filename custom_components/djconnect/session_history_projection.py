@@ -145,9 +145,14 @@ def project_entry(row: dict) -> dict | None:
             "runtime_accepted_settings_v1",
             "owner_metadata_narration_v1",
             "public_artist_narration_v1",
+            "public_live_impression_v1",
         }:
             return None
-        result.update({k: v for k, v in body.items() if k not in {"session_media_reference", "source_context"}})
+        if body.get("archive_basis") == "public_live_impression_v1":
+            from .live_impression import checked
+            if checked(body.get("live_impression")) is None:
+                return None
+        result.update({k: v for k, v in body.items() if k not in {"session_media_reference", "source_context", "live_impression_reference"}})
     elif row["kind"] in {"dj_publication", "dj_silence"}:
         # Only Core-owned publication identity escapes: no unavailable source
         # body, attribution, artwork or model/speech input is reconstructed.

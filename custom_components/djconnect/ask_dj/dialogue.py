@@ -958,6 +958,16 @@ def model_source(entry: dict | None) -> dict:
             "basis": "runtime_authored_direction_v1",
             "direction_excerpt": str(entry.get("text") or "")[:2000],
         }
+    if entry.get("archive_basis") == "public_live_impression_v1":
+        from ..live_impression import checked
+        live = checked(entry.get("live_impression"))
+        if live is None:
+            return {}
+        return {"basis":"public_live_impression_v1",
+            "subjects":entry.get("dialogue_subjects") or [{"name":live["event"]["artist"],"role":"Artist"}],
+            "event":live["event"],"qualified_excerpt":str(entry.get("text") or "")[:2000],
+            "sources":entry.get("sources",[])[:3],
+            "authority":"original_public_event_and_accepted_telling_not_new_evidence"}
     researched = entry.get("archive_basis") == "public_artist_narration_v1"
     attribution = (entry.get("qualified_fact_attribution") if researched else entry.get("source_attribution")) or {}
     if not isinstance(attribution, dict):
@@ -989,7 +999,7 @@ def selected_public_focus(turn) -> dict:
     """
     entry = getattr(turn, 'selected_read_context', None)
     if (not getattr(turn, 'interpreted_context_research', False) or not isinstance(entry, dict)
-            or entry.get('archive_basis') != 'public_artist_narration_v1'
+            or entry.get('archive_basis') not in {'public_artist_narration_v1','public_live_impression_v1'}
             or not turn.source_context or model_source(entry) != turn.source_context):
         return {}
     text = entry.get('text')

@@ -11,7 +11,12 @@ from tests.test_http_voice_helpers import install_http_stubs
 class SessionSettingTransportTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         install_http_stubs()
-        from custom_components.djconnect import api_handlers, http, profile_context, session_runtime
+        import importlib
+        from custom_components.djconnect import api_handlers, http, profile_context
+        # Other disposable Runtime fixtures may remove sys.modules while the
+        # package still caches an older module. Bind manager and handler's
+        # request-time exception imports to the same canonical identity.
+        session_runtime = importlib.import_module('custom_components.djconnect.session_runtime')
 
         self.views = {
             "mood": http.DJConnectSessionMoodView,

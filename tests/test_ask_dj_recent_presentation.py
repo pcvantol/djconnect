@@ -28,30 +28,14 @@ class RecentDisplayHistoryTests(unittest.IsolatedAsyncioTestCase):
     def test_current_actual_ha_original_receipt_matches_display_and_all_products(self):
         from custom_components.djconnect.ask_dj.recent_presentation import checked
         root = Path(__file__).resolve().parents[1]
-        fixture = json.loads((root/'examples/client_contracts/ask_dj_recent_list_presentation_v1/actual-ha-wire.json').read_bytes())
+        fixture = json.loads((root/'examples/client_contracts/ask_dj_recent_list_presentation_v1/actual-ha-wire-live-impression-20261119.json').read_bytes())
         self.assertEqual(fixture['classification'], 'ACTUAL_ISOLATED_HA_SOURCE_ONLY_NOT_INSTALLED_OR_NATIVE')
-        current = json.loads((root / 'examples/client_contracts/ask_dj_recent_list_presentation_v1/actual-ha-requalification-bulletin-diagnostics-current.json').read_text())
+        current = json.loads((root / 'examples/client_contracts/ask_dj_recent_list_presentation_v1/actual-ha-requalification-bulletin-diagnostics-current-live-impression-20261119.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
         self.assertEqual(current['harness'], fixture['harness'])
         self.assertEqual(current['harness_sha256'], fixture['harness_sha256'])
-        self.assertEqual(len(current['source_pins']), 315)
+        self.assertEqual(len(current['source_pins']), 318)
         for name, digest in current['source_pins'].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if name == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if name == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if name in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root/fixture['harness']).read_bytes()).hexdigest(), fixture['harness_sha256'])
         extension = current['receipt']['extension']

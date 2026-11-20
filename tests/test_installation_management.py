@@ -47,27 +47,11 @@ class ManagementGrammarTests(unittest.TestCase):
 
     def test_original_actual_HA_receipt_binds_current_source_and_boundaries(self):
         root = Path(__file__).resolve().parents[1]
-        proof = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation.json").read_text())
+        proof = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation-live-impression-20261119.json").read_text())
         original = proof["original_receipt"]
-        current = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation-bulletin-diagnostics-current.json").read_text())
-        self.assertEqual(len(current["source_sha256"]), 315)
+        current = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation-bulletin-diagnostics-current-live-impression-20261119.json").read_text())
+        self.assertEqual(len(current["source_sha256"]), 318)
         for name, digest in current["source_sha256"].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if name == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if name == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if name in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root / proof["harness"]).read_bytes()).hexdigest(), proof["harness_sha256"])
         self.assertEqual(hashlib.sha256((json.dumps(original, indent=2) + "\n").encode()).hexdigest(), proof["original_receipt_sha256"])

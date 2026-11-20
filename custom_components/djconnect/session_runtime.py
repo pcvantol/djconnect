@@ -184,6 +184,7 @@ class KnowledgeIntentType(StrEnum):
 
     TRACK_CONTEXT = "track_context"
     ARTIST_STORY = "artist_story"
+    LIVE_IMPRESSION = "live_impression"
     ALBUM_STORY = "album_story"
     GENRE_STORY = "genre_story"
     RECOMMENDATION = "recommendation"
@@ -273,6 +274,7 @@ class DJMomentType(StrEnum):
     TRACK = "track"
     MUSIC_ANNOUNCEMENT = "music_announcement"
     ARTIST = "artist"
+    LIVE_IMPRESSION = "live_impression"
     ALBUM = "album"
     GENRE = "genre"
     RECOMMENDATION = "recommendation"
@@ -481,6 +483,7 @@ class DJMoment:
     settings_confirmation: Any = field(default=None, repr=False)
     bulletin: Any = field(default=None, repr=False)
     track_announcement: Any = field(default=None, repr=False)
+    live_impression: Any = field(default=None, repr=False, compare=False)
 
     def as_dict(self) -> dict[str, Any]:
         from .public_artist_narration import sources_for
@@ -488,6 +491,10 @@ class DJMoment:
         if self.bulletin is not None:
             from .bulletin_runtime import sources as bulletin_sources
             research_sources = bulletin_sources(self)
+        from .live_impression import projection as live_projection
+        live = live_projection(self)
+        if live is not None:
+            research_sources = json.loads(self.live_impression.sources_json)
         from .settings_confirmation import context as settings_context
         proof = settings_context(self)
         confirmation = proof.data() if proof is not None else None
@@ -496,6 +503,7 @@ class DJMoment:
             "session_id": self.session_id,
             "created_at": self.created_at,
             "type": self.moment_type.value,
+            **({"live_impression":live} if live is not None else {}),
             **({"music_announcement": self.track_announcement.data()}
                if self.track_announcement is not None else {}),
             "knowledge_intent": self.knowledge_intent.as_dict(),
@@ -5688,7 +5696,8 @@ class SessionRuntimeManager:
                     if isinstance(text, str) and text != moment.content:
                         # Provider is the existing qualified HA announcement owner.
                         # Recompute fit before the one immutable semantic commit.
-                        if (20 <= len(text) <= 700
+                        from .live_impression import LiveImpressionText
+                        if (20 <= len(text) <= (2000 if type(text) is LiveImpressionText else 700)
                                 and text not in {m.content for m in active.broadcast.state.dj_moments
                                                 if m.moment_id in remembered}):
                             frame = getattr(text, "frame", None)
@@ -5705,6 +5714,16 @@ class SessionRuntimeManager:
                                 enriched = replace(enriched, narration_acceptance=receipt,
                                     source_attribution=tuple(text.accepted.attribution().items()),
                                     source_references=tuple(dict.fromkeys(s["provider"] for s in text.accepted.sources())))
+                            if type(text) is LiveImpressionText:
+                                if not text.accepted.valid() or text.accepted.fact != fact:
+                                    raise PermissionError("live_impression_evidence_changed")
+                                enriched = replace(enriched, title=text.accepted.title, summary=text.accepted.lead,
+                                    moment_type=DJMomentType.LIVE_IMPRESSION,
+                                    knowledge_intent=replace(moment.knowledge_intent,intent_type=KnowledgeIntentType.LIVE_IMPRESSION),
+                                    live_impression=text.accepted, artwork_url=None, actions=(),
+                                    presentation_intent=replace(enriched.presentation_intent,visibility=DJMomentVisibility.OWNER_ONLY,
+                                        delivery_channels=(DeliveryChannel.OWNER,)),
+                                    source_references=tuple(s["url"] for s in json.loads(text.accepted.sources_json)))
                             working_moments.moments = tuple(enriched if m is moment else m for m in working_moments.moments)
                             moment = enriched
             guard()
@@ -5737,7 +5756,8 @@ class SessionRuntimeManager:
                     (fact.key == 'album_release' and fact.album_artist_id)))
                     or (fact.key in {'artist_begin','artist_description'} and fact.public_artist_qid)):
                 from .public_artist_narration import ResearchMomentAcceptance, admitted
-                if type(moment.narration_acceptance) is not ResearchMomentAcceptance or not admitted(moment):
+                from .live_impression import admitted as admitted_live
+                if not admitted_live(moment) and (type(moment.narration_acceptance) is not ResearchMomentAcceptance or not admitted(moment)):
                     # A source descriptor or raw credit list is not the promised
                     # personal story. Reuse the album policy for researchable
                     # artist/producer facts: decline once, never publish/count
@@ -5787,6 +5807,15 @@ class SessionRuntimeManager:
                     active.presence_ledger.commit(opportunity.item_id, moment.presentation_intent.maximum_duration_seconds)
                 return None
             active.publish_moment(moment, commit_expression=False)
+            if moment.live_impression is not None and getattr(self,"_hass",None) is not None:
+                from .live_impression_media import prepare as prepare_live_media
+                from types import SimpleNamespace
+                from .session_artwork import attach_live_projection
+                photo=json.loads(moment.live_impression.payload_json)["photos"][0]
+                await prepare_live_media(self._hass,None,SimpleNamespace(profile_id=owner_profile_id),
+                    session_id=active.session_id,target={"moment_id":moment.moment_id,"photo_id":photo["photo_id"]},
+                    preloaded=(text.pixels,text.mime))
+                attach_live_projection(self._hass,owner_profile_id,active.session_id)
             if not any(published.moment_id == moment.moment_id for published in active.broadcast.state.dj_moments):
                 return None
             active.published_recording_context.commit(fact, time.monotonic(), moment.moment_id)
@@ -7178,6 +7207,9 @@ class SessionRuntimeManager:
                 from .bulletin_runtime import admitted as bulletin_admitted
                 if not bulletin_admitted(moment):
                     return False
+            from .live_impression import admitted as admitted_live
+            if moment.live_impression is not None and not admitted_live(moment):
+                return False
             from .public_artist_narration import ResearchMomentAcceptance, admitted
             if type(receipt) is ResearchMomentAcceptance and not admitted(moment):
                 return False
@@ -7233,7 +7265,12 @@ class SessionRuntimeManager:
         announcement = contribution(moment)
         basis = ""
         from .public_artist_narration import ResearchMomentAcceptance, admitted, BASIS, sources_for
-        if type(moment.narration_acceptance) is ResearchMomentAcceptance:
+        from .live_impression import BASIS as LIVE_BASIS, admitted as admitted_live
+        if moment.live_impression is not None:
+            if not admitted_live(moment):
+                return False
+            basis = LIVE_BASIS
+        elif type(moment.narration_acceptance) is ResearchMomentAcceptance:
             if not admitted(moment):
                 return False
             basis = BASIS
@@ -7292,6 +7329,12 @@ class SessionRuntimeManager:
                              "persona":moment.presentation_intent.dj_persona.value,
                              "mood":moment.presentation_intent.source_session_mood,
                              "persona_revision":active.persona_revision,"locale":active.locale}}
+            if basis == LIVE_BASIS:
+                from .ask_dj.dialogue import normalized_subjects
+                entry["body"].update(title=moment.title, live_impression=json.loads(moment.live_impression.payload_json),
+                    live_impression_reference=json.loads(moment.live_impression.reference_json),
+                    sources=json.loads(moment.live_impression.sources_json),
+                    dialogue_subjects=normalized_subjects(source))
             if opening_context(moment) is not None:
                 entry['body']['generation_metadata'] = dict(moment.generation_metadata)
             if basis in {"cc0_normalized_fields_v1", BASIS}:
@@ -7489,6 +7532,7 @@ def session_runtime_manager(hass: Any) -> SessionRuntimeManager:
             status_samples=StatusJournal(persistence_service(hass)) if sessions is not None else None,
         )
         domain_data["session_runtime_manager"] = manager
+    manager._hass = hass
     return manager
 
 

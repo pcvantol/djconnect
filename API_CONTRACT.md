@@ -2546,3 +2546,8 @@ no contribution text, track metadata, artwork or paired headers. Provider ACK
 acceptance does not demonstrate delivery or rendering. Exact Activity external
 content profiles are not admitted. This is unmerged source preparation without
 operator provisioning, APNs/native or installed acceptance.
+
+
+## Live-impressie private Session content
+
+The additive `live_impression` Moment/history schema1 and explicit original-photo Session-media contract3 are specified in [Live-impressie contract](docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md). Existing authenticated routes are reused; no public photo URL, new playback effect or shared-screen grant is introduced.

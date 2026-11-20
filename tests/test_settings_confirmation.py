@@ -192,7 +192,7 @@ class SettingsConfirmationTests(unittest.IsolatedAsyncioTestCase):
         import hashlib
         from pathlib import Path
         root=Path(__file__).resolve().parents[1]
-        d=json.loads((root/'examples/client_contracts/settings_confirmation_v1/actual-ha-wire.json').read_text())
+        d=json.loads((root/'examples/client_contracts/settings_confirmation_v1/actual-ha-wire-live-impression-20261119.json').read_text())
         self.assertEqual(d['ha_sdk_version'],'2026.10.0')
         self.assertEqual(len(d['cases']),12)
         self.assertEqual(set(d['cases'].values()),{'PASS'})
@@ -201,9 +201,9 @@ class SettingsConfirmationTests(unittest.IsolatedAsyncioTestCase):
         for key in ('installed','native','audible'):
             self.assertEqual(d[key],'NOT_RUN')
         self.assertEqual(hashlib.sha256((root/'scripts/verification/verify_settings_confirmation_http.py').read_bytes()).hexdigest(),d['harness_sha256'])
-        current = json.loads((root / 'examples/client_contracts/settings_confirmation_v1/settings_confirmation_http-requalification-bulletin-diagnostics-current.json').read_text())
+        current = json.loads((root / 'examples/client_contracts/settings_confirmation_v1/settings_confirmation_http-requalification-bulletin-diagnostics-current-live-impression-20261119.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
-        self.assertEqual(len(current['source_pins']), 315)
+        self.assertEqual(len(current['source_pins']), 318)
         self.assertEqual(hashlib.sha256((root / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
         extension = current['receipt']['extension']
         self.assertEqual(extension['model_provider_calls'], 0)
@@ -211,22 +211,6 @@ class SettingsConfirmationTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(extension['cases'])
         self.assertEqual(set(extension['cases'].values()), {'PASS'})
         for relative,digest in current['source_pins'].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if relative == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if relative == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if relative in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root/relative).read_bytes()).hexdigest(),digest,relative)
         for example in d['examples']:
             self.assertEqual(example['moment']['source_references'],['accepted_settings'])

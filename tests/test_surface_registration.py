@@ -29,27 +29,11 @@ class Runtime:
 class PassiveRegistrationTests(unittest.IsolatedAsyncioTestCase):
     def test_actual_HA_fixture_joins_exact_product_and_closed_acceptance(self):
         root = Path(__file__).resolve().parents[1]
-        proof = json.loads((root / 'examples/client_contracts/passive_surface_registration_v1/actual-ha-wire.json').read_text())
-        current = json.loads((root / "examples/client_contracts/passive_surface_registration_v1/actual-ha-wire-bulletin-diagnostics-current.json").read_text())
+        proof = json.loads((root / 'examples/client_contracts/passive_surface_registration_v1/actual-ha-wire-live-impression-20261119.json').read_text())
+        current = json.loads((root / "examples/client_contracts/passive_surface_registration_v1/actual-ha-wire-bulletin-diagnostics-current-live-impression-20261119.json").read_text())
         self.assertEqual(current['status'], 'PASS')
-        self.assertEqual(len(current['source_hashes']), 315)
+        self.assertEqual(len(current['source_hashes']), 318)
         for name, digest in current['source_hashes'].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if name == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if name == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if name in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root / proof['harness']).read_bytes()).hexdigest(), proof['harness_sha256'])
         self.assertEqual(len(current['cases']), 12)
@@ -63,7 +47,7 @@ class PassiveRegistrationTests(unittest.IsolatedAsyncioTestCase):
 
     def test_current_actual_HA_proof_includes_real_pair_journal_but_no_authority(self):
         root = Path(__file__).resolve().parents[1]
-        proof = json.loads((root / 'examples/client_contracts/passive_surface_registration_v1/actual-ha-wire.json').read_text())
+        proof = json.loads((root / 'examples/client_contracts/passive_surface_registration_v1/actual-ha-wire-live-impression-20261119.json').read_text())
         for key in ('real_PairView_automatic_local_record', 'duplicate_pair_same_generation',
                     'real_runtime_token_setter_retires_before_assignment',
                     'real_SQLite_FULL_commit_and_retirement'):

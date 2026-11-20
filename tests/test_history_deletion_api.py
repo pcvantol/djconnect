@@ -188,30 +188,14 @@ class PairedHistoryDeleteTests(unittest.IsolatedAsyncioTestCase):
         historical = root / 'examples/client_contracts/session_conversation_history/archive-deletion-v1-20261021.json'
         self.assertEqual(hashlib.sha256(historical.read_bytes()).hexdigest(),
                          '79fac1e077a157df0851797c84de2f1f61bc14be08f3048c703ba9acec9f2a67')
-        fixture = json.loads((root / 'examples/client_contracts/session_conversation_history/archive-deletion-v1-core-consolidation-20261022.json').read_text())
-        current = json.loads((root / 'examples/client_contracts/session_conversation_history/archive_deletion_http-requalification-bulletin-diagnostics-current.json').read_text())
+        fixture = json.loads((root / 'examples/client_contracts/session_conversation_history/archive-deletion-v1-core-consolidation-20261022-live-impression-20261119.json').read_text())
+        current = json.loads((root / 'examples/client_contracts/session_conversation_history/archive_deletion_http-requalification-bulletin-diagnostics-current-live-impression-20261119.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
-        self.assertEqual(len(current['source_pins']), 315)
+        self.assertEqual(len(current['source_pins']), 318)
         self.assertEqual(hashlib.sha256((root / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
         extension = current['receipt']['extension']
         self.assertEqual(extension['model_calls'], 0)
         for path, expected in current['source_pins'].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if path == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(expected, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if path == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(expected, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if path in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root / path).read_bytes()).hexdigest(), expected, path)
         self.assertEqual(hashlib.sha256((root / fixture['harness']).read_bytes()).hexdigest(), fixture['harness_sha256'])
         self.assertEqual(fixture['model_provider_calls'], 0)

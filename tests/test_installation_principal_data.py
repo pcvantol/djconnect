@@ -44,29 +44,13 @@ class InstallationPrincipalDataTests(unittest.TestCase):
 
     def test_actual_HA_original_codec_and_same_final_harness_parent_RED_remain_exact(self):
         root = Path(__file__).resolve().parents[1]
-        joined = json.loads((root / "examples/client_contracts/installation_principal_data_v1/actual-ha-data-codec.json").read_text())
-        receipt = json.loads((root / "examples/client_contracts/installation_principal_data_v1/actual-ha-data-codec-bulletin-diagnostics-current.json").read_text())
+        joined = json.loads((root / "examples/client_contracts/installation_principal_data_v1/actual-ha-data-codec-live-impression-20261119.json").read_text())
+        receipt = json.loads((root / "examples/client_contracts/installation_principal_data_v1/actual-ha-data-codec-bulletin-diagnostics-current-live-impression-20261119.json").read_text())
         self.assertEqual(receipt["state"], "PASS")
         self.assertEqual(len(receipt["cases"]), 6)
         self.assertEqual(len(receipt["preceding_source_origin_cases"]), 19)
-        self.assertEqual(len(receipt["source_sha256"]), 315)
+        self.assertEqual(len(receipt["source_sha256"]), 318)
         for relative, digest in receipt["source_sha256"].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if relative == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if relative == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if relative in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), digest)
         actual = hashlib.sha256((root / joined["codec_harness"]).read_bytes()).hexdigest()
         self.assertEqual(actual, joined["codec_harness_sha256"])

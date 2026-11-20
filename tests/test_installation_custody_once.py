@@ -23,29 +23,13 @@ DIGEST = hashlib.sha256(b"inert-public-metadata-not-a-key-or-signature").hexdige
 class CustodyOriginalHaProofTests(unittest.TestCase):
     def test_actual_HA_original_source_and_harness_remain_exact_metadata_only(self):
         root = Path(__file__).resolve().parents[1]
-        proof = json.loads((root / "examples/client_contracts/installation_custody_once_v1/actual-ha-custody-metadata.json").read_text())
-        raw = json.loads((root / "examples/client_contracts/installation_custody_once_v1/actual-ha-custody-metadata-bulletin-diagnostics-current.json").read_text())
+        proof = json.loads((root / "examples/client_contracts/installation_custody_once_v1/actual-ha-custody-metadata-live-impression-20261119.json").read_text())
+        raw = json.loads((root / "examples/client_contracts/installation_custody_once_v1/actual-ha-custody-metadata-bulletin-diagnostics-current-live-impression-20261119.json").read_text())
         self.assertEqual(raw["state"], "PASS")
         self.assertEqual(len(raw["cases"]), 4)
         self.assertEqual(len(raw["preceding_installation_once_cases"]), 8)
-        self.assertEqual(len(raw["source_sha256"]), 315)
+        self.assertEqual(len(raw["source_sha256"]), 318)
         for name, digest in raw["source_sha256"].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if name == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if name == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if name in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root / proof["harness"]).read_bytes()).hexdigest(),
                          proof["harness_sha256"])

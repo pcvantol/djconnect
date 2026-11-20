@@ -435,7 +435,7 @@ def _has_public_work_episode(review, sources):
     return False
 
 
-async def realize(brief, *, ask, admission, debug=None):
+async def realize(brief, *, ask, admission, debug=None, fetch=None):
     """No new agent, opportunity, retries or source fetch on read/replay."""
     from .ask_dj import public_research as research
     from .ask_dj.dialogue import persona_answer_form, answer_language_format_issue
@@ -494,8 +494,10 @@ async def realize(brief, *, ask, admission, debug=None):
         qid = brief.fact.public_artist_qid
         identity = ('artist',brief.fact.source_url,subject,roles[0] if roles else 'Artist',qid)
         from .official_artist_research import artist_references
+        if fetch is not None:
+            fetch.guard = guard  # Same owner, now bound to this exact ordinary-story scope.
         sources = await artist_references(subject,question,brief.locale,guard,
-            identity=identity,roles=roles,topic=topic)
+            identity=identity,roles=roles,topic=topic,fetch=fetch)
     from .album_narration import AlbumWebSource
     from .official_artist_research import ArtistWebsiteSource
     def qualified_source(source):

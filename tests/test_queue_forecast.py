@@ -136,7 +136,7 @@ class QueueProjectionTests(unittest.TestCase):
 
     def test_actual_ha_receipt_pins_current_source_and_declares_visible_acceptance_open(self):
         root = Path(__file__).resolve().parents[1]
-        fixture = json.loads((root/'examples/client_contracts/session_forecast_v1/observed-queue-bulletin-actual-ha-bulletin-diagnostics-current.json').read_text())
+        fixture = json.loads((root/'examples/client_contracts/session_forecast_v1/observed-queue-bulletin-actual-ha-bulletin-diagnostics-current-live-impression-20261119.json').read_text())
         import hashlib
         self.assertEqual(fixture['state'], 'PASS')
         self.assertEqual(len(fixture['cases']), 20)
@@ -144,24 +144,8 @@ class QueueProjectionTests(unittest.TestCase):
         self.assertTrue(all(r['late_queue_discarded'] for r in fixture['stale_results']))
         self.assertFalse(fixture['HA_dev_writes'])
         self.assertEqual(fixture['native_acceptance'], 'NOT_RUN')
-        self.assertEqual(len(fixture['source_sha256']), 315)
+        self.assertEqual(len(fixture['source_sha256']), 318)
         for path, sha in fixture['source_sha256'].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if path == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(sha, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if path == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(sha, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if path in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root/path).read_bytes()).hexdigest(), sha, path)
 
     def test_up_next_rechecks_original_authority_after_lock_wait(self):

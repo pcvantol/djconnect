@@ -52,6 +52,17 @@ async def _live_reference(manager, profile, target):
         raise SessionConversationError("moment_context_unavailable", 404)
     source = moment.source_fact
     metadata = dict(moment.generation_metadata)
+    from ..live_impression import admitted as admitted_live, BASIS as LIVE_BASIS
+    if getattr(moment,"live_impression",None) is not None:
+        if (not admitted_live(moment) or moment.moment_id in active.deleted_moment_ids
+                or moment.moment_id in active.broadcast.content_pending_moment_ids):
+            raise SessionConversationError("moment_context_unqualified",403)
+        from .dialogue import normalized_subjects
+        return {"text":moment.content,"title":moment.title,"summary":moment.summary,
+            "dialogue_subjects":normalized_subjects(moment.source_fact),
+            "moment_type":"live_impression","archive_basis":LIVE_BASIS,
+            "live_impression":json.loads(moment.live_impression.payload_json),
+            "sources":json.loads(moment.live_impression.sources_json)}
     from ..public_artist_narration import ResearchMomentAcceptance, admitted, BASIS, sources_for
     if type(moment.narration_acceptance) is ResearchMomentAcceptance:
         if not admitted(moment):

@@ -79,6 +79,16 @@ def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
             and boundary.playback_item_id == playback_item_id
             and boundary.published_monotonic <= now < deadline)
         return result
+    from .live_impression import admitted as admitted_live
+    if getattr(moment, "live_impression", None) is not None:
+        if not admitted_live(moment):
+            return result
+        result.update(qualification="qualified",source_expires_at=None,
+            display_expires_at=boundary.utc_at(deadline),
+            current_display_allowed=bool(playing and playback_item_id == boundary.playback_item_id
+                and boundary.published_monotonic <= now < deadline),
+            active_flow_display_allowed=moment.moment_id in flow_ids)
+        return result
     source = getattr(moment, 'source_fact', None)
     history_allowed = False
     from .track_start_announcement import contribution, accepted, retained

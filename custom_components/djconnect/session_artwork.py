@@ -26,7 +26,8 @@ def capability():
     return {'contract_version': 1, 'owner_only': True, 'explicit_prepare': True,
             'max_targets': 8, 'image_requires_device_auth': True,
             'historical_resolution': 'exact_subject_original_source_only',
-            'supported_contract_versions':[1,2],
+            'supported_contract_versions':[1,2,3],
+            'live_impression':{'schema_version':1,'contract_version':3,'max_photos':3},
             'artist_image_sources_v2':['spotify','wikimedia_commons'],
             'captured_reply_subjects':True}
 
@@ -65,8 +66,8 @@ class ArtistTarget(tuple):
 
 def target_key(owner,session_id,target,contract_version=1):
     scope=tuple(sorted(target.items()))
-    if contract_version==2:
-        scope=(*scope,('media_contract_version','2'))
+    if contract_version in {2,3}:
+        scope=(*scope,('media_contract_version',str(contract_version)))
     return owner,session_id,scope
 
 
@@ -185,6 +186,9 @@ async def _fetch(hass, backend, uri, *, guard, expected_album_uri=""):
 
 async def prepare(hass, runtime, context, *, session_id, target, contract_version=1):
     """Explicit bounded owner action; all identity and scope selected server-side."""
+    if contract_version == 3:
+        from .live_impression_media import prepare as prepare_live
+        return await prepare_live(hass,runtime,context,session_id=session_id,target=target)
     complete_deadline = asyncio.get_running_loop().time() + PREPARE_TIMEOUT
     try:
         async with asyncio.timeout_at(complete_deadline):
@@ -488,8 +492,13 @@ async def image(hass, context, session_id, asset_id, *, runtime):
     registry.collect()
     for key, value in list(registry.assets.items()):
         if key[:2] == (context.profile_id, session_id) and value['asset_id'] == asset_id:
-            requester = artist_authority(hass, runtime, owner_profile_id=context.profile_id,
-                                         expected_source=value['expected_source'])
+            if value.get('projection',{}).get('schema_version') == 3:
+                from .live_impression_media import authority as live_authority
+                def requester():
+                    return live_authority(hass,context.profile_id)
+            else:
+                requester = artist_authority(hass, runtime, owner_profile_id=context.profile_id,
+                                             expected_source=value['expected_source'])
             if not value['authority']() or not requester():
                 return None
             try:
@@ -554,7 +563,8 @@ def attach_live_projection(hass, owner, session_id):
                 # Explicit-response resources never become Session/Flow cards,
                 # including their loading, expired or withdrawn state entries.
                 continue
-            target = {k:v for k,v in key[2] if k in {'moment_id','entry_id'}}
+            version=3 if ('media_contract_version','3') in key[2] else 1
+            target = {k:v for k,v in key[2] if k in {'moment_id','entry_id','photo_id'}}
             a = admissions.get(target.get('moment_id'), {})
             if 'moment_id' in target and not (a.get('current_display_allowed') or a.get('active_flow_display_allowed')):
                 continue
@@ -564,7 +574,7 @@ def attach_live_projection(hass, owner, session_id):
                     result.append(project(asset, current=a.get('current_display_allowed', False), historical=False))
             else:
                 reason = 'loading' if key in registry.inflight else registry.states.get(key, (0,'not_prepared'))[1]
-                result.append(unavailable(session_id, target, reason))
+                result.append(unavailable(session_id, target, reason,contract_version=version))
         return sorted(result, key=lambda item: str(item.get('moment_id') or item.get('entry_id')))
 
     active.broadcast.media_projector = projected
@@ -597,12 +607,15 @@ async def handle_prepare(hass, data, *, headers=None, user_id=None):
     from .api_handlers import _session_profile_context, _error_payload
 
     if (not isinstance(data, dict) or type(data.get('contract_version')) is not int
-            or data['contract_version'] not in {1,2} or not isinstance(data.get('session_id'), str)
+            or data['contract_version'] not in {1,2,3} or not isinstance(data.get('session_id'), str)
             or not isinstance(data.get('targets'), list) or not 1 <= len(data['targets']) <= 8):
         return _error_payload('invalid_request'), 400
     targets = data['targets']
-    if any(not isinstance(t, dict) or len(t) != 1 or not set(t).issubset({'moment_id', 'entry_id'})
-           or any(not isinstance(v, str) or not 0 < len(v) <= 128 for v in t.values()) for t in targets):
+    version = data['contract_version']
+    if any(not isinstance(t,dict) or
+           (set(t) not in ({'moment_id','photo_id'},{'entry_id','photo_id'}) if version == 3
+            else len(t)!=1 or not set(t).issubset({'moment_id','entry_id'}))
+           or any(not isinstance(v,str) or not 0<len(v)<=128 for v in t.values()) for t in targets):
         return _error_payload('invalid_request'), 400
     runtime, context, error, status = await _session_profile_context(
         hass, dict(data), headers=headers, user_id=user_id, source='session_media_prepare')
@@ -613,7 +626,7 @@ async def handle_prepare(hass, data, *, headers=None, user_id=None):
     async def one(target):
         try:
             return await prepare(hass, runtime, context, session_id=data['session_id'], target=target,
-                                 **({'contract_version':2} if data['contract_version']==2 else {}))
+                                 **({'contract_version':data['contract_version']} if data['contract_version'] in {2,3} else {}))
         except (ValueError, PermissionError):
             return unavailable(data['session_id'], target, 'target_unavailable',contract_version=data['contract_version'])
     projections = await asyncio.gather(*(one(t) for t in targets))

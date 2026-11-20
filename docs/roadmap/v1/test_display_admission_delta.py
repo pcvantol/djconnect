@@ -17,7 +17,7 @@ class DisplayAdmissionMaintenanceTests(unittest.TestCase):
         self.assertEqual(validate(self.plan), [])
         self.assertEqual(
             self.plan["planning_maintenance"]["schema_version"],
-            "djconnect-federated-planning-delta/16",
+            "djconnect-federated-planning-delta/17",
         )
         self.assertIn("wire NOT_FROZEN, runtime B_SOFTWARE_QUALIFIED_NOT_INSTALLED", render(self.plan)["README.md"])
 

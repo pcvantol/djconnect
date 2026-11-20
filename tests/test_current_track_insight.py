@@ -285,25 +285,9 @@ class CurrentTrackInsightTests(IsolatedAsyncioTestCase):
         import json
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
-        fixture = json.loads((root / "examples/client_contracts/track_insight/current-subject-actual-ha-bulletin-diagnostics-current.json").read_text())
-        self.assertEqual(len(fixture["source_files_sha256"]), 315)
+        fixture = json.loads((root / "examples/client_contracts/track_insight/current-subject-actual-ha-bulletin-diagnostics-current-live-impression-20261119.json").read_text())
+        self.assertEqual(len(fixture["source_files_sha256"]), 318)
         for relative, digest in fixture["source_files_sha256"].items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if relative == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if relative == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if relative in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), digest, relative)
         self.assertEqual(hashlib.sha256((root / "scripts/verification/verify_current_track_insight_http.py").read_bytes()).hexdigest(), fixture["harness_sha256"])
         self.assertTrue(fixture["source_unchanged"])

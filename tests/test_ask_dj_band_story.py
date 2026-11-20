@@ -280,30 +280,14 @@ class BandStoryActualHAEvidenceTests(unittest.TestCase):
         from pathlib import Path
         import hashlib
         root = Path(__file__).resolve().parents[1]
-        proof = json.loads((root / "examples/client_contracts/band_members_story_v1/actual-ha-current.json").read_text())
-        current = json.loads((root / 'examples/client_contracts/band_members_story_v1/actual-ha-requalification-bulletin-diagnostics-current.json').read_text())
+        proof = json.loads((root / "examples/client_contracts/band_members_story_v1/actual-ha-current-live-impression-20261119.json").read_text())
+        current = json.loads((root / 'examples/client_contracts/band_members_story_v1/actual-ha-requalification-bulletin-diagnostics-current-live-impression-20261119.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
         self.assertEqual(current['harness'], proof['harness'])
         self.assertEqual(current['harness_sha256'], proof['harness_sha256'])
-        self.assertEqual(len(current['source_pins']), 315)
-        for name, digest in {**current['source_pins'], **proof["original_common_harness_source_pins"],
+        self.assertEqual(len(current['source_pins']), 318)
+        for name, digest in {**current['source_pins'],
                 proof["harness"]: proof["harness_sha256"]}.items():
-            # The historical renderer digest is not a claim about the current 4.1 renderer.
-            if name == "custom_components/djconnect/vibecast.html":
-                self.assertEqual(digest, "308e916366caac9bab737eed3352979159138946091fbcb8f7b7387310de4da9")
-                continue
-            if name == "custom_components/djconnect/vibecast_display.html":
-                self.assertEqual(digest, "bd63f6301314fb381ac08424c4d3669752d0d0f48be2c54522196af731647c4c")
-                continue
-            # Historical receipts do not qualify the current migration-edited files.
-            if name in (
-                "custom_components/djconnect/manifest.json",
-                "custom_components/djconnect/artist_photo.py",
-                "custom_components/djconnect/ask_dj/public_research.py",
-                "custom_components/djconnect/const.py",
-                "custom_components/djconnect/session_facts.py",
-            ):
-                continue
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         self.assertTrue(proof["own_container_verified_absent"])
         extension = current['receipt']['extension']

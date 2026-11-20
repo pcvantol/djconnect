@@ -157,14 +157,15 @@ async def website_reference(fetch, identity, topic):
         website_claim=claim_id,entity_revision=entity['lastrevid']) if value else None
 
 
-async def artist_references(subject, question, locale, guard, *, identity, roles, topic):
+async def artist_references(subject, question, locale, guard, *, identity, roles, topic, fetch=None):
     from .ask_dj import public_research as research
     sources=[]
     # Wiki resolution and the optional website share the same eight requests
     # and original twelve-second deadline, including all identity/robots work.
     try:
         async with asyncio.timeout(12):
-            async with research.PublicFetch(guard) as fetch:
+            from contextlib import nullcontext
+            async with (research.PublicFetch(guard) if fetch is None else nullcontext(fetch)) as fetch:
                 sources,_=await research.research(subject,question,locale,guard,
                     qualified_music=True,expected_roles=roles,expected_entity_id=identity[4],
                     allow_web=False,fetch=fetch,original_paragraphs=True,story_topic=topic,
