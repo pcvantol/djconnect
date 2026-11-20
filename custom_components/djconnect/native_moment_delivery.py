@@ -40,7 +40,25 @@ def source_deadline(fact: QualifiedSessionFact) -> float:
     return min(deadline, fact.source_expires_at) if fact.source_expires_at is not None else deadline
 
 
-def admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
+def admission(moment, boundary, **context):
+    """Explicit owner presentation reuses every ordinary source qualification."""
+    from .requested_moment_proof import proof, admitted, display_admission
+    requested = proof(moment)
+    if requested is None:
+        return _ordinary_admission(moment, boundary, **context)
+    original = {**context, 'playing': True, 'playback_item_id': requested.original_item_id}
+    result = _ordinary_admission(moment, boundary, **original)
+    allowed = admitted(moment, committed=True) and result['qualification'] == 'qualified'
+    display = display_admission(moment)
+    # Explicit current-card admission is returned only to the requesting action;
+    # ordinary Broadcast current selection retains its existing playing identity.
+    result['current_display_allowed'] = False
+    result['active_flow_display_allowed'] = allowed and moment.moment_id in context['flow_ids']
+    result['display_expires_at'] = display['expires_at']
+    return result
+
+
+def _ordinary_admission(moment: Any, boundary: MomentDeliveryBoundary | None, *,
               session_id: str, active: bool, flow_ids: set[str],
               playback_item_id: str, playing: bool, now: float,
               settings_revision: tuple[str, int] | None = None) -> dict[str, Any]:

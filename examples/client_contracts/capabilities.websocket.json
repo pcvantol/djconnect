@@ -184,7 +184,8 @@
     "after_send_retry": "reconcile_original_operation_only",
     "cross_origin_redirects": "forbidden",
     "browser_origin": "same_https_origin_only",
-    "native_adoption": "separate_consumer_qualification"
+    "native_adoption": "separate_consumer_qualification",
+    "read_path": "/api/djconnect/v1/transport/read"
   },
   "ask_dj_examples": {
     "schema_version": 1,

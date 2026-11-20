@@ -886,3 +886,8 @@ delivery. Missing or unsupported calendars retain the ordinary research path;
 absence of an accepted record never means that the artist has no concerts.
 
 This is candidate source behavior in PR #1409, not an installed runtime claim.
+
+
+## Ask DJ: Moments —20 November2026
+
+Ask DJ: Moments is a separate explicit rich request through the existing paired operation boundary. It creates no extra chat turn. Vraag hierover continues to use the exact accepted original Moment or retained entry; ordinary dialogue/source/processor rights remain required. No selection/status/render regenerates the contribution. See [Moments contract](../technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md).

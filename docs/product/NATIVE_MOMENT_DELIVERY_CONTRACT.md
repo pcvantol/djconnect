@@ -240,3 +240,10 @@ Existing owner Broadcast provides invalidation-only surface hints; shared
 receivers get no private grant. Source/semantic Moment identity, counting,
 Persona, Presence and Planner remain unchanged. Native rich, background, Watch
 and joint acceptance are separate; owner no-store/history rights stay intact.
+
+
+## Ask DJ: Moments — additive original-owner contract
+
+Requested rich results use their exact operation-bound presentation_admission. Ordinary native current admission remains unchanged and excludes user_requested Moments. Existing source/research rights determine the fixed deadline; the native20-visible-second budget and interaction holds never renew permission. Generic Broadcast/status never autoplays a requested contribution. Source-valid active Flow and retained history remain the same original identity.
+
+See [versioned Moments contract](../technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md).

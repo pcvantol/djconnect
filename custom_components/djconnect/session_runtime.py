@@ -484,6 +484,7 @@ class DJMoment:
     bulletin: Any = field(default=None, repr=False)
     track_announcement: Any = field(default=None, repr=False)
     live_impression: Any = field(default=None, repr=False, compare=False)
+    user_requested: Any = field(default=None, repr=False, compare=False)
 
     def as_dict(self) -> dict[str, Any]:
         from .public_artist_narration import sources_for
@@ -503,6 +504,7 @@ class DJMoment:
             "session_id": self.session_id,
             "created_at": self.created_at,
             "type": self.moment_type.value,
+            **({"user_requested": self.user_requested.data()} if self.user_requested is not None else {}),
             **({"live_impression":live} if live is not None else {}),
             **({"music_announcement": self.track_announcement.data()}
                if self.track_announcement is not None else {}),
@@ -1745,6 +1747,21 @@ class DJSessionPlanner:
                 intent_type,
                 "Add one distinct, source-backed perspective on the current track.",
             )
+        return None
+
+    def select_requested_fact(self, *, facts, keys, locale, allowed_intents, media_identity):
+        """Explicit intent selects one eligible original family, without cadence.
+
+        Quality/source/capability admission remains identical; proactive novelty,
+        playing/remaining-time and Presence scheduling do not authorize a user tap.
+        """
+        now=time.monotonic()
+        for fact in facts:
+            if (fact.key in keys and fact.copy_for(locale) is not None
+                    and fact.eligible(media_identity,now)
+                    and (allowed_intents is None or fact.intent in allowed_intents)):
+                return KnowledgeIntent(KnowledgeIntentType(fact.intent),
+                    'Explicit original-subject user request.'),fact
         return None
 
     def select_qualified_current_fact(
@@ -3808,7 +3825,9 @@ class DJSessionBroadcastEngine:
             return
         self.content_current_withdrawn = False
         self.prepare_moment_delivery(moment)
-        playback_item_id = self.state.playback.item_id
+        from .requested_moment_proof import proof as request_proof
+        requested = request_proof(moment)
+        playback_item_id = requested.original_item_id if requested is not None else self.state.playback.item_id
         if playback_item_id:
             self._moment_playback_item_ids[moment.moment_id] = playback_item_id
         self.state = DJBroadcastState(**{**self.state.__dict__, "dj_moments": (*self.state.dj_moments, moment)})
@@ -3817,7 +3836,7 @@ class DJSessionBroadcastEngine:
             projected["playback_item_id"] = playback_item_id
         self._publish(BroadcastEventType.DJ_MOMENT_PUBLISHED, {"dj_moment": projected})
         if moment.moment_type is not DJMomentType.SILENCE:
-            if self.owner_moment_speech_delivery is not None:
+            if self.owner_moment_speech_delivery is not None and moment.user_requested is None:
                 try:
                     self.owner_moment_speech_delivery(moment)
                 except Exception:
@@ -4070,9 +4089,11 @@ class DJSessionBroadcastEngine:
         # A music-announcement seed predates its asynchronous realization. Pair
         # publication UTC with publication monotonic, not with seed creation;
         # translating its original start deadline must not subtract latency twice.
-        published_at = _timestamp() if moment.moment_type is DJMomentType.MUSIC_ANNOUNCEMENT else moment.created_at
+        published_at = (_timestamp() if moment.moment_type is DJMomentType.MUSIC_ANNOUNCEMENT
+                        or moment.user_requested is not None else moment.created_at)
         self._moment_delivery_boundaries.setdefault(moment.moment_id, MomentDeliveryBoundary(
-            time.monotonic(), published_at, self.state.playback.item_id,
+            time.monotonic(), published_at,
+            moment.user_requested.original_item_id if moment.user_requested is not None else self.state.playback.item_id,
             tuple((key, getattr(self.state.playback,key)) for key in ("title","artist","album","duration_ms")),
             self.state.persona_revision))
         if moment.presentation_intent.visibility is DJMomentVisibility.OWNER_ONLY:
@@ -4087,8 +4108,8 @@ class DJSessionBroadcastEngine:
         from .settings_confirmation import context as settings_context
 
         return next((moment.moment_id for moment in reversed(self.state.dj_moments)
-                     if settings_context(moment) is not None
-                     or self._moment_playback_item_ids.get(moment.moment_id) == self.state.playback.item_id), None)
+                     if moment.user_requested is None and (settings_context(moment) is not None
+                     or self._moment_playback_item_ids.get(moment.moment_id) == self.state.playback.item_id)), None)
 
     def native_delivery(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Project present authority without changing immutable semantic state."""
@@ -4461,7 +4482,8 @@ class DJSessionRuntime:
         pending_intro = bool(announcement is not None and announcement.current_occurrence is not None
             and announcement.current_occurrence.current(self.presence_ledger.clock())
             and announcement.published_id != announcement.current_occurrence.occurrence_id)
-        return (not getattr(self.broadcast, 'opening_pending', False) and not pending_intro
+        return (not getattr(self.broadcast, 'explicit_moment_pending', False)
+                and not getattr(self.broadcast, 'opening_pending', False) and not pending_intro
                 and self.publication_context_is_current()
                 and self.presence_ledger.admits(self.broadcast.state.selected_presence,
                                                self.broadcast.state.playback.item_id))
@@ -4500,6 +4522,9 @@ class DJSessionRuntime:
                     (self.mood_revision, self.persona_revision, self.presence_revision)
                 and data['settings'] == {'mood': self.selected_mood, 'persona': self.dj_persona.value,
                                          'presence': self.selected_presence})
+        from .requested_moment_proof import proof as request_proof, admitted as requested_admitted
+        if request_proof(moment) is not None:
+            return requested_admitted(moment) and self.publication_context_is_current()
         return self.allows_proactive()
 
     def compose_moment(self, moment: DJMoment):
@@ -4536,6 +4561,8 @@ class DJSessionRuntime:
         if moment.moment_type is not DJMomentType.SILENCE and not self.allows_moment(moment):
             return
         composition, retained = self.prepared_presentations.pop(moment.moment_id, (None, False))
+        from .requested_moment_proof import admitted as requested_admitted
+        explicit_request = requested_admitted(moment, committed=True)
         accepted_semantic_commit = composition is not None
         from .settings_confirmation import context as settings_context
         explicit_confirmation = settings_context(moment) is not None
@@ -4544,20 +4571,20 @@ class DJSessionRuntime:
         if composition is None:
             composition = self.compose_moment(moment)
         if (accepted_semantic_commit and moment.moment_type is not DJMomentType.SILENCE
-                and self.selected_presence != 'music_only' and not explicit_confirmation and announcement is None):
+                and not explicit_request and self.selected_presence != 'music_only' and not explicit_confirmation and announcement is None):
             self.presence_ledger.commit(self.broadcast.state.playback.item_id, moment.presentation_intent.maximum_duration_seconds)
         self.presentation_diagnostics.record(composition.outcomes)
         self.broadcast.prepare_moment_delivery(moment)
         self.broadcast.publish_session_flow(self.planner.append_moment(moment, placement))
         self.broadcast.publish_moment(moment)
         self.broadcast.publish_presentation(composition.presentation.to_projection())
-        if not accepted_semantic_commit and moment.moment_type is not DJMomentType.SILENCE and not explicit_confirmation and announcement is None:
+        if not explicit_request and not accepted_semantic_commit and moment.moment_type is not DJMomentType.SILENCE and not explicit_confirmation and announcement is None:
             self.presence_ledger.commit(self.broadcast.state.playback.item_id, moment.presentation_intent.maximum_duration_seconds)
         if announcement is not None:
             self.presence_ledger.commit_announcement(moment.presentation_intent.maximum_duration_seconds)
         if commit_expression:
             self.moment_engine.commit_expression(moment, self.planner.output.session_flow)
-        if (self.watch_moment_published is not None and retained
+        if (not explicit_request and self.watch_moment_published is not None and retained
                 and not explicit_confirmation and moment.observed_playback is None
                 and moment.moment_type is not DJMomentType.SILENCE):
             try:
@@ -5622,6 +5649,79 @@ class SessionRuntimeManager:
         return (owner_profile_id, active, opportunity, opportunity.generation,
                 working_moments, moment, fact, active.moment_engine.moments)
 
+    async def _async_realize_qualified_moment(self, active, fact, moment, working_moments, provider, guard, *, requested_type=""):
+        """One existing bounded narration/evidence owner for Planner and explicit requests."""
+        requires_public_story = fact.key in {'work_composers', 'artist_begin', 'artist_description'}
+        genre_expression_accepted = False
+        text = moment.content
+        if provider is not None and provider[0] == active.session_id:
+            from .narration_brief import qualify, recent_frames, remember_frame
+            brief = qualify(fact, locale=active.locale, persona=active.dj_persona.value,
+                            mood=active.selected_mood, seed=moment.content)
+            if brief is not None and requested_type:
+                brief = replace(brief, requested_type=requested_type)
+            if brief is not None:
+                from .public_artist_narration import can_research
+                requires_public_story = requires_public_story or can_research(brief)
+                # Existing bounded published-only memory carries value-free
+                # model frames, never catalog values or another text archive.
+                remembered = set(active.moment_engine._expression_moment_ids[-6:])
+                from .session_story_variety import published_context
+                published_ids = {i.moment_id for i in active.planner.output.session_flow.items if i.moment_id}
+                stories = published_context(tuple(m for m in active.moment_engine.moments
+                    if m.moment_id in published_ids), fact.public_artist_qid)
+                brief = replace(brief, recent_frames=recent_frames(active.moment_engine._expression_forms),
+                    recent_public_stories=stories, rotate_artist_topics=bool(fact.public_artist_qid))
+                text = await provider[1](brief, guard)
+                guard()
+                if fact.key == 'genre_context':
+                    # An unavailable/rejected writer must not turn its
+                    # literal metadata seed into a promised DJ contribution.
+                    # The existing two-call owner alone admits a value-free
+                    # expression; Spotify values remain local substitutions.
+                    from .narration_brief import NarratedText, candidate
+                    frame = getattr(text, 'frame', None)
+                    genre_expression_accepted = (type(text) is NarratedText and 20 <= len(text) <= 700
+                        and isinstance(frame, str)
+                        and candidate(brief, json.dumps({'text': frame})) == frame
+                        and brief.render(frame) == str(text) and text != moment.content)
+                    if not genre_expression_accepted:
+                        text = moment.content
+                if isinstance(text, str) and text != moment.content:
+                    # Provider is the existing qualified HA announcement owner.
+                    # Recompute fit before the one immutable semantic commit.
+                    from .live_impression import LiveImpressionText
+                    if (20 <= len(text) <= (2000 if type(text) is LiveImpressionText else 700)
+                            and text not in {m.content for m in active.broadcast.state.dj_moments
+                                            if m.moment_id in remembered}):
+                        frame = getattr(text, "frame", None)
+                        enriched = replace(moment, content=str(text),
+                            expression_form=remember_frame(moment.expression_form, frame) if isinstance(frame,str) else moment.expression_form,
+                            presentation_intent=_presentation_intent(active.selected_mood, active.dj_persona,
+                                reading_characters=len(moment.summary)+len(text), minimum_duration_seconds=40),
+                            generation_metadata=(*moment.generation_metadata, ("realization", "qualified_ha_narration_v1")))
+                        from .public_artist_narration import ResearchedArtistText, bind
+                        if type(text) is ResearchedArtistText:
+                            receipt = bind(moment, text)
+                            if receipt is None:
+                                raise PermissionError("narration_evidence_changed")
+                            enriched = replace(enriched, narration_acceptance=receipt,
+                                source_attribution=tuple(text.accepted.attribution().items()),
+                                source_references=tuple(dict.fromkeys(s["provider"] for s in text.accepted.sources())))
+                        if type(text) is LiveImpressionText:
+                            if not text.accepted.valid() or text.accepted.fact != fact:
+                                raise PermissionError("live_impression_evidence_changed")
+                            enriched = replace(enriched, title=text.accepted.title, summary=text.accepted.lead,
+                                moment_type=DJMomentType.LIVE_IMPRESSION,
+                                knowledge_intent=replace(moment.knowledge_intent,intent_type=KnowledgeIntentType.LIVE_IMPRESSION),
+                                live_impression=text.accepted, artwork_url=None, actions=(),
+                                presentation_intent=replace(enriched.presentation_intent,visibility=DJMomentVisibility.OWNER_ONLY,
+                                    delivery_channels=(DeliveryChannel.OWNER,)),
+                                source_references=tuple(s["url"] for s in json.loads(text.accepted.sources_json)))
+                        working_moments.moments = tuple(enriched if m is moment else m for m in working_moments.moments)
+                        moment = enriched
+        return moment, text, requires_public_story, genre_expression_accepted
+
     async def _realize_qualified_current_fact(self, prepared):
         """Realize outside the manager lock; revalidate every captured owner at commit."""
         owner_profile_id, active, opportunity, generation, working_moments, moment, fact, original_moments = prepared
@@ -5662,70 +5762,8 @@ class SessionRuntimeManager:
 
         try:
             guard()
-            if provider is not None and provider[0] == active.session_id:
-                from .narration_brief import qualify, recent_frames, remember_frame
-                brief = qualify(fact, locale=active.locale, persona=active.dj_persona.value,
-                                mood=active.selected_mood, seed=moment.content)
-                if brief is not None:
-                    from .public_artist_narration import can_research
-                    requires_public_story = requires_public_story or can_research(brief)
-                    # Existing bounded published-only memory carries value-free
-                    # model frames, never catalog values or another text archive.
-                    remembered = set(active.moment_engine._expression_moment_ids[-6:])
-                    from .session_story_variety import published_context
-                    published_ids = {i.moment_id for i in active.planner.output.session_flow.items if i.moment_id}
-                    stories = published_context(tuple(m for m in active.moment_engine.moments
-                        if m.moment_id in published_ids), fact.public_artist_qid)
-                    brief = replace(brief, recent_frames=recent_frames(active.moment_engine._expression_forms),
-                        recent_public_stories=stories, rotate_artist_topics=bool(fact.public_artist_qid))
-                    text = await provider[1](brief, guard)
-                    guard()
-                    if fact.key == 'genre_context':
-                        # An unavailable/rejected writer must not turn its
-                        # literal metadata seed into a promised DJ contribution.
-                        # The existing two-call owner alone admits a value-free
-                        # expression; Spotify values remain local substitutions.
-                        from .narration_brief import NarratedText, candidate
-                        frame = getattr(text, 'frame', None)
-                        genre_expression_accepted = (type(text) is NarratedText and 20 <= len(text) <= 700
-                            and isinstance(frame, str)
-                            and candidate(brief, json.dumps({'text': frame})) == frame
-                            and brief.render(frame) == str(text) and text != moment.content)
-                        if not genre_expression_accepted:
-                            text = moment.content
-                    if isinstance(text, str) and text != moment.content:
-                        # Provider is the existing qualified HA announcement owner.
-                        # Recompute fit before the one immutable semantic commit.
-                        from .live_impression import LiveImpressionText
-                        if (20 <= len(text) <= (2000 if type(text) is LiveImpressionText else 700)
-                                and text not in {m.content for m in active.broadcast.state.dj_moments
-                                                if m.moment_id in remembered}):
-                            frame = getattr(text, "frame", None)
-                            enriched = replace(moment, content=str(text),
-                                expression_form=remember_frame(moment.expression_form, frame) if isinstance(frame,str) else moment.expression_form,
-                                presentation_intent=_presentation_intent(active.selected_mood, active.dj_persona,
-                                    reading_characters=len(moment.summary)+len(text), minimum_duration_seconds=40),
-                                generation_metadata=(*moment.generation_metadata, ("realization", "qualified_ha_narration_v1")))
-                            from .public_artist_narration import ResearchedArtistText, bind
-                            if type(text) is ResearchedArtistText:
-                                receipt = bind(moment, text)
-                                if receipt is None:
-                                    raise PermissionError("narration_evidence_changed")
-                                enriched = replace(enriched, narration_acceptance=receipt,
-                                    source_attribution=tuple(text.accepted.attribution().items()),
-                                    source_references=tuple(dict.fromkeys(s["provider"] for s in text.accepted.sources())))
-                            if type(text) is LiveImpressionText:
-                                if not text.accepted.valid() or text.accepted.fact != fact:
-                                    raise PermissionError("live_impression_evidence_changed")
-                                enriched = replace(enriched, title=text.accepted.title, summary=text.accepted.lead,
-                                    moment_type=DJMomentType.LIVE_IMPRESSION,
-                                    knowledge_intent=replace(moment.knowledge_intent,intent_type=KnowledgeIntentType.LIVE_IMPRESSION),
-                                    live_impression=text.accepted, artwork_url=None, actions=(),
-                                    presentation_intent=replace(enriched.presentation_intent,visibility=DJMomentVisibility.OWNER_ONLY,
-                                        delivery_channels=(DeliveryChannel.OWNER,)),
-                                    source_references=tuple(s["url"] for s in json.loads(text.accepted.sources_json)))
-                            working_moments.moments = tuple(enriched if m is moment else m for m in working_moments.moments)
-                            moment = enriched
+            moment, text, requires_public_story, genre_expression_accepted = await self._async_realize_qualified_moment(
+                active, fact, moment, working_moments, provider, guard)
             guard()
         except asyncio.CancelledError:
             async with self._lock:
@@ -7181,8 +7219,10 @@ class SessionRuntimeManager:
                 final_authorize()
             except PermissionError:
                 return False
+        from .requested_moment_proof import proof as request_proof
+        requested = request_proof(moment)
         if self._historical_projections is None:
-            return True
+            return requested is None
         if moment.moment_type is not DJMomentType.SILENCE and not active.allows_moment(moment):
             return False
         if moment.moment_type is DJMomentType.SILENCE:
@@ -7241,7 +7281,7 @@ class SessionRuntimeManager:
             if relation is not None and (not relation.eligible(self._monotonic_source())
                     or active.broadcast.state.playback.item_id != relation.current.item_id):
                 return False
-            if opportunity is not None and moment.moment_type not in {DJMomentType.SESSION, DJMomentType.MUSIC_ANNOUNCEMENT}:
+            if requested is None and opportunity is not None and moment.moment_type not in {DJMomentType.SESSION, DJMomentType.MUSIC_ANNOUNCEMENT}:
                 playback = active.broadcast.state.playback
                 age = self._monotonic_source() - opportunity.last_observed_monotonic
                 if (self._intra_track_opportunities.get(active.owner_profile_id) is not opportunity
@@ -7395,6 +7435,10 @@ class SessionRuntimeManager:
                               "persona_revision": active.persona_revision,
                               "locale": active.locale}}
 
+        if requested is not None and entry is not None:
+            entry['body']['user_requested'] = requested.data()
+            entry['body']['user_requested_owner'] = {'device':requested.device,'binding':requested.binding}
+            entry['body']['title'] = moment.title
         from .content_deletion_runtime import moment_dependencies
         dependencies = moment_dependencies(moment)
         if dependencies:
@@ -7410,6 +7454,19 @@ class SessionRuntimeManager:
                 return False
             raise
         if accepted:
+            if requested is not None:
+                requested.committed = True
+                requested.retained = retained and entry['kind'] == 'dj_moment'
+                if source is not None:
+                    active.published_recording_context.consume(source,time.monotonic(),semantic_accepted=True)
+                original = await self._historical_projections.async_requested_moment_entry(
+                    active.owner_profile_id,active.session_id,requested.operation_id)
+                requested.entry_id = original['entry_id'] if original is not None else None
+                # Commit is truthful even if a later source/owner delivery fence
+                # fails. No proactive opportunity or ledger is consumed.
+                if admission_is_current():
+                    active.prepared_presentations[moment.moment_id] = (prepared, retained)
+                return True
             if source is not None:
                 active.published_recording_context.consume(source, time.monotonic(), semantic_accepted=True)
             # The SQLite commit is semantic acceptance; resuming the event loop

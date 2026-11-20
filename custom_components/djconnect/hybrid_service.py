@@ -20,11 +20,13 @@ from .transport_delivery import (
 
 ACTION_OPERATIONS = frozenset(
     {"command", "ask_dj/message", "track_insight", "session/mood", "session/presence", "session/persona", "session/speech/play", "speech/preview",
-     "session/persona/reaction", "session/persona/reaction/cancel"}
+     "session/persona/reaction", "session/persona/reaction/cancel", "ask_dj/moments/request", "ask_dj/moments/cancel"}
 )
 HTTP_OPERATIONS = ACTION_OPERATIONS | {"session/start", "session/end"}
 READ_OPERATIONS = frozenset(
     {
+        "ask_dj/moments",
+        "ask_dj/moments/status",
         "session/active",
         "session/broadcast/snapshot",
         "session/broadcast/recover",
@@ -233,6 +235,14 @@ async def invoke(hass, authority, operation, payload):
     """Closed normalization only; all domain behavior stays in its existing owner."""
     from . import api_handlers
 
+    if operation in {'ask_dj/moments','ask_dj/moments/status','ask_dj/moments/request','ask_dj/moments/cancel'}:
+        from . import requested_moments
+        register_delivery_admission(authority.owner_final_guard)
+        handler = {'ask_dj/moments': requested_moments.inventory,
+            'ask_dj/moments/status':requested_moments.status,
+            'ask_dj/moments/request':requested_moments.request,
+            'ask_dj/moments/cancel':requested_moments.cancel}[operation]
+        return await handler(hass,authority,payload)
     if operation == "command":
         if not isinstance(payload.get("command"), str) or payload["command"] not in COMMANDS:
             raise OperationError("unsupported_command", 400)
@@ -356,9 +366,11 @@ class HybridOperations:
         install_id = authority.runtime.config.get(CONF_HA_INSTALL_ID)
         if not isinstance(install_id, str) or not install_id:
             raise OperationError("installation_identity_unavailable", 409)
+        from .requested_moment_inventory import capability as moments_capability
         return {
             "success": True,
             "contract_version": 1,
+            "ask_dj_moments": moments_capability(),
             "ha_install_id": install_id,
             "operation_epoch": self.journal.epoch,
             "server_time_ms": clock,
@@ -494,9 +506,15 @@ class HybridOperations:
                 and code == operation.split("/")[1] + "_revision_conflict"
                 and self.journal._state["records"][key]["phase"] == "accepted"
             )
+            # This closed domain adapter reports definitive pre-acceptance
+            # outcomes itself. Do not confuse no-found/cancel with a lost effect.
+            requested_terminal = (operation == 'ask_dj/moments/request'
+                and result.get('state') in {'not_found','temporarily_unavailable','denied','cancelled'})
+            phase = ('confirmed' if successful else 'cancelled' if requested_terminal
+                and result['state']=='cancelled' else 'rejected' if rejected or requested_terminal else 'unknown')
             receipt = await self.journal.transition(
                 key,
-                "confirmed" if successful else "rejected" if rejected else "unknown",
+                phase,
                 response_status=status,
                 error=code,
             )
@@ -535,14 +553,14 @@ def current_operation_identity(authority):
     return record['operation_id'], record['expires_ms']
 
 
-async def cancel_original_reaction(authority, identifier):
+async def cancel_original_reaction(authority, identifier, *, operation="session/persona/reaction"):
     """Reuse the current journal; never synthesize an unbound cancellation owner."""
     scope = _current_operation.get()
     if not scope or scope[2] is not authority:
         raise OperationError('operation_context_changed', 409)
     manager, _, _ = scope
     await manager.journal.cancel_reaction(owner=authority.owner, device=authority.device,
-        binding=authority.binding, identifier=identifier, epoch=manager.journal.epoch)
+        binding=authority.binding, identifier=identifier, epoch=manager.journal.epoch, operation=operation)
 
 
 async def guard_transport_effect():
@@ -572,7 +590,7 @@ def validate_transport_effect_now():
         if manager.journal._failed:
             raise OperationError("operation_unavailable", 503)
         if manager.journal._state["records"][key].get("cancelled_before_send"):
-            raise OperationError("persona_reaction_withdrawn", 409)
+            raise OperationError(manager.journal._state["records"][key].get("error") or "persona_reaction_withdrawn", 409)
         manager.journal._validate_time(manager.journal._state["records"][key]["operation_id"])
 
 

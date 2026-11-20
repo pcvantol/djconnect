@@ -55,3 +55,8 @@ Do not treat this directory as a new platform design.
 - [UNKNOWNS.md](UNKNOWNS.md)
 
 Machine-readable inventories live in [inventory/](inventory/).
+
+
+## Ask DJ: Moments —20 November2026
+
+[Ask DJ: Moments avatar contract1](ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md) — pure10-family inventory, original paired-operation request/status/cancel, same Moment/history/media/speech.

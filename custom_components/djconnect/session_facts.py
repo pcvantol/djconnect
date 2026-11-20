@@ -721,6 +721,8 @@ class SessionFactsResolver:
                 authorize()
             now = time.monotonic()
             if now < self.backoff_until:
+                from .ask_dj.public_research import note_temporary_source_failure
+                note_temporary_source_failure()
                 return {}
             from . import musicbrainz_rate
             async def rate_guard():
@@ -748,6 +750,8 @@ class SessionFactsResolver:
                     allow_redirects=False,
                 ) as response:
                     if response.status in {429, 503}:
+                        from .ask_dj.public_research import note_temporary_source_failure
+                        note_temporary_source_failure()
                         retry = response.headers.get("Retry-After", "60")
                         if not wikidata:
                             musicbrainz_rate.defer(retry)
@@ -755,6 +759,9 @@ class SessionFactsResolver:
                             60, min(3600, int(retry) if retry.isdigit() else 60)
                         )
                         return {}
+                    if response.status == 429 or response.status >= 500:
+                        from .ask_dj.public_research import note_temporary_source_failure
+                        note_temporary_source_failure()
                     if response.status != 200:
                         return {}
                     # Bound response size before parsing; never retain raw responses.
@@ -775,6 +782,8 @@ class SessionFactsResolver:
                         return {}
                     return result if isinstance(result, dict) else {}
             except (ValueError, OSError, ClientError, asyncio.TimeoutError):
+                from .ask_dj.public_research import note_temporary_source_failure
+                note_temporary_source_failure()
                 return {}
 
     async def resolve(self, catalog: dict[str, Any], *, authorize=None,

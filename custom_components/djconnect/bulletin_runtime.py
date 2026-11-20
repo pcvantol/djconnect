@@ -12,12 +12,12 @@ LABELS = {"en": "DJ Bulletin", "nl": "DJ Bulletin", "de": "DJ-Bulletin",
     "fr": "Bulletin du DJ", "es": "Boletín del DJ"}
 
 
-def session_snapshot(active, provider):
+def session_snapshot(active, provider, *, explicit=False):
     """Private stable admission values; normal playback progress may replace Runtime."""
     return BulletinSession(active.session_id, str(id(active.broadcast)), str(id(provider)),
         active.settings_generation, active.settings_revision, active.persona_revision,
         active.mood_revision, active.presence_revision, active.dj_persona.value,
-        active.selected_mood, active.selected_presence, active.locale)
+        active.selected_mood, active.selected_presence, active.locale, explicit)
 
 
 @dataclass(frozen=True)
@@ -28,21 +28,21 @@ class BulletinWork:
     generate: object
 
 
-def capture_work(manager, owner):
+def capture_work(manager, owner, *, explicit=False, provider_override=None):
     active = manager.current_active(owner)
-    provider = manager._bulletin_providers.get(owner)
+    provider = provider_override or manager._bulletin_providers.get(owner)
     if (active is None or provider is None or provider[0] != active.session_id
-            or active.broadcast.content_pending or not active.allows_proactive()
+            or active.broadcast.content_pending or (not explicit and not active.allows_proactive())
             or not callable(provider[3])):
         return None
     authority = provider[3]()  # Capture original entry/source/provider revisions BEFORE awaits.
-    session = session_snapshot(active, provider)
+    session = session_snapshot(active, provider, explicit=explicit)
 
     def guard():
         authority()
         current = manager.current_active(owner)
-        if (current is None or manager._bulletin_providers.get(owner) is not provider
-                or session_snapshot(current, provider) != session
+        if (current is None or (provider_override is None and manager._bulletin_providers.get(owner) is not provider)
+                or session_snapshot(current, provider, explicit=explicit) != session
                 or current.broadcast.content_pending or not current.publication_context_is_current()):
             raise PermissionError("bulletin_original_context_changed")
     guard()
@@ -91,6 +91,8 @@ def admitted(moment, *, monotonic=None, wall=None):
         return False
     candidate = proof.candidate
     private = private_bulletin(moment)
+    from .requested_moment_proof import proof as requested_proof
+    owner_only = private or requested_proof(moment) is not None
     mono = time.monotonic() if monotonic is None else monotonic
     utc = time.time() if wall is None else wall
     return (moment.moment_type.value == "dj_bulletin"
@@ -100,8 +102,8 @@ def admitted(moment, *, monotonic=None, wall=None):
         and moment.content == candidate.text and not moment.summary
         and not moment.actions and not moment.artwork_url and not moment.source_attribution
         and moment.source_references == ("fixed_rss_metadata_v1",)
-        and moment.presentation_intent.visibility.value == ("owner_only" if private else "session_shared")
-        and tuple(c.value for c in moment.presentation_intent.delivery_channels) == (("owner",) if private else ("broadcast", "owner", "shared"))
+        and moment.presentation_intent.visibility.value == ("owner_only" if owner_only else "session_shared")
+        and tuple(c.value for c in moment.presentation_intent.delivery_channels) == (("owner",) if owner_only else ("broadcast", "owner", "shared"))
         and moment.presentation_intent.dj_persona.value == candidate.session.persona
         and moment.presentation_intent.source_session_mood == (candidate.session.mood.strip() or "neutral")
         and candidate.eligible(session=candidate.session, now=utc, monotonic=mono))

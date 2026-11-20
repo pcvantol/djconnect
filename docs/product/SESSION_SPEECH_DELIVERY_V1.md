@@ -454,3 +454,10 @@ text_only denies all synthesis/effects. Reassignment, source/retention withdrawa
 settings/lifecycle/provider/target change or expiry revokes pending and old grants.
 A queued speaker result is not audible proof. No new direct URL or public audio
 route is introduced; the existing qualified speaker grant is reused.
+
+
+## Ask DJ: Moments — additive original-owner contract
+
+Explicit rich requests use the same original-text speech descriptor and prepare3 owner. Only the initial requesting actor may receive existing output-policy automatic admission within the original publication12-second start window; status/reconnect/other actors cannot replay it. A committed source-admitted user_requested descriptor permits manual local replay at text_only, including normal source-qualified retained entries after Session end. It grants no automatic or speaker exception; private Bulletin source limits remain binding.
+
+See [versioned Moments contract](../technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md).

@@ -165,3 +165,10 @@ shared Broadcast still carries no private audio/voice/settings grants. This is
 not a second dialogue engine, free-text synthesizer or permission for a Renderer
 to rewrite content. Old native headerless URL playback cannot fetch private POST
 assets; protocol adoption and audible acceptance remain consumer-owned/open.
+
+
+## Ask DJ: Moments — additive original-owner contract
+
+prepare3 retains original reference/text/settings/source/processor fences for Ask DJ: Moments. user_requested:true is serialized only from a committed private original proof or normal retained-entry admission with closed original operation provenance. It permits manual local text_only replay; automatic admission additionally requires original requesting actor, configured output policy and fixed publication start expiry. A client-supplied flag or row type is insufficient.
+
+See [versioned Moments contract](ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md).

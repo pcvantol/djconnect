@@ -3331,6 +3331,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
         from .session_speech import capability as speech_capability
         from .passive_session import capability as passive_capability
         from .surface_push_contract import capability as surface_push_capability
+        from .requested_moment_inventory import capability as requested_moment_capability
         return web.Response(
             text=json.dumps({
                 "success": True,
@@ -3340,6 +3341,7 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
                 "contract_versions": _contract_versions(),
                 "transports": {"http": True, "websocket": True},
                 "session_broadcast": session_broadcast_transport_capabilities(),
+                "ask_dj_moments": requested_moment_capability(),
                 "ask_dj_examples": examples_capability(),
                 "ask_dj_contextual_exploration": exploration_capability(),
                 "session_mood_music_feedback": mood_music_capability(),

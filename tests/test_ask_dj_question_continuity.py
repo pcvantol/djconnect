@@ -29,14 +29,14 @@ class QuestionContinuityTests(unittest.IsolatedAsyncioTestCase):
         proof = json.loads(
             (
                 root
-                / "examples/client_contracts/ask_dj_question_continuity_v1/actual-ha-current-live-impression-20261119.json"
+                / "examples/client_contracts/ask_dj_question_continuity_v1/actual-ha-current-live-impression-20261119-requested-moments-20261120.json"
             ).read_text()
         )
-        current = json.loads((root / 'examples/client_contracts/ask_dj_question_continuity_v1/actual-ha-requalification-bulletin-diagnostics-current-live-impression-20261119.json').read_text())
+        current = json.loads((root / 'examples/client_contracts/ask_dj_question_continuity_v1/actual-ha-requalification-bulletin-diagnostics-current-live-impression-20261119-requested-moments-20261120.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
         self.assertEqual(current['harness'], proof['harness'])
         self.assertEqual(current['harness_sha256'], proof['harness_sha256'])
-        self.assertEqual(len(current['source_pins']), 318)
+        self.assertEqual(len(current['source_pins']), 321)
         for name, digest in {
             **current['source_pins'],
 

@@ -40,7 +40,7 @@ class SharedSettingsMaintenanceTests(unittest.TestCase):
     def test_six_parameter_scope_preserves_frozen_predecessor(self):
         self.assertEqual(validate(self.p), [])
         d = self.p['planning_maintenance']
-        self.assertEqual(d['schema_version'], 'djconnect-federated-planning-delta/18')
+        self.assertEqual(d['schema_version'], 'djconnect-federated-planning-delta/19')
         self.assertEqual(d['settings_consolidation_receipt']['parameters'],
                          ['persona', 'voice', 'gender', 'mood', 'presence', 'announcement_output'])
         self.assertIn('six shared Persona/voice/gender/Mood/Presence/announcement_output', render(self.p)['README.md'])
@@ -122,7 +122,7 @@ def delivered_settings_plan():
 def delivered_passive_plan():
     import json
     plan = load(ROOT / 'djconnect-platform-v1.json')
-    if plan['planning_maintenance']['schema_version'] in {'djconnect-federated-planning-delta/15','djconnect-federated-planning-delta/16','djconnect-federated-planning-delta/17','djconnect-federated-planning-delta/18'}:
+    if plan['planning_maintenance']['schema_version'] in {'djconnect-federated-planning-delta/15','djconnect-federated-planning-delta/16','djconnect-federated-planning-delta/17','djconnect-federated-planning-delta/18','djconnect-federated-planning-delta/19'}:
         refs = plan['planning_maintenance']['document_references']
         plan['planning_maintenance'] = json.loads((ROOT / 'history/20261017/settings-finalization-maintenance-v14.json').read_text())
         plan['planning_maintenance']['document_references'] = refs
@@ -1068,3 +1068,40 @@ class WebDecisionTests(unittest.TestCase):
                         "DJC-CORE"
                     )
                 self.assertTrue(validate(p))
+
+
+class MomentsAvatarMaintenanceTests(unittest.TestCase):
+    def setUp(self):
+        self.plan = load(ROOT / 'djconnect-platform-v1.json')
+
+    def test_user_selected_existing_family_preserves_complete_predecessor(self):
+        self.assertEqual(validate(self.plan), [])
+        d = self.plan['planning_maintenance']
+        self.assertEqual(d['schema_version'], 'djconnect-federated-planning-delta/19')
+        prior = load(ROOT / 'history/20261120/moments-avatar-predecessor-maintenance-v18.json')
+        originals = {n['id']: n for n in prior['nodes']}
+        for node in d['nodes']:
+            if node['id'] in originals:
+                self.assertEqual(node, originals[node['id']])
+        self.assertEqual(d['live_impression_finalization_receipt'], prior['live_impression_finalization_receipt'])
+        self.assertIn('supersedes the prior five-settings horizon', render(self.plan)['README.md'])
+
+    def test_completion_dispatch_and_unrelated_changes_are_not_authorized(self):
+        for mode in ('dispatch_bool', 'dispatch_integer', 'merge', 'install', 'model', 'native',
+                     'joint', 'core', 'old_node', 'old_receipt', 'predecessor', 'soft_edge'):
+            with self.subTest(mode=mode):
+                p = copy.deepcopy(self.plan); d = p['planning_maintenance']; r = d['moments_avatar_receipt']
+                if mode == 'dispatch_bool': r['automatic_dispatch'] = True
+                elif mode == 'dispatch_integer': r['automatic_dispatch'] = 0
+                elif mode == 'merge': r['source_delivery'] = 'PROTECTED_MERGED'
+                elif mode == 'install': r['installed'] = 'PASS'
+                elif mode == 'model': r['live_model'] = 'PASS'
+                elif mode == 'native': r['native'] = 'PASS'
+                elif mode == 'predecessor': r['predecessor_sha256'] = '0' * 64
+                elif mode == 'old_receipt': d['live_impression_finalization_receipt']['installed'] = 'PASS'
+                elif mode == 'old_node': d['nodes'][0]['title'] += ' unrelated edit'
+                elif mode == 'soft_edge': d['edges'][-1]['hard_precedence'] = 1
+                else:
+                    suffix = 'ACCEPTANCE' if mode == 'joint' else 'PRODUCER'
+                    next(n for n in d['nodes'] if n['id'] == 'ASK-DJ-MOMENTS::'+suffix)['status'] = 'Completed'
+                self.assertTrue(validate(p), mode)

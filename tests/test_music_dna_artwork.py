@@ -269,10 +269,10 @@ class MusicDNAArtworkTest(unittest.IsolatedAsyncioTestCase):
         import hashlib
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
-        path = root / "examples/client_contracts/music_dna_artwork_v1/profile-and-legacy-core-consolidation-20261022-live-impression-20261119.json"
+        path = root / "examples/client_contracts/music_dna_artwork_v1/profile-and-legacy-core-consolidation-20261022-live-impression-20261119-requested-moments-20261120.json"
         original = json.loads(path.read_text())
-        fixture = json.loads(path.with_name("profile-and-legacy-actual-ha-bulletin-diagnostics-current-live-impression-20261119.json").read_text())
-        self.assertEqual(len(fixture["integration_source_hashes"]), 318)
+        fixture = json.loads(path.with_name("profile-and-legacy-actual-ha-bulletin-diagnostics-current-live-impression-20261119-requested-moments-20261120.json").read_text())
+        self.assertEqual(len(fixture["integration_source_hashes"]), 321)
         for relative, expected in fixture["integration_source_hashes"].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), expected, relative)
         self.assertEqual(hashlib.sha256((root / original["harness"]).read_bytes()).hexdigest(), original["harness_sha256"])

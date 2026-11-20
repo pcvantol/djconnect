@@ -145,6 +145,11 @@ class _HybridHTTP(HomeAssistantView):
                 if body != {"contract_version": 1} or type(body.get("contract_version")) is not int:
                     raise OperationError("invalid_request", 400)
                 result, status = transport_context(await manager.context(authority), request), 200
+            elif self.action == "read":
+                if (set(body) != {'contract_version','operation','payload'}
+                        or type(body.get('contract_version')) is not int or body['contract_version'] != 1):
+                    raise OperationError('invalid_request',400)
+                result,status = await manager.read(authority,body['operation'],body['payload'])
             elif self.action == "execute":
                 result, status = await manager.execute(authority, body, transport="http")
             elif self.action == "status":
@@ -171,6 +176,12 @@ class HybridContextView(_HybridHTTP):
     url = "/api/djconnect/v1/transport/context"
     name = "api:djconnect:hybrid-context"
     action = "context"
+
+
+class HybridReadView(_HybridHTTP):
+    url = "/api/djconnect/v1/transport/read"
+    name = "api:djconnect:hybrid-read"
+    action = "read"
 
 
 class HybridOperationView(_HybridHTTP):

@@ -47,11 +47,11 @@ class HelpObservationTests(unittest.IsolatedAsyncioTestCase):
         from pathlib import Path
         root = Path(__file__).resolve().parents[1]
         receipts = root / 'examples/client_contracts/ask_dj_help_context_v1'
-        original = json.loads((receipts / 'actual-ha-wire-live-impression-20261119.json').read_text())
-        fixture = json.loads((receipts / 'actual-ha-wire-bulletin-diagnostics-current-live-impression-20261119.json').read_text())
+        original = json.loads((receipts / 'actual-ha-wire-live-impression-20261119-requested-moments-20261120.json').read_text())
+        fixture = json.loads((receipts / 'actual-ha-wire-bulletin-diagnostics-current-live-impression-20261119-requested-moments-20261120.json').read_text())
         self.assertEqual(fixture['status'], 'PASS')
         self.assertTrue(fixture['source_before_after_equal'])
-        self.assertEqual(len(fixture['source_hashes']), 318)
+        self.assertEqual(len(fixture['source_hashes']), 321)
         for path, digest in fixture['source_hashes'].items():
             self.assertEqual(hashlib.sha256((root / path).read_bytes()).hexdigest(), digest, path)
         self.assertEqual(hashlib.sha256((root / original['harness']).read_bytes()).hexdigest(), original['harness_sha256'])

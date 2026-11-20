@@ -32,11 +32,11 @@ from custom_components.djconnect import profile_observation as observation  # no
 class SourceOriginActualProofTests(unittest.TestCase):
     def test_current_source_joins_original_actual_HA_and_same_harness_parent_failure(self):
         root = Path(__file__).resolve().parents[1]
-        receipt = json.loads((root / "examples/client_contracts/source_origin_v1/actual-ha-source-origin-data-live-impression-20261119.json").read_text())
-        current = json.loads((root / "examples/client_contracts/source_origin_v1/actual-ha-source-origin-data-bulletin-diagnostics-current-live-impression-20261119.json").read_text())
+        receipt = json.loads((root / "examples/client_contracts/source_origin_v1/actual-ha-source-origin-data-live-impression-20261119-requested-moments-20261120.json").read_text())
+        current = json.loads((root / "examples/client_contracts/source_origin_v1/actual-ha-source-origin-data-bulletin-diagnostics-current-live-impression-20261119-requested-moments-20261120.json").read_text())
         self.assertEqual(current["state"], "PASS")
         self.assertEqual(len(current["cases"]), 19)
-        self.assertEqual(len(current["source_sha256"]), 318)
+        self.assertEqual(len(current["source_sha256"]), 321)
         for relative, digest in current["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / relative).read_bytes()).hexdigest(), digest, relative)
         harness = hashlib.sha256((root / receipt["harness"]).read_bytes()).hexdigest()

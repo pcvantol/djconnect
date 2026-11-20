@@ -13,7 +13,7 @@ from .session_speech import async_handle_prepare
 _automatic_publication = ContextVar('djconnect_automatic_speech_publication', default=None)
 
 
-def connect_automatic(hass, runtime, session, identity, headers):
+def connect_automatic(hass, runtime, session, identity, headers, *, register=True):
     """Attach to this Session's publication owner, never replay a snapshot/join."""
     from .session_runtime import session_runtime_manager
     manager = session_runtime_manager(hass)
@@ -27,9 +27,16 @@ def connect_automatic(hass, runtime, session, identity, headers):
         confirmation = settings_context(moment)
         from .track_start_announcement import accepted as announcement_accepted
         announcement = announcement_accepted(moment)
+        from .requested_moment_proof import proof as request_proof
+        requested=request_proof(moment)
+        if requested is not None:
+            from .bulletin_runtime import private_bulletin
+            if (requested.device != hashlib.sha256(str(identity.get('device_id') or '').encode()).hexdigest()
+                    or private_bulletin(moment)):
+                return
         current = manager.current_active(session.owner_profile_id)
         if (current is None or current.session_id != session.session_id
-                or (current.selected_presence == 'music_only' and confirmation is None and not announcement)
+                or (current.selected_presence == 'music_only' and confirmation is None and not announcement and requested is None)
                 or (getattr(moment, 'session_opening', None) is not None
                     and moment.session_opening.presence == 'music_only')
                 or current.selected_announcement_output not in {'ha_speaker', 'both'}):
@@ -40,6 +47,9 @@ def connect_automatic(hass, runtime, session, identity, headers):
             return
         reference = {'session_id': session.session_id, 'moment_id': moment.moment_id}
         def admission():
+            if requested is not None and (not requested.valid(moment,require_committed=True)
+                    or requested.automatic_cancelled):
+                raise PermissionError('speech_requested_publication_changed')
             live = manager.current_active(session.owner_profile_id)
             if (live is None or live.session_id != session.session_id
                     or manager.dj_settings_fence_token(session.owner_profile_id) != captured
@@ -58,7 +68,9 @@ def connect_automatic(hass, runtime, session, identity, headers):
                 authority = await PairedAuthority.resolve(hass, identity, headers)
                 admission()
                 owner = operations(hass)
-                created = int(datetime.fromisoformat(moment.created_at).timestamp()*1000)
+                boundary=session.broadcast._moment_delivery_boundaries.get(moment.moment_id)
+                publication_stamp=boundary.published_at if requested is not None and boundary is not None else moment.created_at
+                created = int(datetime.fromisoformat(publication_stamp).timestamp()*1000)
                 # One UUIDv7 per original publication, independent of client reads.
                 suffix = int.from_bytes(hashlib.sha256(
                     (session.session_id + '/' + moment.moment_id).encode()).digest()[:8], 'big') & ((1 << 62)-1)
@@ -73,7 +85,9 @@ def connect_automatic(hass, runtime, session, identity, headers):
             finally:
                 _automatic_publication.reset(marker)
         hass.async_create_task(deliver(), 'DJConnect accepted Moment speaker delivery')
-    session.broadcast.owner_moment_speech_delivery = publication
+    if register:
+        session.broadcast.owner_moment_speech_delivery = publication
+    return publication
 
 
 async def async_play(hass, authority, payload):

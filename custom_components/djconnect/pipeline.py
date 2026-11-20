@@ -490,7 +490,11 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
                 hass, {"text": prompt, "language": narration.locale,
                        "agent_id": context["agent_id"]}, model_guard=guard)
             guard()
-            return _speech_from_response((result or {}).get("response") or {})
+            response=(result or {}).get('response') or {}
+            if getattr(narration,'requested_type','') and response.get('response_type')=='error':
+                from .ask_dj.public_research import note_temporary_source_failure
+                note_temporary_source_failure()
+            return _speech_from_response(response)
 
         from .ask_dj.dialogue import current_turn
         turn = current_turn.get()
@@ -515,7 +519,8 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
                 budget = operation_fetch_budget.set([12])
                 try:
                     from .public_artist_narration import eligible_subject
-                    if eligible_subject(narration) is None:
+                    if (eligible_subject(narration) is None
+                            or narration.requested_type not in {"", "live_impression"}):
                         return await realize(narration, ask=ask, admission=guard, debug=debug) or fallback_text
                     from .live_impression_research import EventPublicFetch
                     async def source_guard():
@@ -524,7 +529,7 @@ async def realize_session_narration(hass, *, narration, admission, fallback_text
                         live = await realize_live(narration, ask=ask, admission=guard, debug=debug,fetch=fetch)
                         if live is not None:
                             return live
-                        if model_calls:
+                        if model_calls or narration.requested_type == "live_impression":
                             return fallback_text  # No second writer/reviewer pair after a rejected rich story.
                         # Ordinary artist fallback shares the same HTTP owner and
                         # original eight reads, including the image lookup spent.

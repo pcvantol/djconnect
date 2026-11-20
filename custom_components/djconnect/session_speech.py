@@ -102,7 +102,9 @@ def capability():
               'automatic_speaker': 'core_publication_only',
               'speaker_media_maximum_seconds': 30,
               'speaker_media_maximum_reads': 4,
-              'text_only_all_speech_forbidden': True},
+              'text_only_all_speech_forbidden': False,
+              'text_only_automatic_speech_forbidden': True,
+              'text_only_manual_local': ['music_announcement','live_impression','source_admitted_user_requested_moment']},
     }
     for version in ('2', '3'):
         result['prepare_contracts'][version]['local_on_device'] = {
@@ -349,7 +351,7 @@ def _contribution_descriptor(reference, *, text, locale, persona, persona_revisi
             "attribution": attribution, "cache_policy": "private,no-store"}
 
 
-def moment_projection(broadcast, moment, *, autoplay=False, admission=None, retained_expiry=None):
+def moment_projection(broadcast, moment, *, autoplay=False, admission=None, retained_expiry=None, requested_initiator=False):
     """Pure owner speech admission over already published immutable content."""
     reference = {"session_id": broadcast.state.session_id, "moment_id": moment.moment_id}
     from .session_runtime import DJMomentType
@@ -363,12 +365,16 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None, reta
     announcement = announcement_accepted(moment)
     from .live_impression import admitted as admitted_live
     live = admitted_live(moment)
-    if not announcement and confirmation is None and (broadcast.state.selected_presence == 'music_only'
+    from .requested_moment_proof import admitted as requested_admitted
+    requested = requested_admitted(moment, committed=True)
+    if requested and not requested_initiator:
+        autoplay = False  # Generic Broadcast/recovery never starts a competing narrator.
+    if not requested and not announcement and confirmation is None and (broadcast.state.selected_presence == 'music_only'
             or (opening is not None and opening.presence == 'music_only')):
         autoplay = False
     output = getattr(broadcast, 'owner_speech_output', None)
     if callable(output) and output() == 'text_only':
-        if not announcement and not live:
+        if not announcement and not live and not requested:
             return unavailable(reference, 'announcement_text_only')
         autoplay = False
     if admission is None:
@@ -403,6 +409,12 @@ def moment_projection(broadcast, moment, *, autoplay=False, admission=None, reta
         # The new source use is manual only, never a new autoplay opportunity.
         if manual_ha_speech_admitted(moment):
             descriptor["autoplay_eligible"] = False
+    if requested:
+        descriptor['automatic_start_expires_at'] = boundary.utc_at(boundary.published_monotonic+12)
+        descriptor['autoplay_eligible'] = (descriptor['autoplay_eligible']
+            and not moment.user_requested.automatic_cancelled and time.monotonic()<boundary.published_monotonic+12)
+        descriptor['user_requested'] = True
+        descriptor['moment_type'] = moment.moment_type.value
     if live:
         descriptor['moment_type'] = 'live_impression'
     if announcement:
@@ -428,7 +440,10 @@ async def resolve_moment(hass, profile_id, reference, *, history=None):
     archive_expiry = None
     from .live_impression import admitted as admitted_live
     live=admitted_live(moment)
-    if retained_announcement(moment) or live:
+    from .requested_moment_proof import proof as request_proof
+    requested = request_proof(moment)
+    retained_request = requested is not None and requested.retained
+    if retained_announcement(moment) or retained_request or (live and requested is None):
         # A RAM seal must not outlive the actual retained row's current
         # deletion/retention/source rights. Reuse the existing archive owner.
         if history is None or manager._historical_projections is None:
@@ -503,6 +518,10 @@ def retained_projection(entry):
         persona=style.get("persona"), persona_revision=style.get("persona_revision"),
         mood=style.get("mood"),
         expires_at=entry["retained_until"], source_kind="retained_dj_contribution", attribution=attribution)
+    from .requested_moment_proof import retained_provenance
+    if retained_provenance(entry):
+        descriptor['user_requested']=True
+        descriptor['moment_type']=entry.get('moment_type')
     if entry.get('archive_basis') == 'public_live_impression_v1':
         descriptor['moment_type']='live_impression'
     if (entry.get('moment_type') == 'music_announcement'
@@ -668,9 +687,25 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
             return {'success': True, 'session_speech': unavailable(
                 reference, 'source_processor_not_qualified')}, 200
         if (selected is not None and selected.announcement_output == 'text_only'
-                and descriptor.get('moment_type') != 'music_announcement'):
+                and descriptor.get('moment_type') != 'music_announcement'
+                and not (target_aware and data['intent']=='manual' and data['target']=='local'
+                    and (descriptor.get('user_requested') is True or descriptor.get('moment_type')=='live_impression'))):
             return {'success': True, 'session_speech': unavailable(
                 reference, 'announcement_text_only')}, 200
+        requested_auto_guard = None
+        if target_aware and data['intent']=='automatic' and descriptor.get('user_requested') is True:
+            from .requested_moment_proof import admitted as requested_admitted
+            active = manager.current_active(context.profile_id)
+            original = next((m for m in active.broadcast.state.dj_moments
+                if m.moment_id == reference.get('moment_id')),None) if active else None
+            boundary = active.broadcast._moment_delivery_boundaries.get(reference.get('moment_id')) if active else None
+            device = hashlib.sha256(identity.get('device_id','').encode()).hexdigest()
+            def requested_auto_guard():
+                if (original is None or boundary is None or not requested_admitted(original,committed=True)
+                        or original.user_requested.device != device or original.user_requested.automatic_cancelled
+                        or not boundary.published_monotonic <= time.monotonic() < boundary.published_monotonic+12):
+                    raise PermissionError('automatic_requested_moment_unavailable')
+            requested_auto_guard()
         grant_deadline = None
         automatic_announcement_deadline = None
         if (target_aware and data['intent'] == 'automatic'
@@ -689,6 +724,8 @@ async def async_handle_prepare(hass, data, *, headers=None, _speaker_operation=F
             except (KeyError, TypeError, ValueError):
                 raise PermissionError('speech_reference_unavailable') from None
         def guard():
+            if requested_auto_guard is not None:
+                requested_auto_guard()
             _conversation_profile_fence(hass, runtime, identity, headers, context)
             if grant_deadline is not None and time.time() >= grant_deadline:
                 raise PermissionError('speech_reference_expired')

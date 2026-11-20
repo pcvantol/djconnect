@@ -113,3 +113,8 @@ acceptance remain Planned/OPEN.
 [Current VibeCast entry/distribution decisions and Cast lifecycle](VIBECAST_WEB_ENTRY_DISTRIBUTION_V1.md)
 resolves vibecast.tv/root and the app exception, records adaptive glass and selected
 receiver#16 with separate integration dependencies. Historical1175/1176 stay exact.
+
+
+## Ask DJ: Moments —20 November2026
+
+[Ask DJ: Moments v1](ASK_DJ_MOMENTS_V1.md) — existing avatarcard explicit rich requests; Core/Apple/source and joint acceptance separate.

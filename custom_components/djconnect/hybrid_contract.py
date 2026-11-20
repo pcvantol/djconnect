@@ -42,6 +42,7 @@ def hybrid_transport_capability():
         "commands": ["djconnect/read", "djconnect/operation/execute", "djconnect/operation/status",
                      "djconnect/profile/settings/update", "djconnect/profile/settings/subscribe",
                      "djconnect/persona/reaction/observe"],
+        "read_path": "/api/djconnect/v1/transport/read",
         "context_path": "/api/djconnect/v1/transport/context",
         "operation_path": "/api/djconnect/v1/transport/operation",
         "status_path": "/api/djconnect/v1/transport/operation/status",

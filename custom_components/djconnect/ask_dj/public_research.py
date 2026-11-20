@@ -22,6 +22,15 @@ from urllib.parse import parse_qs, quote, urlencode, urljoin, urlsplit
 from urllib.robotparser import RobotFileParser
 
 operation_fetch_budget = ContextVar("public_research_operation_budget", default=None)
+operation_source_outcome = ContextVar("public_research_source_outcome", default=None)
+
+
+def note_temporary_source_failure():
+    """Content-free outcome for an already-owned explicit request; no new work."""
+    outcome=operation_source_outcome.get()
+    if outcome is not None:
+        outcome['temporary']=True
+
 
 USER_AGENT = "DJConnect/4 (https://github.com/djconnect-music-dj/djconnect)"
 MAX_REQUESTS = 8
@@ -177,6 +186,7 @@ class PublicFetch:
             if musicbrainz:
                 from .. import musicbrainz_rate
                 if not await musicbrainz_rate.admit(self.guard):
+                    note_temporary_source_failure()
                     raise ResearchUnavailable('musicbrainz_temporarily_unavailable')
             shared = operation_fetch_budget.get()
             if shared is not None:
@@ -201,6 +211,8 @@ class PublicFetch:
                         ):
                             raise ResearchUnavailable("public_research_redirect_denied")
                         continue
+                    if response.status == 429 or response.status >= 500:
+                        note_temporary_source_failure()
                     if response.status != 200:
                         result = (response.status, "", url)
                         return (*result, None) if with_etag else result
@@ -217,7 +229,8 @@ class PublicFetch:
                     # Opt-in public response provenance, attached to these same
                     # exact bytes/destination. Never a cached header or a retry.
                     return (*result, response.headers.get('ETag')) if with_etag else result
-            except aiohttp.ClientError:
+            except (aiohttp.ClientError,TimeoutError):
+                note_temporary_source_failure()
                 raise ResearchUnavailable("public_research_transport") from None
         raise ResearchUnavailable("public_research_redirect_denied")
 

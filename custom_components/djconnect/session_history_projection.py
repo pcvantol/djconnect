@@ -152,7 +152,7 @@ def project_entry(row: dict) -> dict | None:
             from .live_impression import checked
             if checked(body.get("live_impression")) is None:
                 return None
-        result.update({k: v for k, v in body.items() if k not in {"session_media_reference", "source_context", "live_impression_reference"}})
+        result.update({k: v for k, v in body.items() if k not in {"session_media_reference", "source_context", "live_impression_reference", "user_requested_owner"}})
     elif row["kind"] in {"dj_publication", "dj_silence"}:
         # Only Core-owned publication identity escapes: no unavailable source
         # body, attribution, artwork or model/speech input is reconstructed.

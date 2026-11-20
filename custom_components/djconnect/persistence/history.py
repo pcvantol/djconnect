@@ -238,6 +238,22 @@ class HistoricalProjectionRepository(PersistenceRepository):
 
         return await self._async_in_transaction(read)
 
+    async def async_requested_moment_entry(self, owner, session_id, operation_id):
+        """Original accepted request locator, never a read/model/content grant."""
+        def read(tx):
+            rows=tx.fetchall(
+                "SELECT entry_id,session_id,entry_order,kind,reference_id,body,occurred_at,"
+                "retained_until,visibility,revoked_at FROM djconnect_session_entries e "
+                "WHERE owner_profile_id=? AND session_id=? AND kind IN ('dj_moment','dj_publication') "
+                "AND json_extract(body,'$.user_requested.operation_id')=? "
+                "AND NOT EXISTS (SELECT 1 FROM djconnect_history_deletion_targets d "
+                "WHERE d.owner_profile_id=e.owner_profile_id AND d.session_id=e.session_id) LIMIT 2",
+                (owner,session_id,operation_id))
+            keys=('entry_id','session_id','order','kind','reference_id','body','occurred_at',
+                'retained_until','visibility','revoked_at')
+            return dict(zip(keys,rows[0])) if len(rows)==1 else None
+        return await self._async_in_transaction(read)
+
     async def async_current_playback_entry(
         self, owner: str, session_id: str, item_id: str
     ) -> str | None:

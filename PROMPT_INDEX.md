@@ -13981,3 +13981,5 @@ Exact clean-session command for the next operator-directed gate:
 Read SOFTWARE_ASSURANCE_IMPLEMENTATION.md and execute only the explicitly
 authorized next Software Assurance implementation prompt.
 ```
+
+- [2026-11-20 Ask DJ: Moments avatar source](docs/history/prompts/2026-11-20-ask-dj-moments-avatar-source.md) — selected existing family, Core/Apple source and joint acceptance separate.

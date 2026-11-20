@@ -2551,3 +2551,10 @@ operator provisioning, APNs/native or installed acceptance.
 ## Live-impressie private Session content
 
 The additive `live_impression` Moment/history schema1 and explicit original-photo Session-media contract3 are specified in [Live-impressie contract](docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md). Existing authenticated routes are reused; no public photo URL, new playback effect or shared-screen grant is introduced.
+
+
+## Ask DJ: Moments — additive original-owner contract
+
+Paired Hybrid adds pure reads ask_dj/moments and ask_dj/moments/status via existing djconnect/read or POST /api/djconnect/v1/transport/read, and journaled actions ask_dj/moments/request and ask_dj/moments/cancel via the existing operation route. Global/Hybrid context advertises ask_dj_moments version1. Exact closed payloads,10-family inventory, original subject/operation fences, terminal states, media/speech/history fields and limitations are defined in docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md. No caller Profile authority or provider work on reads.
+
+See [versioned Moments contract](docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md).
