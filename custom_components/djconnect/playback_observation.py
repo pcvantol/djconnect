@@ -46,6 +46,8 @@ class _SpotifyObservationSession:
     remove_listener: Callable[[], None] | None = None
     remove_progress_listener: Callable[[], None] | None = None
     poll_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+    moment_catalog: dict = field(default_factory=dict)
+    moment_catalog_observed_at: float = 0
     enrichment_task: asyncio.Task[Any] | None = None
     forecast_art_task: asyncio.Task[Any] | None = None
     display_artwork_task: asyncio.Task[Any] | None = None
@@ -386,6 +388,12 @@ class PlaybackObservationManager:
             if (self._spotify_sessions.get(observed.owner_profile_id) is not observed
                 or observed.command_revision != captured_command_revision):
                 return
+            # Keep only the latest already-normalized source catalogue for explicit
+            # user selection; reading the avatar inventory never polls providers.
+            import copy
+            import time
+            observed.moment_catalog = copy.deepcopy(getattr(result, "catalog", {}) or {})
+            observed.moment_catalog_observed_at = time.monotonic()
             output_id = getattr(result, 'target_id', '')
             output_id = output_id if type(output_id) is str and 0 < len(output_id) <= 256 else ''
             if output_id != observed.forecast_output_id:

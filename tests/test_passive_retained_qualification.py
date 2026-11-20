@@ -8,11 +8,11 @@ import unittest
 class PassiveRetainedQualificationTests(unittest.TestCase):
     def test_current_receipt_binds_original_purpose_and_all_product_bytes(self):
         root=Path(__file__).resolve().parents[1]
-        proof=json.loads((root/'examples/client_contracts/passive_retained_v1/qualification-current-live-impression-20261119.json').read_text())
+        proof=json.loads((root/'examples/client_contracts/passive_retained_v1/qualification-current-live-impression-20261119-requested-moments-20261120.json').read_text())
         receipt=proof['receipt']
         self.assertTrue(proof['source_before_after_equal'])
         self.assertTrue(receipt['source_unchanged'])
-        self.assertEqual(len(proof['source_pins']),318)
+        self.assertEqual(len(proof['source_pins']),321)
         self.assertEqual(proof['source_pins'],receipt['source_pins'])
         for name,expected in {**proof['source_pins'],**receipt['harness_pins']}.items():
             self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(),expected,name)

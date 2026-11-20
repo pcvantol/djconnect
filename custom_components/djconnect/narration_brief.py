@@ -31,6 +31,7 @@ class NarrationBrief:
     recent_frames: tuple[str, ...] = ()
     recent_public_stories: tuple[tuple[str, str, tuple[str, ...]], ...] = ()
     rotate_artist_topics: bool = False
+    requested_type: str = ""
 
     def render(self, frame):
         for slot, value in self.bindings:
@@ -144,7 +145,8 @@ def qualify(fact, *, locale, persona, mood, seed):
         if type(fact) is ProducerRecommendationFact:
             reference += ' You propose revisiting {previous_track} as optional exploration of that shared credit; no action has started it.'
             semantics += ' Retain this suggestion, not a DJ selection, promised next track, playback change or inferred taste.'
-    elif type(core) is DisplayFactCore and core.validates(fact):
+    elif type(core) is DisplayFactCore and core.validates(
+            fact.current_album if type(fact) is AlbumContinuityFact else fact):
         if core.kind == "artist_begin":
             date = human_date(core.date, core.precision, locale)
             if not date:

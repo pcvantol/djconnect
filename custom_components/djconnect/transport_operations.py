@@ -127,7 +127,7 @@ class OperationJournal:
                 if "cancelled_before_send" in record and (
                     record["cancelled_before_send"] is not True
                     or record["phase"] != "cancelled"
-                    or record["operation"] != "session/persona/reaction"
+                    or record["operation"] not in {"session/persona/reaction", "ask_dj/moments/request"}
                 ):
                     raise ValueError
                 status, error = record.get("response_status"), record.get("error")
@@ -261,8 +261,11 @@ class OperationJournal:
             self._active.add(key)
             return key, self.receipt(record), True
 
-    async def cancel_reaction(self, *, owner, device, binding, identifier, epoch):
+    async def cancel_reaction(self, *, owner, device, binding, identifier, epoch, operation="session/persona/reaction"):
         """Durable, content-free target fence, even before execute reaches reserve."""
+        if operation not in {'session/persona/reaction', 'ask_dj/moments/request'}:
+            raise OperationError('unsupported_operation', 400)
+        error = 'persona_reaction_withdrawn' if operation == 'session/persona/reaction' else 'moment_request_cancelled'
         async with self._lock:
             await self._load()
             if epoch != self.epoch:
@@ -275,7 +278,7 @@ class OperationJournal:
             old = self._state["records"].get(key)
             if old is not None:
                 if (old["owner"], old["device"], old["binding"], old["epoch"], old["operation"]) != (
-                    owner, device, binding, epoch, "session/persona/reaction"
+                    owner, device, binding, epoch, operation
                 ):
                     raise OperationError("persona_reaction_unavailable", 404)
                 if old["phase"] in TERMINAL:
@@ -293,9 +296,9 @@ class OperationJournal:
                 raise OperationError("operation_capacity", 429)
             state["records"][key] = {**(old or {}), "owner": owner, "device": device,
                 "binding": binding, "operation_id": identifier, "epoch": epoch,
-                "operation": "session/persona/reaction", "digest": "0" * 64,
+                "operation": operation, "digest": "0" * 64,
                 "expires_ms": expires, "phase": "cancelled", "cancelled_before_send": True,
-                "response_status": 409, "error": "persona_reaction_withdrawn"}
+                "response_status": 409, "error": error}
             try:
                 await self._commit(state)
             except asyncio.CancelledError:

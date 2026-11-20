@@ -29,6 +29,8 @@ class EventPublicFetch(research.PublicFetch):
             shared[0] -= 1
         self.requests += 1
         async with self.session.get(url, allow_redirects=False) as response:
+            if response.status == 429 or response.status >= 500:
+                research.note_temporary_source_failure()
             if response.status != 200 or response.content_type not in {'image/jpeg','image/png'}:
                 raise ValueError('photo_unavailable')
             pixels = bytearray()

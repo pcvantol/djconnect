@@ -252,3 +252,10 @@ activity state, Moment type, renderer pixels or automatic speech. Touch reaction
 are separately selected user intent and remain unavailable until their bounded
 producer/speech admission is implemented and qualified. No function closes from
 this design's documentation or source merge.
+
+
+## Ask DJ: Moments — additive original-owner contract
+
+An explicit Moments request reuses Knowledge, qualified narration, Moment Engine, composer and immediate durable Session acceptance. Initiating presentation is a fixed original-operation owner-only admission; it bypasses only proactive cadence and track-fit gates. Requested Moments never become spontaneous current candidates. Flow/history receives the exact accepted Moment immediately, and native suppresses only that ID while its explicit result is visible.
+
+See [versioned Moments contract](../technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md).

@@ -9,12 +9,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class BulletinWireContractTests(unittest.TestCase):
     def test_actual_wire_pins_current_source_and_original_admissions_without_native_claim(self):
-        wire = json.loads((ROOT / "examples/client_contracts/dj_bulletin_v1/actual-ha-wire-live-impression-20261119.json").read_text())
+        wire = json.loads((ROOT / "examples/client_contracts/dj_bulletin_v1/actual-ha-wire-live-impression-20261119-requested-moments-20261120.json").read_text())
         self.assertEqual(wire["schema_version"], 1)
         self.assertEqual(wire["ha_sdk_version"], "2026.10.0")
-        current = json.loads((ROOT / 'examples/client_contracts/dj_bulletin_v1/news_bulletin_http-requalification-bulletin-diagnostics-current-live-impression-20261119.json').read_text())
+        current = json.loads((ROOT / 'examples/client_contracts/dj_bulletin_v1/news_bulletin_http-requalification-bulletin-diagnostics-current-live-impression-20261119-requested-moments-20261120.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
-        self.assertEqual(len(current['source_pins']), 318)
+        self.assertEqual(len(current['source_pins']), 321)
         self.assertEqual(hashlib.sha256((ROOT / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
         extension = current['receipt']['extension']
         self.assertEqual(extension['state'], 'PASS')

@@ -47,10 +47,10 @@ class ManagementGrammarTests(unittest.TestCase):
 
     def test_original_actual_HA_receipt_binds_current_source_and_boundaries(self):
         root = Path(__file__).resolve().parents[1]
-        proof = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation-live-impression-20261119.json").read_text())
+        proof = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation-live-impression-20261119-requested-moments-20261120.json").read_text())
         original = proof["original_receipt"]
-        current = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation-bulletin-diagnostics-current-live-impression-20261119.json").read_text())
-        self.assertEqual(len(current["source_sha256"]), 318)
+        current = json.loads((root / "examples/client_contracts/installation_management_preparation_v1/actual-ha-management-preparation-bulletin-diagnostics-current-live-impression-20261119-requested-moments-20261120.json").read_text())
+        self.assertEqual(len(current["source_sha256"]), 321)
         for name, digest in current["source_sha256"].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root / proof["harness"]).read_bytes()).hexdigest(), proof["harness_sha256"])

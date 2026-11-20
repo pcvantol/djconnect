@@ -379,11 +379,11 @@ class WidgetAdoptionTests(unittest.IsolatedAsyncioTestCase):
 class WidgetActualHAContractTests(unittest.TestCase):
     def test_original_actual_ha_widget_source_join_preserves_closed_acceptance_boundary(self):
         root = Path(__file__).resolve().parents[1]
-        wire = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-actual-ha-live-impression-20261119.json').read_text())
+        wire = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-actual-ha-live-impression-20261119-requested-moments-20261120.json').read_text())
         self.assertEqual(wire['ha_sdk_version'], '2026.10.0')
-        current = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-requalification-bulletin-diagnostics-current-live-impression-20261119.json').read_text())
+        current = json.loads((root / 'examples/client_contracts/surface_push_v1/widget-adoption-requalification-bulletin-diagnostics-current-live-impression-20261119-requested-moments-20261120.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
-        self.assertEqual(len(current['source_pins']), 318)
+        self.assertEqual(len(current['source_pins']), 321)
         self.assertEqual(current['harness'], wire['harness'])
         self.assertEqual(current['harness_sha256'], wire['harness_sha256'])
         extension = current['receipt']['extension']

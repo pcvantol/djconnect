@@ -29,10 +29,10 @@ class Runtime:
 class PassiveRegistrationTests(unittest.IsolatedAsyncioTestCase):
     def test_actual_HA_fixture_joins_exact_product_and_closed_acceptance(self):
         root = Path(__file__).resolve().parents[1]
-        proof = json.loads((root / 'examples/client_contracts/passive_surface_registration_v1/actual-ha-wire-live-impression-20261119.json').read_text())
-        current = json.loads((root / "examples/client_contracts/passive_surface_registration_v1/actual-ha-wire-bulletin-diagnostics-current-live-impression-20261119.json").read_text())
+        proof = json.loads((root / 'examples/client_contracts/passive_surface_registration_v1/actual-ha-wire-live-impression-20261119-requested-moments-20261120.json').read_text())
+        current = json.loads((root / "examples/client_contracts/passive_surface_registration_v1/actual-ha-wire-bulletin-diagnostics-current-live-impression-20261119-requested-moments-20261120.json").read_text())
         self.assertEqual(current['status'], 'PASS')
-        self.assertEqual(len(current['source_hashes']), 318)
+        self.assertEqual(len(current['source_hashes']), 321)
         for name, digest in current['source_hashes'].items():
             self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest, name)
         self.assertEqual(hashlib.sha256((root / proof['harness']).read_bytes()).hexdigest(), proof['harness_sha256'])
@@ -47,7 +47,7 @@ class PassiveRegistrationTests(unittest.IsolatedAsyncioTestCase):
 
     def test_current_actual_HA_proof_includes_real_pair_journal_but_no_authority(self):
         root = Path(__file__).resolve().parents[1]
-        proof = json.loads((root / 'examples/client_contracts/passive_surface_registration_v1/actual-ha-wire-live-impression-20261119.json').read_text())
+        proof = json.loads((root / 'examples/client_contracts/passive_surface_registration_v1/actual-ha-wire-live-impression-20261119-requested-moments-20261120.json').read_text())
         for key in ('real_PairView_automatic_local_record', 'duplicate_pair_same_generation',
                     'real_runtime_token_setter_retires_before_assignment',
                     'real_SQLite_FULL_commit_and_retirement'):

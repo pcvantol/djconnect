@@ -1427,7 +1427,7 @@ def _is_current_track_question_text(value: str) -> bool:
     }
 
 
-def _connect_session_narration(hass, runtime, context, session, identity, headers):
+def _connect_session_narration(hass, runtime, context, session, identity, headers, *, register=True):
     """Reuse the HA announcement owner; retain only ordinary device authority."""
     identity = {key: identity.get(key) for key in ("device_id", "client_type")}
     headers = {name: value for name in ("Authorization", "X-DJConnect-Device-ID")
@@ -1462,13 +1462,26 @@ def _connect_session_narration(hass, runtime, context, session, identity, header
         revision = storage.authority_revision
         selected_pipeline = _assist_context(hass, runtime.config)
         entry = getattr(runtime, "entry", None)
-        entry_revision = getattr(entry, "modified_at", None)
+        def entry_revision():
+            if register:
+                return getattr(entry,'modified_at',None)
+            # An explicit original subject survives ordinary track/status cache
+            # updates, while real configuration/token/scope changes still fence it.
+            data=dict(getattr(entry,'data',{}) or {})
+            for key in ('last_device_status','last_push_status'):
+                data.pop(key,None)
+            evidence=data.get('spotify_scope_evidence')
+            if isinstance(evidence,dict):
+                data['spotify_scope_evidence']={k:v for k,v in evidence.items() if k!='observed_at'}
+            return data
+        from copy import deepcopy
+        original_entry_revision=deepcopy(entry_revision())
         revoked = False
         def current():
             nonlocal revoked
             try:
                 if (revoked or storage.authority_revision != revision
-                        or getattr(entry, "modified_at", None) != entry_revision
+                        or entry_revision() != original_entry_revision
                         or _assist_context(hass, runtime.config) != selected_pipeline):
                     raise PermissionError("narration_authority_changed")
                 authorize()
@@ -1480,19 +1493,26 @@ def _connect_session_narration(hass, runtime, context, session, identity, header
     async def realize(brief, guard):
         from .pipeline import realize_session_narration
         authorize()
+        diagnostic={} if not register else None
         text = await realize_session_narration(
             hass,  fallback_text=brief.seed, conf=runtime.config,
-            narration=brief, admission=guard)
+            narration=brief, admission=guard,debug=diagnostic)
         authorize()
+        reason=(diagnostic or {}).get('block_reason')
+        if (text == brief.seed and isinstance(reason,str) and reason.endswith('Error')
+                and reason!='PermissionError'):
+            from .ask_dj.public_research import note_temporary_source_failure
+            note_temporary_source_failure()
         return text
 
     async def archive_admission(captured):
         from .session_conversation import async_metadata_archive_admission
         return await async_metadata_archive_admission(hass, context.profile_id, captured, authorize)
 
-    session_runtime_manager(hass).connect_narration(
-        context.profile_id, session.session_id, realize, authorize,
-        capture_authority=capture_authority, archive_admission=archive_admission)
+    if register:
+        session_runtime_manager(hass).connect_narration(
+            context.profile_id, session.session_id, realize, authorize,
+            capture_authority=capture_authority, archive_admission=archive_admission)
 
     async def generate_bulletin(prompt, original_session, guard):
         from .pipeline import (_assist_context, _speech_from_response,
@@ -1543,8 +1563,11 @@ def _connect_session_narration(hass, runtime, context, session, identity, header
                 raise PermissionError("bulletin_agent_changed") from None
         return guard
 
-    session_runtime_manager(hass).connect_bulletin(context.profile_id, session.session_id,
-        generate_bulletin, authorize, capture_bulletin_authority)
+    if register:
+        session_runtime_manager(hass).connect_bulletin(context.profile_id, session.session_id,
+            generate_bulletin, authorize, capture_bulletin_authority)
+    return ((session.session_id,realize,authorize,capture_authority,archive_admission),
+            (session.session_id,generate_bulletin,authorize,capture_bulletin_authority))
 
 
 def _conversation_profile_fence(hass, runtime, identity, headers, context, *, _ha_service_runtime=None):

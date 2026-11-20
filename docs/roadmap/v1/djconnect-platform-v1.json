@@ -37594,7 +37594,7 @@
     }
   ],
   "planning_maintenance": {
-    "schema_version": "djconnect-federated-planning-delta/18",
+    "schema_version": "djconnect-federated-planning-delta/19",
     "decision_id": "DJC-DJ-PRESENCE-ROADMAP-DESIGN-V1-20261011",
     "decision_url": "https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6110375785",
     "design_date": "2026-10-11",
@@ -39870,6 +39870,101 @@
             ]
           }
         ]
+      },
+      {
+        "id": "ASK-DJ-MOMENTS::CONTRACT",
+        "title": "Canonical avatar Moments inventory and versioned original-subject contract",
+        "lane": "DJC-CORE",
+        "repository": "djconnect-music-dj/djconnect",
+        "status": "In progress",
+        "assignment_status": "USER_AUTHORIZED_IMPLEMENTATION",
+        "scope": "Existing Interactive DJMoments selected explicitly by user; no parallel engine or install/deploy authority",
+        "acceptance_boundary": "Software/source, actual HA fixture, native/model/editorial/device AM12 acceptance remain separate",
+        "contract_binding": "docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-ASK-DJ-MOMENTS-6849511889"
+        ],
+        "parent_reference": "PROJ::ROADMAP::INTERACTIVE",
+        "family_reference": "Existing Ask DJ / Knowledge / Planner / Moment / Flow",
+        "prerequisite_groups": []
+      },
+      {
+        "id": "ASK-DJ-MOMENTS::PRODUCER",
+        "title": "Explicit rich Moment request through existing Knowledge, narration and durable acceptance",
+        "lane": "DJC-CORE",
+        "repository": "djconnect-music-dj/djconnect",
+        "status": "In progress",
+        "assignment_status": "USER_AUTHORIZED_IMPLEMENTATION",
+        "scope": "Existing Interactive DJMoments selected explicitly by user; no parallel engine or install/deploy authority",
+        "acceptance_boundary": "Software/source, actual HA fixture, native/model/editorial/device AM12 acceptance remain separate",
+        "contract_binding": "docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-ASK-DJ-MOMENTS-6849511889"
+        ],
+        "parent_reference": "PROJ::ROADMAP::INTERACTIVE",
+        "family_reference": "Existing Ask DJ / Knowledge / Planner / Moment / Flow",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ASK-DJ-MOMENTS-1"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ASK-DJ-MOMENTS::APPLE",
+        "title": "Single avatarcard chooser, pending, original rich result and history",
+        "lane": "DJC-APPLE",
+        "repository": "djconnect-music-dj/djconnect-app",
+        "status": "In progress",
+        "assignment_status": "USER_AUTHORIZED_IMPLEMENTATION",
+        "scope": "Existing Interactive DJMoments selected explicitly by user; no parallel engine or install/deploy authority",
+        "acceptance_boundary": "Software/source, actual HA fixture, native/model/editorial/device AM12 acceptance remain separate",
+        "contract_binding": "docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-ASK-DJ-MOMENTS-6849511889"
+        ],
+        "parent_reference": "PROJ::ROADMAP::INTERACTIVE",
+        "family_reference": "Existing Ask DJ / Knowledge / Planner / Moment / Flow",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ASK-DJ-MOMENTS-2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ASK-DJ-MOMENTS::ACCEPTANCE",
+        "title": "Joint AM01–AM12 real model, device, editorial and accessibility acceptance",
+        "lane": "DJC-CORE",
+        "repository": "djconnect-music-dj/djconnect",
+        "status": "Planned",
+        "assignment_status": "OPEN_ACCEPTANCE",
+        "scope": "Existing Interactive DJMoments selected explicitly by user; no parallel engine or install/deploy authority",
+        "acceptance_boundary": "Software/source, actual HA fixture, native/model/editorial/device AM12 acceptance remain separate",
+        "contract_binding": "docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md",
+        "source_ids": [
+          "OWNER-ASK-DJ-MOMENTS-6849511889"
+        ],
+        "parent_reference": "PROJ::ROADMAP::INTERACTIVE",
+        "family_reference": "Existing Ask DJ / Knowledge / Planner / Moment / Flow",
+        "prerequisite_groups": [
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ASK-DJ-MOMENTS-3"
+            ]
+          },
+          {
+            "mode": "AND",
+            "edge_ids": [
+              "ASK-DJ-MOMENTS-4"
+            ]
+          }
+        ]
       }
     ],
     "edges": [
@@ -41973,16 +42068,80 @@
         "required_subset": "Actual compatible Core and Apple source plus separate real/native proof",
         "contract_or_evidence": "docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md",
         "reason": "Functional producer-consumer requirement; no voice/VibeCast/global release dependency"
+      },
+      {
+        "id": "ASK-DJ-MOMENTS-1",
+        "producer": "ASK-DJ-MOMENTS::CONTRACT",
+        "consumer": "ASK-DJ-MOMENTS::PRODUCER",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-ASK-DJ-MOMENTS-6849511889"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "required_subset": "Versioned actual producer/native contract; source and joint acceptance separate",
+        "contract_or_evidence": "docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md",
+        "reason": "Functional dependency for selected existing Interactive DJMoments; no unrelated global release dependency"
+      },
+      {
+        "id": "ASK-DJ-MOMENTS-2",
+        "producer": "ASK-DJ-MOMENTS::CONTRACT",
+        "consumer": "ASK-DJ-MOMENTS::APPLE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-ASK-DJ-MOMENTS-6849511889"
+        ],
+        "kind": "implementation_contract",
+        "phase": "implementation",
+        "prerequisite_stage": "start",
+        "required_subset": "Versioned actual producer/native contract; source and joint acceptance separate",
+        "contract_or_evidence": "docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md",
+        "reason": "Functional dependency for selected existing Interactive DJMoments; no unrelated global release dependency"
+      },
+      {
+        "id": "ASK-DJ-MOMENTS-3",
+        "producer": "ASK-DJ-MOMENTS::PRODUCER",
+        "consumer": "ASK-DJ-MOMENTS::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-ASK-DJ-MOMENTS-6849511889"
+        ],
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "required_subset": "Versioned actual producer/native contract; source and joint acceptance separate",
+        "contract_or_evidence": "docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md",
+        "reason": "Functional dependency for selected existing Interactive DJMoments; no unrelated global release dependency"
+      },
+      {
+        "id": "ASK-DJ-MOMENTS-4",
+        "producer": "ASK-DJ-MOMENTS::APPLE",
+        "consumer": "ASK-DJ-MOMENTS::ACCEPTANCE",
+        "hard_precedence": true,
+        "logical_mode": "AND",
+        "source_ids": [
+          "OWNER-ASK-DJ-MOMENTS-6849511889"
+        ],
+        "kind": "implementation_contract",
+        "phase": "integration_acceptance",
+        "prerequisite_stage": "completion",
+        "required_subset": "Versioned actual producer/native contract; source and joint acceptance separate",
+        "contract_or_evidence": "docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md",
+        "reason": "Functional dependency for selected existing Interactive DJMoments; no unrelated global release dependency"
       }
     ],
     "document_references": [
       {
         "path": "PRODUCT_ROADMAP.md",
-        "sha256": "735fedb81980e2f4b5fde0b95e059413767e2cfc4038dfef3f1de18e56f40b12"
+        "sha256": "82fb1446e28183a0a53161c74b4a3e4540071a58918ab95ef8bc0249f466995e"
       },
       {
         "path": "PRODUCT_BACKLOG.md",
-        "sha256": "8c9812602eefb00ac0a4f1fb32ad599c9f06db7d6cd78b340b008cf2d5530729"
+        "sha256": "735828e91a7cdf368ab9f4d77db800151e15bd88379213d85e3d71384d05bc40"
       },
       {
         "path": "docs/product/DJ_PRESENCE_V1.md",
@@ -41998,7 +42157,7 @@
       },
       {
         "path": "docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
-        "sha256": "3f90e5ccfd1877f1eaec2c2ebc6d69a3ad3d3bfe20508f7128d9cd4c5e729faf"
+        "sha256": "1e89e95a504a4d1cd0f039bd63c1f4159b7ee6dbe71191a9906aadabfc4482dc"
       },
       {
         "path": "docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md",
@@ -42018,7 +42177,7 @@
       },
       {
         "path": "API_CONTRACT.md",
-        "sha256": "bd418c8b9b3a0b0ef048e499d10c69a3ebbc0474350b88e21f2f24274407c53a"
+        "sha256": "21f8c235eecc9f6256450ec87285f3da1d20def3fb2613125a815cd4f3e2b68f"
       },
       {
         "path": "docs/product/NARRATIVE_ALBUM_CONTINUITY_V1.md",
@@ -42042,7 +42201,7 @@
       },
       {
         "path": "docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md",
-        "sha256": "b7273907e2b2c50d163b4d056bbb8fa5c908299eb98f7af8120e037fbc6a7a64"
+        "sha256": "13f1ac9e15c4ec7cbb6377454748e9ebbab6f97313ad34f66e5a86d0a5e35baf"
       },
       {
         "path": "docs/technical/BROADCAST_TRANSPORT.md",
@@ -42122,7 +42281,7 @@
       },
       {
         "path": "docs/product/ASK_DJ_CONTEXTUAL_DIALOGUE_CONTRACT_V1.md",
-        "sha256": "89c2a0df07feeabfc56c9479787383ea2d225ff3ed450ce145b2e5399d9cff01"
+        "sha256": "756b0ecce1f1320b81d8a0a3aabfb9776c055f01ecbe8565ed4d5a3fbcf9523b"
       },
       {
         "path": "docs/product/MOMENT_TRACK_INSIGHT_DRILLDOWN_V1.md",
@@ -42234,7 +42393,7 @@
       },
       {
         "path": "docs/product/SESSION_SPEECH_DELIVERY_V1.md",
-        "sha256": "5cececea1a2b1d129f3f6f90391781a0c504afe141bf6432f560dee00b035fc1"
+        "sha256": "20fdeb8145207d96d921c2e7e4ce636f103ec4b6205121223efd974888b3e9a4"
       },
       {
         "path": "docs/verification/SESSION_SPEECH_PERSONA_SOURCE_READBACK_20261016.md",
@@ -42298,7 +42457,7 @@
       },
       {
         "path": "docs/technical/SPEECH_RENDERING_CONTRACT.md",
-        "sha256": "cb39d32ecd4b4d11140a0d8e2e037bf6bca388dfe9c45d0b1b9a27b6a228d2e4"
+        "sha256": "67509e983a9d5788860f3907fedb526a274329b89b731704684ed2d232064e4a"
       },
       {
         "path": "docs/verification/PROFILE_SESSION_SETTINGS_SOURCE_READBACK_20261016.md",
@@ -42427,6 +42586,14 @@
       {
         "path": "docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md",
         "sha256": "2d40d63e6d7d1321cacbf17f981135dfb5daa8b19d67b8f21975c804ed36228b"
+      },
+      {
+        "path": "docs/product/ASK_DJ_MOMENTS_V1.md",
+        "sha256": "e93c00abf81a150787add9ff1140c79d2b2c2314cd8a4726ff657b74419c3bd6"
+      },
+      {
+        "path": "docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md",
+        "sha256": "ef7ce68a6af69b34d46037321a3a0774d68bbd1aa90e851ab55f8272acdc07af"
       }
     ],
     "implementation_receipt": {
@@ -43294,6 +43461,21 @@
       "apple_publication_workflow_run": 44701910005,
       "apple_durable_evidence_sha256": "75b5a0d9e0c00ae665d68c2aba6febae330c3c5eb30567b1a7af47fafbb837e4",
       "apple_tree": "c103218c4ed6192feaa8529caa44be258e0474ec"
+    },
+    "moments_avatar_receipt": {
+      "assignment_id": "ASK-DJ-MOMENTS-AVATARCARD-V1",
+      "owner_comment": "https://github.com/djconnect-music-dj/djconnect/issues/1101#issuecomment-6849511889",
+      "predecessor_path": "history/20261120/moments-avatar-predecessor-maintenance-v18.json",
+      "predecessor_sha256": "797400a4192c68693af0e2347f79ab0ecfe93bfac0e08e73cf17e6b221682c0a",
+      "source_base": "616bad88015a8a1bc413781fc49d97532ef7383a",
+      "source_delivery": "LOCAL_IMPLEMENTATION_NOT_MERGED",
+      "automatic_dispatch": false,
+      "installed": "NOT_RUN",
+      "live_model": "NOT_RUN",
+      "native": "OPEN_APPLE",
+      "overall_acceptance": "OPEN",
+      "selection": "USER_SELECTED_INTERACTIVE_MOMENTS_SUPERSEDES_SETTINGS_HORIZON",
+      "parent_reference": "PROJ::ROADMAP::INTERACTIVE"
     }
   }
 }

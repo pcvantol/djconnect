@@ -26,6 +26,7 @@ class BulletinService:
         self._task = None
         self._unsubscribe = None
         self._work = None
+        self._build_lock = asyncio.Lock()
 
     async def start(self):
         await self.builder.initialize()
@@ -56,6 +57,45 @@ class BulletinService:
         return result
 
     async def poll(self):
+        if self._build_lock.locked():
+            return
+        async with self._build_lock:
+            await self._poll()
+
+    async def requested(self, owner, guard, *, provider=None):
+        """Explicit priority uses the same private collector, builder and once limits."""
+        async with self._build_lock:
+            guard()
+            if self.closed:
+                return None
+            work = capture_work(self.manager, owner, explicit=True,provider_override=provider)
+            if work is None:
+                return None
+            self._work = work
+            def current():
+                guard()
+                work.guard()
+                if self.closed or self._work is not work:
+                    raise PermissionError('bulletin_requested_withdrawn')
+            from dataclasses import replace
+            existing = self.builder._candidate
+            if (existing is not None and existing.session == replace(work.session,explicit_request=False)
+                    and existing.eligible(session=existing.session,now=self.wall(),monotonic=self.monotonic())):
+                candidate = replace(existing,session=work.session)
+                self.builder._candidate = candidate
+            else:
+                items = await self.collector.collect(now=self.wall())
+                current()
+                candidate = await self.builder.prepare(items,session=work.session,guard=current)
+            current()
+            if candidate is None and any(s['failures'] for s in self.collector._state.values()):
+                from .ask_dj.public_research import note_temporary_source_failure
+                note_temporary_source_failure()
+            if candidate is None or await self.builder.take(candidate,session=work.session,guard=current) is None:
+                return None
+            return candidate, work
+
+    async def _poll(self):
         """Collect public metadata; prepare for an original owner, NEVER publish."""
         try:
             items = await self.collector.collect(now=self.wall())

@@ -248,3 +248,10 @@ observer disconnect. [Follow-up qualification](../verification/PERSONA_TOUCH_WIT
 keeps source/isolated runtime separate from protected delivery, installed HA,
 native stop/gesture and audible acceptance. Apple touch stays disabled until its
 producer and native acceptance gates pass.
+
+
+## Ask DJ: Moments — additive original-owner contract
+
+Single tap opens Ask DJ: Moments in the existing card. Double/triple remain the original ephemeral reactions under their own cooldown/speech admission. Native arbitration must choose exactly one action per physical sequence; child controls and accessibility semantic activation never bubble into reaction gestures. Core withdraws ephemeral reaction display while an explicit request owns pending/result priority; no history conversion.
+
+See [versioned Moments contract](../technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md).

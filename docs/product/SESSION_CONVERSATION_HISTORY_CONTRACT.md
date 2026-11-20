@@ -784,3 +784,8 @@ identities, explicit preconfirmation, exact owner/Session scope and original
 operation lifetime apply. A pending/unknown/expired outcome cannot authorize a
 new ID or optimistic removal. Client implementation/native acceptance remains
 owned by each client lane and requires its matching installed producer receipt.
+
+
+## Ask DJ: Moments —20 November2026
+
+Explicit avatar Moments enter this same durable acceptance transaction immediately, before response/display/dismissal. Cancel after commit closes presentation and preserves original acceptance. Source-qualified retained families keep their original text/identity; no-retention and private Bulletin remain not_retained/receipt_only rather than a promise of archived prose. History reads provide original qualified speech descriptors without research. See [Moments contract](../technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md).

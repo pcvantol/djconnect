@@ -356,15 +356,17 @@ class LiveImpressionTest(unittest.IsolatedAsyncioTestCase):
     def test_tracked_actual_ha_http_receipt_binds_final_source_and_declared_fixture_scope(self):
         from pathlib import Path
         root=Path(__file__).resolve().parents[1]
-        proof=json.loads((root/'examples/client_contracts/live_impression_v1/actual-ha-wire.json').read_text())
+        proof=json.loads((root/'examples/client_contracts/live_impression_v1/actual-ha-wire-requested-moments-20261120.json').read_text())
         self.assertTrue(proof['source_before_after_equal'])
-        self.assertEqual(len(proof['source_pins']),318)
+        self.assertEqual(len(proof['source_pins']),321)
         for path,digest in proof['source_pins'].items():
             self.assertEqual(hashlib.sha256((root/path).read_bytes()).hexdigest(),digest,path)
         self.assertEqual(hashlib.sha256((root/proof['harness']).read_bytes()).hexdigest(),proof['harness_sha256'])
         raw=proof['receipt']
         self.assertTrue(raw['source_unchanged'])
-        self.assertEqual(len(raw['source_files_sha256']),proof['raw_selected_product_count'])
+        self.assertEqual(len(raw['source_files_sha256']),proof['raw_selected_file_count'])
+        self.assertEqual(sum(p.startswith('custom_components/djconnect/') for p in raw['source_files_sha256']),
+            proof['raw_selected_product_count'])
         extension=raw['extension']
         self.assertEqual(extension['state'],'PASS')
         self.assertEqual(extension['declared_synthetic_source_and_narration_calls'],1)

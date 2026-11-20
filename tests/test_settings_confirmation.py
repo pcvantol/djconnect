@@ -192,7 +192,7 @@ class SettingsConfirmationTests(unittest.IsolatedAsyncioTestCase):
         import hashlib
         from pathlib import Path
         root=Path(__file__).resolve().parents[1]
-        d=json.loads((root/'examples/client_contracts/settings_confirmation_v1/actual-ha-wire-live-impression-20261119.json').read_text())
+        d=json.loads((root/'examples/client_contracts/settings_confirmation_v1/actual-ha-wire-live-impression-20261119-requested-moments-20261120.json').read_text())
         self.assertEqual(d['ha_sdk_version'],'2026.10.0')
         self.assertEqual(len(d['cases']),12)
         self.assertEqual(set(d['cases'].values()),{'PASS'})
@@ -201,9 +201,9 @@ class SettingsConfirmationTests(unittest.IsolatedAsyncioTestCase):
         for key in ('installed','native','audible'):
             self.assertEqual(d[key],'NOT_RUN')
         self.assertEqual(hashlib.sha256((root/'scripts/verification/verify_settings_confirmation_http.py').read_bytes()).hexdigest(),d['harness_sha256'])
-        current = json.loads((root / 'examples/client_contracts/settings_confirmation_v1/settings_confirmation_http-requalification-bulletin-diagnostics-current-live-impression-20261119.json').read_text())
+        current = json.loads((root / 'examples/client_contracts/settings_confirmation_v1/settings_confirmation_http-requalification-bulletin-diagnostics-current-live-impression-20261119-requested-moments-20261120.json').read_text())
         self.assertTrue(current['source_before_after_equal'])
-        self.assertEqual(len(current['source_pins']), 318)
+        self.assertEqual(len(current['source_pins']), 321)
         self.assertEqual(hashlib.sha256((root / current['harness']).read_bytes()).hexdigest(), current['harness_sha256'])
         extension = current['receipt']['extension']
         self.assertEqual(extension['model_provider_calls'], 0)

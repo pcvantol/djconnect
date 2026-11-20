@@ -196,6 +196,14 @@
       "key": "first_play_choice_label",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "moment_subject_ref",
+      "value": ""
+    },
+    {
+      "key": "moment_request_operation_id",
+      "value": ""
     }
   ],
   "auth": {
@@ -2415,6 +2423,163 @@
               "raw": "{\n  \"device_id\": \"{{device_id}}\",\n  \"client_type\": \"{{client_type}}\",\n  \"client_message_id\": \"{{$guid}}\",\n  \"language\": \"nl\",\n  \"audio_response\": \"never\",\n  \"conversation_context\": {\n    \"session_id\": \"{{first_play_session_id}}\"\n  },\n  \"text\": \"{{first_play_choice_label}}\",\n  \"choice_action\": {\n    \"result_set_id\": \"{{first_play_result_set_id}}\",\n    \"action_id\": \"{{first_play_action_id}}\",\n    \"operation\": \"select\"\n  }\n}"
             },
             "description": "MANUAL deliberate selection only. Fill exact original result_set_id/action_id/label from the immediately offered set in this Session. A speaker tap transfers with play:false and continues the ORIGINAL request. A GENRE tap is itself the single exact ordered mix play grant; no later Play Now, client URI list or automatic second tap. No retry/new ID after uncertain outcome. Existing paused/nonempty/expired/withdrawn contexts remain closed. Defaults are empty so no fictitious authority is supplied."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ask DJ: Moments - existing avatarcard",
+      "item": [
+        {
+          "name": "Moments inventory - pure read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\"\n  },\n  \"contract_version\": 1,\n  \"operation\": \"ask_dj/moments\",\n  \"payload\": {\n    \"contract_version\": 1,\n    \"session_id\": \"{{session_id}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/transport/read",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "transport",
+                "read"
+              ]
+            },
+            "description": "Existing paired TLS/qualified transport and advertised ask_dj_moments version1 only. Read inventory first; use its exact original subject_ref, existing session and real UUIDv7 operation epoch. Reads perform no research. Retry original request ID; cancellation has its own new ID and names the original request. Source/history/speech policy remains binding. No Profile override or playback/settings action."
+          }
+        },
+        {
+          "name": "Request original rich Moment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\"\n  },\n  \"contract_version\": 1,\n  \"operation_id\": \"{{operation_id}}\",\n  \"operation_epoch\": \"{{operation_epoch}}\",\n  \"operation\": \"ask_dj/moments/request\",\n  \"payload\": {\n    \"contract_version\": 1,\n    \"session_id\": \"{{session_id}}\",\n    \"type_id\": \"artist_story\",\n    \"subject_ref\": \"{{moment_subject_ref}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/transport/operation",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "transport",
+                "operation"
+              ]
+            },
+            "description": "Existing paired TLS/qualified transport and advertised ask_dj_moments version1 only. Read inventory first; use its exact original subject_ref, existing session and real UUIDv7 operation epoch. Reads perform no research. Retry original request ID; cancellation has its own new ID and names the original request. Source/history/speech policy remains binding. No Profile override or playback/settings action."
+          }
+        },
+        {
+          "name": "Original Moment request status - pure read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\"\n  },\n  \"contract_version\": 1,\n  \"operation\": \"ask_dj/moments/status\",\n  \"payload\": {\n    \"contract_version\": 1,\n    \"session_id\": \"{{session_id}}\",\n    \"operation_id\": \"{{moment_request_operation_id}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/transport/read",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "transport",
+                "read"
+              ]
+            },
+            "description": "Existing paired TLS/qualified transport and advertised ask_dj_moments version1 only. Read inventory first; use its exact original subject_ref, existing session and real UUIDv7 operation epoch. Reads perform no research. Retry original request ID; cancellation has its own new ID and names the original request. Source/history/speech policy remains binding. No Profile override or playback/settings action."
+          }
+        },
+        {
+          "name": "Cancel original Moment request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{device_token}}"
+              },
+              {
+                "key": "X-DJConnect-Device-ID",
+                "value": "{{device_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identity\": {\n    \"device_id\": \"{{device_id}}\",\n    \"client_type\": \"{{client_type}}\"\n  },\n  \"contract_version\": 1,\n  \"operation_id\": \"{{operation_id}}\",\n  \"operation_epoch\": \"{{operation_epoch}}\",\n  \"operation\": \"ask_dj/moments/cancel\",\n  \"payload\": {\n    \"contract_version\": 1,\n    \"session_id\": \"{{session_id}}\",\n    \"request_operation_id\": \"{{moment_request_operation_id}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{ha_base_url}}/api/djconnect/v1/transport/operation",
+              "host": [
+                "{{ha_base_url}}"
+              ],
+              "path": [
+                "api",
+                "djconnect",
+                "v1",
+                "transport",
+                "operation"
+              ]
+            },
+            "description": "Existing paired TLS/qualified transport and advertised ask_dj_moments version1 only. Read inventory first; use its exact original subject_ref, existing session and real UUIDv7 operation epoch. Reads perform no research. Retry original request ID; cancellation has its own new ID and names the original request. Source/history/speech policy remains binding. No Profile override or playback/settings action."
           }
         }
       ]

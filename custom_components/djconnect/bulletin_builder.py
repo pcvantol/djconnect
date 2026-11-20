@@ -40,6 +40,7 @@ class BulletinSession:
     mood: str
     presence: str
     locale: str
+    explicit_request: bool = False
 
 
 @dataclass(frozen=True)
@@ -52,7 +53,7 @@ class BulletinCandidate:
     monotonic_deadline: float
 
     def eligible(self, *, session, now, monotonic):
-        return (self.session == session and session.presence != "music_only"
+        return (self.session == session and (session.presence != "music_only" or session.explicit_request is True)
             and admitted_text(self.text, self.items, session.locale)
             and now < self.expires_at and monotonic < self.monotonic_deadline
             and all(item.fresh(now, monotonic=monotonic) for item in self.items))
@@ -155,7 +156,8 @@ class BulletinBuilder:
             raise asyncio.CancelledError
         guard()  # Original owner/Session/source/settings admission, never recreated here.
         now = self._now()
-        if (session.presence not in {"occasional", "balanced", "presenter"}
+        if ((session.presence not in {"occasional", "balanced", "presenter"}
+                 and not (session.presence == "music_only" and session.explicit_request is True))
                 or (deadline is not None and self.monotonic() >= deadline)
                 or not all(item.fresh(now, monotonic=self.monotonic()) for item in items)):
             raise BuilderError("bulletin_context_expired")

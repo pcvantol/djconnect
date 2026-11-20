@@ -1,3 +1,7 @@
+## Current explicit selection — Ask DJ: Moments (20 November2026)
+
+The user selected existing Interactive DJMoments through owner comment6849511889 for integral Core+Apple source implementation. The current bounded maintenance19 leaves are ASK-DJ-MOMENTS::{CONTRACT,PRODUCER,APPLE,ACCEPTANCE}; source delivery and joint AM01–AM12 acceptance are separate. This supersedes the former settings-only execution horizon without modifying the immutable original top-level roadmap or dispatching unrelated lanes. See [canonical product](docs/product/ASK_DJ_MOMENTS_V1.md), [technical contract](docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md) and [planning JSON](docs/roadmap/v1/djconnect-platform-v1.json).
+
 ## 2026-11-20 — Live-impressie source delivered; joint acceptance remains open
 
 Core PR [#1661](https://github.com/djconnect-music-dj/djconnect/pull/1661) merged as

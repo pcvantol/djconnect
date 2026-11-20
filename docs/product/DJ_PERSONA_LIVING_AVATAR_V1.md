@@ -241,3 +241,10 @@ source and separate Finalization do not close the function: installed rendering,
 actual audio, touch admission and cross-platform acceptance remain independently
 OPEN. No consumer work, release, deployment or new assignment is dispatched by
 this document.
+
+
+## Ask DJ: Moments — additive original-owner contract
+
+The existing avatarcard also owns Ask DJ: Moments compact → chooser → pending → original rich result. Single physical tap selects this mode; double/triple keep ephemeral reactions. The Core catalogue owns supported families and localized labels. No second avatar panel or durable client intelligence.
+
+See [versioned Moments contract](../technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md).

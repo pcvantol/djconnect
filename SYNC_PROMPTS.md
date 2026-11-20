@@ -8020,3 +8020,8 @@ must qualify before use. Current now_playing survives independent DJ expiry.
 ## Live-impressie v1 — Core→Apple, 19 November 2026
 
 Canonical design: docs/product/LIVE_IMPRESSION_EXPERIENCE_V1.md. Additive consumer contract: docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md. Apple #87 consumes live_impression schema1, public_live_impression_v1 retained basis and explicit session-media version3. Source implementation/testing/native acceptance remain separately reported; no install/deploy authorized.
+
+
+## Ask DJ: Moments avatar v1 — current integral Core/Apple increment
+
+Authority: Core1101 comment6849511889; current20November2026 user authorizes integral source implementation. Canonical [product](docs/product/ASK_DJ_MOMENTS_V1.md) and [version1 inventory/request/status/result contract](docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md) control native ios/iPadOS/macOS reuse of the existing avatarcard. Implement only after those documents; source/runtime qualification, native adoption and AM01–AM12 actual acceptance stay separate. No installation/deployment, new provider, VibeCast/API/Watch writer or unrelated producer. Stable inventory has10source-owned rows, paired Hybrid operation/UUIDv7 and opaque frozen-original-subject capture; pending copy does not call a model. Same canonical Moment/history immediately committed, original source/media3/speech rights retained. Typed fixtures follow actual serializer implementation; no guessed client wire.

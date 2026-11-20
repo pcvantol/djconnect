@@ -1,3 +1,31 @@
+## 2026-11-20 — Ask DJ: Moments avatarcard implementation
+
+#### Repository Status
+
+Current explicitly selected work is Ask DJ: Moments under the existing Interactive DJMoments family, owner comment6849511889. Core producer and Apple consumer are being implemented in parallel. Source is local/unmerged. Final321-product source is frozen:31 Core feature/evidence tests,46 current source joins,46 actual isolated HA regressions and independent verified-HTTPS6+26 requests pass with declared source/model inputs. Full offline4865-case accounting has11 existing skips and one external-copy Git-only brand error separately passing in the actual checkout. Exact-head hosted CI, independent review, protected source merge and separate Finalization remain required. Existing616bad8 main and all earlier source/publication/install receipts remain historical facts.
+
+#### Management Summary
+
+The existing avatarcard receives a pure Core-owned10-family chooser, bounded explicit request, truthful pending/cancel/status and the original rich Moment. Existing Knowledge, reviewed narration, Moment, speech/media and SQLite owners are reused. Durable acceptance is immediate; presentation is owner-only with a fixed source deadline, and collapse reveals the same history entry. Presence/music_only and pause affect unsolicited cadence, not explicit access. No playback/settings/provider grants are added.
+
+#### Roadmap Position
+
+Generation2 / DJConnect Product Development / existing Interactive DJMoments. Maintenance19 adds only CONTRACT, PRODUCER, APPLE and joint ACCEPTANCE leaves under PROJ::ROADMAP::INTERACTIVE. Maintenance18 is frozen byte-for-byte separately; old nodes/edges/receipts are preserved. Three source leaves remain In progress; joint AM01–AM12 remains Planned/OPEN.
+
+#### Rolling Horizon (explicit user selection)
+
+The user's integral Moments assignment deliberately supersedes the previous five-settings follow-through horizon. It does not issue those unrelated settings lanes. Current functional order is CONTRACT → PRODUCER and APPLE in parallel → joint ACCEPTANCE. Source/fixture/native-build evidence never promotes live model, installed device, accessibility or editorial acceptance.
+
+#### Blocked and Deferred Items
+
+Actual configured-provider/model/editorial and physical-device AM12 acceptance are independently open. Existing VibeCast/Watch/API writers and unrelated planned work are outside this increment. No installation or deployment is authorized by this source task.
+
+#### Repository and Workspace State
+
+RepositoryState: LOCAL_IMPLEMENTATION; protected delivery and later reconciliation pending. WorkspaceState: NOT_READY while task WIP, source qualification and prescribed cleanup are incomplete. Preserve the unrelated VibeCast worktree and all unique prior evidence/rollback.
+
+[Canonical product](docs/product/ASK_DJ_MOMENTS_V1.md) · [Versioned contract](docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md) · [Planning JSON](docs/roadmap/v1/djconnect-platform-v1.json).
+
 ## Current — DEFAULT Spotify connection repair
 
 Source [#1469](https://github.com/pcvantol/djconnect/pull/1469) merged as
