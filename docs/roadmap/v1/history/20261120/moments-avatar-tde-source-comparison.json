@@ -1,0 +1,582 @@
+{
+  "scope": "NEW_AND_INHERITED_MAINTAINABILITY_RISK_RECORDED_WITHOUT_WAIVER",
+  "baseline_head": "616bad88015a8a1bc413781fc49d97532ef7383a",
+  "candidate_head": "373e324e736b884e181f95dc2274bbb7ea15baaa",
+  "source_merge": "948dbb8f7575df76a39e31335953fa53024b0831",
+  "baseline": {
+    "zip_sha256": "e1521cd7b8257f15f56118c21a8d868c7cffeaa90be4308625bc7f6c44a502a0",
+    "member": ".tde/evidence/evidence/0bfbe052838f4e0a1fe902fb7242061f8c2f09d67ff09e87aeaf1e5d040785be.json",
+    "member_sha256": "953ad12e6c28b055e717a7cab0b8fdfaa2e2678ec2366c6d021edf30682ad01b",
+    "decision": "FAIL",
+    "qualification": "FAIL",
+    "finding_count": 993,
+    "policy_result_count": 68,
+    "metrics": [
+      {
+        "affectedCapability": "code_size",
+        "affectedEvidence": {
+          "measurementId": "code_size.repository.source",
+          "targetEntityId": "repository.git.80c167d92d15ef38"
+        },
+        "measuredValue": 118835,
+        "metricKey": "code_size.source_lines",
+        "outcome": "FAIL",
+        "ruleId": "code_size.repository_lines",
+        "threshold": 75000
+      },
+      {
+        "affectedCapability": "complexity",
+        "affectedEvidence": {
+          "measurementId": "complexity.repository_product.1d502149f08be3cd.maximum",
+          "targetEntityId": "repository.git.80c167d92d15ef38"
+        },
+        "measuredValue": 262,
+        "metricKey": "complexity.cyclomatic.product.maximum",
+        "outcome": "FAIL",
+        "ruleId": "complexity.product.maximum",
+        "threshold": 30
+      }
+    ],
+    "summary": "# TDE observe result\n\n- Runtime: `technical-debt-engine-runtime==1.1.1`\n- Assessment profile: `standard`\n- Executed capabilities: code_size, complexity, coverage, dependency_health\n- Assessment decision: FAIL\n- Repository qualification: FAILED\n- Assessment exit code: 2 (observed only)\n- Qualification exit code: 2 (observed only)\n- Duration: 40s\n- Started: 2026-11-20T09:21:15Z\n- Evidence artifact: `tde-observe-evidence`\n"
+  },
+  "candidate": {
+    "zip_sha256": "ce1cdfa27b529feb5faa504cc17dfe25a217a5c267caee713a5a4ed136297b15",
+    "member": ".tde/evidence/evidence/4f3e77a6d5674a3bead4190847b728d1b1bb4dc05f9d14954595600c7ccc229a.json",
+    "member_sha256": "1abdbf4ca65ac8029029f6a269920be761cc694c9fef426eeb7707dd9256c597",
+    "decision": "FAIL",
+    "qualification": "FAIL",
+    "finding_count": 1006,
+    "policy_result_count": 69,
+    "metrics": [
+      {
+        "affectedCapability": "code_size",
+        "affectedEvidence": {
+          "measurementId": "code_size.repository.source",
+          "targetEntityId": "repository.git.80c167d92d15ef38"
+        },
+        "measuredValue": 120308,
+        "metricKey": "code_size.source_lines",
+        "outcome": "FAIL",
+        "ruleId": "code_size.repository_lines",
+        "threshold": 75000
+      },
+      {
+        "affectedCapability": "complexity",
+        "affectedEvidence": {
+          "measurementId": "complexity.repository_product.1d502149f08be3cd.maximum",
+          "targetEntityId": "repository.git.80c167d92d15ef38"
+        },
+        "measuredValue": 262,
+        "metricKey": "complexity.cyclomatic.product.maximum",
+        "outcome": "FAIL",
+        "ruleId": "complexity.product.maximum",
+        "threshold": 30
+      }
+    ],
+    "summary": "# TDE observe result\n\n- Runtime: `technical-debt-engine-runtime==1.1.1`\n- Assessment profile: `standard`\n- Executed capabilities: code_size, complexity, coverage, dependency_health\n- Assessment decision: FAIL\n- Repository qualification: FAILED\n- Assessment exit code: 2 (observed only)\n- Qualification exit code: 2 (observed only)\n- Duration: 38s\n- Started: 2026-11-20T18:44:59Z\n- Evidence artifact: `tde-observe-evidence`\n"
+  },
+  "source_main": {
+    "member": ".tde/evidence/evidence/6e716c58a797609da08c8eab7f883cfbe30d146d0e4bb8c89c3c13b9372f99da.json",
+    "member_sha256": "b7e73765f876f0c5a6072b4445016fdab9873401ea97f44d04c1e1ad5981e309",
+    "decision": "FAIL",
+    "qualification": "FAIL",
+    "finding_count": 1006,
+    "policy_result_count": 69,
+    "metrics": [
+      {
+        "affectedCapability": "code_size",
+        "affectedEvidence": {
+          "measurementId": "code_size.repository.source",
+          "targetEntityId": "repository.git.80c167d92d15ef38"
+        },
+        "measuredValue": 120308,
+        "metricKey": "code_size.source_lines",
+        "outcome": "FAIL",
+        "ruleId": "code_size.repository_lines",
+        "threshold": 75000
+      },
+      {
+        "affectedCapability": "complexity",
+        "affectedEvidence": {
+          "measurementId": "complexity.repository_product.1d502149f08be3cd.maximum",
+          "targetEntityId": "repository.git.80c167d92d15ef38"
+        },
+        "measuredValue": 262,
+        "metricKey": "complexity.cyclomatic.product.maximum",
+        "outcome": "FAIL",
+        "ruleId": "complexity.product.maximum",
+        "threshold": 30
+      }
+    ],
+    "head": "948dbb8f7575df76a39e31335953fa53024b0831",
+    "workflow_run": 44796551707,
+    "artifact_id": 14657234932,
+    "zip_sha256": "f47ce0d8931a38f99903a9eb13f206585568b6c2707b30ca84a5acd5fb330c08",
+    "canonical_findings_equal_to_qualified_candidate": true,
+    "open_new_critical": "session_speech.moment_projection CC40→47",
+    "overall_tde_pass": false,
+    "repository_qualification": "FAILED",
+    "qualification_canonical_member": ".tde/qualifications/repository-qualification.e815bbb28dc8f3ddf519ef4d.json",
+    "qualification_member_sha256": "305ee87d204adb83a438f4b9af01862970e68479219ce68738db84827997d03e",
+    "qualification_evidence_member": ".tde/evidence/evidence/e09128c41ba4ef057300a173bc7161b22dba1425af45ff1664a51df07dafab81.json",
+    "qualification_evidence_sha256": "c4a4e049c4d3b1f403454964c52f5e1105583ce51eb873cc7f69c1bd49dedb14",
+    "assessment_and_qualification_findings_equal": true
+  },
+  "net_extra_findings": 13,
+  "net_extra_policy_results": 1,
+  "added_or_increased": [
+    {
+      "id": "complexity.very_high.symbol.d2be8eeb7cf09836",
+      "path": "custom_components/djconnect/ask_dj/public_research.py",
+      "line": 168,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 26 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "request"
+    },
+    {
+      "id": "complexity.high.symbol.78a952429c80d84f",
+      "path": "custom_components/djconnect/bulletin_builder.py",
+      "line": 96,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 12 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": null
+    },
+    {
+      "id": "complexity.very_high.symbol.25612a1119e7bb49",
+      "path": "custom_components/djconnect/bulletin_runtime.py",
+      "line": 82,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 26 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "admitted"
+    },
+    {
+      "id": "complexity.high.symbol.f71ab50a90f0d2fe",
+      "path": "custom_components/djconnect/bulletin_service.py",
+      "line": 65,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 11 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "requested"
+    },
+    {
+      "id": "complexity.high.symbol.82379c079166734f",
+      "path": "custom_components/djconnect/hybrid_service.py",
+      "line": 234,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 17 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "invoke"
+    },
+    {
+      "id": "complexity.high.symbol.524ca63364797a19",
+      "path": "custom_components/djconnect/hybrid_service.py",
+      "line": 481,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 18 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "_run"
+    },
+    {
+      "id": "complexity.high.symbol.9c1a6e17e4c66d86",
+      "path": "custom_components/djconnect/live_impression_research.py",
+      "line": 18,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 13 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "image"
+    },
+    {
+      "id": "complexity.high.symbol.7140aeb248d5c9ba",
+      "path": "custom_components/djconnect/live_impression_research.py",
+      "line": 13,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 14 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": null
+    },
+    {
+      "id": "complexity.very_high.symbol.0387dca5fb4de57f",
+      "path": "custom_components/djconnect/pipeline.py",
+      "line": 445,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 31 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "realize_session_narration"
+    },
+    {
+      "id": "complexity.critical.symbol.61285ea0cf9ec637",
+      "path": "custom_components/djconnect/playback_observation.py",
+      "line": 338,
+      "severity": "CRITICAL",
+      "description": "Cyclomatic complexity is 56 (threshold: 41).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "_async_poll_spotify"
+    },
+    {
+      "id": "complexity.high.symbol.12008863f474b254",
+      "path": "custom_components/djconnect/requested_moment_inventory.py",
+      "line": 247,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 11 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "capture"
+    },
+    {
+      "id": "complexity.very_high.symbol.58fcc997b9463255",
+      "path": "custom_components/djconnect/requested_moment_inventory.py",
+      "line": 341,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 31 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "descriptors"
+    },
+    {
+      "id": "complexity.high.symbol.1e7d62d665728810",
+      "path": "custom_components/djconnect/requested_moment_proof.py",
+      "line": 80,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 12 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "valid"
+    },
+    {
+      "id": "complexity.high.symbol.d2b9c610d1282d0f",
+      "path": "custom_components/djconnect/requested_moment_proof.py",
+      "line": 148,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 14 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "retained_provenance"
+    },
+    {
+      "id": "complexity.high.symbol.668277d5e282a05b",
+      "path": "custom_components/djconnect/requested_moments.py",
+      "line": 152,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 17 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "domain_response"
+    },
+    {
+      "id": "complexity.very_high.symbol.eb62372ca351100f",
+      "path": "custom_components/djconnect/requested_moments.py",
+      "line": 476,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 37 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "request"
+    },
+    {
+      "id": "complexity.very_high.symbol.4b84cf0142b3fc04",
+      "path": "custom_components/djconnect/session_facts.py",
+      "line": 715,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 24 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "_get"
+    },
+    {
+      "id": "complexity.very_high.symbol.028cde92551b2cd2",
+      "path": "custom_components/djconnect/session_facts.py",
+      "line": 707,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 27 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": null
+    },
+    {
+      "id": "complexity.high.symbol.3b641c7b243ee265",
+      "path": "custom_components/djconnect/session_runtime.py",
+      "line": 458,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 16 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": null
+    },
+    {
+      "id": "complexity.very_high.symbol.d7807f21ec039ad2",
+      "path": "custom_components/djconnect/session_runtime.py",
+      "line": 4551,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 29 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "publish_moment"
+    },
+    {
+      "id": "complexity.very_high.symbol.db5b2caaefdd7f03",
+      "path": "custom_components/djconnect/session_runtime.py",
+      "line": 5652,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 35 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "_async_realize_qualified_moment"
+    },
+    {
+      "id": "complexity.critical.symbol.d9e088bc3410ff41",
+      "path": "custom_components/djconnect/session_runtime.py",
+      "line": 5725,
+      "severity": "CRITICAL",
+      "description": "Cyclomatic complexity is 62 (threshold: 41).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "_realize_qualified_current_fact"
+    },
+    {
+      "id": "complexity.critical.symbol.e6ba4fca88e28f41",
+      "path": "custom_components/djconnect/session_runtime.py",
+      "line": 7209,
+      "severity": "CRITICAL",
+      "description": "Cyclomatic complexity is 86 (threshold: 41).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "_async_persist_moment"
+    },
+    {
+      "id": "complexity.critical.symbol.941303a17e81b1e8",
+      "path": "custom_components/djconnect/session_speech.py",
+      "line": 573,
+      "severity": "CRITICAL",
+      "description": "Cyclomatic complexity is 116 (threshold: 41).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "async_handle_prepare"
+    },
+    {
+      "id": "complexity.high.symbol.e69004d8a203bcfc",
+      "path": "custom_components/djconnect/session_speech.py",
+      "line": 497,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 16 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "retained_projection"
+    },
+    {
+      "id": "complexity.very_high.symbol.62dccbc0c80e4d06",
+      "path": "custom_components/djconnect/session_speech.py",
+      "line": 425,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 31 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "resolve_moment"
+    },
+    {
+      "id": "complexity.critical.symbol.9dc69f74de55e16b",
+      "path": "custom_components/djconnect/session_speech.py",
+      "line": 354,
+      "severity": "CRITICAL",
+      "description": "Cyclomatic complexity is 47 (threshold: 41).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "moment_projection"
+    },
+    {
+      "id": "complexity.high.symbol.881203e7fd8c669f",
+      "path": "custom_components/djconnect/transport_operations.py",
+      "line": 264,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 18 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "cancel_reaction"
+    },
+    {
+      "id": "complexity.critical.symbol.8ab1fda7a379cc7a",
+      "path": "docs/roadmap/v1/maintenance_delta.py",
+      "line": 940,
+      "severity": "CRITICAL",
+      "description": "Cyclomatic complexity is 45 (threshold: 41).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "render_delta"
+    },
+    {
+      "id": "complexity.high.symbol.3e7929e7d4d299ae",
+      "path": "docs/roadmap/v1/moments_avatar_delta.py",
+      "line": 84,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 14 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "validate"
+    },
+    {
+      "id": "complexity.high.symbol.cfec3526ee4f5c8f",
+      "path": "docs/roadmap/v1/moments_avatar_delta.py",
+      "line": 13,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 19 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "_scope"
+    },
+    {
+      "id": "complexity.high.symbol.8ca0f92f67a4c313",
+      "path": "docs/roadmap/v1/test_maintenance_delta.py",
+      "line": 1089,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 15 (threshold: 11).",
+      "classification": "TEST",
+      "symbol": "test_completion_dispatch_and_unrelated_changes_are_not_authorized"
+    }
+  ],
+  "removed_or_replaced": [
+    {
+      "id": "complexity.high.symbol.03771ea22fd75cc9",
+      "path": "custom_components/djconnect/bulletin_builder.py",
+      "line": 95,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 11 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": null
+    },
+    {
+      "id": "complexity.very_high.symbol.25612a1119e7bb49",
+      "path": "custom_components/djconnect/bulletin_runtime.py",
+      "line": 82,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 25 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "admitted"
+    },
+    {
+      "id": "complexity.high.symbol.cf9e1ca2146e392b",
+      "path": "custom_components/djconnect/hybrid_service.py",
+      "line": 232,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 16 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "invoke"
+    },
+    {
+      "id": "complexity.high.symbol.c5181c043a8ac41d",
+      "path": "custom_components/djconnect/hybrid_transport.py",
+      "line": 134,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 12 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "post"
+    },
+    {
+      "id": "complexity.high.symbol.9c1a6e17e4c66d86",
+      "path": "custom_components/djconnect/live_impression_research.py",
+      "line": 18,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 11 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "image"
+    },
+    {
+      "id": "complexity.very_high.symbol.58e2b919cee3bb0f",
+      "path": "custom_components/djconnect/narration_brief.py",
+      "line": 123,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 35 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "qualify"
+    },
+    {
+      "id": "complexity.very_high.symbol.0387dca5fb4de57f",
+      "path": "custom_components/djconnect/pipeline.py",
+      "line": 445,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 29 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "realize_session_narration"
+    },
+    {
+      "id": "complexity.critical.symbol.632297c5e8483cfd",
+      "path": "custom_components/djconnect/playback_observation.py",
+      "line": 336,
+      "severity": "CRITICAL",
+      "description": "Cyclomatic complexity is 55 (threshold: 41).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "_async_poll_spotify"
+    },
+    {
+      "id": "complexity.very_high.symbol.028cde92551b2cd2",
+      "path": "custom_components/djconnect/session_facts.py",
+      "line": 707,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 26 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": null
+    },
+    {
+      "id": "complexity.high.symbol.d208effed8e1a58c",
+      "path": "custom_components/djconnect/session_runtime.py",
+      "line": 4469,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 18 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "allows_moment"
+    },
+    {
+      "id": "complexity.critical.symbol.c1a81839a71bcd13",
+      "path": "custom_components/djconnect/session_runtime.py",
+      "line": 7171,
+      "severity": "CRITICAL",
+      "description": "Cyclomatic complexity is 79 (threshold: 41).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "_async_persist_moment"
+    },
+    {
+      "id": "complexity.critical.symbol.c7808be4e6cb88c0",
+      "path": "custom_components/djconnect/session_runtime.py",
+      "line": 5625,
+      "severity": "CRITICAL",
+      "description": "Cyclomatic complexity is 94 (threshold: 41).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "_realize_qualified_current_fact"
+    },
+    {
+      "id": "complexity.critical.symbol.c39ef808df084bad",
+      "path": "custom_components/djconnect/session_speech.py",
+      "line": 554,
+      "severity": "CRITICAL",
+      "description": "Cyclomatic complexity is 104 (threshold: 41).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "async_handle_prepare"
+    },
+    {
+      "id": "complexity.high.symbol.dc0dcaa9585f44ef",
+      "path": "custom_components/djconnect/session_speech.py",
+      "line": 482,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 15 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "retained_projection"
+    },
+    {
+      "id": "complexity.very_high.symbol.6c6b741ea9c50941",
+      "path": "custom_components/djconnect/session_speech.py",
+      "line": 413,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 28 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "resolve_moment"
+    },
+    {
+      "id": "complexity.very_high.symbol.9d7ec905b300e611",
+      "path": "custom_components/djconnect/session_speech.py",
+      "line": 352,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 40 (threshold: 21).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "moment_projection"
+    },
+    {
+      "id": "complexity.high.symbol.881203e7fd8c669f",
+      "path": "custom_components/djconnect/transport_operations.py",
+      "line": 264,
+      "severity": "HIGH",
+      "description": "Cyclomatic complexity is 16 (threshold: 11).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "cancel_reaction"
+    },
+    {
+      "id": "complexity.critical.symbol.bf311b04311a12a9",
+      "path": "docs/roadmap/v1/maintenance_delta.py",
+      "line": 938,
+      "severity": "CRITICAL",
+      "description": "Cyclomatic complexity is 44 (threshold: 41).",
+      "classification": "PRODUCT_SOURCE",
+      "symbol": "render_delta"
+    }
+  ],
+  "review_decision": "Observe-only maturity policy unchanged; new projection source/manual/retained/autoplay paths causally verified. No unresolved functional/source-rights defect identified; maintainability risk remains OPEN. No metric-only product refactor or threshold change."
+}

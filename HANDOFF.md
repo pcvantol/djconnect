@@ -1,3 +1,55 @@
+## 2026-11-20 — Finalize Ask DJ: Moments source delivery
+
+#### Repository Status
+
+Core PR [#1664](https://github.com/djconnect-music-dj/djconnect/pull/1664) merged as `948dbb8f7575df76a39e31335953fa53024b0831`; full tree `7f5b032c6e54b4e9a2d2b912c35059a757365ab3` equals reviewed `373e324e736b884e181f95dc2274bbb7ea15baaa`. Its own main validation44796552623 and automatic publication44797292807 pass. The downloaded archive has exactly321 matching product files; the durable evidence passes the pinned Core evidence-ebbb validator and all12 checks.
+
+Apple PR [#400](https://github.com/djconnect-music-dj/djconnect-app/pull/400) merged as `83e2f03822deac1c52cc1dbedd8623d4a0e09b06` from qualified `9b95eb553b300ef85697e747fa75d1c735263d25`, preserving its qualified tree. Its own main44800859483 and formal publication44802814160 pass; actual Apple evidence-4877 canonical validation and all12 checks pass. The corrective native test-resource packaging is qualified by actual Xcode tests and exact seven-fixture bundle hashes; software proof is distinct from installed physical acceptance.
+
+#### Management Summary
+
+Ask DJ: Moments has delivered Core and Apple software for the existing avatarcard chooser, explicit request/pending/cancel, original rich result and immediate canonical history. Existing Knowledge, narration/research/Bulletin, Moment, media and speech owners remain authoritative. Three source/software leaves are Completed / SOURCE_DELIVERED. Joint AM01–AM12 acceptance remains Planned/OPEN; actual configured-model/editorial, installed-device, accessibility and real consumer/provider acceptance is not inferred.
+
+#### Roadmap Position
+
+Generation2 / Product Development / existing Interactive DJMoments, PROJ::ROADMAP::INTERACTIVE. Maintenance20 preserves the complete immutable maintenance19 source freeze and every older node/edge/receipt. It changes only the three selected source leaves and binds actual protected source/main/internal-publication evidence. No runtime product, contract, policy threshold or new producer change is made by this Finalization.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+The explicit Moments selection remains first. The following are existing canonical leaves, not new dispatch or operational authorization:
+
+1. **ASK-DJ-MOMENTS::ACCEPTANCE** — Planned/OPEN. Execution Rationale: selected family has compatible protected source; actual model/editorial/native/accessibility proof requires its own valid operational admission and is not executed by this source Finalization.
+2. **SETTINGS::APPLE::EDITOR** — Planned/NOT_ISSUED. Execution Rationale: existing editor follow-through, dependent on completed SETTINGS::CORE::PRODUCER; separate lane issuance remains required.
+3. **SETTINGS::PI::ADOPTION** — Planned/NOT_ISSUED. Execution Rationale: existing shared-settings consumer order and completed Core dependency; no Pi writer/install authority is created.
+4. **SETTINGS::ESP32::ADOPTION** — Planned/NOT_ISSUED. Execution Rationale: existing capability/legacy disposition follow-through; no firmware work or install is dispatched.
+5. **SETTINGS::VIBECAST::COMPAT** — Planned/NOT_ISSUED. Execution Rationale: existing renderer contract compatibility work in canonical order; no shared-screen/provider authorization is inferred.
+
+#### Execution Priority Override
+
+The explicit user selection of the existing Moments family keeps its joint acceptance leaf first. The remaining settings leaves retain their existing relative order; this projection creates no next implementation or operational dispatch.
+
+#### Blocked Items
+
+Joint operational AM acceptance remains open and requires valid operational admission.
+
+#### Deferred Items
+
+All unrelated deferred work and the existing VibeCast worktree retain their previous disposition.
+
+#### Engineering Risk
+
+TDE observation completed but its actual assessment remains FAIL / repository qualification FAILED: source1006 findings/69 policy results versus baseline993/68, including newly critical moment_projection40→47 and other inherited/increased complexity. The maximum stays262. This is explicitly open maintainability risk under the unchanged observe-only policy, not an overall TDE qualification or a waiver.
+
+#### Repository State
+
+Repository State: `MERGED_RECONCILED` (**PROSPECTIVE TARGET ONLY**), effective only after this Finalization's protected merge and its own independent exact-main validation/internal-publication PASS. The paired source increments remain `MERGED_UNRECONCILED` until that condition is fulfilled. No recursive Finalization is needed merely to activate this explicit target.
+
+#### Workspace State
+
+Workspace State: `WORKSPACE_READY` (**PROSPECTIVE TARGET ONLY**), effective only after actual task-scoped cleanup proves canonical main==origin/main, clean WIP and completed-branch disposition under the existing strict guards. Until then the workspace is NOT_READY. Unique evidence, recovery/rollback and unrelated work are preserved; no deletion override is created.
+
+[Actual source readback](docs/roadmap/v1/history/20261120/moments-avatar-source-publication-readback.json) · [Finalization report](docs/technical/ASK_DJ_MOMENTS_SOURCE_FINALIZATION_20261120.md) · [Immutable Prompt History](docs/history/prompts/2026-11-20-ask-dj-moments-finalization.md).
+
 ## 2026-11-20 — Ask DJ: Moments avatarcard implementation
 
 #### Repository Status

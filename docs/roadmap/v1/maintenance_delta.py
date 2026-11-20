@@ -84,14 +84,16 @@ def validate_delta(plan: dict[str, Any]) -> list[str]:
             errors.append("maintenance: " + reason)
 
     version = d.get("schema_version")
-    if version in ("djconnect-federated-planning-delta/17", "djconnect-federated-planning-delta/18", "djconnect-federated-planning-delta/19"):
+    if version in ("djconnect-federated-planning-delta/17", "djconnect-federated-planning-delta/18", "djconnect-federated-planning-delta/19", "djconnect-federated-planning-delta/20"):
         from moments_avatar_delta import validate as validate_moments
+        from moments_avatar_finalization_delta import validate as validate_moments_final
         from live_impression_delta import validate as validate_live
         from live_impression_finalization_delta import validate as validate_live_finalization
         validators = {
             "djconnect-federated-planning-delta/17": validate_live,
             "djconnect-federated-planning-delta/18": validate_live_finalization,
             "djconnect-federated-planning-delta/19": validate_moments,
+            "djconnect-federated-planning-delta/20": validate_moments_final,
         }
         return validators[version](plan, validate_delta)
     if version == "djconnect-federated-planning-delta/16":
@@ -1042,10 +1044,7 @@ def render_delta(p):
                  else 'implemented local contract3 (runtime checkpoint3, unpublished until protected delivery)')
         intro += f"Selected shared Profile/Session settings consolidation: {r['assignment_id']}; six shared Persona/voice/gender/Mood/Presence/announcement_output, {state}, last explicit accepted choice becomes default, atomic active+default acceptance. Source {r['source_delivery']}; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.\n\n"
     if d.get("moments_avatar_receipt"):
-        intro += ("Current user-selected execution: Ask DJ Moments avatarcard under existing Interactive DJMoments; "
-                  "contract/Core/Apple In progress, joint AM01–AM12 Planned. Explicit user selection supersedes "
-                  "the prior five-settings horizon; no automatic dispatch, installation or whole-family acceptance. "
-                  "Maintenance18 and all prior source/publication records remain immutable.\n\n")
+        intro += _render_moments_avatar_intro(d)
     if d.get("live_impression_receipt"):
         intro += _render_live_impression_intro(d)
     if d.get("branch_consolidation_receipt"):
@@ -1198,3 +1197,17 @@ def _render_live_impression_intro(d):
               "Canonical design and exact contract recorded; original event/photos, history and speech remain owner-scoped. "
               "LI01–LI20 real-source/model/native acceptance remains OPEN. No install, shared-screen delivery or deployment. "
               "Prior maintenance16 below is historical and unchanged.\n\n")
+
+
+def _render_moments_avatar_intro(d):
+    """Source reconciliation changes no prior admitted rendering semantics."""
+    if d.get("moments_avatar_finalization_receipt"):
+        return ("Ask DJ Moments SOURCE_DELIVERED: Core #1664 and Apple #400 protected merged; "
+                "both exact-main/publication records independently qualified. Three software leaves Completed; "
+                "joint AM01–AM12 ACCEPTANCE stays Planned/OPEN, actual installed/model/editorial/a11y acceptance unclaimed. "
+                "New and inherited TDE maintainability risks remain OPEN, actual assessment FAIL. "
+                "Original maintenance19 and every earlier receipt remain immutable; no new consumer dispatch.\n\n")
+    return ("Current user-selected execution: Ask DJ Moments avatarcard under existing Interactive DJMoments; "
+                  "contract/Core/Apple In progress, joint AM01–AM12 Planned. Explicit user selection supersedes "
+                  "the prior five-settings horizon; no automatic dispatch, installation or whole-family acceptance. "
+                  "Maintenance18 and all prior source/publication records remain immutable.\n\n")

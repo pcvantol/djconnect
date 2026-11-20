@@ -1,0 +1,9 @@
+# Ask DJ: Moments source Finalization —20 November2026
+
+The user explicitly approved Core1664/373e and Apple400 plus their mandatory separate Finalization and automatic internal GitHub publications/tags/evidence: “Ja, inclusief interne publicaties.” The necessary Apple test-resource packaging correction was independently reviewed and requalified before its protected source merge. No installation/deployment or actual-model/editorial/physical acceptance is included.
+
+Core source948dbb8f7575df76a39e31335953fa53024b0831 preserves the full reviewed373e tree and321 product hashes. Apple source83e2f03822deac1c52cc1dbedd8623d4a0e09b06 preserves its qualified9b95eb553b300ef85697e747fa75d1c735263d25 tree. Both own exact-main workflows and actual internal/durable publications are independently read back, with each repository's actual pinned policy/snapshot and twelve canonical checks. Source/software delivery and joint AM01–AM12 acceptance remain separate.
+
+This governance-only increment freezes complete maintenance19, adds bounded20, closes exactly the three source leaves and leaves joint acceptance Planned/OPEN. All unrelated nodes, edges, receipts and immutable history remain intact. Actual TDE FAIL/FAILED1006/69 versus993/68 and new/inherited maintainability risks remain explicitly OPEN. No threshold, waiver or product refactor is used to manufacture a PASS.
+
+RepositoryState MERGED_RECONCILED is only a prospective target, effective after this Finalization's own protected merge+exact-main/internal-publication qualification. WorkspaceState WORKSPACE_READY separately requires actual strict task-scoped cleanup. Existing unrelated work, unique evidence and earlier installation/rollback remain preserved. See the current technical report and portable source readback for exact identities and proof.

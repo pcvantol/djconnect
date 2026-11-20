@@ -9,8 +9,8 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[2]
-REGISTER = ROOT / 'docs/governance/djconnect-open-work-moments-20261120.json'
-REPORT = REGISTER.with_name('DJC_PLATFORM_OPEN_WORK_MOMENTS_20261120.md')
+REGISTER = ROOT / 'docs/governance/djconnect-open-work-moments-finalization-20261120.json'
+REPORT = REGISTER.with_name('DJC_PLATFORM_OPEN_WORK_MOMENTS_FINALIZATION_20261120.md')
 # Immutable dated source snapshot, independently compared with Git cc9b49fe.
 SOURCE_MANIFEST = REGISTER.with_name('core-source-manifest-cc9b49fe.json')
 SOURCE_MANIFEST_SHA256 = '780022ac088d59f5ac46fde6846e151de40c0e1c5fd3cdfda5dbb23550080eb4'

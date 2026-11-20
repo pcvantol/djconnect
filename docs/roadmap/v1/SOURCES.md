@@ -12,7 +12,7 @@ Selected passive Session projection: DJC-CORE-PASSIVE-SESSION-PROJECTION-V1-2026
 
 Selected shared Profile/Session settings consolidation: DJC-PROFILE-SESSION-SETTINGS-CONSOLIDATION-V1-20261016; six shared Persona/voice/gender/Mood/Presence/announcement_output, protected source delivered contract3 (Core producer only), last explicit accepted choice becomes default, atomic active+default acceptance. Source PROTECTED_MERGED; Core producer and migration work only; Apple/other consumers/joint separately open, no automatic dispatch or whole-family completion. Delivered v13 preserved.
 
-Current user-selected execution: Ask DJ Moments avatarcard under existing Interactive DJMoments; contract/Core/Apple In progress, joint AM01–AM12 Planned. Explicit user selection supersedes the prior five-settings horizon; no automatic dispatch, installation or whole-family acceptance. Maintenance18 and all prior source/publication records remain immutable.
+Ask DJ Moments SOURCE_DELIVERED: Core #1664 and Apple #400 protected merged; both exact-main/publication records independently qualified. Three software leaves Completed; joint AM01–AM12 ACCEPTANCE stays Planned/OPEN, actual installed/model/editorial/a11y acceptance unclaimed. New and inherited TDE maintainability risks remain OPEN, actual assessment FAIL. Original maintenance19 and every earlier receipt remain immutable; no new consumer dispatch.
 
 Live-impressie v1 SOURCE_DELIVERED: Core #1661 and Apple #396 protected merged; exact source trees and independent main evidence qualified. Three software/source leaves Completed; joint LI01–LI20 ACCEPTANCE remains Planned/OPEN. Real-model/editorial and native/physical acceptance are not claimed; installed/shared-TV NOT_RUN. No new implementation or consumer dispatch. The immutable maintenance17 freeze remains historical.
 
@@ -145,3 +145,5 @@ Frozen raw SHA256 `5b7ae65fba263150e1deacbec865cc44622033afb9125fae995a61b88a348
 | [docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md](../../../docs/technical/LIVE_IMPRESSION_RESEARCH_MEDIA_CONTRACT_V1.md) | `2d40d63e6d7d1321cacbf17f981135dfb5daa8b19d67b8f21975c804ed36228b` |
 | [docs/product/ASK_DJ_MOMENTS_V1.md](../../../docs/product/ASK_DJ_MOMENTS_V1.md) | `e93c00abf81a150787add9ff1140c79d2b2c2314cd8a4726ff657b74419c3bd6` |
 | [docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md](../../../docs/technical/ASK_DJ_MOMENTS_AVATAR_CONTRACT_V1.md) | `ef7ce68a6af69b34d46037321a3a0774d68bbd1aa90e851ab55f8272acdc07af` |
+| [docs/technical/ASK_DJ_MOMENTS_SOURCE_FINALIZATION_20261120.md](../../../docs/technical/ASK_DJ_MOMENTS_SOURCE_FINALIZATION_20261120.md) | `0a80444ba9e1f0f07c75c49eff227fd60dbf0ae3ca8d406aeff924130dd30719` |
+| [docs/history/prompts/2026-11-20-ask-dj-moments-finalization.md](../../../docs/history/prompts/2026-11-20-ask-dj-moments-finalization.md) | `1c14b90e27b34b64bc37fa533779f310450e6ad0d9e84eeefa3dd9fb08ea212d` |
